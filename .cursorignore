@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.next/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+*.svg
+*.json
