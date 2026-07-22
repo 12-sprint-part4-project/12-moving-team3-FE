@@ -1,7 +1,8 @@
 node_modules/
-dist/
 .next/
+out/
+coverage/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
-*.svg
+.env*
