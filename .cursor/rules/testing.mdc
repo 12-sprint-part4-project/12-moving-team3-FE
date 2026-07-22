@@ -1,6 +1,6 @@
 ---
 description: Unit and component testing conventions.
-globs: **/*.{test,spec}.{ts,tsx}
+globs: **/*.test.ts, **/*.test.tsx, **/*.spec.ts, **/*.spec.tsx
 alwaysApply: false
 ---
 
@@ -8,4 +8,4 @@ alwaysApply: false
 
 - **Naming**: Test names must state the verification purpose (what behavior is being checked).
 - **Focus**: Verify user-centric behavior over implementation details.
-- **Coverage**: Always include success paths, failure cases, and edge cases.
+- **Coverage**: Include success paths, failure cases, and edge cases **where applicable** for the specific behavior. Do not force the addition of irrelevant cases.
