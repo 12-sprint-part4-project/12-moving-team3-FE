@@ -1,0 +1,21 @@
+---
+description: React, Next.js, styling, and Tailwind CSS v4 conventions.
+globs: **/*.tsx, src/app/globals.css
+alwaysApply: false
+---
+
+# UI & Components
+
+- **Components**: Always use Arrow Functions.
+- **Exports**: Use `default export` ONLY for Next.js App Router special files (`page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, `not-found.tsx`, `global-error.tsx`, `template.tsx`, `default.tsx`). Use `named export` for all regular components.
+- **App Router**: Separate Server/Client Components. Use `"use client"` strictly only when necessary.
+- **A11y**: Use semantic HTML. Use `<button>`/`<a>` for clickables, not `<div>`.
+- **Tailwind CSS v4**:
+  - Sort classes using `prettier-plugin-tailwindcss`.
+  - Use `rem` by default. Use `px` ONLY for `max-width` and `border` thickness.
+- **Design Tokens (globals.css)**:
+  - ALWAYS prioritize `globals.css` tokens. NEVER use arbitrary values (e.g., `bg-[#ff0000]`).
+  - Colors: Use `--color-{name}-{shade}` format.
+  - Typography: Use predefined classes like `text-{size}-{weight}`. Do not string multiple text utilities together.
+- **Fonts**: **Pretendard** is the ONLY font. No custom letter-spacing.
+- **Assets**: Use SVGR for vector icons. Static SVG for logos/banners.

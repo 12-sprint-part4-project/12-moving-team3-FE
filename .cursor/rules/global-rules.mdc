@@ -1,0 +1,19 @@
+---
+alwaysApply: true
+---
+
+# Global Rules
+
+- **Language**: Always respond and explain in Korean.
+- **Formatting**: Strictly follow `.prettierrc` for formatting (indentation, quotes, semicolons).
+- **TypeScript**: Use `.ts`/`.tsx` for all application source code (e.g., inside `src/`). Configuration files in the root directory (e.g., `eslint.config.mjs`, `next.config.js`) are exceptions.
+- **Type vs Interface**: Use `interface` ONLY for object structures (Props, API responses). Use `type` for everything else (unions, primitives, tuples).
+- **Type Safety**: Avoid `any`; use specific types or `unknown`. No unnecessary type assertions.
+- **Code Quality (SRP)**: Adhere strictly to the Single Responsibility Principle (SRP). Remove unused variables and imports. Do not leave `console.log`.
+- **Pure Functions & Side Effects**: Keep domain calculations and data transformations as pure functions. Isolate side effects (e.g., API calls, event handlers, Query hooks) at the boundaries.
+- **Naming Conventions**:
+  - Variables & Functions: `camelCase`
+  - Event Handlers: Prefix with `handle`
+  - Components & Interfaces: `PascalCase`
+  - Constants: `UPPER_SNAKE_CASE`
+  - Folders & Image Files: `kebab-case` (Exceptions: Next.js App Router special routing folders such as `[slug]`, `(marketing)`, and `_components`).
