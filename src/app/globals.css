@@ -2,6 +2,12 @@
 
 @theme {
   /**
+   * Font Tokens
+   * Pretendard를 기본 폰트로 사용한다. (참고: layout.tsx의 next/font/local 설정)
+   */
+  --font-sans: var(--font-pretendard);
+
+  /**
    * Color Tokens
    * --color-{name} 형식으로 관리한다. (참고: Figma "color" 스펙 시트)
    * Figma 레이어 이름의 중복 표기(예: Black/Black-300)는 하나로 합쳐 사용한다.
@@ -157,5 +163,5 @@
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
