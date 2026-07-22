@@ -1,0 +1,130 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: ko-KR
+
+reviews:
+  profile: assertive
+
+  auto_review:
+    enabled: true
+
+  path_filters:
+    - "!package-lock.json"
+    - "!.next/**"
+    - "!coverage/**"
+    - "!public/**/*.svg"
+
+  path_instructions:
+    - path: "**/*.{ts,tsx}"
+      instructions: |
+        다음 TypeScript 규칙을 기준으로 리뷰한다.
+
+        [TypeScript]
+        - 객체의 구조를 정의할 때는 interface를 사용한다.
+        - union, intersection, primitive alias, tuple 등 객체 구조가 아닌 타입은 type을 사용한다.
+        - any 대신 구체적인 타입 또는 unknown을 사용한다.
+        - 불필요한 타입 단언과 non-null assertion 사용을 지적한다.
+        - 사용하지 않는 변수, 타입 및 import를 지적한다.
+
+        [Naming]
+        - 변수와 함수는 camelCase를 사용한다.
+        - React 컴포넌트는 PascalCase를 사용한다.
+        - 상수는 UPPER_SNAKE_CASE를 사용한다.
+        - 폴더명은 kebab-case를 사용한다.
+        - 이미지 파일명은 kebab-case를 사용한다.
+        - 프론트엔드 유틸 및 API 파일은 camelCase와 .ts 확장자를 사용한다.
+          예: errorMessage.ts, studyApi.ts
+        - React 컴포넌트 파일은 PascalCase와 .tsx 확장자를 사용한다.
+          예: StudyCard.tsx, PasswordModal.tsx
+
+        [Code Quality]
+        - 중복 코드와 불필요하게 복잡한 로직을 지적한다.
+        - 하나의 함수가 지나치게 많은 책임을 담당하면 분리를 제안한다.
+        - 오류 처리와 경계 조건 누락을 확인한다.
+        - 불필요한 console.log를 지적한다.
+
+    - path: "**/*.tsx"
+      instructions: |
+        다음 React 컴포넌트 규칙을 기준으로 리뷰한다.
+
+        - 컴포넌트는 화살표 함수로 선언한다.
+          예: const Component = () => {}
+        - Next.js 라우트 파일인 page.tsx와 layout.tsx 등은 default export를 사용한다.
+        - 일반 컴포넌트는 named export를 사용한다.
+        - 컴포넌트와 컴포넌트 파일명은 PascalCase를 사용한다.
+        - Props처럼 객체 구조를 정의할 때는 interface를 사용한다.
+        - 하나의 컴포넌트가 지나치게 많은 책임을 담당하면 분리를 제안한다.
+        - 반복되는 UI는 공통 컴포넌트화를 제안한다.
+        - 시맨틱 HTML과 적절한 접근성 속성 사용 여부를 확인한다.
+        - 클릭 가능한 비대화형 요소보다 button, a 등의 적절한 요소를 사용한다.
+
+    - path: "app/**"
+      instructions: |
+        다음 Next.js App Router 규칙을 기준으로 리뷰한다.
+
+        - Server Component와 Client Component의 구분이 적절한지 확인한다.
+        - 불필요한 "use client" 사용을 지적한다.
+        - 서버 전용 코드 또는 비공개 환경 변수가 클라이언트에 노출되지 않는지 확인한다.
+        - page.tsx와 layout.tsx 등 라우트 파일은 default export를 사용한다.
+        - 로딩, 오류 및 빈 데이터 상태가 적절하게 처리되는지 확인한다.
+
+    - path: "**/*.{css,tsx}"
+      instructions: |
+        다음 스타일 및 디자인 규칙을 기준으로 리뷰한다.
+
+        [Styling]
+        - Tailwind CSS v4를 사용한다.
+        - 인라인 스타일 사용을 지양한다.
+        - CSS Module과 Styled Components를 사용하지 않는다.
+        - Tailwind 클래스 정렬은 prettier-plugin-tailwindcss 결과를 따른다.
+        - Spacing은 Tailwind 기본 Scale을 우선 사용한다.
+
+        [Unit]
+        - 크기 단위는 rem을 기본으로 사용한다.
+        - 콘텐츠 전체 영역의 max-width와 border 두께에는 px 사용을 허용한다.
+        - 합당한 이유 없이 임의의 px 값을 사용하면 지적한다.
+
+        [Design Token]
+        - Color와 Typography는 Tailwind CSS v4의 @theme 디자인 토큰으로 관리한다.
+        - 컴포넌트 내부에 임의의 HEX, RGB 또는 HSL 색상값을 작성하지 않는다.
+        - 정의되지 않은 색상이 필요하면 직접 색상값을 사용하지 않고 토큰 추가를 제안한다.
+        - Color Token은 --color-{name} 형식을 사용한다.
+        - Typography Token은 text-{font}-{size}-{weight} 형식을 사용한다.
+        - Typography Token에는 font-size와 font-weight만 포함한다.
+        - font-family와 letter-spacing은 Typography Token에 포함하지 않는다.
+        - Noto Sans를 기본 폰트로 사용한다.
+        - Baskin 사용 시 font-baskin-base Utility 적용 여부를 확인한다.
+        - Baskin에는 -0.03em의 letter-spacing을 적용한다.
+        - Noto Sans에는 별도의 letter-spacing을 적용하지 않는다.
+
+    - path: "**/*.svg"
+      instructions: |
+        다음 SVG 관리 규칙을 기준으로 리뷰한다.
+
+        - 벡터 아이콘은 SVGR을 사용해 React 컴포넌트로 관리한다.
+        - 로고, 일러스트, 배너 등의 일반 SVG는 Asset 파일로 관리한다.
+        - SVG의 용도에 맞는 관리 방식인지 확인한다.
+
+    - path: "**/*Api.ts"
+      instructions: |
+        다음 REST API 규칙을 기준으로 리뷰한다.
+
+        - 리소스 URL은 복수형 명사를 사용한다.
+        - URL에 get, create 등의 동사 사용을 지양한다.
+        - 계층 관계는 URL path로 표현한다.
+        - URL 경로는 kebab-case를 사용한다.
+        - 성공 및 실패 응답 타입이 팀의 공통 응답 형식과 일치하는지 확인한다.
+        - 페이지네이션, 검색 결과 수, 정렬 정보가 필요한 경우에만 meta를 사용한다.
+
+    - path: "**/*.{test,spec}.{ts,tsx}"
+      instructions: |
+        다음 테스트 규칙을 기준으로 리뷰한다.
+
+        - 테스트 이름만으로 검증 목적을 알 수 있어야 한다.
+        - 성공 사례뿐 아니라 실패 사례와 경계 조건도 검증한다.
+        - 구현 세부 사항보다 사용자 관점의 동작을 검증한다.
+
+    - path: "**/*"
+      instructions: |
+        - Prettier가 처리하는 들여쓰기, 줄 바꿈, 따옴표 등의 단순 포맷 차이는 불필요하게 지적하지 않는다.
+        - ESLint 오류가 남아 있거나 규칙을 임의로 비활성화한 코드가 있으면 지적한다.
