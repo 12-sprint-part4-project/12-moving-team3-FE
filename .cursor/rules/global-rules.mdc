@@ -1,0 +1,18 @@
+---
+alwaysApply: true
+---
+
+# Global Rules
+
+- **Language**: Always respond and explain in Korean.
+- **Formatting**: Strictly follow `.prettierrc` for formatting (indentation, quotes, semicolons).
+- **TypeScript**: Use `.ts`/`.tsx`. No plain JS.
+- **Type vs Interface**: Use `interface` ONLY for object structures (Props, API responses). Use `type` for everything else (unions, primitives, tuples).
+- **Type Safety**: Avoid `any`; use specific types or `unknown`. No unnecessary type assertions.
+- **Code Quality**: Keep functions pure (SRP). Remove unused variables/imports. No `console.log`.
+- **Naming Conventions**:
+  - Variables & Functions: `camelCase`
+  - Event Handlers: Prefix with `handle` (e.g., `handleSubmit`)
+  - Components & Interfaces: `PascalCase`
+  - Constants: `UPPER_SNAKE_CASE`
+  - Folders & Image Files: `kebab-case`
