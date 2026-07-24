@@ -16,6 +16,15 @@ export interface StarRatingProps {
 const MAX = 5;
 
 /**
+ * value의 공개 계약(0~MAX 정수)을 벗어난 값(NaN, 소수, 음수, MAX 초과 등)이 들어와도
+ * 화면이 깨지지 않도록 가장 가까운 유효 정수로 보정한다. (순수 함수)
+ */
+const normalizeValue = (raw: number): number => {
+  if (!Number.isFinite(raw)) return 0;
+  return Math.min(MAX, Math.max(0, Math.round(raw)));
+};
+
+/**
  * 1~MAX점 평점을 선택하는 별점 컴포넌트.
  * button+role="radio"로 라디오 패턴을 직접 구현하는 대신, input[type="radio"] + label로
  * 구성된 네이티브 라디오 그룹을 사용한다 — 화살표 키/Home/End 탐색, 포커스 이동(roving tabIndex)
@@ -30,7 +39,15 @@ export const StarRating = ({
 }: StarRatingProps) => {
   const name = useId();
   const [hoverValue, setHoverValue] = useState<number | null>(null);
-  const displayValue = hoverValue ?? value;
+
+  const safeValue = normalizeValue(value);
+  if (safeValue !== value) {
+    console.warn(
+      `StarRating: value(${value})는 0~${MAX} 사이의 정수여야 합니다. ${safeValue}로 보정해서 렌더링합니다.`,
+    );
+  }
+
+  const displayValue = hoverValue ?? safeValue;
 
   return (
     <fieldset
@@ -53,7 +70,7 @@ export const StarRating = ({
               type="radio"
               name={name}
               value={starValue}
-              checked={starValue === value}
+              checked={starValue === safeValue}
               disabled={readOnly}
               onChange={() => onChange?.(starValue)}
               className="sr-only"
