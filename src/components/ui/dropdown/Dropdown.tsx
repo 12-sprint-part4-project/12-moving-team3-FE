@@ -36,8 +36,8 @@ interface DropdownProps {
   className?: string;
 }
 
-const TRIGGER_WIDTH = 'w-[20.5rem] max-w-[328px]';
-const LIST_WIDTH = 'w-[20.5rem] max-w-[328px]';
+const TRIGGER_WIDTH = 'w-[20.5rem]';
+const LIST_WIDTH = 'w-[20.5rem]';
 
 const SIZE_STYLES = {
   sm: {
