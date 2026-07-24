@@ -1,8 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
+
+import { TriggerWidthSizer } from '@/components/ui/common/TriggerWidthSizer';
+import { useControllableValue } from '@/hooks/useControllableValue';
+import { useOutsideClick } from '@/hooks/useOutsideClick';
 
 export interface SortOption {
   /** 화면에 표시될 텍스트 (예: '리뷰 많은순') */
@@ -59,48 +63,26 @@ export const Sort = ({
   size = 'md',
   className,
 }: SortProps) => {
-  const isControlled = value !== undefined;
-  const [internalValue, setInternalValue] = useState(
-    defaultValue ?? options[0]?.value ?? ''
+  const [selectedValue, setSelectedValue] = useControllableValue(
+    value,
+    defaultValue ?? options[0]?.value ?? '',
+    onValueChange
   );
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const selectedValue = isControlled ? value : internalValue;
   const selectedOption =
     options.find((option) => option.value === selectedValue) ?? options[0];
   const sizeStyles = SIZE_STYLES[size];
 
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const handlePointerDown = (event: MouseEvent) => {
-      const target = event.target;
-      if (!(target instanceof Node)) {
-        return;
-      }
-      if (!containerRef.current?.contains(target)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handlePointerDown);
-    return () => {
-      document.removeEventListener('mousedown', handlePointerDown);
-    };
-  }, [isOpen]);
+  useOutsideClick(containerRef, isOpen, setIsOpen);
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev);
   };
 
   const handleSelect = (nextValue: string) => {
-    if (!isControlled) {
-      setInternalValue(nextValue);
-    }
-    onValueChange?.(nextValue);
+    setSelectedValue(nextValue);
     setIsOpen(false);
   };
 
@@ -113,20 +95,11 @@ export const Sort = ({
       ref={containerRef}
       className={`relative inline-grid w-max grid-cols-[max-content] ${className ?? ''}`}
     >
-      <div
-        aria-hidden
-        className="invisible col-start-1 row-start-1 flex h-0 flex-col overflow-hidden whitespace-nowrap"
-      >
-        {options.map((option) => (
-          <span
-            key={option.value}
-            className={`inline-flex items-center ${sizeStyles.trigger}`}
-          >
-            {option.label}
-            <span className={`shrink-0 ${sizeStyles.icon}`} />
-          </span>
-        ))}
-      </div>
+      <TriggerWidthSizer
+        options={options}
+        triggerClassName={sizeStyles.trigger}
+        iconClassName={sizeStyles.icon}
+      />
 
       <button
         type="button"

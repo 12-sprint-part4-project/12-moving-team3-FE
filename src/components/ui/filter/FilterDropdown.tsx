@@ -1,19 +1,23 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 
+import { TriggerWidthSizer } from '@/components/ui/common/TriggerWidthSizer';
 import {
   OPTIONS_BY_TYPE,
   TYPE_LABELS,
   type DropdownType,
 } from '@/constants/dropdownOptions';
+import { useControllableValue } from '@/hooks/useControllableValue';
+import { useOutsideClick } from '@/hooks/useOutsideClick';
+import { useScrollbarGutterCompensation } from '@/hooks/useScrollbarGutterCompensation';
 
 interface FilterDropdownProps {
   /**
    * 필터 목록 종류.
-   * - region: 지역 2열 리스트 (좌측 컬럼 width = 트리거 max width)
+   * - region: 지역 2열 리스트
    * - service: 서비스 1열 리스트
    */
   type: DropdownType;
@@ -41,75 +45,33 @@ export const FilterDropdown = ({
   className,
 }: FilterDropdownProps) => {
   const options = OPTIONS_BY_TYPE[type];
-  const isControlled = value !== undefined;
-  const [internalValue, setInternalValue] = useState(defaultValue);
+  const [selectedValue, setSelectedValue] = useControllableValue(
+    value,
+    defaultValue,
+    onValueChange
+  );
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const regionGridRef = useRef<HTMLUListElement>(null);
 
-  const selectedValue = isControlled ? value : internalValue;
   const selectedOption =
     options.find((option) => option.value === selectedValue) ?? options[0];
 
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
+  useOutsideClick(containerRef, isOpen, setIsOpen);
 
-    const handlePointerDown = (event: MouseEvent) => {
-      const target = event.target;
-      if (!(target instanceof Node)) {
-        return;
-      }
-      if (!containerRef.current?.contains(target)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handlePointerDown);
-    return () => {
-      document.removeEventListener('mousedown', handlePointerDown);
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen || type !== 'region') {
-      return;
-    }
-
-    const listElement = listRef.current;
-    const gridElement = regionGridRef.current;
-    if (!listElement || !gridElement) {
-      return;
-    }
-
-    const updateScrollbarMargin = () => {
-      const nextScrollbarWidth =
-        listElement.offsetWidth - listElement.clientWidth;
-      const adjustedMargin = Math.max(0, nextScrollbarWidth - 6);
-      gridElement.style.marginRight = `${adjustedMargin}px`;
-    };
-
-    updateScrollbarMargin();
-    const resizeObserver = new ResizeObserver(updateScrollbarMargin);
-    resizeObserver.observe(listElement);
-
-    return () => {
-      resizeObserver.disconnect();
-      gridElement.style.marginRight = '';
-    };
-  }, [isOpen, type]);
+  useScrollbarGutterCompensation(
+    listRef,
+    regionGridRef,
+    isOpen && type === 'region'
+  );
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev);
   };
 
   const handleSelect = (nextValue: string) => {
-    if (!isControlled) {
-      setInternalValue(nextValue);
-    }
-    onValueChange?.(nextValue);
+    setSelectedValue(nextValue);
     setIsOpen(false);
   };
 
@@ -127,20 +89,11 @@ export const FilterDropdown = ({
       className={`relative inline-grid w-max grid-cols-[max-content] ${className ?? ''}`}
     >
       {type === 'service' ? (
-        <div
-          aria-hidden
-          className="invisible col-start-1 row-start-1 flex h-0 flex-col overflow-hidden whitespace-nowrap"
-        >
-          {options.map((option) => (
-            <span
-              key={option.value}
-              className={`inline-flex items-center ${TRIGGER_CLASS}`}
-            >
-              {option.label}
-              <span className="size-5 shrink-0" />
-            </span>
-          ))}
-        </div>
+        <TriggerWidthSizer
+          options={options}
+          triggerClassName={TRIGGER_CLASS}
+          iconClassName="size-5"
+        />
       ) : null}
 
       <button

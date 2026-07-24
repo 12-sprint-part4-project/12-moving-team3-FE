@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 
@@ -9,6 +9,9 @@ import {
   TYPE_LABELS,
   type DropdownType,
 } from '@/constants/dropdownOptions';
+import { useControllableValue } from '@/hooks/useControllableValue';
+import { useOutsideClick } from '@/hooks/useOutsideClick';
+import { useScrollbarGutterCompensation } from '@/hooks/useScrollbarGutterCompensation';
 
 export type { DropdownOption, DropdownType } from '@/constants/dropdownOptions';
 export { REGION_OPTIONS, SERVICE_OPTIONS } from '@/constants/dropdownOptions';
@@ -75,66 +78,27 @@ export const Dropdown = ({
   className,
 }: DropdownProps) => {
   const options = OPTIONS_BY_TYPE[type];
-  const isControlled = value !== undefined;
-  const [internalValue, setInternalValue] = useState(defaultValue);
+  const [selectedValue, setSelectedValue] = useControllableValue(
+    value,
+    defaultValue,
+    onValueChange
+  );
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const regionGridRef = useRef<HTMLUListElement>(null);
 
-  const selectedValue = isControlled ? value : internalValue;
   const selectedOption =
     options.find((option) => option.value === selectedValue) ?? options[0];
   const sizeStyles = SIZE_STYLES[size];
 
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
+  useOutsideClick(containerRef, isOpen, setIsOpen);
 
-    const handlePointerDown = (event: MouseEvent) => {
-      const target = event.target;
-      if (!(target instanceof Node)) {
-        return;
-      }
-      if (!containerRef.current?.contains(target)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handlePointerDown);
-    return () => {
-      document.removeEventListener('mousedown', handlePointerDown);
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen || type !== 'region') {
-      return;
-    }
-
-    const listElement = listRef.current;
-    const gridElement = regionGridRef.current;
-    if (!listElement || !gridElement) {
-      return;
-    }
-
-    const updateScrollbarMargin = () => {
-      const nextScrollbarWidth =
-        listElement.offsetWidth - listElement.clientWidth;
-      const adjustedMargin = Math.max(0, nextScrollbarWidth - 6);
-      gridElement.style.marginRight = `${adjustedMargin}px`;
-    };
-
-    updateScrollbarMargin();
-    const resizeObserver = new ResizeObserver(updateScrollbarMargin);
-    resizeObserver.observe(listElement);
-
-    return () => {
-      resizeObserver.disconnect();
-      gridElement.style.marginRight = '';
-    };
-  }, [isOpen, type]);
+  useScrollbarGutterCompensation(
+    listRef,
+    regionGridRef,
+    isOpen && type === 'region'
+  );
 
   const handleToggle = () => {
     if (disabled) {
@@ -144,10 +108,7 @@ export const Dropdown = ({
   };
 
   const handleSelect = (nextValue: string) => {
-    if (!isControlled) {
-      setInternalValue(nextValue);
-    }
-    onValueChange?.(nextValue);
+    setSelectedValue(nextValue);
     setIsOpen(false);
   };
 
