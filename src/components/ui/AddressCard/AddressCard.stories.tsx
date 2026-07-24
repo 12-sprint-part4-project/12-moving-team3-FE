@@ -13,7 +13,7 @@ export default meta;
 
 type Story = StoryObj<typeof AddressCard>;
 
-const sampleAddress = {
+const SAMPLE_ADDRESS = {
   zipCode: '04538',
   roadAddress:
     '서울 중구 삼일대로 343 (대신파이낸스센터 Daishin Finance Center)',
@@ -22,14 +22,14 @@ const sampleAddress = {
 
 export const Default: Story = {
   args: {
-    ...sampleAddress,
+    ...SAMPLE_ADDRESS,
     isSelected: false,
   },
 };
 
 export const Selected: Story = {
   args: {
-    ...sampleAddress,
+    ...SAMPLE_ADDRESS,
     isSelected: true,
   },
 };

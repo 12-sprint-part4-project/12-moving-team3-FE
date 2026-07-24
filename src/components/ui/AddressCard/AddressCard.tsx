@@ -6,7 +6,7 @@ import { InfoField } from '@/components/ui/InfoField/InfoField';
  * 옆의 주소 텍스트가 모바일에서 2줄로 줄바꿈되어도(= 시안 요구사항) 라벨 pill 크기는 항상 동일하게 유지된다.
  * 모바일(기본값)에서는 폰트/패딩이 작고, sm 브레이크포인트부터 폰트/패딩이 커진다.
  */
-const addressLabelStyle =
+const ADDRESS_LABEL_STYLE =
   'min-w-11 shrink-0 px-1.5 py-0.5 text-xs-semibold rounded-2xl sm:min-w-[3.375rem] sm:px-2 sm:text-md-semibold';
 
 export interface AddressCardProps {
@@ -49,7 +49,7 @@ export const AddressCard = ({
           value={roadAddress}
           color="blue"
           className="w-full items-start gap-2"
-          labelClassName={`${addressLabelStyle} ${isSelected ? 'sm:bg-blue-100' : ''}`}
+          labelClassName={`${ADDRESS_LABEL_STYLE} ${isSelected ? 'sm:bg-blue-100' : ''}`}
           valueClassName="min-w-0 flex-1 text-md-regular text-black-400 sm:text-lg-regular"
         />
         <InfoField
@@ -57,7 +57,7 @@ export const AddressCard = ({
           value={lotAddress}
           color="blue"
           className="w-full items-start gap-2"
-          labelClassName={`${addressLabelStyle} ${isSelected ? 'sm:bg-blue-100' : ''}`}
+          labelClassName={`${ADDRESS_LABEL_STYLE} ${isSelected ? 'sm:bg-blue-100' : ''}`}
           valueClassName="min-w-0 flex-1 text-md-regular text-black-400 sm:text-lg-regular"
         />
       </div>

@@ -15,7 +15,7 @@ export interface InfoFieldProps {
   valueClassName?: string;
 }
 
-const colorStyle: Record<InfoFieldColor, string> = {
+const COLOR_STYLE: Record<InfoFieldColor, string> = {
   blue: 'bg-blue-50 text-blue-300',
   red: 'bg-red-100 text-red-200',
   neutral: 'bg-background-400 text-gray-500',
@@ -40,7 +40,7 @@ export const InfoField = ({
 }: InfoFieldProps) => (
   <dl className={`inline-flex items-center gap-3 ${className}`}>
     <dt
-      className={`inline-flex items-center justify-center rounded-sm whitespace-nowrap ${colorStyle[color]} ${labelClassName}`}
+      className={`inline-flex items-center justify-center rounded-sm whitespace-nowrap ${COLOR_STYLE[color]} ${labelClassName}`}
     >
       {label}
     </dt>
