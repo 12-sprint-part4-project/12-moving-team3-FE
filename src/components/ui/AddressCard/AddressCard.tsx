@@ -1,4 +1,4 @@
-import { InfoField } from '@/components/InfoField/InfoField';
+import { InfoField } from '@/components/ui/InfoField/InfoField';
 
 /**
  * 주소 유형(도로명/지번) 라벨 pill의 크기/너비.
