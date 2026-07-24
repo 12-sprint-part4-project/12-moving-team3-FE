@@ -1,4 +1,5 @@
-import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
+import type { BaseChipProps } from './BaseChip';
+import { BaseChip } from './BaseChip';
 
 /*
   REGION CHIP
@@ -14,53 +15,8 @@ import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
   - className: string
 */
 
-type ChipVariant = 'button' | 'textOnly';
+type RegionChipProps = Omit<BaseChipProps, 'textOnlyActive'>;
 
-type RegionChipProps = {
-  variant?: ChipVariant;
-  isSelected?: boolean;
-  children: ReactNode;
-  className?: string;
-} & (
-  | ({ variant?: 'button' } & ButtonHTMLAttributes<HTMLButtonElement>)
-  | ({ variant: 'textOnly' } & HTMLAttributes<HTMLDivElement>)
-);
-
-const BASE_CLASS =
-  'inline-flex items-center justify-center rounded-full border border-solid px-5 py-2.5 text-2lg-medium';
-
-const SELECTED_CLASS = 'border-blue-300 bg-blue-50 text-blue-300 shadow-sm';
-
-const UNSELECTED_CLASS =
-  'border-gray-100 bg-background-100 text-blue-400 shadow-sm';
-
-export const RegionChip = ({
-  variant = 'button',
-  isSelected = false,
-  children,
-  className = '',
-  ...rest
-}: RegionChipProps) => {
-  const colorClass =
-    variant === 'button' && isSelected ? SELECTED_CLASS : UNSELECTED_CLASS;
-  const mergedClassName = `${BASE_CLASS} ${colorClass} ${className}`.trim();
-
-  if (variant === 'textOnly') {
-    const { ...divRest } = rest as HTMLAttributes<HTMLDivElement>;
-
-    return (
-      <div className={mergedClassName} {...divRest}>
-        <span className="whitespace-nowrap">{children}</span>
-      </div>
-    );
-  }
-
-  const { type = 'button', ...buttonRest } =
-    rest as ButtonHTMLAttributes<HTMLButtonElement>;
-
-  return (
-    <button type={type} className={mergedClassName} {...buttonRest}>
-      <span className="whitespace-nowrap">{children}</span>
-    </button>
-  );
+export const RegionChip = (props: RegionChipProps) => {
+  return <BaseChip textOnlyActive={false} {...props} />;
 };
