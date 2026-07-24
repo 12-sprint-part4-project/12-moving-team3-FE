@@ -8,7 +8,7 @@ import {
   OPTIONS_BY_TYPE,
   TYPE_LABELS,
   type DropdownType,
-} from '@/components/ui/dropdown/dropdownOptions';
+} from '@/constants/dropdownOptions';
 
 interface FilterDropdownProps {
   /**
@@ -147,7 +147,7 @@ export const FilterDropdown = ({
         type="button"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        aria-label={TYPE_LABELS[type]}
+        aria-label={`${TYPE_LABELS[type]}: ${selectedOption.label}`}
         onClick={handleToggle}
         className={`col-start-1 row-start-1 w-full justify-between ${TRIGGER_CLASS} ${triggerStateClass}`}
       >

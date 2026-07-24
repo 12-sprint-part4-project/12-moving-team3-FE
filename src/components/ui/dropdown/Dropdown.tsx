@@ -8,10 +8,10 @@ import {
   OPTIONS_BY_TYPE,
   TYPE_LABELS,
   type DropdownType,
-} from './dropdownOptions';
+} from '@/constants/dropdownOptions';
 
-export type { DropdownOption, DropdownType } from './dropdownOptions';
-export { REGION_OPTIONS, SERVICE_OPTIONS } from './dropdownOptions';
+export type { DropdownOption, DropdownType } from '@/constants/dropdownOptions';
+export { REGION_OPTIONS, SERVICE_OPTIONS } from '@/constants/dropdownOptions';
 
 type DropdownSize = 'sm' | 'md';
 
@@ -167,7 +167,7 @@ export const Dropdown = ({
         type="button"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        aria-label={TYPE_LABELS[type]}
+        aria-label={`${TYPE_LABELS[type]}: ${selectedOption.label}`}
         disabled={disabled}
         onClick={handleToggle}
         className={`flex cursor-pointer items-center ${TRIGGER_WIDTH} ${sizeStyles.trigger} ${triggerStateClass}`}
