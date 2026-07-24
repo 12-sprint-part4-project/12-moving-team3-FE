@@ -7,7 +7,7 @@ import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 export interface SortOption {
   /** 화면에 표시될 텍스트 (예: '리뷰 많은순') */
   label: string;
-  /** 백엔드로 전달할 값 (예: 'mostReviews') */
+  /** 실제 전달할 값 (예: 'mostReviews') */
   value: string;
 }
 
@@ -16,7 +16,6 @@ type SortSize = 'sm' | 'md';
 interface SortProps {
   /**
    * 정렬 옵션 목록.
-   * label은 UI 표시용, value는 API 전송용으로 분리해서 넘긴다.
    * @example
    * [
    *   { label: '리뷰 많은순', value: 'mostReviews' },
@@ -24,11 +23,11 @@ interface SortProps {
    * ]
    */
   options: SortOption[];
-  /** 현재 선택된 value (controlled). 넘기면 외부에서 선택 상태를 관리한다. */
+  /** 현재 선택된 value (controlled). 넘기면 외부에서 선택 상태를 관리 */
   value?: string;
-  /** 초기 선택 value (uncontrolled). value를 안 넘길 때 사용한다. */
+  /** 초기 선택 value (uncontrolled). value를 안 넘길 때 사용 */
   defaultValue?: string;
-  /** 옵션 선택 시 호출. 선택된 option의 value(영문 등)를 전달한다. */
+  /** 옵션 선택 시 호출. 선택된 option의 value(영문 등)를 전달 */
   onValueChange?: (value: string) => void;
   /** 사이즈. sm: 모바일, md: 태블릿/PC */
   size?: SortSize;
