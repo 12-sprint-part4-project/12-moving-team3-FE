@@ -118,8 +118,8 @@ export const FilterDropdown = ({
   }
 
   const triggerStateClass = isOpen
-    ? 'border-blue-300 bg-blue-50 text-blue-300 shadow-[0.25rem_0.25rem_0.3125rem_rgb(195_217_242_/_0.1)] [&_path]:stroke-blue-300'
-    : 'border-line-200 bg-white text-black-400 shadow-[0.25rem_0.25rem_0.3125rem_rgb(238_238_238_/_0.1)] [&_path]:stroke-black-100';
+    ? 'border-blue-300 bg-blue-50 text-blue-300 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-blue/10 [&_path]:stroke-blue-300'
+    : 'border-line-200 bg-white text-black-400 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-gray-100/10 [&_path]:stroke-black-100';
 
   return (
     <div
@@ -162,7 +162,7 @@ export const FilterDropdown = ({
         <div
           role="listbox"
           aria-label={`${TYPE_LABELS[type]} 옵션`}
-          className={`absolute top-full left-0 z-10 mt-1 overflow-hidden rounded-lg border border-line-200 bg-white shadow-[0.25rem_0.25rem_0.625rem_rgb(191_191_191_/_0.2)] ${
+          className={`absolute top-full left-0 z-10 mt-1 overflow-hidden rounded-lg border border-line-200 bg-white shadow-[0.25rem_0.25rem_0.625rem] shadow-shadow-gray-400/20 ${
             type === 'service' ? 'w-full' : 'w-max'
           }`}
         >

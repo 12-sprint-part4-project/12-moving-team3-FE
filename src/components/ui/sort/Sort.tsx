@@ -45,7 +45,7 @@ const SIZE_STYLES = {
   },
   md: {
     trigger:
-      'gap-2.5 rounded-lg bg-white px-2.5 py-2 text-md-semibold text-black-400 shadow-[0.25rem_0.25rem_0.3125rem_rgb(220_220_220_/_0.2)]',
+      'gap-2.5 rounded-lg bg-white px-2.5 py-2 text-md-semibold text-black-400 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-gray-300/20',
     option: 'rounded-none bg-white px-2.5 py-2 text-md-medium text-black-400',
     icon: 'size-5',
   },

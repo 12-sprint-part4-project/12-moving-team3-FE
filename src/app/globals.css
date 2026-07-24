@@ -51,6 +51,13 @@
   --color-line-100: #f2f2f2;
   --color-line-200: #e6e6e6;
 
+  /* Shadow */
+  --color-shadow-blue: #c3d9f2;
+  --color-shadow-gray-100: #eeeeee;
+  --color-shadow-gray-200: #e0e0e0;
+  --color-shadow-gray-300: #dcdcdc;
+  --color-shadow-gray-400: #bfbfbf;
+
   /**
    * Typography Tokens
    * text-{size}-{weight} 형식으로 관리한다.

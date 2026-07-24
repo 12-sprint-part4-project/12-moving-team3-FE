@@ -42,27 +42,27 @@ const LIST_WIDTH = 'w-[20.5rem] max-w-[328px]';
 const SIZE_STYLES = {
   sm: {
     trigger:
-      'justify-between rounded-2xl border px-6 py-4 text-lg-medium shadow-[0.25rem_0.25rem_0.625rem_rgb(195_217_242_/_0.2)]',
+      'justify-between rounded-2xl border px-6 py-4 text-lg-medium shadow-[0.25rem_0.25rem_0.625rem] shadow-shadow-blue/20',
     option: 'px-6 py-4 text-lg-medium text-black-400',
     icon: 'size-6',
-    list: 'mt-1 overflow-hidden rounded-2xl border border-line-200 bg-white shadow-[0.25rem_0.25rem_0.3125rem_rgb(224_224_224_/_0.25)]',
+    list: 'mt-1 overflow-hidden rounded-2xl border border-line-200 bg-white shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-gray-200/25',
     listMaxHeight: 'max-h-[20rem]',
   },
   md: {
     trigger:
-      'justify-between rounded-2xl border px-6 py-4 text-2lg-medium shadow-[0.25rem_0.25rem_0.625rem_rgb(195_217_242_/_0.2)]',
+      'justify-between rounded-2xl border px-6 py-4 text-2lg-medium shadow-[0.25rem_0.25rem_0.625rem] shadow-shadow-blue/20',
     option: 'px-6 py-4 text-2lg-medium text-black-400',
     icon: 'size-9',
-    list: 'mt-1 overflow-hidden rounded-2xl border border-line-200 bg-white shadow-[0.25rem_0.25rem_0.3125rem_rgb(224_224_224_/_0.25)]',
+    list: 'mt-1 overflow-hidden rounded-2xl border border-line-200 bg-white shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-gray-200/25',
     listMaxHeight: 'max-h-[20rem]',
   },
 } as const;
 
 const STATE_STYLES = {
   default: 'border-line-200 bg-white text-black-400 [&_path]:stroke-gray-200',
-  open: 'border-blue-300 bg-blue-50 text-blue-300 shadow-[0.25rem_0.25rem_0.3125rem_rgb(195_217_242_/_0.2)] [&_path]:stroke-blue-300',
+  open: 'border-blue-300 bg-blue-50 text-blue-300 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-blue/20 [&_path]:stroke-blue-300',
   disabled:
-    'cursor-not-allowed border-gray-100 bg-white text-black-400 shadow-[0.25rem_0.25rem_0.625rem_rgb(195_217_242_/_0.2)] [&_path]:stroke-gray-200',
+    'cursor-not-allowed border-gray-100 bg-white text-black-400 shadow-[0.25rem_0.25rem_0.625rem] shadow-shadow-blue/20 [&_path]:stroke-gray-200',
 } as const;
 
 export const Dropdown = ({
