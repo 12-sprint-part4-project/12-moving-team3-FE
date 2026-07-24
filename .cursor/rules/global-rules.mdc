@@ -16,4 +16,5 @@ alwaysApply: true
   - Event Handlers: Prefix with `handle`
   - Components, Component Files & Interfaces: `PascalCase` (e.g., `QueryProvider.tsx`)
   - Constants: `UPPER_SNAKE_CASE`
-  - Folders, Non-component Files & Image Files: `kebab-case` (Exceptions: Next.js App Router special routing folders such as `[slug]`, `(marketing)`, and `_components`).
+  - Folders & Image Files: `kebab-case` (Exceptions: Next.js App Router special routing folders such as `[slug]`, `(marketing)`, and `_components`).
+  - Frontend Utility & API Files: `camelCase` with `.ts` extension (e.g., `formatDate.ts`, `userApi.ts`).
