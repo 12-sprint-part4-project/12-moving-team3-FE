@@ -14,6 +14,6 @@ alwaysApply: true
 - **Naming Conventions**:
   - Variables & Functions: `camelCase`
   - Event Handlers: Prefix with `handle`
-  - Components & Interfaces: `PascalCase`
+  - Components, Component Files & Interfaces: `PascalCase` (e.g., `QueryProvider.tsx`)
   - Constants: `UPPER_SNAKE_CASE`
-  - Folders & Image Files: `kebab-case` (Exceptions: Next.js App Router special routing folders such as `[slug]`, `(marketing)`, and `_components`).
+  - Folders, Non-component Files & Image Files: `kebab-case` (Exceptions: Next.js App Router special routing folders such as `[slug]`, `(marketing)`, and `_components`).
