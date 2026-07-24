@@ -5,6 +5,22 @@ import { useState, type ChangeEvent, type InputHTMLAttributes } from 'react';
 import SearchIcon from '@/assets/icons/search.svg';
 import XCircleIcon from '@/assets/icons/x-circle.svg';
 
+/*
+  TEXT FIELD ICON 컴포넌트
+  
+  [props]
+  - size: 'sm' | 'md'
+  - className: string
+  - ...rest: InputHTMLAttributes<HTMLInputElement>
+  - value: string
+  - defaultValue: string
+  - onChange: (event: ChangeEvent<HTMLInputElement>) => void
+  - onClear?: () => void
+  - onSearch?: () => void
+  - disabled: boolean
+  - placeholder: string
+ */
+
 type InputSize = 'sm' | 'md';
 
 interface TextFieldIconProps extends Omit<
