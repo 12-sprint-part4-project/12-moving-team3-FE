@@ -23,12 +23,12 @@ export const Filled: Story = {
   },
 };
 
+/** render 안에서 컴포넌트를 선언하면 리렌더링마다 타입이 바뀌어 remount되며 value 상태가 초기화되므로, 모듈 스코프로 분리한다. */
+const InteractiveStarRating = () => {
+  const [value, setValue] = useState(0);
+  return <StarRating value={value} onChange={setValue} />;
+};
+
 export const Interactive: Story = {
-  render: () => {
-    const InteractiveStarRating = () => {
-      const [value, setValue] = useState(0);
-      return <StarRating value={value} onChange={setValue} />;
-    };
-    return <InteractiveStarRating />;
-  },
+  render: () => <InteractiveStarRating />,
 };
