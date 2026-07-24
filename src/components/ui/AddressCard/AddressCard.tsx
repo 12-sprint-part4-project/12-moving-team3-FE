@@ -7,7 +7,7 @@ import { InfoField } from '@/components/ui/InfoField/InfoField';
  * 모바일(기본값)에서는 폰트/패딩이 작고, sm 브레이크포인트부터 폰트/패딩이 커진다.
  */
 const addressLabelStyle =
-  'min-w-[2.75rem] shrink-0 px-[.375rem] py-0.5 text-xs-semibold rounded-2xl sm:min-w-[3.375rem] sm:px-2 sm:text-md-semibold';
+  'min-w-11 shrink-0 px-1.5 py-0.5 text-xs-semibold rounded-2xl sm:min-w-[3.375rem] sm:px-2 sm:text-md-semibold';
 
 export interface AddressCardProps {
   /** 우편번호 */
@@ -36,7 +36,7 @@ export const AddressCard = ({
       type="button"
       aria-pressed={isSelected}
       onClick={onClick}
-      className={`flex w-full flex-col items-start gap-4 rounded-2xl border px-4 pt-5 pb-6 text-left drop-shadow-[.125rem_.125rem_.3125rem_rgba(224,224,224,0.2)] ${
+      className={`flex w-full flex-col items-start gap-4 rounded-2xl border px-4 pt-5 pb-6 text-left shadow-[.125rem_.125rem_.3125rem] shadow-shadow-gray-200/20 ${
         isSelected ? 'border-blue-200 bg-blue-50' : 'border-line-100 bg-white'
       } ${className}`}
     >
