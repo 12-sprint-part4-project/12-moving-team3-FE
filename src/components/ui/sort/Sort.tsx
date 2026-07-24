@@ -5,15 +5,11 @@ import { useRef, useState } from 'react';
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 
 import { TriggerWidthSizer } from '@/components/ui/common/TriggerWidthSizer';
+import type { DropdownOption } from '@/constants/dropdownOptions';
 import { useControllableValue } from '@/hooks/useControllableValue';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
 
-export interface SortOption {
-  /** 화면에 표시될 텍스트 (예: '리뷰 많은순') */
-  label: string;
-  /** 실제 전달할 값 (예: 'mostReviews') */
-  value: string;
-}
+export type SortOption = DropdownOption;
 
 type SortSize = 'sm' | 'md';
 

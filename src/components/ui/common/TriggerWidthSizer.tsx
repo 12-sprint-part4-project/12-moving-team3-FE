@@ -1,10 +1,7 @@
-interface TriggerWidthSizerOption {
-  label: string;
-  value: string;
-}
+import type { DropdownOption } from '@/constants/dropdownOptions';
 
 interface TriggerWidthSizerProps {
-  options: TriggerWidthSizerOption[];
+  options: DropdownOption[];
   triggerClassName: string;
   iconClassName: string;
 }
