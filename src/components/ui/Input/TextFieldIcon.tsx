@@ -37,17 +37,16 @@ const sizeStyles: Record<
   { field: string; input: string; icon: string; gap: string }
 > = {
   sm: {
-    field: 'w-full max-w-[16.25rem] gap-[0.375rem] px-[1rem] py-[0.875rem]',
+    field: 'w-full max-w-64 gap-1.5 px-4 py-3.5',
     input: 'text-md-regular',
-    icon: 'size-[1.5rem]',
-    gap: 'gap-[0.75rem]',
+    icon: 'size-6',
+    gap: 'gap-3',
   },
   md: {
-    field:
-      'h-[4rem] w-full max-w-[35rem] gap-[0.5rem] px-[1.5rem] py-[0.875rem]',
+    field: 'h-16 w-full max-w-xl gap-2 px-6 py-3.5',
     input: 'text-xl-regular',
-    icon: 'size-[2.25rem]',
-    gap: 'gap-[1rem]',
+    icon: 'size-9',
+    gap: 'gap-4',
   },
 };
 
@@ -97,7 +96,7 @@ export const TextFieldIcon = ({
 
   return (
     <div
-      className={`flex items-center overflow-clip rounded-[1rem] bg-background-100 ${sizeStyles[size].field} ${className}`.trim()}
+      className={`flex items-center overflow-clip rounded-2xl bg-background-100 ${sizeStyles[size].field} ${className}`.trim()}
     >
       {!showActiveActions && (
         <SearchIcon

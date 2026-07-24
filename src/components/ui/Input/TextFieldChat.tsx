@@ -28,29 +28,29 @@ const colorStyles: Record<ChatColor, string> = {
 
 const sizeStyles: Record<ChatSize, Record<ChatColor, string>> = {
   sm: {
-    incoming: 'px-[1.25rem] py-[0.75rem] text-md-medium',
-    mePrimary: 'px-[1.25rem] py-[0.75rem] text-md-medium',
-    meSecondary: 'px-[1.25rem] py-[0.75rem] text-md-semibold',
+    incoming: 'px-5 py-3 text-md-medium',
+    mePrimary: 'px-5 py-3 text-md-medium',
+    meSecondary: 'px-5 py-3 text-md-semibold',
   },
   md: {
-    incoming: 'px-[2.5rem] py-[1.25rem] text-2lg-medium',
-    mePrimary: 'px-[2.5rem] py-[1.25rem] text-2lg-medium',
-    meSecondary: 'px-[2.5rem] py-[1.25rem] text-2lg-semibold',
+    incoming: 'px-10 py-5 text-2lg-medium',
+    mePrimary: 'px-10 py-5 text-2lg-medium',
+    meSecondary: 'px-10 py-5 text-2lg-semibold',
   },
 };
 
 const radiusStyles: Record<ChatColor, Record<ChatSize, string>> = {
   incoming: {
-    sm: 'rounded-tr-[1.5rem] rounded-br-[1.5rem] rounded-bl-[1.5rem]',
-    md: 'rounded-tr-[1.875rem] rounded-br-[1.875rem] rounded-bl-[1.875rem]',
+    sm: 'rounded-tr-3xl rounded-br-3xl rounded-bl-3xl',
+    md: 'rounded-tr-3xl rounded-br-3xl rounded-bl-3xl',
   },
   mePrimary: {
-    sm: 'rounded-tl-[1.5rem] rounded-br-[1.5rem] rounded-bl-[1.5rem]',
-    md: 'rounded-tl-[1.875rem] rounded-br-[1.875rem] rounded-bl-[1.875rem]',
+    sm: 'rounded-tl-3xl rounded-br-3xl rounded-bl-3xl',
+    md: 'rounded-tl-3xl rounded-br-3xl rounded-bl-3xl',
   },
   meSecondary: {
-    sm: 'rounded-tl-[1.5rem] rounded-br-[1.5rem] rounded-bl-[1.5rem]',
-    md: 'rounded-tl-[1.875rem] rounded-br-[1.875rem] rounded-bl-[1.875rem]',
+    sm: 'rounded-tl-3xl rounded-br-3xl rounded-bl-3xl',
+    md: 'rounded-tl-3xl rounded-br-3xl rounded-bl-3xl',
   },
 };
 
@@ -64,7 +64,7 @@ export const TextFieldChat = ({
   return (
     <div
       {...rest}
-      className={`inline-flex max-w-full drop-shadow-[2px_2px_4px_rgba(224,224,224,0.2)] ${colorStyles[color]} ${sizeStyles[size][color]} ${radiusStyles[color][size]} ${className}`.trim()}
+      className={`inline-flex max-w-full drop-shadow-sm ${colorStyles[color]} ${sizeStyles[size][color]} ${radiusStyles[color][size]} ${className}`.trim()}
     >
       <p className="break-words whitespace-pre-wrap">{children}</p>
     </div>

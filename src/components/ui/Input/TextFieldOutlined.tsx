@@ -46,13 +46,12 @@ const sizeStyles: Record<
   { field: string; input: string; error: string }
 > = {
   sm: {
-    field:
-      'min-h-[3.375rem] w-full max-w-[20.4375rem] rounded-[1rem] p-[0.875rem]',
+    field: 'min-h-14 w-full max-w-xs rounded-2xl p-3.5',
     input: 'text-lg-regular',
     error: 'text-sm-medium',
   },
   md: {
-    field: 'h-[4rem] w-full max-w-[40rem] rounded-[1rem] p-[0.875rem]',
+    field: 'h-16 w-full max-w-screen-sm rounded-2xl p-3.5',
     input: 'text-xl-regular',
     error: 'text-lg-medium',
   },
@@ -115,15 +114,10 @@ export const TextFieldOutlined = ({
     }
   }
 
-  const borderWidthClass =
-    size === 'sm' && !isFocused && !(showError && !isRequiredFeedback)
-      ? 'border-[0.5px]'
-      : 'border';
-
   return (
     <div className={`flex w-full flex-col ${className}`.trim()}>
       <div
-        className={`relative flex items-center overflow-clip ${sizeStyles[size].field} ${bgClass} ${borderWidthClass} ${borderClass}`}
+        className={`relative flex items-center overflow-clip border ${sizeStyles[size].field} ${bgClass} ${borderClass}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -148,7 +142,7 @@ export const TextFieldOutlined = ({
         />
 
         {(showVisibilityToggle || rightIcon) && (
-          <div className="ml-[0.25rem] flex shrink-0 items-center">
+          <div className="ml-1 flex shrink-0 items-center">
             {showVisibilityToggle ? (
               <button
                 type="button"
@@ -156,7 +150,7 @@ export const TextFieldOutlined = ({
                   isPasswordVisible ? '비밀번호 숨기기' : '비밀번호 보기'
                 }
                 onClick={handleToggleVisibility}
-                className="flex size-[1.5rem] items-center justify-center overflow-clip"
+                className="flex size-6 items-center justify-center overflow-clip"
               >
                 {isPasswordVisible ? (
                   <VisibilityOnIcon className="size-full" />
@@ -173,10 +167,8 @@ export const TextFieldOutlined = ({
 
       {errorMessage && (
         <p
-          className={`mt-[0.25rem] text-red-200 ${
-            isRequiredFeedback
-              ? 'pl-[0.5rem] text-left'
-              : 'pr-[0.5rem] text-right'
+          className={`mt-1 text-red-200 ${
+            isRequiredFeedback ? 'pl-2 text-left' : 'pr-2 text-right'
           } ${sizeStyles[size].error}`}
         >
           {errorMessage}

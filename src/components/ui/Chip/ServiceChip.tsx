@@ -27,13 +27,12 @@ type ServiceChipProps = {
 );
 
 const BASE_CLASS =
-  'inline-flex items-center justify-center rounded-full border border-solid px-[1.25rem] py-[0.625rem] text-2lg-medium';
+  'inline-flex items-center justify-center rounded-full border border-solid px-5 py-2.5 text-2lg-medium';
 
-const SELECTED_CLASS =
-  'border-blue-300 bg-blue-50 text-blue-300 shadow-[4px_4px_5px_rgba(230,230,230,0.25)]';
+const SELECTED_CLASS = 'border-blue-300 bg-blue-50 text-blue-300 shadow-sm';
 
 const UNSELECTED_CLASS =
-  'border-gray-100 bg-background-100 text-blue-400 shadow-[4px_4px_5px_rgba(230,230,230,0.16)]';
+  'border-gray-100 bg-background-100 text-blue-400 shadow-sm';
 
 export const ServiceChip = ({
   variant = 'button',

@@ -17,8 +17,8 @@ interface AddressChipProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const sizeStyles: Record<AddressSize, string> = {
-  sm: 'px-[0.375rem] py-[0.125rem] text-xs-semibold',
-  md: 'px-[0.25rem] py-[0.125rem] text-md-semibold',
+  sm: 'px-1.5 py-0.5 text-xs-semibold',
+  md: 'px-1 py-0.5 text-md-semibold',
 };
 
 export const AddressChip = ({
@@ -29,7 +29,7 @@ export const AddressChip = ({
 }: AddressChipProps) => {
   return (
     <div
-      className={`inline-flex items-center justify-center rounded-[1rem] bg-blue-50 text-blue-300 ${sizeStyles[size]} ${className}`.trim()}
+      className={`inline-flex items-center justify-center rounded-2xl bg-blue-50 text-blue-300 ${sizeStyles[size]} ${className}`.trim()}
       {...rest}
     >
       <span className="whitespace-nowrap">{children}</span>

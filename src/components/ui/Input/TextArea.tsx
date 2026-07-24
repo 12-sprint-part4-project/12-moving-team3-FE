@@ -34,12 +34,12 @@ const sizeStyles: Record<
   { field: string; text: string; error: string }
 > = {
   sm: {
-    field: 'h-[10rem] w-full max-w-[20.4375rem] px-[1rem] py-[0.875rem]',
+    field: 'h-40 w-full max-w-xs px-4 py-3.5',
     text: 'text-lg-regular',
     error: 'text-sm-medium',
   },
   md: {
-    field: 'h-[10rem] w-full max-w-[35rem] px-[1.5rem] py-[0.875rem]',
+    field: 'h-40 w-full max-w-xl px-6 py-3.5',
     text: 'text-xl-regular',
     error: 'text-lg-medium',
   },
@@ -74,9 +74,9 @@ export const TextArea = ({
   };
 
   return (
-    <div className={`flex w-full flex-col gap-[0.25rem] ${className}`.trim()}>
+    <div className={`flex w-full flex-col gap-1 ${className}`.trim()}>
       <div
-        className={`overflow-clip rounded-[1rem] ${sizeStyles[size].field} ${
+        className={`overflow-clip rounded-2xl ${sizeStyles[size].field} ${
           showError
             ? 'border border-red-200 bg-white'
             : 'border border-transparent bg-background-200'
@@ -104,7 +104,7 @@ export const TextArea = ({
       </div>
 
       {errorMessage && (
-        <p className={`pl-[0.5rem] text-red-200 ${sizeStyles[size].error}`}>
+        <p className={`pl-2 text-red-200 ${sizeStyles[size].error}`}>
           {errorMessage}
         </p>
       )}

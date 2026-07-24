@@ -41,18 +41,18 @@ const sizeStyles: Record<
   }
 > = {
   sm: {
-    root: 'gap-[0.5rem]',
-    group: 'gap-[0.25rem]',
-    item: 'size-[2.125rem] rounded-[0.375rem]',
+    root: 'gap-2',
+    group: 'gap-1',
+    item: 'size-8 rounded-md',
     number: 'text-lg-regular',
-    icon: 'size-[1.5rem]',
+    icon: 'size-6',
   },
   lg: {
-    root: 'gap-[0.625rem]',
-    group: 'gap-[0.25rem]',
-    item: 'size-[3rem] rounded-[0.5rem]',
+    root: 'gap-2.5',
+    group: 'gap-1',
+    item: 'size-12 rounded-lg',
     number: 'text-2lg-regular',
-    icon: 'size-[1.5rem]',
+    icon: 'size-6',
   },
 };
 
@@ -110,7 +110,7 @@ const PaginationItem = ({
     <button
       type={type}
       disabled={disabled}
-      className={`inline-flex shrink-0 items-center justify-center bg-white p-[0.625rem] disabled:cursor-not-allowed ${sizeStyles[size].item} ${className}`.trim()}
+      className={`inline-flex shrink-0 items-center justify-center bg-white p-2.5 disabled:cursor-not-allowed ${sizeStyles[size].item} ${className}`.trim()}
       {...rest}
     >
       {children}
@@ -122,13 +122,13 @@ const Ellipsis = ({ isActive = false }: { isActive?: boolean }) => {
   return (
     <span
       aria-hidden
-      className={`flex items-center gap-[0.1875rem] ${
+      className={`flex items-center gap-0.5 ${
         isActive ? 'text-black-400' : 'text-gray-200'
       }`}
     >
-      <span className="size-[0.1875rem] rounded-full bg-current" />
-      <span className="size-[0.1875rem] rounded-full bg-current" />
-      <span className="size-[0.1875rem] rounded-full bg-current" />
+      <span className="size-0.5 rounded-full bg-current" />
+      <span className="size-0.5 rounded-full bg-current" />
+      <span className="size-0.5 rounded-full bg-current" />
     </span>
   );
 };

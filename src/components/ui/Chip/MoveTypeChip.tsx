@@ -41,20 +41,20 @@ const themeStyles: Record<MoveType, string> = {
 };
 
 const sizeStyles: Record<MoveTypeSize, string> = {
-  xs: 'p-[0.125rem]',
-  sm: 'gap-[0.125rem] py-[0.125rem] pr-[0.375rem] pl-[0.125rem] text-sm-semibold',
-  md: 'gap-[0.25rem] py-[0.25rem] pr-[0.3125rem] pl-[0.1875rem] text-lg-semibold',
+  xs: 'p-0.5',
+  sm: 'gap-0.5 py-0.5 pr-1.5 pl-0.5 text-sm-semibold',
+  md: 'gap-1 py-1 pr-1.25 pl-0.5 text-lg-semibold',
 };
 
 const quotePendingSizeStyles: Record<Exclude<MoveTypeSize, 'xs'>, string> = {
-  sm: 'px-[0.375rem] py-[0.125rem] text-sm-semibold',
-  md: 'px-[0.375rem] py-[0.25rem] text-lg-semibold',
+  sm: 'px-1.5 py-0.5 text-sm-semibold',
+  md: 'px-1.5 py-1 text-lg-semibold',
 };
 
 const iconSizeStyles: Record<MoveTypeSize, string> = {
-  xs: 'size-[1.25rem]',
-  sm: 'size-[1.25rem]',
-  md: 'size-[1.5rem]',
+  xs: 'size-5',
+  sm: 'size-5',
+  md: 'size-6',
 };
 
 const ICONS: Record<Exclude<MoveType, 'quotePending'>, typeof BoxFillIcon> = {
@@ -82,7 +82,7 @@ export const MoveTypeChip = ({
 
   return (
     <div
-      className={`inline-flex items-center justify-center rounded-[0.25rem] shadow-[4px_4px_4px_rgba(217,217,217,0.1)] ${themeStyles[type]} ${layoutClass} ${className}`.trim()}
+      className={`inline-flex items-center justify-center rounded shadow-sm ${themeStyles[type]} ${layoutClass} ${className}`.trim()}
       {...rest}
     >
       {Icon && (
