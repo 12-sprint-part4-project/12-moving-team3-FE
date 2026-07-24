@@ -1,6 +1,11 @@
 'use client';
 
-import { useState, type ChangeEvent, type InputHTMLAttributes } from 'react';
+import {
+  useRef,
+  useState,
+  type ChangeEvent,
+  type InputHTMLAttributes,
+} from 'react';
 
 import SearchIcon from '@/assets/icons/search.svg';
 import XCircleIcon from '@/assets/icons/x-circle.svg';
@@ -62,6 +67,7 @@ export const TextFieldIcon = ({
   placeholder = '텍스트를 입력해 주세요.',
   ...rest
 }: TextFieldIconProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [uncontrolledValue, setUncontrolledValue] = useState(() =>
     String(defaultValue ?? '')
@@ -84,13 +90,14 @@ export const TextFieldIcon = ({
     }
 
     onClear?.();
-
-    if (onChange) {
-      const event = {
-        target: { value: '' },
-        currentTarget: { value: '' },
-      } as ChangeEvent<HTMLInputElement>;
-      onChange(event);
+    const input = inputRef.current;
+    if (onChange && input) {
+      const setter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        'value'
+      )?.set;
+      setter?.call(input, '');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
     }
   };
 
@@ -107,6 +114,7 @@ export const TextFieldIcon = ({
 
       <input
         {...rest}
+        ref={inputRef}
         value={value}
         defaultValue={defaultValue}
         disabled={disabled}
