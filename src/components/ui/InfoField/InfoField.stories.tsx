@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { InfoField } from './InfoField';
 
 const meta: Meta<typeof InfoField> = {
-  title: 'Common/UI/InfoField',
+  title: 'UI/InfoField',
   component: InfoField,
   tags: ['autodocs'],
   argTypes: {

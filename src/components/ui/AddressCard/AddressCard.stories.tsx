@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { AddressCard } from './AddressCard';
 
 const meta: Meta<typeof AddressCard> = {
-  title: 'Common/UI/AddressCard',
+  title: 'UI/AddressCard',
   component: AddressCard,
   tags: ['autodocs'],
   argTypes: {

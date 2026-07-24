@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { StarRating } from './StarRating';
 
 const meta: Meta<typeof StarRating> = {
-  title: 'Common/UI/StarRating',
+  title: 'UI/StarRating',
   component: StarRating,
   tags: ['autodocs'],
 };
