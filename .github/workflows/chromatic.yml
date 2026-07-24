@@ -5,11 +5,14 @@ on: push
 jobs:
   chromatic:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Chromatic이 git history 전체를 필요로 함
+          persist-credentials: false
 
       - name: Setup Node
         uses: actions/setup-node@v4
