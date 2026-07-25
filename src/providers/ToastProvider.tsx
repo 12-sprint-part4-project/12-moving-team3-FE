@@ -33,6 +33,10 @@ interface ToastItem extends ShowToastOptions {
   id: number;
 }
 
+interface ToastProviderProps {
+  children: ReactNode;
+}
+
 export const ToastContext = createContext<ToastContextValue | null>(null);
 
 /**
@@ -42,7 +46,7 @@ export const ToastContext = createContext<ToastContextValue | null>(null);
  * - 실제 UI는 `document.body`에 Portal로 렌더링해 어떤 페이지의 레이아웃/overflow에도
  *   영향받지 않고 항상 최상단에 고정 노출되도록 한다.
  */
-export const ToastProvider = ({ children }: { children: ReactNode }) => {
+export const ToastProvider = ({ children }: ToastProviderProps) => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const idRef = useRef(0);
 
