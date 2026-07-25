@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { useRef } from 'react';
 import AlarmIcon from '@/assets/icons/alarm.svg';
 import StarIcon from '@/assets/icons/star.svg';
 import { Toast } from './Toast';
@@ -50,17 +51,21 @@ export const LongContent: Story = {
 /** ToastProvider + useToast 훅으로 실제 전역 토스트가 트리거되는 흐름을 보여준다. */
 const ToastTriggerDemo = () => {
   const { showToast } = useToast();
-  let toastNum = 1; // 토스트 번호 초기화
+  // 리렌더 여부와 무관하게 값이 유지되도록 ref로 토스트 번호를 누적한다.
+  const toastNumRef = useRef(1);
+
+  const handleClick = () => {
+    showToast({
+      // 토스트가 여러개 띄워져도 순차적으로 번호가 증가하도록 처리, 사라지는건 띄워졌던 순서대로 사라짐
+      content: `Toast${toastNumRef.current++} 링크가 복사되었어요`,
+      icon: AlarmIcon,
+    });
+  };
 
   return (
     <button
       type="button"
-      onClick={() =>
-        showToast({
-          content: `Toast${toastNum++} 링크가 복사되었어요`, // 토스트가 여러개 띄워져도 순차적으로 번호가 증가하도록 처리, 사라지는건 띄워졌던 순서대로 사라짐
-          icon: AlarmIcon,
-        })
-      }
+      onClick={handleClick}
       className="rounded-lg bg-blue-300 px-4 py-2 text-lg-semibold text-white"
     >
       토스트 띄우기
