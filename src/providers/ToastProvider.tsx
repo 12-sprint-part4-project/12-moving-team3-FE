@@ -3,6 +3,7 @@
 import {
   createContext,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -49,9 +50,22 @@ export const ToastContext = createContext<ToastContextValue | null>(null);
 export const ToastProvider = ({ children }: ToastProviderProps) => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const idRef = useRef(0);
+  // 토스트가 여러 개 동시에 떠 있을 수 있어, id별 타이머를 Map으로 관리하고
+  // Provider가 언마운트될 때 남아있는 타이머를 모두 정리한다.
+  // window.setTimeout/clearTimeout은 브라우저 환경 기준으로 항상 number를 주고받는다.
+  const timeoutsRef = useRef<Map<number, number>>(new Map());
+
+  useEffect(() => {
+    const timeouts = timeoutsRef.current;
+    return () => {
+      timeouts.forEach((timeoutId) => window.clearTimeout(timeoutId));
+      timeouts.clear();
+    };
+  }, []);
 
   const removeToast = useCallback((id: number) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    timeoutsRef.current.delete(id);
   }, []);
 
   const showToast = useCallback(
@@ -66,7 +80,8 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
         ...prev,
         { id, content, icon, iconClassName, duration },
       ]);
-      window.setTimeout(() => removeToast(id), duration);
+      const timeoutId = window.setTimeout(() => removeToast(id), duration);
+      timeoutsRef.current.set(id, timeoutId);
     },
     [removeToast],
   );
