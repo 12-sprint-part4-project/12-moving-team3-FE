@@ -48,6 +48,7 @@ export const Toast = ({
     className={`flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-100 px-6 py-2.5 text-sm-semibold text-blue-300 sm:gap-4 sm:py-4.5 sm:text-lg-semibold md:px-8 md:py-6 ${className}`}
   >
     {Icon && <Icon className={iconClassName} />}
-    <p className="min-w-0">{content}</p>
+    {/* content는 ReactNode라 블록 요소도 들어올 수 있어, <p>로 감싸면 중첩이 깨질 수 있으므로 <div>를 사용한다. */}
+    <div className="min-w-0">{content}</div>
   </div>
 );
