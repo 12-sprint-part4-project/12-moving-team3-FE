@@ -1,62 +1,140 @@
-/**
- * ⚠️ TEMPORARY EXAMPLE STORY
- *
- * Storybook + Chromatic 세팅 검증 및 팀 첫 예시용으로 작성된 임시 스토리입니다.
- * Figma 디자인 기준의 실제 공통 Button 컴포넌트가 만들어지면 이 파일과
- * Button.tsx는 삭제해도 됩니다.
- */
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+
 import { Button } from './Button';
 
 const meta: Meta<typeof Button> = {
-  title: 'Example/Button',
+  title: 'UI/Button',
   component: Button,
   tags: ['autodocs'],
+  parameters: {
+    layout: 'centered',
+  },
   argTypes: {
-    variant: {
-      control: 'select',
-      options: ['primary', 'secondary'],
-    },
     size: {
       control: 'select',
-      options: ['small', 'large'],
+      options: ['sm', 'md'],
     },
+    showIcon: { control: 'boolean' },
     disabled: { control: 'boolean' },
+  },
+  args: {
+    children: 'Primary CTA 버튼',
+    size: 'sm',
+    showIcon: false,
+    disabled: false,
   },
 };
 export default meta;
 
 type Story = StoryObj<typeof Button>;
 
-export const Primary: Story = {
-  args: {
-    variant: 'primary',
-    size: 'large',
-    children: '견적 요청하기',
-  },
+export const SmDefault: Story = {
+  decorators: [
+    (Story) => (
+      <div className="w-[20.4375rem]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
-export const Secondary: Story = {
-  args: {
-    variant: 'secondary',
-    size: 'large',
-    children: '취소',
-  },
+/** Figma Property 2=hover, Property 3=sm — blue-200 고정 표시용 */
+export const SmHover: Story = {
+  args: { className: '!bg-blue-200' },
+  decorators: [
+    (Story) => (
+      <div className="w-[20.4375rem]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
-export const Small: Story = {
-  args: {
-    variant: 'primary',
-    size: 'small',
-    children: '찜하기',
-  },
+export const SmDisabled: Story = {
+  args: { disabled: true },
+  decorators: [
+    (Story) => (
+      <div className="w-[20.4375rem]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
-export const Disabled: Story = {
-  args: {
-    variant: 'primary',
-    size: 'large',
-    disabled: true,
-    children: '이사일 이후 견적 요청 불가',
-  },
+export const SmWithIcon: Story = {
+  args: { showIcon: true },
+  decorators: [
+    (Story) => (
+      <div className="w-[20.4375rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const SmWithIconDisabled: Story = {
+  args: { showIcon: true, disabled: true },
+  decorators: [
+    (Story) => (
+      <div className="w-[20.4375rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const MdDefault: Story = {
+  args: { size: 'md' },
+  decorators: [
+    (Story) => (
+      <div className="w-[40rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+/** Figma Property 2=hover, Property 3=md — blue-200 고정 표시용 */
+export const MdHover: Story = {
+  args: { size: 'md', className: '!bg-blue-200' },
+  decorators: [
+    (Story) => (
+      <div className="w-[40rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const MdDisabled: Story = {
+  args: { size: 'md', disabled: true },
+  decorators: [
+    (Story) => (
+      <div className="w-[40rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const MdWithIcon: Story = {
+  args: { size: 'md', showIcon: true },
+  decorators: [
+    (Story) => (
+      <div className="w-[40rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const MdWithIconDisabled: Story = {
+  args: { size: 'md', showIcon: true, disabled: true },
+  decorators: [
+    (Story) => (
+      <div className="w-[40rem]">
+        <Story />
+      </div>
+    ),
+  ],
 };
