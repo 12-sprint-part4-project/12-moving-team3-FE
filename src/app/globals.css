@@ -62,6 +62,10 @@
   --color-shadow-gray-300: #dcdcdc;
   --color-shadow-gray-400: #bfbfbf;
 
+  /* Box Shadow — Figma Button/outlined/CTA */
+  --shadow-cta: 0.25rem 0.25rem 0.625rem 0 rgb(195 217 242 / 0.2);
+  --shadow-cta-hover: 0.25rem 0.25rem 0.3125rem 0 rgb(195 217 242 / 0.2);
+
   /**
    * Typography Tokens
    * text-{size}-{weight} 형식으로 관리한다.
