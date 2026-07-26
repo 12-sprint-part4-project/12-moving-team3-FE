@@ -41,6 +41,10 @@
   --color-red-100: #ffeef0;
   --color-red-200: #ff4f64;
 
+  /* Brand (SNS 공유 버튼 전용 브랜드 컬러) */
+  --color-kakao-100: #fae100;
+  --color-facebook-100: #4285f4;
+
   /* Background */
   --color-background-100: #fcfcfc;
   --color-background-200: #f7f7f7;
