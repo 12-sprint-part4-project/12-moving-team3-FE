@@ -5,6 +5,10 @@ import MenuIcon from '@/assets/icons/menu.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
 
 import { Logo } from '@/components/Logo/Logo';
+import {
+  GNB_NAV_BY_ROLE,
+  type GnbNavItem,
+} from '@/components/Gnb/gnbNav';
 
 export type GnbDefaultSize = 'sm' | 'md' | 'lg';
 /** Figma Property 1(sort): gnb=헤더, tab=탭바, component=헤더+탭 */
@@ -22,10 +26,7 @@ export interface GnbTabItem {
   label: string;
 }
 
-export interface GnbNavItem {
-  label: string;
-  href: string;
-}
+export type { GnbNavItem };
 
 export interface GnbDefaultProps {
   size?: GnbDefaultSize;
@@ -53,15 +54,8 @@ const DEFAULT_TABS: GnbTabItem[] = [
 ];
 
 const NAV_BY_MENU: Record<'twoMenu' | 'threeMenu', GnbNavItem[]> = {
-  twoMenu: [
-    { label: '받은 요청', href: '/requests' },
-    { label: '내 견적 관리', href: '/estimates' },
-  ],
-  threeMenu: [
-    { label: '견적 요청', href: '/estimates/request' },
-    { label: '기사님 찾기', href: '/drivers' },
-    { label: '내 견적 관리', href: '/estimates' },
-  ],
+  twoMenu: [...GNB_NAV_BY_ROLE.mover],
+  threeMenu: [...GNB_NAV_BY_ROLE.customer],
 };
 
 const HEADER_STYLE: Record<GnbDefaultSize, string> = {
