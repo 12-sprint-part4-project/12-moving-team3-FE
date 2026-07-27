@@ -70,7 +70,7 @@ const HomePage = () => {
       </div>
 
       {/* Mobile · Tablet: CTA 세로 / Desktop: CTA 가로 */}
-      <div className="mt-11 flex w-full max-w-[20.4375rem] flex-col gap-2 lg:mt-12 lg:max-w-none lg:flex-row lg:items-center lg:gap-4">
+      <div className="mt-11 flex w-full max-w-[20.4375rem] flex-col gap-2 lg:mt-12 lg:w-auto lg:max-w-none lg:flex-row lg:items-center lg:justify-center lg:gap-4">
         <Link
           href="/login"
           className={cn(
