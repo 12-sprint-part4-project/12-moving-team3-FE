@@ -1,63 +1,221 @@
-/**
- * ⚠️ TEMPORARY EXAMPLE STORY
- *
- * Storybook + Chromatic 세팅 검증 및 Button.tsx의 cva(class-variance-authority)
- * 사용 예시를 확인하기 위한 임시 스토리입니다.
- * Figma 디자인 기준의 실제 공통 Button 컴포넌트가 만들어지면 이 파일과
- * Button.tsx는 삭제해도 됩니다.
- */
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+
 import { Button } from './Button';
 
 const meta: Meta<typeof Button> = {
-  title: 'Example/Button',
+  title: 'UI/Button',
   component: Button,
   tags: ['autodocs'],
+  parameters: {
+    layout: 'centered',
+  },
   argTypes: {
-    variant: {
-      control: 'select',
-      options: ['primary', 'secondary'],
-    },
     size: {
       control: 'select',
-      options: ['small', 'large'],
+      options: ['sm', 'md'],
     },
+    variant: {
+      control: 'select',
+      options: ['solid', 'outlined'],
+    },
+    showIcon: { control: 'boolean' },
     disabled: { control: 'boolean' },
+  },
+  args: {
+    children: 'Primary CTA 버튼',
+    size: 'sm',
+    variant: 'solid',
+    showIcon: false,
+    disabled: false,
   },
 };
 export default meta;
 
 type Story = StoryObj<typeof Button>;
 
-export const Primary: Story = {
-  args: {
-    variant: 'primary',
-    size: 'large',
-    children: '견적 요청하기',
-  },
+export const SmDefault: Story = {
+  decorators: [
+    (Story) => (
+      <div className="w-[20.4375rem]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
-export const Secondary: Story = {
-  args: {
-    variant: 'secondary',
-    size: 'large',
-    children: '취소',
-  },
+/** Figma Solid CTA Property 2=hover, Property 3=sm */
+export const SmHover: Story = {
+  args: { className: '!bg-blue-200' },
+  decorators: [
+    (Story) => (
+      <div className="w-[20.4375rem]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
-export const Small: Story = {
-  args: {
-    variant: 'primary',
-    size: 'small',
-    children: '찜하기',
-  },
+export const SmDisabled: Story = {
+  args: { disabled: true },
+  decorators: [
+    (Story) => (
+      <div className="w-[20.4375rem]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
-export const Disabled: Story = {
+export const SmWithIcon: Story = {
+  args: { showIcon: true },
+  decorators: [
+    (Story) => (
+      <div className="w-[20.4375rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const SmWithIconDisabled: Story = {
+  args: { showIcon: true, disabled: true },
+  decorators: [
+    (Story) => (
+      <div className="w-[20.4375rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const MdDefault: Story = {
+  args: { size: 'md' },
+  decorators: [
+    (Story) => (
+      <div className="w-[40rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+/** Figma Solid CTA Property 2=hover, Property 3=md */
+export const MdHover: Story = {
+  args: { size: 'md', className: '!bg-blue-200' },
+  decorators: [
+    (Story) => (
+      <div className="w-[40rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const MdDisabled: Story = {
+  args: { size: 'md', disabled: true },
+  decorators: [
+    (Story) => (
+      <div className="w-[40rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const MdWithIcon: Story = {
+  args: { size: 'md', showIcon: true },
+  decorators: [
+    (Story) => (
+      <div className="w-[40rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const MdWithIconDisabled: Story = {
+  args: { size: 'md', showIcon: true, disabled: true },
+  decorators: [
+    (Story) => (
+      <div className="w-[40rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+/** Figma Button/outlined/CTA — sm default */
+export const SmOutlinedDefault: Story = {
+  args: { variant: 'outlined' },
+  decorators: [
+    (Story) => (
+      <div className="w-[20.4375rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+/** Figma Button/outlined/CTA — sm hover (blue-50 고정 표시용) */
+export const SmOutlinedHover: Story = {
+  args: { variant: 'outlined', className: '!bg-blue-50 !shadow-cta-hover' },
+  decorators: [
+    (Story) => (
+      <div className="w-[20.4375rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+/** Figma Button/outlined/CTA — sm disabled */
+export const SmOutlinedDisabled: Story = {
+  args: { variant: 'outlined', disabled: true },
+  decorators: [
+    (Story) => (
+      <div className="w-[20.4375rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+/** Figma Button/outlined/CTA — md default */
+export const MdOutlinedDefault: Story = {
+  args: { size: 'md', variant: 'outlined' },
+  decorators: [
+    (Story) => (
+      <div className="w-[40rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+/** Figma Button/outlined/CTA — md hover (blue-50 고정 표시용) */
+export const MdOutlinedHover: Story = {
   args: {
-    variant: 'primary',
-    size: 'large',
-    disabled: true,
-    children: '이사일 이후 견적 요청 불가',
+    size: 'md',
+    variant: 'outlined',
+    className: '!bg-blue-50 !shadow-cta-hover',
   },
+  decorators: [
+    (Story) => (
+      <div className="w-[40rem]">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+/** Figma Button/outlined/CTA — md disabled */
+export const MdOutlinedDisabled: Story = {
+  args: { size: 'md', variant: 'outlined', disabled: true },
+  decorators: [
+    (Story) => (
+      <div className="w-[40rem]">
+        <Story />
+      </div>
+    ),
+  ],
 };

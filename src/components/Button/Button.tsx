@@ -1,64 +1,67 @@
-import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
-/**
- * ⚠️ TEMPORARY EXAMPLE COMPONENT
- *
- * Storybook + Chromatic 세팅 검증 및 cva(class-variance-authority) + cn 사용법을
- * 팀에 공유하기 위한 예시 컴포넌트입니다.
- * Figma 디자인 기준의 실제 공통 Button 컴포넌트가 만들어지면 이 파일과
- * Button.stories.tsx는 삭제해도 됩니다.
- *
- * (색상은 src/app/globals.css 의 @theme 토큰을 사용합니다.
- *  Tailwind 기본 색상(bg-blue-500 등)은 이 프로젝트에 정의되어 있지 않아 적용되지 않습니다.)
- *
- * --- cva 사용법 ---
- * 1. cva(공통 클래스, { variants, defaultVariants })로 variant/size 등 옵션별
- *    클래스 조합을 한 곳에 선언한다. (기존처럼 `variant === 'primary' ? ... : ...`
- *    삼항연산자를 겹겹이 쓰지 않아도 된다.)
- * 2. VariantProps<typeof buttonVariants>로 위에서 정의한 variant/size의 타입을
- *    자동으로 뽑아 Props에 합쳐 쓴다. (직접 유니온 타입을 또 적을 필요가 없다.)
- * 3. 컴포넌트 내부에서 buttonVariants({ variant, size })를 호출해 클래스 문자열을
- *    만들고, 외부에서 내려주는 className과 충돌/중복될 수 있으니 cn()으로 합친다.
- */
-const buttonVariants = cva('rounded-lg font-semibold transition-colors', {
-  variants: {
-    variant: {
-      primary: 'bg-blue-300 text-white hover:bg-blue-200 disabled:bg-gray-200',
-      secondary:
-        'border border-blue-300 bg-white text-blue-300 hover:bg-blue-50 disabled:border-gray-200 disabled:text-gray-300',
-    },
-    size: {
-      small: 'px-4 py-2 text-md-semibold',
-      large: 'px-6 py-3 text-lg-semibold',
-    },
-  },
-  defaultVariants: {
-    variant: 'primary',
-    size: 'large',
-  },
-});
+import EditIcon from '@/assets/icons/edit.svg';
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  children: React.ReactNode;
+export type ButtonSize = 'sm' | 'md';
+export type ButtonVariant = 'solid' | 'outlined';
+
+export interface ButtonProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'children'
+> {
+  /** 버튼 크기. sm=54px/16px, md=64px/20px */
+  size?: ButtonSize;
+  /** solid=채움(Primary CTA), outlined=테두리(Outlined CTA) */
+  variant?: ButtonVariant;
+  /**
+   * true면 텍스트 오른쪽에 writing(수정) 아이콘을 표시한다.
+   * Figma Solid CTA의 `solid-icon` 변형에 해당한다.
+   */
+  showIcon?: boolean;
+  children: ReactNode;
+  className?: string;
 }
 
-export const Button = ({
-  variant,
-  size,
-  className,
-  children,
-  ...props
-}: ButtonProps) => {
-  return (
-    <button
-      type="button"
-      className={cn(buttonVariants({ variant, size }), className)}
-      {...props}
-    >
-      {children}
-    </button>
-  );
+const SIZE_STYLE: Record<ButtonVariant, Record<ButtonSize, string>> = {
+  solid: {
+    sm: 'h-[3.375rem] gap-1 px-4 text-lg-semibold',
+    md: 'h-16 gap-2 px-4 text-xl-semibold',
+  },
+  outlined: {
+    sm: 'h-[3.375rem] gap-1 px-6 text-lg-semibold',
+    md: 'h-16 gap-2 px-6 text-xl-semibold',
+  },
 };
+
+const VARIANT_STYLE: Record<ButtonVariant, string> = {
+  solid:
+    'bg-blue-300 text-white hover:bg-blue-200 disabled:bg-gray-100 disabled:hover:bg-gray-100',
+  outlined:
+    'border border-blue-300 bg-transparent text-blue-300 shadow-cta hover:bg-blue-50 hover:shadow-cta-hover disabled:border-gray-100 disabled:text-gray-300 disabled:hover:bg-transparent disabled:hover:shadow-cta',
+};
+
+/**
+ * Primary CTA 버튼.
+ * - solid: Figma "Button Solid CTA" — default(blue-300) / hover(blue-200) / disabled(gray-100)
+ * - outlined: Figma "Button/outlined/CTA" — default·hover(blue-300 테두리) / hover(bg blue-50) / disabled(gray)
+ */
+export const Button = ({
+  size = 'sm',
+  variant = 'solid',
+  showIcon = false,
+  disabled = false,
+  children,
+  className = '',
+  type = 'button',
+  ...rest
+}: ButtonProps) => (
+  <button
+    type={type}
+    disabled={disabled}
+    className={`inline-flex w-full items-center justify-center rounded-2xl transition-colors ${VARIANT_STYLE[variant]} ${SIZE_STYLE[variant][size]} ${className}`}
+    {...rest}
+  >
+    {children}
+    {showIcon ? <EditIcon className="size-6 shrink-0" aria-hidden /> : null}
+  </button>
+);
