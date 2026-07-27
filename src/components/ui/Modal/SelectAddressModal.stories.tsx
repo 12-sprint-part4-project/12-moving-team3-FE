@@ -58,8 +58,7 @@ export const WithModalShell: Story = {
                 setAddresses(query.trim() ? SAMPLE_ADDRESSES : []);
               }}
               onClose={() => setIsOpen(false)}
-              onSubmit={(address) => {
-                console.log(address);
+              onSubmit={() => {
                 setIsOpen(false);
               }}
             />

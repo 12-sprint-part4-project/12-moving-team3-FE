@@ -45,8 +45,7 @@ export const WithModalShell: Story = {
             <WriteReviewModal
               {...SAMPLE}
               onClose={() => setIsOpen(false)}
-              onSubmit={(review) => {
-                console.log(review);
+              onSubmit={() => {
                 setIsOpen(false);
               }}
             />

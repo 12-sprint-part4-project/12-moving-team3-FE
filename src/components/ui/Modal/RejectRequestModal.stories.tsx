@@ -45,8 +45,7 @@ export const WithModalShell: Story = {
             <RejectRequestModal
               {...SAMPLE}
               onClose={() => setIsOpen(false)}
-              onSubmit={(payload) => {
-                console.log(payload);
+              onSubmit={() => {
                 setIsOpen(false);
               }}
             />

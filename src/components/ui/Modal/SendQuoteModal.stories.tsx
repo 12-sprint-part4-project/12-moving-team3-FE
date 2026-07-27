@@ -45,8 +45,7 @@ export const WithModalShell: Story = {
             <SendQuoteModal
               {...SAMPLE}
               onClose={() => setIsOpen(false)}
-              onSubmit={(quote) => {
-                console.log(quote);
+              onSubmit={() => {
                 setIsOpen(false);
               }}
             />

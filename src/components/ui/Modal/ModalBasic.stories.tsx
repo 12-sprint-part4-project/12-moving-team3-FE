@@ -41,7 +41,6 @@ export const DesignatedQuoteRequest: Story = {
               footer={
                 <ModalCtaButton
                   onClick={() => {
-                    console.log('일반 견적 요청으로 이동');
                     setIsOpen(false);
                   }}
                 >

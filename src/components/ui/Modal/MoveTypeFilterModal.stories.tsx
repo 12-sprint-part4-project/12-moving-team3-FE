@@ -44,8 +44,7 @@ export const WithModalShell: Story = {
             <MoveTypeFilterModal
               counts={SAMPLE_COUNTS}
               onClose={() => setIsOpen(false)}
-              onSubmit={(selected) => {
-                console.log(selected);
+              onSubmit={() => {
                 setIsOpen(false);
               }}
             />
