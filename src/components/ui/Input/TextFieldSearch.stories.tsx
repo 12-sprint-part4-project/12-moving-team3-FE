@@ -2,11 +2,11 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
-import { TextFieldIcon } from './TextFieldIcon';
+import { TextFieldSearch } from './TextFieldSearch';
 
-const meta: Meta<typeof TextFieldIcon> = {
-  title: 'UI/Input/TextFieldIcon',
-  component: TextFieldIcon,
+const meta: Meta<typeof TextFieldSearch> = {
+  title: 'UI/Input/TextFieldSearch',
+  component: TextFieldSearch,
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
@@ -51,7 +51,7 @@ const meta: Meta<typeof TextFieldIcon> = {
 };
 export default meta;
 
-type Story = StoryObj<typeof TextFieldIcon>;
+type Story = StoryObj<typeof TextFieldSearch>;
 
 export const SizeSm: Story = {
   args: {
@@ -80,10 +80,10 @@ export const Disabled: Story = {
   },
 };
 
-const InteractiveIcon = ({ size }: { size: 'sm' | 'md' }) => {
+const InteractiveSearch = ({ size }: { size: 'sm' | 'md' }) => {
   const [value, setValue] = useState('');
   return (
-    <TextFieldIcon
+    <TextFieldSearch
       size={size}
       value={value}
       onChange={(event) => setValue(event.target.value)}
@@ -94,19 +94,19 @@ const InteractiveIcon = ({ size }: { size: 'sm' | 'md' }) => {
 };
 
 export const Interactive: Story = {
-  render: () => <InteractiveIcon size="sm" />,
+  render: () => <InteractiveSearch size="sm" />,
 };
 
 export const AllSizes: Story = {
   render: () => (
     <div className="flex w-[40rem] flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <p className="text-lg-medium text-black-400">Icon (sm)</p>
-        <InteractiveIcon size="sm" />
+        <p className="text-lg-medium text-black-400">Search (sm)</p>
+        <InteractiveSearch size="sm" />
       </div>
       <div className="flex flex-col gap-2">
-        <p className="text-lg-medium text-black-400">Icon (md)</p>
-        <InteractiveIcon size="md" />
+        <p className="text-lg-medium text-black-400">Search (md)</p>
+        <InteractiveSearch size="md" />
       </div>
     </div>
   ),

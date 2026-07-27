@@ -1,4 +1,4 @@
 export { TextFieldOutlined } from './TextFieldOutlined';
-export { TextFieldIcon } from './TextFieldIcon';
+export { TextFieldSearch } from './TextFieldSearch';
 export { TextArea } from './TextArea';
 export { TextFieldChat } from './TextFieldChat';

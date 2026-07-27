@@ -7,11 +7,11 @@ import {
   type InputHTMLAttributes,
 } from 'react';
 
+import CloseIcon from '@/assets/icons/close.svg';
 import SearchIcon from '@/assets/icons/search.svg';
-import XCircleIcon from '@/assets/icons/x-circle.svg';
 
 /*
-  TEXT FIELD ICON
+  TEXT FIELD SEARCH
 
   검색용 입력 필드입니다.
   비활성(미포커스·빈 값)일 때는 왼쪽에 검색 아이콘만 두고,
@@ -29,7 +29,7 @@ import XCircleIcon from '@/assets/icons/x-circle.svg';
 
 type InputSize = 'sm' | 'md';
 
-interface TextFieldIconProps extends Omit<
+interface TextFieldSearchProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,
   'size'
 > {
@@ -56,7 +56,7 @@ const sizeStyles: Record<
   },
 };
 
-export const TextFieldIcon = ({
+export const TextFieldSearch = ({
   size = 'sm',
   className = '',
   value,
@@ -67,7 +67,7 @@ export const TextFieldIcon = ({
   disabled,
   placeholder = '텍스트를 입력해 주세요.',
   ...rest
-}: TextFieldIconProps) => {
+}: TextFieldSearchProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
   // 비제어 모드(부모가 value를 안 넘길 때)에서
@@ -118,7 +118,7 @@ export const TextFieldIcon = ({
       {!showActiveActions && (
         <SearchIcon
           aria-hidden
-          className={`shrink-0 ${sizeStyles[size].icon}`}
+          className={`shrink-0 ${sizeStyles[size].icon} text-gray-300`}
         />
       )}
 
@@ -160,7 +160,7 @@ export const TextFieldIcon = ({
               onClick={handleClear}
               className={`flex items-center justify-center overflow-clip ${sizeStyles[size].icon}`}
             >
-              <XCircleIcon className="size-full" />
+              <CloseIcon className="size-full text-gray-200" />
             </button>
           )}
           <button
@@ -169,7 +169,7 @@ export const TextFieldIcon = ({
             onClick={onSearch}
             className={`flex items-center justify-center overflow-clip ${sizeStyles[size].icon}`}
           >
-            <SearchIcon className="size-full" />
+            <SearchIcon className="size-full text-gray-300" />
           </button>
         </div>
       )}
