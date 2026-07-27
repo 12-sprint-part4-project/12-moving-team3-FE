@@ -13,6 +13,10 @@ alwaysApply: false
 - **Tailwind CSS v4**:
   - Sort classes using `prettier-plugin-tailwindcss`.
   - Use `rem` by default. Use `px` ONLY for `max-width` and `border` thickness.
+- **Class Composition**:
+  - Always use the `cn()` utility from `@/lib/utils` when composing conditional classNames. Do not use template literals or plain `clsx()` alone.
+  - For components with style variants (color, size, etc.), define variants using `class-variance-authority` (cva), and merge them like `cn(buttonVariants({ variant, size }), className)`.
+  - New components should always accept an external `className` prop and merge it as the last argument so callers can override styles.
 - **Design Tokens (globals.css)**:
   - ALWAYS prioritize `globals.css` tokens. NEVER use arbitrary values (e.g., `bg-[#ff0000]`).
   - Colors: Use `--color-{name}-{shade}` format.

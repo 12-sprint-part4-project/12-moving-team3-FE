@@ -1,7 +1,8 @@
 /**
  * ⚠️ TEMPORARY EXAMPLE STORY
  *
- * Storybook + Chromatic 세팅 검증 및 팀 첫 예시용으로 작성된 임시 스토리입니다.
+ * Storybook + Chromatic 세팅 검증 및 Button.tsx의 cva(class-variance-authority)
+ * 사용 예시를 확인하기 위한 임시 스토리입니다.
  * Figma 디자인 기준의 실제 공통 Button 컴포넌트가 만들어지면 이 파일과
  * Button.tsx는 삭제해도 됩니다.
  */
