@@ -35,7 +35,7 @@ const ROOT_STYLE: Record<GnbLandingSize, string> = {
 export const GnbLanding = ({
   size = 'sm',
   homeHref = '/',
-  findDriverHref = '/drivers',
+  findDriverHref = '/movers',
   loginHref = '/login',
   onMenuClick,
   className = '',
