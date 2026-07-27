@@ -28,8 +28,8 @@ const SIZE_STYLE: Record<LogoVariant, Record<LogoSize, string>> = {
 };
 
 const LOGO_SRC: Record<LogoVariant, string> = {
-  iconText: '/logo.svg',
-  icon: '/logo-icon.svg',
+  iconText: '/symbol.svg',
+  icon: '/symbol.svg',
 };
 
 /**

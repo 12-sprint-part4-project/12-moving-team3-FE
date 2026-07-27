@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import ClipIcon from '@/assets/icons/clip.svg';
-import FacebookIcon from '@/assets/icons/facebook.svg';
-import KakaoIcon from '@/assets/icons/kakao.svg';
+import FacebookIcon from '@/assets/icons/symbol-facebook.svg';
+import KakaoIcon from '@/assets/icons/symbol-kakao.svg';
 import LikeActiveIcon from '@/assets/icons/like-active.svg';
 import { IconButton } from './IconButton';
 

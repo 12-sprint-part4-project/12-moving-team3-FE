@@ -89,7 +89,9 @@ export const CheckBox = ({
         }`}
       >
         {checked ? (
-          <CheckIcon className={`shrink-0 ${CHECK_ICON_STYLE[size]}`} />
+          <CheckIcon
+            className={`shrink-0 text-white ${CHECK_ICON_STYLE[size]}`}
+          />
         ) : null}
       </span>
     </label>

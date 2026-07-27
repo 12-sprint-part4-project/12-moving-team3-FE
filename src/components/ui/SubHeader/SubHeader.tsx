@@ -1,4 +1,4 @@
-import RouteArrowIcon from '@/assets/icons/route-arrow.svg';
+import RouteArrowIcon from '@/assets/icons/arrow-right.svg';
 
 export type SubHeaderSize = 'sm' | 'md' | 'lg';
 
@@ -37,7 +37,9 @@ interface DetailColumnProps {
 const DetailColumn = ({ label, value }: DetailColumnProps) => (
   <div className="flex shrink-0 flex-col items-start">
     <p className="text-lg-medium whitespace-nowrap text-gray-300">{label}</p>
-    <p className="text-2lg-semibold whitespace-nowrap text-black-300">{value}</p>
+    <p className="text-2lg-semibold whitespace-nowrap text-black-300">
+      {value}
+    </p>
   </div>
 );
 
