@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import AlarmIcon from './alarm.svg';
+import ArrowRightIcon from './arrow-right.svg';
 import BoxFillIcon from './box-fill.svg';
+import CheckIcon from './check.svg';
 import ChevronDownIcon from './chevron-down.svg';
 import ChevronLeftIcon from './chevron-left.svg';
 import ChevronRightIcon from './chevron-right.svg';
@@ -11,13 +13,17 @@ import CloseIcon from './close.svg';
 import DockFillIcon from './dock-fill.svg';
 import EditIcon from './edit.svg';
 import FilterIcon from './filter.svg';
+import HeartIcon from './heart.svg';
 import HomeFillIcon from './home-fill.svg';
 import InfoIcon from './info.svg';
-import LikeIcon from './like.svg';
 import MenuIcon from './menu.svg';
+import NoImageIcon from './no-image.svg';
 import OfficeFillIcon from './office-fill.svg';
+import ProfileIcon from './profile.svg';
 import SearchIcon from './search.svg';
 import StarIcon from './star.svg';
+import SymbolFacebookIcon from './symbol-facebook.svg';
+import SymbolKakaoIcon from './symbol-kakao.svg';
 import VisibilityOffIcon from './visibility-off.svg';
 import VisibilityOnIcon from './visibility-on.svg';
 
@@ -29,6 +35,12 @@ import VisibilityOnIcon from './visibility-on.svg';
  *
  * home-fill/office-fill/box-fill/dock-fill/edit(연필) 5개는 텍스트 색과 무관하게
  * 고정된 브랜드 다색 픽토그램이라 text-*를 줘도 색이 안 바뀌는 게 정상이다.
+ *
+ * heart(찜하기)는 info/profile과 같은 `--ic-bg`/`--ic-stroke` 토큰 슬롯 패턴을 쓴다.
+ * 기본값(--ic-bg: white, --ic-stroke: currentColor)은 구멍이 있는 아웃라인(비활성) 모양이고,
+ * `--ic-bg`를 currentColor로 덮어쓰면 구멍이 테두리와 같은 색으로 채워져 솔리드(활성) 모양이
+ * 되므로 별도의 heart-active 파일/컴포넌트 없이 className만으로 두 상태를 표현한다.
+ * (아래 HeartIconColorSlots 스토리 참고)
  */
 const MONO_ICONS = [
   ['star', StarIcon],
@@ -37,15 +49,21 @@ const MONO_ICONS = [
   ['chevron-down', ChevronDownIcon],
   ['chevron-left', ChevronLeftIcon],
   ['chevron-right', ChevronRightIcon],
-  ['like', LikeIcon],
+  ['heart', HeartIcon],
   ['clip', ClipIcon],
   ['close (X)', CloseIcon],
+  ['check', CheckIcon],
+  ['arrow-right', ArrowRightIcon],
   ['visibility-on', VisibilityOnIcon],
   ['visibility-off', VisibilityOffIcon],
   ['filter', FilterIcon],
   ['menu', MenuIcon],
   ['info', InfoIcon],
   ['search', SearchIcon],
+  ['profile', ProfileIcon],
+  ['no-image', NoImageIcon],
+  ['symbol-facebook', SymbolFacebookIcon],
+  ['symbol-kakao', SymbolKakaoIcon],
 ] as const;
 
 const SOLID_ICONS = [
@@ -95,10 +113,18 @@ import AlarmIcon from '@/assets/icons/alarm.svg';
 
 - 파일명은 \`assets/icons/\` 아래 kebab-case svg (예: \`chevron-down.svg\`), import alias는 \`PascalCase + Icon\` (예: \`ChevronDownIcon\`) 컨벤션을 따른다.
 - \`home-fill\` / \`office-fill\` / \`box-fill\` / \`dock-fill\` / \`edit\`(연필) 5개는 브랜드 다색 픽토그램이라 \`text-*\`로 색이 바뀌지 않는 게 정상이다. (아래 \`SolidMultiColorIcons\` 스토리 참고)
-- \`info\`처럼 한 아이콘 안에 색 역할이 2개 이상(원형 테두리 vs 느낌표 마크)이면 \`currentColor\` 하나로 퉁치지 않고
-  \`--ic-bg\`(테두리) / \`--ic-stroke\`(마크) 두 CSS 변수로 슬롯을 나눈다. 둘 다 기본값이 \`currentColor\`라서
-  오버라이드가 없으면 \`text-*\`만으로 기존과 동일하게 움직이고, 필요한 컨텍스트에서만 이 변수를 개별로
-  덮어써서 두 역할의 색을 따로 바꿀 수 있다. (아래 \`InfoIconColorSlots\` 스토리 참고)
+- \`info\` / \`profile\`처럼 한 아이콘 안에 색 역할이 2개 이상(배경·테두리 vs 마크·실루엣)이면 \`currentColor\`
+  하나로 퉁치지 않고 \`--ic-bg\`(배경) / \`--ic-stroke\`(마크) 두 CSS 변수로 슬롯을 나눈다. \`info\`는 기본값이
+  둘 다 \`currentColor\`라서 오버라이드가 없으면 \`text-*\`만으로 기존과 동일하게 움직이고, \`profile\`은
+  기본값 자체를 디자인 원본 토큰(\`--color-background-200\` / \`--color-gray-100\`)으로 고정해서
+  className 없이도 원래 프로필 이미지처럼 보인다. 두 경우 모두 필요한 컨텍스트에서만 이 변수를 개별로
+  덮어써서 두 역할의 색을 따로 바꿀 수 있다. (아래 \`InfoIconColorSlots\` / \`ProfileIconColorSlots\`
+  스토리 참고)
+- \`heart\`(찜하기)도 같은 \`--ic-bg\`(구멍) / \`--ic-stroke\`(테두리) 슬롯 패턴을 쓰지만, 기본값이
+  \`--ic-bg: white\` / \`--ic-stroke: currentColor\`라서 기본은 구멍이 있는 아웃라인(비활성) 모양으로
+  보인다. \`--ic-bg\`를 \`currentColor\`로 덮어쓰면 구멍이 테두리와 같은 색으로 채워져 솔리드(활성)
+  모양이 되므로, \`heart-active\` 같은 별도 파일 없이 className만으로 두 상태를 표현한다.
+  (아래 \`HeartIconColorSlots\` 스토리 참고)
         `,
       },
     },
@@ -229,6 +255,87 @@ export const InfoIconColorSlots: Story = {
 
 {/* className의 arbitrary property로 --color-* 토큰을 참조해 두 변수를 각각 오버라이드한다 */}
 <InfoIcon className="[--ic-bg:var(--color-blue-300)] [--ic-stroke:var(--color-red-200)] size-10" />`,
+      },
+    },
+  },
+};
+
+/**
+ * profile(기본 프로필 이미지)도 info와 동일하게 배경 원(--ic-bg)과 사람 실루엣(--ic-stroke)
+ * 색 슬롯을 분리했다. 다만 info와 달리 기본값이 currentColor가 아니라 디자인 원본 색인
+ * --color-background-200(배경) / --color-gray-100(실루엣)으로 고정돼 있어서, className을
+ * 아무것도 주지 않아도 항상 기본 프로필 이미지처럼 보인다. 필요한 컨텍스트에서만
+ * --ic-bg/--ic-stroke를 오버라이드해서 색을 바꾼다.
+ */
+export const ProfileIconColorSlots: Story = {
+  render: () => (
+    <div className="flex flex-wrap items-end gap-8 p-4">
+      <figure className="flex flex-col items-center gap-2">
+        <ProfileIcon className="size-10" />
+        <figcaption className="text-xs-regular text-black-100">
+          기본값 (className 없음)
+        </figcaption>
+      </figure>
+      <figure className="flex flex-col items-center gap-2">
+        <ProfileIcon className="[--ic-bg:var(--color-blue-100)] [--ic-stroke:var(--color-blue-300)] size-10" />
+        <figcaption className="text-xs-regular text-black-100">
+          --ic-bg / --ic-stroke 오버라이드
+        </figcaption>
+      </figure>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      source: {
+        code: `import ProfileIcon from '@/assets/icons/profile.svg';
+
+{/* 기본값: --ic-bg는 --color-background-200, --ic-stroke는 --color-gray-100으로 고정돼 있어
+   className 없이도 디자인 원본 그대로의 프로필 이미지가 보인다 */}
+<ProfileIcon className="size-10" />
+
+{/* className의 arbitrary property로 --color-* 토큰을 참조해 두 변수를 각각 오버라이드한다 */}
+<ProfileIcon className="[--ic-bg:var(--color-blue-100)] [--ic-stroke:var(--color-blue-300)] size-10" />`,
+      },
+    },
+  },
+};
+
+/**
+ * heart(찜하기)는 --ic-bg(구멍)/--ic-stroke(테두리) 슬롯 기본값이 info/profile과 다르다.
+ * --ic-bg의 기본값이 white라서 구멍이 있는 아웃라인(비활성) 모양으로 보이고,
+ * --ic-bg를 currentColor로 덮어쓰면 구멍이 테두리와 같은 색으로 채워져 솔리드(활성) 모양이 된다.
+ * 즉 heart-active 같은 별도 파일 없이 className(색 토큰)만 바꿔서 두 상태를 표현할 수 있다.
+ */
+export const HeartIconColorSlots: Story = {
+  render: () => (
+    <div className="flex flex-wrap items-end gap-8 p-4">
+      <figure className="flex flex-col items-center gap-2">
+        <HeartIcon className="size-9 text-gray-100" />
+        <figcaption className="text-xs-regular text-black-100">
+          기본값 (text-gray-100) — 비활성
+        </figcaption>
+      </figure>
+      <figure className="flex flex-col items-center gap-2">
+        <HeartIcon className="[--ic-bg:currentColor] size-9 text-blue-400" />
+        <figcaption className="text-xs-regular text-black-100">
+          --ic-bg:currentColor 오버라이드 — 활성
+        </figcaption>
+      </figure>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      source: {
+        code: `import { cn } from '@/lib/utils';
+import HeartIcon from '@/assets/icons/heart.svg';
+
+{/* 비활성: --ic-bg 기본값(white)이 그대로 구멍으로 남아 아웃라인처럼 보인다 */}
+<HeartIcon className="size-9 text-gray-100" />
+
+{/* 활성: --ic-bg를 currentColor로 덮어써서 구멍이 테두리와 같은 색으로 채워진다 */}
+<HeartIcon
+  className={cn('size-9', isLiked ? '[--ic-bg:currentColor] text-blue-400' : 'text-gray-100')}
+/>`,
       },
     },
   },

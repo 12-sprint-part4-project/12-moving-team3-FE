@@ -1,0 +1,16 @@
+<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- 배경 원(--ic-bg)과 사람 실루엣(--ic-stroke)은 색 역할이 서로 달라 CSS 변수로 슬롯을 분리한다.
+     기본값(오버라이드 없을 때)은 디자인 원본 그대로인 --color-background-200(#F7F7F7) /
+     --color-gray-100(#DEDEDE)으로 지정해서 별도 className 없이도 기본 프로필 이미지처럼 보이고,
+     필요한 컨텍스트의 CSS에서 이 두 변수만 지정하면 배경/실루엣 색을 독립적으로 바꿀 수 있다. -->
+<g clip-path="url(#clip0_1_960)">
+<circle cx="18" cy="18" r="18" fill="var(--ic-bg, var(--color-background-200))"/>
+<circle cx="18" cy="13" r="4" fill="var(--ic-stroke, var(--color-gray-100))"/>
+<path d="M9 25C9 21.6863 11.6863 19 15 19H21C24.3137 19 27 21.6863 27 25C27 26.1046 26.1046 27 25 27H11C9.89543 27 9 26.1046 9 25Z" fill="var(--ic-stroke, var(--color-gray-100))"/>
+</g>
+<defs>
+<clipPath id="clip0_1_960">
+<rect width="36" height="36" fill="white"/>
+</clipPath>
+</defs>
+</svg>
