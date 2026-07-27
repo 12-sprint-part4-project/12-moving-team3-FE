@@ -156,6 +156,7 @@ export const TextFieldSearch = ({
           {hasValue && (
             <button
               type="button"
+              disabled={disabled}
               aria-label="입력 내용 지우기"
               onClick={handleClear}
               className={`flex items-center justify-center overflow-clip ${sizeStyles[size].icon}`}
@@ -165,6 +166,7 @@ export const TextFieldSearch = ({
           )}
           <button
             type="button"
+            disabled={disabled}
             aria-label="검색"
             onClick={onSearch}
             className={`flex items-center justify-center overflow-clip ${sizeStyles[size].icon}`}
