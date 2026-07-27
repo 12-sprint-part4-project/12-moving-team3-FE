@@ -20,7 +20,7 @@ const VARIANT_STYLE: Record<LandingServiceCardVariant, string> = {
 
 /**
  * 랜딩 서비스 카드.
- * Figma img/landing sm(Tablet) · md(Desktop).
+ * Figma img/landing sm(Mobile·Tablet) · md(Desktop).
  */
 export const LandingServiceCard = ({
   title,
