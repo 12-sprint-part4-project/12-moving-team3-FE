@@ -34,12 +34,12 @@ const sizeStyles: Record<
   { field: string; text: string; error: string }
 > = {
   sm: {
-    field: 'h-40 w-full max-w-xs px-4 py-3.5',
+    field: 'min-h-33 w-73 px-4 py-3.5',
     text: 'text-lg-regular',
     error: 'text-sm-medium',
   },
   md: {
-    field: 'h-40 w-full max-w-xl px-6 py-3.5',
+    field: 'min-h-33 w-128 px-6 py-3.5',
     text: 'text-xl-regular',
     error: 'text-lg-medium',
   },
@@ -78,7 +78,7 @@ export const TextArea = ({
       <div
         className={`overflow-clip rounded-2xl ${sizeStyles[size].field} ${
           showError
-            ? 'border border-red-200 bg-white'
+            ? 'border border-red-200 bg-background-200'
             : 'border border-transparent bg-background-200'
         }`}
       >

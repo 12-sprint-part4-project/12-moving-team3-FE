@@ -46,12 +46,12 @@ const sizeStyles: Record<
   { field: string; input: string; error: string }
 > = {
   sm: {
-    field: 'min-h-14 w-full max-w-xs rounded-2xl p-3.5',
+    field: 'min-h-[26px] w-[299px] rounded-2xl p-3.5',
     input: 'text-lg-regular',
     error: 'text-sm-medium',
   },
   md: {
-    field: 'h-16 w-full max-w-screen-sm rounded-2xl p-3.5',
+    field: 'min-h-[32px] w-[612px] rounded-2xl p-3.5',
     input: 'text-xl-regular',
     error: 'text-lg-medium',
   },
