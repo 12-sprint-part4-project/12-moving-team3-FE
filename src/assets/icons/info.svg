@@ -1,0 +1,15 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- 원형 배경/테두리(--ic-bg)와 느낌표 마크(--ic-stroke)는 색 역할이 서로 달라 CSS 변수로 슬롯을 분리한다.
+     기본값은 둘 다 currentColor라서 오버라이드가 없으면 기존과 동일하게 보이고,
+     필요한 컨텍스트의 CSS에서 이 두 변수만 지정하면 배경/마크 색을 독립적으로 바꿀 수 있다. -->
+<g clip-path="url(#clip0_1_3808)">
+<circle cx="12" cy="12" r="11.5" fill="white" stroke="var(--ic-bg, currentColor)"/>
+<rect x="11" y="6" width="2" height="8" fill="var(--ic-stroke, currentColor)"/>
+<circle cx="12" cy="17" r="1" fill="var(--ic-stroke, currentColor)"/>
+</g>
+<defs>
+<clipPath id="clip0_1_3808">
+<rect width="24" height="24" fill="white"/>
+</clipPath>
+</defs>
+</svg>
