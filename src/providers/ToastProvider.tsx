@@ -49,11 +49,17 @@ export const ToastContext = createContext<ToastContextValue | null>(null);
  */
 export const ToastProvider = ({ children }: ToastProviderProps) => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  /** 포탈은 클라이언트 마운트 이후에만 렌더해 SSR HTML과 첫 클라이언트 HTML을 맞춘다. */
+  const [isMounted, setIsMounted] = useState(false);
   const idRef = useRef(0);
   // 토스트가 여러 개 동시에 떠 있을 수 있어, id별 타이머를 Map으로 관리하고
   // Provider가 언마운트될 때 남아있는 타이머를 모두 정리한다.
-  // window.setTimeout/clearTimeout은 브라우저 환경 기준으로 항상 number를 주고받는다.
+  // window.setTimeout/clearTimeout은 브라우저 환경 기준으로 항상 number를 반환한다.
   const timeoutsRef = useRef<Map<number, number>>(new Map());
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const timeouts = timeoutsRef.current;
@@ -83,7 +89,7 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
       const timeoutId = window.setTimeout(() => removeToast(id), duration);
       timeoutsRef.current.set(id, timeoutId);
     },
-    [removeToast],
+    [removeToast]
   );
 
   const value = useMemo(() => ({ showToast }), [showToast]);
@@ -91,24 +97,22 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      {/* 서버(SSR)에는 document가 없으므로, 브라우저에서만 body에 포탈로 렌더링한다.
-          토스트 알림 자체가 최초 렌더링에는 항상 비어 있어 하이드레이션 시점 차이로
-          인한 화면 불일치가 생기지 않는다. */}
-      {typeof document !== 'undefined' &&
-        createPortal(
-          <div className="pointer-events-none fixed inset-x-0 top-4 z-50 flex flex-col items-center gap-2 px-4 sm:top-6">
-            {toasts.map(({ id, content, icon, iconClassName }) => (
-              <Toast
-                key={id}
-                content={content}
-                icon={icon}
-                iconClassName={iconClassName}
-                className="pointer-events-auto w-full max-w-[59.6875rem]"
-              />
-            ))}
-          </div>,
-          document.body,
-        )}
+      {isMounted
+        ? createPortal(
+            <div className="pointer-events-none fixed inset-x-0 top-4 z-50 flex flex-col items-center gap-2 px-4 sm:top-6">
+              {toasts.map(({ id, content, icon, iconClassName }) => (
+                <Toast
+                  key={id}
+                  content={content}
+                  icon={icon}
+                  iconClassName={iconClassName}
+                  className="pointer-events-auto w-full max-w-[59.6875rem]"
+                />
+              ))}
+            </div>,
+            document.body
+          )
+        : null}
     </ToastContext.Provider>
   );
 };

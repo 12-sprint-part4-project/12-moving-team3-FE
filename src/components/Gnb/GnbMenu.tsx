@@ -41,7 +41,7 @@ export const GnbMenu = ({
           type="button"
           aria-label="메뉴 닫기"
           onClick={onClose}
-          className="inline-flex size-6 shrink-0 items-center justify-center"
+          className="inline-flex size-6 shrink-0 items-center justify-center text-black-100"
         >
           <CloseIcon className="size-6" aria-hidden />
         </button>
