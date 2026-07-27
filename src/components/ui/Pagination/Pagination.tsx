@@ -8,9 +8,19 @@ import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 /*
   PAGINATION
 
+  리스트·테이블 등에서 페이지를 이동하는 컨트롤입니다.
+  현재 page와 totalPages는 부모가 관리하는 제어 컴포넌트
+  (내부에서 페이지 state를 두지 않고, 부모가 넘긴 page를 그대로 표시)이며,
+  페이지 변경은 onPageChange로만 알립니다.
+
+  페이지 번호 윈도우
+  - sm: 현재 근처 3개 + 양끝(1, last) + 필요 시 말줄임
+  - lg: 현재 근처 5개 + 양끝 + 필요 시 말줄임
+  전체 페이지가 윈도우보다 작으면 말줄임 없이 전부 표시합니다.
+
   [props]
   - size: 'sm' | 'lg'
-  - page: number
+  - page: number (1-based)
   - totalPages: number
   - onPageChange: (page: number) => void
   - className: string
@@ -56,6 +66,13 @@ const sizeStyles: Record<
   },
 };
 
+/**
+ * 표시할 페이지 번호 배열을 만듭니다.
+ * 예) total=20, page=8, sm → [1, 'ellipsis', 7, 8, 9, 'ellipsis', 20]
+ *
+ * 양끝(1, last)은 항상 노출하고, 가운데는 현재 페이지 기준 windowSize만큼만 보여
+ * 버튼 개수가 과도하게 늘어나지 않게 합니다.
+ */
 const getPageItems = (
   page: number,
   totalPages: number,
@@ -67,15 +84,18 @@ const getPageItems = (
 
   const windowSize = size === 'sm' ? 3 : 5;
 
+  // 페이지가 적으면 말줄임 없이 전부 나열
   if (totalPages <= windowSize + 2) {
     return Array.from({ length: totalPages }, (_, index) => index + 1);
   }
 
   const items: PageItem[] = [1];
   const lastPage = totalPages;
+  // 현재 페이지를 윈도우 중앙에 가깝게 배치
   let start = Math.max(2, page - Math.floor((windowSize - 1) / 2));
   let end = start + windowSize - 1;
 
+  // 끝쪽에 붙으면 윈도우를 왼쪽으로 밀어 last와 겹치지 않게 함
   if (end >= lastPage) {
     end = lastPage - 1;
     start = Math.max(2, end - windowSize + 1);
@@ -102,6 +122,7 @@ interface PaginationItemProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size: PaginationSize;
 }
 
+/** 페이지 숫자·화살표·말줄임이 공통으로 쓰는 정사각 버튼 */
 const PaginationItem = ({
   size,
   className = '',
@@ -122,6 +143,7 @@ const PaginationItem = ({
   );
 };
 
+/** 말줄임(…) — 클릭 불가, 세 점으로 표현 */
 const Ellipsis = ({ isActive = false }: { isActive?: boolean }) => {
   return (
     <span
@@ -145,12 +167,14 @@ export const Pagination = ({
   className = '',
   ...rest
 }: PaginationProps) => {
+  // 범위를 벗어나면 클램프해 잘못된 page prop에도 UI가 깨지지 않게 함
   const currentPage = Math.min(Math.max(page, 1), Math.max(totalPages, 1));
   const pageItems = getPageItems(currentPage, totalPages, size);
   const canGoPrev = currentPage > 1;
   const canGoNext = currentPage < totalPages;
 
   const handlePageChange = (nextPage: number) => {
+    // 동일 페이지·범위 밖 클릭은 무시해 불필요한 리렌더/요청 방지
     if (nextPage < 1 || nextPage > totalPages || nextPage === currentPage) {
       return;
     }

@@ -11,21 +11,21 @@ import SearchIcon from '@/assets/icons/search.svg';
 import XCircleIcon from '@/assets/icons/x-circle.svg';
 
 /*
-  TEXT FIELD ICON 컴포넌트
-  
+  TEXT FIELD ICON
+
+  검색용 입력 필드입니다.
+  비활성(미포커스·빈 값)일 때는 왼쪽에 검색 아이콘만 두고,
+  포커스되거나 값이 있으면 오른쪽을 clear(X) + search 액션으로 바꿉니다.
+
   [props]
   - size: 'sm' | 'md'
-  - className: string
-  - value: string (제어 컴포넌트용 현재 값. 부모가 state로 관리할 때 사용.)
-  - defaultValue: string (비제어 컴포넌트용 초기 값. 마운트 시 한 번만 적용.
-    value와 동시에 사용하지 말 것. 사용하려면 value를 undefined로 설정할 것)
-  - onChange: (event: ChangeEvent<HTMLInputElement>) => void
-  - onClear?: () => void (X(클리어) 버튼 클릭 시 추가 처리. 값 비우기와 별도로 호출됨)
-  - onSearch?: () => void
-  - disabled: boolean   (true면 입력·클리어·검색 비활성화)
-  - placeholder: string
+  - value / defaultValue: 제어(부모가 value 관리)·비제어(내부가 defaultValue로 관리) 중 하나만 사용 (동시 사용 금지)
+  - onChange / onClear / onSearch
+  - onClear: X 클릭 시 추가 처리 (값 비우기와 별도 콜백)
+  - onSearch: 검색 아이콘 클릭 또는 Enter 시 호출
+  - disabled / placeholder
   - ...rest: InputHTMLAttributes<HTMLInputElement>
- */
+*/
 
 type InputSize = 'sm' | 'md';
 
@@ -70,12 +70,15 @@ export const TextFieldIcon = ({
 }: TextFieldIconProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
+  // 비제어 모드(부모가 value를 안 넘길 때)에서
+  // hasValue·액션 노출을 계산하기 위한 로컬 미러(입력값을 따라가는 내부 state)
   const [uncontrolledValue, setUncontrolledValue] = useState(() =>
     String(defaultValue ?? '')
   );
 
   const currentValue = value !== undefined ? String(value) : uncontrolledValue;
   const hasValue = currentValue.length > 0;
+  // 포커스 중이거나 값이 있으면 좌측 장식 아이콘 → 우측 액션으로 전환
   const showActiveActions = isFocused || hasValue;
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -86,11 +89,16 @@ export const TextFieldIcon = ({
   };
 
   const handleClear = () => {
+    // 비제어: 로컬 미러(내부 state)를 먼저 비움
     if (value === undefined) {
       setUncontrolledValue('');
     }
 
     onClear?.();
+
+    // 제어 모드(부모가 value로 값을 관리): React가 value를 소유하므로
+    // native setter로 DOM을 비운 뒤 input 이벤트를 발생시켜
+    // 부모 onChange(또는 폼 라이브러리)가 빈 값을 받도록 함
     const input = inputRef.current;
     if (onChange && input) {
       const setter = Object.getOwnPropertyDescriptor(
@@ -106,6 +114,7 @@ export const TextFieldIcon = ({
     <div
       className={`flex items-center overflow-clip rounded-2xl bg-background-100 ${sizeStyles[size].field} ${className}`.trim()}
     >
+      {/* 대기 상태: 좌측 검색 아이콘 (장식용) */}
       {!showActiveActions && (
         <SearchIcon
           aria-hidden
@@ -130,6 +139,7 @@ export const TextFieldIcon = ({
           rest.onBlur?.(event);
         }}
         onKeyDown={(event) => {
+          // Enter = 검색 실행 (검색창 UX)
           if (event.key === 'Enter') {
             onSearch?.();
           }
@@ -140,6 +150,7 @@ export const TextFieldIcon = ({
         }`}
       />
 
+      {/* 활성 상태: clear(값 있을 때만) + search */}
       {showActiveActions && (
         <div className={`flex shrink-0 items-center ${sizeStyles[size].gap}`}>
           {hasValue && (

@@ -3,18 +3,16 @@
 import { useState, type ChangeEvent, type TextareaHTMLAttributes } from 'react';
 
 /*
-  TEXT AREA 컴포넌트
-  
+  TEXT AREA
+
+  여러 줄 텍스트 입력(요청 사항, 리뷰 등)용입니다.
+  outlined 필드와 달리 기본 배경이 background-200이고,
+  에러일 때만 빨간 테두리를 켭니다 (평소엔 transparent border로 레이아웃 점프 방지).
+
   [props]
   - size: 'sm' | 'md'
-  - errorMessage: string
-  - isError: boolean
-  - className: string
-  - value: string
-  - defaultValue: string
-  - onChange: (event: ChangeEvent<HTMLTextAreaElement>) => void
-  - disabled: boolean
-  - placeholder: string
+  - errorMessage / isError: 둘 중 하나라도 있으면 에러 스타일
+  - value / defaultValue / onChange / disabled / placeholder
   - ...rest: TextareaHTMLAttributes<HTMLTextAreaElement>
 */
 
@@ -58,12 +56,15 @@ export const TextArea = ({
   ...rest
 }: TextAreaProps) => {
   const [isFocused, setIsFocused] = useState(false);
+  // 비제어 모드(부모가 value를 안 넘길 때)에서
+  // 글자색(hasValue) 판단을 위한 로컬 미러(입력값을 따라가는 내부 state)
   const [uncontrolledValue, setUncontrolledValue] = useState(() =>
     String(defaultValue ?? '')
   );
 
   const currentValue = value !== undefined ? String(value) : uncontrolledValue;
   const hasValue = currentValue.length > 0;
+  // Outlined와 달리 isError만으로도 테두리를 켤 수 있음
   const showError = Boolean(errorMessage) || isError;
 
   const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -97,6 +98,7 @@ export const TextArea = ({
             setIsFocused(false);
             rest.onBlur?.(event);
           }}
+          // 포커스 중이거나 값이 있으면 본문색, 아니면 placeholder와 같은 회색
           className={`h-full w-full resize-none bg-transparent outline-none placeholder:text-gray-300 disabled:cursor-not-allowed ${sizeStyles[size].text} ${
             hasValue || isFocused ? 'text-black-400' : 'text-gray-300'
           }`}
