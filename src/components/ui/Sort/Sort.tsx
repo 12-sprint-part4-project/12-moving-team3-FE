@@ -107,7 +107,7 @@ export const Sort = ({
         <span>{selectedOption.label}</span>
         <ChevronDownIcon
           aria-hidden
-          className={`shrink-0 ${sizeStyles.icon} ${isOpen ? 'rotate-180' : ''}`}
+          className={`shrink-0 text-gray-200 ${sizeStyles.icon} ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
 
