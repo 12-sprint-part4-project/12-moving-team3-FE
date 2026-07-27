@@ -23,7 +23,7 @@ import VisibilityOnIcon from './visibility-on.svg';
 /**
  * `assets/icons`의 svg는 전부 SVGR(Next.js: @svgr/webpack, Storybook: vite-plugin-svgr)로
  * 변환돼 `import Icon from '@/assets/icons/xxx.svg'` 형태로 바로 쓰는 React 컴포넌트다
- * (별도 Icon 래퍼 컴포넌트 없음). fill/stroke가 전부 currentColor라서 className의
+ * (별도 Icon 래퍼 컴포넌트 없음). 단색 아이콘의 fill/stroke는 currentColor를 사용하므로 className의
  * text-*로 색을, w-*, h-*(size-*)로 크기를 그대로 컨트롤할 수 있다.
  *
  * home-fill/office-fill/box-fill/dock-fill/edit(연필) 5개는 텍스트 색과 무관하게
@@ -151,7 +151,7 @@ export const ColorWithTextClass: Story = {
   },
 };
 
-/** w-*, h-* 클래스만으로 아이콘 크기가 바뀐다. SVG에 고정 width/height가 남아있지 않아 그대로 반영된다. */
+/** w-*, h-* 클래스는 SVG의 width/height 속성을 CSS로 덮어써 아이콘 크기를 변경한다. */
 export const SizeWithWidthHeightClass: Story = {
   render: () => (
     <div className="flex flex-wrap items-end gap-8 p-4">
