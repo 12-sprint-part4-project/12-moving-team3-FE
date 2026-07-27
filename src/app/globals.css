@@ -66,6 +66,9 @@
   --shadow-cta: 0.25rem 0.25rem 0.625rem 0 rgb(195 217 242 / 0.2);
   --shadow-cta-hover: 0.25rem 0.25rem 0.3125rem 0 rgb(195 217 242 / 0.2);
 
+  /* Dimmer — Figma Component/dimmer (#141414, opacity 50%) */
+  --color-dimmer: #141414;
+
   /**
    * Typography Tokens
    * text-{size}-{weight} 형식으로 관리한다.
