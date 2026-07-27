@@ -16,14 +16,15 @@ import XCircleIcon from '@/assets/icons/x-circle.svg';
   [props]
   - size: 'sm' | 'md'
   - className: string
-  - ...rest: InputHTMLAttributes<HTMLInputElement>
-  - value: string
-  - defaultValue: string
+  - value: string (제어 컴포넌트용 현재 값. 부모가 state로 관리할 때 사용.)
+  - defaultValue: string (비제어 컴포넌트용 초기 값. 마운트 시 한 번만 적용.
+    value와 동시에 사용하지 말 것. 사용하려면 value를 undefined로 설정할 것)
   - onChange: (event: ChangeEvent<HTMLInputElement>) => void
-  - onClear?: () => void
+  - onClear?: () => void (X(클리어) 버튼 클릭 시 추가 처리. 값 비우기와 별도로 호출됨)
   - onSearch?: () => void
-  - disabled: boolean
+  - disabled: boolean   (true면 입력·클리어·검색 비활성화)
   - placeholder: string
+  - ...rest: InputHTMLAttributes<HTMLInputElement>
  */
 
 type InputSize = 'sm' | 'md';

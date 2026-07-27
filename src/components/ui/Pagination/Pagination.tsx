@@ -67,18 +67,22 @@ const getPageItems = (
 
   const windowSize = size === 'sm' ? 3 : 5;
 
-  if (totalPages <= windowSize + 1) {
+  if (totalPages <= windowSize + 2) {
     return Array.from({ length: totalPages }, (_, index) => index + 1);
   }
 
-  const items: PageItem[] = [];
+  const items: PageItem[] = [1];
   const lastPage = totalPages;
-  let start = Math.max(1, page - Math.floor((windowSize - 1) / 2));
+  let start = Math.max(2, page - Math.floor((windowSize - 1) / 2));
   let end = start + windowSize - 1;
 
   if (end >= lastPage) {
     end = lastPage - 1;
-    start = Math.max(1, end - windowSize + 1);
+    start = Math.max(2, end - windowSize + 1);
+  }
+
+  if (start > 2) {
+    items.push('ellipsis');
   }
 
   for (let current = start; current <= end; current += 1) {
