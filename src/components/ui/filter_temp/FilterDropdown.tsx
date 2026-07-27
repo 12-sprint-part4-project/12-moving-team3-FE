@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 
-import { TriggerWidthSizer } from '@/components/ui/common/TriggerWidthSizer';
+import { TriggerWidthSizer } from '@/components/ui/common_temp/TriggerWidthSizer';
 import {
   OPTIONS_BY_TYPE,
   TYPE_LABELS,
