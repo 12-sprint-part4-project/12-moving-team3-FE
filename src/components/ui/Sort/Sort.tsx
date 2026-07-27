@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 
-import { TriggerWidthSizer } from '@/components/ui/common/TriggerWidthSizer';
+import { TriggerWidthSizer } from '@/components/ui/Common/TriggerWidthSizer';
 import type { DropdownOption } from '@/constants/dropdownOptions';
 import { useControllableValue } from '@/hooks/useControllableValue';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
