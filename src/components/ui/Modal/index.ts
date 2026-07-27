@@ -22,8 +22,8 @@ export type {
   SelectAddressModalProps,
 } from './SelectAddressModal';
 
-export { DesignatedQuoteRequestModal } from './DesignatedQuoteRequestModal';
-export type { DesignatedQuoteRequestModalProps } from './DesignatedQuoteRequestModal';
+export { ModalBasic } from './ModalBasic';
+export type { ModalBasicProps } from './ModalBasic';
 
 export { MoveTypeFilterModal } from './MoveTypeFilterModal';
 export type {
