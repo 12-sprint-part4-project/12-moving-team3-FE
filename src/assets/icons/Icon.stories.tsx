@@ -16,6 +16,7 @@ import InfoIcon from './info.svg';
 import LikeIcon from './like.svg';
 import MenuIcon from './menu.svg';
 import OfficeFillIcon from './office-fill.svg';
+import SearchIcon from './search.svg';
 import StarIcon from './star.svg';
 import VisibilityOffIcon from './visibility-off.svg';
 import VisibilityOnIcon from './visibility-on.svg';
@@ -44,6 +45,7 @@ const MONO_ICONS = [
   ['filter', FilterIcon],
   ['menu', MenuIcon],
   ['info', InfoIcon],
+  ['search', SearchIcon],
 ] as const;
 
 const SOLID_ICONS = [
