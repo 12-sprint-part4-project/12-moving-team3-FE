@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import type { CSSProperties } from 'react';
 
 import AlarmIcon from './alarm.svg';
 import BoxFillIcon from './box-fill.svg';
@@ -211,10 +210,7 @@ export const InfoIconColorSlots: Story = {
         </figcaption>
       </figure>
       <figure className="flex flex-col items-center gap-2">
-        <InfoIcon
-          className="size-10"
-          style={{ '--ic-bg': '#1B92FF', '--ic-stroke': '#FF4F64' } as CSSProperties}
-        />
+        <InfoIcon className="[--ic-bg:var(--color-blue-300)] [--ic-stroke:var(--color-red-200)] size-10" />
         <figcaption className="text-xs-regular text-black-100">
           --ic-bg / --ic-stroke 오버라이드
         </figcaption>
@@ -229,12 +225,8 @@ export const InfoIconColorSlots: Story = {
 {/* 기본값: 둘 다 currentColor라서 text-*만으로 동일하게 움직인다 */}
 <InfoIcon className="size-10 text-gray-200" />
 
-{/* 컨텍스트 CSS(또는 CSS Modules)에서 두 변수를 각각 오버라이드해 테두리/마크 색을 따로 바꾼다 */}
-.myContext {
-  --ic-bg: theme('colors.blue.300');
-  --ic-stroke: theme('colors.red.200');
-}
-<InfoIcon className="myContext size-10" />`,
+{/* className의 arbitrary property로 --color-* 토큰을 참조해 두 변수를 각각 오버라이드한다 */}
+<InfoIcon className="[--ic-bg:var(--color-blue-300)] [--ic-stroke:var(--color-red-200)] size-10" />`,
       },
     },
   },
