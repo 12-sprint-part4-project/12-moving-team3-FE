@@ -7,7 +7,7 @@ import { GnbMenu } from '@/components/Gnb/GnbMenu';
 import type { GnbNavItem } from '@/components/Gnb/gnbNav';
 
 const LANDING_MENU_ITEMS: GnbNavItem[] = [
-  { label: '기사님 찾기', href: '/drivers' },
+  { label: '기사님 찾기', href: '/movers' },
   { label: '로그인', href: '/login' },
 ];
 
@@ -47,10 +47,7 @@ export const Header = () => {
             onClick={handleMenuClose}
           />
           <div className="absolute inset-y-0 right-0 h-full">
-            <GnbMenu
-              navItems={LANDING_MENU_ITEMS}
-              onClose={handleMenuClose}
-            />
+            <GnbMenu navItems={LANDING_MENU_ITEMS} onClose={handleMenuClose} />
           </div>
         </div>
       ) : null}

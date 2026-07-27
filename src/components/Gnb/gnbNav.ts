@@ -11,7 +11,7 @@ export const GNB_NAV_BY_ROLE = {
   ],
   customer: [
     { label: '견적 요청', href: '/estimates/request' },
-    { label: '기사님 찾기', href: '/drivers' },
+    { label: '기사님 찾기', href: '/movers' },
     { label: '내 견적 관리', href: '/estimates' },
   ],
 } as const satisfies Record<string, GnbNavItem[]>;
