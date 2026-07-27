@@ -10,8 +10,8 @@ import type { HTMLAttributes, ReactNode } from 'react';
   [props]
   - color:
     · incoming    — 상대 메시지 (흰 배경, 왼쪽 위 모서리 각짐)
-    · mePrimary   — 내 메시지 강조 (파란 배경)
-    · meSecondary — 내 메시지 보조 (연파란 배경)
+    · mePrimary   — 내 메시지 (파란 배경)
+    · meSecondary — 내 메시지 (연파란 배경)
   - size: 'sm' | 'md'
   - children: 말풍선 본문
   - className / ...rest: HTMLAttributes<HTMLDivElement>
