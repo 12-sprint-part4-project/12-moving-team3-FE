@@ -25,9 +25,16 @@ const meta: Meta<typeof Pagination> = {
     size: {
       control: 'select',
       options: ['sm', 'lg'],
+      description: 'Pagination 컴포넌트 사이즈 : sm, lg',
     },
-    page: { control: { type: 'number', min: 1 } },
-    totalPages: { control: { type: 'number', min: 1 } },
+    page: {
+      control: { type: 'number', min: 1 },
+      description: '현재 페이지 번호',
+    },
+    totalPages: {
+      control: { type: 'number', min: 1 },
+      description: '총 페이지 수',
+    },
     className: { control: 'text' },
   },
 };
