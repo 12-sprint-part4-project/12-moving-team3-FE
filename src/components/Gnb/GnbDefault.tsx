@@ -4,11 +4,12 @@ import AlarmIcon from '@/assets/icons/alarm.svg';
 import MenuIcon from '@/assets/icons/menu.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
 
-import { Logo } from '@/components/Logo/Logo';
 import {
   GNB_NAV_BY_ROLE,
   type GnbNavItem,
 } from '@/components/Gnb/gnbNav';
+import { Logo } from '@/components/Logo/Logo';
+import { Tab } from '@/components/ui/Tab/Tab';
 
 export type GnbDefaultSize = 'sm' | 'md' | 'lg';
 /** Figma Property 1(sort): gnb=헤더, tab=탭바, component=헤더+탭 */
@@ -86,26 +87,15 @@ const GnbTabBar = ({
     className={`flex w-full items-center border-b border-line-100 bg-white ${TAB_BAR_STYLE[size]}`}
   >
     <div className="flex items-center gap-6" role="tablist">
-      {tabs.map((tab) => {
-        const isActive = tab.id === activeTabId;
-
-        return (
-          <button
-            key={tab.id}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            onClick={() => onTabChange?.(tab.id)}
-            className={`flex h-[3.375rem] items-center whitespace-nowrap ${
-              isActive
-                ? 'border-b-2 border-blue-400 text-md-bold text-black-400'
-                : 'text-md-semibold text-gray-400'
-            }`}
-          >
-            {tab.label}
-          </button>
-        );
-      })}
+      {tabs.map((tab) => (
+        <Tab
+          key={tab.id}
+          active={tab.id === activeTabId}
+          onClick={() => onTabChange?.(tab.id)}
+        >
+          {tab.label}
+        </Tab>
+      ))}
     </div>
   </div>
 );

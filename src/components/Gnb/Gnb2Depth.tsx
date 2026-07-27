@@ -3,6 +3,7 @@ import MenuIcon from '@/assets/icons/menu.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
 
 import { Logo } from '@/components/Logo/Logo';
+import { Tab } from '@/components/ui/Tab/Tab';
 
 export type Gnb2DepthSize = 'sm' | 'md' | 'lg';
 /** Figma Property 2 — lg 활성 탭. tab-1=대기 중인 견적, tab-2=받았던 견적 */
@@ -130,26 +131,16 @@ const Gnb2DepthTabBar = ({
     className="flex h-20 w-full items-start gap-8 border-b border-line-100 bg-white px-[16.25rem] pt-4 shadow-[0_0.125rem_0.3125rem] shadow-shadow-gray-100/10"
     role="tablist"
   >
-    {tabs.map((tab) => {
-      const isActive = tab.id === activeTab;
-
-      return (
-        <button
-          key={tab.id}
-          type="button"
-          role="tab"
-          aria-selected={isActive}
-          onClick={() => onTabChange?.(tab.id)}
-          className={`flex self-stretch items-center justify-center py-4 whitespace-nowrap text-xl-semibold ${
-            isActive
-              ? 'border-b-2 border-black-400 text-black-400'
-              : 'text-gray-400'
-          }`}
-        >
-          {tab.label}
-        </button>
-      );
-    })}
+    {tabs.map((tab) => (
+      <Tab
+        key={tab.id}
+        variant="depth"
+        active={tab.id === activeTab}
+        onClick={() => onTabChange?.(tab.id)}
+      >
+        {tab.label}
+      </Tab>
+    ))}
   </div>
 );
 
