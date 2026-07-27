@@ -2,8 +2,6 @@
 
 import { useId, useState } from 'react';
 
-import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
-import { InfoField } from '@/components/ui/InfoField/InfoField';
 import { TextArea } from '@/components/ui/Input/TextArea';
 import { TextFieldOutlined } from '@/components/ui/Input/TextFieldOutlined';
 
@@ -14,19 +12,20 @@ import { ModalHeader } from './ModalHeader';
 import {
   MODAL_PANEL_BOTTOM_SHEET_CLASS,
   MODAL_PANEL_CLASS,
-  MOVE_TYPE_CHIP_RESPONSIVE_CLASS,
 } from './modalPanel';
+import {
+  RequestSummaryCard,
+  type RequestSummaryMoveType,
+} from './RequestSummaryCard';
 
 /** 코멘트 최소 글자 수 (Figma: 10자 이상일 때 버튼 활성화) */
 const MIN_COMMENT_LENGTH = 10;
-
-type MoveTypeOption = 'small' | 'home' | 'office';
 
 export interface SendQuoteModalProps {
   onClose: () => void;
   /** 견적 보내기 클릭 시 호출. API 연동은 호출 측에서 담당 */
   onSubmit: (quote: { price: string; comment: string }) => void;
-  moveType?: MoveTypeOption;
+  moveType?: RequestSummaryMoveType;
   isDesignated?: boolean;
   /** 고객 이름 (예: '김코드') */
   customerName: string;
@@ -78,58 +77,14 @@ export const SendQuoteModal = ({
       <ModalHeader title="견적 보내기" onClose={onClose} titleId={titleId} />
 
       <div className="flex w-full flex-col gap-5 sm:gap-8">
-        <div className="flex flex-col gap-3.5 sm:gap-6">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <MoveTypeChip
-              type={moveType}
-              size="sm"
-              className={MOVE_TYPE_CHIP_RESPONSIVE_CLASS}
-            />
-            {isDesignated && (
-              <MoveTypeChip
-                type="designated"
-                size="sm"
-                className={MOVE_TYPE_CHIP_RESPONSIVE_CLASS}
-              />
-            )}
-          </div>
-
-          {/* 고객 요청 요약 카드 */}
-          <div className="flex w-full flex-col gap-1.5 rounded-md border border-line-100 bg-white px-4 py-2.5 sm:gap-4 sm:rounded-lg sm:px-[1.125rem] sm:py-6 sm:shadow-[0.25rem_0.25rem_0.5rem] sm:shadow-shadow-gray-200/10">
-            <p className="text-md-semibold text-black-300 sm:text-2xl-semibold">
-              {customerName} 고객님
-            </p>
-            <div className="flex flex-col gap-2 sm:gap-3.5">
-              <InfoField
-                label="이사일"
-                value={moveDate}
-                color="neutral"
-                className="gap-2 sm:gap-3"
-                labelClassName="px-1.5 py-0.5 text-md-medium sm:py-1 sm:text-2lg-regular"
-                valueClassName="text-md-medium text-black-300 sm:text-2lg-medium"
-              />
-              <div className="flex flex-wrap items-center gap-3.5 sm:gap-4">
-                <InfoField
-                  label="출발"
-                  value={departure}
-                  color="neutral"
-                  className="gap-2 sm:gap-3"
-                  labelClassName="px-1.5 py-0.5 text-md-medium sm:py-1 sm:text-2lg-regular"
-                  valueClassName="text-md-medium text-black-300 sm:text-2lg-medium"
-                />
-                <span aria-hidden className="h-3.5 w-px bg-line-200 sm:h-4" />
-                <InfoField
-                  label="도착"
-                  value={arrival}
-                  color="neutral"
-                  className="gap-2 sm:gap-3"
-                  labelClassName="px-1.5 py-0.5 text-md-medium sm:py-1 sm:text-2lg-regular"
-                  valueClassName="text-md-medium text-black-300 sm:text-2lg-medium"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        <RequestSummaryCard
+          moveType={moveType}
+          isDesignated={isDesignated}
+          customerName={customerName}
+          moveDate={moveDate}
+          departure={departure}
+          arrival={arrival}
+        />
 
         <div className="flex flex-col gap-4">
           <p className="text-lg-semibold text-black-300 sm:text-xl-semibold">

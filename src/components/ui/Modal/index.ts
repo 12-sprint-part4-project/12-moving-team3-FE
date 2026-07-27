@@ -16,6 +16,12 @@ export type { SendQuoteModalProps } from './SendQuoteModal';
 export { RejectRequestModal } from './RejectRequestModal';
 export type { RejectRequestModalProps } from './RejectRequestModal';
 
+export { RequestSummaryCard } from './RequestSummaryCard';
+export type {
+  RequestSummaryCardProps,
+  RequestSummaryMoveType,
+} from './RequestSummaryCard';
+
 export { SelectAddressModal } from './SelectAddressModal';
 export type {
   AddressOption,
