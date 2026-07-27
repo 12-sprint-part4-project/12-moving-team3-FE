@@ -25,34 +25,37 @@ const SAMPLE_COUNTS = {
   office: 10,
 };
 
+/** Modal 셸과 조합 — render 콜백이 아닌 컴포넌트에서 Hook을 쓰도록 분리 */
+const ModalShellStory = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background-200">
+      <button
+        type="button"
+        className="rounded-lg bg-blue-300 px-4 py-2 text-lg-semibold text-white"
+        onClick={() => setIsOpen(true)}
+      >
+        이사 유형 필터 열기
+      </button>
+      {isOpen && (
+        <Modal placement="bottom" onClose={() => setIsOpen(false)}>
+          <MoveTypeFilterModal
+            counts={SAMPLE_COUNTS}
+            onClose={() => setIsOpen(false)}
+            onSubmit={() => {
+              setIsOpen(false);
+            }}
+          />
+        </Modal>
+      )}
+    </div>
+  );
+};
+
 /** Modal 셸과 조합해 실제 사용 형태를 확인 */
 export const WithModalShell: Story = {
-  render: () => {
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background-200">
-        <button
-          type="button"
-          className="rounded-lg bg-blue-300 px-4 py-2 text-lg-semibold text-white"
-          onClick={() => setIsOpen(true)}
-        >
-          이사 유형 필터 열기
-        </button>
-        {isOpen && (
-          <Modal placement="bottom" onClose={() => setIsOpen(false)}>
-            <MoveTypeFilterModal
-              counts={SAMPLE_COUNTS}
-              onClose={() => setIsOpen(false)}
-              onSubmit={() => {
-                setIsOpen(false);
-              }}
-            />
-          </Modal>
-        )}
-      </div>
-    );
-  },
+  render: ModalShellStory,
 };
 
 /** 콘텐츠 패널만 (셸 없이) */
