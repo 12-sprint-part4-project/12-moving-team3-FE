@@ -33,7 +33,7 @@ export const LandingServiceCard = ({
 }: LandingServiceCardProps) => (
   <article
     className={cn(
-      'relative max-w-[20.4375rem] overflow-hidden rounded-3xl shadow-[0.25rem_0.25rem_0.3125rem_0_rgb(225_225_225_/_0.1)] lg:max-w-none lg:rounded-4xl',
+      'relative max-w-[20.4375rem] overflow-hidden rounded-3xl shadow-card lg:max-w-none lg:rounded-4xl',
       VARIANT_STYLE[variant],
       className
     )}
