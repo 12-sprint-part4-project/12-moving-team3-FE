@@ -69,6 +69,8 @@
   /* Box Shadow — Figma img/landing card */
   --shadow-card: 0.25rem 0.25rem 0.3125rem 0
     color-mix(in srgb, var(--color-shadow-gray-100) 10%, transparent);
+  /* Dimmer — Figma Component/dimmer (#141414, opacity 50%) */
+  --color-dimmer: #141414;
 
   /**
    * Typography Tokens
