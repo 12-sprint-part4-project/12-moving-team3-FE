@@ -4,6 +4,8 @@ import type { ChangeEvent } from 'react';
 
 import CheckIcon from '@/assets/icons/check.svg';
 
+import { cn } from '@/lib/utils';
+
 interface FilterCheckBoxProps {
   /** 체크박스 왼쪽에 표시할 라벨 텍스트 */
   label: string;
@@ -15,6 +17,8 @@ interface FilterCheckBoxProps {
   disabled?: boolean;
   /** 추가 스타일 클래스 */
   className?: string;
+  /** 라벨 텍스트 스타일 오버라이드 (예: 전체선택 gray-300) */
+  labelClassName?: string;
 }
 
 export const FilterCheckBox = ({
@@ -23,6 +27,7 @@ export const FilterCheckBox = ({
   onCheckedChange,
   disabled = false,
   className,
+  labelClassName,
 }: FilterCheckBoxProps) => {
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     onCheckedChange(event.target.checked);
@@ -30,11 +35,15 @@ export const FilterCheckBox = ({
 
   return (
     <label
-      className={`flex w-full items-center justify-between border-b border-line-100 bg-white p-4 ${
-        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
-      } ${className ?? ''}`}
+      className={cn(
+        'flex w-full items-center justify-between border-b border-line-100 bg-white p-4',
+        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+        className
+      )}
     >
-      <span className="text-2lg-medium text-black-400">{label}</span>
+      <span className={cn('text-2lg-medium text-black-400', labelClassName)}>
+        {label}
+      </span>
       <span className="relative flex size-9 shrink-0 items-center justify-center">
         <input
           type="checkbox"
