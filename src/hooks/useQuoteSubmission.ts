@@ -44,55 +44,62 @@ export const useQuoteSubmission = ({
     setSubmitErrorMessage(null);
   };
 
-  /** 견적 보내기 제출 */
-  const proposalMutation = useMutation({
-    mutationFn: ({
-      estimateRequestId,
-      price,
-      comment,
-    }: {
-      estimateRequestId: number;
-      price: number;
-      comment: string;
-    }) => submitProposalQuote(estimateRequestId, { price, comment }),
+  /** 제출 mutation 공통 옵션 생성 */
+  const createSubmissionMutation = <TVariables>(config: {
+    mutationFn: (variables: TVariables) => Promise<unknown>;
+    onSuccess?: () => void;
+    successToastContent: string;
+    errorFallbackMessage: string;
+  }) => ({
+    mutationFn: config.mutationFn,
     onSuccess: async () => {
       await invalidateReceivedLists();
       setSubmitErrorMessage(null);
-      onProposalSuccess?.();
+      config.onSuccess?.();
       showToast({
-        content: '견적을 성공적으로 보냈습니다!',
+        content: config.successToastContent,
       });
     },
-    onError: (mutationError) => {
+    onError: (mutationError: unknown) => {
       setSubmitErrorMessage(
-        getSubmitErrorMessage(mutationError, '견적 보내기에 실패했습니다.')
+        getSubmitErrorMessage(mutationError, config.errorFallbackMessage)
       );
     },
   });
 
+  /** 견적 보내기 제출 */
+  const proposalMutation = useMutation(
+    createSubmissionMutation({
+      mutationFn: ({
+        estimateRequestId,
+        price,
+        comment,
+      }: {
+        estimateRequestId: number;
+        price: number;
+        comment: string;
+      }) => submitProposalQuote(estimateRequestId, { price, comment }),
+      onSuccess: onProposalSuccess,
+      successToastContent: '견적을 성공적으로 보냈습니다!',
+      errorFallbackMessage: '견적 보내기에 실패했습니다.',
+    })
+  );
+
   /** 반려 제출 */
-  const rejectionMutation = useMutation({
-    mutationFn: ({
-      estimateRequestId,
-      rejectReason,
-    }: {
-      estimateRequestId: number;
-      rejectReason: string;
-    }) => submitRejectionQuote(estimateRequestId, { rejectReason }),
-    onSuccess: async () => {
-      await invalidateReceivedLists();
-      setSubmitErrorMessage(null);
-      onRejectionSuccess?.();
-      showToast({
-        content: '견적 요청을 반려했습니다.',
-      });
-    },
-    onError: (mutationError) => {
-      setSubmitErrorMessage(
-        getSubmitErrorMessage(mutationError, '반려 요청에 실패했습니다.')
-      );
-    },
-  });
+  const rejectionMutation = useMutation(
+    createSubmissionMutation({
+      mutationFn: ({
+        estimateRequestId,
+        rejectReason,
+      }: {
+        estimateRequestId: number;
+        rejectReason: string;
+      }) => submitRejectionQuote(estimateRequestId, { rejectReason }),
+      onSuccess: onRejectionSuccess,
+      successToastContent: '견적 요청을 반려했습니다.',
+      errorFallbackMessage: '반려 요청에 실패했습니다.',
+    })
+  );
 
   return {
     submitErrorMessage,
