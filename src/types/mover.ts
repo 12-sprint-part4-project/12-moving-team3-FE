@@ -22,11 +22,30 @@ export type ApiRegion =
   | 'BUSAN'
   | 'JEJU';
 
-export type MoverSortField = 'career' | 'createdAt';
+/**
+ * FE 정렬 ↔ BE 쿼리 제안 (BE가 이 스펙에 맞출 예정)
+ * - reviewCountDesc    → sort=reviewCount&order=desc
+ * - ratingDesc         → sort=averageRating&order=desc
+ * - careerDesc         → sort=career&order=desc
+ * - confirmedCountDesc → sort=confirmedCount&order=desc
+ *
+ * BE movers list query `sort` enum에 위 필드 추가를 권장한다.
+ */
+export type MoverSortField =
+  | 'reviewCount'
+  | 'averageRating'
+  | 'career'
+  | 'confirmedCount'
+  | 'createdAt';
+
 export type MoverSortOrder = 'asc' | 'desc';
 
 /** UI 정렬 값 → API sort + order */
-export type MoversSortValue = 'createdAtDesc' | 'careerAsc' | 'careerDesc';
+export type MoversSortValue =
+  | 'reviewCountDesc'
+  | 'ratingDesc'
+  | 'careerDesc'
+  | 'confirmedCountDesc';
 
 /** GET /api/movers 쿼리 파라미터 */
 export interface MoversListParams {
@@ -35,6 +54,12 @@ export interface MoversListParams {
   moveTypes?: ApiMoveType[];
   sort?: MoverSortField;
   order?: MoverSortOrder;
+  cursor?: string;
+  limit?: number;
+}
+
+/** GET /api/movers/favorites 쿼리 */
+export interface FavoriteMoversParams {
   cursor?: string;
   limit?: number;
 }
@@ -78,6 +103,9 @@ export interface MoverListItem {
   serviceRegions: MoverServiceRegion[];
   review: ReviewStats;
   isFavorited: boolean;
+  /** BE 확장 예정 — 없으면 FE에서 0으로 표시 */
+  favoritedCount?: number;
+  confirmedCount?: number;
 }
 
 export interface MoversListMeta {
@@ -118,6 +146,32 @@ export interface MoverDetailData {
 
 export type MoverDetailResponse = ApiSuccessResponse<MoverDetailData>;
 
+/** 찜 목록 아이템 (Favorite + mover + stats) */
+export interface FavoriteMoverListItem {
+  id: number;
+  userId: string;
+  moverId: string | null;
+  createdAt: string;
+  mover: {
+    id: string;
+    name: string;
+    profileImageUrl: string | null;
+    moverProfile: {
+      career: number | null;
+      serviceRegions: MoverServiceRegion[];
+    } | null;
+  } | null;
+  reviewStats: ReviewStats;
+  favoritedCount: number;
+}
+
+export type FavoriteMoversResponse = ApiSuccessResponse<
+  { items: FavoriteMoverListItem[] },
+  MoversListMeta
+> & {
+  meta: MoversListMeta;
+};
+
 /** 카드·상세 공통 UI 모델 */
 export interface MoverCardModel {
   moverId: string;
@@ -132,8 +186,8 @@ export interface MoverCardModel {
   reviewCount: number;
   ratingCounts: ReviewRatingCounts;
   isFavorited: boolean;
-  favoritedCount?: number;
-  confirmedCount?: number;
+  favoritedCount: number;
+  confirmedCount: number;
   isDesignated?: boolean;
 }
 
@@ -183,26 +237,52 @@ export const MOVE_TYPE_LABELS: Record<ApiMoveType, string> = {
   OFFICE: '사무실이사',
 };
 
+export const REGION_FILTER_OPTIONS: { label: string; value: string }[] = [
+  { label: '전체', value: 'ALL' },
+  ...ALL_API_REGIONS.map((region) => ({
+    label: REGION_LABELS[region],
+    value: region,
+  })),
+];
+
+export const SERVICE_FILTER_OPTIONS: { label: string; value: string }[] = [
+  { label: '전체', value: 'ALL' },
+  ...ALL_API_MOVE_TYPES.map((moveType) => ({
+    label: MOVE_TYPE_LABELS[moveType],
+    value: moveType,
+  })),
+];
+
+/**
+ * FE 정렬 ↔ BE 쿼리 제안 (BE가 이 스펙에 맞출 예정)
+ * - reviewCountDesc    → sort=reviewCount&order=desc
+ * - ratingDesc         → sort=averageRating&order=desc
+ * - careerDesc         → sort=career&order=desc
+ * - confirmedCountDesc → sort=confirmedCount&order=desc
+ */
 export const SORT_VALUE_TO_API: Record<
   MoversSortValue,
   { sort: MoverSortField; order: MoverSortOrder }
 > = {
-  createdAtDesc: { sort: 'createdAt', order: 'desc' },
-  careerAsc: { sort: 'career', order: 'asc' },
+  reviewCountDesc: { sort: 'reviewCount', order: 'desc' },
+  ratingDesc: { sort: 'averageRating', order: 'desc' },
   careerDesc: { sort: 'career', order: 'desc' },
+  confirmedCountDesc: { sort: 'confirmedCount', order: 'desc' },
 };
 
 export const MOVERS_SORT_OPTIONS: { label: string; value: MoversSortValue }[] =
   [
-    { label: '최신순', value: 'createdAtDesc' },
+    { label: '리뷰 많은순', value: 'reviewCountDesc' },
+    { label: '평점 높은순', value: 'ratingDesc' },
     { label: '경력 많은순', value: 'careerDesc' },
-    { label: '경력 적은순', value: 'careerAsc' },
+    { label: '확정 많은순', value: 'confirmedCountDesc' },
   ];
 
 export const isMoversSortValue = (value: string): value is MoversSortValue =>
-  value === 'createdAtDesc' ||
-  value === 'careerAsc' ||
-  value === 'careerDesc';
+  value === 'reviewCountDesc' ||
+  value === 'ratingDesc' ||
+  value === 'careerDesc' ||
+  value === 'confirmedCountDesc';
 
 export const isApiMoveType = (value: string): value is ApiMoveType =>
   value === 'SMALL' || value === 'HOME' || value === 'OFFICE';

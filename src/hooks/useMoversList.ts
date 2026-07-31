@@ -37,13 +37,13 @@ export interface UseMoversListParams {
 /**
  * 기사님 목록 무한 스크롤 조회.
  * - 지역·서비스 미선택: 해당 쿼리 생략 → 전체 조회
- * - 기본 정렬: 최신순(createdAt desc)
+ * - 기본 정렬: 리뷰 많은순(reviewCount desc)
  */
 export const useMoversList = ({
   keyword,
   regions = [],
   moveTypes = [],
-  sort = 'createdAtDesc',
+  sort = 'reviewCountDesc',
   limit = 10,
 }: UseMoversListParams) => {
   const stableRegions = useMemo(

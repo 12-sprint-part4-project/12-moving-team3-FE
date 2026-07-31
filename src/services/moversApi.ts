@@ -6,6 +6,9 @@ import {
 } from '@/services/apiClient';
 import type { ApiErrorBody } from '@/types/api';
 import type {
+  FavoriteMoverListItem,
+  FavoriteMoversParams,
+  FavoriteMoversResponse,
   MoverCardModel,
   MoverDetailData,
   MoverDetailResponse,
@@ -26,15 +29,14 @@ const getOptionalAuthHeaders = (): HeadersInit => {
 /**
  * 기사님 목록 쿼리스트링 생성.
  * - region / moveType: 부분 선택만 전달. 미선택·전체 선택 시 생략 → BE 전체 조회
- * - sort / order: 기본 createdAt + desc
+ * - sort / order: 기본 reviewCount + desc (FE 정렬 제안 참고: types/mover.ts)
  */
 export const buildMoversListQuery = (params: MoversListParams): string => {
   const searchParams = new URLSearchParams();
   const regions = params.regions ?? [];
   const moveTypes = params.moveTypes ?? [];
-  const sort = params.sort ?? 'createdAt';
-  const order =
-    params.order ?? (sort === 'career' ? 'asc' : 'desc');
+  const sort = params.sort ?? 'reviewCount';
+  const order = params.order ?? 'desc';
 
   if (params.keyword?.trim()) {
     searchParams.set('keyword', params.keyword.trim());
@@ -151,17 +153,23 @@ const toCardModel = ({
   description,
   review,
   isFavorited,
+  favoritedCount,
+  confirmedCount,
+  isDesignated,
 }: {
   moverId: string;
   nickname: string;
   profileImageUrl: string | null;
   services: MoverListItem['service'];
-  regions: MoverListItem['serviceRegions'];
+  regions: MoverServiceRegionLike[];
   career: number | null;
   shortDescription: string | null;
   description: string | null;
   review: ReviewStats;
   isFavorited: boolean;
+  favoritedCount?: number | null;
+  confirmedCount?: number | null;
+  isDesignated?: boolean;
 }): MoverCardModel => ({
   moverId,
   nickname,
@@ -175,7 +183,12 @@ const toCardModel = ({
   reviewCount: review.totalCount,
   ratingCounts: review.ratingCounts ?? EMPTY_RATING_COUNTS,
   isFavorited,
+  favoritedCount: favoritedCount ?? 0,
+  confirmedCount: confirmedCount ?? 0,
+  isDesignated,
 });
+
+type MoverServiceRegionLike = { region: MoverListItem['serviceRegions'][number]['region'] };
 
 /** 목록 아이템 → 카드 UI 모델 */
 export const toMoverCardModelFromListItem = (
@@ -192,6 +205,8 @@ export const toMoverCardModelFromListItem = (
     description: item.description,
     review: item.review,
     isFavorited: item.isFavorited,
+    favoritedCount: item.favoritedCount,
+    confirmedCount: item.confirmedCount,
   });
 
 /** 상세 응답 → 카드/상세 UI 모델 */
@@ -210,6 +225,29 @@ export const toMoverCardModelFromDetail = (
     review: data.reviewStats,
     isFavorited: data.isFavorited,
   });
+
+/** 찜 목록 아이템 → 카드 UI 모델 */
+export const toMoverCardModelFromFavorite = (
+  item: FavoriteMoverListItem
+): MoverCardModel | null => {
+  if (!item.moverId || !item.mover) {
+    return null;
+  }
+
+  return toCardModel({
+    moverId: item.moverId,
+    nickname: item.mover.name,
+    profileImageUrl: item.mover.profileImageUrl,
+    services: [],
+    regions: item.mover.moverProfile?.serviceRegions ?? [],
+    career: item.mover.moverProfile?.career ?? null,
+    shortDescription: null,
+    description: null,
+    review: item.reviewStats,
+    isFavorited: true,
+    favoritedCount: item.favoritedCount,
+  });
+};
 
 /**
  * 기사님 목록 조회.
@@ -279,6 +317,92 @@ export const getMoverDetail = async (
   }
 
   if (!isMoverDetailResponse(body)) {
+    throw new ApiError(
+      response.status,
+      'INVALID_RESPONSE',
+      '요청 처리 중 오류가 발생했습니다.'
+    );
+  }
+
+  return body;
+};
+
+const isFavoriteMoversResponse = (
+  body: unknown
+): body is FavoriteMoversResponse => {
+  if (!body || typeof body !== 'object') {
+    return false;
+  }
+
+  const { data, meta } = body as {
+    data?: unknown;
+    meta?: unknown;
+  };
+
+  if (!data || typeof data !== 'object') {
+    return false;
+  }
+
+  if (!Array.isArray((data as { items?: unknown }).items)) {
+    return false;
+  }
+
+  if (!meta || typeof meta !== 'object') {
+    return false;
+  }
+
+  const listMeta = meta as {
+    nextCursor?: unknown;
+    hasNextPage?: unknown;
+  };
+
+  return (
+    (typeof listMeta.nextCursor === 'string' || listMeta.nextCursor === null) &&
+    typeof listMeta.hasNextPage === 'boolean'
+  );
+};
+
+/**
+ * 찜한 기사님 목록 조회 (CUSTOMER).
+ * GET /api/movers/favorites
+ */
+export const getFavoriteMovers = async (
+  params: FavoriteMoversParams = {}
+): Promise<FavoriteMoversResponse> => {
+  const searchParams = new URLSearchParams();
+  if (params.cursor) {
+    searchParams.set('cursor', params.cursor);
+  }
+  if (params.limit !== undefined) {
+    searchParams.set('limit', String(params.limit));
+  }
+  const query = searchParams.toString();
+  const suffix = query ? `?${query}` : '';
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/movers/favorites${suffix}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+      cache: 'no-store',
+      headers: getOptionalAuthHeaders(),
+      signal: createApiTimeoutSignal(),
+    }
+  );
+
+  const body: unknown = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const errorBody =
+      body && typeof body === 'object' ? (body as ApiErrorBody) : null;
+    throw new ApiError(
+      response.status,
+      errorBody?.error?.code ?? 'UNKNOWN_ERROR',
+      errorBody?.error?.message ?? '요청 처리 중 오류가 발생했습니다.'
+    );
+  }
+
+  if (!isFavoriteMoversResponse(body)) {
     throw new ApiError(
       response.status,
       'INVALID_RESPONSE',
