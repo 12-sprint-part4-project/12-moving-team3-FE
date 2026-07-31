@@ -1,4 +1,8 @@
-import { Button } from '@/components/Button/Button';
+import {
+  Button,
+  type ButtonSize,
+  type ButtonVariant,
+} from '@/components/Button/Button';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
 
@@ -34,6 +38,49 @@ export const ReceivedRequestCard = ({
     onReject?.(request);
   };
 
+  const CARD_ACTIONS: {
+    label: string;
+    variant: ButtonVariant;
+    showIcon: boolean;
+    onClick: () => void;
+  }[] = [
+    {
+      label: '견적 보내기',
+      variant: 'solid',
+      showIcon: true,
+      onClick: handleSendQuote,
+    },
+    {
+      label: '반려',
+      variant: 'outlined',
+      showIcon: false,
+      onClick: handleReject,
+    },
+  ];
+
+  /** size별 액션 버튼 공통 렌더 */
+  const renderCardActions = (size: ButtonSize) =>
+    CARD_ACTIONS.map((action) => (
+      <div
+        key={`${size}-${action.label}`}
+        className={
+          size === 'sm'
+            ? 'w-full min-w-0 lg:hidden'
+            : 'hidden w-full min-w-0 lg:block lg:flex-1'
+        }
+      >
+        <Button
+          size={size}
+          variant={action.variant}
+          showIcon={action.showIcon}
+          onClick={action.onClick}
+          className="cursor-pointer"
+        >
+          {action.label}
+        </Button>
+      </div>
+    ));
+
   return (
     <article
       className={cn(
@@ -57,8 +104,8 @@ export const ReceivedRequestCard = ({
       </div>
 
       {/* 고객·이사일·출발·도착 정보 렌더 */}
-      <div className="flex w-full flex-col gap-3.5 lg:gap-[1.125rem] lg:rounded-md lg:px-[1.125rem] lg:py-4 lg:shadow-request-card-body">
-        <div className="flex flex-col gap-3.5 lg:gap-[1.125rem]">
+      <div className="flex w-full flex-col gap-3.5 lg:gap-4.5 lg:rounded-md lg:px-4.5 lg:py-4 lg:shadow-request-card-body">
+        <div className="flex flex-col gap-3.5 lg:gap-4.5">
           <h3 className="text-lg-semibold text-black-300 lg:text-xl-semibold">
             {request.customerName}
             <span className="ml-1 lg:ml-2">고객님</span>
@@ -139,48 +186,8 @@ export const ReceivedRequestCard = ({
 
       {/* 견적 보내기·반려 버튼 렌더 (사이즈별 분리) */}
       <div className="flex w-full min-w-0 flex-col gap-2 lg:flex-row lg:items-stretch lg:gap-4">
-        <div className="w-full min-w-0 lg:hidden">
-          <Button
-            size="sm"
-            variant="solid"
-            showIcon
-            onClick={handleSendQuote}
-            className="cursor-pointer"
-          >
-            견적 보내기
-          </Button>
-        </div>
-        <div className="hidden w-full min-w-0 lg:block lg:flex-1">
-          <Button
-            size="md"
-            variant="solid"
-            showIcon
-            onClick={handleSendQuote}
-            className="cursor-pointer"
-          >
-            견적 보내기
-          </Button>
-        </div>
-        <div className="w-full min-w-0 lg:hidden">
-          <Button
-            size="sm"
-            variant="outlined"
-            onClick={handleReject}
-            className="cursor-pointer"
-          >
-            반려
-          </Button>
-        </div>
-        <div className="hidden w-full min-w-0 lg:block lg:flex-1">
-          <Button
-            size="md"
-            variant="outlined"
-            onClick={handleReject}
-            className="cursor-pointer"
-          >
-            반려
-          </Button>
-        </div>
+        {renderCardActions('sm')}
+        {renderCardActions('md')}
       </div>
     </article>
   );

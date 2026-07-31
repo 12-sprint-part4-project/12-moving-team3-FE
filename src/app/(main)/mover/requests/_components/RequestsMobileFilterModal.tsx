@@ -168,7 +168,10 @@ export const RequestsMobileFilterModal = ({
         {activeTab === 'moveType' ? (
           <div className="flex w-full flex-col gap-2">
             <FilterCheckBox
-              label={formatFilterLabel('전체선택', moveTypeTotal || undefined)}
+              label={formatFilterLabel(
+                '전체선택',
+                moveTypeCounts ? moveTypeTotal : undefined
+              )}
               checked={isAllMoveTypesSelected}
               onCheckedChange={handleMoveTypeSelectAll}
               labelClassName="text-gray-300"
