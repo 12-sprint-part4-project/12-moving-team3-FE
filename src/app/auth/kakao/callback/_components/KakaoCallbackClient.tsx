@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
@@ -13,8 +13,6 @@ import {
 import { kakaoLogin } from '@/service/authApi';
 import type { ApiUserType } from '@/types/auth';
 
-type CallbackStatus = 'pending' | 'success' | 'failed';
-
 const LOGIN_HREF_BY_USER_TYPE: Record<ApiUserType, string> = {
   CUSTOMER: '/login',
   MOVER: '/login/mover',
@@ -23,13 +21,13 @@ const LOGIN_HREF_BY_USER_TYPE: Record<ApiUserType, string> = {
 /**
  * 카카오 OAuth 콜백:
  * code / userType 파싱 → BE 로그인 → 세션 저장 → 홈 이동
+ * 화면 문구 없이 토스트로만 결과를 안내한다.
  */
 export const KakaoCallbackClient = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { showToast } = useToast();
   const { setSession } = useAuth();
-  const [status, setStatus] = useState<CallbackStatus>('pending');
   const hasRequestedRef = useRef(false);
 
   useEffect(() => {
@@ -41,7 +39,6 @@ export const KakaoCallbackClient = () => {
       const result = parseKakaoCallbackParams(searchParams);
 
       if (!result.ok) {
-        setStatus('failed');
         showToast({ content: result.message });
         router.replace('/login');
         return;
@@ -63,10 +60,8 @@ export const KakaoCallbackClient = () => {
             ? '회원가입이 완료되었습니다.'
             : '로그인되었습니다.',
         });
-        setStatus('success');
         router.replace('/');
       } catch (error) {
-        setStatus('failed');
         const message =
           error instanceof ApiError
             ? resolveKakaoLoginErrorMessage(error.code, error.message)
@@ -79,18 +74,5 @@ export const KakaoCallbackClient = () => {
     void loginWithKakao();
   }, [router, searchParams, setSession, showToast]);
 
-  const message =
-    status === 'failed'
-      ? '카카오 로그인에 실패했습니다.'
-      : status === 'success'
-        ? '로그인되었습니다.'
-        : '카카오 로그인 처리 중...';
-
-  return (
-    <section className="flex min-h-full w-full flex-col items-center justify-center bg-white px-6 py-16">
-      <p className="text-md-regular text-black-400 lg:text-xl-regular">
-        {message}
-      </p>
-    </section>
-  );
+  return <section className="min-h-full w-full bg-white" aria-hidden />;
 };
