@@ -1,5 +1,10 @@
 import { formatMoveDateLabel, formatRelativeTime } from '@/lib/formatDate';
-import { API_BASE_URL, ApiError, getAccessToken } from '@/services/apiClient';
+import {
+  API_BASE_URL,
+  ApiError,
+  createApiTimeoutSignal,
+  getAccessToken,
+} from '@/services/apiClient';
 import type { ApiErrorBody } from '@/types/api';
 import type {
   EstimateRequestListItem,
@@ -130,6 +135,47 @@ export const buildReceivedEstimateRequestsQuery = (
   return query ? `?${query}` : '';
 };
 
+/** 목록 성공 응답의 필수 구조 검증 */
+const isEstimateRequestListResponse = (
+  body: unknown
+): body is EstimateRequestListResponse => {
+  if (!body || typeof body !== 'object') {
+    return false;
+  }
+
+  const { data, meta } = body as {
+    data?: unknown;
+    meta?: unknown;
+  };
+
+  if (!data || typeof data !== 'object') {
+    return false;
+  }
+
+  if (!Array.isArray((data as { items?: unknown }).items)) {
+    return false;
+  }
+
+  if (!meta || typeof meta !== 'object') {
+    return false;
+  }
+
+  const listMeta = meta as {
+    totalCount?: unknown;
+    nextCursor?: unknown;
+    hasNextPage?: unknown;
+    filterCounts?: unknown;
+  };
+
+  return (
+    typeof listMeta.totalCount === 'number' &&
+    (typeof listMeta.nextCursor === 'string' || listMeta.nextCursor === null) &&
+    typeof listMeta.hasNextPage === 'boolean' &&
+    !!listMeta.filterCounts &&
+    typeof listMeta.filterCounts === 'object'
+  );
+};
+
 /**
  * 기사님 받은 견적 요청 목록 조회.
  * GET /api/users/movers/estimate-requests
@@ -149,14 +195,15 @@ export const getReceivedEstimateRequests = async (
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
+      signal: createApiTimeoutSignal(),
     }
   );
 
-  const body = (await response.json().catch(() => null)) as
-    EstimateRequestListResponse | ApiErrorBody | null;
+  const body: unknown = await response.json().catch(() => null);
 
   if (!response.ok) {
-    const errorBody = body as ApiErrorBody | null;
+    const errorBody =
+      body && typeof body === 'object' ? (body as ApiErrorBody) : null;
     throw new ApiError(
       response.status,
       errorBody?.error?.code ?? 'UNKNOWN_ERROR',
@@ -164,5 +211,13 @@ export const getReceivedEstimateRequests = async (
     );
   }
 
-  return body as EstimateRequestListResponse;
+  if (!isEstimateRequestListResponse(body)) {
+    throw new ApiError(
+      response.status,
+      'INVALID_RESPONSE',
+      '요청 처리 중 오류가 발생했습니다.'
+    );
+  }
+
+  return body;
 };

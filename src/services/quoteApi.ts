@@ -1,7 +1,13 @@
-import { API_BASE_URL, ApiError, getAccessToken } from '@/services/apiClient';
+import {
+  API_BASE_URL,
+  ApiError,
+  createApiTimeoutSignal,
+  getAccessToken,
+} from '@/services/apiClient';
 import type { ApiErrorBody } from '@/types/api';
 import type {
   ProposalQuoteBody,
+  QuoteSubmitBody,
   QuoteSubmitResponse,
   RejectionQuoteBody,
 } from '@/types/quote';
@@ -24,13 +30,10 @@ const parseError = async (response: Response): Promise<never> => {
   );
 };
 
-/**
- * 견적 보내기.
- * POST /api/users/movers/estimate-requests/:estimateRequestId/quotes
- */
-export const submitProposalQuote = async (
+/** 견적 제출 공통 요청 */
+const submitQuote = async (
   estimateRequestId: number,
-  payload: Omit<ProposalQuoteBody, 'type'>
+  body: QuoteSubmitBody
 ): Promise<QuoteSubmitResponse> => {
   const response = await fetch(
     `${API_BASE_URL}/api/users/movers/estimate-requests/${estimateRequestId}/quotes`,
@@ -39,11 +42,8 @@ export const submitProposalQuote = async (
       credentials: 'include',
       cache: 'no-store',
       headers: getAuthHeaders(),
-      body: JSON.stringify({
-        type: 'PROPOSAL',
-        price: payload.price,
-        comment: payload.comment,
-      } satisfies ProposalQuoteBody),
+      body: JSON.stringify(body),
+      signal: createApiTimeoutSignal(),
     }
   );
 
@@ -53,6 +53,20 @@ export const submitProposalQuote = async (
 
   return (await response.json()) as QuoteSubmitResponse;
 };
+
+/**
+ * 견적 보내기.
+ * POST /api/users/movers/estimate-requests/:estimateRequestId/quotes
+ */
+export const submitProposalQuote = async (
+  estimateRequestId: number,
+  payload: Omit<ProposalQuoteBody, 'type'>
+): Promise<QuoteSubmitResponse> =>
+  submitQuote(estimateRequestId, {
+    type: 'PROPOSAL',
+    price: payload.price,
+    comment: payload.comment,
+  } satisfies ProposalQuoteBody);
 
 /**
  * 견적 요청 반려.
@@ -61,24 +75,8 @@ export const submitProposalQuote = async (
 export const submitRejectionQuote = async (
   estimateRequestId: number,
   payload: Omit<RejectionQuoteBody, 'type'>
-): Promise<QuoteSubmitResponse> => {
-  const response = await fetch(
-    `${API_BASE_URL}/api/users/movers/estimate-requests/${estimateRequestId}/quotes`,
-    {
-      method: 'POST',
-      credentials: 'include',
-      cache: 'no-store',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({
-        type: 'REJECTION',
-        rejectReason: payload.rejectReason,
-      } satisfies RejectionQuoteBody),
-    }
-  );
-
-  if (!response.ok) {
-    return parseError(response);
-  }
-
-  return (await response.json()) as QuoteSubmitResponse;
-};
+): Promise<QuoteSubmitResponse> =>
+  submitQuote(estimateRequestId, {
+    type: 'REJECTION',
+    rejectReason: payload.rejectReason,
+  } satisfies RejectionQuoteBody);

@@ -4,6 +4,14 @@ export const API_BASE_URL =
 /** Access Token localStorage 키 */
 export const ACCESS_TOKEN_KEY = 'accessToken';
 
+/** API fetch 기본 타임아웃(ms) */
+export const API_FETCH_TIMEOUT_MS = 10_000;
+
+/** 기본 타임아웃용 AbortSignal */
+export const createApiTimeoutSignal = (
+  timeoutMs: number = API_FETCH_TIMEOUT_MS
+): AbortSignal => AbortSignal.timeout(timeoutMs);
+
 export class ApiError extends Error {
   readonly status: number;
   readonly code: string;
