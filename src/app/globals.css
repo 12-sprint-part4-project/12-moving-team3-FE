@@ -69,6 +69,18 @@
   /* Box Shadow — Figma img/landing card */
   --shadow-card: 0.25rem 0.25rem 0.3125rem 0
     color-mix(in srgb, var(--color-shadow-gray-100) 10%, transparent);
+
+  /* Box Shadow — Figma 받은 요청 페이지 타이틀·카드 */
+  --shadow-page-title: 0 0.125rem 0.625rem 0
+    color-mix(in srgb, var(--color-background-200) 10%, transparent);
+  --shadow-request-card:
+    -0.125rem -0.125rem 0.625rem 0
+      color-mix(in srgb, var(--color-shadow-gray-300) 14%, transparent),
+    0.125rem 0.125rem 0.625rem 0
+      color-mix(in srgb, var(--color-shadow-gray-300) 14%, transparent);
+  --shadow-request-card-body: 0.25rem 0.25rem 0.5rem 0
+    color-mix(in srgb, var(--color-shadow-gray-100) 10%, transparent);
+
   /* Dimmer — Figma Component/dimmer (#141414, opacity 50%) */
   --color-dimmer: #141414;
 

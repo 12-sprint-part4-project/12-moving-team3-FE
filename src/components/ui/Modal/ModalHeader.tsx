@@ -46,7 +46,7 @@ export const ModalHeader = ({
         type="button"
         aria-label="닫기"
         onClick={onClose}
-        className="flex size-6 shrink-0 items-center justify-center text-gray-400 sm:size-9"
+        className="flex size-6 shrink-0 cursor-pointer items-center justify-center text-gray-400 sm:size-9"
       >
         <CloseIcon className="size-full" aria-hidden />
       </button>

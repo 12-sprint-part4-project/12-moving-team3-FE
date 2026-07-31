@@ -77,7 +77,7 @@ export const TextArea = ({
   return (
     <div className={`flex w-full flex-col gap-1 ${className}`.trim()}>
       <div
-        className={`overflow-clip rounded-2xl ${sizeStyles[size].field} ${
+        className={`flex flex-col overflow-clip rounded-2xl ${sizeStyles[size].field} ${
           showError
             ? 'border border-red-200 bg-background-200'
             : 'border border-transparent bg-background-200'
@@ -99,7 +99,7 @@ export const TextArea = ({
             rest.onBlur?.(event);
           }}
           // 포커스 중이거나 값이 있으면 본문색, 아니면 placeholder와 같은 회색
-          className={`h-full w-full resize-none bg-transparent outline-none placeholder:text-gray-300 disabled:cursor-not-allowed ${sizeStyles[size].text} ${
+          className={`min-h-0 w-full flex-1 resize-none bg-transparent outline-none placeholder:text-gray-300 disabled:cursor-not-allowed ${sizeStyles[size].text} ${
             hasValue || isFocused ? 'text-black-400' : 'text-gray-300'
           }`}
         />
