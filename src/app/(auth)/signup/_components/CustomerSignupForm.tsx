@@ -40,7 +40,7 @@ const INITIAL_VALUES: SignupFormValues = {
   passwordConfirm: '',
 };
 
-/** Tablet(sm) 기본 + Desktop(md)는 lg: 오버라이드 */
+/** Mobile·Tablet(sm) 기본 + Desktop(md)는 lg: 오버라이드 */
 const FIELD_CLASSNAME =
   'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
 
@@ -58,7 +58,8 @@ const HELPER_LINK_CLASSNAME =
 
 /**
  * 일반유저 회원가입 폼.
- * Figma: Tablet(1:2608) · Desktop(1:2756).
+ * Figma: Mobile(1:2900) · Tablet(1:2608) · Desktop(1:2756).
+ * Mobile/Tablet은 동일 스펙(327px 폼, sm 입력·버튼), Desktop만 lg:에서 확대.
  * UI만 담당하며 API 연동은 하지 않는다.
  */
 export const CustomerSignupForm = () => {
