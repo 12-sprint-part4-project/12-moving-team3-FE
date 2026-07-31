@@ -10,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
-import { signup } from '@/service/authApi';
+import { signup } from '@/services/authApi';
 import type { ApiUserType } from '@/types/auth';
 
 export type SignupRole = 'customer' | 'mover';

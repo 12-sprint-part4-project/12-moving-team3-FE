@@ -10,7 +10,7 @@ import {
   parseKakaoCallbackParams,
   resolveKakaoLoginErrorMessage,
 } from '@/lib/kakaoAuth';
-import { kakaoLogin } from '@/service/authApi';
+import { kakaoLogin } from '@/services/authApi';
 import type { ApiUserType } from '@/types/auth';
 
 const LOGIN_HREF_BY_USER_TYPE: Record<ApiUserType, string> = {

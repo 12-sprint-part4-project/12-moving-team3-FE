@@ -10,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
-import { login } from '@/service/authApi';
+import { login } from '@/services/authApi';
 import type { ApiUserType } from '@/types/auth';
 
 export type LoginRole = 'customer' | 'mover';
@@ -92,9 +92,7 @@ export const LoginForm = ({ role }: LoginFormProps) => {
   const roleSwitch = ROLE_SWITCH_COPY[role];
 
   const isSubmittable =
-    values.email.trim().length > 0 &&
-    values.password.length > 0 &&
-    !isPending;
+    values.email.trim().length > 0 && values.password.length > 0 && !isPending;
 
   const handleChange =
     (field: keyof LoginFormValues) =>

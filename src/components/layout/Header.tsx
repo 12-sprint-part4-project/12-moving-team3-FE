@@ -10,7 +10,7 @@ import type { GnbNavItem } from '@/components/Gnb/gnbNav';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
-import { logout } from '@/service/authApi';
+import { logout } from '@/services/authApi';
 
 const LANDING_MENU_ITEMS: GnbNavItem[] = [
   { label: '기사님 찾기', href: '/movers' },
@@ -68,7 +68,10 @@ export const Header = () => {
               onClick={handleMenuClose}
             />
             <div className="absolute inset-y-0 right-0 h-full">
-              <GnbMenu navItems={LANDING_MENU_ITEMS} onClose={handleMenuClose} />
+              <GnbMenu
+                navItems={LANDING_MENU_ITEMS}
+                onClose={handleMenuClose}
+              />
             </div>
           </div>
         ) : null}
@@ -98,11 +101,7 @@ export const Header = () => {
         />
       </div>
       <div className="hidden lg:block">
-        <GnbDefault
-          size="lg"
-          menu={desktopMenu}
-          userName={user.nickname}
-        />
+        <GnbDefault size="lg" menu={desktopMenu} userName={user.nickname} />
       </div>
 
       {isMenuOpen ? (
