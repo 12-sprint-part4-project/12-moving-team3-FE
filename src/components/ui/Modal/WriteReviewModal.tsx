@@ -158,6 +158,7 @@ export const WriteReviewModal = ({
           {/* size=sm 기준 마크업 + sm:에서 타이포만 md 스펙으로 올린다 (이중 TextArea 방지) */}
           <TextArea
             size="sm"
+            rows={4}
             value={content}
             onChange={(event) => setContent(event.target.value)}
             placeholder="최소 10자 이상 입력해주세요"
