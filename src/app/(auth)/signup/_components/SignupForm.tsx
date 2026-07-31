@@ -9,6 +9,7 @@ import { TextFieldOutlined } from '@/components/ui/Input';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
 import { signup } from '@/service/authApi';
 import type { ApiUserType } from '@/types/auth';
 
@@ -161,6 +162,14 @@ export const SignupForm = ({ role }: SignupFormProps) => {
       showToast({ content: message });
     } finally {
       setIsPending(false);
+    }
+  };
+
+  const handleKakaoLogin = () => {
+    try {
+      redirectToKakaoLogin(USER_TYPE_BY_ROLE[role]);
+    } catch {
+      showToast({ content: '카카오 로그인 설정이 필요합니다.' });
     }
   };
 
@@ -329,6 +338,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
           <button
             type="button"
             aria-label={KAKAO_LOGIN.label}
+            onClick={handleKakaoLogin}
             className="inline-flex size-[3.375rem] shrink-0 cursor-pointer items-center justify-center overflow-clip rounded-full lg:size-[4.5rem]"
           >
             <img
