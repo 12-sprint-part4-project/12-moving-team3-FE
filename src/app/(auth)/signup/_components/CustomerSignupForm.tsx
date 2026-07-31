@@ -40,8 +40,25 @@ const INITIAL_VALUES: SignupFormValues = {
   passwordConfirm: '',
 };
 
+/** Tablet(sm) 기본 + Desktop(md)는 lg: 오버라이드 */
+const FIELD_CLASSNAME =
+  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
+
+const LABEL_CLASSNAME = 'text-md-regular text-black-400 lg:text-xl-regular';
+
+const FIELD_GROUP_CLASSNAME = 'flex w-full flex-col gap-2 lg:gap-4';
+
+const HELPER_TEXT_CLASSNAME =
+  'flex items-center justify-center gap-1 whitespace-nowrap text-xs-regular lg:gap-2 lg:text-xl-regular';
+
+const HELPER_MUTED_CLASSNAME = 'text-black-100 lg:text-black-200';
+
+const HELPER_LINK_CLASSNAME =
+  'text-xs-semibold text-blue-300 underline lg:text-xl-semibold';
+
 /**
- * 일반유저 회원가입 폼 (Figma: 회원가입_일반유저/Desktop 1:2756).
+ * 일반유저 회원가입 폼.
+ * Figma: Tablet(1:2608) · Desktop(1:2756).
  * UI만 담당하며 API 연동은 하지 않는다.
  */
 export const CustomerSignupForm = () => {
@@ -71,86 +88,74 @@ export const CustomerSignupForm = () => {
   };
 
   return (
-    <div className="flex w-full flex-col items-center gap-14">
-      <div className="flex flex-col items-center gap-2">
+    <div className="flex w-full flex-col items-center gap-8 lg:gap-14">
+      <div className="flex flex-col items-center lg:gap-2">
         <Link
           href="/"
-          className="flex w-full max-w-[40rem] flex-col items-center justify-center p-2.5"
+          className="flex w-full max-w-[20.4375rem] flex-col items-center justify-center p-2.5 lg:max-w-[40rem]"
         >
           <img
             src="/text-logo.svg"
             alt="무빙"
-            className="h-20 w-[8.75rem]"
+            className="h-16 w-[7rem] lg:h-20 lg:w-[8.75rem]"
           />
         </Link>
-        <p className="flex items-center justify-center gap-2 text-xl-regular whitespace-nowrap">
-          <span className="text-black-200">기사님이신가요?</span>
-          <Link
-            href="/signup/mover"
-            className="text-xl-semibold text-blue-300 underline"
-          >
+        <p className={HELPER_TEXT_CLASSNAME}>
+          <span className={HELPER_MUTED_CLASSNAME}>기사님이신가요?</span>
+          <Link href="/signup/mover" className={HELPER_LINK_CLASSNAME}>
             기사님 전용 페이지
           </Link>
         </p>
       </div>
 
-      <div className="flex w-full flex-col items-center gap-[4.5rem]">
+      <div className="flex w-full flex-col items-center gap-12 lg:gap-[4.5rem]">
         <form
           onSubmit={handleSubmit}
-          className="flex w-full max-w-[40rem] flex-col items-center gap-6"
+          className="flex w-full max-w-[20.4375rem] flex-col items-center gap-4 lg:max-w-[40rem] lg:gap-6"
         >
-          <div className="flex w-full flex-col gap-14">
-            <div className="flex w-full flex-col gap-8">
-              <div className="flex w-full flex-col gap-4">
-                <label
-                  htmlFor="signup-name"
-                  className="text-xl-regular text-black-400"
-                >
+          <div className="flex w-full flex-col gap-8 lg:gap-14">
+            <div className="flex w-full flex-col gap-4 lg:gap-8">
+              <div className={FIELD_GROUP_CLASSNAME}>
+                <label htmlFor="signup-name" className={LABEL_CLASSNAME}>
                   이름
                 </label>
                 <TextFieldOutlined
                   id="signup-name"
-                  size="md"
+                  size="sm"
                   type="text"
                   name="name"
                   autoComplete="name"
                   placeholder="성함을 입력해 주세요"
                   value={values.name}
                   onChange={handleChange('name')}
-                  className="w-full [&_>div]:min-h-16 [&_>div]:w-full [&_>div]:max-w-full"
+                  className={FIELD_CLASSNAME}
                 />
               </div>
 
-              <div className="flex w-full flex-col gap-4">
-                <label
-                  htmlFor="signup-email"
-                  className="text-xl-regular text-black-400"
-                >
+              <div className={FIELD_GROUP_CLASSNAME}>
+                <label htmlFor="signup-email" className={LABEL_CLASSNAME}>
                   이메일
                 </label>
                 <TextFieldOutlined
                   id="signup-email"
-                  size="md"
+                  size="sm"
                   type="email"
                   name="email"
                   autoComplete="email"
                   placeholder="이메일을 입력해 주세요"
                   value={values.email}
                   onChange={handleChange('email')}
-                  className="w-full [&_>div]:min-h-16 [&_>div]:w-full [&_>div]:max-w-full"
+                  className={FIELD_CLASSNAME}
                 />
               </div>
 
-              <div className="flex w-full flex-col gap-4">
-                <label
-                  htmlFor="signup-phone"
-                  className="text-xl-regular text-black-400"
-                >
+              <div className={FIELD_GROUP_CLASSNAME}>
+                <label htmlFor="signup-phone" className={LABEL_CLASSNAME}>
                   전화번호
                 </label>
                 <TextFieldOutlined
                   id="signup-phone"
-                  size="md"
+                  size="sm"
                   type="tel"
                   name="phone"
                   inputMode="numeric"
@@ -158,20 +163,17 @@ export const CustomerSignupForm = () => {
                   placeholder="숫자만 입력해 주세요"
                   value={values.phone}
                   onChange={handleChange('phone')}
-                  className="w-full [&_>div]:min-h-16 [&_>div]:w-full [&_>div]:max-w-full"
+                  className={FIELD_CLASSNAME}
                 />
               </div>
 
-              <div className="flex w-full flex-col gap-4">
-                <label
-                  htmlFor="signup-password"
-                  className="text-xl-regular text-black-400"
-                >
+              <div className={FIELD_GROUP_CLASSNAME}>
+                <label htmlFor="signup-password" className={LABEL_CLASSNAME}>
                   비밀번호
                 </label>
                 <TextFieldOutlined
                   id="signup-password"
-                  size="md"
+                  size="sm"
                   type="password"
                   name="password"
                   autoComplete="new-password"
@@ -179,28 +181,28 @@ export const CustomerSignupForm = () => {
                   placeholder="비밀번호를 입력해 주세요"
                   value={values.password}
                   onChange={handleChange('password')}
-                  className="w-full [&_>div]:min-h-16 [&_>div]:w-full [&_>div]:max-w-full"
+                  className={FIELD_CLASSNAME}
                 />
               </div>
 
-              <div className="flex w-full flex-col gap-4">
+              <div className={FIELD_GROUP_CLASSNAME}>
                 <label
                   htmlFor="signup-password-confirm"
-                  className="text-xl-regular text-black-400"
+                  className={LABEL_CLASSNAME}
                 >
                   비밀번호 확인
                 </label>
                 <TextFieldOutlined
                   id="signup-password-confirm"
-                  size="md"
+                  size="sm"
                   type="password"
                   name="passwordConfirm"
                   autoComplete="new-password"
                   showVisibilityToggle
-                  placeholder="비밀번호 다시 한번 입력해 주세요"
+                  placeholder="비밀번호를 다시 한번 입력해 주세요"
                   value={values.passwordConfirm}
                   onChange={handleChange('passwordConfirm')}
-                  className="w-full [&_>div]:min-h-16 [&_>div]:w-full [&_>div]:max-w-full"
+                  className={FIELD_CLASSNAME}
                 />
               </div>
             </div>
@@ -208,35 +210,35 @@ export const CustomerSignupForm = () => {
             <Button
               type="submit"
               variant="solid"
-              size="md"
+              size="sm"
               disabled={!isSubmittable}
+              className="lg:h-16 lg:gap-2 lg:text-xl-semibold"
             >
               시작하기
             </Button>
           </div>
 
-          <p className="flex items-center justify-center gap-2 text-xl-regular whitespace-nowrap">
-            <span className="text-black-200">이미 무빙 회원이신가요?</span>
-            <Link
-              href="/login"
-              className="text-xl-semibold text-blue-300 underline"
-            >
+          <p className={HELPER_TEXT_CLASSNAME}>
+            <span className={HELPER_MUTED_CLASSNAME}>
+              이미 무빙 회원이신가요?
+            </span>
+            <Link href="/login" className={HELPER_LINK_CLASSNAME}>
               로그인
             </Link>
           </p>
         </form>
 
-        <div className="flex flex-col items-center gap-8">
-          <p className="text-xl-regular text-black-200">
+        <div className="flex flex-col items-center gap-6 lg:gap-8">
+          <p className="text-xs-regular text-black-100 lg:text-xl-regular lg:text-black-200">
             SNS 계정으로 간편 가입하기
           </p>
-          <div className="flex items-start gap-8">
+          <div className="flex items-start gap-6 lg:gap-8">
             {SNS_PROVIDERS.map((provider) => (
               <button
                 key={provider.id}
                 type="button"
                 aria-label={provider.label}
-                className="inline-flex size-[4.5rem] shrink-0 items-center justify-center overflow-clip rounded-full"
+                className="inline-flex size-[3.375rem] shrink-0 items-center justify-center overflow-clip rounded-full lg:size-[4.5rem]"
               >
                 <img
                   src={provider.src}
