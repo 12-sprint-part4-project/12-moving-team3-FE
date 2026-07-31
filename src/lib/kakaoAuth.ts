@@ -29,7 +29,7 @@ export const isApiUserType = (value: string): value is ApiUserType => {
  * userType은 OAuth `state`에 실어 콜백에서 복원한다.
  */
 export const getKakaoAuthorizeUrl = (userType: ApiUserType): string => {
-  const clientId = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID;
+  const clientId = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
   const redirectUri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI;
 
   if (!clientId || !redirectUri) {
@@ -41,6 +41,7 @@ export const getKakaoAuthorizeUrl = (userType: ApiUserType): string => {
     redirect_uri: redirectUri,
     response_type: 'code',
     state: userType,
+    lang: 'ko',
   });
 
   return `${KAKAO_AUTHORIZE_URL}?${params.toString()}`;
@@ -97,8 +98,7 @@ export const parseKakaoCallbackParams = (
 const KAKAO_LOGIN_ERROR_MESSAGES: Record<string, string> = {
   USER_TYPE_MISMATCH:
     '이미 다른 회원 유형으로 가입된 카카오 계정입니다. 해당 유형으로 로그인해 주세요.',
-  KAKAO_EMAIL_REQUIRED:
-    '카카오 계정 이메일 제공에 동의해 주세요.',
+  KAKAO_EMAIL_REQUIRED: '카카오 계정 이메일 제공에 동의해 주세요.',
   EMAIL_ALREADY_EXISTS:
     '이미 가입된 이메일입니다. 이메일 로그인을 이용해 주세요.',
 };
