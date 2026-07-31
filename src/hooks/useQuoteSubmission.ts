@@ -15,6 +15,14 @@ export interface UseQuoteSubmissionOptions {
   onRejectionSuccess?: () => void;
 }
 
+/** 제출 mutation 공통 설정 */
+interface SubmissionMutationConfig<TData, TVariables> {
+  mutationFn: (variables: TVariables) => Promise<TData>;
+  onSuccess?: () => void;
+  successToastContent: string;
+  errorFallbackMessage: string;
+}
+
 /** ApiError 메시지 추출 */
 const getSubmitErrorMessage = (error: unknown, fallback: string): string =>
   error instanceof ApiError ? error.message : fallback;
@@ -45,12 +53,9 @@ export const useQuoteSubmission = ({
   };
 
   /** 제출 mutation 공통 옵션 생성 */
-  const createSubmissionMutation = <TVariables>(config: {
-    mutationFn: (variables: TVariables) => Promise<unknown>;
-    onSuccess?: () => void;
-    successToastContent: string;
-    errorFallbackMessage: string;
-  }) => ({
+  const createSubmissionMutation = <TData, TVariables>(
+    config: SubmissionMutationConfig<TData, TVariables>
+  ) => ({
     mutationFn: config.mutationFn,
     onSuccess: async () => {
       await invalidateReceivedLists();
