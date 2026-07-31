@@ -21,3 +21,7 @@ export const getAuthSession = (): AuthSession | null => {
 export const setAuthSession = (session: AuthSession): void => {
   localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
 };
+
+export const clearAuthSession = (): void => {
+  localStorage.removeItem(AUTH_SESSION_KEY);
+};

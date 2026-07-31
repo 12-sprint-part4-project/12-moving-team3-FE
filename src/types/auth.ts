@@ -22,6 +22,12 @@ export interface LoginResponse {
   };
 }
 
+export interface LogoutResponse {
+  data: {
+    message: string;
+  };
+}
+
 export interface ApiErrorBody {
   error: {
     code: string;

@@ -16,6 +16,7 @@ export interface GnbMenuProps {
   /** 메뉴 링크. 미지정 시 type 기본값 사용 */
   navItems?: GnbNavItem[];
   onClose?: () => void;
+  onLogout?: () => void;
   className?: string;
 }
 
@@ -27,9 +28,15 @@ export const GnbMenu = ({
   type = 'customer',
   navItems,
   onClose,
+  onLogout,
   className = '',
 }: GnbMenuProps) => {
   const items: GnbNavItem[] = navItems ?? [...GNB_NAV_BY_ROLE[type]];
+
+  const handleLogout = () => {
+    onLogout?.();
+    onClose?.();
+  };
 
   return (
     <aside
@@ -58,6 +65,15 @@ export const GnbMenu = ({
             {item.label}
           </Link>
         ))}
+        {onLogout ? (
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex w-full items-center overflow-hidden bg-white px-5 py-6 text-left text-lg-medium whitespace-nowrap text-black-400"
+          >
+            로그아웃
+          </button>
+        ) : null}
       </nav>
     </aside>
   );

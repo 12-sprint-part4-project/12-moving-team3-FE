@@ -3,6 +3,7 @@
 import { createContext, useEffect, useState, type ReactNode } from 'react';
 
 import {
+  clearAuthSession,
   getAuthSession,
   setAuthSession,
   type AuthSession,
@@ -13,6 +14,7 @@ export interface AuthContextValue {
   user: AuthUser | null;
   isReady: boolean;
   setSession: (session: AuthSession) => void;
+  clearSession: () => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -35,8 +37,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUser(session.user);
   };
 
+  const clearSession = () => {
+    clearAuthSession();
+    setUser(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isReady, setSession }}>
+    <AuthContext.Provider value={{ user, isReady, setSession, clearSession }}>
       {children}
     </AuthContext.Provider>
   );

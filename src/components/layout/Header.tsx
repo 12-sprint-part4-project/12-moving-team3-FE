@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { GnbDefault } from '@/components/Gnb/GnbDefault';
@@ -7,6 +8,9 @@ import { GnbLanding } from '@/components/Gnb/GnbLanding';
 import { GnbMenu } from '@/components/Gnb/GnbMenu';
 import type { GnbNavItem } from '@/components/Gnb/gnbNav';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
+import { ApiError } from '@/lib/apiClient';
+import { logout } from '@/service/authApi';
 
 const LANDING_MENU_ITEMS: GnbNavItem[] = [
   { label: '기사님 찾기', href: '/movers' },
@@ -15,11 +19,30 @@ const LANDING_MENU_ITEMS: GnbNavItem[] = [
 
 /** 비로그인: GnbLanding / 로그인: GnbDefault */
 export const Header = () => {
-  const { user, isReady } = useAuth();
+  const router = useRouter();
+  const { showToast } = useToast();
+  const { user, isReady, clearSession } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleMenuOpen = () => setIsMenuOpen(true);
   const handleMenuClose = () => setIsMenuOpen(false);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : '로그아웃에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+      showToast({ content: message });
+      return;
+    }
+
+    clearSession();
+    showToast({ content: '로그아웃되었습니다.' });
+    router.replace('/');
+  };
 
   if (!isReady) return null;
 
@@ -91,7 +114,11 @@ export const Header = () => {
             onClick={handleMenuClose}
           />
           <div className="absolute inset-y-0 right-0 h-full">
-            <GnbMenu type={navRole} onClose={handleMenuClose} />
+            <GnbMenu
+              type={navRole}
+              onClose={handleMenuClose}
+              onLogout={handleLogout}
+            />
           </div>
         </div>
       ) : null}
