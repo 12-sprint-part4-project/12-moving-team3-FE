@@ -33,6 +33,11 @@ const ROLE_SWITCH_COPY: Record<
   },
 };
 
+const LOGIN_HREF: Record<SignupRole, string> = {
+  customer: '/login',
+  mover: '/login/mover',
+};
+
 interface SignupFormValues {
   name: string;
   email: string;
@@ -253,7 +258,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
             <span className={HELPER_MUTED_CLASSNAME}>
               이미 무빙 회원이신가요?
             </span>
-            <Link href="/login" className={HELPER_LINK_CLASSNAME}>
+            <Link href={LOGIN_HREF[role]} className={HELPER_LINK_CLASSNAME}>
               로그인
             </Link>
           </p>
