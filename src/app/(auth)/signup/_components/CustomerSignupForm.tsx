@@ -27,6 +27,7 @@ const SNS_PROVIDERS = [
 interface SignupFormValues {
   name: string;
   email: string;
+  nickname: string;
   phone: string;
   password: string;
   passwordConfirm: string;
@@ -35,6 +36,7 @@ interface SignupFormValues {
 const INITIAL_VALUES: SignupFormValues = {
   name: '',
   email: '',
+  nickname: '',
   phone: '',
   password: '',
   passwordConfirm: '',
@@ -68,6 +70,7 @@ export const CustomerSignupForm = () => {
   const isSubmittable =
     values.name.trim().length > 0 &&
     values.email.trim().length > 0 &&
+    values.nickname.trim().length > 0 &&
     values.phone.trim().length > 0 &&
     values.password.length > 0 &&
     values.passwordConfirm.length > 0;
@@ -146,6 +149,23 @@ export const CustomerSignupForm = () => {
                   placeholder="이메일을 입력해 주세요"
                   value={values.email}
                   onChange={handleChange('email')}
+                  className={FIELD_CLASSNAME}
+                />
+              </div>
+
+              <div className={FIELD_GROUP_CLASSNAME}>
+                <label htmlFor="nickname" className={LABEL_CLASSNAME}>
+                  닉네임
+                </label>
+                <TextFieldOutlined
+                  id="signup-nickname"
+                  size="sm"
+                  type="nickname"
+                  name="nickname"
+                  autoComplete="nickname"
+                  placeholder="닉네임을 입력해 주세요"
+                  value={values.nickname}
+                  onChange={handleChange('nickname')}
                   className={FIELD_CLASSNAME}
                 />
               </div>
