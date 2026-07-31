@@ -1,6 +1,5 @@
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState, type ChangeEvent } from 'react';
 import { useInView } from 'react-intersection-observer';
 
@@ -13,13 +12,9 @@ import { SendQuoteModal } from '@/components/ui/Modal/SendQuoteModal';
 import { Sort } from '@/components/ui/Sort/Sort';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
-import {
-  estimateRequestQueryKeys,
-  useReceivedEstimateRequests,
-} from '@/hooks/useReceivedEstimateRequests';
-import { useToast } from '@/hooks/useToast';
+import { useQuoteSubmission } from '@/hooks/useQuoteSubmission';
+import { useReceivedEstimateRequests } from '@/hooks/useReceivedEstimateRequests';
 import { ApiError } from '@/services/apiClient';
-import { submitProposalQuote, submitRejectionQuote } from '@/services/quoteApi';
 import {
   ALL_MOVE_TYPES,
   ALL_SCOPES,
@@ -49,15 +44,8 @@ const FILTER_DEBOUNCE_MS = 200;
 const isRequestsSortValue = (value: string): value is RequestsSortValue =>
   value === 'moveDateAsc' || value === 'requestDateAsc';
 
-/** ApiError 메시지 추출 */
-const getSubmitErrorMessage = (error: unknown, fallback: string): string =>
-  error instanceof ApiError ? error.message : fallback;
-
 /** 받은 요청 페이지 클라이언트 — 검색·정렬·필터·목록 조회 */
 const MoverRequestsPageClient = () => {
-  const queryClient = useQueryClient();
-  const { showToast } = useToast();
-
   const [searchValue, setSearchValue] = useState('');
   const [isSearchFlushed, setIsSearchFlushed] = useState(false);
   const [sortValue, setSortValue] = useState<RequestsSortValue>('moveDateAsc');
@@ -72,9 +60,16 @@ const MoverRequestsPageClient = () => {
     useState<ReceivedRequestCardModel | null>(null);
   const [rejectTarget, setRejectTarget] =
     useState<ReceivedRequestCardModel | null>(null);
-  const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(
-    null
-  );
+
+  const {
+    submitErrorMessage,
+    clearSubmitError,
+    proposalMutation,
+    rejectionMutation,
+  } = useQuoteSubmission({
+    onProposalSuccess: () => setSendQuoteTarget(null),
+    onRejectionSuccess: () => setRejectTarget(null),
+  });
 
   /** 검색어, 이사 유형, 요청 범위 필터 디바운스 적용 */
   const debouncedSearch = useDebouncedValue(searchValue, SEARCH_DEBOUNCE_MS);
@@ -112,63 +107,6 @@ const MoverRequestsPageClient = () => {
     moveTypes: debouncedMoveTypes,
     scopes: debouncedScopes,
     sort: sortValue,
-  });
-
-  /** 받은 요청 목록 캐시 무효화 */
-  const invalidateReceivedLists = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: estimateRequestQueryKeys.receivedLists(),
-    });
-  };
-
-  /** 견적 보내기 제출 */
-  const proposalMutation = useMutation({
-    mutationFn: ({
-      estimateRequestId,
-      price,
-      comment,
-    }: {
-      estimateRequestId: number;
-      price: number;
-      comment: string;
-    }) => submitProposalQuote(estimateRequestId, { price, comment }),
-    onSuccess: async () => {
-      await invalidateReceivedLists();
-      setSubmitErrorMessage(null);
-      setSendQuoteTarget(null);
-      showToast({
-        content: '견적을 성공적으로 보냈습니다!',
-      });
-    },
-    onError: (mutationError) => {
-      setSubmitErrorMessage(
-        getSubmitErrorMessage(mutationError, '견적 보내기에 실패했습니다.')
-      );
-    },
-  });
-
-  /** 반려 제출 */
-  const rejectionMutation = useMutation({
-    mutationFn: ({
-      estimateRequestId,
-      rejectReason,
-    }: {
-      estimateRequestId: number;
-      rejectReason: string;
-    }) => submitRejectionQuote(estimateRequestId, { rejectReason }),
-    onSuccess: async () => {
-      await invalidateReceivedLists();
-      setSubmitErrorMessage(null);
-      setRejectTarget(null);
-      showToast({
-        content: '견적 요청을 반려했습니다.',
-      });
-    },
-    onError: (mutationError) => {
-      setSubmitErrorMessage(
-        getSubmitErrorMessage(mutationError, '반려 요청에 실패했습니다.')
-      );
-    },
   });
 
   /** 목록 하단 진입 여부 감지 */
@@ -234,13 +172,13 @@ const MoverRequestsPageClient = () => {
 
   /** 견적 보내기 모달 열기 */
   const handleOpenSendQuoteModal = (request: ReceivedRequestCardModel) => {
-    setSubmitErrorMessage(null);
+    clearSubmitError();
     setSendQuoteTarget(request);
   };
 
   /** 반려 모달 열기 */
   const handleOpenRejectModal = (request: ReceivedRequestCardModel) => {
-    setSubmitErrorMessage(null);
+    clearSubmitError();
     setRejectTarget(request);
   };
 
@@ -249,7 +187,7 @@ const MoverRequestsPageClient = () => {
     if (proposalMutation.isPending) {
       return;
     }
-    setSubmitErrorMessage(null);
+    clearSubmitError();
     setSendQuoteTarget(null);
   };
 
@@ -258,7 +196,7 @@ const MoverRequestsPageClient = () => {
     if (rejectionMutation.isPending) {
       return;
     }
-    setSubmitErrorMessage(null);
+    clearSubmitError();
     setRejectTarget(null);
   };
 
@@ -268,7 +206,7 @@ const MoverRequestsPageClient = () => {
       return;
     }
 
-    setSubmitErrorMessage(null);
+    clearSubmitError();
     proposalMutation.mutate({
       estimateRequestId: sendQuoteTarget.id,
       price: Number(quote.price),
@@ -282,7 +220,7 @@ const MoverRequestsPageClient = () => {
       return;
     }
 
-    setSubmitErrorMessage(null);
+    clearSubmitError();
     rejectionMutation.mutate({
       estimateRequestId: rejectTarget.id,
       rejectReason: payload.reason,
