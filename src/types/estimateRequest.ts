@@ -1,3 +1,5 @@
+import type { ApiSuccessResponse } from '@/types/api';
+
 /** BE MoveType enum */
 export type ApiMoveType = 'SMALL' | 'HOME' | 'OFFICE';
 
@@ -60,12 +62,12 @@ export interface EstimateRequestListMeta {
 }
 
 /** BE 목록 응답 */
-export interface EstimateRequestListResponse {
-  data: {
-    items: EstimateRequestListItem[];
-  };
+export type EstimateRequestListResponse = ApiSuccessResponse<
+  { items: EstimateRequestListItem[] },
+  EstimateRequestListMeta
+> & {
   meta: EstimateRequestListMeta;
-}
+};
 
 /** 카드 UI 모델 */
 export interface ReceivedRequestCardModel {

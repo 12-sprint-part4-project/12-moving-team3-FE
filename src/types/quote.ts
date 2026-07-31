@@ -1,8 +1,5 @@
 import type { ApiSuccessResponse } from '@/types/api';
 
-/** 견적 제출 타입 */
-export type QuoteSubmitType = 'PROPOSAL' | 'REJECTION';
-
 /** 견적 상태 */
 export type QuoteStatus = 'PENDING' | 'CONFIRMED' | 'REJECTED';
 
