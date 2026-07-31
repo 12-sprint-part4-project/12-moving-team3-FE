@@ -22,16 +22,15 @@ export interface RequestSummaryCardProps {
 /** InfoField에 공통으로 얹는 모달 요약 카드 타이포 */
 const FIELD_CLASS = 'gap-2 sm:gap-3';
 const FIELD_LABEL_CLASS =
-  'px-1.5 py-0.5 text-md-medium sm:py-1 sm:text-2lg-regular';
-const FIELD_VALUE_CLASS =
-  'text-md-medium text-black-300 sm:text-2lg-medium';
+  'px-1.5 py-0.5 text-md-medium sm:py-1 sm:text-lg-regular';
+const FIELD_VALUE_CLASS = 'text-md-medium text-black-300 sm:text-lg-medium';
 
 /**
  * 견적 보내기·반려요청 모달에서 쓰는 요청 요약 UI.
  * 이사 유형 칩 + 고객/이사일/출발/도착 카드를 한곳에서 관리한다.
  */
 export const RequestSummaryCard = ({
-  moveType = 'small',
+  moveType,
   isDesignated = false,
   customerName,
   moveDate,
@@ -39,25 +38,31 @@ export const RequestSummaryCard = ({
   arrival,
   className = '',
 }: RequestSummaryCardProps) => {
+  const hasChips = Boolean(moveType) || isDesignated;
+
   return (
     <div className={cn('flex flex-col gap-3.5 sm:gap-6', className)}>
-      <div className="flex items-center gap-2 sm:gap-3">
-        <MoveTypeChip
-          type={moveType}
-          size="sm"
-          className={MOVE_TYPE_CHIP_RESPONSIVE_CLASS}
-        />
-        {isDesignated && (
-          <MoveTypeChip
-            type="designated"
-            size="sm"
-            className={MOVE_TYPE_CHIP_RESPONSIVE_CLASS}
-          />
-        )}
-      </div>
+      {hasChips ? (
+        <div className="flex items-center gap-2 sm:gap-3">
+          {moveType ? (
+            <MoveTypeChip
+              type={moveType}
+              size="sm"
+              className={MOVE_TYPE_CHIP_RESPONSIVE_CLASS}
+            />
+          ) : null}
+          {isDesignated ? (
+            <MoveTypeChip
+              type="designated"
+              size="sm"
+              className={MOVE_TYPE_CHIP_RESPONSIVE_CLASS}
+            />
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="flex w-full flex-col gap-1.5 rounded-md border border-line-100 bg-white px-4 py-2.5 sm:gap-4 sm:rounded-lg sm:px-[1.125rem] sm:py-6 sm:shadow-[0.25rem_0.25rem_0.5rem] sm:shadow-shadow-gray-200/10">
-        <p className="text-md-semibold text-black-300 sm:text-2xl-semibold">
+        <p className="text-md-semibold text-black-300 sm:text-xl-semibold">
           {customerName} 고객님
         </p>
         <div className="flex flex-col gap-2 sm:gap-3.5">

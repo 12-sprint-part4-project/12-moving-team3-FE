@@ -38,15 +38,16 @@ interface SortProps {
 const SIZE_STYLES = {
   sm: {
     trigger:
-      'gap-0.5 rounded-lg bg-white py-1.5 pr-1.5 pl-2 text-xs-semibold text-black-400',
+      'h-8 gap-0.5 rounded-lg bg-white pr-1.5 pl-2 text-xs-semibold leading-none text-black-400',
     option:
-      'rounded-none bg-white py-1.5 pr-1.5 pl-2 text-xs-medium text-black-400',
+      'h-8 rounded-none bg-white pr-1.5 pl-2 text-xs-medium leading-none text-black-400',
     icon: 'size-5',
   },
   md: {
     trigger:
-      'gap-2.5 rounded-lg bg-white px-2.5 py-2 text-md-semibold text-black-400 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-gray-300/20',
-    option: 'rounded-none bg-white px-2.5 py-2 text-md-medium text-black-400',
+      'h-10 gap-2.5 rounded-lg bg-white px-2.5 text-md-medium leading-none text-black-400 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-gray-300/20',
+    option:
+      'h-10 rounded-none bg-white px-2.5 text-md-medium leading-none text-black-400',
     icon: 'size-5',
   },
 } as const;
@@ -89,7 +90,7 @@ export const Sort = ({
   return (
     <div
       ref={containerRef}
-      className={`relative inline-grid w-max grid-cols-[max-content] ${className ?? ''}`}
+      className={`relative inline-grid w-max grid-cols-[max-content] items-center self-center ${className ?? ''}`}
     >
       <TriggerWidthSizer
         options={options}
@@ -102,7 +103,7 @@ export const Sort = ({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         onClick={handleToggle}
-        className={`col-start-1 row-start-1 flex w-full cursor-pointer items-center justify-between whitespace-nowrap ${sizeStyles.trigger}`}
+        className={`col-start-1 row-start-1 flex w-full cursor-pointer items-center justify-center whitespace-nowrap ${sizeStyles.trigger}`}
       >
         <span>{selectedOption.label}</span>
         <ChevronDownIcon
@@ -127,7 +128,7 @@ export const Sort = ({
                   role="option"
                   aria-selected={isSelected}
                   onClick={() => handleSelect(option.value)}
-                  className={`flex w-full cursor-pointer items-center whitespace-nowrap ${sizeStyles.option} ${
+                  className={`flex w-full cursor-pointer items-center justify-center whitespace-nowrap ${sizeStyles.option} ${
                     isSelected ? 'bg-background-300' : 'hover:bg-background-300'
                   }`}
                 >

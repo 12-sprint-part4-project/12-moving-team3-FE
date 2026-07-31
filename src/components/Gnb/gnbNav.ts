@@ -6,13 +6,13 @@ export interface GnbNavItem {
 /** 기사님(mover) / 일반 유저(customer) GNB 네비 항목 */
 export const GNB_NAV_BY_ROLE = {
   mover: [
-    { label: '받은 요청', href: '/requests' },
-    { label: '내 견적 관리', href: '/estimates' },
+    { label: '받은 요청', href: '/mover/requests' },
+    { label: '내 견적 관리', href: '/mover/quotes' },
   ],
   customer: [
     { label: '견적 요청', href: '/estimates/request' },
     { label: '기사님 찾기', href: '/movers' },
-    { label: '내 견적 관리', href: '/estimates' },
+    { label: '내 견적 관리', href: '/quotes' },
   ],
 } as const satisfies Record<string, GnbNavItem[]>;
 

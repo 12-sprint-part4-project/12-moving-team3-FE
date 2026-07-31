@@ -159,7 +159,7 @@ export const TextFieldSearch = ({
               disabled={disabled}
               aria-label="입력 내용 지우기"
               onClick={handleClear}
-              className={`flex items-center justify-center overflow-clip ${sizeStyles[size].icon}`}
+              className={`flex cursor-pointer items-center justify-center overflow-clip ${sizeStyles[size].icon}`}
             >
               <CloseIcon className="size-full text-gray-200" />
             </button>

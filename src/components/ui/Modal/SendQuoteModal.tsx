@@ -1,10 +1,17 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useId, useMemo, useState, type ChangeEvent } from 'react';
 
 import { TextArea } from '@/components/ui/Input/TextArea';
 import { TextFieldOutlined } from '@/components/ui/Input/TextFieldOutlined';
 
+import {
+  MAX_QUOTE_TEXT_LENGTH,
+  MIN_QUOTE_TEXT_LENGTH,
+  normalizeQuotePriceInput,
+  normalizeQuoteTextInput,
+  sendQuoteFormSchema,
+} from '@/lib/quoteModalSchema';
 import { cn } from '@/lib/utils';
 
 import { ModalCtaButton } from './ModalCtaButton';
@@ -18,9 +25,6 @@ import {
   type RequestSummaryMoveType,
 } from './RequestSummaryCard';
 
-/** 코멘트 최소 글자 수 (Figma: 10자 이상일 때 버튼 활성화) */
-const MIN_COMMENT_LENGTH = 10;
-
 export interface SendQuoteModalProps {
   onClose: () => void;
   /** 견적 보내기 클릭 시 호출. API 연동은 호출 측에서 담당 */
@@ -32,6 +36,10 @@ export interface SendQuoteModalProps {
   moveDate: string;
   departure: string;
   arrival: string;
+  /** 제출 진행 중 여부 */
+  isSubmitting?: boolean;
+  /** 제출 실패 메시지 */
+  errorMessage?: string;
   className?: string;
 }
 
@@ -43,24 +51,53 @@ export interface SendQuoteModalProps {
 export const SendQuoteModal = ({
   onClose,
   onSubmit,
-  moveType = 'small',
+  moveType,
   isDesignated = false,
   customerName,
   moveDate,
   departure,
   arrival,
+  isSubmitting = false,
+  errorMessage,
   className = '',
 }: SendQuoteModalProps) => {
   const titleId = useId();
   const [price, setPrice] = useState('');
   const [comment, setComment] = useState('');
 
-  const isSubmittable =
-    price.trim().length > 0 && comment.trim().length >= MIN_COMMENT_LENGTH;
+  const formResult = useMemo(
+    () =>
+      sendQuoteFormSchema.safeParse({
+        price,
+        comment,
+      }),
+    [price, comment]
+  );
+
+  const isSubmittable = !isSubmitting && formResult.success;
+
+  const commentLength = comment.trim().length;
+  const commentErrorMessage =
+    commentLength > 0 && commentLength < MIN_QUOTE_TEXT_LENGTH
+      ? `최소 ${MIN_QUOTE_TEXT_LENGTH}자 이상 입력해 주세요.`
+      : undefined;
+
+  const handlePriceChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setPrice(normalizeQuotePriceInput(event.target.value));
+  };
+
+  const handleCommentChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    setComment(normalizeQuoteTextInput(event.target.value));
+  };
 
   const handleSubmit = () => {
-    if (!isSubmittable) return;
-    onSubmit({ price: price.trim(), comment: comment.trim() });
+    if (!formResult.success || isSubmitting) {
+      return;
+    }
+    onSubmit({
+      price: formResult.data.price,
+      comment: formResult.data.comment,
+    });
   };
 
   return (
@@ -71,12 +108,13 @@ export const SendQuoteModal = ({
       className={cn(
         MODAL_PANEL_CLASS,
         MODAL_PANEL_BOTTOM_SHEET_CLASS,
+        'gap-4 sm:gap-6',
         className
       )}
     >
       <ModalHeader title="견적 보내기" onClose={onClose} titleId={titleId} />
 
-      <div className="flex w-full flex-col gap-5 sm:gap-8">
+      <div className="flex w-full flex-col gap-4 sm:gap-5">
         <RequestSummaryCard
           moveType={moveType}
           isDesignated={isDesignated}
@@ -94,32 +132,50 @@ export const SendQuoteModal = ({
           <TextFieldOutlined
             size="sm"
             value={price}
-            onChange={(event) => setPrice(event.target.value)}
+            onChange={handlePriceChange}
             placeholder="견적가 입력"
             inputMode="numeric"
+            pattern="[0-9]*"
             aria-label="견적가"
             className="[&>div]:w-full [&>div]:border-transparent [&>div]:bg-background-200 [&>div]:focus-within:border-blue-300"
           />
         </div>
 
         <div className="flex flex-col gap-4">
-          <p className="text-lg-semibold text-black-300 sm:text-xl-semibold">
-            코멘트를 입력해 주세요
-          </p>
+          <div className="flex items-end justify-between gap-2">
+            <p className="text-lg-semibold text-black-300 sm:text-xl-semibold">
+              코멘트를 입력해 주세요
+            </p>
+            <p className="text-sm-medium text-gray-400">
+              {commentLength}/{MAX_QUOTE_TEXT_LENGTH}
+            </p>
+          </div>
           <TextArea
             size="sm"
+            rows={3}
             value={comment}
-            onChange={(event) => setComment(event.target.value)}
-            placeholder="최소 10자 이상 입력해주세요"
-            className="[&>div]:w-full [&>div>textarea]:sm:text-xl-regular"
+            onChange={handleCommentChange}
+            maxLength={MAX_QUOTE_TEXT_LENGTH}
+            placeholder={`최소 ${MIN_QUOTE_TEXT_LENGTH}자 이상, 최대 ${MAX_QUOTE_TEXT_LENGTH}자 이내로 입력해주세요`}
+            errorMessage={commentErrorMessage}
+            className="[&>div]:min-h-28 [&>div]:w-full"
             aria-label="코멘트"
           />
         </div>
       </div>
 
-      <ModalCtaButton disabled={!isSubmittable} onClick={handleSubmit}>
-        견적 보내기
+      <ModalCtaButton
+        disabled={!isSubmittable}
+        onClick={handleSubmit}
+        className="cursor-pointer disabled:cursor-default"
+      >
+        {isSubmitting ? '보내는 중...' : '견적 보내기'}
       </ModalCtaButton>
+      {errorMessage ? (
+        <p role="alert" className="text-center text-md-medium text-red-200">
+          {errorMessage}
+        </p>
+      ) : null}
     </section>
   );
 };
