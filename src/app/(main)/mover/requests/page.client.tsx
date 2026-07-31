@@ -12,12 +12,12 @@ import { RejectRequestModal } from '@/components/ui/Modal/RejectRequestModal';
 import { SendQuoteModal } from '@/components/ui/Modal/SendQuoteModal';
 import { Sort } from '@/components/ui/Sort/Sort';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
-
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import {
   estimateRequestQueryKeys,
   useReceivedEstimateRequests,
 } from '@/hooks/useReceivedEstimateRequests';
+import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/services/apiClient';
 import { submitProposalQuote, submitRejectionQuote } from '@/services/quoteApi';
 import {
@@ -56,6 +56,7 @@ const getSubmitErrorMessage = (error: unknown, fallback: string): string =>
 /** 받은 요청 페이지 클라이언트 — 검색·정렬·필터·목록 조회 */
 const MoverRequestsPageClient = () => {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
   const [searchValue, setSearchValue] = useState('');
   const [isSearchFlushed, setIsSearchFlushed] = useState(false);
@@ -135,6 +136,9 @@ const MoverRequestsPageClient = () => {
       await invalidateReceivedLists();
       setSubmitErrorMessage(null);
       setSendQuoteTarget(null);
+      showToast({
+        content: '견적을 성공적으로 보냈습니다!',
+      });
     },
     onError: (mutationError) => {
       setSubmitErrorMessage(
@@ -156,6 +160,9 @@ const MoverRequestsPageClient = () => {
       await invalidateReceivedLists();
       setSubmitErrorMessage(null);
       setRejectTarget(null);
+      showToast({
+        content: '견적 요청을 반려했습니다.',
+      });
     },
     onError: (mutationError) => {
       setSubmitErrorMessage(
