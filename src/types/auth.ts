@@ -9,6 +9,7 @@ export interface LoginRequest {
 export interface AuthUser {
   id: string;
   userType: ApiUserType;
+  nickname: string;
   email: string;
   phoneNumber: string;
   isProfileCompleted: boolean;

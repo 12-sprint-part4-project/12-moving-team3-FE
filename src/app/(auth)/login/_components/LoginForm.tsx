@@ -6,8 +6,8 @@ import { useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { Button } from '@/components/Button/Button';
 import { TextFieldOutlined } from '@/components/ui/Input';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { setAccessToken } from '@/lib/accessToken';
 import { ApiError } from '@/lib/apiClient';
 import { login } from '@/service/authApi';
 import type { ApiUserType } from '@/types/auth';
@@ -85,6 +85,7 @@ const HELPER_LINK_CLASSNAME =
 export const LoginForm = ({ role }: LoginFormProps) => {
   const router = useRouter();
   const { showToast } = useToast();
+  const { setSession } = useAuth();
   const [values, setValues] = useState<LoginFormValues>(INITIAL_VALUES);
   const [isPending, setIsPending] = useState(false);
   const roleSwitch = ROLE_SWITCH_COPY[role];
@@ -113,7 +114,10 @@ export const LoginForm = ({ role }: LoginFormProps) => {
         password: values.password,
       });
 
-      setAccessToken(response.data.accessToken);
+      setSession({
+        accessToken: response.data.accessToken,
+        user: response.data.user,
+      });
       showToast({ content: '로그인되었습니다.' });
       router.replace('/');
     } catch (error) {
