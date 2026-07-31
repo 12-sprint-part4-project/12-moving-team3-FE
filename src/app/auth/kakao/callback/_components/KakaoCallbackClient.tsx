@@ -1,42 +1,86 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
+import { ApiError } from '@/lib/apiClient';
 import { parseKakaoCallbackParams } from '@/lib/kakaoAuth';
+import { kakaoLogin } from '@/service/authApi';
+import type { ApiUserType } from '@/types/auth';
 
-type CallbackStatus = 'parsing' | 'received' | 'failed';
+type CallbackStatus = 'pending' | 'success' | 'failed';
+
+const LOGIN_HREF_BY_USER_TYPE: Record<ApiUserType, string> = {
+  CUSTOMER: '/login',
+  MOVER: '/login/mover',
+};
 
 /**
- * 카카오 OAuth 콜백에서 인가 코드(code)와 userType(state)을 수신한다.
- * 이 단계에서는 BE로 전달하지 않고, 정상 수신 여부만 확인한다.
+ * 카카오 OAuth 콜백:
+ * code / userType 파싱 → BE 로그인 → 세션 저장 → 홈 이동
  */
 export const KakaoCallbackClient = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { showToast } = useToast();
-  const [status, setStatus] = useState<CallbackStatus>('parsing');
+  const { setSession } = useAuth();
+  const [status, setStatus] = useState<CallbackStatus>('pending');
+  const hasRequestedRef = useRef(false);
 
   useEffect(() => {
-    const result = parseKakaoCallbackParams(searchParams);
+    // Strict Mode 중복 실행 / code 일회용 소모 방지
+    if (hasRequestedRef.current) return;
+    hasRequestedRef.current = true;
 
-    if (!result.ok) {
-      setStatus('failed');
-      showToast({ content: result.message });
-      router.replace('/login');
-      return;
-    }
+    const loginWithKakao = async () => {
+      const result = parseKakaoCallbackParams(searchParams);
 
-    // code는 일회용·민감값이므로 화면에 노출하거나 로그에 남기지 않는다.
-    setStatus('received');
-  }, [router, searchParams, showToast]);
+      if (!result.ok) {
+        setStatus('failed');
+        showToast({ content: result.message });
+        router.replace('/login');
+        return;
+      }
+
+      try {
+        const response = await kakaoLogin({
+          code: result.code,
+          userType: result.userType,
+        });
+
+        setSession({
+          accessToken: response.data.accessToken,
+          user: response.data.user,
+        });
+
+        showToast({
+          content: response.data.isNewUser
+            ? '회원가입이 완료되었습니다.'
+            : '로그인되었습니다.',
+        });
+        setStatus('success');
+        router.replace('/');
+      } catch (error) {
+        setStatus('failed');
+        const message =
+          error instanceof ApiError
+            ? error.message
+            : '카카오 로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+        showToast({ content: message });
+        router.replace(LOGIN_HREF_BY_USER_TYPE[result.userType]);
+      }
+    };
+
+    void loginWithKakao();
+  }, [router, searchParams, setSession, showToast]);
 
   const message =
     status === 'failed'
       ? '카카오 로그인에 실패했습니다.'
-      : status === 'received'
-        ? '인가 코드를 수신했습니다.'
+      : status === 'success'
+        ? '로그인되었습니다.'
         : '카카오 로그인 처리 중...';
 
   return (
