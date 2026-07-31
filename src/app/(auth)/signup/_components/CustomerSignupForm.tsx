@@ -6,23 +6,10 @@ import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { Button } from '@/components/Button/Button';
 import { TextFieldOutlined } from '@/components/ui/Input';
 
-const SNS_PROVIDERS = [
-  {
-    id: 'google',
-    label: 'Google로 가입',
-    src: '/images/google.svg',
-  },
-  {
-    id: 'kakao',
-    label: '카카오로 가입',
-    src: '/images/kakao.svg',
-  },
-  {
-    id: 'naver',
-    label: '네이버로 가입',
-    src: '/images/naver.svg',
-  },
-] as const;
+const KAKAO_LOGIN = {
+  label: '카카오로 가입',
+  src: '/images/kakao.svg',
+} as const;
 
 interface SignupFormValues {
   name: string;
@@ -253,24 +240,19 @@ export const CustomerSignupForm = () => {
           <p className="text-xs-regular text-black-100 lg:text-xl-regular lg:text-black-200">
             SNS 계정으로 간편 가입하기
           </p>
-          <div className="flex items-start gap-6 lg:gap-8">
-            {SNS_PROVIDERS.map((provider) => (
-              <button
-                key={provider.id}
-                type="button"
-                aria-label={provider.label}
-                className="inline-flex size-[3.375rem] shrink-0 items-center justify-center overflow-clip rounded-full lg:size-[4.5rem]"
-              >
-                <img
-                  src={provider.src}
-                  alt=""
-                  width={72}
-                  height={72}
-                  className="size-full"
-                />
-              </button>
-            ))}
-          </div>
+          <button
+            type="button"
+            aria-label={KAKAO_LOGIN.label}
+            className="inline-flex size-[3.375rem] shrink-0 cursor-pointer items-center justify-center overflow-clip rounded-full lg:size-[4.5rem]"
+          >
+            <img
+              src={KAKAO_LOGIN.src}
+              alt=""
+              width={72}
+              height={72}
+              className="size-full"
+            />
+          </button>
         </div>
       </div>
     </div>
