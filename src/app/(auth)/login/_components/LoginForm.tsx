@@ -1,10 +1,16 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { Button } from '@/components/Button/Button';
 import { TextFieldOutlined } from '@/components/ui/Input';
+import { useToast } from '@/hooks/useToast';
+import { setAccessToken } from '@/lib/accessToken';
+import { ApiError } from '@/lib/apiClient';
+import { login } from '@/service/authApi';
+import type { ApiUserType } from '@/types/auth';
 
 export type LoginRole = 'customer' | 'mover';
 
@@ -38,6 +44,11 @@ const SIGNUP_HREF: Record<LoginRole, string> = {
   mover: '/signup/mover',
 };
 
+const USER_TYPE_BY_ROLE: Record<LoginRole, ApiUserType> = {
+  customer: 'CUSTOMER',
+  mover: 'MOVER',
+};
+
 interface LoginFormValues {
   email: string;
   password: string;
@@ -68,15 +79,20 @@ const HELPER_LINK_CLASSNAME =
  * 로그인 폼 (customer / mover 공통).
  * Figma: Mobile(1:2155) · Tablet(1:2329) · Desktop(1:2051).
  * Mobile/Tablet은 sm 스펙(327px), Desktop만 lg:에서 확대.
- * role만 달라지며, API 연동 시 payload에 role을 포함하면 된다.
+ * role → API userType(CUSTOMER|MOVER)으로 매핑한다.
  * 소셜 로그인은 카카오만 제공한다.
  */
 export const LoginForm = ({ role }: LoginFormProps) => {
+  const router = useRouter();
+  const { showToast } = useToast();
   const [values, setValues] = useState<LoginFormValues>(INITIAL_VALUES);
+  const [isPending, setIsPending] = useState(false);
   const roleSwitch = ROLE_SWITCH_COPY[role];
 
   const isSubmittable =
-    values.email.trim().length > 0 && values.password.length > 0;
+    values.email.trim().length > 0 &&
+    values.password.length > 0 &&
+    !isPending;
 
   const handleChange =
     (field: keyof LoginFormValues) =>
@@ -84,10 +100,31 @@ export const LoginForm = ({ role }: LoginFormProps) => {
       setValues((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isSubmittable) return;
-    // API 연동 시: { ...values, role }
+
+    setIsPending(true);
+
+    try {
+      const response = await login({
+        userType: USER_TYPE_BY_ROLE[role],
+        email: values.email.trim(),
+        password: values.password,
+      });
+
+      setAccessToken(response.data.accessToken);
+      showToast({ content: '로그인되었습니다.' });
+      router.replace('/');
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : '로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+      showToast({ content: message });
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
@@ -162,7 +199,7 @@ export const LoginForm = ({ role }: LoginFormProps) => {
               disabled={!isSubmittable}
               className="lg:h-16 lg:gap-2 lg:text-xl-semibold"
             >
-              로그인
+              {isPending ? '로그인 중...' : '로그인'}
             </Button>
           </div>
 
