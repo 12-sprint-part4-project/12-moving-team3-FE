@@ -7,6 +7,21 @@ export interface AuthSession {
   user: AuthUser;
 }
 
+type Listener = () => void;
+
+const listeners = new Set<Listener>();
+
+const notifyAuthSessionListeners = (): void => {
+  listeners.forEach((listener) => listener());
+};
+
+export const subscribeAuthSession = (listener: Listener): (() => void) => {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+};
+
 export const getAuthSession = (): AuthSession | null => {
   if (typeof window === 'undefined') return null;
 
@@ -18,10 +33,16 @@ export const getAuthSession = (): AuthSession | null => {
   }
 };
 
+export const getAuthSessionUser = (): AuthUser | null => {
+  return getAuthSession()?.user ?? null;
+};
+
 export const setAuthSession = (session: AuthSession): void => {
   localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
+  notifyAuthSessionListeners();
 };
 
 export const clearAuthSession = (): void => {
   localStorage.removeItem(AUTH_SESSION_KEY);
+  notifyAuthSessionListeners();
 };

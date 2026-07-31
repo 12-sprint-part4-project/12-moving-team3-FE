@@ -1,11 +1,12 @@
 'use client';
 
-import { createContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useSyncExternalStore, type ReactNode } from 'react';
 
 import {
   clearAuthSession,
-  getAuthSession,
+  getAuthSessionUser,
   setAuthSession,
+  subscribeAuthSession,
   type AuthSession,
 } from '@/lib/authSession';
 import type { AuthUser } from '@/types/auth';
@@ -23,23 +24,26 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isReady, setIsReady] = useState(false);
+const getServerSnapshot = (): AuthUser | null => null;
 
-  useEffect(() => {
-    setUser(getAuthSession()?.user ?? null);
-    setIsReady(true);
-  }, []);
+/**
+ * localStorage 세션을 useSyncExternalStore로 구독한다.
+ * useEffect + setState 초기화는 cascading render 경고를 유발하므로 사용하지 않는다.
+ */
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const user = useSyncExternalStore(
+    subscribeAuthSession,
+    getAuthSessionUser,
+    getServerSnapshot
+  );
+  const isReady = typeof window !== 'undefined';
 
   const setSession = (session: AuthSession) => {
     setAuthSession(session);
-    setUser(session.user);
   };
 
   const clearSession = () => {
     clearAuthSession();
-    setUser(null);
   };
 
   return (
