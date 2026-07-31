@@ -4,11 +4,13 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export class ApiError extends Error {
   readonly status: number;
+  readonly code?: string;
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, code?: string) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
+    this.code = code;
   }
 }
 
@@ -43,7 +45,8 @@ export const apiClient = async <T>(
     const errorBody = payload as ApiErrorBody | null;
     throw new ApiError(
       response.status,
-      errorBody?.error?.message ?? '요청에 실패했습니다.'
+      errorBody?.error?.message ?? '요청에 실패했습니다.',
+      errorBody?.error?.code
     );
   }
 

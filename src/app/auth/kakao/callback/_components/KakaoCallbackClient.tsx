@@ -6,7 +6,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
-import { parseKakaoCallbackParams } from '@/lib/kakaoAuth';
+import {
+  parseKakaoCallbackParams,
+  resolveKakaoLoginErrorMessage,
+} from '@/lib/kakaoAuth';
 import { kakaoLogin } from '@/service/authApi';
 import type { ApiUserType } from '@/types/auth';
 
@@ -66,7 +69,7 @@ export const KakaoCallbackClient = () => {
         setStatus('failed');
         const message =
           error instanceof ApiError
-            ? error.message
+            ? resolveKakaoLoginErrorMessage(error.code, error.message)
             : '카카오 로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.';
         showToast({ content: message });
         router.replace(LOGIN_HREF_BY_USER_TYPE[result.userType]);

@@ -93,3 +93,24 @@ export const parseKakaoCallbackParams = (
     userType: state,
   };
 };
+
+const KAKAO_LOGIN_ERROR_MESSAGES: Record<string, string> = {
+  USER_TYPE_MISMATCH:
+    '이미 다른 회원 유형으로 가입된 카카오 계정입니다. 해당 유형으로 로그인해 주세요.',
+  KAKAO_EMAIL_REQUIRED:
+    '카카오 계정 이메일 제공에 동의해 주세요.',
+  EMAIL_ALREADY_EXISTS:
+    '이미 가입된 이메일입니다. 이메일 로그인을 이용해 주세요.',
+};
+
+/**
+ * BE 카카오 로그인 에러 코드를 사용자 메시지로 변환한다.
+ * 매핑되지 않은 코드는 fallbackMessage를 그대로 사용한다.
+ */
+export const resolveKakaoLoginErrorMessage = (
+  errorCode: string | undefined,
+  fallbackMessage: string
+): string => {
+  if (!errorCode) return fallbackMessage;
+  return KAKAO_LOGIN_ERROR_MESSAGES[errorCode] ?? fallbackMessage;
+};
