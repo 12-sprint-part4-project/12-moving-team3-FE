@@ -27,7 +27,7 @@ const ROLE_SWITCH_COPY: Record<
     href: '/signup/mover',
   },
   mover: {
-    prompt: '일반 유저이신가요?',
+    prompt: '일반 유저라면?',
     linkLabel: '일반 유저 전용 페이지',
     href: '/signup',
   },

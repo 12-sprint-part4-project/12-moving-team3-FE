@@ -2,7 +2,7 @@ import { LoginForm } from '@/app/(auth)/login/_components/LoginForm';
 
 /**
  * 일반유저 로그인 페이지.
- * Figma: 로그인_일반유저/Desktop (1:2051).
+ * Figma: Mobile(1:2155) · Tablet(1:2329) · Desktop(1:2051).
  * GNB는 루트 layout의 Header(GnbLanding sm|md|lg)를 재사용한다.
  */
 const LoginPage = () => {
