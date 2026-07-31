@@ -6,6 +6,16 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface SignupRequest {
+  userType: ApiUserType;
+  name: string;
+  nickname: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+  passwordConfirmation: string;
+}
+
 export interface AuthUser {
   id: string;
   userType: ApiUserType;
@@ -18,6 +28,16 @@ export interface AuthUser {
 export interface LoginResponse {
   data: {
     user: AuthUser;
+    accessToken: string;
+  };
+}
+
+export interface SignupResponse {
+  data: {
+    user: AuthUser & {
+      name: string;
+      createdAt: string;
+    };
     accessToken: string;
   };
 }

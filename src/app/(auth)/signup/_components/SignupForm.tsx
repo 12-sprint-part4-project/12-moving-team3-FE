@@ -1,10 +1,16 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { Button } from '@/components/Button/Button';
 import { TextFieldOutlined } from '@/components/ui/Input';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
+import { ApiError } from '@/lib/apiClient';
+import { signup } from '@/service/authApi';
+import type { ApiUserType } from '@/types/auth';
 
 export type SignupRole = 'customer' | 'mover';
 
@@ -36,6 +42,11 @@ const ROLE_SWITCH_COPY: Record<
 const LOGIN_HREF: Record<SignupRole, string> = {
   customer: '/login',
   mover: '/login/mover',
+};
+
+const USER_TYPE_BY_ROLE: Record<SignupRole, ApiUserType> = {
+  customer: 'CUSTOMER',
+  mover: 'MOVER',
 };
 
 interface SignupFormValues {
@@ -75,10 +86,14 @@ const HELPER_LINK_CLASSNAME =
 /**
  * 회원가입 폼 (customer / mover 공통).
  * Figma: Mobile(1:2900) · Tablet(1:2608) · Desktop(1:2756).
- * role만 달라지며, API 연동 시 payload에 role을 포함하면 된다.
+ * role → API userType(CUSTOMER|MOVER)으로 매핑한다.
  */
 export const SignupForm = ({ role }: SignupFormProps) => {
+  const router = useRouter();
+  const { showToast } = useToast();
+  const { setSession } = useAuth();
   const [values, setValues] = useState<SignupFormValues>(INITIAL_VALUES);
+  const [isPending, setIsPending] = useState(false);
   const roleSwitch = ROLE_SWITCH_COPY[role];
 
   const isSubmittable =
@@ -87,7 +102,8 @@ export const SignupForm = ({ role }: SignupFormProps) => {
     values.nickname.trim().length > 0 &&
     values.phone.trim().length > 0 &&
     values.password.length > 0 &&
-    values.passwordConfirm.length > 0;
+    values.passwordConfirm.length > 0 &&
+    !isPending;
 
   const handleChange =
     (field: keyof SignupFormValues) =>
@@ -100,10 +116,52 @@ export const SignupForm = ({ role }: SignupFormProps) => {
       setValues((prev) => ({ ...prev, [field]: nextValue }));
     };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isSubmittable) return;
-    // API 연동 시: { ...values, role }
+
+    if (values.password !== values.passwordConfirm) {
+      showToast({ content: '비밀번호가 일치하지 않습니다.' });
+      return;
+    }
+
+    setIsPending(true);
+
+    try {
+      const response = await signup({
+        userType: USER_TYPE_BY_ROLE[role],
+        name: values.name.trim(),
+        nickname: values.nickname.trim(),
+        email: values.email.trim(),
+        phoneNumber: values.phone.trim(),
+        password: values.password,
+        passwordConfirmation: values.passwordConfirm,
+      });
+
+      const { user } = response.data;
+
+      setSession({
+        accessToken: response.data.accessToken,
+        user: {
+          id: user.id,
+          userType: user.userType,
+          nickname: user.nickname,
+          email: user.email,
+          phoneNumber: user.phoneNumber,
+          isProfileCompleted: user.isProfileCompleted,
+        },
+      });
+      showToast({ content: '회원가입이 완료되었습니다.' });
+      router.replace('/');
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : '회원가입에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+      showToast({ content: message });
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
@@ -250,7 +308,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
               disabled={!isSubmittable}
               className="lg:h-16 lg:gap-2 lg:text-xl-semibold"
             >
-              시작하기
+              {isPending ? '가입 중...' : '시작하기'}
             </Button>
           </div>
 
