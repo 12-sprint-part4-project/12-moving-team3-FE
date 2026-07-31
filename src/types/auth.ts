@@ -48,6 +48,19 @@ export interface LogoutResponse {
   };
 }
 
+export interface KakaoLoginRequest {
+  code: string;
+  userType: ApiUserType;
+}
+
+export interface KakaoLoginResponse {
+  data: {
+    user: AuthUser;
+    accessToken: string;
+    isNewUser: boolean;
+  };
+}
+
 export interface ApiErrorBody {
   error: {
     code: string;
