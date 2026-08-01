@@ -107,6 +107,7 @@ export const MoversSelectDropdown = ({
           )}
         >
           <ul
+            role="presentation"
             className={cn(
               isTwoColumn ? 'grid grid-cols-2' : 'flex flex-col'
             )}
