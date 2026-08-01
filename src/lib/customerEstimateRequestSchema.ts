@@ -58,11 +58,38 @@ export const ESTIMATE_REQUEST_REVISABLE_FIELDS = [
   'arrivalDetailAddress',
 ] as const;
 
-/** 완료 항목 재수정 body */
-export const reviseEstimateRequestFieldBodySchema = z.object({
-  field: z.enum(ESTIMATE_REQUEST_REVISABLE_FIELDS),
-  value: z.string().trim().min(1, '값을 입력해 주세요.'),
-});
+/** 완료 항목 재수정 body — field별 value 형식 검증 */
+export const reviseEstimateRequestFieldBodySchema = z.discriminatedUnion(
+  'field',
+  [
+    z.object({ field: z.literal('moveType'), value: moveTypeSchema }),
+    z.object({ field: z.literal('moveDate'), value: moveDateSchema }),
+    z.object({
+      field: z.literal('departureZipCode'),
+      value: addressFieldSchema,
+    }),
+    z.object({
+      field: z.literal('departureAddress'),
+      value: addressFieldSchema,
+    }),
+    z.object({
+      field: z.literal('departureDetailAddress'),
+      value: addressFieldSchema,
+    }),
+    z.object({
+      field: z.literal('arrivalZipCode'),
+      value: addressFieldSchema,
+    }),
+    z.object({
+      field: z.literal('arrivalAddress'),
+      value: addressFieldSchema,
+    }),
+    z.object({
+      field: z.literal('arrivalDetailAddress'),
+      value: addressFieldSchema,
+    }),
+  ]
+);
 
 export type ReviseEstimateRequestFieldBody = z.infer<
   typeof reviseEstimateRequestFieldBodySchema
