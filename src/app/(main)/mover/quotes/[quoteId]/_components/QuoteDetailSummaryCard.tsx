@@ -22,12 +22,12 @@ export const QuoteDetailSummaryCard = ({
   >
     <div className="flex w-full items-center gap-2 lg:gap-3">
       {detail.isConfirmed ? (
-        <MoveTypeChip type="quotePending" size="sm">
+        <MoveTypeChip type="quoteConfirmed" size="sm">
           견적 확정
         </MoveTypeChip>
       ) : null}
       {detail.isRejected ? (
-        <MoveTypeChip type="quotePending" size="sm">
+        <MoveTypeChip type="quoteRejected" size="sm">
           반려
         </MoveTypeChip>
       ) : null}

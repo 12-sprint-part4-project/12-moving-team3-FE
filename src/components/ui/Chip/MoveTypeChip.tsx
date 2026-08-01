@@ -12,15 +12,23 @@ import OfficeFillIcon from '@/assets/icons/office-fill.svg';
   type별로 아이콘·색·기본 라벨이 다르고, size로 밀도(아이콘만 ↔ 라벨 포함)를 조절합니다.
 
   [props]
-  - type: 'small' | 'home' | 'office' | 'designated' | 'quotePending'
-    · quotePending는 아이콘이 없고 xs 사이즈도 없음 (텍스트만 상태 표시용)
+  - type: 'small' | 'home' | 'office' | 'designated' | 'quotePending' | 'quoteConfirmed' | 'quoteRejected'
+    · quotePending/quoteConfirmed/quoteRejected는 아이콘이 없고 xs 사이즈도 없음 (텍스트만 상태 표시용)
   - size: 'xs' | 'sm' | 'md' (xs = 아이콘만)
   - children: ReactNode (미지정 시 type별 기본 라벨)
   - className: string
 */
 
-type MoveType = 'small' | 'home' | 'office' | 'designated' | 'quotePending';
+type MoveType =
+  | 'small'
+  | 'home'
+  | 'office'
+  | 'designated'
+  | 'quotePending'
+  | 'quoteConfirmed'
+  | 'quoteRejected';
 type MoveTypeSize = 'xs' | 'sm' | 'md';
+type StatusMoveType = 'quotePending' | 'quoteConfirmed' | 'quoteRejected';
 
 interface MoveTypeChipProps extends HTMLAttributes<HTMLDivElement> {
   type?: MoveType;
@@ -34,15 +42,19 @@ const DEFAULT_LABELS: Record<MoveType, string> = {
   office: '사무실이사',
   designated: '지정 견적 요청',
   quotePending: '견적 대기',
+  quoteConfirmed: '견적 확정',
+  quoteRejected: '반려',
 };
 
-// 일반 이사 = 파란, 지정 요청 = 빨간(강조), 견적 대기 = 회색(대기 상태)
+// 일반 이사 = 파란, 지정 요청 = 빨간(강조), 상태칩(대기/확정/반려) = 회색 배경·진한 텍스트 (Figma Chip/이사유형)
 const themeStyles: Record<MoveType, string> = {
   small: 'bg-blue-100 text-blue-300',
   home: 'bg-blue-100 text-blue-300',
   office: 'bg-blue-100 text-blue-300',
   designated: 'bg-red-100 text-red-200',
   quotePending: 'bg-line-100 text-blue-400',
+  quoteConfirmed: 'bg-line-100 text-blue-400',
+  quoteRejected: 'bg-line-100 text-blue-400',
 };
 
 // 아이콘+라벨 레이아웃. 왼쪽 패딩을 작게 해 아이콘이 라벨에 붙도록 함
@@ -52,8 +64,8 @@ const sizeStyles: Record<MoveTypeSize, string> = {
   md: 'gap-1 py-1 pr-1.25 pl-0.5 text-lg-semibold',
 };
 
-// quotePending는 아이콘이 없어 좌우 패딩을 대칭으로 맞춤 (Figma 스펙)
-const quotePendingSizeStyles: Record<Exclude<MoveTypeSize, 'xs'>, string> = {
+// 상태칩은 아이콘이 없어 좌우 패딩을 대칭으로 맞춤 (Figma 스펙)
+const statusChipSizeStyles: Record<Exclude<MoveTypeSize, 'xs'>, string> = {
   sm: 'px-1.5 py-0.5 text-sm-semibold',
   md: 'px-1.5 py-1 text-lg-semibold',
 };
@@ -64,8 +76,13 @@ const iconSizeStyles: Record<MoveTypeSize, string> = {
   md: 'size-6',
 };
 
-// quotePending는 아이콘 맵에서 제외 (상태 텍스트만 표시)
-const ICONS: Record<Exclude<MoveType, 'quotePending'>, typeof BoxFillIcon> = {
+const isStatusChip = (type: MoveType): type is StatusMoveType =>
+  type === 'quotePending' ||
+  type === 'quoteConfirmed' ||
+  type === 'quoteRejected';
+
+// 상태칩은 아이콘 맵에서 제외 (상태 텍스트만 표시)
+const ICONS: Record<Exclude<MoveType, StatusMoveType>, typeof BoxFillIcon> = {
   small: BoxFillIcon,
   home: HomeFillIcon,
   office: OfficeFillIcon,
@@ -82,12 +99,12 @@ export const MoveTypeChip = ({
   const label = children ?? DEFAULT_LABELS[type];
   // xs: 좁은 공간(리스트 썸네일 등)용 아이콘-only
   const isIconOnly = size === 'xs';
-  const Icon = type === 'quotePending' ? null : ICONS[type];
+  const Icon = isStatusChip(type) ? null : ICONS[type];
 
-  // quotePending는 아이콘 없는 전용 패딩, 그 외는 공통 sizeStyles
+  // 상태칩은 아이콘 없는 전용 패딩, 그 외는 공통 sizeStyles
   const layoutClass =
-    type === 'quotePending' && size !== 'xs'
-      ? quotePendingSizeStyles[size]
+    isStatusChip(type) && size !== 'xs'
+      ? statusChipSizeStyles[size]
       : sizeStyles[size];
 
   return (

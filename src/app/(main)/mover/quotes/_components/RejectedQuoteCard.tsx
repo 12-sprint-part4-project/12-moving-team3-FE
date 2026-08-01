@@ -25,7 +25,7 @@ export const RejectedQuoteCard = ({
         className
       )}
     >
-      <div className="flex w-full flex-col gap-3.5 lg:gap-4" aria-hidden="true">
+      <div className="flex w-full flex-col gap-3.5 lg:gap-4">
         {/* 이사 유형·지정 칩 렌더 */}
         <div className="flex w-full items-center gap-2 lg:gap-3">
           {quote.moveType ? (

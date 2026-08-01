@@ -23,7 +23,7 @@ export const SentQuoteCard = ({
       {/* 상태·이사 유형·지정 칩 렌더 */}
       <div className="flex w-full items-center gap-2 lg:gap-3">
         {quote.isConfirmed ? (
-          <MoveTypeChip type="quotePending" size="sm">
+          <MoveTypeChip type="quoteConfirmed" size="sm">
             견적 확정
           </MoveTypeChip>
         ) : null}
@@ -62,10 +62,7 @@ export const SentQuoteCard = ({
       )}
     >
       {quote.isMoveCompleted ? (
-        <div
-          className="flex w-full flex-col gap-6.5 lg:gap-4"
-          aria-hidden="true"
-        >
+        <div className="flex w-full flex-col gap-6.5 lg:gap-4">
           {cardBody}
         </div>
       ) : (
