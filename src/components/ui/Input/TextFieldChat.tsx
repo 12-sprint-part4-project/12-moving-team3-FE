@@ -1,5 +1,7 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 
+import { cn } from '@/lib/utils';
+
 /*
   TEXT FIELD CHAT
 
@@ -47,32 +49,29 @@ const sizeStyles: Record<ChatSize, Record<ChatColor, string>> = {
 };
 
 // incoming은 왼쪽 위를 각지게, me*는 오른쪽 위를 각지게 (말풍선 꼬리 방향 표현)
-const radiusStyles: Record<ChatColor, Record<ChatSize, string>> = {
-  incoming: {
-    sm: 'rounded-tr-3xl rounded-br-3xl rounded-bl-3xl',
-    md: 'rounded-tr-3xl rounded-br-3xl rounded-bl-3xl',
-  },
-  mePrimary: {
-    sm: 'rounded-tl-3xl rounded-br-3xl rounded-bl-3xl',
-    md: 'rounded-tl-3xl rounded-br-3xl rounded-bl-3xl',
-  },
-  meSecondary: {
-    sm: 'rounded-tl-3xl rounded-br-3xl rounded-bl-3xl',
-    md: 'rounded-tl-3xl rounded-br-3xl rounded-bl-3xl',
-  },
+const radiusStyles: Record<ChatColor, string> = {
+  incoming: 'rounded-tr-3xl rounded-br-3xl rounded-bl-3xl',
+  mePrimary: 'rounded-tl-3xl rounded-br-3xl rounded-bl-3xl',
+  meSecondary: 'rounded-tl-3xl rounded-br-3xl rounded-bl-3xl',
 };
 
 export const TextFieldChat = ({
   color = 'incoming',
   size = 'sm',
   children,
-  className = '',
+  className,
   ...rest
 }: TextFieldChatProps) => {
   return (
     <div
       {...rest}
-      className={`inline-flex max-w-full drop-shadow-sm ${colorStyles[color]} ${sizeStyles[size][color]} ${radiusStyles[color][size]} ${className}`.trim()}
+      className={cn(
+        'inline-flex max-w-full drop-shadow-sm',
+        colorStyles[color],
+        sizeStyles[size][color],
+        radiusStyles[color],
+        className
+      )}
     >
       {/* pre-wrap: 줄바꿈·공백 유지, break-words: 긴 URL 등 오버플로우 방지 */}
       <p className="break-words whitespace-pre-wrap">{children}</p>
