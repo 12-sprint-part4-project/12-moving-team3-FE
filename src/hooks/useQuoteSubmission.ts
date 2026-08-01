@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
+import { moverQuoteQueryKeys } from '@/hooks/useMoverQuotes';
 import { estimateRequestQueryKeys } from '@/hooks/useReceivedEstimateRequests';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
@@ -40,11 +41,16 @@ export const useQuoteSubmission = ({
     null
   );
 
-  /** 받은 요청 목록 캐시 무효화 */
-  const invalidateReceivedLists = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: estimateRequestQueryKeys.receivedLists(),
-    });
+  /** 받은 요청·내 견적 목록 캐시 무효화 */
+  const invalidateRelatedLists = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: estimateRequestQueryKeys.receivedLists(),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: moverQuoteQueryKeys.lists(),
+      }),
+    ]);
   };
 
   /** 제출 에러 메시지 초기화 */
@@ -58,7 +64,7 @@ export const useQuoteSubmission = ({
   ) => ({
     mutationFn: config.mutationFn,
     onSuccess: async () => {
-      await invalidateReceivedLists();
+      await invalidateRelatedLists();
       setSubmitErrorMessage(null);
       config.onSuccess?.();
       showToast({
