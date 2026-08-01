@@ -1,3 +1,4 @@
+import { refreshAccessToken } from '@/lib/authRefresh';
 import { apiClient } from '@/lib/apiClient';
 import type {
   KakaoLoginRequest,
@@ -5,6 +6,7 @@ import type {
   LoginRequest,
   LoginResponse,
   LogoutResponse,
+  RefreshResponse,
   SignupRequest,
   SignupResponse,
 } from '@/types/auth';
@@ -37,6 +39,16 @@ export const kakaoLogin = (
     method: 'POST',
     body,
   });
+};
+
+/**
+ * POST /api/auth/refresh
+ * Body 없음. Refresh Token은 httpOnly 쿠키로 전달된다.
+ * 성공 시 authSession의 accessToken을 갱신한다.
+ */
+export const refresh = async (): Promise<RefreshResponse> => {
+  const accessToken = await refreshAccessToken();
+  return { data: { accessToken } };
 };
 
 /** POST /api/auth/logout */
