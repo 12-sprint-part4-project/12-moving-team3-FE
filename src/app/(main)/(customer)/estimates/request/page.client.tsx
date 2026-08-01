@@ -1,7 +1,8 @@
 'use client';
 
+import { EstimateRequestBlocked } from './_components/EstimateRequestBlocked';
+import { EstimateRequestGate } from './_components/EstimateRequestGate';
 import { EstimateRequestShell } from './_components/EstimateRequestShell';
-import { EstimateRequestStatusMessage } from './_components/EstimateRequestStatusMessage';
 import { AddressStep } from './_components/steps/AddressStep';
 import { MoveDateStep } from './_components/steps/MoveDateStep';
 import { MoveTypeStep } from './_components/steps/MoveTypeStep';
@@ -9,13 +10,16 @@ import { SubmitStep } from './_components/steps/SubmitStep';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 
 /**
- * 견적요청 페이지 클라이언트 — bootstrap 분기 + 스텝 스텁 렌더.
- * 스텝별 Figma UI·mutation 연결은 스프린트2~5에서 진행.
+ * 견적요청 페이지 클라이언트 — bootstrap 분기 + 스텝 렌더.
+ * 비회원·프로필 미등록: Shell + 채팅형 Gate (Figma 1-3541).
+ * 진행중(blocked): EstimateRequestBlocked (Figma 1-11375).
+ * 일반 에러: 훅에서 토스트 + 자동 재시도 → 로딩 UI 유지.
  */
 export const EstimateRequestPageClient = () => {
   const { bootstrap } = useCustomerEstimateRequest();
 
-  if (bootstrap.status === 'loading') {
+  // loading · 일반 에러(자동 재시도 중) 공통 — 풀페이지 에러 화면 없음
+  if (bootstrap.status === 'loading' || bootstrap.status === 'error') {
     return (
       <div className="mx-auto max-w-[1400px] px-6 py-8 sm:px-18">
         <p className="text-gray-400 text-lg-medium" role="status">
@@ -25,65 +29,36 @@ export const EstimateRequestPageClient = () => {
     );
   }
 
-  // 로그인 필요 — 인증 페이지 경로가 확정되면 href만 교체
-  if (bootstrap.status === 'unauthorized') {
+  // 비회원·프로필 미등록 — Step1과 같은 Shell + 채팅 게이트
+  if (
+    bootstrap.status === 'unauthorized' ||
+    bootstrap.status === 'profileIncomplete'
+  ) {
     return (
-      <EstimateRequestStatusMessage
-        message="견적 요청은 로그인 후 이용할 수 있습니다."
-        linkHref="/login/customer"
-        linkLabel="로그인하러 가기"
-      />
+      <EstimateRequestShell currentStep={1}>
+        <EstimateRequestGate kind={bootstrap.status} />
+      </EstimateRequestShell>
     );
   }
 
-  // 프로필 미등록 — 프로필 등록 경로가 확정되면 href만 교체
-  if (bootstrap.status === 'profileIncomplete') {
-    return (
-      <EstimateRequestStatusMessage
-        message="견적 요청을 하려면 프로필 등록이 필요합니다."
-        linkHref="/profile/customer"
-        linkLabel="프로필 등록하러 가기"
-      />
-    );
-  }
-
-  // 이미 활성 요청(SUBMITTED/CONFIRMED 등)이 있어 신규 DRAFT 생성 불가
+  // 제출 직후·활성 요청 재진입 공통 (Figma 1-11375)
   if (bootstrap.status === 'blocked') {
-    const blockedDetail = bootstrap.blockedRequest
-      ? `상태: ${bootstrap.blockedRequest.status}${
-          bootstrap.blockedRequest.moveDate
-            ? ` · 이사일 ${bootstrap.blockedRequest.moveDate}`
-            : ''
-        }`
-      : undefined;
-
     return (
-      <EstimateRequestStatusMessage
-        message="진행 중인 견적 요청이 있어 새로운 요청을 만들 수 없습니다."
-        detailText={blockedDetail}
-        linkHref="/quotes"
-        linkLabel="내 견적 관리로 이동"
-      />
-    );
-  }
-
-  if (bootstrap.status === 'error') {
-    return (
-      <EstimateRequestStatusMessage
+      <EstimateRequestBlocked
         message={
-          bootstrap.error?.message ??
-          '견적 요청을 불러오는 중 오류가 발생했습니다.'
+          <>
+            현재 진행 중인 이사 견적이 있어요!
+            <br />
+            진행 중인 이사 완료 후 새로운 견적을 받아보세요.
+          </>
         }
-        role="alert"
-        linkLabel="다시 시도"
-        onActionClick={() => {
-          void bootstrap.refetch();
-        }}
+        actionLabel="받은 견적 보러가기"
+        actionHref="/quotes"
       />
     );
   }
 
-  // ready — 시각 스텝에 맞는 스텁 렌더
+  // ready — 시각 스텝에 맞는 렌더
   const { visualStep, detail } = bootstrap;
 
   return (
