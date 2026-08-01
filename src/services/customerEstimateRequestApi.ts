@@ -27,6 +27,7 @@ import type {
   SubmitEstimateRequestResult,
   SubmitEstimateRequestResponse,
 } from '@/types/customerEstimateRequest';
+import type { z } from 'zod';
 
 const BASE_PATH = '/api/estimate-requests';
 
@@ -60,6 +61,15 @@ const unwrapData = <T>(body: unknown): T => {
   }
 
   return (body as { data: T }).data;
+};
+
+/** zod 검증 실패도 ApiError로 통일 — 훅 오류 분기와 계약 맞춤 */
+const parseRequestBody = <T>(schema: z.ZodType<T>, body: unknown): T => {
+  const result = schema.safeParse(body);
+  if (!result.success) {
+    throw new ApiError(400, 'INVALID_REQUEST', '요청 형식이 올바르지 않습니다.');
+  }
+  return result.data;
 };
 
 /**
@@ -142,8 +152,8 @@ export const saveEstimateRequestStep = async (
   estimateRequestId: number,
   body: SaveEstimateRequestStepBody
 ): Promise<SaveEstimateRequestStepResult> => {
-  // 클라이언트에서도 BE와 동일한 zod로 검증
-  const parsed = saveEstimateRequestStepBodySchema.parse(body);
+  // 클라이언트에서도 BE와 동일한 zod로 검증 (실패 시 ApiError)
+  const parsed = parseRequestBody(saveEstimateRequestStepBodySchema, body);
 
   const response = await fetch(
     `${API_BASE_URL}${BASE_PATH}/${estimateRequestId}/step`,
@@ -174,7 +184,8 @@ export const reviseEstimateRequestField = async (
   estimateRequestId: number,
   body: ReviseEstimateRequestFieldBody
 ): Promise<ReviseEstimateRequestFieldResult> => {
-  const parsed = reviseEstimateRequestFieldBodySchema.parse(body);
+  // 검증 실패 시 ZodError 대신 ApiError로 통일
+  const parsed = parseRequestBody(reviseEstimateRequestFieldBodySchema, body);
 
   const response = await fetch(
     `${API_BASE_URL}${BASE_PATH}/${estimateRequestId}/field`,
