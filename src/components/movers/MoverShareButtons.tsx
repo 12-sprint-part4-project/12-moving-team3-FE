@@ -65,17 +65,11 @@ export const MoverShareButtons = ({
 
   const handleShareFacebook = () => {
     const shareUrl = encodeURIComponent(window.location.href);
-    const popup = window.open(
+    window.open(
       `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`,
       'facebook-share',
       'width=600,height=400,noopener,noreferrer'
     );
-
-    if (!popup) {
-      showToast({
-        content: '팝업이 차단되었습니다. 브라우저에서 팝업을 허용해 주세요.',
-      });
-    }
   };
 
   return (
