@@ -3,9 +3,8 @@
 import { useEffect, useState } from 'react';
 
 import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGroup';
-import { EstimateRequestChatPanel } from '../EstimateRequestChatPanel';
-import { MoveTypeOptionField } from '../MoveTypeOptionField';
-import { Button } from '@/components/Button/Button';
+import { InlineErrorMessage } from '../InlineErrorMessage';
+import { MoveTypeRevisePanel } from '../MoveTypeRevisePanel';
 import { Calendar } from '@/components/ui/Calendar/Calendar';
 import {
   formatDateOnly,
@@ -160,46 +159,18 @@ export const MoveDateStep = () => {
       ) : null}
 
       {isRevisingMoveType ? (
-        /* 이사종류 재선택 — Calendar 자리에 Step1 옵션 UI 재사용 */
-        <EstimateRequestChatPanel>
-          <div
-            role="radiogroup"
-            aria-label="이사 종류"
-            className="flex w-full flex-col gap-2 md:gap-4"
-          >
-            {MOVE_TYPE_OPTIONS.map((option) => (
-              <MoveTypeOptionField
-                key={option.value}
-                name="moveTypeRevise"
-                value={option.value}
-                label={option.label}
-                selected={draftMoveType === option.value}
-                disabled={isSubmitting}
-                onSelect={setDraftMoveType}
-              />
-            ))}
-          </div>
-
-          <Button
-            type="button"
-            variant="solid"
-            size="sm"
-            className="md:h-16 md:text-xl-semibold"
-            disabled={!canConfirmMoveType}
-            aria-busy={isRevisingField}
-            onClick={() => {
-              void handleConfirmMoveType();
-            }}
-          >
-            {isRevisingField ? '저장 중…' : '선택완료'}
-          </Button>
-
-          {errorMessage ? (
-            <p className="text-md-medium text-red-200" role="alert">
-              {errorMessage}
-            </p>
-          ) : null}
-        </EstimateRequestChatPanel>
+        <MoveTypeRevisePanel
+          options={MOVE_TYPE_OPTIONS}
+          draftMoveType={draftMoveType}
+          onSelect={setDraftMoveType}
+          isSubmitting={isSubmitting}
+          isRevisingField={isRevisingField}
+          canConfirm={canConfirmMoveType}
+          errorMessage={errorMessage}
+          onConfirm={() => {
+            void handleConfirmMoveType();
+          }}
+        />
       ) : (
         <>
           {/* 시스템: 날짜 선택 프롬프트 */}
@@ -220,11 +191,7 @@ export const MoveDateStep = () => {
                 void handleConfirmDate(date);
               }}
             />
-            {errorMessage ? (
-              <p className="text-md-medium text-red-200" role="alert">
-                {errorMessage}
-              </p>
-            ) : null}
+            <InlineErrorMessage message={errorMessage} />
           </div>
         </>
       )}
