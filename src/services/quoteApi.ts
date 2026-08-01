@@ -6,6 +6,10 @@ import {
 } from '@/lib/apiClient';
 import { authFetch } from '@/lib/authFetch';
 import { formatMoveDateLabel, formatShortDateLabel } from '@/lib/formatDate';
+import {
+  quoteListResponseSchema,
+  quoteSubmitResponseSchema,
+} from '@/lib/quoteSchema';
 import { formatDistrictLabel } from '@/services/estimateRequestApi';
 import { API_MOVE_TYPE_TO_UI, MOVE_TYPE_LABELS } from '@/types/estimateRequest';
 import type {
@@ -14,17 +18,18 @@ import type {
   QuoteDetail,
   QuoteDetailResponse,
   QuoteDetailViewModel,
-  QuoteListMeta,
   QuoteListResponse,
   QuoteSubmitBody,
   QuoteSubmitResponse,
-  QuoteSubmitResult,
   RejectedQuoteCardModel,
   RejectedQuoteListItem,
   RejectionQuoteBody,
   SentQuoteCardModel,
   SentQuoteListItem,
 } from '@/types/quote';
+
+type SentQuotesParams = MoverQuotesParams & { status: 'SENT' };
+type RejectedQuotesParams = MoverQuotesParams & { status: 'REJECTED' };
 
 const JSON_HEADERS: HeadersInit = {
   'Content-Type': 'application/json',
@@ -114,64 +119,6 @@ export const buildMoverQuotesQuery = (params: MoverQuotesParams): string => {
   return query ? `?${query}` : '';
 };
 
-const isQuoteListMeta = (meta: unknown): meta is QuoteListMeta => {
-  if (!meta || typeof meta !== 'object') {
-    return false;
-  }
-
-  const listMeta = meta as QuoteListMeta;
-
-  return (
-    typeof listMeta.totalCount === 'number' &&
-    typeof listMeta.totalPages === 'number' &&
-    typeof listMeta.currentPage === 'number' &&
-    typeof listMeta.limit === 'number' &&
-    typeof listMeta.hasNextPage === 'boolean' &&
-    typeof listMeta.hasPrevPage === 'boolean'
-  );
-};
-
-const isQuoteListResponse = (body: unknown): body is QuoteListResponse => {
-  if (!body || typeof body !== 'object') {
-    return false;
-  }
-
-  const { data, meta } = body as {
-    data?: unknown;
-    meta?: unknown;
-  };
-
-  if (!data || typeof data !== 'object') {
-    return false;
-  }
-
-  if (!Array.isArray((data as { items?: unknown }).items)) {
-    return false;
-  }
-
-  return isQuoteListMeta(meta);
-};
-
-const isQuoteSubmitResponse = (body: unknown): body is QuoteSubmitResponse => {
-  if (!body || typeof body !== 'object') {
-    return false;
-  }
-
-  const { data } = body as { data?: unknown };
-  if (!data || typeof data !== 'object') {
-    return false;
-  }
-
-  const result = data as QuoteSubmitResult;
-
-  return (
-    typeof result.id === 'number' &&
-    typeof result.estimateRequestId === 'number' &&
-    typeof result.status === 'string' &&
-    typeof result.isDesignated === 'boolean'
-  );
-};
-
 /** 견적 제출 공통 요청 */
 const submitQuote = async (
   estimateRequestId: number,
@@ -192,16 +139,13 @@ const submitQuote = async (
   }
 
   const responseBody: unknown = await response.json().catch(() => null);
+  const parsed = quoteSubmitResponseSchema.safeParse(responseBody);
 
-  if (!isQuoteSubmitResponse(responseBody)) {
-    throw new ApiError(
-      response.status,
-      DEFAULT_API_ERROR_MESSAGE,
-      'INVALID_RESPONSE'
-    );
+  if (!parsed.success) {
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
   }
 
-  return responseBody;
+  return parsed.data;
 };
 
 /**
@@ -235,9 +179,18 @@ export const submitRejectionQuote = async (
  * 보낸 견적 / 반려한 견적 목록 조회.
  * GET /api/users/movers/quotes
  */
-export const getMoverQuotes = async (
+export function getMoverQuotes(
+  params: SentQuotesParams
+): Promise<QuoteListResponse<SentQuoteListItem>>;
+export function getMoverQuotes(
+  params: RejectedQuotesParams
+): Promise<QuoteListResponse<RejectedQuoteListItem>>;
+export function getMoverQuotes(
   params: MoverQuotesParams
-): Promise<QuoteListResponse> => {
+): Promise<QuoteListResponse>;
+export async function getMoverQuotes(
+  params: MoverQuotesParams
+): Promise<QuoteListResponse> {
   const query = buildMoverQuotesQuery(params);
 
   const response = await authFetch(
@@ -253,17 +206,14 @@ export const getMoverQuotes = async (
   }
 
   const body: unknown = await response.json().catch(() => null);
+  const parsed = quoteListResponseSchema.safeParse(body);
 
-  if (!isQuoteListResponse(body)) {
-    throw new ApiError(
-      response.status,
-      DEFAULT_API_ERROR_MESSAGE,
-      'INVALID_RESPONSE'
-    );
+  if (!parsed.success) {
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
   }
 
-  return body;
-};
+  return parsed.data as QuoteListResponse;
+}
 
 const isQuoteDetailResponse = (body: unknown): body is QuoteDetailResponse => {
   if (!body || typeof body !== 'object') {

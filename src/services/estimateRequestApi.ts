@@ -200,11 +200,7 @@ export const getReceivedEstimateRequests = async (
   const body: unknown = await response.json().catch(() => null);
 
   if (!isEstimateRequestListResponse(body)) {
-    throw new ApiError(
-      response.status,
-      DEFAULT_API_ERROR_MESSAGE,
-      'INVALID_RESPONSE'
-    );
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
   }
 
   return body;

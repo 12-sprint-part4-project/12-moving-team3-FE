@@ -34,13 +34,15 @@ const chatFetch = async <T>(
   path: string,
   init: RequestInit = {}
 ): Promise<T> => {
+  const headers = new Headers(JSON_HEADERS);
+  new Headers(init.headers).forEach((value, key) => {
+    headers.set(key, value);
+  });
+
   const response = await authFetch(`${API_BASE_URL}${path}`, {
     cache: 'no-store',
     ...init,
-    headers: {
-      ...JSON_HEADERS,
-      ...init.headers,
-    },
+    headers,
   });
 
   if (!response.ok) {
