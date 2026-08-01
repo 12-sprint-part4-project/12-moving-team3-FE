@@ -50,6 +50,27 @@ export interface CustomerEstimateRequestBootstrap {
   refetch: () => Promise<void>;
 }
 
+type BootstrapResultOverrides = Partial<
+  Omit<CustomerEstimateRequestBootstrap, 'status'>
+> &
+  Pick<CustomerEstimateRequestBootstrap, 'status'>;
+
+/**
+ * bootstrap 분기 공통 결과 팩토리.
+ * queryFn 쪽 refetch placeholder는 훅에서 실제 refetch로 덮어쓴다.
+ */
+const makeBootstrapResult = (
+  overrides: BootstrapResultOverrides
+): CustomerEstimateRequestBootstrap => ({
+  detail: null,
+  blockedRequest: null,
+  visualStep: 1,
+  error: null,
+  isBootstrapping: false,
+  refetch: async () => undefined,
+  ...overrides,
+});
+
 /**
  * 활성 요청 조회 → DRAFT 상세 복원 또는 신규 생성.
  * PROFILE_NOT_FOUND / 401 은 entry status 로만 분기 (리다이렉트는 페이지에서).
@@ -58,19 +79,14 @@ const bootstrapCustomerEstimateRequest =
   async (): Promise<CustomerEstimateRequestBootstrap> => {
     // FE 로그인 미구현 구간 — 토큰 없으면 API 호출 전에 로그인 안내로 분기
     if (!getAccessToken()) {
-      return {
+      return makeBootstrapResult({
         status: 'unauthorized',
-        detail: null,
-        blockedRequest: null,
-        visualStep: 1,
         error: new ApiError(
           401,
           'UNAUTHORIZED',
           '견적 요청은 로그인 후 이용할 수 있습니다.'
         ),
-        isBootstrapping: false,
-        refetch: async () => undefined,
-      };
+      });
     }
 
     try {
@@ -81,66 +97,44 @@ const bootstrapCustomerEstimateRequest =
         const created = await createEstimateRequest();
         const detail = await getEstimateRequestDetail(created.id);
 
-        return {
+        return makeBootstrapResult({
           status: 'ready',
           detail,
-          blockedRequest: null,
           visualStep: toVisualStep(detail.status, detail.currentStep, detail),
-          error: null,
-          isBootstrapping: false,
-          refetch: async () => undefined,
-        };
+        });
       }
 
       // 이미 제출·확정된 활성 요청 → 신규 작성 불가
       if (active.request.status !== 'DRAFT') {
-        return {
+        return makeBootstrapResult({
           status: 'blocked',
-          detail: null,
           blockedRequest: active.request,
           visualStep: 4,
-          error: null,
-          isBootstrapping: false,
-          refetch: async () => undefined,
-        };
+        });
       }
 
       // DRAFT 이어서 작성
       const detail = await getEstimateRequestDetail(active.request.id);
 
-      return {
+      return makeBootstrapResult({
         status: 'ready',
         detail,
-        blockedRequest: null,
         visualStep: toVisualStep(detail.status, detail.currentStep, detail),
-        error: null,
-        isBootstrapping: false,
-        refetch: async () => undefined,
-      };
+      });
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.status === 401 || error.code === 'UNAUTHORIZED') {
-          return {
+          return makeBootstrapResult({
             status: 'unauthorized',
-            detail: null,
-            blockedRequest: null,
-            visualStep: 1,
             error,
-            isBootstrapping: false,
-            refetch: async () => undefined,
-          };
+          });
         }
 
         if (error.code === 'PROFILE_NOT_FOUND') {
-          return {
+          return makeBootstrapResult({
             status: 'profileIncomplete',
-            detail: null,
-            blockedRequest: null,
-            visualStep: 1,
             error,
-            isBootstrapping: false,
-            refetch: async () => undefined,
-          };
+          });
         }
 
         // 생성 경합으로 활성 요청이 생긴 경우 → active 재조회
@@ -148,43 +142,30 @@ const bootstrapCustomerEstimateRequest =
           const active = await getActiveEstimateRequest();
           if (active.request?.status === 'DRAFT') {
             const detail = await getEstimateRequestDetail(active.request.id);
-            return {
+            return makeBootstrapResult({
               status: 'ready',
               detail,
-              blockedRequest: null,
               visualStep: toVisualStep(
                 detail.status,
                 detail.currentStep,
                 detail
               ),
-              error: null,
-              isBootstrapping: false,
-              refetch: async () => undefined,
-            };
+            });
           }
 
           if (active.request) {
-            return {
+            return makeBootstrapResult({
               status: 'blocked',
-              detail: null,
               blockedRequest: active.request,
               visualStep: 4,
-              error: null,
-              isBootstrapping: false,
-              refetch: async () => undefined,
-            };
+            });
           }
         }
 
-        return {
+        return makeBootstrapResult({
           status: 'error',
-          detail: null,
-          blockedRequest: null,
-          visualStep: 1,
           error,
-          isBootstrapping: false,
-          refetch: async () => undefined,
-        };
+        });
       }
 
       // BE 미기동·CORS·네트워크 단절 등 fetch 자체 실패
@@ -193,11 +174,8 @@ const bootstrapCustomerEstimateRequest =
         (error instanceof Error &&
           /failed to fetch|networkerror|load failed/i.test(error.message));
 
-      return {
+      return makeBootstrapResult({
         status: 'error',
-        detail: null,
-        blockedRequest: null,
-        visualStep: 1,
         error: new ApiError(
           500,
           isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
@@ -205,9 +183,7 @@ const bootstrapCustomerEstimateRequest =
             ? '서버에 연결할 수 없습니다. BE가 실행 중인지 확인해 주세요.'
             : '요청 처리 중 오류가 발생했습니다.'
         ),
-        isBootstrapping: false,
-        refetch: async () => undefined,
-      };
+      });
     }
   };
 
@@ -232,26 +208,19 @@ export const useCustomerEstimateRequest = () => {
 
   const bootstrap: CustomerEstimateRequestBootstrap = useMemo(() => {
     if (bootstrapQuery.isPending) {
-      return {
+      return makeBootstrapResult({
         status: 'loading',
-        detail: null,
-        blockedRequest: null,
-        visualStep: 1,
-        error: null,
         isBootstrapping: true,
         refetch,
-      };
+      });
     }
 
     if (bootstrapQuery.data) {
       return { ...bootstrapQuery.data, refetch };
     }
 
-    return {
+    return makeBootstrapResult({
       status: 'error',
-      detail: null,
-      blockedRequest: null,
-      visualStep: 1,
       error:
         bootstrapQuery.error instanceof ApiError
           ? bootstrapQuery.error
@@ -260,9 +229,8 @@ export const useCustomerEstimateRequest = () => {
               'UNKNOWN_ERROR',
               '요청 처리 중 오류가 발생했습니다.'
             ),
-      isBootstrapping: false,
       refetch,
-    };
+    });
   }, [bootstrapQuery.isPending, bootstrapQuery.data, bootstrapQuery.error, refetch]);
 
   /** 상세 캐시·bootstrap 결과를 최신 detail 로 갱신 */
