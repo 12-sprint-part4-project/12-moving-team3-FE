@@ -4,8 +4,13 @@ import { useState } from 'react';
 
 import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGroup';
 import { Calendar } from '@/components/ui/Calendar/Calendar';
+import {
+  formatDateOnly,
+  parseDateOnly,
+} from '@/components/ui/Calendar/Calendar.utils';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
+import { ApiError } from '@/lib/apiClient';
 import type { ApiMoveType } from '@/types/estimateRequest';
 
 /** Step1과 동일 라벨 — 답변 말풍선 표시용 */
@@ -22,24 +27,59 @@ const MOVE_TYPE_PROMPT_DESKTOP = '이사 종류를 선택해 주세요.';
 const MOVE_DATE_PROMPT = '이사 예정일을 선택해주세요.';
 
 /**
- * 스텝2 — 이사 예정일 선택 UI (Figma 1-4007).
- * 스프린트 B: 채팅 히스토리 + Calendar 배치만 (API는 스프린트 C).
+ * 스텝2 — 이사 예정일 선택 (Figma 1-4007).
+ * 선택완료: 최초 saveStep(step:2) / 재수정 reviseField(moveDate).
  */
 export const MoveDateStep = () => {
-  const { bootstrap } = useCustomerEstimateRequest();
+  const {
+    bootstrap,
+    saveStep,
+    reviseField,
+    isSavingStep,
+    isRevisingField,
+  } = useCustomerEstimateRequest();
   const detail = bootstrap.detail;
   const moveType = detail?.moveType ?? null;
   const moveTypeLabel = moveType ? MOVE_TYPE_LABELS[moveType] : null;
 
-  // 선택완료 로컬 반영만 — API 연동은 스프린트 C
-  const [draftDate, setDraftDate] = useState<Date | undefined>(() => {
-    if (!detail?.moveDate) {
-      return undefined;
+  const [draftDate, setDraftDate] = useState<Date | undefined>(() =>
+    detail?.moveDate ? parseDateOnly(detail.moveDate) : undefined
+  );
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const isSubmitting = isSavingStep || isRevisingField;
+
+  const handleConfirm = async (date: Date) => {
+    if (!detail) {
+      return;
     }
-    // YYYY-MM-DD → 로컬 Date (UTC 파싱 시프트 방지)
-    const [year, month, day] = detail.moveDate.split('-').map(Number);
-    return new Date(year, month - 1, day);
-  });
+
+    setDraftDate(date);
+    setErrorMessage(null);
+    const moveDate = formatDateOnly(date);
+
+    try {
+      // 이미 저장된 날짜면 field 재수정, 아니면 step 전진
+      if (detail.moveDate != null) {
+        await reviseField({
+          estimateRequestId: detail.id,
+          body: { field: 'moveDate', value: moveDate },
+        });
+      } else {
+        await saveStep({
+          estimateRequestId: detail.id,
+          body: { step: 2, data: { moveDate } },
+        });
+      }
+      // 성공 시 syncDetail → visualStep=3 → AddressStep
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : '이사 예정일 저장 중 오류가 발생했습니다.';
+      setErrorMessage(message);
+    }
+  };
 
   return (
     <section
@@ -75,14 +115,23 @@ export const MoveDateStep = () => {
       </EstimateRequestChatBubbleGroup>
 
       {/* Calendar 자체 카드 — ChatPanel로 감싸지 않음, md+ 우측 정렬 */}
-      <div className="flex w-full flex-col md:items-end">
+      <div className="flex w-full flex-col gap-2 md:items-end">
         <Calendar
           className="max-w-[20.4375rem] md:max-w-[40rem]"
           value={draftDate}
           onValueChange={setDraftDate}
           minDate={new Date()}
-          onConfirm={setDraftDate}
+          confirmDisabled={isSubmitting || detail == null}
+          confirmLabel={isSubmitting ? '저장 중…' : '선택완료'}
+          onConfirm={(date) => {
+            void handleConfirm(date);
+          }}
         />
+        {errorMessage ? (
+          <p className="text-md-medium text-red-200" role="alert">
+            {errorMessage}
+          </p>
+        ) : null}
       </div>
     </section>
   );

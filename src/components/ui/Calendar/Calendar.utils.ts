@@ -62,6 +62,20 @@ export const getCalendarGrid = (
 export const formatMonthTitle = (date: Date): string =>
   `${date.getFullYear()}. ${String(date.getMonth() + 1).padStart(2, '0')}`;
 
+/** 로컬 연월일 → 'YYYY-MM-DD' (UTC 시프트 없이 API body용) */
+export const formatDateOnly = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+/** 'YYYY-MM-DD' → 로컬 Date (Date.parse UTC 시프트 방지) */
+export const parseDateOnly = (dateOnly: string): Date => {
+  const [year, month, day] = dateOnly.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
 /** 연/월/일만 같은지 비교 (시간 무시) */
 export const isSameDay = (a: Date, b: Date): boolean =>
   a.getFullYear() === b.getFullYear() &&
