@@ -3,7 +3,7 @@ import type { HTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 /*
-  TEXT FIELD CHAT (Figma 1-1202)
+  TEXT FIELD CHAT
 
   채팅 말풍선 UI입니다. (입력 필드가 아니라 메시지 표시용)
   보낸 사람 역할(color)에 따라 배경색·모서리 둥글림이 달라져
@@ -38,7 +38,7 @@ const colorStyles: Record<ChatColor, string> = {
   meSecondary: 'bg-blue-100 text-blue-300',
 };
 
-// meSecondary만 semibold — Figma에서 보조 말풍선 강조 톤이 다름
+// meSecondary만 semibold — 보조 말풍선 강조 톤이 다름
 const typographyStyles: Record<ChatColor, string> = {
   incoming: 'text-md-medium md:text-2lg-medium',
   mePrimary: 'text-md-medium md:text-2lg-medium',

@@ -11,8 +11,8 @@ import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 
 /**
  * 견적요청 페이지 클라이언트 — bootstrap 분기 + 스텝 렌더.
- * 비회원·프로필 미등록: Shell + 채팅형 Gate (Figma 1-3541).
- * 진행중(blocked): EstimateRequestBlocked (Figma 1-11375).
+ * 비회원·프로필 미등록: Shell + 채팅형 Gate.
+ * 진행중(blocked): EstimateRequestBlocked.
  * 일반 에러: 훅에서 토스트 + 자동 재시도 → 로딩 UI 유지.
  */
 export const EstimateRequestPageClient = () => {
@@ -41,7 +41,7 @@ export const EstimateRequestPageClient = () => {
     );
   }
 
-  // 제출 직후·활성 요청 재진입 공통 (Figma 1-11375)
+  // 제출 직후·활성 요청 재진입 공통
   if (bootstrap.status === 'blocked') {
     return (
       <EstimateRequestBlocked

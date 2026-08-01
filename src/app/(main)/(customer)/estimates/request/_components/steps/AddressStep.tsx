@@ -1,5 +1,5 @@
 /**
- * 스텝3 — 출발지/도착지 (Figma 1-4134).
+ * 스텝3 — 출발지/도착지.
  * 스프린트4에서 우편번호·AddressCard·PATCH step:3 연동 구현.
  */
 export const AddressStep = () => {

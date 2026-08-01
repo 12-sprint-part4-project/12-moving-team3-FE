@@ -37,7 +37,7 @@ interface EstimateRequestGateProps {
 }
 
 /**
- * 비회원·프로필 미등록 게이트 — Shell 안 채팅형 안내 (Figma 1-3541 레이아웃).
+ * 비회원·프로필 미등록 게이트 — Shell 안 채팅형 안내 레이아웃.
  * 텍스트는 TextFieldChat, CTA는 ChatPanel 흰 바탕에 배치.
  */
 export const EstimateRequestGate = ({ kind }: EstimateRequestGateProps) => {

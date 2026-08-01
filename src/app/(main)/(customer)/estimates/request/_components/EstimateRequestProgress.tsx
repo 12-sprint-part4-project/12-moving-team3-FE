@@ -16,7 +16,7 @@ const PROGRESS_WIDTH_CLASS: Record<EstimateRequestVisualStep, string> = {
 };
 
 /**
- * Figma `Component/progressbar` — 모바일 기본 + md 스케일만 분기
+ * progressbar — 모바일 기본 + md 스케일만 분기
  * - 공통 타이틀 헤더 + 트랙/필 바 (분수 텍스트 없음)
  * - 바 높이: 6px → md 8px / track line-200, fill blue-300
  */
