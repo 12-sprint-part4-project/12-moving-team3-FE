@@ -1,7 +1,7 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import type { KeyboardEvent, MouseEvent } from 'react';
+import Link from 'next/link';
+import type { MouseEvent } from 'react';
 
 import LikeActiveIcon from '@/assets/icons/like-active.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
@@ -30,7 +30,7 @@ export interface MoverCardProps {
 
 /**
  * 기사님 목록 카드 (Figma Card-list/기사님 찾기 · 찜한 기사님).
- * 클릭 시 `/movers/:id` 로 이동 (disableNavigation 제외).
+ * 닉네임 링크(+ 카드 오버레이)로 `/movers/:id` 이동 (disableNavigation 제외).
  */
 export const MoverCard = ({
   mover,
@@ -41,7 +41,6 @@ export const MoverCard = ({
   disableNavigation = false,
   className = '',
 }: MoverCardProps) => {
-  const router = useRouter();
   const isCompact = size === 'sm';
   const isFavoriteVariant = variant === 'favorite';
   const showDescription = !isCompact && !isFavoriteVariant;
@@ -51,6 +50,10 @@ export const MoverCard = ({
   const careerLabel = mover.career === null ? '-' : `${mover.career}년`;
   const description =
     mover.shortDescription?.trim() || '등록된 한 줄 소개가 없습니다.';
+  const nicknameClassName = cn(
+    'text-black-300',
+    isCompact ? 'text-lg-semibold' : 'text-2lg-semibold'
+  );
 
   const handleFavoriteClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -61,31 +64,10 @@ export const MoverCard = ({
     onFavoriteClick?.(mover.moverId, !mover.isFavorited);
   };
 
-  const handleCardActivate = () => {
-    if (disableNavigation) {
-      return;
-    }
-    router.push(`/movers/${mover.moverId}`);
-  };
-
-  const handleCardKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (disableNavigation) {
-      return;
-    }
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      handleCardActivate();
-    }
-  };
-
   return (
     <div
-      role={disableNavigation ? undefined : 'button'}
-      tabIndex={disableNavigation ? undefined : 0}
-      onClick={handleCardActivate}
-      onKeyDown={handleCardKeyDown}
       className={cn(
-        'flex w-full flex-col border border-line-100 bg-white shadow-request-card transition-colors',
+        'relative flex w-full flex-col border border-line-100 bg-white shadow-request-card transition-colors',
         !disableNavigation && 'cursor-pointer hover:border-blue-200',
         isCompact
           ? 'gap-3 rounded-2xl px-4 py-4'
@@ -143,14 +125,17 @@ export const MoverCard = ({
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:gap-2">
-          <p
-            className={cn(
-              'text-black-300',
-              isCompact ? 'text-lg-semibold' : 'text-2lg-semibold'
-            )}
-          >
-            {mover.nickname} 기사님
-          </p>
+          {disableNavigation ? (
+            <p className={nicknameClassName}>{mover.nickname} 기사님</p>
+          ) : (
+            <Link
+              href={`/movers/${mover.moverId}`}
+              className={nicknameClassName}
+            >
+              <span className="absolute inset-0 z-0" aria-hidden />
+              {mover.nickname} 기사님
+            </Link>
+          )}
           <div
             className={cn(
               'flex flex-wrap items-center gap-x-3 gap-y-1 sm:gap-x-4',
@@ -203,7 +188,7 @@ export const MoverCard = ({
           aria-pressed={mover.isFavorited}
           aria-busy={isFavoritePending}
           className={cn(
-            'flex shrink-0 items-center gap-1 text-2lg-medium text-blue-400',
+            'relative z-10 flex shrink-0 items-center gap-1 text-2lg-medium text-blue-400',
             isFavoritePending
               ? 'cursor-not-allowed opacity-60'
               : 'cursor-pointer'
