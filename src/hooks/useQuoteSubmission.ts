@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 import { estimateRequestQueryKeys } from '@/hooks/useReceivedEstimateRequests';
 import { useToast } from '@/hooks/useToast';
-import { ApiError } from '@/services/apiClient';
+import { ApiError } from '@/lib/apiClient';
 import { submitProposalQuote, submitRejectionQuote } from '@/services/quoteApi';
 
 export interface UseQuoteSubmissionOptions {

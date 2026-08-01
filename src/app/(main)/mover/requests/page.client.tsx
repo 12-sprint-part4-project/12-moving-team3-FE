@@ -14,7 +14,7 @@ import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useQuoteSubmission } from '@/hooks/useQuoteSubmission';
 import { useReceivedEstimateRequests } from '@/hooks/useReceivedEstimateRequests';
-import { ApiError } from '@/services/apiClient';
+import { ApiError } from '@/lib/apiClient';
 import {
   ALL_MOVE_TYPES,
   ALL_SCOPES,
