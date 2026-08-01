@@ -1,7 +1,5 @@
-import Link from 'next/link';
-
+import { LandingAuthCta } from '@/app/(main)/_components/LandingAuthCta';
 import { LandingServiceCard } from '@/app/(main)/_components/LandingServiceCard';
-import { cn } from '@/lib/utils';
 
 const LANDING_SERVICES = [
   {
@@ -32,9 +30,6 @@ const LANDING_SERVICES = [
       'right-[-0.5rem] bottom-0 h-[8.25rem] w-[18.5rem] lg:top-[23.7%] lg:right-auto lg:bottom-auto lg:left-[35%] lg:h-[13.6875rem] lg:w-[33.0625rem]',
   },
 ] as const;
-
-const CTA_BASE_STYLE =
-  'inline-flex h-[3.375rem] w-full shrink-0 items-center justify-center rounded-full text-lg-semibold transition-colors lg:h-16 lg:w-[21.25rem] lg:text-xl-semibold';
 
 /**
  * 랜딩 페이지.
@@ -69,27 +64,7 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Mobile · Tablet: CTA 세로 / Desktop: CTA 가로 */}
-      <div className="mt-11 flex w-full max-w-[20.4375rem] flex-col gap-2 lg:mt-12 lg:w-auto lg:max-w-none lg:flex-row lg:items-center lg:justify-center lg:gap-4">
-        <Link
-          href="/login"
-          className={cn(
-            CTA_BASE_STYLE,
-            'bg-blue-300 text-white shadow-cta hover:bg-blue-200'
-          )}
-        >
-          로그인
-        </Link>
-        <Link
-          href="/signup"
-          className={cn(
-            CTA_BASE_STYLE,
-            'border border-blue-300 bg-white text-blue-300 shadow-cta hover:bg-blue-50 hover:shadow-cta-hover'
-          )}
-        >
-          회원가입
-        </Link>
-      </div>
+      <LandingAuthCta />
     </section>
   );
 };
