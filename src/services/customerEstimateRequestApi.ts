@@ -76,25 +76,81 @@ const parseRequestBody = <T>(schema: z.ZodType<T>, body: unknown): T => {
   return result.data;
 };
 
+const isTimeoutError = (error: unknown): boolean => {
+  const errorName =
+    error instanceof DOMException || error instanceof Error
+      ? error.name
+      : undefined;
+  return errorName === 'TimeoutError' || errorName === 'AbortError';
+};
+
+/** 네트워크·타임아웃 예외를 ApiError로 정규화 (chatApi와 동일 패턴, 도메인 로컬) */
+const toNetworkApiError = (error: unknown): ApiError => {
+  if (isTimeoutError(error)) {
+    return new ApiError(408, '요청 시간이 초과되었습니다.', 'TIMEOUT');
+  }
+
+  return new ApiError(0, '네트워크 오류가 발생했습니다.', 'NETWORK_ERROR');
+};
+
+/**
+ * authFetch + JSON 파싱 공통 처리.
+ * fetch·본문 읽기 중 TimeoutError는 TIMEOUT ApiError로 변환한다.
+ */
+const requestJson = async <T>(
+  path: string,
+  init: RequestInit,
+  schema: z.ZodType<T>
+): Promise<T> => {
+  let response: Response;
+
+  try {
+    response = await authFetch(`${API_BASE_URL}${path}`, {
+      cache: 'no-store',
+      signal: createApiTimeoutSignal(),
+      ...init,
+    });
+  } catch (error) {
+    throw toNetworkApiError(error);
+  }
+
+  if (!response.ok) {
+    return parseError(response);
+  }
+
+  try {
+    // .catch(() => null)로 타임아웃을 삼키지 않음
+    const body: unknown = await response.json();
+    return parseResponseData(schema, body);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    if (isTimeoutError(error)) {
+      throw toNetworkApiError(error);
+    }
+    throw new ApiError(
+      500,
+      '요청 처리 중 오류가 발생했습니다.',
+      'INVALID_RESPONSE'
+    );
+  }
+};
+
 /**
  * 활성 견적요청 조회.
  * GET /api/estimate-requests/active
  */
 export const getActiveEstimateRequest =
   async (): Promise<ActiveEstimateRequestData> => {
-    const response = await authFetch(`${API_BASE_URL}${BASE_PATH}/active`, {
-      method: 'GET',
-      cache: 'no-store',
-      headers: getAuthHeaders(),
-      signal: createApiTimeoutSignal(),
-    });
-
-    if (!response.ok) {
-      return parseError(response);
-    }
-
-    const body: unknown = await response.json().catch(() => null);
-    return parseResponseData(activeEstimateRequestDataSchema, body);
+    return requestJson(
+      `${BASE_PATH}/active`,
+      {
+        method: 'GET',
+        headers: getAuthHeaders(),
+      },
+      activeEstimateRequestDataSchema
+    );
   };
 
 /**
@@ -103,19 +159,14 @@ export const getActiveEstimateRequest =
  */
 export const createEstimateRequest =
   async (): Promise<CreatedEstimateRequest> => {
-    const response = await authFetch(`${API_BASE_URL}${BASE_PATH}`, {
-      method: 'POST',
-      cache: 'no-store',
-      headers: getAuthHeaders(),
-      signal: createApiTimeoutSignal(),
-    });
-
-    if (!response.ok) {
-      return parseError(response);
-    }
-
-    const body: unknown = await response.json().catch(() => null);
-    return parseResponseData(createdEstimateRequestSchema, body);
+    return requestJson(
+      BASE_PATH,
+      {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      },
+      createdEstimateRequestSchema
+    );
   };
 
 /**
@@ -125,22 +176,14 @@ export const createEstimateRequest =
 export const getEstimateRequestDetail = async (
   estimateRequestId: number
 ): Promise<EstimateRequestDetail> => {
-  const response = await authFetch(
-    `${API_BASE_URL}${BASE_PATH}/${estimateRequestId}`,
+  return requestJson(
+    `${BASE_PATH}/${estimateRequestId}`,
     {
       method: 'GET',
-      cache: 'no-store',
       headers: getAuthHeaders(),
-      signal: createApiTimeoutSignal(),
-    }
+    },
+    estimateRequestDetailSchema
   );
-
-  if (!response.ok) {
-    return parseError(response);
-  }
-
-  const body: unknown = await response.json().catch(() => null);
-  return parseResponseData(estimateRequestDetailSchema, body);
 };
 
 /**
@@ -154,23 +197,15 @@ export const saveEstimateRequestStep = async (
   // 클라이언트에서도 BE와 동일한 zod로 검증 (실패 시 ApiError)
   const parsed = parseRequestBody(saveEstimateRequestStepBodySchema, body);
 
-  const response = await authFetch(
-    `${API_BASE_URL}${BASE_PATH}/${estimateRequestId}/step`,
+  return requestJson(
+    `${BASE_PATH}/${estimateRequestId}/step`,
     {
       method: 'PATCH',
-      cache: 'no-store',
       headers: getAuthHeaders(true),
       body: JSON.stringify(parsed),
-      signal: createApiTimeoutSignal(),
-    }
+    },
+    saveEstimateRequestStepResultSchema
   );
-
-  if (!response.ok) {
-    return parseError(response);
-  }
-
-  const json: unknown = await response.json().catch(() => null);
-  return parseResponseData(saveEstimateRequestStepResultSchema, json);
 };
 
 /**
@@ -184,23 +219,15 @@ export const reviseEstimateRequestField = async (
   // 검증 실패 시 ZodError 대신 ApiError로 통일
   const parsed = parseRequestBody(reviseEstimateRequestFieldBodySchema, body);
 
-  const response = await authFetch(
-    `${API_BASE_URL}${BASE_PATH}/${estimateRequestId}/field`,
+  return requestJson(
+    `${BASE_PATH}/${estimateRequestId}/field`,
     {
       method: 'PATCH',
-      cache: 'no-store',
       headers: getAuthHeaders(true),
       body: JSON.stringify(parsed),
-      signal: createApiTimeoutSignal(),
-    }
+    },
+    reviseEstimateRequestFieldResultSchema
   );
-
-  if (!response.ok) {
-    return parseError(response);
-  }
-
-  const json: unknown = await response.json().catch(() => null);
-  return parseResponseData(reviseEstimateRequestFieldResultSchema, json);
 };
 
 /**
@@ -210,20 +237,12 @@ export const reviseEstimateRequestField = async (
 export const submitEstimateRequest = async (
   estimateRequestId: number
 ): Promise<SubmitEstimateRequestResult> => {
-  const response = await authFetch(
-    `${API_BASE_URL}${BASE_PATH}/${estimateRequestId}/submit`,
+  return requestJson(
+    `${BASE_PATH}/${estimateRequestId}/submit`,
     {
       method: 'POST',
-      cache: 'no-store',
       headers: getAuthHeaders(),
-      signal: createApiTimeoutSignal(),
-    }
+    },
+    submitEstimateRequestResultSchema
   );
-
-  if (!response.ok) {
-    return parseError(response);
-  }
-
-  const json: unknown = await response.json().catch(() => null);
-  return parseResponseData(submitEstimateRequestResultSchema, json);
 };
