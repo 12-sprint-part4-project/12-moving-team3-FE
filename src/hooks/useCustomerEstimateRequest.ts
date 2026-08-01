@@ -78,7 +78,7 @@ const makeBootstrapResult = (
  */
 const bootstrapCustomerEstimateRequest =
   async (): Promise<CustomerEstimateRequestBootstrap> => {
-    // FE 로그인 미구현 구간 — 토큰 없으면 API 호출 전에 로그인 안내로 분기
+    // authSession(또는 구키)에 토큰이 없으면 API 호출 전에 로그인 안내로 분기
     if (!getAccessToken()) {
       return makeBootstrapResult({
         status: 'unauthorized',
@@ -295,7 +295,7 @@ export const useCustomerEstimateRequest = () => {
     mutationFn: (estimateRequestId: number) =>
       submitEstimateRequest(estimateRequestId),
     onSuccess: async () => {
-      // 제출 후 활성 상태가 SUBMITTED 로 바뀌므로 bootstrap 재실행
+      // SUBMITTED 후 재조회 → blocked → EstimateRequestBlocked(제출 완료=진행중 안내 동일 화면)
       await refetch();
     },
   });
