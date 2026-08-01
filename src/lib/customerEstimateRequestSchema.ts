@@ -47,6 +47,9 @@ export type SaveEstimateRequestStepBody = z.infer<
   typeof saveEstimateRequestStepBodySchema
 >;
 
+/** 서버 입력 저장 스텝 (1~3) — save body의 step과 동일 */
+export type EstimateRequestInputStep = SaveEstimateRequestStepBody['step'];
+
 export const ESTIMATE_REQUEST_REVISABLE_FIELDS = [
   'moveType',
   'moveDate',
@@ -57,6 +60,10 @@ export const ESTIMATE_REQUEST_REVISABLE_FIELDS = [
   'arrivalAddress',
   'arrivalDetailAddress',
 ] as const;
+
+/** 재수정 가능 필드 — ESTIMATE_REQUEST_REVISABLE_FIELDS와 동일 */
+export type EstimateRequestRevisableField =
+  (typeof ESTIMATE_REQUEST_REVISABLE_FIELDS)[number];
 
 /** 완료 항목 재수정 body — field별 value 형식 검증 */
 export const reviseEstimateRequestFieldBodySchema = z.discriminatedUnion(
@@ -213,6 +220,10 @@ export const toVisualStep = (
     return 4;
   }
 
-  const step = Math.min(Math.max(currentStep, 1), 3);
-  return step as 1 | 2 | 3;
+  // 입력 스텝은 1~3으로 클램프 (EstimateRequestInputStep)
+  const step = Math.min(
+    Math.max(currentStep, 1),
+    3
+  ) as EstimateRequestInputStep;
+  return step;
 };

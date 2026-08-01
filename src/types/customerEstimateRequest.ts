@@ -1,5 +1,12 @@
+import type {
+  EstimateRequestInputStep,
+  EstimateRequestRevisableField,
+} from '@/lib/customerEstimateRequestSchema';
 import type { ApiSuccessResponse } from '@/types/api';
 import type { ApiMoveType } from '@/types/estimateRequest';
+
+/** step body·재수정 필드 타입은 스키마가 SSOT — 여기서 재export */
+export type { EstimateRequestInputStep, EstimateRequestRevisableField };
 
 /** BE 견적요청 상태 */
 export type EstimateRequestStatus =
@@ -11,22 +18,8 @@ export type EstimateRequestStatus =
 /** 프로그레스 총 단계 (입력 3 + 확인/제출 1) */
 export const TOTAL_PROGRESS_STEPS = 4;
 
-/** 서버 입력 저장 스텝 (1~3) */
-export type EstimateRequestInputStep = 1 | 2 | 3;
-
 /** FE 시각 스텝 (1~4, 4=확인/제출 UI) */
 export type EstimateRequestVisualStep = 1 | 2 | 3 | 4;
-
-/** 재수정 가능 필드 */
-export type EstimateRequestRevisableField =
-  | 'moveType'
-  | 'moveDate'
-  | 'departureZipCode'
-  | 'departureAddress'
-  | 'departureDetailAddress'
-  | 'arrivalZipCode'
-  | 'arrivalAddress'
-  | 'arrivalDetailAddress';
 
 /** GET /active — 활성 요청 요약 */
 export interface ActiveEstimateRequestSummary {
