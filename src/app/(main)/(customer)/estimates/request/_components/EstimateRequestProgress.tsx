@@ -11,7 +11,7 @@ interface EstimateRequestProgressProps {
  * - 제목 "견적요청" + 트랙/필 바 (분수 텍스트 없음)
  * - 바 높이: 6px → md 8px / track line-200, fill blue-300
  */
-const EstimateRequestProgress = ({
+export const EstimateRequestProgress = ({
   currentStep,
 }: EstimateRequestProgressProps) => {
   const progressPercent = (currentStep / TOTAL_PROGRESS_STEPS) * 100;
@@ -42,5 +42,3 @@ const EstimateRequestProgress = ({
     </header>
   );
 };
-
-export default EstimateRequestProgress;

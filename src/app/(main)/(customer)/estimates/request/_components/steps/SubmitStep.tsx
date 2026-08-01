@@ -8,7 +8,7 @@ interface SubmitStepProps {
  * 스텝4 — 확인/제출 (Figma 1-11375).
  * 스프린트5에서 요약 UI·POST submit 연동 구현.
  */
-const SubmitStep = ({ detail }: SubmitStepProps) => {
+export const SubmitStep = ({ detail }: SubmitStepProps) => {
   return (
     <section
       aria-label="견적 요청 확인 및 제출"
@@ -40,5 +40,3 @@ const SubmitStep = ({ detail }: SubmitStepProps) => {
     </section>
   );
 };
-
-export default SubmitStep;

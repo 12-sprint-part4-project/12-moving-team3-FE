@@ -2,18 +2,18 @@
 
 import Link from 'next/link';
 
-import EstimateRequestShell from './_components/EstimateRequestShell';
-import AddressStep from './_components/steps/AddressStep';
-import MoveDateStep from './_components/steps/MoveDateStep';
-import MoveTypeStep from './_components/steps/MoveTypeStep';
-import SubmitStep from './_components/steps/SubmitStep';
+import { EstimateRequestShell } from './_components/EstimateRequestShell';
+import { AddressStep } from './_components/steps/AddressStep';
+import { MoveDateStep } from './_components/steps/MoveDateStep';
+import { MoveTypeStep } from './_components/steps/MoveTypeStep';
+import { SubmitStep } from './_components/steps/SubmitStep';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 
 /**
  * 견적요청 페이지 클라이언트 — bootstrap 분기 + 스텝 스텁 렌더.
  * 스텝별 Figma UI·mutation 연결은 스프린트2~5에서 진행.
  */
-const EstimateRequestPageClient = () => {
+export const EstimateRequestPageClient = () => {
   const { bootstrap } = useCustomerEstimateRequest();
 
   if (bootstrap.status === 'loading') {
@@ -121,5 +121,3 @@ const EstimateRequestPageClient = () => {
     </EstimateRequestShell>
   );
 };
-
-export default EstimateRequestPageClient;

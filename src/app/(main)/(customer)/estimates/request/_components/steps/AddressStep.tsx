@@ -2,7 +2,7 @@
  * 스텝3 — 출발지/도착지 (Figma 1-4134).
  * 스프린트4에서 우편번호·AddressCard·PATCH step:3 연동 구현.
  */
-const AddressStep = () => {
+export const AddressStep = () => {
   return (
     <section
       aria-label="출발지 도착지 입력"
@@ -14,5 +14,3 @@ const AddressStep = () => {
     </section>
   );
 };
-
-export default AddressStep;

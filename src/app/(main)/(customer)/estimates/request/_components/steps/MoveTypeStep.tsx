@@ -2,7 +2,7 @@
  * 스텝1 — 이사종류 선택 (Figma 1-3492).
  * 스프린트2에서 UI·PATCH step:1 연동 구현.
  */
-const MoveTypeStep = () => {
+export const MoveTypeStep = () => {
   return (
     <section
       aria-label="이사 종류 선택"
@@ -14,5 +14,3 @@ const MoveTypeStep = () => {
     </section>
   );
 };
-
-export default MoveTypeStep;

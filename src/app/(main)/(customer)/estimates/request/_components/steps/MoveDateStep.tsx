@@ -2,7 +2,7 @@
  * 스텝2 — 이사일자 선택 (Figma 1-4007).
  * 스프린트3에서 Calendar·PATCH step:2 연동 구현.
  */
-const MoveDateStep = () => {
+export const MoveDateStep = () => {
   return (
     <section
       aria-label="이사 일자 선택"
@@ -14,5 +14,3 @@ const MoveDateStep = () => {
     </section>
   );
 };
-
-export default MoveDateStep;

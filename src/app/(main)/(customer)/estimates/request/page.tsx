@@ -1,4 +1,4 @@
-import EstimateRequestPageClient from './page.client';
+import { EstimateRequestPageClient } from './page.client';
 
 /**
  * 고객 견적요청 페이지.
