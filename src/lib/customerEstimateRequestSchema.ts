@@ -95,6 +95,87 @@ export type ReviseEstimateRequestFieldBody = z.infer<
   typeof reviseEstimateRequestFieldBodySchema
 >;
 
+/** BE EstimateRequestStatus */
+export const estimateRequestStatusSchema = z.enum([
+  'DRAFT',
+  'SUBMITTED',
+  'CONFIRMED',
+  'COMPLETED',
+]);
+
+const nullableMoveTypeSchema = moveTypeSchema.nullable();
+const nullableStringSchema = z.string().nullable();
+
+/** GET /active — request 요약 */
+export const activeEstimateRequestSummarySchema = z.object({
+  id: z.number(),
+  status: estimateRequestStatusSchema,
+  currentStep: z.number(),
+  totalSteps: z.number(),
+  moveType: nullableMoveTypeSchema,
+  moveDate: nullableStringSchema,
+  departureAddress: nullableStringSchema,
+  arrivalAddress: nullableStringSchema,
+});
+
+/** GET /active — data */
+export const activeEstimateRequestDataSchema = z.object({
+  hasActiveRequest: z.boolean(),
+  request: activeEstimateRequestSummarySchema.nullable(),
+});
+
+/** GET /:id — 상세 data */
+export const estimateRequestDetailSchema = z.object({
+  id: z.number(),
+  status: estimateRequestStatusSchema,
+  currentStep: z.number(),
+  totalSteps: z.number(),
+  moveType: nullableMoveTypeSchema,
+  moveDate: nullableStringSchema,
+  departureZipCode: nullableStringSchema,
+  departureAddress: nullableStringSchema,
+  departureDetailAddress: nullableStringSchema,
+  arrivalZipCode: nullableStringSchema,
+  arrivalAddress: nullableStringSchema,
+  arrivalDetailAddress: nullableStringSchema,
+});
+
+/** POST / — DRAFT 생성 data */
+export const createdEstimateRequestSchema = z.object({
+  id: z.number(),
+  status: estimateRequestStatusSchema,
+  currentStep: z.number(),
+  totalSteps: z.number(),
+});
+
+/** PATCH /:id/step — data */
+export const saveEstimateRequestStepResultSchema = z.object({
+  id: z.number(),
+  currentStep: z.number(),
+  totalSteps: z.number(),
+  isReadyToSubmit: z.boolean(),
+});
+
+/** PATCH /:id/field — 수정한 필드만 포함 */
+export const reviseEstimateRequestFieldResultSchema = z.object({
+  id: z.number(),
+  moveType: moveTypeSchema.nullable().optional(),
+  moveDate: nullableStringSchema.optional(),
+  departureZipCode: nullableStringSchema.optional(),
+  departureAddress: nullableStringSchema.optional(),
+  departureDetailAddress: nullableStringSchema.optional(),
+  arrivalZipCode: nullableStringSchema.optional(),
+  arrivalAddress: nullableStringSchema.optional(),
+  arrivalDetailAddress: nullableStringSchema.optional(),
+});
+
+/** POST /:id/submit — data */
+export const submitEstimateRequestResultSchema = z.object({
+  id: z.number(),
+  status: estimateRequestStatusSchema,
+  submittedAt: z.string(),
+});
+
 /** 상세 응답 기준 제출 가능 여부 (step3 완료 후 확인 UI 판단용) */
 export const isEstimateRequestReadyToSubmit = (detail: {
   moveType: string | null;

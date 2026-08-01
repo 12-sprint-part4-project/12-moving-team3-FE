@@ -3,8 +3,14 @@ import type {
   SaveEstimateRequestStepBody,
 } from '@/lib/customerEstimateRequestSchema';
 import {
+  activeEstimateRequestDataSchema,
+  createdEstimateRequestSchema,
+  estimateRequestDetailSchema,
   reviseEstimateRequestFieldBodySchema,
+  reviseEstimateRequestFieldResultSchema,
   saveEstimateRequestStepBodySchema,
+  saveEstimateRequestStepResultSchema,
+  submitEstimateRequestResultSchema,
 } from '@/lib/customerEstimateRequestSchema';
 import {
   API_BASE_URL,
@@ -15,17 +21,11 @@ import {
 import type { ApiErrorBody } from '@/types/api';
 import type {
   ActiveEstimateRequestData,
-  ActiveEstimateRequestResponse,
   CreatedEstimateRequest,
-  CreatedEstimateRequestResponse,
   EstimateRequestDetail,
-  EstimateRequestDetailResponse,
   ReviseEstimateRequestFieldResult,
-  ReviseEstimateRequestFieldResponse,
   SaveEstimateRequestStepResult,
-  SaveEstimateRequestStepResponse,
   SubmitEstimateRequestResult,
-  SubmitEstimateRequestResponse,
 } from '@/types/customerEstimateRequest';
 import type { z } from 'zod';
 
@@ -50,8 +50,8 @@ const parseError = async (response: Response): Promise<never> => {
   );
 };
 
-/** JSON 본문에서 data 래퍼를 검증 */
-const unwrapData = <T>(body: unknown): T => {
+/** 성공 응답 data를 zod로 런타임 검증 */
+const parseResponseData = <T>(schema: z.ZodType<T>, body: unknown): T => {
   if (!body || typeof body !== 'object' || !('data' in body)) {
     throw new ApiError(
       500,
@@ -60,7 +60,16 @@ const unwrapData = <T>(body: unknown): T => {
     );
   }
 
-  return (body as { data: T }).data;
+  const result = schema.safeParse((body as { data: unknown }).data);
+  if (!result.success) {
+    throw new ApiError(
+      500,
+      'INVALID_RESPONSE',
+      '요청 처리 중 오류가 발생했습니다.'
+    );
+  }
+
+  return result.data;
 };
 
 /** zod 검증 실패도 ApiError로 통일 — 훅 오류 분기와 계약 맞춤 */
@@ -90,9 +99,8 @@ export const getActiveEstimateRequest =
       return parseError(response);
     }
 
-    const body =
-      (await response.json()) as ActiveEstimateRequestResponse | null;
-    return unwrapData<ActiveEstimateRequestData>(body);
+    const body: unknown = await response.json().catch(() => null);
+    return parseResponseData(activeEstimateRequestDataSchema, body);
   };
 
 /**
@@ -113,9 +121,8 @@ export const createEstimateRequest =
       return parseError(response);
     }
 
-    const body =
-      (await response.json()) as CreatedEstimateRequestResponse | null;
-    return unwrapData<CreatedEstimateRequest>(body);
+    const body: unknown = await response.json().catch(() => null);
+    return parseResponseData(createdEstimateRequestSchema, body);
   };
 
 /**
@@ -140,8 +147,8 @@ export const getEstimateRequestDetail = async (
     return parseError(response);
   }
 
-  const body = (await response.json()) as EstimateRequestDetailResponse | null;
-  return unwrapData<EstimateRequestDetail>(body);
+  const body: unknown = await response.json().catch(() => null);
+  return parseResponseData(estimateRequestDetailSchema, body);
 };
 
 /**
@@ -171,9 +178,8 @@ export const saveEstimateRequestStep = async (
     return parseError(response);
   }
 
-  const json =
-    (await response.json()) as SaveEstimateRequestStepResponse | null;
-  return unwrapData<SaveEstimateRequestStepResult>(json);
+  const json: unknown = await response.json().catch(() => null);
+  return parseResponseData(saveEstimateRequestStepResultSchema, json);
 };
 
 /**
@@ -203,9 +209,8 @@ export const reviseEstimateRequestField = async (
     return parseError(response);
   }
 
-  const json =
-    (await response.json()) as ReviseEstimateRequestFieldResponse | null;
-  return unwrapData<ReviseEstimateRequestFieldResult>(json);
+  const json: unknown = await response.json().catch(() => null);
+  return parseResponseData(reviseEstimateRequestFieldResultSchema, json);
 };
 
 /**
@@ -230,7 +235,6 @@ export const submitEstimateRequest = async (
     return parseError(response);
   }
 
-  const json =
-    (await response.json()) as SubmitEstimateRequestResponse | null;
-  return unwrapData<SubmitEstimateRequestResult>(json);
+  const json: unknown = await response.json().catch(() => null);
+  return parseResponseData(submitEstimateRequestResultSchema, json);
 };
