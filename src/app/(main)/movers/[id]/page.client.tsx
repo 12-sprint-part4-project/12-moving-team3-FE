@@ -112,7 +112,11 @@ const MoverDetailPageClient = () => {
 
           <div className="mt-6 border-t border-line-100 xl:mt-10" />
 
-          <MoverDetailShareSection />
+          <MoverDetailShareSection
+            nickname={mover.nickname}
+            description={mover.shortDescription}
+            profileImageUrl={mover.profileImageUrl}
+          />
 
           <MoverDetailSections mover={mover} />
 
@@ -124,6 +128,8 @@ const MoverDetailPageClient = () => {
         <MoverDetailSidebar
           className="hidden xl:flex"
           nickname={mover.nickname}
+          description={mover.shortDescription}
+          profileImageUrl={mover.profileImageUrl}
           isFavorited={mover.isFavorited}
           onFavoriteClick={() =>
             handleFavoriteClick(mover.moverId, !mover.isFavorited)

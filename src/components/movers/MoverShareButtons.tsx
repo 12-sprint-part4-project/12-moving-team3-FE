@@ -5,21 +5,30 @@ import SymbolFacebookIcon from '@/assets/icons/symbol-facebook.svg';
 import SymbolKakaoIcon from '@/assets/icons/symbol-kakao.svg';
 import { IconButton } from '@/components/ui/IconButton/IconButton';
 import { useToast } from '@/hooks/useToast';
+import {
+  isKakaoShareConfigured,
+  shareMoverToKakao,
+} from '@/lib/kakaoShare';
 import { cn } from '@/lib/utils';
 
 export interface MoverShareButtonsProps {
   className?: string;
   /** IconButton 크기 — Desktop md, Tablet/Mobile xs */
   size?: 'xs' | 'md';
+  nickname?: string;
+  description?: string | null;
+  profileImageUrl?: string | null;
 }
 
 /**
  * 기사님 상세 공유 버튼 (클립보드 / 카카오 / 페이스북).
- * 클립보드·페이스북 동작, 카카오는 JS 키 확보 후 SDK 연동.
  */
 export const MoverShareButtons = ({
   className = '',
   size = 'xs',
+  nickname = '이사',
+  description = null,
+  profileImageUrl = null,
 }: MoverShareButtonsProps) => {
   const { showToast } = useToast();
 
@@ -33,8 +42,25 @@ export const MoverShareButtons = ({
   };
 
   const handleShareKakao = () => {
-    // TODO: 카카오 공유 SDK 연동 (NEXT_PUBLIC_KAKAO_JS_KEY)
-    showToast({ content: '카카오톡 공유는 준비 중입니다.' });
+    if (!isKakaoShareConfigured()) {
+      showToast({
+        content: '카카오톡 공유 설정이 되어 있지 않습니다.',
+      });
+      return;
+    }
+
+    void shareMoverToKakao({
+      nickname,
+      description,
+      profileImageUrl,
+      shareUrl: window.location.href,
+    }).catch((error: unknown) => {
+      const message =
+        error instanceof Error
+          ? error.message
+          : '카카오톡 공유에 실패했습니다.';
+      showToast({ content: message });
+    });
   };
 
   const handleShareFacebook = () => {

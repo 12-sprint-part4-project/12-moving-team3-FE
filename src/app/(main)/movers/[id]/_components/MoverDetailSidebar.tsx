@@ -9,6 +9,8 @@ export interface MoverDetailSidebarProps {
   nickname: string;
   isFavorited: boolean;
   onFavoriteClick: () => void;
+  description?: string | null;
+  profileImageUrl?: string | null;
   className?: string;
 }
 
@@ -17,6 +19,8 @@ export const MoverDetailSidebar = ({
   nickname,
   isFavorited,
   onFavoriteClick,
+  description = null,
+  profileImageUrl = null,
   className = '',
 }: MoverDetailSidebarProps) => {
   const handleDesignatedQuoteClick = () => {
@@ -66,7 +70,12 @@ export const MoverDetailSidebar = ({
         <p className="text-xl-semibold text-black-400">
           나만 알기엔 아쉬운 기사님인가요?
         </p>
-        <MoverShareButtons size="md" />
+        <MoverShareButtons
+          size="md"
+          nickname={nickname}
+          description={description}
+          profileImageUrl={profileImageUrl}
+        />
       </div>
     </aside>
   );
