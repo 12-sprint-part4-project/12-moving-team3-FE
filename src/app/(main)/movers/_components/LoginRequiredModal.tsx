@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { Button } from '@/components/Button/Button';
 import { Modal } from '@/components/ui/Modal/Modal';
@@ -17,6 +17,7 @@ export const LoginRequiredModal = ({
   onClose,
 }: LoginRequiredModalProps) => {
   const router = useRouter();
+  const pathname = usePathname();
 
   if (!open) {
     return null;
@@ -24,7 +25,7 @@ export const LoginRequiredModal = ({
 
   const handleLogin = () => {
     onClose();
-    router.push('/login');
+    router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
   };
 
   return (
