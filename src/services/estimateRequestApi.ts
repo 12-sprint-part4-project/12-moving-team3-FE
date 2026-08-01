@@ -1,12 +1,11 @@
-import { ApiError } from '@/lib/apiClient';
-import { formatMoveDateLabel, formatRelativeTime } from '@/lib/formatDate';
 import {
   API_BASE_URL,
-  authFetch,
-  createApiTimeoutSignal,
-  getAccessToken,
-} from '@/services/apiClient.legacy';
-import type { ApiErrorBody } from '@/types/api';
+  ApiError,
+  DEFAULT_API_ERROR_MESSAGE,
+  throwApiError,
+} from '@/lib/apiClient';
+import { authFetch } from '@/lib/authFetch';
+import { formatMoveDateLabel, formatRelativeTime } from '@/lib/formatDate';
 import type {
   EstimateRequestListItem,
   EstimateRequestListResponse,
@@ -185,37 +184,25 @@ export const getReceivedEstimateRequests = async (
   params: ReceivedEstimateRequestsParams = {}
 ): Promise<EstimateRequestListResponse> => {
   const query = buildReceivedEstimateRequestsQuery(params);
-  const token = getAccessToken();
 
   const response = await authFetch(
     `${API_BASE_URL}/api/users/movers/estimate-requests${query}`,
     {
       method: 'GET',
-      credentials: 'include',
       cache: 'no-store',
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      signal: createApiTimeoutSignal(),
     }
   );
 
-  const body: unknown = await response.json().catch(() => null);
-
   if (!response.ok) {
-    const errorBody =
-      body && typeof body === 'object' ? (body as ApiErrorBody) : null;
-    throw new ApiError(
-      response.status,
-      errorBody?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
-      errorBody?.error?.code ?? 'UNKNOWN_ERROR'
-    );
+    return throwApiError(response);
   }
+
+  const body: unknown = await response.json().catch(() => null);
 
   if (!isEstimateRequestListResponse(body)) {
     throw new ApiError(
       response.status,
-      '요청 처리 중 오류가 발생했습니다.',
+      DEFAULT_API_ERROR_MESSAGE,
       'INVALID_RESPONSE'
     );
   }

@@ -1,10 +1,10 @@
-import { ApiError } from '@/lib/apiClient';
 import {
   API_BASE_URL,
-  createApiTimeoutSignal,
-  getAccessToken,
-} from '@/services/apiClient.legacy';
-import type { ApiErrorBody } from '@/types/api';
+  ApiError,
+  DEFAULT_API_ERROR_MESSAGE,
+  throwApiError,
+} from '@/lib/apiClient';
+import { authFetch } from '@/lib/authFetch';
 import type {
   ChatMessagesResponse,
   ChatPresignedUploadParams,
@@ -25,38 +25,8 @@ import type {
 /** 채팅 첨부 S3 prefix (공통 presign API) */
 const CHAT_ATTACHMENT_PREFIX = 'chat-attachments';
 
-const getAuthHeaders = (): HeadersInit => {
-  const token = getAccessToken();
-
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-};
-
-const parseError = async (response: Response): Promise<never> => {
-  const body = (await response.json().catch(() => null)) as ApiErrorBody | null;
-  throw new ApiError(
-    response.status,
-    body?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
-    body?.error?.code ?? 'UNKNOWN_ERROR'
-  );
-};
-
-/** 네트워크·타임아웃 예외를 ApiError로 정규화한다. */
-const toNetworkApiError = (error: unknown): ApiError => {
-  const errorName =
-    error instanceof DOMException || error instanceof Error
-      ? error.name
-      : undefined;
-  const isTimeout =
-    errorName === 'TimeoutError' || errorName === 'AbortError';
-
-  if (isTimeout) {
-    return new ApiError(408, '요청 시간이 초과되었습니다.', 'TIMEOUT');
-  }
-
-  return new ApiError(0, '네트워크 오류가 발생했습니다.', 'NETWORK_ERROR');
+const JSON_HEADERS: HeadersInit = {
+  'Content-Type': 'application/json',
 };
 
 /** 인증이 필요한 JSON API 요청 공통 처리 */
@@ -64,35 +34,23 @@ const chatFetch = async <T>(
   path: string,
   init: RequestInit = {}
 ): Promise<T> => {
-  let response: Response;
-
-  try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
-      credentials: 'include',
-      cache: 'no-store',
-      signal: createApiTimeoutSignal(),
-      ...init,
-      headers: {
-        ...getAuthHeaders(),
-        ...init.headers,
-      },
-    });
-  } catch (error) {
-    throw toNetworkApiError(error);
-  }
+  const response = await authFetch(`${API_BASE_URL}${path}`, {
+    cache: 'no-store',
+    ...init,
+    headers: {
+      ...JSON_HEADERS,
+      ...init.headers,
+    },
+  });
 
   if (!response.ok) {
-    return parseError(response);
+    return throwApiError(response);
   }
 
   try {
     return (await response.json()) as T;
   } catch {
-    throw new ApiError(
-      500,
-      '요청 처리 중 오류가 발생했습니다.',
-      'INVALID_RESPONSE'
-    );
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
   }
 };
 

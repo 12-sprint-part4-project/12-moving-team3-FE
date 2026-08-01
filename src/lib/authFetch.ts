@@ -1,27 +1,11 @@
+import {
+  ApiError,
+  createApiTimeoutSignal,
+  getAccessToken,
+  mergeAbortSignals,
+  toNetworkApiError,
+} from '@/lib/apiClient';
 import { isAuthRetryExcludedPath, refreshAccessToken } from '@/lib/authRefresh';
-import { getAuthSession } from '@/lib/authSession';
-
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
-
-/** @deprecated authSession.accessToken을 사용한다. 하위 호환용 키 */
-export const ACCESS_TOKEN_KEY = 'accessToken';
-
-/** API fetch 기본 타임아웃(ms) */
-export const API_FETCH_TIMEOUT_MS = 10_000;
-
-/** 기본 타임아웃용 AbortSignal */
-export const createApiTimeoutSignal = (
-  timeoutMs: number = API_FETCH_TIMEOUT_MS
-): AbortSignal => AbortSignal.timeout(timeoutMs);
-
-/** authSession에 저장된 Access Token */
-export const getAccessToken = (): string | null => {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-  return getAuthSession()?.accessToken ?? null;
-};
 
 /**
  * 보호 API용 fetch.
@@ -56,7 +40,16 @@ export const authFetch = async (
     };
   };
 
-  const response = await fetch(input, buildInit(getAccessToken()));
+  const request = async (accessToken: string | null, signal?: AbortSignal) => {
+    try {
+      return await fetch(input, buildInit(accessToken, signal));
+    } catch (error) {
+      throw toNetworkApiError(error);
+    }
+  };
+
+  const firstSignal = mergeAbortSignals(init.signal, createApiTimeoutSignal());
+  const response = await request(getAccessToken(), firstSignal);
 
   if (response.status !== 401 || isAuthRetryExcludedPath(requestUrl)) {
     return response;
@@ -64,11 +57,20 @@ export const authFetch = async (
 
   try {
     const newAccessToken = await refreshAccessToken();
-    return await fetch(
-      input,
-      buildInit(newAccessToken, createApiTimeoutSignal())
+    const retrySignal = mergeAbortSignals(
+      init.signal,
+      createApiTimeoutSignal()
     );
-  } catch {
+    return await request(newAccessToken, retrySignal);
+  } catch (error) {
+    // 재시도 fetch의 네트워크·타임아웃은 그대로 전달
+    if (
+      error instanceof ApiError &&
+      (error.code === 'NETWORK_ERROR' || error.code === 'TIMEOUT')
+    ) {
+      throw error;
+    }
+    // refresh 실패 시에는 원래 401 응답을 반환 (기존 계약 유지)
     return response;
   }
 };

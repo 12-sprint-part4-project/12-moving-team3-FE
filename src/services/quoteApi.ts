@@ -1,13 +1,12 @@
-import { ApiError } from '@/lib/apiClient';
-import { formatMoveDateLabel, formatShortDateLabel } from '@/lib/formatDate';
 import {
   API_BASE_URL,
-  authFetch,
-  createApiTimeoutSignal,
-  getAccessToken,
-} from '@/services/apiClient.legacy';
+  ApiError,
+  DEFAULT_API_ERROR_MESSAGE,
+  throwApiError,
+} from '@/lib/apiClient';
+import { authFetch } from '@/lib/authFetch';
+import { formatMoveDateLabel, formatShortDateLabel } from '@/lib/formatDate';
 import { formatDistrictLabel } from '@/services/estimateRequestApi';
-import type { ApiErrorBody } from '@/types/api';
 import { API_MOVE_TYPE_TO_UI, MOVE_TYPE_LABELS } from '@/types/estimateRequest';
 import type {
   MoverQuotesParams,
@@ -27,22 +26,8 @@ import type {
   SentQuoteListItem,
 } from '@/types/quote';
 
-const getAuthHeaders = (): HeadersInit => {
-  const token = getAccessToken();
-
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-};
-
-const parseError = async (response: Response): Promise<never> => {
-  const body = (await response.json().catch(() => null)) as ApiErrorBody | null;
-  throw new ApiError(
-    response.status,
-    body?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
-    body?.error?.code ?? 'UNKNOWN_ERROR'
-  );
+const JSON_HEADERS: HeadersInit = {
+  'Content-Type': 'application/json',
 };
 
 /** 견적 금액 표시 문자열 */
@@ -196,16 +181,14 @@ const submitQuote = async (
     `${API_BASE_URL}/api/users/movers/estimate-requests/${estimateRequestId}/quotes`,
     {
       method: 'POST',
-      credentials: 'include',
       cache: 'no-store',
-      headers: getAuthHeaders(),
+      headers: JSON_HEADERS,
       body: JSON.stringify(body),
-      signal: createApiTimeoutSignal(),
     }
   );
 
   if (!response.ok) {
-    return parseError(response);
+    return throwApiError(response);
   }
 
   const responseBody: unknown = await response.json().catch(() => null);
@@ -213,7 +196,7 @@ const submitQuote = async (
   if (!isQuoteSubmitResponse(responseBody)) {
     throw new ApiError(
       response.status,
-      '요청 처리 중 오류가 발생했습니다.',
+      DEFAULT_API_ERROR_MESSAGE,
       'INVALID_RESPONSE'
     );
   }
@@ -256,23 +239,17 @@ export const getMoverQuotes = async (
   params: MoverQuotesParams
 ): Promise<QuoteListResponse> => {
   const query = buildMoverQuotesQuery(params);
-  const token = getAccessToken();
 
-  const response = await fetch(
+  const response = await authFetch(
     `${API_BASE_URL}/api/users/movers/quotes${query}`,
     {
       method: 'GET',
-      credentials: 'include',
       cache: 'no-store',
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      signal: createApiTimeoutSignal(),
     }
   );
 
   if (!response.ok) {
-    return parseError(response);
+    return throwApiError(response);
   }
 
   const body: unknown = await response.json().catch(() => null);
@@ -280,7 +257,7 @@ export const getMoverQuotes = async (
   if (!isQuoteListResponse(body)) {
     throw new ApiError(
       response.status,
-      '요청 처리 중 오류가 발생했습니다.',
+      DEFAULT_API_ERROR_MESSAGE,
       'INVALID_RESPONSE'
     );
   }
@@ -317,23 +294,16 @@ const isQuoteDetailResponse = (body: unknown): body is QuoteDetailResponse => {
 export const getMoverQuoteDetail = async (
   quoteId: number
 ): Promise<QuoteDetailResponse> => {
-  const token = getAccessToken();
-
-  const response = await fetch(
+  const response = await authFetch(
     `${API_BASE_URL}/api/users/movers/quotes/${quoteId}`,
     {
       method: 'GET',
-      credentials: 'include',
       cache: 'no-store',
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      signal: createApiTimeoutSignal(),
     }
   );
 
   if (!response.ok) {
-    return parseError(response);
+    return throwApiError(response);
   }
 
   const body: unknown = await response.json().catch(() => null);
@@ -341,7 +311,7 @@ export const getMoverQuoteDetail = async (
   if (!isQuoteDetailResponse(body)) {
     throw new ApiError(
       response.status,
-      '요청 처리 중 오류가 발생했습니다.',
+      DEFAULT_API_ERROR_MESSAGE,
       'INVALID_RESPONSE'
     );
   }

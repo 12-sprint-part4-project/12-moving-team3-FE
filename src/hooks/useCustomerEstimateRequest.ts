@@ -3,14 +3,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
-import { ApiError } from '@/lib/apiClient';
+import { ApiError, getAccessToken } from '@/lib/apiClient';
 import {
   isEstimateRequestReadyToSubmit,
   toVisualStep,
   type ReviseEstimateRequestFieldBody,
   type SaveEstimateRequestStepBody,
 } from '@/lib/customerEstimateRequestSchema';
-import { getAccessToken } from '@/services/apiClient.legacy';
 import {
   createEstimateRequest,
   getActiveEstimateRequest,
