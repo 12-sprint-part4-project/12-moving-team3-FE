@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 import { MoverCard } from '@/components/movers/MoverCard';
 import { cn } from '@/lib/utils';
-import type { ApiMoveType, ApiRegion, MoverCardModel } from '@/types/mover';
+import type { MoverCardModel } from '@/types/mover';
 import {
   REGION_FILTER_OPTIONS,
   SERVICE_FILTER_OPTIONS,
@@ -117,9 +117,4 @@ export const MoversSidebar = ({
       </section>
     </aside>
   );
-};
-
-export type MoversFilterValues = {
-  region: ApiRegion | 'ALL';
-  service: ApiMoveType | 'ALL';
 };
