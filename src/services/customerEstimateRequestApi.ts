@@ -15,8 +15,8 @@ import {
 } from '@/lib/customerEstimateRequestSchema';
 import {
   API_BASE_URL,
+  authFetch,
   createApiTimeoutSignal,
-  getAccessToken,
 } from '@/services/apiClient.legacy';
 import type { ApiErrorBody } from '@/types/api';
 import type {
@@ -31,14 +31,9 @@ import type { z } from 'zod';
 
 const BASE_PATH = '/api/estimate-requests';
 
-const getAuthHeaders = (withJson = false): HeadersInit => {
-  const token = getAccessToken();
-
-  return {
-    ...(withJson ? { 'Content-Type': 'application/json' } : {}),
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-};
+const getAuthHeaders = (withJson = false): HeadersInit => ({
+  ...(withJson ? { 'Content-Type': 'application/json' } : {}),
+});
 
 /** 실패 응답을 ApiError 로 변환 */
 const parseError = async (response: Response): Promise<never> => {
@@ -87,9 +82,8 @@ const parseRequestBody = <T>(schema: z.ZodType<T>, body: unknown): T => {
  */
 export const getActiveEstimateRequest =
   async (): Promise<ActiveEstimateRequestData> => {
-    const response = await fetch(`${API_BASE_URL}${BASE_PATH}/active`, {
+    const response = await authFetch(`${API_BASE_URL}${BASE_PATH}/active`, {
       method: 'GET',
-      credentials: 'include',
       cache: 'no-store',
       headers: getAuthHeaders(),
       signal: createApiTimeoutSignal(),
@@ -109,9 +103,8 @@ export const getActiveEstimateRequest =
  */
 export const createEstimateRequest =
   async (): Promise<CreatedEstimateRequest> => {
-    const response = await fetch(`${API_BASE_URL}${BASE_PATH}`, {
+    const response = await authFetch(`${API_BASE_URL}${BASE_PATH}`, {
       method: 'POST',
-      credentials: 'include',
       cache: 'no-store',
       headers: getAuthHeaders(),
       signal: createApiTimeoutSignal(),
@@ -132,11 +125,10 @@ export const createEstimateRequest =
 export const getEstimateRequestDetail = async (
   estimateRequestId: number
 ): Promise<EstimateRequestDetail> => {
-  const response = await fetch(
+  const response = await authFetch(
     `${API_BASE_URL}${BASE_PATH}/${estimateRequestId}`,
     {
       method: 'GET',
-      credentials: 'include',
       cache: 'no-store',
       headers: getAuthHeaders(),
       signal: createApiTimeoutSignal(),
@@ -162,11 +154,10 @@ export const saveEstimateRequestStep = async (
   // 클라이언트에서도 BE와 동일한 zod로 검증 (실패 시 ApiError)
   const parsed = parseRequestBody(saveEstimateRequestStepBodySchema, body);
 
-  const response = await fetch(
+  const response = await authFetch(
     `${API_BASE_URL}${BASE_PATH}/${estimateRequestId}/step`,
     {
       method: 'PATCH',
-      credentials: 'include',
       cache: 'no-store',
       headers: getAuthHeaders(true),
       body: JSON.stringify(parsed),
@@ -193,11 +184,10 @@ export const reviseEstimateRequestField = async (
   // 검증 실패 시 ZodError 대신 ApiError로 통일
   const parsed = parseRequestBody(reviseEstimateRequestFieldBodySchema, body);
 
-  const response = await fetch(
+  const response = await authFetch(
     `${API_BASE_URL}${BASE_PATH}/${estimateRequestId}/field`,
     {
       method: 'PATCH',
-      credentials: 'include',
       cache: 'no-store',
       headers: getAuthHeaders(true),
       body: JSON.stringify(parsed),
@@ -220,11 +210,10 @@ export const reviseEstimateRequestField = async (
 export const submitEstimateRequest = async (
   estimateRequestId: number
 ): Promise<SubmitEstimateRequestResult> => {
-  const response = await fetch(
+  const response = await authFetch(
     `${API_BASE_URL}${BASE_PATH}/${estimateRequestId}/submit`,
     {
       method: 'POST',
-      credentials: 'include',
       cache: 'no-store',
       headers: getAuthHeaders(),
       signal: createApiTimeoutSignal(),

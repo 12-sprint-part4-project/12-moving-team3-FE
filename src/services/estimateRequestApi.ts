@@ -2,6 +2,7 @@ import { ApiError } from '@/lib/apiClient';
 import { formatMoveDateLabel, formatRelativeTime } from '@/lib/formatDate';
 import {
   API_BASE_URL,
+  authFetch,
   createApiTimeoutSignal,
   getAccessToken,
 } from '@/services/apiClient.legacy';
@@ -186,7 +187,7 @@ export const getReceivedEstimateRequests = async (
   const query = buildReceivedEstimateRequestsQuery(params);
   const token = getAccessToken();
 
-  const response = await fetch(
+  const response = await authFetch(
     `${API_BASE_URL}/api/users/movers/estimate-requests${query}`,
     {
       method: 'GET',
