@@ -6,6 +6,14 @@ interface EstimateRequestProgressProps {
   currentStep: EstimateRequestVisualStep;
 }
 
+/** 시각 스텝 → 프로그레스 바 너비 (인라인 style 대신 고정 클래스) */
+const PROGRESS_WIDTH_CLASS: Record<EstimateRequestVisualStep, string> = {
+  1: 'w-1/4',
+  2: 'w-1/2', // 2/4 — Tailwind에 w-2/4 없음
+  3: 'w-3/4',
+  4: 'w-full',
+};
+
 /**
  * Figma `Component/progressbar` — 모바일 기본 + md 스케일만 분기
  * - 제목 "견적요청" + 트랙/필 바 (분수 텍스트 없음)
@@ -14,8 +22,6 @@ interface EstimateRequestProgressProps {
 export const EstimateRequestProgress = ({
   currentStep,
 }: EstimateRequestProgressProps) => {
-  const progressPercent = (currentStep / TOTAL_PROGRESS_STEPS) * 100;
-
   return (
     <header className="w-full bg-white py-6 shadow-page-title md:py-8">
       <div className="mx-auto flex w-full max-w-[375px] flex-col gap-4 px-6 md:max-w-[1448px] md:gap-6">
@@ -33,8 +39,7 @@ export const EstimateRequestProgress = ({
           {/* 트랙: line-200, 필: blue-300, radius 30px */}
           <div className="h-1.5 w-full overflow-hidden rounded-[1.875rem] bg-line-200 md:h-2">
             <div
-              className="h-full rounded-[1.875rem] bg-blue-300 transition-[width] duration-300"
-              style={{ width: `${progressPercent}%` }}
+              className={`h-full rounded-[1.875rem] bg-blue-300 transition-[width] duration-300 ${PROGRESS_WIDTH_CLASS[currentStep]}`}
             />
           </div>
         </div>
