@@ -13,7 +13,7 @@ export interface ToggleFavoriteVariables {
 
 /**
  * 기사님 찜 추가/취소.
- * 성공 시 목록·상세·찜 preview 쿼리를 invalidate 한다.
+ * 성공 시 목록·상세·찜 목록/preview 쿼리를 invalidate 한다.
  */
 export const useToggleFavorite = () => {
   const queryClient = useQueryClient();

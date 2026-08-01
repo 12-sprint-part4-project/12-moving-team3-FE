@@ -13,10 +13,13 @@ import { API_MOVE_TYPE_TO_UI } from '@/types/estimateRequest';
 import type { ApiMoveType, MoverCardModel } from '@/types/mover';
 
 export type MoverCardSize = 'lg' | 'sm';
+export type MoverCardVariant = 'default' | 'favorite';
 
 export interface MoverCardProps {
   mover: MoverCardModel;
   size?: MoverCardSize;
+  /** favorite: 한 줄 소개 숨김 + 경력/확정 항상 표시 (Figma Card-list/찜한 기사님) */
+  variant?: MoverCardVariant;
   onFavoriteClick?: (moverId: string, nextFavorited: boolean) => void;
   /** true면 상세 이동 비활성 (이미 상세 페이지일 때) */
   disableNavigation?: boolean;
@@ -24,18 +27,22 @@ export interface MoverCardProps {
 }
 
 /**
- * 기사님 목록 카드 (Figma Card-list/기사님 찾기).
+ * 기사님 목록 카드 (Figma Card-list/기사님 찾기 · 찜한 기사님).
  * 클릭 시 `/movers/:id` 로 이동 (disableNavigation 제외).
  */
 export const MoverCard = ({
   mover,
   size = 'lg',
+  variant = 'default',
   onFavoriteClick,
   disableNavigation = false,
   className = '',
 }: MoverCardProps) => {
   const router = useRouter();
   const isCompact = size === 'sm';
+  const isFavoriteVariant = variant === 'favorite';
+  const showDescription = !isCompact && !isFavoriteVariant;
+  const showCareerAndConfirmed = !isCompact || isFavoriteVariant;
   const ratingLabel =
     mover.averageRating === null ? '-' : mover.averageRating.toFixed(1);
   const careerLabel = mover.career === null ? '-' : `${mover.career}년`;
@@ -97,7 +104,7 @@ export const MoverCard = ({
         ) : null}
       </div>
 
-      {!isCompact ? (
+      {showDescription ? (
         <p className="text-xl-semibold text-black-300 sm:text-2xl-semibold">
           {description}
         </p>
@@ -155,7 +162,7 @@ export const MoverCard = ({
               <span className="text-black-300">{ratingLabel}</span>
               <span className="text-gray-300">({mover.reviewCount})</span>
             </span>
-            {!isCompact ? (
+            {showCareerAndConfirmed ? (
               <>
                 <span
                   aria-hidden

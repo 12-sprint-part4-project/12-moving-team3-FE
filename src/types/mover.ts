@@ -159,10 +159,15 @@ export interface FavoriteMoverListItem {
     moverProfile: {
       career: number | null;
       serviceRegions: MoverServiceRegion[];
+      /** BE 확장 예정 — 서비스 유형 */
+      service?: ApiMoveType[];
     } | null;
   } | null;
   reviewStats: ReviewStats;
   favoritedCount: number;
+  /** BE 확장 예정 — 없으면 FE에서 0 / 빈 배열로 표시 */
+  service?: ApiMoveType[];
+  confirmedCount?: number;
 }
 
 export type FavoriteMoversResponse = ApiSuccessResponse<

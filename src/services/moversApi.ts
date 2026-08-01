@@ -234,11 +234,14 @@ export const toMoverCardModelFromFavorite = (
     return null;
   }
 
+  const services =
+    item.service ?? item.mover.moverProfile?.service ?? [];
+
   return toCardModel({
     moverId: item.moverId,
     nickname: item.mover.name,
     profileImageUrl: item.mover.profileImageUrl,
-    services: [],
+    services,
     regions: item.mover.moverProfile?.serviceRegions ?? [],
     career: item.mover.moverProfile?.career ?? null,
     shortDescription: null,
@@ -246,6 +249,7 @@ export const toMoverCardModelFromFavorite = (
     review: item.reviewStats,
     isFavorited: true,
     favoritedCount: item.favoritedCount,
+    confirmedCount: item.confirmedCount,
   });
 };
 

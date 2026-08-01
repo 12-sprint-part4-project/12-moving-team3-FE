@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { MoverCard } from '@/components/movers/MoverCard';
 import { cn } from '@/lib/utils';
 import type { ApiMoveType, ApiRegion, MoverCardModel } from '@/types/mover';
@@ -79,7 +81,14 @@ export const MoversSidebar = ({
       </section>
 
       <section className="flex w-full flex-col gap-4">
-        <h2 className="text-2xl-semibold text-black-400">찜한 기사님</h2>
+        <h2 className="text-2xl-semibold text-black-400">
+          <Link
+            href="/favorites"
+            className="cursor-pointer hover:text-blue-300"
+          >
+            찜한 기사님
+          </Link>
+        </h2>
         {!isLoggedIn ? (
           <p className="rounded-2xl border border-line-100 bg-background-200 px-4 py-8 text-center text-lg-medium text-gray-400">
             로그인이 필요한 기능입니다

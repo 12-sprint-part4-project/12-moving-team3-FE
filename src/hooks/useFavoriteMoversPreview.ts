@@ -13,6 +13,8 @@ const FAVORITE_PREVIEW_LIMIT = 3;
 
 export const favoriteQueryKeys = {
   all: [...moverQueryKeys.all, 'favorites'] as const,
+  lists: () => [...favoriteQueryKeys.all, 'list'] as const,
+  list: (limit: number) => [...favoriteQueryKeys.lists(), limit] as const,
   preview: (limit: number) =>
     [...favoriteQueryKeys.all, 'preview', limit] as const,
 };
