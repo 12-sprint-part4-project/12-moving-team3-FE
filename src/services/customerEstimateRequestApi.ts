@@ -1,3 +1,4 @@
+import { ApiError } from '@/lib/apiClient';
 import type {
   ReviseEstimateRequestFieldBody,
   SaveEstimateRequestStepBody,
@@ -14,10 +15,9 @@ import {
 } from '@/lib/customerEstimateRequestSchema';
 import {
   API_BASE_URL,
-  ApiError,
   createApiTimeoutSignal,
   getAccessToken,
-} from '@/services/apiClient';
+} from '@/services/apiClient.legacy';
 import type { ApiErrorBody } from '@/types/api';
 import type {
   ActiveEstimateRequestData,
@@ -45,8 +45,8 @@ const parseError = async (response: Response): Promise<never> => {
   const body = (await response.json().catch(() => null)) as ApiErrorBody | null;
   throw new ApiError(
     response.status,
-    body?.error?.code ?? 'UNKNOWN_ERROR',
-    body?.error?.message ?? '요청 처리 중 오류가 발생했습니다.'
+    body?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
+    body?.error?.code ?? 'UNKNOWN_ERROR'
   );
 };
 
@@ -55,8 +55,8 @@ const parseResponseData = <T>(schema: z.ZodType<T>, body: unknown): T => {
   if (!body || typeof body !== 'object' || !('data' in body)) {
     throw new ApiError(
       500,
-      'INVALID_RESPONSE',
-      '요청 처리 중 오류가 발생했습니다.'
+      '요청 처리 중 오류가 발생했습니다.',
+      'INVALID_RESPONSE'
     );
   }
 
@@ -64,8 +64,8 @@ const parseResponseData = <T>(schema: z.ZodType<T>, body: unknown): T => {
   if (!result.success) {
     throw new ApiError(
       500,
-      'INVALID_RESPONSE',
-      '요청 처리 중 오류가 발생했습니다.'
+      '요청 처리 중 오류가 발생했습니다.',
+      'INVALID_RESPONSE'
     );
   }
 
@@ -76,7 +76,7 @@ const parseResponseData = <T>(schema: z.ZodType<T>, body: unknown): T => {
 const parseRequestBody = <T>(schema: z.ZodType<T>, body: unknown): T => {
   const result = schema.safeParse(body);
   if (!result.success) {
-    throw new ApiError(400, 'INVALID_REQUEST', '요청 형식이 올바르지 않습니다.');
+    throw new ApiError(400, '요청 형식이 올바르지 않습니다.', 'INVALID_REQUEST');
   }
   return result.data;
 };

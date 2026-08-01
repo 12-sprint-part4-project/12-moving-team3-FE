@@ -3,13 +3,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
+import { ApiError } from '@/lib/apiClient';
 import {
   isEstimateRequestReadyToSubmit,
   toVisualStep,
   type ReviseEstimateRequestFieldBody,
   type SaveEstimateRequestStepBody,
 } from '@/lib/customerEstimateRequestSchema';
-import { ApiError, getAccessToken } from '@/services/apiClient';
+import { getAccessToken } from '@/services/apiClient.legacy';
 import {
   createEstimateRequest,
   getActiveEstimateRequest,
@@ -83,8 +84,8 @@ const bootstrapCustomerEstimateRequest =
         status: 'unauthorized',
         error: new ApiError(
           401,
-          'UNAUTHORIZED',
-          '견적 요청은 로그인 후 이용할 수 있습니다.'
+          '견적 요청은 로그인 후 이용할 수 있습니다.',
+          'UNAUTHORIZED'
         ),
       });
     }
@@ -178,10 +179,10 @@ const bootstrapCustomerEstimateRequest =
         status: 'error',
         error: new ApiError(
           500,
-          isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
           isNetworkError
             ? '서버에 연결할 수 없습니다. BE가 실행 중인지 확인해 주세요.'
-            : '요청 처리 중 오류가 발생했습니다.'
+            : '요청 처리 중 오류가 발생했습니다.',
+          isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR'
         ),
       });
     }
@@ -226,8 +227,8 @@ export const useCustomerEstimateRequest = () => {
           ? bootstrapQuery.error
           : new ApiError(
               500,
-              'UNKNOWN_ERROR',
-              '요청 처리 중 오류가 발생했습니다.'
+              '요청 처리 중 오류가 발생했습니다.',
+              'UNKNOWN_ERROR'
             ),
       refetch,
     });
