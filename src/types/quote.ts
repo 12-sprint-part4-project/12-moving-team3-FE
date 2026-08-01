@@ -46,8 +46,8 @@ export interface MoverQuotesParams {
   limit?: number;
 }
 
-/** 반려한 견적 목록 아이템 (BE) */
-export interface RejectedQuoteListItem {
+/** 보낸/반려 견적 목록 아이템 공통 필드 (BE) */
+export interface QuoteListItemBase {
   id: number;
   estimateRequestId: number;
   customer: { name: string };
@@ -59,20 +59,14 @@ export interface RejectedQuoteListItem {
   createdAt: string;
 }
 
+/** 반려한 견적 목록 아이템 (BE) */
+export type RejectedQuoteListItem = QuoteListItemBase;
+
 /** 보낸 견적 목록 아이템 (BE) */
-export interface SentQuoteListItem {
-  id: number;
-  estimateRequestId: number;
-  customer: { name: string };
-  moveType: ApiMoveType | null;
+export interface SentQuoteListItem extends QuoteListItemBase {
   isConfirmed: boolean;
-  isDesignated: boolean;
-  moveDate: string | null;
-  fromRegionLabel: string | null;
-  toRegionLabel: string | null;
   price: number | null;
   isMoveCompleted: boolean;
-  createdAt: string;
 }
 
 /** 견적 목록 meta */
@@ -85,13 +79,14 @@ export interface QuoteListMeta {
   hasPrevPage: boolean;
 }
 
+/** 견적 목록 아이템 유니온 */
+export type QuoteListItem = SentQuoteListItem | RejectedQuoteListItem;
+
 /** 견적 목록 응답 */
-export type QuoteListResponse = ApiSuccessResponse<
-  { items: RejectedQuoteListItem[] | SentQuoteListItem[] },
-  QuoteListMeta
-> & {
-  meta: QuoteListMeta;
-};
+export type QuoteListResponse<TItem extends QuoteListItem = QuoteListItem> =
+  ApiSuccessResponse<{ items: TItem[] }, QuoteListMeta> & {
+    meta: QuoteListMeta;
+  };
 
 /** 보낸 견적 카드 UI 모델 */
 export interface SentQuoteCardModel {
