@@ -8,6 +8,7 @@ import { GnbLanding } from '@/components/Gnb/GnbLanding';
 import { GnbMenu } from '@/components/Gnb/GnbMenu';
 import type { GnbNavItem } from '@/components/Gnb/gnbNav';
 import { useAuth } from '@/hooks/useAuth';
+import { useCustomerProfile } from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { logout } from '@/services/authApi';
@@ -23,6 +24,9 @@ export const Header = () => {
   const { showToast } = useToast();
   const { user, isReady, clearSession } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: customerProfile } = useCustomerProfile(
+    Boolean(isReady && user?.userType === 'CUSTOMER')
+  );
 
   const handleMenuOpen = () => setIsMenuOpen(true);
   const handleMenuClose = () => setIsMenuOpen(false);
@@ -81,6 +85,7 @@ export const Header = () => {
 
   const navRole = user.userType === 'MOVER' ? 'mover' : 'customer';
   const desktopMenu = navRole === 'mover' ? 'twoMenu' : 'threeMenu';
+  const avatarSrc = customerProfile?.profileImageUrl ?? null;
 
   return (
     <>
@@ -89,6 +94,7 @@ export const Header = () => {
           size="sm"
           menu="iconProfile"
           userName={user.nickname}
+          avatarSrc={avatarSrc}
           onMenuClick={handleMenuOpen}
         />
       </div>
@@ -97,11 +103,17 @@ export const Header = () => {
           size="md"
           menu="iconProfile"
           userName={user.nickname}
+          avatarSrc={avatarSrc}
           onMenuClick={handleMenuOpen}
         />
       </div>
       <div className="hidden lg:block">
-        <GnbDefault size="lg" menu={desktopMenu} userName={user.nickname} />
+        <GnbDefault
+          size="lg"
+          menu={desktopMenu}
+          userName={user.nickname}
+          avatarSrc={avatarSrc}
+        />
       </div>
 
       {isMenuOpen ? (

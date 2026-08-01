@@ -4,10 +4,7 @@ import AlarmIcon from '@/assets/icons/alarm.svg';
 import MenuIcon from '@/assets/icons/menu.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
 
-import {
-  GNB_NAV_BY_ROLE,
-  type GnbNavItem,
-} from '@/components/Gnb/gnbNav';
+import { GNB_NAV_BY_ROLE, type GnbNavItem } from '@/components/Gnb/gnbNav';
 import { Logo } from '@/components/Logo/Logo';
 import { Tab } from '@/components/ui/Tab/Tab';
 
@@ -35,6 +32,8 @@ export interface GnbDefaultProps {
   menu?: GnbDefaultMenu;
   /** lg 프로필 옆에 표시할 사용자 이름 */
   userName?: string;
+  /** 프로필 이미지 URL */
+  avatarSrc?: string | null;
   /** 현재 활성 탭 id (tab / component) */
   activeTabId?: string;
   /** 탭 목록. 미지정 시 Figma 기본값 사용 */
@@ -100,9 +99,28 @@ const GnbTabBar = ({
   </div>
 );
 
+interface GnbProfileAvatarProps {
+  src?: string | null;
+  className: string;
+}
+
+const GnbProfileAvatar = ({ src, className }: GnbProfileAvatarProps) => {
+  if (src) {
+    return (
+      <span className={`shrink-0 overflow-hidden rounded-full ${className}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- Presigned URL */}
+        <img src={src} alt="" className="size-full object-cover" />
+      </span>
+    );
+  }
+
+  return <ProfileIcon className={`shrink-0 ${className}`} aria-hidden />;
+};
+
 interface GnbHeaderProps {
   size: GnbDefaultSize;
   userName: string;
+  avatarSrc?: string | null;
   homeHref: string;
   navItems: GnbNavItem[];
   onAlarmClick?: () => void;
@@ -114,6 +132,7 @@ interface GnbHeaderProps {
 const GnbHeader = ({
   size,
   userName,
+  avatarSrc,
   homeHref,
   navItems,
   onAlarmClick,
@@ -180,7 +199,7 @@ const GnbHeader = ({
               onClick={onProfileClick}
               className="flex shrink-0 items-center gap-4"
             >
-              <ProfileIcon className="size-9 shrink-0" aria-hidden />
+              <GnbProfileAvatar src={avatarSrc} className="size-9" />
               <span className="text-2lg-medium whitespace-nowrap text-black-400">
                 {userName}
               </span>
@@ -193,7 +212,7 @@ const GnbHeader = ({
                 onClick={onProfileClick}
                 className="inline-flex size-6 shrink-0 items-center justify-center"
               >
-                <ProfileIcon className="size-6" aria-hidden />
+                <GnbProfileAvatar src={avatarSrc} className="size-6" />
               </button>
               <button
                 type="button"
@@ -220,6 +239,7 @@ export const GnbDefault = ({
   sort = 'gnb',
   menu = 'iconProfile',
   userName = '김가나',
+  avatarSrc,
   activeTabId = 'pending',
   tabs = DEFAULT_TABS,
   navItems,
@@ -257,6 +277,7 @@ export const GnbDefault = ({
         <GnbHeader
           size={size === 'lg' ? 'md' : size}
           userName={userName}
+          avatarSrc={avatarSrc}
           homeHref={homeHref}
           navItems={resolvedNavItems}
           onAlarmClick={onAlarmClick}
@@ -279,6 +300,7 @@ export const GnbDefault = ({
       <GnbHeader
         size={size}
         userName={userName}
+        avatarSrc={avatarSrc}
         homeHref={homeHref}
         navItems={resolvedNavItems}
         onAlarmClick={onAlarmClick}

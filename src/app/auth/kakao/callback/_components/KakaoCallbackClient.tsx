@@ -6,6 +6,7 @@ import { useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { getPostAuthRedirectPath } from '@/lib/getPostAuthRedirectPath';
 import {
   consumeKakaoOAuthState,
   parseKakaoCallbackParams,
@@ -69,7 +70,7 @@ export const KakaoCallbackClient = () => {
             ? '회원가입이 완료되었습니다.'
             : '로그인되었습니다.',
         });
-        router.replace('/');
+        router.replace(getPostAuthRedirectPath(response.data.user));
       } catch (error) {
         const message =
           error instanceof ApiError
