@@ -32,12 +32,6 @@ export const QuoteShareButtons = ({
     }
   };
 
-  /** 카카오 공유 창 열기 */
-  const handleShareKakao = () => {
-    const kakaoShareUrl = `https://story.kakao.com/share?url=${encodeURIComponent(getShareUrl())}`;
-    window.open(kakaoShareUrl, '_blank', 'noopener,noreferrer');
-  };
-
   /** 페이스북 공유 창 열기 */
   const handleShareFacebook = () => {
     const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}`;
@@ -60,13 +54,13 @@ export const QuoteShareButtons = ({
             void handleCopyLink();
           }}
         />
+        {/* 카카오톡 공유는 추후 연동 예정 */}
         <IconButton
           icon={KakaoIcon}
           size="xs"
           variant="kakao"
           aria-label="카카오톡으로 공유하기"
           className="cursor-pointer lg:size-16 lg:rounded-2xl lg:[&_svg]:size-7"
-          onClick={handleShareKakao}
         />
         <IconButton
           icon={FacebookIcon}

@@ -52,7 +52,7 @@ export const Tab = ({
       type={type}
       role="tab"
       aria-selected={active}
-      className={`flex whitespace-nowrap ${style.base} ${
+      className={`flex cursor-pointer whitespace-nowrap ${style.base} ${
         active ? style.active : style.inactive
       } ${className}`}
       {...rest}
