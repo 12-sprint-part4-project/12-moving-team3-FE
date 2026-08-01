@@ -6,7 +6,6 @@ import { useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { Button } from '@/components/Button/Button';
 import { TextFieldOutlined } from '@/components/ui/Input';
-import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
@@ -92,7 +91,6 @@ const HELPER_LINK_CLASSNAME =
 export const SignupForm = ({ role }: SignupFormProps) => {
   const router = useRouter();
   const { showToast } = useToast();
-  const { setSession } = useAuth();
   const [values, setValues] = useState<SignupFormValues>(INITIAL_VALUES);
   const [isPending, setIsPending] = useState(false);
   const roleSwitch = ROLE_SWITCH_COPY[role];
@@ -129,7 +127,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
     setIsPending(true);
 
     try {
-      const response = await signup({
+      await signup({
         userType: USER_TYPE_BY_ROLE[role],
         name: values.name.trim(),
         nickname: values.nickname.trim(),
@@ -139,21 +137,10 @@ export const SignupForm = ({ role }: SignupFormProps) => {
         passwordConfirmation: values.passwordConfirm,
       });
 
-      const { user } = response.data;
-
-      setSession({
-        accessToken: response.data.accessToken,
-        user: {
-          id: user.id,
-          userType: user.userType,
-          nickname: user.nickname,
-          email: user.email,
-          phoneNumber: user.phoneNumber,
-          isProfileCompleted: user.isProfileCompleted,
-        },
-      });
-      showToast({ content: '회원가입이 완료되었습니다.' });
-      router.replace('/');
+      // 이메일 회원가입은 자동 로그인하지 않고, 역할별 로그인 페이지로 이동한다.
+      // (카카오 가입은 KakaoCallbackClient에서 즉시 로그인 처리)
+      showToast({ content: '회원가입이 완료되었습니다. 로그인해 주세요.' });
+      router.replace(LOGIN_HREF[role]);
     } catch (error) {
       const message =
         error instanceof ApiError

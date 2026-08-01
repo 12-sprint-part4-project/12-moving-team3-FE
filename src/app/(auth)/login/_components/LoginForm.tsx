@@ -9,6 +9,7 @@ import { TextFieldOutlined } from '@/components/ui/Input';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { getPostAuthRedirectPath } from '@/lib/getPostAuthRedirectPath';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
 import { login } from '@/services/authApi';
 import type { ApiUserType } from '@/types/auth';
@@ -118,7 +119,7 @@ export const LoginForm = ({ role }: LoginFormProps) => {
         user: response.data.user,
       });
       showToast({ content: '로그인되었습니다.' });
-      router.replace('/');
+      router.replace(getPostAuthRedirectPath(response.data.user));
     } catch (error) {
       const message =
         error instanceof ApiError
