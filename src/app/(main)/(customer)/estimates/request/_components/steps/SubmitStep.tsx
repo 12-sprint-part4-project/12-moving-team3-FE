@@ -5,8 +5,9 @@ interface SubmitStepProps {
 }
 
 /**
- * 스텝4 — 확인/제출 (Figma 1-11375).
- * 스프린트5에서 요약 UI·POST submit 연동 구현.
+ * 스텝4 — 제출 전 확인 UI (채팅 요약·제출 버튼).
+ * 제출 성공 화면은 별도가 아니라 `EstimateRequestBlocked`(진행 중 안내)와 동일.
+ * submit → bootstrap refetch → status blocked 로 전환된다.
  */
 export const SubmitStep = ({ detail }: SubmitStepProps) => {
   return (
