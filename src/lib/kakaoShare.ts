@@ -31,10 +31,25 @@ const loadKakaoSdk = (): Promise<void> => {
     );
 
     if (existing) {
-      existing.addEventListener('load', () => resolve(), { once: true });
+      if (existing.dataset.loaded === 'true' || window.Kakao) {
+        resolve();
+        return;
+      }
+      existing.addEventListener(
+        'load',
+        () => {
+          existing.dataset.loaded = 'true';
+          resolve();
+        },
+        { once: true }
+      );
       existing.addEventListener(
         'error',
-        () => reject(new Error('카카오 SDK를 불러오지 못했습니다.')),
+        () => {
+          existing.remove();
+          sdkLoadPromise = null;
+          reject(new Error('카카오 SDK를 불러오지 못했습니다.'));
+        },
         { once: true }
       );
       return;
@@ -44,8 +59,12 @@ const loadKakaoSdk = (): Promise<void> => {
     script.src = KAKAO_SDK_SRC;
     script.async = true;
     script.crossOrigin = 'anonymous';
-    script.onload = () => resolve();
+    script.onload = () => {
+      script.dataset.loaded = 'true';
+      resolve();
+    };
     script.onerror = () => {
+      script.remove();
       sdkLoadPromise = null;
       reject(new Error('카카오 SDK를 불러오지 못했습니다.'));
     };
