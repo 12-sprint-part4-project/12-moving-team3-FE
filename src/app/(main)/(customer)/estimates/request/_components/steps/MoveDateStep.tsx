@@ -27,7 +27,7 @@ const MOVE_TYPE_PROMPT_DESKTOP = '이사 종류를 선택해 주세요.';
 const MOVE_DATE_PROMPT = '이사 예정일을 선택해주세요.';
 
 /**
- * 스텝2 — 이사 예정일 선택 (Figma 1-4007).
+ * 스텝2 — 이사 예정일 선택.
  * 선택완료: 최초 saveStep(step:2) / 재수정 reviseField(moveDate).
  */
 export const MoveDateStep = () => {

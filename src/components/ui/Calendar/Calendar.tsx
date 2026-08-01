@@ -42,7 +42,7 @@ const startOfMonth = (date: Date) =>
   new Date(date.getFullYear(), date.getMonth(), 1);
 
 /**
- * 월 이동 + 날짜 선택 + 확인 버튼을 묶은 카드형 날짜 선택 (Figma 1:9320).
+ * 월 이동 + 날짜 선택 + 확인 버튼을 묶은 카드형 날짜 선택.
  * sm 기본 / md+ 스케일. 그리드는 table로 요일·날짜 관계를 시맨틱하게 전달하고,
  * 이전·다음 달 칸은 텍스트만 보여 포커스 혼란을 줄인다.
  */
@@ -100,7 +100,7 @@ export const Calendar = ({
   return (
     <div
       className={cn(
-        // Figma Date picker-Calendar: sm radius 16 / md 32, chat-panel 톤 그림자
+        // sm radius 16 / md 32, chat-panel 톤 그림자
         'flex w-full flex-col items-center gap-4 rounded-2xl bg-white py-3.5 shadow-chat-panel',
         'md:gap-6 md:rounded-[2rem] md:py-6',
         className

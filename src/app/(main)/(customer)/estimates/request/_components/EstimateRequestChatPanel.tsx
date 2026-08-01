@@ -9,7 +9,7 @@ interface EstimateRequestChatPanelProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 /**
- * 견적요청 채팅형 인터랙션 패널 (Figma 1-3548).
+ * 견적요청 채팅형 인터랙션 패널.
  * 체크폼·캘린더·주소·CTA 등 입력을 담는 흰 바탕 + chat-panel shadow.
  * 우측 상단만 각진 말풍선 형태, md+ 우측 정렬.
  */
@@ -27,7 +27,7 @@ export const EstimateRequestChatPanel = ({
       <div
         className={cn(
           'flex w-full flex-col gap-4 bg-white p-4 shadow-chat-panel',
-          // Figma: tl/bl/br 32px, tr 각짐 (발신 말풍선)
+          // tl/bl/br 32px, tr 각짐 (발신 말풍선)
           'rounded-tl-3xl rounded-br-3xl rounded-bl-3xl',
           'md:w-[39rem] md:gap-6 md:p-10',
           'md:rounded-tl-[2rem] md:rounded-br-[2rem] md:rounded-bl-[2rem]',

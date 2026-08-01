@@ -17,7 +17,7 @@ interface MoveTypeOptionFieldProps {
 }
 
 /**
- * Figma check-box-field — 이사 종류 radio 옵션 한 줄.
+ * 이사 종류 radio 옵션 한 줄.
  * 네이티브 radio + label로 키보드(화살표)·포커스를 브라우저에 맡긴다.
  */
 export const MoveTypeOptionField = ({

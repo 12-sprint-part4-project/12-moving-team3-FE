@@ -11,7 +11,7 @@ import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 import { ApiError } from '@/lib/apiClient';
 import type { ApiMoveType } from '@/types/estimateRequest';
 
-/** Step1 옵션 — MoveTypeChip 라벨보다 Figma 설명형 문구를 사용 */
+/** Step1 옵션 — MoveTypeChip 라벨보다 설명형 문구를 사용 */
 const MOVE_TYPE_OPTIONS: ReadonlyArray<{
   value: ApiMoveType;
   label: string;
@@ -27,7 +27,7 @@ const PROMPT_MESSAGE_MOBILE = '이사 종류를 알려주세요.';
 const PROMPT_MESSAGE_DESKTOP = '이사 종류를 선택해 주세요.';
 
 /**
- * 스텝1 — 이사종류 선택 (Figma 1-3492).
+ * 스텝1 — 이사종류 선택.
  * 선택완료 시 PATCH step:1 → bootstrap visualStep=2 로 Step2 이동.
  */
 export const MoveTypeStep = () => {
@@ -71,7 +71,7 @@ export const MoveTypeStep = () => {
       aria-label="이사 종류 선택"
       className="mx-auto flex w-full max-w-[375px] flex-col gap-2 px-6 md:max-w-[1448px] md:gap-6"
     >
-      {/* 시스템 연속 발화 — 한 턴으로 묶어 좌측 정렬 (Figma 1-3544) */}
+      {/* 시스템 연속 발화 — 한 턴으로 묶어 좌측 정렬 */}
       <EstimateRequestChatBubbleGroup>
         <TextFieldChat>{INTRO_MESSAGE}</TextFieldChat>
         <TextFieldChat desktopChildren={PROMPT_MESSAGE_DESKTOP}>
