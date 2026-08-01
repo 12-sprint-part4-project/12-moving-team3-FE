@@ -142,6 +142,9 @@ export interface MoverDetailData {
   moverDetail: MoverDetail;
   reviewStats: ReviewStats;
   isFavorited: boolean;
+  /** BE 확장 예정 — 없으면 FE에서 null(미표시) */
+  favoritedCount?: number;
+  confirmedCount?: number;
 }
 
 export type MoverDetailResponse = ApiSuccessResponse<MoverDetailData>;
@@ -191,8 +194,9 @@ export interface MoverCardModel {
   reviewCount: number;
   ratingCounts: ReviewRatingCounts;
   isFavorited: boolean;
-  favoritedCount: number;
-  confirmedCount: number;
+  /** null이면 카운트 미제공(상세 등) — UI에서 숨김/`-` */
+  favoritedCount: number | null;
+  confirmedCount: number | null;
   isDesignated?: boolean;
 }
 

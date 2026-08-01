@@ -21,6 +21,8 @@ export interface MoverCardProps {
   /** favorite: 한 줄 소개 숨김 + 경력/확정 항상 표시 (Figma Card-list/찜한 기사님) */
   variant?: MoverCardVariant;
   onFavoriteClick?: (moverId: string, nextFavorited: boolean) => void;
+  /** 찜 요청 진행 중 — 버튼 비활성 */
+  isFavoritePending?: boolean;
   /** true면 상세 이동 비활성 (이미 상세 페이지일 때) */
   disableNavigation?: boolean;
   className?: string;
@@ -35,6 +37,7 @@ export const MoverCard = ({
   size = 'lg',
   variant = 'default',
   onFavoriteClick,
+  isFavoritePending = false,
   disableNavigation = false,
   className = '',
 }: MoverCardProps) => {
@@ -52,6 +55,9 @@ export const MoverCard = ({
   const handleFavoriteClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     event.preventDefault();
+    if (isFavoritePending) {
+      return;
+    }
     onFavoriteClick?.(mover.moverId, !mover.isFavorited);
   };
 
@@ -178,7 +184,9 @@ export const MoverCard = ({
                 />
                 <span className="inline-flex items-center gap-1.5">
                   <span className="text-black-300">
-                    {mover.confirmedCount}건
+                    {mover.confirmedCount === null
+                      ? '-'
+                      : `${mover.confirmedCount}건`}
                   </span>
                   <span className="text-gray-300">확정</span>
                 </span>
@@ -190,9 +198,16 @@ export const MoverCard = ({
         <button
           type="button"
           onClick={handleFavoriteClick}
+          disabled={isFavoritePending}
           aria-label={mover.isFavorited ? '찜 취소' : '찜하기'}
           aria-pressed={mover.isFavorited}
-          className="flex shrink-0 cursor-pointer items-center gap-1 text-2lg-medium text-blue-400"
+          aria-busy={isFavoritePending}
+          className={cn(
+            'flex shrink-0 items-center gap-1 text-2lg-medium text-blue-400',
+            isFavoritePending
+              ? 'cursor-not-allowed opacity-60'
+              : 'cursor-pointer'
+          )}
         >
           <LikeActiveIcon
             className={cn(
@@ -201,9 +216,11 @@ export const MoverCard = ({
             )}
             aria-hidden
           />
-          <span className="text-black-400 sm:text-2lg-medium">
-            {mover.favoritedCount}
-          </span>
+          {mover.favoritedCount !== null ? (
+            <span className="text-black-400 sm:text-2lg-medium">
+              {mover.favoritedCount}
+            </span>
+          ) : null}
         </button>
       </div>
     </div>

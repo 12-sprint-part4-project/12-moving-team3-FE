@@ -21,6 +21,7 @@ export interface MoversSidebarProps {
   isLoggedIn: boolean;
   favoriteMovers: MoverCardModel[];
   onFavoriteClick: (moverId: string, nextFavorited: boolean) => void;
+  isFavoritePending?: boolean;
   className?: string;
 }
 
@@ -34,6 +35,7 @@ export const MoversSidebar = ({
   isLoggedIn,
   favoriteMovers,
   onFavoriteClick,
+  isFavoritePending = false,
   className = '',
 }: MoversSidebarProps) => {
   return (
@@ -105,6 +107,7 @@ export const MoversSidebar = ({
                   mover={mover}
                   size="sm"
                   onFavoriteClick={onFavoriteClick}
+                  isFavoritePending={isFavoritePending}
                 />
               </li>
             ))}

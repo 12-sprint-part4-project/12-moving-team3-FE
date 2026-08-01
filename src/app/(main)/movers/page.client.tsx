@@ -29,7 +29,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 const MoversPageClient = () => {
   const { user } = useAuth();
   const isLoggedIn = Boolean(user);
-  const { toggleFavorite } = useToggleFavorite();
+  const { toggleFavorite, isPending: isFavoritePending } = useToggleFavorite();
 
   const [searchValue, setSearchValue] = useState('');
   const [sortValue, setSortValue] =
@@ -140,6 +140,7 @@ const MoversPageClient = () => {
           isLoggedIn={isLoggedIn}
           favoriteMovers={favorites}
           onFavoriteClick={handleFavoriteClick}
+          isFavoritePending={isFavoritePending}
         />
 
         <div className="flex min-w-0 flex-1 flex-col gap-6 lg:gap-8">
@@ -187,6 +188,7 @@ const MoversPageClient = () => {
                     mover={mover}
                     size="lg"
                     onFavoriteClick={handleFavoriteClick}
+                    isFavoritePending={isFavoritePending}
                   />
                 </li>
               ))}

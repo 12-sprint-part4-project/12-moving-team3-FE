@@ -14,6 +14,7 @@ export interface ToggleFavoriteVariables {
 /**
  * 기사님 찜 추가/취소.
  * 성공 시 목록·상세·찜 목록/preview 쿼리를 invalidate 한다.
+ * pending 중 추가 mutate는 무시한다 (연타 방지).
  */
 export const useToggleFavorite = () => {
   const queryClient = useQueryClient();
@@ -47,11 +48,15 @@ export const useToggleFavorite = () => {
   });
 
   const toggleFavorite = (moverId: string, nextFavorited: boolean): void => {
+    if (mutation.isPending) {
+      return;
+    }
     mutation.mutate({ moverId, nextFavorited });
   };
 
   return {
     ...mutation,
+    isPending: mutation.isPending,
     toggleFavorite,
   };
 };

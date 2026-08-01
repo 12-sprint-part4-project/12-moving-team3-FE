@@ -183,8 +183,8 @@ const toCardModel = ({
   reviewCount: review.totalCount,
   ratingCounts: review.ratingCounts ?? EMPTY_RATING_COUNTS,
   isFavorited,
-  favoritedCount: favoritedCount ?? 0,
-  confirmedCount: confirmedCount ?? 0,
+  favoritedCount: favoritedCount ?? null,
+  confirmedCount: confirmedCount ?? null,
   isDesignated,
 });
 
@@ -205,8 +205,8 @@ export const toMoverCardModelFromListItem = (
     description: item.description,
     review: item.review,
     isFavorited: item.isFavorited,
-    favoritedCount: item.favoritedCount,
-    confirmedCount: item.confirmedCount,
+    favoritedCount: item.favoritedCount ?? 0,
+    confirmedCount: item.confirmedCount ?? 0,
   });
 
 /** 상세 응답 → 카드/상세 UI 모델 */
@@ -224,6 +224,8 @@ export const toMoverCardModelFromDetail = (
     description: data.moverDetail.description,
     review: data.reviewStats,
     isFavorited: data.isFavorited,
+    favoritedCount: data.favoritedCount ?? null,
+    confirmedCount: data.confirmedCount ?? null,
   });
 
 /** 찜 목록 아이템 → 카드 UI 모델 */
@@ -249,7 +251,7 @@ export const toMoverCardModelFromFavorite = (
     review: item.reviewStats,
     isFavorited: true,
     favoritedCount: item.favoritedCount,
-    confirmedCount: item.confirmedCount,
+    confirmedCount: item.confirmedCount ?? null,
   });
 };
 

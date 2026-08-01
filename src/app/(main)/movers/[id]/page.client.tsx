@@ -23,7 +23,7 @@ const MoverDetailPageClient = () => {
   const moverId = typeof params.id === 'string' ? params.id : '';
 
   const { user } = useAuth();
-  const { toggleFavorite } = useToggleFavorite();
+  const { toggleFavorite, isPending: isFavoritePending } = useToggleFavorite();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const {
@@ -108,6 +108,7 @@ const MoverDetailPageClient = () => {
             size="lg"
             disableNavigation
             onFavoriteClick={handleFavoriteClick}
+            isFavoritePending={isFavoritePending}
           />
 
           <div className="mt-6 border-t border-line-100 xl:mt-10" />
@@ -131,6 +132,7 @@ const MoverDetailPageClient = () => {
           description={mover.shortDescription}
           profileImageUrl={mover.profileImageUrl}
           isFavorited={mover.isFavorited}
+          isFavoritePending={isFavoritePending}
           onFavoriteClick={() =>
             handleFavoriteClick(mover.moverId, !mover.isFavorited)
           }
@@ -139,6 +141,7 @@ const MoverDetailPageClient = () => {
 
       <MoverDetailBottomBar
         isFavorited={mover.isFavorited}
+        isFavoritePending={isFavoritePending}
         onFavoriteClick={() =>
           handleFavoriteClick(mover.moverId, !mover.isFavorited)
         }
