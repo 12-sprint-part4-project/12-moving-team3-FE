@@ -185,7 +185,7 @@ export const MoverCard = ({
           onClick={handleFavoriteClick}
           aria-label={mover.isFavorited ? '찜 취소' : '찜하기'}
           aria-pressed={mover.isFavorited}
-          className="flex shrink-0 items-center gap-1 text-2lg-medium text-blue-400"
+          className="flex shrink-0 cursor-pointer items-center gap-1 text-2lg-medium text-blue-400"
         >
           <LikeActiveIcon
             className={cn(

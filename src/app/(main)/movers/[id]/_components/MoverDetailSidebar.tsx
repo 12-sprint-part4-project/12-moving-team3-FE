@@ -39,7 +39,7 @@ export const MoverDetailSidebar = ({
           onClick={onFavoriteClick}
           aria-pressed={isFavorited}
           className={cn(
-            'inline-flex h-[3.375rem] w-full items-center justify-center gap-2 rounded-2xl border border-line-200 bg-white text-xl-semibold text-black-400 transition-colors hover:border-blue-200',
+            'inline-flex h-[3.375rem] w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-line-200 bg-white text-xl-semibold text-black-400 transition-colors hover:border-blue-200',
             isFavorited && 'border-blue-300 text-blue-400'
           )}
         >

@@ -80,7 +80,7 @@ export const MoversSelectDropdown = ({
         aria-label={`${label}: ${triggerText}`}
         onClick={handleToggle}
         className={cn(
-          'flex items-center justify-between gap-1.5 rounded-lg border py-1.5 pr-2.5 pl-3.5 text-md-medium shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-gray-100/10',
+          'flex cursor-pointer items-center justify-between gap-1.5 rounded-lg border py-1.5 pr-2.5 pl-3.5 text-md-medium shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-gray-100/10',
           fullWidth ? 'h-16 w-full px-4 text-lg-medium' : 'w-full',
           triggerStateClass
         )}

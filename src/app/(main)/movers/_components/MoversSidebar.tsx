@@ -42,7 +42,7 @@ export const MoversSidebar = ({
           <button
             type="button"
             onClick={onResetFilters}
-            className="text-2lg-medium text-gray-300 hover:text-gray-400"
+            className="cursor-pointer text-2lg-medium text-gray-300 hover:text-gray-400"
           >
             초기화
           </button>

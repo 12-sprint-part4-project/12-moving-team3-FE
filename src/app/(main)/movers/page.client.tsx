@@ -165,7 +165,7 @@ const MoversPageClient = () => {
               <button
                 type="button"
                 onClick={handleRetry}
-                className="rounded-lg bg-blue-300 px-4 py-2 text-lg-semibold text-white"
+                className="cursor-pointer rounded-lg bg-blue-300 px-4 py-2 text-lg-semibold text-white"
               >
                 다시 시도
               </button>

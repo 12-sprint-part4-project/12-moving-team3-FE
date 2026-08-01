@@ -33,7 +33,7 @@ export const MoverDetailBottomBar = ({
           onClick={onFavoriteClick}
           aria-label={isFavorited ? '기사님 찜 취소' : '기사님 찜하기'}
           aria-pressed={isFavorited}
-          className="inline-flex size-[3.375rem] shrink-0 items-center justify-center rounded-2xl border border-line-200 bg-white"
+          className="inline-flex size-[3.375rem] shrink-0 cursor-pointer items-center justify-center rounded-2xl border border-line-200 bg-white"
         >
           <LikeActiveIcon
             className={cn(
