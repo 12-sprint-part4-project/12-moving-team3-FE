@@ -1,9 +1,9 @@
+import { ApiError } from '@/lib/apiClient';
 import {
   API_BASE_URL,
-  ApiError,
   createApiTimeoutSignal,
-  getAccessToken,
-} from '@/services/apiClient';
+} from '@/services/apiClient.legacy';
+import { getMoverAccessToken } from '@/services/moversAuth';
 import type { ApiErrorBody } from '@/types/api';
 import type {
   FavoriteMoverListItem,
@@ -19,7 +19,7 @@ import type {
 } from '@/types/mover';
 
 const getOptionalAuthHeaders = (): HeadersInit => {
-  const token = getAccessToken();
+  const token = getMoverAccessToken();
 
   return {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -273,16 +273,16 @@ export const getMovers = async (
       body && typeof body === 'object' ? (body as ApiErrorBody) : null;
     throw new ApiError(
       response.status,
-      errorBody?.error?.code ?? 'UNKNOWN_ERROR',
-      errorBody?.error?.message ?? '요청 처리 중 오류가 발생했습니다.'
+      errorBody?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
+      errorBody?.error?.code ?? 'UNKNOWN_ERROR'
     );
   }
 
   if (!isMoversListResponse(body)) {
     throw new ApiError(
       response.status,
-      'INVALID_RESPONSE',
-      '요청 처리 중 오류가 발생했습니다.'
+      '요청 처리 중 오류가 발생했습니다.',
+      'INVALID_RESPONSE'
     );
   }
 
@@ -311,16 +311,16 @@ export const getMoverDetail = async (
       body && typeof body === 'object' ? (body as ApiErrorBody) : null;
     throw new ApiError(
       response.status,
-      errorBody?.error?.code ?? 'UNKNOWN_ERROR',
-      errorBody?.error?.message ?? '요청 처리 중 오류가 발생했습니다.'
+      errorBody?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
+      errorBody?.error?.code ?? 'UNKNOWN_ERROR'
     );
   }
 
   if (!isMoverDetailResponse(body)) {
     throw new ApiError(
       response.status,
-      'INVALID_RESPONSE',
-      '요청 처리 중 오류가 발생했습니다.'
+      '요청 처리 중 오류가 발생했습니다.',
+      'INVALID_RESPONSE'
     );
   }
 
@@ -397,16 +397,16 @@ export const getFavoriteMovers = async (
       body && typeof body === 'object' ? (body as ApiErrorBody) : null;
     throw new ApiError(
       response.status,
-      errorBody?.error?.code ?? 'UNKNOWN_ERROR',
-      errorBody?.error?.message ?? '요청 처리 중 오류가 발생했습니다.'
+      errorBody?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
+      errorBody?.error?.code ?? 'UNKNOWN_ERROR'
     );
   }
 
   if (!isFavoriteMoversResponse(body)) {
     throw new ApiError(
       response.status,
-      'INVALID_RESPONSE',
-      '요청 처리 중 오류가 발생했습니다.'
+      '요청 처리 중 오류가 발생했습니다.',
+      'INVALID_RESPONSE'
     );
   }
 

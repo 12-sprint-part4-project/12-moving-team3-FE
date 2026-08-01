@@ -24,8 +24,6 @@ export const LoginRequiredModal = ({
 
   const handleLogin = () => {
     onClose();
-    // TODO: 로그인 페이지 구현·라우트 확정 후 연결
-    // 현재 GNB는 /login 을 가리키므로 동일 경로로 이동 시도
     router.push('/login');
   };
 

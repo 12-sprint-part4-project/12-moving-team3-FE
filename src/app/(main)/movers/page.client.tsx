@@ -5,10 +5,12 @@ import { useInView } from 'react-intersection-observer';
 
 import { MoverCard } from '@/components/movers/MoverCard';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { useAuth } from '@/hooks/useAuth';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useFavoriteMoversPreview } from '@/hooks/useFavoriteMoversPreview';
 import { useMoversList } from '@/hooks/useMoversList';
-import { ApiError, getAccessToken } from '@/services/apiClient';
+import { useToggleFavorite } from '@/hooks/useToggleFavorite';
+import { ApiError } from '@/lib/apiClient';
 import {
   isApiMoveType,
   isApiRegion,
@@ -25,17 +27,16 @@ const SEARCH_DEBOUNCE_MS = 300;
 
 /** 기사님 찾기 목록 페이지 클라이언트 */
 const MoversPageClient = () => {
+  const { user } = useAuth();
+  const isLoggedIn = Boolean(user);
+  const { toggleFavorite } = useToggleFavorite();
+
   const [searchValue, setSearchValue] = useState('');
   const [sortValue, setSortValue] =
     useState<MoversSortValue>('reviewCountDesc');
   const [regionValue, setRegionValue] = useState('ALL');
   const [serviceValue, setServiceValue] = useState('ALL');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    setIsLoggedIn(Boolean(getAccessToken()));
-  }, []);
 
   const debouncedSearch = useDebouncedValue(searchValue, SEARCH_DEBOUNCE_MS);
 
@@ -91,15 +92,13 @@ const MoversPageClient = () => {
     setServiceValue('ALL');
   };
 
-  const handleFavoriteClick = (_moverId: string, _nextFavorited: boolean) => {
-    if (!getAccessToken()) {
+  const handleFavoriteClick = (moverId: string, nextFavorited: boolean) => {
+    if (!user) {
       setIsLoginModalOpen(true);
       return;
     }
 
-    // TODO: 회원 찜 mutate 훅(useToggleFavorite) 연결
-    // - POST /api/favorites/:moverId 또는 DELETE
-    // - 목록·찜 미리보기 query invalidate
+    toggleFavorite(moverId, nextFavorited);
   };
 
   const handleCloseLoginModal = () => {
@@ -113,7 +112,7 @@ const MoversPageClient = () => {
   const errorMessage =
     error instanceof ApiError
       ? error.message
-      : '기사님 목록을 불러오지 못했습니다.';
+      : (error?.message ?? '기사님 목록을 불러오지 못했습니다.');
 
   const pageXPadding =
     'px-6 md:px-[4.5rem] lg:px-10 xl:px-16 min-[90rem]:px-[16.25rem]';

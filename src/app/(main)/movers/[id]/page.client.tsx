@@ -6,8 +6,10 @@ import { useState } from 'react';
 import { MoverCard } from '@/components/movers/MoverCard';
 import { MoverReviews } from '@/components/movers/MoverReviews';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { useAuth } from '@/hooks/useAuth';
 import { useMoverDetail } from '@/hooks/useMoverDetail';
-import { ApiError, getAccessToken } from '@/services/apiClient';
+import { useToggleFavorite } from '@/hooks/useToggleFavorite';
+import { ApiError } from '@/lib/apiClient';
 
 import { LoginRequiredModal } from '../_components/LoginRequiredModal';
 import { MoverDetailBottomBar } from './_components/MoverDetailBottomBar';
@@ -20,6 +22,8 @@ const MoverDetailPageClient = () => {
   const params = useParams();
   const moverId = typeof params.id === 'string' ? params.id : '';
 
+  const { user } = useAuth();
+  const { toggleFavorite } = useToggleFavorite();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const {
@@ -32,15 +36,16 @@ const MoverDetailPageClient = () => {
     refetch,
   } = useMoverDetail(moverId);
 
-  const handleFavoriteClick = (_moverId?: string, _nextFavorited?: boolean) => {
-    if (!getAccessToken()) {
+  const handleFavoriteClick = (
+    targetMoverId: string,
+    nextFavorited: boolean
+  ) => {
+    if (!user) {
       setIsLoginModalOpen(true);
       return;
     }
 
-    // TODO: 회원 찜 mutate 훅(useToggleFavorite) 연결
-    // - POST /api/favorites/:moverId 또는 DELETE
-    // - 상세·목록·찜 미리보기 query invalidate
+    toggleFavorite(targetMoverId, nextFavorited);
   };
 
   const handleCloseLoginModal = () => {
@@ -76,7 +81,7 @@ const MoverDetailPageClient = () => {
     const errorMessage =
       error instanceof ApiError
         ? error.message
-        : '기사님 정보를 불러오지 못했습니다.';
+        : (error?.message ?? '기사님 정보를 불러오지 못했습니다.');
 
     return (
       <div className="flex w-full flex-col items-center gap-4 py-24">

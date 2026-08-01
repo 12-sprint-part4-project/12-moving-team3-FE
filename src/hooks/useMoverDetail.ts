@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { ApiError } from '@/services/apiClient';
+import { ApiError } from '@/lib/apiClient';
 import {
   getMoverDetail,
   toMoverCardModelFromDetail,
