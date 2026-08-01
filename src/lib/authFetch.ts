@@ -63,14 +63,14 @@ export const authFetch = async (
     );
     return await request(newAccessToken, retrySignal);
   } catch (error) {
-    // 재시도 fetch의 네트워크·타임아웃은 그대로 전달
+    // refresh·재시도 fetch의 네트워크·타임아웃은 그대로 전달
     if (
       error instanceof ApiError &&
       (error.code === 'NETWORK_ERROR' || error.code === 'TIMEOUT')
     ) {
       throw error;
     }
-    // refresh 실패 시에는 원래 401 응답을 반환 (기존 계약 유지)
+    // 세션 만료 등 refresh 인증 실패 시에는 원래 401 응답을 반환
     return response;
   }
 };

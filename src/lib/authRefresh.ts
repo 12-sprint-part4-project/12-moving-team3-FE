@@ -2,6 +2,7 @@ import {
   API_BASE_URL,
   ApiError,
   createApiTimeoutSignal,
+  toNetworkApiError,
 } from '@/lib/apiClient';
 import { clearAuthSession, updateAuthAccessToken } from '@/lib/authSession';
 import type { ApiErrorBody } from '@/types/api';
@@ -42,11 +43,16 @@ export const refreshAccessToken = (): Promise<string> => {
   }
 
   inflightRefresh = (async () => {
-    const response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
-      method: 'POST',
-      credentials: 'include',
-      signal: createApiTimeoutSignal(),
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+        signal: createApiTimeoutSignal(),
+      });
+    } catch (error) {
+      throw toNetworkApiError(error);
+    }
 
     const payload: unknown = await response.json().catch(() => null);
 
