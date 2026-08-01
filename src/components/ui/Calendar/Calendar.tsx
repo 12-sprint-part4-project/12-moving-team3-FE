@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
@@ -27,7 +27,7 @@ export interface CalendarProps {
   onConfirm?: (date: Date) => void;
   /**
    * 선택 가능 최소/최대 날짜(경계 포함).
-   * 오늘 이전을 막으려면 호출측에서 `minDate={new Date()}` 전달.
+   * 오늘 이전을 막으려면 호출측에서 마운트 후 계산한 Date를 minDate로 전달.
    */
   minDate?: Date;
   maxDate?: Date;
@@ -67,24 +67,30 @@ export const Calendar = ({
   const [selectedDate, setSelectedDate] = useControllableValue<
     Date | undefined
   >(value, defaultValue, handleControllableChange);
-  const [currentMonth, setCurrentMonth] = useState(() =>
-    startOfMonth(selectedDate ?? new Date())
+  // selectedDate가 없으면 SSR에서 new Date()를 쓰지 않음 — 마운트 후 로컬 오늘로 맞춤
+  const [currentMonth, setCurrentMonth] = useState<Date | null>(() =>
+    selectedDate ? startOfMonth(selectedDate) : null
   );
 
-  const weeks = getCalendarGrid(
-    currentMonth.getFullYear(),
-    currentMonth.getMonth()
-  );
+  useEffect(() => {
+    if (currentMonth == null) {
+      setCurrentMonth(startOfMonth(new Date()));
+    }
+  }, [currentMonth]);
+
+  const weeks = currentMonth
+    ? getCalendarGrid(currentMonth.getFullYear(), currentMonth.getMonth())
+    : [];
 
   const handlePrevMonth = () => {
-    setCurrentMonth(
-      (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
+    setCurrentMonth((prev) =>
+      prev ? new Date(prev.getFullYear(), prev.getMonth() - 1, 1) : prev
     );
   };
 
   const handleNextMonth = () => {
-    setCurrentMonth(
-      (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
+    setCurrentMonth((prev) =>
+      prev ? new Date(prev.getFullYear(), prev.getMonth() + 1, 1) : prev
     );
   };
 
@@ -112,6 +118,7 @@ export const Calendar = ({
           <button
             type="button"
             aria-label="이전 달"
+            disabled={currentMonth == null}
             onClick={handlePrevMonth}
             className="flex size-6 items-center justify-center text-gray-300 md:size-9"
           >
@@ -121,11 +128,12 @@ export const Calendar = ({
             aria-live="polite"
             className="text-lg-semibold text-black-400 md:text-xl-semibold"
           >
-            {formatMonthTitle(currentMonth)}
+            {currentMonth ? formatMonthTitle(currentMonth) : '\u00a0'}
           </p>
           <button
             type="button"
             aria-label="다음 달"
+            disabled={currentMonth == null}
             onClick={handleNextMonth}
             className="flex size-6 items-center justify-center text-gray-300 md:size-9"
           >
@@ -135,7 +143,9 @@ export const Calendar = ({
 
         <table className="w-full max-w-[19.3125rem] border-collapse md:max-w-[40rem]">
           <caption className="sr-only">
-            {formatMonthTitle(currentMonth)} 날짜 선택
+            {currentMonth
+              ? `${formatMonthTitle(currentMonth)} 날짜 선택`
+              : '날짜 선택'}
           </caption>
           <thead>
             <tr>

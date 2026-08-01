@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGroup';
 import { EstimateRequestChatPanel } from '../EstimateRequestChatPanel';
@@ -59,6 +59,12 @@ export const MoveDateStep = () => {
     moveType
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // SSR/클라이언트 시각·시간대 불일치 방지 — 마운트 후 로컬 "오늘"을 minDate로 사용
+  const [minMoveDate, setMinMoveDate] = useState<Date | undefined>(undefined);
+
+  useEffect(() => {
+    setMinMoveDate(new Date());
+  }, []);
 
   const isSubmitting = isSavingStep || isRevisingField;
   const canConfirmMoveType =
@@ -207,7 +213,7 @@ export const MoveDateStep = () => {
               className="max-w-[20.4375rem] md:max-w-[40rem]"
               value={draftDate}
               onValueChange={setDraftDate}
-              minDate={new Date()}
+              minDate={minMoveDate}
               confirmDisabled={isSubmitting || detail == null}
               confirmLabel={isSubmitting ? '저장 중…' : '선택완료'}
               onConfirm={(date) => {
