@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import {
   useEffect,
   useId,
@@ -8,37 +9,77 @@ import {
   type ChangeEvent,
   type FormEvent,
 } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import NoImageIcon from '@/assets/icons/no-image.svg';
 import { Button } from '@/components/Button/Button';
 import { RegionChip, ServiceChip } from '@/components/ui/Chip';
+import { TextFieldOutlined } from '@/components/ui/Input';
 import {
   REGION_CHIP_OPTIONS,
   SERVICE_CHIP_OPTIONS,
 } from '@/constants/chipOptions';
+import { useAuth } from '@/hooks/useAuth';
+import { customerProfileQueryKeys } from '@/hooks/useCustomerProfile';
+import { useToast } from '@/hooks/useToast';
+import { ApiError } from '@/lib/apiClient';
+import { getAuthSession } from '@/lib/authSession';
+import { uploadProfileImage } from '@/lib/uploadProfileImage';
 import { cn } from '@/lib/utils';
+import { upsertCustomerProfile } from '@/services/customerProfileApi';
+import type {
+  CustomerRegion,
+  CustomerServiceType,
+} from '@/types/customerProfile';
 
 import { ProfileImageCropModal } from './ProfileImageCropModal';
 
-const toggleValue = (values: string[], value: string): string[] =>
+const PHONE_NUMBER_LENGTH = 11;
+
+const FIELD_CLASSNAME =
+  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
+
+const LABEL_CLASSNAME = 'text-xl-semibold text-black-300';
+
+const toDigits = (value: string): string => value.replace(/\D/g, '');
+
+const toggleService = (
+  values: CustomerServiceType[],
+  value: CustomerServiceType
+): CustomerServiceType[] =>
   values.includes(value)
     ? values.filter((item) => item !== value)
     : [...values, value];
 
-/**
- * 일반유저 프로필 등록 폼 (UI only).
- * Figma: 프로필 등록_일반유저/Desktop (1:9898)
- */
 export const CustomerProfileForm = () => {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { user, setSession } = useAuth();
+  const { showToast } = useToast();
   const imageInputId = useId();
+  const phoneInputId = useId();
   const imageInputRef = useRef<HTMLInputElement>(null);
+
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState(() =>
+    toDigits(user?.phoneNumber ?? '')
+  );
+  const [selectedServices, setSelectedServices] = useState<
+    CustomerServiceType[]
+  >([]);
+  const [selectedRegion, setSelectedRegion] = useState<CustomerRegion | null>(
+    null
+  );
+  const [isPending, setIsPending] = useState(false);
 
+  const isPhoneValid = phoneNumber.length === PHONE_NUMBER_LENGTH;
   const isSubmitEnabled =
-    selectedServices.length > 0 && selectedRegion !== null;
+    isPhoneValid &&
+    selectedServices.length > 0 &&
+    selectedRegion !== null &&
+    !isPending;
 
   useEffect(() => {
     return () => {
@@ -64,23 +105,85 @@ export const CustomerProfileForm = () => {
     imageInputRef.current?.click();
   };
 
+  const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setPhoneNumber(toDigits(event.target.value).slice(0, PHONE_NUMBER_LENGTH));
+  };
+
   const handleCropClose = () => {
     setCropImageSrc(null);
   };
 
   const handleCropComplete = (blob: Blob) => {
+    const file = new File([blob], 'profile.jpg', {
+      type: blob.type || 'image/jpeg',
+    });
+    setProfileImageFile(file);
     setPreviewUrl(URL.createObjectURL(blob));
     setCropImageSrc(null);
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (
+      !isPhoneValid ||
+      !selectedRegion ||
+      selectedServices.length === 0 ||
+      isPending
+    ) {
+      return;
+    }
+
+    setIsPending(true);
+
+    try {
+      let s3Key: string | undefined;
+
+      if (profileImageFile) {
+        s3Key = await uploadProfileImage(profileImageFile);
+      }
+
+      await upsertCustomerProfile({
+        phoneNumber,
+        region: selectedRegion,
+        service: selectedServices,
+        ...(s3Key ? { s3Key } : {}),
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: customerProfileQueryKeys.me(),
+      });
+
+      const session = getAuthSession();
+      if (session) {
+        setSession({
+          ...session,
+          user: {
+            ...session.user,
+            phoneNumber,
+            isProfileCompleted: true,
+          },
+        });
+      }
+
+      showToast({ content: '프로필 등록이 완료되었습니다.' });
+      router.replace('/');
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : '프로필 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+      showToast({ content: message });
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
     <>
       <form
-        onSubmit={handleSubmit}
+        onSubmit={(event) => {
+          void handleSubmit(event);
+        }}
         className="flex w-full max-w-[40rem] flex-col items-center gap-14"
       >
         <div className="flex w-full flex-col items-center gap-16">
@@ -113,7 +216,7 @@ export const CustomerProfileForm = () => {
                 )}
               >
                 {previewUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- 로컬 미리보기 blob URL
+                  // eslint-disable-next-line @next/next/no-img-element -- blob preview
                   <img
                     src={previewUrl}
                     alt="선택한 프로필 이미지 미리보기"
@@ -123,6 +226,26 @@ export const CustomerProfileForm = () => {
                   <NoImageIcon className="size-10 text-gray-300" aria-hidden />
                 )}
               </button>
+            </section>
+
+            <div className="h-px w-full bg-line-100" aria-hidden />
+
+            <section className="flex w-full flex-col items-start gap-6">
+              <label htmlFor={phoneInputId} className={LABEL_CLASSNAME}>
+                전화번호
+              </label>
+              <TextFieldOutlined
+                id={phoneInputId}
+                size="sm"
+                type="tel"
+                name="phone"
+                inputMode="numeric"
+                autoComplete="tel"
+                placeholder="숫자만 입력해 주세요"
+                value={phoneNumber}
+                onChange={handlePhoneChange}
+                className={FIELD_CLASSNAME}
+              />
             </section>
 
             <div className="h-px w-full bg-line-100" aria-hidden />
@@ -142,7 +265,7 @@ export const CustomerProfileForm = () => {
                     isSelected={selectedServices.includes(option.value)}
                     onClick={() =>
                       setSelectedServices((prev) =>
-                        toggleValue(prev, option.value)
+                        toggleService(prev, option.value)
                       )
                     }
                   >
@@ -190,7 +313,7 @@ export const CustomerProfileForm = () => {
             size="md"
             disabled={!isSubmitEnabled}
           >
-            시작하기
+            {isPending ? '등록 중...' : '시작하기'}
           </Button>
         </div>
       </form>

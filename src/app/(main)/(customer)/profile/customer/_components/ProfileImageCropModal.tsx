@@ -10,14 +10,9 @@ import { cn } from '@/lib/utils';
 interface ProfileImageCropModalProps {
   imageSrc: string;
   onClose: () => void;
-  /** 크롭 완료 시 잘린 이미지 Blob을 전달한다. */
   onCropComplete: (blob: Blob) => void;
 }
 
-/**
- * 프로필 이미지 정사각 크롭 모달.
- * Modal 셸 + ModalBasic 조합. react-easy-crop 사용.
- */
 export const ProfileImageCropModal = ({
   imageSrc,
   onClose,

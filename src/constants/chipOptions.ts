@@ -1,7 +1,3 @@
-/**
- * 서비스·지역 선택 칩 등에서 공통으로 쓰는 옵션 ('전체' 제외).
- */
-
 export const SERVICE_CHIP_OPTIONS = [
   { label: '소형이사', value: 'SMALL' },
   { label: '가정이사', value: 'HOME' },
@@ -26,3 +22,7 @@ export const REGION_CHIP_OPTIONS = [
   { label: '부산', value: 'BUSAN' },
   { label: '제주', value: 'JEJU' },
 ] as const;
+
+export type ServiceChipValue = (typeof SERVICE_CHIP_OPTIONS)[number]['value'];
+
+export type RegionChipValue = (typeof REGION_CHIP_OPTIONS)[number]['value'];

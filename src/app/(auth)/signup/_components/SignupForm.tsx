@@ -137,8 +137,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
         passwordConfirmation: values.passwordConfirm,
       });
 
-      // 이메일 회원가입은 자동 로그인하지 않고, 역할별 로그인 페이지로 이동한다.
-      // (카카오 가입은 KakaoCallbackClient에서 즉시 로그인 처리)
+      // 이메일 가입은 로그인 페이지로, 카카오는 콜백에서 바로 로그인
       showToast({ content: '회원가입이 완료되었습니다. 로그인해 주세요.' });
       router.replace(LOGIN_HREF[role]);
     } catch (error) {

@@ -9,9 +9,6 @@ const loadImage = (src: string): Promise<HTMLImageElement> =>
     image.src = src;
   });
 
-/**
- * react-easy-crop의 croppedAreaPixels로 이미지를 잘라 Blob을 반환한다.
- */
 export const getCroppedImage = async (
   imageSrc: string,
   croppedAreaPixels: Area,
