@@ -69,7 +69,8 @@ export const TextFieldChat = ({
     <div
       {...rest}
       className={cn(
-        'inline-flex max-w-full px-5 py-3 drop-shadow-sm md:px-10 md:py-5',
+        // w-fit: flex 부모 stretch에도 말풍선이 콘텐츠 폭만 유지
+        'inline-flex w-fit max-w-full px-5 py-3 drop-shadow-sm md:px-10 md:py-5',
         colorStyles[color],
         typographyStyles[color],
         radiusStyles[color],

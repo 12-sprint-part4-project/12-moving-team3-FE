@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGroup';
 import { EstimateRequestChatPanel } from '../EstimateRequestChatPanel';
 import { MoveTypeOptionField } from '../MoveTypeOptionField';
 import { Button } from '@/components/Button/Button';
@@ -70,13 +71,15 @@ export const MoveTypeStep = () => {
       aria-label="이사 종류 선택"
       className="mx-auto flex w-full max-w-[375px] flex-col gap-2 px-6 md:max-w-[1448px] md:gap-6"
     >
-      {/* 안내 말풍선 — TextFieldChat이 mobile-first 반응형 처리 */}
-      <TextFieldChat>{INTRO_MESSAGE}</TextFieldChat>
-      <TextFieldChat desktopChildren={PROMPT_MESSAGE_DESKTOP}>
-        {PROMPT_MESSAGE_MOBILE}
-      </TextFieldChat>
+      {/* 시스템 연속 발화 — 한 턴으로 묶어 좌측 정렬 (Figma 1-3544) */}
+      <EstimateRequestChatBubbleGroup>
+        <TextFieldChat>{INTRO_MESSAGE}</TextFieldChat>
+        <TextFieldChat desktopChildren={PROMPT_MESSAGE_DESKTOP}>
+          {PROMPT_MESSAGE_MOBILE}
+        </TextFieldChat>
+      </EstimateRequestChatBubbleGroup>
 
-      {/* 선택 패널 — 데스크톱에서 우측 정렬 (Figma chat form) */}
+      {/* 유저 입력 패널 — md+ 우측 정렬 (ChatPanel items-end) */}
       <EstimateRequestChatPanel>
         <div
           role="radiogroup"

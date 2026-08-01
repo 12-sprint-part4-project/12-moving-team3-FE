@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 
+import { EstimateRequestChatBubbleGroup } from './EstimateRequestChatBubbleGroup';
 import { EstimateRequestChatPanel } from './EstimateRequestChatPanel';
 import { Button } from '@/components/Button/Button';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
@@ -48,7 +49,9 @@ export const EstimateRequestGate = ({ kind }: EstimateRequestGateProps) => {
       aria-label={ariaLabel}
       className="mx-auto flex w-full max-w-[375px] flex-col gap-2 px-6 md:max-w-[1448px] md:gap-6"
     >
-      <TextFieldChat role="status">{message}</TextFieldChat>
+      <EstimateRequestChatBubbleGroup>
+        <TextFieldChat role="status">{message}</TextFieldChat>
+      </EstimateRequestChatBubbleGroup>
 
       <EstimateRequestChatPanel>
         <Button
