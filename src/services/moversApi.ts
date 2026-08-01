@@ -1,7 +1,6 @@
-import { ApiError } from '@/lib/apiClient';
 import { API_BASE_URL } from '@/services/apiClient.legacy';
 import { fetchAndValidate } from '@/services/moverApiResponse';
-import { getMoverAccessToken } from '@/services/moversAuth';
+import { assertMoverAccessToken } from '@/services/moversAuth';
 import type {
   FavoriteMoverListItem,
   FavoriteMoversParams,
@@ -14,13 +13,6 @@ import type {
   MoversListResponse,
   ReviewStats,
 } from '@/types/mover';
-
-/** 찜 목록 등 로그인 필수 API — 없으면 요청 전 실패 */
-const assertMoverAccessToken = (): void => {
-  if (!getMoverAccessToken()) {
-    throw new ApiError(401, '로그인이 필요한 기능입니다.', 'UNAUTHORIZED');
-  }
-};
 
 /**
  * 기사님 목록 쿼리스트링 생성.
