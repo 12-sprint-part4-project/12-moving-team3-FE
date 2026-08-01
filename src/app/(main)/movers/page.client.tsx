@@ -26,7 +26,7 @@ import { MoversToolbar } from './_components/MoversToolbar';
 const SEARCH_DEBOUNCE_MS = 300;
 
 /** 기사님 찾기 목록 페이지 클라이언트 */
-const MoversPageClient = () => {
+export const MoversPageClient = () => {
   const { user } = useAuth();
   const isLoggedIn = Boolean(user);
   const { toggleFavorite, isPending: isFavoritePending } = useToggleFavorite();
@@ -210,5 +210,3 @@ const MoversPageClient = () => {
     </div>
   );
 };
-
-export default MoversPageClient;

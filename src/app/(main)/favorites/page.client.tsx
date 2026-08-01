@@ -13,7 +13,7 @@ import { useToggleFavorite } from '@/hooks/useToggleFavorite';
 import { ApiError } from '@/lib/apiClient';
 
 /** 찜한 기사님 목록 페이지 클라이언트 */
-const FavoritesPageClient = () => {
+export const FavoritesPageClient = () => {
   const router = useRouter();
   const { user, isReady } = useAuth();
   const isLoggedIn = Boolean(user);
@@ -140,5 +140,3 @@ const FavoritesPageClient = () => {
     </div>
   );
 };
-
-export default FavoritesPageClient;

@@ -18,7 +18,7 @@ import { MoverDetailShareSection } from './_components/MoverDetailShareSection';
 import { MoverDetailSidebar } from './_components/MoverDetailSidebar';
 
 /** 기사님 상세 페이지 클라이언트 */
-const MoverDetailPageClient = () => {
+export const MoverDetailPageClient = () => {
   const params = useParams();
   const moverId = typeof params.id === 'string' ? params.id : '';
 
@@ -154,5 +154,3 @@ const MoverDetailPageClient = () => {
     </div>
   );
 };
-
-export default MoverDetailPageClient;
