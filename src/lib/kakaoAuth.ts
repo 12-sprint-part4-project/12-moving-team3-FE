@@ -1,15 +1,22 @@
 import type { ApiUserType } from '@/types/auth';
 
 const KAKAO_AUTHORIZE_URL = 'https://kauth.kakao.com/oauth/authorize';
+const KAKAO_OAUTH_STATE_STORAGE_KEY = 'kakao_oauth_state';
 
 type SearchParamsReader = {
   get: (key: string) => string | null;
 };
 
+type PendingKakaoOAuthState = {
+  state: string;
+  userType: ApiUserType;
+  consumed: boolean;
+};
+
 export interface KakaoCallbackSuccess {
   ok: true;
   code: string;
-  userType: ApiUserType;
+  state: string;
 }
 
 export interface KakaoCallbackFailure {
@@ -24,11 +31,76 @@ export const isApiUserType = (value: string): value is ApiUserType => {
   return value === 'CUSTOMER' || value === 'MOVER';
 };
 
+const createRandomState = (): string => {
+  if (typeof globalThis.crypto?.randomUUID === 'function') {
+    return globalThis.crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+};
+
+export const createKakaoOAuthState = (userType: ApiUserType): string => {
+  if (typeof window === 'undefined') {
+    throw new Error('카카오 OAuth state는 브라우저에서만 생성할 수 있습니다.');
+  }
+
+  const state = createRandomState();
+  const pendingState: PendingKakaoOAuthState = {
+    state,
+    userType,
+    consumed: false,
+  };
+
+  window.sessionStorage.setItem(
+    KAKAO_OAUTH_STATE_STORAGE_KEY,
+    JSON.stringify(pendingState)
+  );
+
+  return state;
+};
+
+export const consumeKakaoOAuthState = (state: string): ApiUserType | null => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  const storedState = window.sessionStorage.getItem(KAKAO_OAUTH_STATE_STORAGE_KEY);
+
+  if (!storedState) {
+    return null;
+  }
+
+  try {
+    const parsedState = JSON.parse(storedState) as PendingKakaoOAuthState;
+
+    if (!parsedState || parsedState.consumed || parsedState.state !== state) {
+      return null;
+    }
+
+    const nextState: PendingKakaoOAuthState = {
+      ...parsedState,
+      consumed: true,
+    };
+
+    window.sessionStorage.setItem(
+      KAKAO_OAUTH_STATE_STORAGE_KEY,
+      JSON.stringify(nextState)
+    );
+
+    return parsedState.userType;
+  } catch {
+    return null;
+  }
+};
+
 /**
  * 카카오 인가 코드 요청 URL을 만든다.
- * userType은 OAuth `state`에 실어 콜백에서 복원한다.
+ * OAuth state는 브라우저 세션에 저장해 콜백에서 일회용으로 검증한다.
  */
-export const getKakaoAuthorizeUrl = (userType: ApiUserType): string => {
+export const getKakaoAuthorizeUrl = (
+  userType: ApiUserType,
+  state: string
+): string => {
   const clientId = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
   const redirectUri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI;
 
@@ -40,7 +112,7 @@ export const getKakaoAuthorizeUrl = (userType: ApiUserType): string => {
     client_id: clientId,
     redirect_uri: redirectUri,
     response_type: 'code',
-    state: userType,
+    state,
     lang: 'ko',
   });
 
@@ -49,7 +121,8 @@ export const getKakaoAuthorizeUrl = (userType: ApiUserType): string => {
 
 /** 카카오 로그인 화면으로 이동한다. */
 export const redirectToKakaoLogin = (userType: ApiUserType): void => {
-  window.location.assign(getKakaoAuthorizeUrl(userType));
+  const state = createKakaoOAuthState(userType);
+  window.location.assign(getKakaoAuthorizeUrl(userType, state));
 };
 
 /**
@@ -80,7 +153,7 @@ export const parseKakaoCallbackParams = (
     };
   }
 
-  if (!state || !isApiUserType(state)) {
+  if (!state) {
     return {
       ok: false,
       reason: 'invalid_state',
@@ -91,7 +164,7 @@ export const parseKakaoCallbackParams = (
   return {
     ok: true,
     code,
-    userType: state,
+    state,
   };
 };
 

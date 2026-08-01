@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import {
+  consumeKakaoOAuthState,
   parseKakaoCallbackParams,
   resolveKakaoLoginErrorMessage,
 } from '@/lib/kakaoAuth';
@@ -44,10 +45,18 @@ export const KakaoCallbackClient = () => {
         return;
       }
 
+      const userType = consumeKakaoOAuthState(result.state);
+
+      if (!userType) {
+        showToast({ content: '잘못된 로그인 요청입니다.' });
+        router.replace('/login');
+        return;
+      }
+
       try {
         const response = await kakaoLogin({
           code: result.code,
-          userType: result.userType,
+          userType,
         });
 
         setSession({
@@ -67,7 +76,7 @@ export const KakaoCallbackClient = () => {
             ? resolveKakaoLoginErrorMessage(error.code, error.message)
             : '카카오 로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.';
         showToast({ content: message });
-        router.replace(LOGIN_HREF_BY_USER_TYPE[result.userType]);
+        router.replace(LOGIN_HREF_BY_USER_TYPE[userType]);
       }
     };
 
