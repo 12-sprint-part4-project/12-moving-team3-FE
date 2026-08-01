@@ -2,6 +2,7 @@
 
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { RegionChip } from '@/components/ui/Chip/RegionChip';
+import { cn } from '@/lib/utils';
 import { API_MOVE_TYPE_TO_UI } from '@/types/estimateRequest';
 import {
   REGION_LABELS,
@@ -12,15 +13,19 @@ import {
 
 export interface MoverDetailSectionsProps {
   mover: MoverCardModel;
+  className?: string;
 }
 
 /** 상세설명 · 제공 서비스 · 서비스 가능 지역 */
-export const MoverDetailSections = ({ mover }: MoverDetailSectionsProps) => {
+export const MoverDetailSections = ({
+  mover,
+  className = '',
+}: MoverDetailSectionsProps) => {
   const description =
     mover.description?.trim() || '등록된 상세설명이 없습니다.';
 
   return (
-    <div className="flex w-full flex-col">
+    <div className={cn('flex w-full flex-col', className)}>
       <section className="flex flex-col gap-4 border-b border-line-100 py-6 lg:gap-8 lg:py-10">
         <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
           상세설명
