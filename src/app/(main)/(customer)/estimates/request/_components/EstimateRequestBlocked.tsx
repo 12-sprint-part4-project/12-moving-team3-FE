@@ -20,10 +20,8 @@ interface EstimateRequestBlockedProps {
 }
 
 /**
- * 견적요청 진입 불가·완료 공통 안내 화면.
- *
- * 사용처: 비회원 / 프로필 미등록 / 진행 중(blocked·제출 후)
- * 일반 에러는 토스트 + 자동 재시도로 처리하므로 여기 쓰지 않음.
+ * 진행 중 견적(blocked·제출 후) 전용 빈 화면 (Figma 1-11375).
+ * 비회원·프로필 미등록은 EstimateRequestGate(채팅형)로 처리.
  */
 export const EstimateRequestBlocked = ({
   className,
@@ -46,12 +44,7 @@ export const EstimateRequestBlocked = ({
   };
 
   return (
-    <div
-      className={cn(
-        'flex min-h-full w-full flex-col bg-background-200',
-        className
-      )}
-    >
+    <div className={cn('flex w-full flex-col bg-background-200', className)}>
       <header className="w-full bg-white py-6 shadow-page-title md:py-8">
         <div className="mx-auto w-full max-w-[375px] px-6 md:max-w-[1448px]">
           <h1 className="text-2lg-semibold text-black-400 md:text-2xl-semibold">
@@ -60,8 +53,8 @@ export const EstimateRequestBlocked = ({
         </div>
       </header>
 
-      <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 md:py-24">
-        <div className="flex flex-col items-center gap-8">
+      <div className="flex w-full flex-col gap-4 py-6 md:py-[3rem]">
+        <div className="mx-auto flex w-full max-w-[375px] flex-col items-center gap-2 gap-8 px-6 md:max-w-[1448px] md:gap-6 md:px-0">
           <div className="flex flex-col items-center gap-16">
             <Image
               src="/images/no-estimate.svg"

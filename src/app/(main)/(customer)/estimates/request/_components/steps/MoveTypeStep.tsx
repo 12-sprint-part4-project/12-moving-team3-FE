@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 
+import { EstimateRequestChatPanel } from '../EstimateRequestChatPanel';
 import { MoveTypeOptionField } from '../MoveTypeOptionField';
 import { Button } from '@/components/Button/Button';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 import { ApiError } from '@/lib/apiClient';
-import { cn } from '@/lib/utils';
 import type { ApiMoveType } from '@/types/estimateRequest';
 
 /** Step1 옵션 — MoveTypeChip 라벨보다 Figma 설명형 문구를 사용 */
@@ -68,7 +68,7 @@ export const MoveTypeStep = () => {
   return (
     <section
       aria-label="이사 종류 선택"
-      className="mx-auto flex w-full max-w-[375px] flex-col gap-2 px-6 md:max-w-[1448px] md:gap-6 md:px-0"
+      className="mx-auto flex w-full max-w-[375px] flex-col gap-2 px-6 md:max-w-[1448px] md:gap-6"
     >
       {/* 안내 말풍선 — 모바일 sm / 데스크톱 md */}
       <TextFieldChat size="sm" className="md:hidden">
@@ -86,52 +86,44 @@ export const MoveTypeStep = () => {
       </TextFieldChat>
 
       {/* 선택 패널 — 데스크톱에서 우측 정렬 (Figma chat form) */}
-      <div className="flex w-full flex-col md:items-end">
+      <EstimateRequestChatPanel>
         <div
-          className={cn(
-            'flex w-full flex-col gap-4 bg-white p-4 shadow-card',
-            'rounded-tl-3xl rounded-br-3xl rounded-bl-3xl',
-            'md:w-[39rem] md:gap-6 md:rounded-[2rem] md:p-10'
-          )}
+          role="radiogroup"
+          aria-label="이사 종류"
+          className="flex w-full flex-col gap-2 md:gap-4"
         >
-          <div
-            role="radiogroup"
-            aria-label="이사 종류"
-            className="flex w-full flex-col gap-2 md:gap-4"
-          >
-            {MOVE_TYPE_OPTIONS.map((option) => (
-              <MoveTypeOptionField
-                key={option.value}
-                value={option.value}
-                label={option.label}
-                selected={selectedMoveType === option.value}
-                disabled={isSavingStep}
-                onSelect={setSelectedMoveType}
-              />
-            ))}
-          </div>
-
-          <Button
-            type="button"
-            variant="solid"
-            size="sm"
-            className="md:h-16 md:text-xl-semibold"
-            disabled={!canSubmit}
-            aria-busy={isSavingStep}
-            onClick={() => {
-              void handleSubmit();
-            }}
-          >
-            {isSavingStep ? '저장 중…' : '선택완료'}
-          </Button>
-
-          {errorMessage ? (
-            <p className="text-md-medium text-red-200" role="alert">
-              {errorMessage}
-            </p>
-          ) : null}
+          {MOVE_TYPE_OPTIONS.map((option) => (
+            <MoveTypeOptionField
+              key={option.value}
+              value={option.value}
+              label={option.label}
+              selected={selectedMoveType === option.value}
+              disabled={isSavingStep}
+              onSelect={setSelectedMoveType}
+            />
+          ))}
         </div>
-      </div>
+
+        <Button
+          type="button"
+          variant="solid"
+          size="sm"
+          className="md:h-16 md:text-xl-semibold"
+          disabled={!canSubmit}
+          aria-busy={isSavingStep}
+          onClick={() => {
+            void handleSubmit();
+          }}
+        >
+          {isSavingStep ? '저장 중…' : '선택완료'}
+        </Button>
+
+        {errorMessage ? (
+          <p className="text-md-medium text-red-200" role="alert">
+            {errorMessage}
+          </p>
+        ) : null}
+      </EstimateRequestChatPanel>
     </section>
   );
 };

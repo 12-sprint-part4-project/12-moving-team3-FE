@@ -1,6 +1,7 @@
 'use client';
 
 import { EstimateRequestBlocked } from './_components/EstimateRequestBlocked';
+import { EstimateRequestGate } from './_components/EstimateRequestGate';
 import { EstimateRequestShell } from './_components/EstimateRequestShell';
 import { AddressStep } from './_components/steps/AddressStep';
 import { MoveDateStep } from './_components/steps/MoveDateStep';
@@ -9,9 +10,10 @@ import { SubmitStep } from './_components/steps/SubmitStep';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 
 /**
- * 견적요청 페이지 클라이언트 — bootstrap 분기 + 스텝 스텁 렌더.
- * 의도된 진입 불가(비회원·프로필·진행중)만 EstimateRequestBlocked.
- * 일반 에러는 훅에서 토스트 + 자동 재시도 → 로딩 UI 유지.
+ * 견적요청 페이지 클라이언트 — bootstrap 분기 + 스텝 렌더.
+ * 비회원·프로필 미등록: Shell + 채팅형 Gate (Figma 1-3541).
+ * 진행중(blocked): EstimateRequestBlocked (Figma 1-11375).
+ * 일반 에러: 훅에서 토스트 + 자동 재시도 → 로딩 UI 유지.
  */
 export const EstimateRequestPageClient = () => {
   const { bootstrap } = useCustomerEstimateRequest();
@@ -27,23 +29,15 @@ export const EstimateRequestPageClient = () => {
     );
   }
 
-  if (bootstrap.status === 'unauthorized') {
+  // 비회원·프로필 미등록 — Step1과 같은 Shell + 채팅 게이트
+  if (
+    bootstrap.status === 'unauthorized' ||
+    bootstrap.status === 'profileIncomplete'
+  ) {
     return (
-      <EstimateRequestBlocked
-        message="견적 요청은 로그인 후 이용할 수 있습니다."
-        actionLabel="로그인하러 가기"
-        actionHref="/login"
-      />
-    );
-  }
-
-  if (bootstrap.status === 'profileIncomplete') {
-    return (
-      <EstimateRequestBlocked
-        message="견적 요청을 하려면 프로필 등록이 필요합니다."
-        actionLabel="프로필 등록하러 가기"
-        actionHref="/profile/customer"
-      />
+      <EstimateRequestShell currentStep={1}>
+        <EstimateRequestGate kind={bootstrap.status} />
+      </EstimateRequestShell>
     );
   }
 
@@ -64,7 +58,7 @@ export const EstimateRequestPageClient = () => {
     );
   }
 
-  // ready — 시각 스텝에 맞는 스텁 렌더
+  // ready — 시각 스텝에 맞는 렌더
   const { visualStep, detail } = bootstrap;
 
   return (

@@ -16,11 +16,11 @@ export const EstimateRequestShell = ({
   children,
 }: EstimateRequestShellProps) => {
   return (
-    <div className="flex w-full flex-col">
+    <div className="flex w-full flex-col bg-background-200">
       <EstimateRequestProgress currentStep={currentStep} />
 
       <div
-        className="flex w-full flex-col gap-4 bg-background-200 py-6 md:py-[3rem]"
+        className="flex w-full flex-col gap-4 py-6 md:py-[3rem]"
         aria-live="polite"
         aria-relevant="additions"
       >
