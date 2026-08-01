@@ -15,7 +15,7 @@ export interface MoverShareButtonsProps {
 
 /**
  * 기사님 상세 공유 버튼 (클립보드 / 카카오 / 페이스북).
- * 클립보드만 동작, SNS는 TODO.
+ * 클립보드·페이스북 동작, 카카오는 JS 키 확보 후 SDK 연동.
  */
 export const MoverShareButtons = ({
   className = '',
@@ -33,11 +33,23 @@ export const MoverShareButtons = ({
   };
 
   const handleShareKakao = () => {
-    // TODO: 카카오 공유 SDK 연동
+    // TODO: 카카오 공유 SDK 연동 (NEXT_PUBLIC_KAKAO_JS_KEY)
+    showToast({ content: '카카오톡 공유는 준비 중입니다.' });
   };
 
   const handleShareFacebook = () => {
-    // TODO: 페이스북 공유 URL 연동
+    const shareUrl = encodeURIComponent(window.location.href);
+    const popup = window.open(
+      `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`,
+      'facebook-share',
+      'width=600,height=400,noopener,noreferrer'
+    );
+
+    if (!popup) {
+      showToast({
+        content: '팝업이 차단되었습니다. 브라우저에서 팝업을 허용해 주세요.',
+      });
+    }
   };
 
   return (
