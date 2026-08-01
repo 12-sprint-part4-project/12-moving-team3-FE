@@ -4,15 +4,8 @@ import {
   authFetch,
   createApiTimeoutSignal,
 } from '@/services/apiClient.legacy';
-import { getMoverAccessToken } from '@/services/moversAuth';
+import { assertMoverAccessToken } from '@/services/moversAuth';
 import type { ApiErrorBody, ApiSuccessResponse } from '@/types/api';
-
-/** 로그인(Access Token) 필수 — 없으면 요청 전 실패 */
-const assertMoverAccessToken = (): void => {
-  if (!getMoverAccessToken()) {
-    throw new ApiError(401, '로그인이 필요한 기능입니다.', 'UNAUTHORIZED');
-  }
-};
 
 const parseErrorBody = (body: unknown): ApiErrorBody | null =>
   body && typeof body === 'object' ? (body as ApiErrorBody) : null;

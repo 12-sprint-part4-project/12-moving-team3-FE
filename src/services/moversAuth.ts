@@ -1,3 +1,4 @@
+import { ApiError } from '@/lib/apiClient';
 import { getAuthSession } from '@/lib/authSession';
 
 /**
@@ -12,4 +13,11 @@ export const getMoverAccessToken = (): string | null => {
   }
 
   return getAuthSession()?.accessToken ?? null;
+};
+
+/** 로그인(Access Token) 필수 — 없으면 요청 전 실패 */
+export const assertMoverAccessToken = (): void => {
+  if (!getMoverAccessToken()) {
+    throw new ApiError(401, '로그인이 필요한 기능입니다.', 'UNAUTHORIZED');
+  }
 };
