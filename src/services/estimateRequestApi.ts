@@ -1,10 +1,10 @@
+import { ApiError } from '@/lib/apiClient';
 import { formatMoveDateLabel, formatRelativeTime } from '@/lib/formatDate';
 import {
   API_BASE_URL,
-  ApiError,
   createApiTimeoutSignal,
   getAccessToken,
-} from '@/services/apiClient';
+} from '@/services/apiClient.legacy';
 import type { ApiErrorBody } from '@/types/api';
 import type {
   EstimateRequestListItem,
@@ -206,16 +206,16 @@ export const getReceivedEstimateRequests = async (
       body && typeof body === 'object' ? (body as ApiErrorBody) : null;
     throw new ApiError(
       response.status,
-      errorBody?.error?.code ?? 'UNKNOWN_ERROR',
-      errorBody?.error?.message ?? '요청 처리 중 오류가 발생했습니다.'
+      errorBody?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
+      errorBody?.error?.code ?? 'UNKNOWN_ERROR'
     );
   }
 
   if (!isEstimateRequestListResponse(body)) {
     throw new ApiError(
       response.status,
-      'INVALID_RESPONSE',
-      '요청 처리 중 오류가 발생했습니다.'
+      '요청 처리 중 오류가 발생했습니다.',
+      'INVALID_RESPONSE'
     );
   }
 

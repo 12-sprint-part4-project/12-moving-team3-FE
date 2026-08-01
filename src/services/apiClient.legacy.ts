@@ -12,18 +12,6 @@ export const createApiTimeoutSignal = (
   timeoutMs: number = API_FETCH_TIMEOUT_MS
 ): AbortSignal => AbortSignal.timeout(timeoutMs);
 
-export class ApiError extends Error {
-  readonly status: number;
-  readonly code: string;
-
-  constructor(status: number, code: string, message: string) {
-    super(message);
-    this.name = 'ApiError';
-    this.status = status;
-    this.code = code;
-  }
-}
-
 export const getAccessToken = (): string | null => {
   if (typeof window === 'undefined') {
     return null;
