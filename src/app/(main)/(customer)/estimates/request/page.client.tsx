@@ -10,12 +10,14 @@ import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 
 /**
  * 견적요청 페이지 클라이언트 — bootstrap 분기 + 스텝 스텁 렌더.
- * 비정상/진행중 안내는 EstimateRequestBlocked 로 통일.
+ * 의도된 진입 불가(비회원·프로필·진행중)만 EstimateRequestBlocked.
+ * 일반 에러는 훅에서 토스트 + 자동 재시도 → 로딩 UI 유지.
  */
 export const EstimateRequestPageClient = () => {
   const { bootstrap } = useCustomerEstimateRequest();
 
-  if (bootstrap.status === 'loading') {
+  // loading · 일반 에러(자동 재시도 중) 공통 — 풀페이지 에러 화면 없음
+  if (bootstrap.status === 'loading' || bootstrap.status === 'error') {
     return (
       <div className="mx-auto max-w-[1400px] px-6 py-8 sm:px-18">
         <p className="text-gray-400 text-lg-medium" role="status">
@@ -58,22 +60,6 @@ export const EstimateRequestPageClient = () => {
         }
         actionLabel="받은 견적 보러가기"
         actionHref="/quotes"
-      />
-    );
-  }
-
-  if (bootstrap.status === 'error') {
-    return (
-      <EstimateRequestBlocked
-        message={
-          bootstrap.error?.message ??
-          '견적 요청을 불러오는 중 오류가 발생했습니다.'
-        }
-        actionLabel="다시 시도"
-        role="alert"
-        onActionClick={() => {
-          void bootstrap.refetch();
-        }}
       />
     );
   }

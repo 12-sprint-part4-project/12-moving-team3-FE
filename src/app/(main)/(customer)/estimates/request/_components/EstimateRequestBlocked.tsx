@@ -21,9 +21,9 @@ interface EstimateRequestBlockedProps {
 
 /**
  * 견적요청 진입 불가·완료 공통 안내 화면.
- * 레이아웃: 제목 + 트럭 일러스트 + 문구 + CTA (Figma 1-11375).
  *
- * 사용처: 비회원 / 프로필 미등록 / 진행 중(blocked·제출 후) / 일반 에러
+ * 사용처: 비회원 / 프로필 미등록 / 진행 중(blocked·제출 후)
+ * 일반 에러는 토스트 + 자동 재시도로 처리하므로 여기 쓰지 않음.
  */
 export const EstimateRequestBlocked = ({
   className,
@@ -46,7 +46,12 @@ export const EstimateRequestBlocked = ({
   };
 
   return (
-    <div className={cn('flex min-h-full w-full flex-col bg-background-200', className)}>
+    <div
+      className={cn(
+        'flex min-h-full w-full flex-col bg-background-200',
+        className
+      )}
+    >
       <header className="w-full bg-white py-6 shadow-page-title md:py-8">
         <div className="mx-auto w-full max-w-[375px] px-6 md:max-w-[1448px]">
           <h1 className="text-2lg-semibold text-black-400 md:text-2xl-semibold">
@@ -58,7 +63,6 @@ export const EstimateRequestBlocked = ({
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 md:py-24">
         <div className="flex flex-col items-center gap-8">
           <div className="flex flex-col items-center gap-16">
-            {/* Figma img/car — public/images/no-estimate.svg (351×140) */}
             <Image
               src="/images/no-estimate.svg"
               alt=""

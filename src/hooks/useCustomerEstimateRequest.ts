@@ -1,16 +1,17 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
+import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { getAuthSession } from '@/lib/authSession';
 import {
   isEstimateRequestReadyToSubmit,
   toVisualStep,
   type ReviseEstimateRequestFieldBody,
   type SaveEstimateRequestStepBody,
 } from '@/lib/customerEstimateRequestSchema';
-import { getAccessToken } from '@/services/apiClient.legacy';
 import {
   createEstimateRequest,
   getActiveEstimateRequest,
@@ -25,6 +26,9 @@ import type {
   EstimateRequestDetail,
   EstimateRequestVisualStep,
 } from '@/types/customerEstimateRequest';
+
+/** bootstrap 일반 에러 시 자동 재시도 간격 (풀페이지 대신 토스트 + 재조회) */
+const BOOTSTRAP_AUTO_RETRY_MS = 3000;
 
 export const customerEstimateRequestQueryKeys = {
   all: ['customer-estimate-request'] as const,
@@ -78,8 +82,8 @@ const makeBootstrapResult = (
  */
 const bootstrapCustomerEstimateRequest =
   async (): Promise<CustomerEstimateRequestBootstrap> => {
-    // authSession(또는 구키)에 토큰이 없으면 API 호출 전에 로그인 안내로 분기
-    if (!getAccessToken()) {
+    // authSession 에 토큰이 없으면 API 호출 전에 로그인 안내로 분기
+    if (!getAuthSession()?.accessToken) {
       return makeBootstrapResult({
         status: 'unauthorized',
         error: new ApiError(
@@ -163,25 +167,29 @@ const bootstrapCustomerEstimateRequest =
           }
         }
 
+        console.error('[customer-estimate-request] bootstrap ApiError', error);
+
         return makeBootstrapResult({
           status: 'error',
           error,
         });
       }
 
-      // BE 미기동·CORS·네트워크 단절 등 fetch 자체 실패
+      // BE 미기동·CORS·네트워크 단절 등 fetch 자체 실패 (상세는 console / 추후 Sentry)
       const isNetworkError =
         error instanceof TypeError ||
         (error instanceof Error &&
           /failed to fetch|networkerror|load failed/i.test(error.message));
+
+      console.error('[customer-estimate-request] bootstrap network/unknown', error);
 
       return makeBootstrapResult({
         status: 'error',
         error: new ApiError(
           500,
           isNetworkError
-            ? '서버에 연결할 수 없습니다. BE가 실행 중인지 확인해 주세요.'
-            : '요청 처리 중 오류가 발생했습니다.',
+            ? '서버에 연결할 수 없습니다. 잠시 후 다시 시도합니다.'
+            : '요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도합니다.',
           isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR'
         ),
       });
@@ -193,11 +201,15 @@ const bootstrapCustomerEstimateRequest =
  */
 export const useCustomerEstimateRequest = () => {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  /** 연속 재시도 중 토스트 스팸 방지 — 정상 진입 상태로 복귀하면 리셋 */
+  const hasToastedBootstrapErrorRef = useRef(false);
 
   const bootstrapQuery = useQuery({
     queryKey: customerEstimateRequestQueryKeys.active(),
     queryFn: bootstrapCustomerEstimateRequest,
     staleTime: 0,
+    // 일반 에러는 queryFn 안에서 status:'error'로 반환되므로 RQ retry 대상이 아님
     retry: false,
   });
 
@@ -227,12 +239,47 @@ export const useCustomerEstimateRequest = () => {
           ? bootstrapQuery.error
           : new ApiError(
               500,
-              '요청 처리 중 오류가 발생했습니다.',
+              '요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도합니다.',
               'UNKNOWN_ERROR'
             ),
       refetch,
     });
   }, [bootstrapQuery.isPending, bootstrapQuery.data, bootstrapQuery.error, refetch]);
+
+  // 일반 에러: 풀페이지 대신 토스트 1회 + 자동 재조회 (성공/의도된 분기 복귀 시 토스트 플래그 리셋)
+  useEffect(() => {
+    if (bootstrap.status === 'error') {
+      if (!hasToastedBootstrapErrorRef.current) {
+        hasToastedBootstrapErrorRef.current = true;
+        console.error(
+          '[customer-estimate-request] bootstrap error',
+          bootstrap.error
+        );
+        showToast({
+          content:
+            bootstrap.error?.message ??
+            '견적 요청을 불러오지 못했어요. 잠시 후 다시 시도합니다.',
+        });
+      }
+
+      const timerId = window.setTimeout(() => {
+        void refetch();
+      }, BOOTSTRAP_AUTO_RETRY_MS);
+
+      return () => window.clearTimeout(timerId);
+    }
+
+    if (
+      bootstrap.status === 'ready' ||
+      bootstrap.status === 'blocked' ||
+      bootstrap.status === 'unauthorized' ||
+      bootstrap.status === 'profileIncomplete'
+    ) {
+      hasToastedBootstrapErrorRef.current = false;
+    }
+
+    return undefined;
+  }, [bootstrap.status, bootstrap.error, refetch, showToast]);
 
   /** 상세 캐시·bootstrap 결과를 최신 detail 로 갱신 */
   const syncDetail = useCallback(
