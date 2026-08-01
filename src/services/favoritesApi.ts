@@ -1,14 +1,11 @@
-import { ApiError } from '@/lib/apiClient';
 import {
   API_BASE_URL,
   authFetch,
   createApiTimeoutSignal,
 } from '@/services/apiClient.legacy';
+import { parseMoverApiResponse } from '@/services/moverApiResponse';
 import { assertMoverAccessToken } from '@/services/moversAuth';
-import type { ApiErrorBody, ApiSuccessResponse } from '@/types/api';
-
-const parseErrorBody = (body: unknown): ApiErrorBody | null =>
-  body && typeof body === 'object' ? (body as ApiErrorBody) : null;
+import type { ApiSuccessResponse } from '@/types/api';
 
 export type AddFavoriteResponse = ApiSuccessResponse<{
   id: number;
@@ -35,18 +32,10 @@ export const addFavorite = async (
     signal: createApiTimeoutSignal(),
   });
 
-  const body: unknown = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    const errorBody = parseErrorBody(body);
-    throw new ApiError(
-      response.status,
-      errorBody?.error?.message ?? '찜하기에 실패했습니다.',
-      errorBody?.error?.code ?? 'UNKNOWN_ERROR'
-    );
-  }
-
-  return body as AddFavoriteResponse;
+  return parseMoverApiResponse<AddFavoriteResponse>(
+    response,
+    '찜하기에 실패했습니다.'
+  );
 };
 
 /**
@@ -65,16 +54,8 @@ export const removeFavorite = async (
     signal: createApiTimeoutSignal(),
   });
 
-  const body: unknown = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    const errorBody = parseErrorBody(body);
-    throw new ApiError(
-      response.status,
-      errorBody?.error?.message ?? '찜 취소에 실패했습니다.',
-      errorBody?.error?.code ?? 'UNKNOWN_ERROR'
-    );
-  }
-
-  return body as RemoveFavoriteResponse;
+  return parseMoverApiResponse<RemoveFavoriteResponse>(
+    response,
+    '찜 취소에 실패했습니다.'
+  );
 };

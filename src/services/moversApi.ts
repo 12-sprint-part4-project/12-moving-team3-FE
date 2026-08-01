@@ -4,8 +4,8 @@ import {
   authFetch,
   createApiTimeoutSignal,
 } from '@/services/apiClient.legacy';
+import { parseMoverApiResponse } from '@/services/moverApiResponse';
 import { getMoverAccessToken } from '@/services/moversAuth';
-import type { ApiErrorBody } from '@/types/api';
 import type {
   FavoriteMoverListItem,
   FavoriteMoversParams,
@@ -271,17 +271,10 @@ export const getMovers = async (
     signal: createApiTimeoutSignal(),
   });
 
-  const body: unknown = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    const errorBody =
-      body && typeof body === 'object' ? (body as ApiErrorBody) : null;
-    throw new ApiError(
-      response.status,
-      errorBody?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
-      errorBody?.error?.code ?? 'UNKNOWN_ERROR'
-    );
-  }
+  const body = await parseMoverApiResponse(
+    response,
+    '요청 처리 중 오류가 발생했습니다.'
+  );
 
   if (!isMoversListResponse(body)) {
     throw new ApiError(
@@ -308,17 +301,10 @@ export const getMoverDetail = async (
     signal: createApiTimeoutSignal(),
   });
 
-  const body: unknown = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    const errorBody =
-      body && typeof body === 'object' ? (body as ApiErrorBody) : null;
-    throw new ApiError(
-      response.status,
-      errorBody?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
-      errorBody?.error?.code ?? 'UNKNOWN_ERROR'
-    );
-  }
+  const body = await parseMoverApiResponse(
+    response,
+    '요청 처리 중 오류가 발생했습니다.'
+  );
 
   if (!isMoverDetailResponse(body)) {
     throw new ApiError(
@@ -395,17 +381,10 @@ export const getFavoriteMovers = async (
     }
   );
 
-  const body: unknown = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    const errorBody =
-      body && typeof body === 'object' ? (body as ApiErrorBody) : null;
-    throw new ApiError(
-      response.status,
-      errorBody?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
-      errorBody?.error?.code ?? 'UNKNOWN_ERROR'
-    );
-  }
+  const body = await parseMoverApiResponse(
+    response,
+    '요청 처리 중 오류가 발생했습니다.'
+  );
 
   if (!isFavoriteMoversResponse(body)) {
     throw new ApiError(
