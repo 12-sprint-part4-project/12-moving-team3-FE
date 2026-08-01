@@ -43,21 +43,40 @@ const parseError = async (response: Response): Promise<never> => {
   );
 };
 
+/** 네트워크·타임아웃 예외를 ApiError로 정규화한다. */
+const toNetworkApiError = (error: unknown): ApiError => {
+  const isAbort =
+    (error instanceof DOMException && error.name === 'AbortError') ||
+    (error instanceof Error && error.name === 'AbortError');
+
+  if (isAbort) {
+    return new ApiError(408, '요청 시간이 초과되었습니다.', 'TIMEOUT');
+  }
+
+  return new ApiError(0, '네트워크 오류가 발생했습니다.', 'NETWORK_ERROR');
+};
+
 /** 인증이 필요한 JSON API 요청 공통 처리 */
 const chatFetch = async <T>(
   path: string,
   init: RequestInit = {}
 ): Promise<T> => {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    credentials: 'include',
-    cache: 'no-store',
-    signal: createApiTimeoutSignal(),
-    ...init,
-    headers: {
-      ...getAuthHeaders(),
-      ...init.headers,
-    },
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      credentials: 'include',
+      cache: 'no-store',
+      signal: createApiTimeoutSignal(),
+      ...init,
+      headers: {
+        ...getAuthHeaders(),
+        ...init.headers,
+      },
+    });
+  } catch (error) {
+    throw toNetworkApiError(error);
+  }
 
   if (!response.ok) {
     return parseError(response);
