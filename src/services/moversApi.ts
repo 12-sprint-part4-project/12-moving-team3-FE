@@ -1,10 +1,6 @@
 import { ApiError } from '@/lib/apiClient';
-import {
-  API_BASE_URL,
-  authFetch,
-  createApiTimeoutSignal,
-} from '@/services/apiClient.legacy';
-import { parseMoverApiResponse } from '@/services/moverApiResponse';
+import { API_BASE_URL } from '@/services/apiClient.legacy';
+import { fetchAndValidate } from '@/services/moverApiResponse';
 import { getMoverAccessToken } from '@/services/moversAuth';
 import type {
   FavoriteMoverListItem,
@@ -265,26 +261,12 @@ export const getMovers = async (
 ): Promise<MoversListResponse> => {
   const query = buildMoversListQuery(params);
 
-  const response = await authFetch(`${API_BASE_URL}/api/movers${query}`, {
-    method: 'GET',
-    cache: 'no-store',
-    signal: createApiTimeoutSignal(),
-  });
-
-  const body = await parseMoverApiResponse(
-    response,
+  return fetchAndValidate(
+    `${API_BASE_URL}/api/movers${query}`,
+    { method: 'GET' },
+    isMoversListResponse,
     '요청 처리 중 오류가 발생했습니다.'
   );
-
-  if (!isMoversListResponse(body)) {
-    throw new ApiError(
-      response.status,
-      '요청 처리 중 오류가 발생했습니다.',
-      'INVALID_RESPONSE'
-    );
-  }
-
-  return body;
 };
 
 /**
@@ -295,26 +277,12 @@ export const getMovers = async (
 export const getMoverDetail = async (
   moverId: string
 ): Promise<MoverDetailResponse> => {
-  const response = await authFetch(`${API_BASE_URL}/api/movers/${moverId}`, {
-    method: 'GET',
-    cache: 'no-store',
-    signal: createApiTimeoutSignal(),
-  });
-
-  const body = await parseMoverApiResponse(
-    response,
+  return fetchAndValidate(
+    `${API_BASE_URL}/api/movers/${moverId}`,
+    { method: 'GET' },
+    isMoverDetailResponse,
     '요청 처리 중 오류가 발생했습니다.'
   );
-
-  if (!isMoverDetailResponse(body)) {
-    throw new ApiError(
-      response.status,
-      '요청 처리 중 오류가 발생했습니다.',
-      'INVALID_RESPONSE'
-    );
-  }
-
-  return body;
 };
 
 const isFavoriteMoversResponse = (
@@ -372,27 +340,10 @@ export const getFavoriteMovers = async (
   const query = searchParams.toString();
   const suffix = query ? `?${query}` : '';
 
-  const response = await authFetch(
+  return fetchAndValidate(
     `${API_BASE_URL}/api/movers/favorites${suffix}`,
-    {
-      method: 'GET',
-      cache: 'no-store',
-      signal: createApiTimeoutSignal(),
-    }
-  );
-
-  const body = await parseMoverApiResponse(
-    response,
+    { method: 'GET' },
+    isFavoriteMoversResponse,
     '요청 처리 중 오류가 발생했습니다.'
   );
-
-  if (!isFavoriteMoversResponse(body)) {
-    throw new ApiError(
-      response.status,
-      '요청 처리 중 오류가 발생했습니다.',
-      'INVALID_RESPONSE'
-    );
-  }
-
-  return body;
 };
