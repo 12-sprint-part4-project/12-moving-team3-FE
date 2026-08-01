@@ -1,4 +1,4 @@
-import { ApiError, apiClient } from '@/lib/apiClient';
+import { ApiError } from '@/lib/apiClient';
 import type {
   ReviseEstimateRequestFieldBody,
   SaveEstimateRequestStepBody,
@@ -13,6 +13,12 @@ import {
   saveEstimateRequestStepResultSchema,
   submitEstimateRequestResultSchema,
 } from '@/lib/customerEstimateRequestSchema';
+import {
+  API_BASE_URL,
+  authFetch,
+  createApiTimeoutSignal,
+} from '@/services/apiClient.legacy';
+import type { ApiErrorBody } from '@/types/api';
 import type {
   ActiveEstimateRequestData,
   CreatedEstimateRequest,
@@ -24,6 +30,20 @@ import type {
 import type { z } from 'zod';
 
 const BASE_PATH = '/api/estimate-requests';
+
+const getAuthHeaders = (withJson = false): HeadersInit => ({
+  ...(withJson ? { 'Content-Type': 'application/json' } : {}),
+});
+
+/** 실패 응답을 ApiError 로 변환 */
+const parseError = async (response: Response): Promise<never> => {
+  const body = (await response.json().catch(() => null)) as ApiErrorBody | null;
+  throw new ApiError(
+    response.status,
+    body?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
+    body?.error?.code ?? 'UNKNOWN_ERROR'
+  );
+};
 
 /** 성공 응답 data를 zod로 런타임 검증 */
 const parseResponseData = <T>(schema: z.ZodType<T>, body: unknown): T => {
@@ -62,10 +82,18 @@ const parseRequestBody = <T>(schema: z.ZodType<T>, body: unknown): T => {
  */
 export const getActiveEstimateRequest =
   async (): Promise<ActiveEstimateRequestData> => {
-    const body = await apiClient<unknown>(`${BASE_PATH}/active`, {
+    const response = await authFetch(`${API_BASE_URL}${BASE_PATH}/active`, {
       method: 'GET',
       cache: 'no-store',
+      headers: getAuthHeaders(),
+      signal: createApiTimeoutSignal(),
     });
+
+    if (!response.ok) {
+      return parseError(response);
+    }
+
+    const body: unknown = await response.json().catch(() => null);
     return parseResponseData(activeEstimateRequestDataSchema, body);
   };
 
@@ -75,10 +103,18 @@ export const getActiveEstimateRequest =
  */
 export const createEstimateRequest =
   async (): Promise<CreatedEstimateRequest> => {
-    const body = await apiClient<unknown>(BASE_PATH, {
+    const response = await authFetch(`${API_BASE_URL}${BASE_PATH}`, {
       method: 'POST',
       cache: 'no-store',
+      headers: getAuthHeaders(),
+      signal: createApiTimeoutSignal(),
     });
+
+    if (!response.ok) {
+      return parseError(response);
+    }
+
+    const body: unknown = await response.json().catch(() => null);
     return parseResponseData(createdEstimateRequestSchema, body);
   };
 
@@ -89,10 +125,21 @@ export const createEstimateRequest =
 export const getEstimateRequestDetail = async (
   estimateRequestId: number
 ): Promise<EstimateRequestDetail> => {
-  const body = await apiClient<unknown>(`${BASE_PATH}/${estimateRequestId}`, {
-    method: 'GET',
-    cache: 'no-store',
-  });
+  const response = await authFetch(
+    `${API_BASE_URL}${BASE_PATH}/${estimateRequestId}`,
+    {
+      method: 'GET',
+      cache: 'no-store',
+      headers: getAuthHeaders(),
+      signal: createApiTimeoutSignal(),
+    }
+  );
+
+  if (!response.ok) {
+    return parseError(response);
+  }
+
+  const body: unknown = await response.json().catch(() => null);
   return parseResponseData(estimateRequestDetailSchema, body);
 };
 
@@ -104,16 +151,25 @@ export const saveEstimateRequestStep = async (
   estimateRequestId: number,
   body: SaveEstimateRequestStepBody
 ): Promise<SaveEstimateRequestStepResult> => {
+  // 클라이언트에서도 BE와 동일한 zod로 검증 (실패 시 ApiError)
   const parsed = parseRequestBody(saveEstimateRequestStepBodySchema, body);
 
-  const json = await apiClient<unknown>(
-    `${BASE_PATH}/${estimateRequestId}/step`,
+  const response = await authFetch(
+    `${API_BASE_URL}${BASE_PATH}/${estimateRequestId}/step`,
     {
       method: 'PATCH',
       cache: 'no-store',
-      body: parsed,
+      headers: getAuthHeaders(true),
+      body: JSON.stringify(parsed),
+      signal: createApiTimeoutSignal(),
     }
   );
+
+  if (!response.ok) {
+    return parseError(response);
+  }
+
+  const json: unknown = await response.json().catch(() => null);
   return parseResponseData(saveEstimateRequestStepResultSchema, json);
 };
 
@@ -125,16 +181,25 @@ export const reviseEstimateRequestField = async (
   estimateRequestId: number,
   body: ReviseEstimateRequestFieldBody
 ): Promise<ReviseEstimateRequestFieldResult> => {
+  // 검증 실패 시 ZodError 대신 ApiError로 통일
   const parsed = parseRequestBody(reviseEstimateRequestFieldBodySchema, body);
 
-  const json = await apiClient<unknown>(
-    `${BASE_PATH}/${estimateRequestId}/field`,
+  const response = await authFetch(
+    `${API_BASE_URL}${BASE_PATH}/${estimateRequestId}/field`,
     {
       method: 'PATCH',
       cache: 'no-store',
-      body: parsed,
+      headers: getAuthHeaders(true),
+      body: JSON.stringify(parsed),
+      signal: createApiTimeoutSignal(),
     }
   );
+
+  if (!response.ok) {
+    return parseError(response);
+  }
+
+  const json: unknown = await response.json().catch(() => null);
   return parseResponseData(reviseEstimateRequestFieldResultSchema, json);
 };
 
@@ -145,12 +210,20 @@ export const reviseEstimateRequestField = async (
 export const submitEstimateRequest = async (
   estimateRequestId: number
 ): Promise<SubmitEstimateRequestResult> => {
-  const json = await apiClient<unknown>(
-    `${BASE_PATH}/${estimateRequestId}/submit`,
+  const response = await authFetch(
+    `${API_BASE_URL}${BASE_PATH}/${estimateRequestId}/submit`,
     {
       method: 'POST',
       cache: 'no-store',
+      headers: getAuthHeaders(),
+      signal: createApiTimeoutSignal(),
     }
   );
+
+  if (!response.ok) {
+    return parseError(response);
+  }
+
+  const json: unknown = await response.json().catch(() => null);
   return parseResponseData(submitEstimateRequestResultSchema, json);
 };
