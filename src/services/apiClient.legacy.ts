@@ -1,3 +1,5 @@
+import { getAuthSession } from '@/lib/authSession';
+
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
@@ -13,10 +15,7 @@ export const createApiTimeoutSignal = (
 ): AbortSignal => AbortSignal.timeout(timeoutMs);
 
 export const getAccessToken = (): string | null => {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-  return localStorage.getItem(ACCESS_TOKEN_KEY);
+  return getAuthSession()?.accessToken ?? null;
 };
 
 export const setAccessToken = (token: string | null): void => {
