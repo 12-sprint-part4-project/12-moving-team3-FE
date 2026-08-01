@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import type { ReviewStats } from '@/types/mover';
 
 export interface MoverReviewsProps {
@@ -15,12 +16,14 @@ export interface MoverReviewsProps {
 export const MoverReviews = ({
   moverId: _moverId,
   reviewStats,
-  className = '',
+  className,
 }: MoverReviewsProps) => {
   const totalCount = reviewStats?.totalCount ?? 0;
 
   return (
-    <section className={`flex w-full flex-col gap-4 lg:gap-8 ${className}`}>
+    <section
+      className={cn('flex w-full flex-col gap-4 lg:gap-8', className)}
+    >
       <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
         리뷰 ({totalCount})
       </h2>

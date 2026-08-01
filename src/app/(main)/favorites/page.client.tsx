@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFavoriteMoversList } from '@/hooks/useFavoriteMoversList';
 import { useToggleFavorite } from '@/hooks/useToggleFavorite';
 import { ApiError } from '@/lib/apiClient';
+import { cn } from '@/lib/utils';
 
 /** 찜한 기사님 목록 페이지 클라이언트 */
 export const FavoritesPageClient = () => {
@@ -74,7 +75,10 @@ export const FavoritesPageClient = () => {
   return (
     <div className="flex w-full flex-col overflow-x-hidden bg-background-200">
       <div
-        className={`border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8 ${pageXPadding}`}
+        className={cn(
+          'border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8',
+          pageXPadding,
+        )}
       >
         <h1 className="text-2lg-semibold text-black-400 lg:text-2xl-semibold">
           찜한 기사님
@@ -82,7 +86,10 @@ export const FavoritesPageClient = () => {
       </div>
 
       <div
-        className={`mx-auto flex w-full max-w-[1920px] flex-col py-6 md:py-8 ${pageXPadding}`}
+        className={cn(
+          'mx-auto flex w-full max-w-[1920px] flex-col py-6 md:py-8',
+          pageXPadding,
+        )}
       >
         {isPending ? (
           <Spinner message="찜한 기사님을 불러오는 중..." />

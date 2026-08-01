@@ -11,6 +11,7 @@ import { useFavoriteMoversPreview } from '@/hooks/useFavoriteMoversPreview';
 import { useMoversList } from '@/hooks/useMoversList';
 import { useToggleFavorite } from '@/hooks/useToggleFavorite';
 import { ApiError } from '@/lib/apiClient';
+import { cn } from '@/lib/utils';
 import {
   isApiMoveType,
   isApiRegion,
@@ -120,7 +121,10 @@ export const MoversPageClient = () => {
   return (
     <div className="flex w-full flex-col overflow-x-hidden bg-white">
       <div
-        className={`border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8 ${pageXPadding}`}
+        className={cn(
+          'border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8',
+          pageXPadding,
+        )}
       >
         <h1 className="text-2lg-semibold text-black-400 lg:text-2xl-semibold">
           기사님 찾기
@@ -128,7 +132,10 @@ export const MoversPageClient = () => {
       </div>
 
       <div
-        className={`mx-auto flex w-full max-w-[1920px] flex-col gap-6 py-6 md:py-8 xl:flex-row xl:items-start xl:gap-8 min-[90rem]:gap-12 ${pageXPadding}`}
+        className={cn(
+          'mx-auto flex w-full max-w-[1920px] flex-col gap-6 py-6 md:py-8 xl:flex-row xl:items-start xl:gap-8 min-[90rem]:gap-12',
+          pageXPadding,
+        )}
       >
         <MoversSidebar
           className="hidden shrink-0 xl:flex"

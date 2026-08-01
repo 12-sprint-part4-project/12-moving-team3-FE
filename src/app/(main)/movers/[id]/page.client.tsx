@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useMoverDetail } from '@/hooks/useMoverDetail';
 import { useToggleFavorite } from '@/hooks/useToggleFavorite';
 import { ApiError } from '@/lib/apiClient';
+import { cn } from '@/lib/utils';
 
 import { LoginRequiredModal } from '../_components/LoginRequiredModal';
 import { MoverDetailBottomBar } from './_components/MoverDetailBottomBar';
@@ -100,7 +101,10 @@ export const MoverDetailPageClient = () => {
   return (
     <div className="flex w-full flex-col overflow-x-hidden bg-white pb-24 xl:pb-0">
       <div
-        className={`mx-auto flex w-full max-w-[1920px] flex-col gap-0 py-6 md:py-8 xl:flex-row xl:items-start xl:gap-[7.6875rem] xl:py-9 ${pageXPadding}`}
+        className={cn(
+          'mx-auto flex w-full max-w-[1920px] flex-col gap-0 py-6 md:py-8 xl:flex-row xl:items-start xl:gap-[7.6875rem] xl:py-9',
+          pageXPadding,
+        )}
       >
         <div className="flex min-w-0 flex-1 flex-col">
           <MoverCard
