@@ -48,6 +48,12 @@ export interface LogoutResponse {
   };
 }
 
+export interface RefreshResponse {
+  data: {
+    accessToken: string;
+  };
+}
+
 export interface KakaoLoginRequest {
   code: string;
   userType: ApiUserType;

@@ -74,6 +74,20 @@ export const setAuthSession = (session: AuthSession): void => {
   notifyAuthSessionListeners();
 };
 
+/** Access Token만 교체. user 스냅샷/구독 알림은 유지한다. */
+export const updateAuthAccessToken = (accessToken: string): boolean => {
+  const session = getAuthSession();
+  if (!session) {
+    return false;
+  }
+
+  const nextSession: AuthSession = { ...session, accessToken };
+  const raw = JSON.stringify(nextSession);
+  localStorage.setItem(AUTH_SESSION_KEY, raw);
+  cachedRaw = raw;
+  return true;
+};
+
 export const clearAuthSession = (): void => {
   localStorage.removeItem(AUTH_SESSION_KEY);
   cachedRaw = null;
