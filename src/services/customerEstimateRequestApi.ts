@@ -1,7 +1,6 @@
 import {
   API_BASE_URL,
   ApiError,
-  createApiTimeoutSignal,
   DEFAULT_API_ERROR_MESSAGE,
   throwApiError,
 } from '@/lib/apiClient';
@@ -94,7 +93,6 @@ const requestJson = async <T>(
   try {
     response = await authFetch(`${API_BASE_URL}${path}`, {
       cache: 'no-store',
-      signal: createApiTimeoutSignal(),
       ...init,
     });
   } catch (error) {
