@@ -25,6 +25,8 @@ export interface MoversSelectDropdownProps {
    * 리스트의 「전체」와 달리 닫힌 버튼에는 「지역」/「서비스」를 표시한다.
    */
   placeholder?: string;
+  /** 옵션 리스트 열 수. 2면 2열 그리드 + 좌측 열 구분선 */
+  columns?: 1 | 2;
 }
 
 /** 기사님 찾기용 단일 선택 드롭다운 (지역/서비스 BE enum 옵션) */
@@ -36,6 +38,7 @@ export const MoversSelectDropdown = ({
   className = '',
   fullWidth = false,
   placeholder,
+  columns = 1,
 }: MoversSelectDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -63,6 +66,8 @@ export const MoversSelectDropdown = ({
   const triggerStateClass = isOpen
     ? 'border-blue-300 bg-blue-50 text-blue-300'
     : 'border-line-200 bg-white text-black-400';
+
+  const isTwoColumn = columns === 2;
 
   return (
     <div
@@ -103,19 +108,19 @@ export const MoversSelectDropdown = ({
         >
           <ul
             className={cn(
-              label === '지역' ? 'grid grid-cols-2' : 'flex flex-col'
+              isTwoColumn ? 'grid grid-cols-2' : 'flex flex-col'
             )}
           >
             {options.map((option, index) => {
               const isSelected = option.value === value;
-              const isLeftColumn = label === '지역' && index % 2 === 0;
+              const isLeftColumn = isTwoColumn && index % 2 === 0;
 
               return (
                 <li
                   key={option.value}
                   role="presentation"
                   className={cn(
-                    label === '지역' && isLeftColumn && 'border-r border-line-200'
+                    isLeftColumn && 'border-r border-line-200'
                   )}
                 >
                   <button

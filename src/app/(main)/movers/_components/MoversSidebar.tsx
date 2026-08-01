@@ -64,6 +64,7 @@ export const MoversSidebar = ({
               value={regionValue}
               onValueChange={onRegionChange}
               fullWidth
+              columns={2}
             />
           </div>
           <div className="flex flex-col gap-4">

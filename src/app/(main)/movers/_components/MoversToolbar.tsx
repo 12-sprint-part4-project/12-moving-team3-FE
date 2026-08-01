@@ -53,6 +53,7 @@ export const MoversToolbar = ({
             options={REGION_FILTER_OPTIONS}
             value={regionValue}
             onValueChange={onRegionChange}
+            columns={2}
           />
           <MoversSelectDropdown
             label="서비스"
