@@ -1,6 +1,7 @@
 import { ApiError } from '@/lib/apiClient';
 import {
   API_BASE_URL,
+  authFetch,
   createApiTimeoutSignal,
 } from '@/services/apiClient.legacy';
 import { getMoverAccessToken } from '@/services/moversAuth';
@@ -18,12 +19,11 @@ import type {
   ReviewStats,
 } from '@/types/mover';
 
-const getOptionalAuthHeaders = (): HeadersInit => {
-  const token = getMoverAccessToken();
-
-  return {
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
+/** 찜 목록 등 로그인 필수 API — 없으면 요청 전 실패 */
+const assertMoverAccessToken = (): void => {
+  if (!getMoverAccessToken()) {
+    throw new ApiError(401, '로그인이 필요한 기능입니다.', 'UNAUTHORIZED');
+  }
 };
 
 /**
@@ -256,17 +256,16 @@ export const toMoverCardModelFromFavorite = (
 /**
  * 기사님 목록 조회.
  * GET /api/movers
+ * authFetch: 세션 토큰이 있으면 부착, 401 시 refresh 1회 후 재시도.
  */
 export const getMovers = async (
   params: MoversListParams = {}
 ): Promise<MoversListResponse> => {
   const query = buildMoversListQuery(params);
 
-  const response = await fetch(`${API_BASE_URL}/api/movers${query}`, {
+  const response = await authFetch(`${API_BASE_URL}/api/movers${query}`, {
     method: 'GET',
-    credentials: 'include',
     cache: 'no-store',
-    headers: getOptionalAuthHeaders(),
     signal: createApiTimeoutSignal(),
   });
 
@@ -296,15 +295,14 @@ export const getMovers = async (
 /**
  * 기사님 상세 조회.
  * GET /api/movers/:id (User UUID)
+ * authFetch: 세션 토큰이 있으면 부착, 401 시 refresh 1회 후 재시도.
  */
 export const getMoverDetail = async (
   moverId: string
 ): Promise<MoverDetailResponse> => {
-  const response = await fetch(`${API_BASE_URL}/api/movers/${moverId}`, {
+  const response = await authFetch(`${API_BASE_URL}/api/movers/${moverId}`, {
     method: 'GET',
-    credentials: 'include',
     cache: 'no-store',
-    headers: getOptionalAuthHeaders(),
     signal: createApiTimeoutSignal(),
   });
 
@@ -369,10 +367,13 @@ const isFavoriteMoversResponse = (
 /**
  * 찜한 기사님 목록 조회 (CUSTOMER).
  * GET /api/movers/favorites
+ * authFetch: 401 시 refresh 1회 후 재시도.
  */
 export const getFavoriteMovers = async (
   params: FavoriteMoversParams = {}
 ): Promise<FavoriteMoversResponse> => {
+  assertMoverAccessToken();
+
   const searchParams = new URLSearchParams();
   if (params.cursor) {
     searchParams.set('cursor', params.cursor);
@@ -383,13 +384,11 @@ export const getFavoriteMovers = async (
   const query = searchParams.toString();
   const suffix = query ? `?${query}` : '';
 
-  const response = await fetch(
+  const response = await authFetch(
     `${API_BASE_URL}/api/movers/favorites${suffix}`,
     {
       method: 'GET',
-      credentials: 'include',
       cache: 'no-store',
-      headers: getOptionalAuthHeaders(),
       signal: createApiTimeoutSignal(),
     }
   );

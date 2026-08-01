@@ -1,21 +1,17 @@
 import { ApiError } from '@/lib/apiClient';
 import {
   API_BASE_URL,
+  authFetch,
   createApiTimeoutSignal,
 } from '@/services/apiClient.legacy';
 import { getMoverAccessToken } from '@/services/moversAuth';
 import type { ApiErrorBody, ApiSuccessResponse } from '@/types/api';
 
-const getRequiredAuthHeaders = (): HeadersInit => {
-  const token = getMoverAccessToken();
-
-  if (!token) {
+/** 로그인(Access Token) 필수 — 없으면 요청 전 실패 */
+const assertMoverAccessToken = (): void => {
+  if (!getMoverAccessToken()) {
     throw new ApiError(401, '로그인이 필요한 기능입니다.', 'UNAUTHORIZED');
   }
-
-  return {
-    Authorization: `Bearer ${token}`,
-  };
 };
 
 const parseErrorBody = (body: unknown): ApiErrorBody | null =>
@@ -33,15 +29,16 @@ export type RemoveFavoriteResponse = ApiSuccessResponse<Record<string, never>>;
 /**
  * 기사님 찜하기.
  * POST /api/favorites/:moverId (CUSTOMER)
+ * authFetch: 401 시 refresh 1회 후 재시도.
  */
 export const addFavorite = async (
   moverId: string
 ): Promise<AddFavoriteResponse> => {
-  const response = await fetch(`${API_BASE_URL}/api/favorites/${moverId}`, {
+  assertMoverAccessToken();
+
+  const response = await authFetch(`${API_BASE_URL}/api/favorites/${moverId}`, {
     method: 'POST',
-    credentials: 'include',
     cache: 'no-store',
-    headers: getRequiredAuthHeaders(),
     signal: createApiTimeoutSignal(),
   });
 
@@ -62,15 +59,16 @@ export const addFavorite = async (
 /**
  * 기사님 찜 취소.
  * DELETE /api/favorites/:moverId (CUSTOMER)
+ * authFetch: 401 시 refresh 1회 후 재시도.
  */
 export const removeFavorite = async (
   moverId: string
 ): Promise<RemoveFavoriteResponse> => {
-  const response = await fetch(`${API_BASE_URL}/api/favorites/${moverId}`, {
+  assertMoverAccessToken();
+
+  const response = await authFetch(`${API_BASE_URL}/api/favorites/${moverId}`, {
     method: 'DELETE',
-    credentials: 'include',
     cache: 'no-store',
-    headers: getRequiredAuthHeaders(),
     signal: createApiTimeoutSignal(),
   });
 
