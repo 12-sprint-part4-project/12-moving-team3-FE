@@ -41,7 +41,10 @@ export const authFetch = async (
         ? input.toString()
         : input.url;
 
-  const buildInit = (accessToken: string | null): RequestInit => {
+  const buildInit = (
+    accessToken: string | null,
+    signal?: AbortSignal
+  ): RequestInit => {
     const headers = new Headers(init.headers);
 
     if (accessToken) {
@@ -52,6 +55,7 @@ export const authFetch = async (
       ...init,
       credentials: 'include',
       headers,
+      ...(signal ? { signal } : {}),
     };
   };
 
@@ -63,7 +67,10 @@ export const authFetch = async (
 
   try {
     const newAccessToken = await refreshAccessToken();
-    return fetch(input, buildInit(newAccessToken));
+    return await fetch(
+      input,
+      buildInit(newAccessToken, createApiTimeoutSignal())
+    );
   } catch {
     return response;
   }

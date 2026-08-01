@@ -46,6 +46,7 @@ export const refreshAccessToken = (): Promise<string> => {
     const response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
       method: 'POST',
       credentials: 'include',
+      signal: AbortSignal.timeout(10_000),
     });
 
     const payload: unknown = await response.json().catch(() => null);
