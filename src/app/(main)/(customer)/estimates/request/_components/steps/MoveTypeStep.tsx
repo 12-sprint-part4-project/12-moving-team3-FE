@@ -95,6 +95,7 @@ export const MoveTypeStep = () => {
           {MOVE_TYPE_OPTIONS.map((option) => (
             <MoveTypeOptionField
               key={option.value}
+              name="moveType"
               value={option.value}
               label={option.label}
               selected={selectedMoveType === option.value}
