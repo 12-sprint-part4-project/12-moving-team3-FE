@@ -1,6 +1,7 @@
 import { ApiError } from '@/lib/apiClient';
 import {
   API_BASE_URL,
+  authFetch,
   createApiTimeoutSignal,
   getAccessToken,
 } from '@/services/apiClient.legacy';
@@ -35,7 +36,7 @@ const submitQuote = async (
   estimateRequestId: number,
   body: QuoteSubmitBody
 ): Promise<QuoteSubmitResponse> => {
-  const response = await fetch(
+  const response = await authFetch(
     `${API_BASE_URL}/api/users/movers/estimate-requests/${estimateRequestId}/quotes`,
     {
       method: 'POST',
