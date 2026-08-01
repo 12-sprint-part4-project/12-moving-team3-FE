@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
 
+import { EstimateRequestPageHeader } from './EstimateRequestPageHeader';
 import { Button } from '@/components/Button/Button';
 import { cn } from '@/lib/utils';
 
@@ -45,13 +46,7 @@ export const EstimateRequestBlocked = ({
 
   return (
     <div className={cn('flex w-full flex-col bg-background-200', className)}>
-      <header className="w-full bg-white py-6 shadow-page-title md:py-8">
-        <div className="mx-auto w-full max-w-[375px] px-6 md:max-w-[1448px]">
-          <h1 className="text-2lg-semibold text-black-400 md:text-2xl-semibold">
-            견적요청
-          </h1>
-        </div>
-      </header>
+      <EstimateRequestPageHeader />
 
       <div className="flex w-full flex-col gap-4 py-6 md:py-[3rem]">
         <div className="mx-auto flex w-full max-w-[375px] flex-col items-center gap-2 gap-8 px-6 md:max-w-[1448px] md:gap-6">
