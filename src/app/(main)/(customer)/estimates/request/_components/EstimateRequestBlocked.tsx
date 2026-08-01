@@ -54,7 +54,7 @@ export const EstimateRequestBlocked = ({
       </header>
 
       <div className="flex w-full flex-col gap-4 py-6 md:py-[3rem]">
-        <div className="mx-auto flex w-full max-w-[375px] flex-col items-center gap-2 gap-8 px-6 md:max-w-[1448px] md:gap-6 md:px-0">
+        <div className="mx-auto flex w-full max-w-[375px] flex-col items-center gap-2 gap-8 px-6 md:max-w-[1448px] md:gap-6">
           <div className="flex flex-col items-center gap-16">
             <Image
               src="/images/no-estimate.svg"
@@ -76,7 +76,7 @@ export const EstimateRequestBlocked = ({
             type="button"
             variant="solid"
             size="sm"
-            className="w-auto px-6 md:h-16 md:text-xl-semibold"
+            className="max-w-[12.25rem] px-6 md:h-16 md:text-xl-semibold"
             onClick={handleAction}
           >
             {actionLabel}
