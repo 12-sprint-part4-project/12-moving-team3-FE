@@ -70,19 +70,10 @@ export const MoveTypeStep = () => {
       aria-label="이사 종류 선택"
       className="mx-auto flex w-full max-w-[375px] flex-col gap-2 px-6 md:max-w-[1448px] md:gap-6"
     >
-      {/* 안내 말풍선 — 모바일 sm / 데스크톱 md */}
-      <TextFieldChat size="sm" className="md:hidden">
-        {INTRO_MESSAGE}
-      </TextFieldChat>
-      <TextFieldChat size="md" className="hidden md:inline-flex">
-        {INTRO_MESSAGE}
-      </TextFieldChat>
-
-      <TextFieldChat size="sm" className="md:hidden">
+      {/* 안내 말풍선 — TextFieldChat이 mobile-first 반응형 처리 */}
+      <TextFieldChat>{INTRO_MESSAGE}</TextFieldChat>
+      <TextFieldChat desktopChildren={PROMPT_MESSAGE_DESKTOP}>
         {PROMPT_MESSAGE_MOBILE}
-      </TextFieldChat>
-      <TextFieldChat size="md" className="hidden md:inline-flex">
-        {PROMPT_MESSAGE_DESKTOP}
       </TextFieldChat>
 
       {/* 선택 패널 — 데스크톱에서 우측 정렬 (Figma chat form) */}
