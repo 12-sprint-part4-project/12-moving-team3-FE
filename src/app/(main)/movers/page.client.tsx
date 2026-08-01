@@ -30,7 +30,15 @@ const SEARCH_DEBOUNCE_MS = 300;
 export const MoversPageClient = () => {
   const { user } = useAuth();
   const isLoggedIn = Boolean(user);
-  const { toggleFavorite, isPending: isFavoritePending } = useToggleFavorite();
+  const {
+    toggleFavorite,
+    isPending: isFavoritePending,
+    variables: favoriteVariables,
+  } = useToggleFavorite();
+  const favoritePendingMoverId =
+    isFavoritePending && favoriteVariables?.moverId
+      ? favoriteVariables.moverId
+      : null;
 
   const [searchValue, setSearchValue] = useState('');
   const [sortValue, setSortValue] =
@@ -147,7 +155,7 @@ export const MoversPageClient = () => {
           isLoggedIn={isLoggedIn}
           favoriteMovers={favorites}
           onFavoriteClick={handleFavoriteClick}
-          isFavoritePending={isFavoritePending}
+          favoritePendingMoverId={favoritePendingMoverId}
         />
 
         <div className="flex min-w-0 flex-1 flex-col gap-6 lg:gap-8">
@@ -195,7 +203,9 @@ export const MoversPageClient = () => {
                     mover={mover}
                     size="lg"
                     onFavoriteClick={handleFavoriteClick}
-                    isFavoritePending={isFavoritePending}
+                    isFavoritePending={
+                      favoritePendingMoverId === mover.moverId
+                    }
                   />
                 </li>
               ))}

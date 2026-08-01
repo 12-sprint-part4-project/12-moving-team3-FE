@@ -18,7 +18,11 @@ export const FavoritesPageClient = () => {
   const router = useRouter();
   const { user, isReady } = useAuth();
   const isLoggedIn = Boolean(user);
-  const { toggleFavorite, isPending: isFavoritePending } = useToggleFavorite();
+  const {
+    toggleFavorite,
+    isPending: isFavoritePending,
+    variables: favoriteVariables,
+  } = useToggleFavorite();
 
   const {
     movers,
@@ -131,7 +135,10 @@ export const FavoritesPageClient = () => {
                   size="lg"
                   variant="favorite"
                   onFavoriteClick={handleFavoriteClick}
-                  isFavoritePending={isFavoritePending}
+                  isFavoritePending={
+                    isFavoritePending &&
+                    favoriteVariables?.moverId === mover.moverId
+                  }
                 />
               </li>
             ))}

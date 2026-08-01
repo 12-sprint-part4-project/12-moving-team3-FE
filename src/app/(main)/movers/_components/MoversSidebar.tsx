@@ -21,7 +21,8 @@ export interface MoversSidebarProps {
   isLoggedIn: boolean;
   favoriteMovers: MoverCardModel[];
   onFavoriteClick: (moverId: string, nextFavorited: boolean) => void;
-  isFavoritePending?: boolean;
+  /** 찜 mutation 진행 중인 기사님 id — 해당 카드만 pending */
+  favoritePendingMoverId?: string | null;
   className?: string;
 }
 
@@ -35,7 +36,7 @@ export const MoversSidebar = ({
   isLoggedIn,
   favoriteMovers,
   onFavoriteClick,
-  isFavoritePending = false,
+  favoritePendingMoverId = null,
   className = '',
 }: MoversSidebarProps) => {
   return (
@@ -108,7 +109,7 @@ export const MoversSidebar = ({
                   mover={mover}
                   size="sm"
                   onFavoriteClick={onFavoriteClick}
-                  isFavoritePending={isFavoritePending}
+                  isFavoritePending={favoritePendingMoverId === mover.moverId}
                 />
               </li>
             ))}
