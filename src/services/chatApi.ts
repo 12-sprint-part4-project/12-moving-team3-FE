@@ -45,11 +45,14 @@ const parseError = async (response: Response): Promise<never> => {
 
 /** 네트워크·타임아웃 예외를 ApiError로 정규화한다. */
 const toNetworkApiError = (error: unknown): ApiError => {
-  const isAbort =
-    (error instanceof DOMException && error.name === 'AbortError') ||
-    (error instanceof Error && error.name === 'AbortError');
+  const errorName =
+    error instanceof DOMException || error instanceof Error
+      ? error.name
+      : undefined;
+  const isTimeout =
+    errorName === 'TimeoutError' || errorName === 'AbortError';
 
-  if (isAbort) {
+  if (isTimeout) {
     return new ApiError(408, '요청 시간이 초과되었습니다.', 'TIMEOUT');
   }
 
@@ -82,7 +85,15 @@ const chatFetch = async <T>(
     return parseError(response);
   }
 
-  return (await response.json()) as T;
+  try {
+    return (await response.json()) as T;
+  } catch {
+    throw new ApiError(
+      500,
+      '요청 처리 중 오류가 발생했습니다.',
+      'INVALID_RESPONSE'
+    );
+  }
 };
 
 /** GET /api/chat/rooms — 채팅방 목록 */
