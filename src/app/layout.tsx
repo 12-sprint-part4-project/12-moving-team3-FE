@@ -27,12 +27,12 @@ export default function RootLayout({
     <html lang="ko" className={`${pretendard.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <QueryProvider>
-        <AuthProvider>
-          <ToastProvider>
-            <Header />
-            <main className="flex-1">{children}</main>
-          </ToastProvider>
-        </AuthProvider>
+          <AuthProvider>
+            <ToastProvider>
+              <Header />
+              <main className="flex flex-1 flex-col">{children}</main>
+            </ToastProvider>
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

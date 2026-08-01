@@ -67,9 +67,4 @@ export interface KakaoLoginResponse {
   };
 }
 
-export interface ApiErrorBody {
-  error: {
-    code: string;
-    message: string;
-  };
-}
+export type { ApiErrorBody } from '@/types/api';

@@ -23,14 +23,22 @@ const meta: Meta<typeof MoveTypeChip> = {
   argTypes: {
     type: {
       control: 'select',
-      options: ['small', 'home', 'office', 'designated', 'quotePending'],
+      options: [
+        'small',
+        'home',
+        'office',
+        'designated',
+        'quotePending',
+        'quoteConfirmed',
+        'quoteRejected',
+      ],
       description:
-        '이사 유형. small/home/office(파란), designated(빨간), quotePending(회색·xs 없음)',
+        '이사 유형/상태. small/home/office(파란), designated(빨간), 상태칩(대기/확정/반려)=회색·xs 없음',
     },
     size: {
       control: 'select',
       options: ['xs', 'sm', 'md'],
-      description: '크기. xs는 아이콘만 표시 (quotePending는 xs 없음)',
+      description: '크기. xs는 아이콘만 표시 (상태칩은 xs 없음)',
     },
     children: {
       control: 'text',
@@ -118,6 +126,14 @@ export const AllTypes: Story = {
       <div className="flex flex-wrap items-center gap-2">
         <MoveTypeChip type="quotePending" size="sm" />
         <MoveTypeChip type="quotePending" size="md" />
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <MoveTypeChip type="quoteConfirmed" size="sm" />
+        <MoveTypeChip type="quoteConfirmed" size="md" />
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <MoveTypeChip type="quoteRejected" size="sm" />
+        <MoveTypeChip type="quoteRejected" size="md" />
       </div>
     </div>
   ),

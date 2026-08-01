@@ -1,12 +1,12 @@
-import { ApiError } from '@/lib/apiClient';
 import {
-  clearAuthSession,
-  updateAuthAccessToken,
-} from '@/lib/authSession';
-import type { ApiErrorBody, RefreshResponse } from '@/types/auth';
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+  API_BASE_URL,
+  ApiError,
+  createApiTimeoutSignal,
+  toNetworkApiError,
+} from '@/lib/apiClient';
+import { clearAuthSession, updateAuthAccessToken } from '@/lib/authSession';
+import type { ApiErrorBody } from '@/types/api';
+import type { RefreshResponse } from '@/types/auth';
 
 /** 401 refresh 재시도 루프에 넣지 않을 경로 */
 export const AUTH_RETRY_EXCLUDED_PATHS = [
@@ -43,11 +43,16 @@ export const refreshAccessToken = (): Promise<string> => {
   }
 
   inflightRefresh = (async () => {
-    const response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
-      method: 'POST',
-      credentials: 'include',
-      signal: AbortSignal.timeout(10_000),
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+        signal: createApiTimeoutSignal(),
+      });
+    } catch (error) {
+      throw toNetworkApiError(error);
+    }
 
     const payload: unknown = await response.json().catch(() => null);
 

@@ -1,6 +1,15 @@
-import type { ApiErrorBody } from '@/types/auth';
+import { getAuthSession } from '@/lib/authSession';
+import type { ApiErrorBody } from '@/types/api';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+
+/** API fetch 기본 타임아웃(ms) */
+export const API_FETCH_TIMEOUT_MS = 10_000;
+
+/** API 실패 시 기본 메시지·코드 */
+export const DEFAULT_API_ERROR_MESSAGE = '요청 처리 중 오류가 발생했습니다.';
+export const DEFAULT_API_ERROR_CODE = 'UNKNOWN_ERROR';
 
 export class ApiError extends Error {
   readonly status: number;
@@ -14,6 +23,69 @@ export class ApiError extends Error {
   }
 }
 
+/** 기본 타임아웃용 AbortSignal */
+export const createApiTimeoutSignal = (
+  timeoutMs: number = API_FETCH_TIMEOUT_MS
+): AbortSignal => AbortSignal.timeout(timeoutMs);
+
+/** 원본 signal과 타임아웃 signal을 병합 */
+export const mergeAbortSignals = (
+  ...signals: Array<AbortSignal | null | undefined>
+): AbortSignal | undefined => {
+  const activeSignals = signals.filter(
+    (signal): signal is AbortSignal => signal != null
+  );
+
+  if (activeSignals.length === 0) {
+    return undefined;
+  }
+  if (activeSignals.length === 1) {
+    return activeSignals[0];
+  }
+  if (typeof AbortSignal.any === 'function') {
+    return AbortSignal.any(activeSignals);
+  }
+
+  return activeSignals[0];
+};
+
+/** authSession에 저장된 Access Token */
+export const getAccessToken = (): string | null => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  return getAuthSession()?.accessToken ?? null;
+};
+
+/** 네트워크·타임아웃 예외를 ApiError로 정규화 */
+export const toNetworkApiError = (error: unknown): ApiError => {
+  if (error instanceof ApiError) {
+    return error;
+  }
+
+  const errorName =
+    error instanceof DOMException || error instanceof Error
+      ? error.name
+      : undefined;
+  const isTimeout = errorName === 'TimeoutError' || errorName === 'AbortError';
+
+  if (isTimeout) {
+    return new ApiError(408, '요청 시간이 초과되었습니다.', 'TIMEOUT');
+  }
+
+  return new ApiError(0, '네트워크 오류가 발생했습니다.', 'NETWORK_ERROR');
+};
+
+/** 실패 응답을 ApiError로 변환 후 throw */
+export const throwApiError = async (response: Response): Promise<never> => {
+  const body = (await response.json().catch(() => null)) as ApiErrorBody | null;
+  throw new ApiError(
+    response.status,
+    body?.error?.message ?? DEFAULT_API_ERROR_MESSAGE,
+    body?.error?.code ?? DEFAULT_API_ERROR_CODE
+  );
+};
+
 interface ApiClientOptions extends Omit<RequestInit, 'body'> {
   body?: unknown;
 }
@@ -23,32 +95,27 @@ export const apiClient = async <T>(
   path: string,
   options: ApiClientOptions = {}
 ): Promise<T> => {
-  if (!API_BASE_URL) {
-    throw new ApiError(500, 'API 서버 주소가 설정되지 않았습니다.');
+  const { body, headers, signal, ...rest } = options;
+
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      ...rest,
+      credentials: 'include',
+      signal: mergeAbortSignals(signal, createApiTimeoutSignal()),
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers,
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch (error) {
+    throw toNetworkApiError(error);
   }
-
-  const { body, headers, ...rest } = options;
-
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...rest,
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-
-  const payload: unknown = await response.json().catch(() => null);
 
   if (!response.ok) {
-    const errorBody = payload as ApiErrorBody | null;
-    throw new ApiError(
-      response.status,
-      errorBody?.error?.message ?? '요청에 실패했습니다.',
-      errorBody?.error?.code
-    );
+    return throwApiError(response);
   }
 
-  return payload as T;
+  return (await response.json().catch(() => null)) as T;
 };

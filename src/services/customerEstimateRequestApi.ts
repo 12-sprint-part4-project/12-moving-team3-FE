@@ -1,4 +1,10 @@
-import { ApiError } from '@/lib/apiClient';
+import {
+  API_BASE_URL,
+  ApiError,
+  DEFAULT_API_ERROR_MESSAGE,
+  throwApiError,
+} from '@/lib/apiClient';
+import { authFetch } from '@/lib/authFetch';
 import type {
   ReviseEstimateRequestFieldBody,
   SaveEstimateRequestStepBody,
@@ -13,12 +19,6 @@ import {
   saveEstimateRequestStepResultSchema,
   submitEstimateRequestResultSchema,
 } from '@/lib/customerEstimateRequestSchema';
-import {
-  API_BASE_URL,
-  authFetch,
-  createApiTimeoutSignal,
-} from '@/services/apiClient.legacy';
-import type { ApiErrorBody } from '@/types/api';
 import type {
   ActiveEstimateRequestData,
   CreatedEstimateRequest,
@@ -35,33 +35,15 @@ const getAuthHeaders = (withJson = false): HeadersInit => ({
   ...(withJson ? { 'Content-Type': 'application/json' } : {}),
 });
 
-/** 실패 응답을 ApiError 로 변환 */
-const parseError = async (response: Response): Promise<never> => {
-  const body = (await response.json().catch(() => null)) as ApiErrorBody | null;
-  throw new ApiError(
-    response.status,
-    body?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
-    body?.error?.code ?? 'UNKNOWN_ERROR'
-  );
-};
-
 /** 성공 응답 data를 zod로 런타임 검증 */
 const parseResponseData = <T>(schema: z.ZodType<T>, body: unknown): T => {
   if (!body || typeof body !== 'object' || !('data' in body)) {
-    throw new ApiError(
-      500,
-      '요청 처리 중 오류가 발생했습니다.',
-      'INVALID_RESPONSE'
-    );
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
   }
 
   const result = schema.safeParse((body as { data: unknown }).data);
   if (!result.success) {
-    throw new ApiError(
-      500,
-      '요청 처리 중 오류가 발생했습니다.',
-      'INVALID_RESPONSE'
-    );
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
   }
 
   return result.data;
@@ -71,7 +53,11 @@ const parseResponseData = <T>(schema: z.ZodType<T>, body: unknown): T => {
 const parseRequestBody = <T>(schema: z.ZodType<T>, body: unknown): T => {
   const result = schema.safeParse(body);
   if (!result.success) {
-    throw new ApiError(400, '요청 형식이 올바르지 않습니다.', 'INVALID_REQUEST');
+    throw new ApiError(
+      400,
+      '요청 형식이 올바르지 않습니다.',
+      'INVALID_REQUEST'
+    );
   }
   return result.data;
 };
@@ -107,7 +93,6 @@ const requestJson = async <T>(
   try {
     response = await authFetch(`${API_BASE_URL}${path}`, {
       cache: 'no-store',
-      signal: createApiTimeoutSignal(),
       ...init,
     });
   } catch (error) {
@@ -115,7 +100,7 @@ const requestJson = async <T>(
   }
 
   if (!response.ok) {
-    return parseError(response);
+    return throwApiError(response);
   }
 
   try {

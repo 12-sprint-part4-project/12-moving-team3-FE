@@ -1,34 +1,122 @@
-import { ApiError } from '@/lib/apiClient';
 import {
   API_BASE_URL,
-  authFetch,
-  createApiTimeoutSignal,
-  getAccessToken,
-} from '@/services/apiClient.legacy';
-import type { ApiErrorBody } from '@/types/api';
+  ApiError,
+  DEFAULT_API_ERROR_MESSAGE,
+  throwApiError,
+} from '@/lib/apiClient';
+import { authFetch } from '@/lib/authFetch';
+import { formatMoveDateLabel, formatShortDateLabel } from '@/lib/formatDate';
+import {
+  quoteListResponseSchema,
+  quoteSubmitResponseSchema,
+} from '@/lib/quoteSchema';
+import { formatDistrictLabel } from '@/services/estimateRequestApi';
+import { API_MOVE_TYPE_TO_UI, MOVE_TYPE_LABELS } from '@/types/estimateRequest';
 import type {
+  MoverQuotesParams,
   ProposalQuoteBody,
+  QuoteDetail,
+  QuoteDetailResponse,
+  QuoteDetailViewModel,
+  QuoteListResponse,
   QuoteSubmitBody,
   QuoteSubmitResponse,
+  RejectedQuoteCardModel,
+  RejectedQuoteListItem,
   RejectionQuoteBody,
+  SentQuoteCardModel,
+  SentQuoteListItem,
 } from '@/types/quote';
 
-const getAuthHeaders = (): HeadersInit => {
-  const token = getAccessToken();
+type SentQuotesParams = MoverQuotesParams & { status: 'SENT' };
+type RejectedQuotesParams = MoverQuotesParams & { status: 'REJECTED' };
+
+const JSON_HEADERS: HeadersInit = {
+  'Content-Type': 'application/json',
+};
+
+/** 견적 금액 표시 문자열 */
+export const formatQuotePriceLabel = (price: number | null): string => {
+  if (price === null) {
+    return '-';
+  }
+
+  return `${price.toLocaleString('ko-KR')}원`;
+};
+
+/** 보낸 견적 BE 아이템 → 카드 UI 모델 */
+export const toSentQuoteCardModel = (
+  item: SentQuoteListItem
+): SentQuoteCardModel => ({
+  id: item.id,
+  customerName: item.customer.name,
+  moveType: item.moveType ? API_MOVE_TYPE_TO_UI[item.moveType] : null,
+  isConfirmed: item.isConfirmed,
+  isDesignated: item.isDesignated,
+  moveDate: formatMoveDateLabel(item.moveDate),
+  departure: item.fromRegionLabel ?? '-',
+  arrival: item.toRegionLabel ?? '-',
+  priceLabel: formatQuotePriceLabel(item.price),
+  isMoveCompleted: item.isMoveCompleted,
+});
+
+/** 반려 견적 BE 아이템 → 카드 UI 모델 */
+export const toRejectedQuoteCardModel = (
+  item: RejectedQuoteListItem
+): RejectedQuoteCardModel => ({
+  id: item.id,
+  customerName: item.customer.name,
+  moveType: item.moveType ? API_MOVE_TYPE_TO_UI[item.moveType] : null,
+  isDesignated: item.isDesignated,
+  moveDate: formatMoveDateLabel(item.moveDate),
+  departure: item.fromRegionLabel ?? '-',
+  arrival: item.toRegionLabel ?? '-',
+});
+
+/** 견적 상세 BE → UI 모델 */
+export const toQuoteDetailViewModel = (
+  detail: QuoteDetail
+): QuoteDetailViewModel => {
+  const moveType = detail.moveType
+    ? API_MOVE_TYPE_TO_UI[detail.moveType]
+    : null;
 
   return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    id: detail.id,
+    customerName: detail.customer.name,
+    moveType,
+    isConfirmed: detail.status === 'CONFIRMED',
+    isRejected: detail.status === 'REJECTED',
+    isDesignated: detail.isDesignated,
+    isMoveCompleted: detail.isMoveCompleted,
+    priceLabel: formatQuotePriceLabel(detail.price),
+    rejectReason: detail.rejectReason,
+    requestedAtLabel: formatShortDateLabel(detail.requestedAt),
+    serviceLabel: moveType ? MOVE_TYPE_LABELS[moveType] : '-',
+    moveDateLabel: formatMoveDateLabel(detail.moveDate),
+    departure: detail.fromAddress ?? '-',
+    arrival: detail.toAddress ?? '-',
+    summaryDeparture:
+      formatDistrictLabel(detail.fromAddress) ?? detail.fromAddress ?? '-',
+    summaryArrival:
+      formatDistrictLabel(detail.toAddress) ?? detail.toAddress ?? '-',
   };
 };
 
-const parseError = async (response: Response): Promise<never> => {
-  const body = (await response.json().catch(() => null)) as ApiErrorBody | null;
-  throw new ApiError(
-    response.status,
-    body?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
-    body?.error?.code ?? 'UNKNOWN_ERROR'
-  );
+/** 견적 목록 조회 쿼리스트링 생성 */
+export const buildMoverQuotesQuery = (params: MoverQuotesParams): string => {
+  const searchParams = new URLSearchParams();
+  searchParams.set('status', params.status);
+
+  if (params.page !== undefined) {
+    searchParams.set('page', String(params.page));
+  }
+  if (params.limit !== undefined) {
+    searchParams.set('limit', String(params.limit));
+  }
+
+  const query = searchParams.toString();
+  return query ? `?${query}` : '';
 };
 
 /** 견적 제출 공통 요청 */
@@ -40,19 +128,24 @@ const submitQuote = async (
     `${API_BASE_URL}/api/users/movers/estimate-requests/${estimateRequestId}/quotes`,
     {
       method: 'POST',
-      credentials: 'include',
       cache: 'no-store',
-      headers: getAuthHeaders(),
+      headers: JSON_HEADERS,
       body: JSON.stringify(body),
-      signal: createApiTimeoutSignal(),
     }
   );
 
   if (!response.ok) {
-    return parseError(response);
+    return throwApiError(response);
   }
 
-  return (await response.json()) as QuoteSubmitResponse;
+  const responseBody: unknown = await response.json().catch(() => null);
+  const parsed = quoteSubmitResponseSchema.safeParse(responseBody);
+
+  if (!parsed.success) {
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
+  }
+
+  return parsed.data;
 };
 
 /**
@@ -81,3 +174,97 @@ export const submitRejectionQuote = async (
     type: 'REJECTION',
     rejectReason: payload.rejectReason,
   } satisfies RejectionQuoteBody);
+
+/**
+ * 보낸 견적 / 반려한 견적 목록 조회.
+ * GET /api/users/movers/quotes
+ */
+export function getMoverQuotes(
+  params: SentQuotesParams
+): Promise<QuoteListResponse<SentQuoteListItem>>;
+export function getMoverQuotes(
+  params: RejectedQuotesParams
+): Promise<QuoteListResponse<RejectedQuoteListItem>>;
+export function getMoverQuotes(
+  params: MoverQuotesParams
+): Promise<QuoteListResponse>;
+export async function getMoverQuotes(
+  params: MoverQuotesParams
+): Promise<QuoteListResponse> {
+  const query = buildMoverQuotesQuery(params);
+
+  const response = await authFetch(
+    `${API_BASE_URL}/api/users/movers/quotes${query}`,
+    {
+      method: 'GET',
+      cache: 'no-store',
+    }
+  );
+
+  if (!response.ok) {
+    return throwApiError(response);
+  }
+
+  const body: unknown = await response.json().catch(() => null);
+  const parsed = quoteListResponseSchema.safeParse(body);
+
+  if (!parsed.success) {
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
+  }
+
+  return parsed.data as QuoteListResponse;
+}
+
+const isQuoteDetailResponse = (body: unknown): body is QuoteDetailResponse => {
+  if (!body || typeof body !== 'object') {
+    return false;
+  }
+
+  const { data } = body as { data?: unknown };
+  if (!data || typeof data !== 'object') {
+    return false;
+  }
+
+  const detail = data as QuoteDetail;
+
+  return (
+    typeof detail.id === 'number' &&
+    typeof detail.estimateRequestId === 'number' &&
+    typeof detail.status === 'string' &&
+    typeof detail.isMoveCompleted === 'boolean' &&
+    !!detail.customer &&
+    typeof detail.customer.name === 'string'
+  );
+};
+
+/**
+ * 보낸 견적 / 반려 견적 상세 조회.
+ * GET /api/users/movers/quotes/:quoteId
+ */
+export const getMoverQuoteDetail = async (
+  quoteId: number
+): Promise<QuoteDetailResponse> => {
+  const response = await authFetch(
+    `${API_BASE_URL}/api/users/movers/quotes/${quoteId}`,
+    {
+      method: 'GET',
+      cache: 'no-store',
+    }
+  );
+
+  if (!response.ok) {
+    return throwApiError(response);
+  }
+
+  const body: unknown = await response.json().catch(() => null);
+
+  if (!isQuoteDetailResponse(body)) {
+    throw new ApiError(
+      response.status,
+      DEFAULT_API_ERROR_MESSAGE,
+      'INVALID_RESPONSE'
+    );
+  }
+
+  return body;
+};

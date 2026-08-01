@@ -32,6 +32,24 @@ export const formatLocalDateLabel = (value: string): string => {
 };
 
 /**
+ * 견적 요청일 짧은 표시 문자열
+ * 예: 2024-08-26T00:00:00.000Z → 24.08.26
+ */
+export const formatShortDateLabel = (value: string | null): string => {
+  if (!value) {
+    return '-';
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '-';
+  }
+
+  const year = String(date.getFullYear()).slice(-2);
+  return `${year}.${pad2(date.getMonth() + 1)}.${pad2(date.getDate())}`;
+};
+
+/**
  * 이사일(date-only) 표시 문자열 포맷
  * YYYY-MM-DD 캘린더 날짜는 타임존 변환하지 않음 (일자 밀림 방지)
  */

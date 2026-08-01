@@ -1,0 +1,76 @@
+'use client';
+
+import ClipIcon from '@/assets/icons/clip.svg';
+import FacebookIcon from '@/assets/icons/symbol-facebook.svg';
+import KakaoIcon from '@/assets/icons/symbol-kakao.svg';
+import { IconButton } from '@/components/ui/IconButton/IconButton';
+import { useToast } from '@/hooks/useToast';
+
+export interface QuoteShareButtonsProps {
+  /** 공유할 경로 (예: /mover/quotes/1) */
+  sharePath: string;
+  className?: string;
+}
+
+/** 견적서 공유 버튼 그룹 */
+export const QuoteShareButtons = ({
+  sharePath,
+  className = '',
+}: QuoteShareButtonsProps) => {
+  const { showToast } = useToast();
+
+  /** 절대 URL로 공유 주소 생성 */
+  const getShareUrl = () => `${window.location.origin}${sharePath}`;
+
+  /** 현재 상세 URL 클립보드 복사 */
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(getShareUrl());
+      showToast({ content: '링크가 복사되었습니다.' });
+    } catch {
+      showToast({ content: '링크 복사에 실패했습니다.' });
+    }
+  };
+
+  /** 페이스북 공유 창 열기 */
+  const handleShareFacebook = () => {
+    const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}`;
+    window.open(facebookShareUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  return (
+    <div className={`flex flex-col gap-2.5 lg:gap-[1.375rem] ${className}`}>
+      <p className="text-md-semibold text-black-400 lg:text-xl-semibold">
+        견적서 공유하기
+      </p>
+      <div className="flex items-start gap-4">
+        <IconButton
+          icon={ClipIcon}
+          size="xs"
+          variant="outlined"
+          aria-label="링크 복사"
+          className="cursor-pointer lg:size-16 lg:rounded-2xl lg:[&_svg]:size-9"
+          onClick={() => {
+            void handleCopyLink();
+          }}
+        />
+        {/* 카카오톡 공유는 추후 연동 예정 */}
+        <IconButton
+          icon={KakaoIcon}
+          size="xs"
+          variant="kakao"
+          aria-label="카카오톡으로 공유하기"
+          className="cursor-pointer lg:size-16 lg:rounded-2xl lg:[&_svg]:size-7"
+        />
+        <IconButton
+          icon={FacebookIcon}
+          size="xs"
+          variant="facebook"
+          aria-label="페이스북으로 공유하기"
+          className="cursor-pointer lg:size-16 lg:rounded-2xl lg:[&_svg]:size-7"
+          onClick={handleShareFacebook}
+        />
+      </div>
+    </div>
+  );
+};

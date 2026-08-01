@@ -32,8 +32,7 @@ const BOOTSTRAP_AUTO_RETRY_MS = 3000;
 
 export const customerEstimateRequestQueryKeys = {
   all: ['customer-estimate-request'] as const,
-  active: () =>
-    [...customerEstimateRequestQueryKeys.all, 'active'] as const,
+  active: () => [...customerEstimateRequestQueryKeys.all, 'active'] as const,
   detail: (estimateRequestId: number) =>
     [
       ...customerEstimateRequestQueryKeys.all,
@@ -181,7 +180,10 @@ const bootstrapCustomerEstimateRequest =
         (error instanceof Error &&
           /failed to fetch|networkerror|load failed/i.test(error.message));
 
-      console.error('[customer-estimate-request] bootstrap network/unknown', error);
+      console.error(
+        '[customer-estimate-request] bootstrap network/unknown',
+        error
+      );
 
       return makeBootstrapResult({
         status: 'error',
@@ -244,7 +246,12 @@ export const useCustomerEstimateRequest = () => {
             ),
       refetch,
     });
-  }, [bootstrapQuery.isPending, bootstrapQuery.data, bootstrapQuery.error, refetch]);
+  }, [
+    bootstrapQuery.isPending,
+    bootstrapQuery.data,
+    bootstrapQuery.error,
+    refetch,
+  ]);
 
   // 일반 에러: 풀페이지 대신 토스트 1회 + 자동 재조회 (성공/의도된 분기 복귀 시 토스트 플래그 리셋)
   useEffect(() => {
