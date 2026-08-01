@@ -26,6 +26,8 @@ export const useMoverDetail = (moverId: string) => {
     ? toMoverCardModelFromDetail(query.data.data)
     : undefined;
 
+  const reviewStats = query.data?.data.reviewStats;
+
   const isNotFound =
     (!enabled && moverId.length > 0) ||
     (query.isError &&
@@ -35,6 +37,7 @@ export const useMoverDetail = (moverId: string) => {
   return {
     ...query,
     mover,
+    reviewStats,
     isNotFound,
   };
 };

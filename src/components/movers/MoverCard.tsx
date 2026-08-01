@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import type { KeyboardEvent, MouseEvent } from 'react';
 
 import LikeActiveIcon from '@/assets/icons/like-active.svg';
@@ -17,19 +18,23 @@ export interface MoverCardProps {
   mover: MoverCardModel;
   size?: MoverCardSize;
   onFavoriteClick?: (moverId: string, nextFavorited: boolean) => void;
+  /** true면 상세 이동 비활성 (이미 상세 페이지일 때) */
+  disableNavigation?: boolean;
   className?: string;
 }
 
 /**
  * 기사님 목록 카드 (Figma Card-list/기사님 찾기).
- * 상세 이동은 TODO — 상세 페이지 구현 후 주석 해제.
+ * 클릭 시 `/movers/:id` 로 이동 (disableNavigation 제외).
  */
 export const MoverCard = ({
   mover,
   size = 'lg',
   onFavoriteClick,
+  disableNavigation = false,
   className = '',
 }: MoverCardProps) => {
+  const router = useRouter();
   const isCompact = size === 'sm';
   const ratingLabel =
     mover.averageRating === null ? '-' : mover.averageRating.toFixed(1);
@@ -44,12 +49,16 @@ export const MoverCard = ({
   };
 
   const handleCardActivate = () => {
-    // TODO: 기사님 상세 페이지 구현 후 연결
-    // router.push(`/movers/${mover.moverId}`);
-    // 또는 <Link href={`/movers/${mover.moverId}`}>로 카드 래핑
+    if (disableNavigation) {
+      return;
+    }
+    router.push(`/movers/${mover.moverId}`);
   };
 
   const handleCardKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (disableNavigation) {
+      return;
+    }
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       handleCardActivate();
@@ -58,12 +67,13 @@ export const MoverCard = ({
 
   return (
     <div
-      role="button"
-      tabIndex={0}
+      role={disableNavigation ? undefined : 'button'}
+      tabIndex={disableNavigation ? undefined : 0}
       onClick={handleCardActivate}
       onKeyDown={handleCardKeyDown}
       className={cn(
-        'flex w-full cursor-pointer flex-col border border-line-100 bg-white shadow-request-card transition-colors hover:border-blue-200',
+        'flex w-full flex-col border border-line-100 bg-white shadow-request-card transition-colors',
+        !disableNavigation && 'cursor-pointer hover:border-blue-200',
         isCompact
           ? 'gap-3 rounded-2xl px-4 py-4'
           : 'gap-4 rounded-2xl px-6 py-5',
