@@ -11,12 +11,15 @@ export interface AddressSelectCardProps {
   /** 도착지 선택/수정 */
   onSelectArrival?: () => void;
   /**
-   * 양쪽 채워진 뒤 CTA (스프린트 C: 로컬만 / D에서 saveStep).
-   * 라벨은 시안 「견적 확정하기」.
+   * 양쪽 채워진 뒤 CTA — 라벨 시안 「견적 확정하기」.
+   * 저장 연동은 AddressStep에서 saveStep(3).
    */
   onConfirm?: () => void;
   confirmDisabled?: boolean;
+  confirmBusy?: boolean;
   confirmLabel?: string;
+  /** 저장 중 출발/도착 선택·수정 잠금 */
+  selectDisabled?: boolean;
   className?: string;
 }
 
@@ -30,7 +33,9 @@ export const AddressSelectCard = ({
   onSelectArrival,
   onConfirm,
   confirmDisabled = false,
+  confirmBusy = false,
   confirmLabel = '견적 확정하기',
+  selectDisabled = false,
   className = '',
 }: AddressSelectCardProps) => {
   const hasDeparture = Boolean(departure?.address);
@@ -49,6 +54,7 @@ export const AddressSelectCard = ({
         label="출발지"
         emptyLabel="출발지 선택하기"
         draft={departure}
+        disabled={selectDisabled}
         onSelect={onSelectDeparture}
         onRevise={onSelectDeparture}
       />
@@ -58,6 +64,7 @@ export const AddressSelectCard = ({
         label="도착지"
         emptyLabel="도착지 선택하기"
         draft={arrival}
+        disabled={selectDisabled}
         onSelect={onSelectArrival}
         onRevise={onSelectArrival}
       />
@@ -69,6 +76,7 @@ export const AddressSelectCard = ({
           size="sm"
           className="md:!h-16 md:text-xl-semibold"
           disabled={confirmDisabled}
+          aria-busy={confirmBusy}
           onClick={onConfirm}
         >
           {confirmLabel}
@@ -82,6 +90,7 @@ interface AddressSideFieldProps {
   label: string;
   emptyLabel: string;
   draft: AddressDraft | null | undefined;
+  disabled?: boolean;
   onSelect?: () => void;
   onRevise?: () => void;
 }
@@ -91,6 +100,7 @@ const AddressSideField = ({
   label,
   emptyLabel,
   draft,
+  disabled = false,
   onSelect,
   onRevise,
 }: AddressSideFieldProps) => {
@@ -112,6 +122,7 @@ const AddressSideField = ({
           variant="outlined"
           size="sm"
           className="justify-start md:!h-16 md:text-xl-semibold"
+          disabled={disabled}
           onClick={isFilled ? onRevise : onSelect}
         >
           <span className="truncate text-left">
@@ -125,6 +136,7 @@ const AddressSideField = ({
           <button
             type="button"
             className="text-xs-medium text-black-400 underline md:text-lg-medium"
+            disabled={disabled}
             onClick={onRevise}
           >
             수정하기

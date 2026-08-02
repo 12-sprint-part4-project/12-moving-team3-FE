@@ -13,6 +13,8 @@ import { EstimateRequestChatPanel } from '../EstimateRequestChatPanel';
 import { InlineErrorMessage } from '../InlineErrorMessage';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
+import { ApiError } from '@/lib/apiClient';
+import { saveEstimateRequestStepBodySchema } from '@/lib/customerEstimateRequestSchema';
 import type { ApiMoveType } from '@/types/estimateRequest';
 
 /** Step1·2와 동일 옵션 — 답변 라벨 표시용 */
@@ -55,10 +57,10 @@ const toDraftFromDetail = (
 
 /**
  * 스텝3 — 출발지/도착지.
- * 스프린트 C: 검색 모달·상세주소·로컬 draft. saveStep은 D.
+ * CTA: zod 검증 후 saveStep(3) → syncDetail → visualStep=4.
  */
 export const AddressStep = () => {
-  const { bootstrap } = useCustomerEstimateRequest();
+  const { bootstrap, saveStep, isSavingStep } = useCustomerEstimateRequest();
   const detail = bootstrap.detail;
   const moveTypeLabel =
     MOVE_TYPE_OPTIONS.find((option) => option.value === detail?.moveType)
@@ -82,7 +84,10 @@ export const AddressStep = () => {
     )
   );
   const [activeSide, setActiveSide] = useState<AddressSide | null>(null);
-  const [confirmHint, setConfirmHint] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const canConfirm =
+    departure != null && arrival != null && !isSavingStep && detail != null;
 
   const handleConfirmDraft = (draft: AddressDraft) => {
     if (activeSide === 'departure') {
@@ -91,16 +96,55 @@ export const AddressStep = () => {
       setArrival(draft);
     }
     setActiveSide(null);
-    setConfirmHint(null);
+    setErrorMessage(null);
   };
 
-  const handleConfirmBoth = () => {
-    // 스프린트 D에서 saveStep(3) 연동
-    if (!departure || !arrival) {
-      setConfirmHint('출발지와 도착지를 모두 입력해 주세요.');
+  const handleConfirmBoth = async () => {
+    if (!detail) {
       return;
     }
-    setConfirmHint(null);
+
+    // 출발·도착 draft 모두 있어야 step3 body 구성 가능
+    if (!departure || !arrival) {
+      setErrorMessage('출발지와 도착지를 모두 입력해 주세요.');
+      return;
+    }
+
+    const parsed = saveEstimateRequestStepBodySchema.safeParse({
+      step: 3,
+      data: {
+        departureZipCode: departure.zipCode,
+        departureAddress: departure.address,
+        departureDetailAddress: departure.detailAddress,
+        arrivalZipCode: arrival.zipCode,
+        arrivalAddress: arrival.address,
+        arrivalDetailAddress: arrival.detailAddress,
+      },
+    });
+
+    if (!parsed.success) {
+      setErrorMessage(
+        parsed.error.issues[0]?.message ?? '주소를 입력해 주세요.'
+      );
+      return;
+    }
+
+    setErrorMessage(null);
+
+    try {
+      // 성공 시 syncDetail → visualStep=4 → SubmitStep
+      await saveStep({
+        estimateRequestId: detail.id,
+        body: parsed.data,
+      });
+    } catch (error) {
+      // BE REQUIRED_FIELD_MISSING 등 ApiError.message 그대로 노출
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : '주소 저장 중 오류가 발생했습니다.';
+      setErrorMessage(message);
+    }
   };
 
   return (
@@ -116,13 +160,14 @@ export const AddressStep = () => {
         </TextFieldChat>
       </EstimateRequestChatBubbleGroup>
 
-      {/* 유저: 이사종류 답변 + 수정하기 (UI만 — D에서 연동 가능) */}
+      {/* 유저: 이사종류 답변 + 수정하기 (UI만 — 주소 CTA 우선) */}
       {moveTypeLabel ? (
         <EstimateRequestChatBubbleGroup align="end">
           <TextFieldChat color="mePrimary">{moveTypeLabel}</TextFieldChat>
           <button
             type="button"
             className="pr-2 text-xs-medium text-gray-500 underline md:text-lg-medium"
+            disabled={isSavingStep}
           >
             수정하기
           </button>
@@ -141,6 +186,7 @@ export const AddressStep = () => {
           <button
             type="button"
             className="pr-2 text-xs-medium text-gray-500 underline md:text-lg-medium"
+            disabled={isSavingStep}
           >
             수정하기
           </button>
@@ -152,19 +198,31 @@ export const AddressStep = () => {
         <TextFieldChat>{ADDRESS_PROMPT}</TextFieldChat>
       </EstimateRequestChatBubbleGroup>
 
-      {/* 출발/도착 선택 카드 */}
+      {/* 출발/도착 선택 카드 + step3 저장 CTA */}
       <EstimateRequestChatPanel>
         <AddressSelectCard
           departure={departure}
           arrival={arrival}
-          onSelectDeparture={() => setActiveSide('departure')}
-          onSelectArrival={() => setActiveSide('arrival')}
-          onConfirm={handleConfirmBoth}
+          selectDisabled={isSavingStep}
+          confirmDisabled={!canConfirm}
+          confirmBusy={isSavingStep}
+          confirmLabel={isSavingStep ? '저장 중…' : '견적 확정하기'}
+          onSelectDeparture={() => {
+            setErrorMessage(null);
+            setActiveSide('departure');
+          }}
+          onSelectArrival={() => {
+            setErrorMessage(null);
+            setActiveSide('arrival');
+          }}
+          onConfirm={() => {
+            void handleConfirmBoth();
+          }}
         />
-        <InlineErrorMessage message={confirmHint} />
+        <InlineErrorMessage message={errorMessage} />
       </EstimateRequestChatPanel>
 
-      {activeSide ? (
+      {activeSide && !isSavingStep ? (
         <EstimateRequestAddressModal
           side={activeSide}
           initialDraft={activeSide === 'departure' ? departure : arrival}
