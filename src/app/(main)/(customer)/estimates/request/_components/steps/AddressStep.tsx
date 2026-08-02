@@ -1,8 +1,16 @@
 'use client';
 
+import { useState } from 'react';
+
 import { AddressSelectCard } from '../AddressSelectCard';
+import {
+  EstimateRequestAddressModal,
+  type AddressDraft,
+  type AddressSide,
+} from '../EstimateRequestAddressModal';
 import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGroup';
 import { EstimateRequestChatPanel } from '../EstimateRequestChatPanel';
+import { InlineErrorMessage } from '../InlineErrorMessage';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 import type { ApiMoveType } from '@/types/estimateRequest';
@@ -33,9 +41,21 @@ const formatChatMoveDate = (moveDate: string): string => {
   return `${year}년 ${month}월 ${day}일`;
 };
 
+/** detail에 저장된 주소가 있으면 draft로 복원 */
+const toDraftFromDetail = (
+  zipCode: string | null | undefined,
+  address: string | null | undefined,
+  detailAddress: string | null | undefined
+): AddressDraft | null => {
+  if (!zipCode || !address || !detailAddress) {
+    return null;
+  }
+  return { zipCode, address, detailAddress };
+};
+
 /**
- * 스텝3 — 출발지/도착지 선택 UI (스프린트 B).
- * 채팅 히스토리 + empty 선택 카드. 모달·API는 스프린트 C/D.
+ * 스텝3 — 출발지/도착지.
+ * 스프린트 C: 검색 모달·상세주소·로컬 draft. saveStep은 D.
  */
 export const AddressStep = () => {
   const { bootstrap } = useCustomerEstimateRequest();
@@ -46,6 +66,42 @@ export const AddressStep = () => {
   const moveDateLabel = detail?.moveDate
     ? formatChatMoveDate(detail.moveDate)
     : null;
+
+  const [departure, setDeparture] = useState<AddressDraft | null>(() =>
+    toDraftFromDetail(
+      detail?.departureZipCode,
+      detail?.departureAddress,
+      detail?.departureDetailAddress
+    )
+  );
+  const [arrival, setArrival] = useState<AddressDraft | null>(() =>
+    toDraftFromDetail(
+      detail?.arrivalZipCode,
+      detail?.arrivalAddress,
+      detail?.arrivalDetailAddress
+    )
+  );
+  const [activeSide, setActiveSide] = useState<AddressSide | null>(null);
+  const [confirmHint, setConfirmHint] = useState<string | null>(null);
+
+  const handleConfirmDraft = (draft: AddressDraft) => {
+    if (activeSide === 'departure') {
+      setDeparture(draft);
+    } else if (activeSide === 'arrival') {
+      setArrival(draft);
+    }
+    setActiveSide(null);
+    setConfirmHint(null);
+  };
+
+  const handleConfirmBoth = () => {
+    // 스프린트 D에서 saveStep(3) 연동
+    if (!departure || !arrival) {
+      setConfirmHint('출발지와 도착지를 모두 입력해 주세요.');
+      return;
+    }
+    setConfirmHint(null);
+  };
 
   return (
     <section
@@ -60,7 +116,7 @@ export const AddressStep = () => {
         </TextFieldChat>
       </EstimateRequestChatBubbleGroup>
 
-      {/* 유저: 이사종류 답변 + 수정하기 (클릭은 C/D에서 연동, UI만) */}
+      {/* 유저: 이사종류 답변 + 수정하기 (UI만 — D에서 연동 가능) */}
       {moveTypeLabel ? (
         <EstimateRequestChatBubbleGroup align="end">
           <TextFieldChat color="mePrimary">{moveTypeLabel}</TextFieldChat>
@@ -96,10 +152,26 @@ export const AddressStep = () => {
         <TextFieldChat>{ADDRESS_PROMPT}</TextFieldChat>
       </EstimateRequestChatBubbleGroup>
 
-      {/* 출발/도착 선택 카드 — ChatPanel, md+ 우측 정렬 */}
+      {/* 출발/도착 선택 카드 */}
       <EstimateRequestChatPanel>
-        <AddressSelectCard />
+        <AddressSelectCard
+          departure={departure}
+          arrival={arrival}
+          onSelectDeparture={() => setActiveSide('departure')}
+          onSelectArrival={() => setActiveSide('arrival')}
+          onConfirm={handleConfirmBoth}
+        />
+        <InlineErrorMessage message={confirmHint} />
       </EstimateRequestChatPanel>
+
+      {activeSide ? (
+        <EstimateRequestAddressModal
+          side={activeSide}
+          initialDraft={activeSide === 'departure' ? departure : arrival}
+          onClose={() => setActiveSide(null)}
+          onConfirm={handleConfirmDraft}
+        />
+      ) : null}
     </section>
   );
 };
