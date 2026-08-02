@@ -39,10 +39,10 @@ const PHONE_NUMBER_LENGTH = 11;
 const FIELD_CLASSNAME =
   'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
 
-/** Figma Tablet: lg-semibold / Desktop(lg+): xl-semibold */
+/** Figma Mobile·Tablet: lg-semibold / Desktop(lg+): xl-semibold */
 const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
 
-/** Figma Tablet chip/지역 sm: px-3 py-1.5 md-medium / Desktop: px-5 py-2.5 2lg-medium */
+/** Figma Mobile·Tablet chip sm / Desktop: md */
 const CHIP_CLASSNAME =
   'px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium';
 
@@ -68,9 +68,7 @@ export const CustomerProfileForm = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
-  const [phoneNumber, setPhoneNumber] = useState(() =>
-    toDigits(user?.phoneNumber ?? '')
-  );
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [selectedServices, setSelectedServices] = useState<
     CustomerServiceType[]
   >([]);
@@ -85,6 +83,14 @@ export const CustomerProfileForm = () => {
     selectedServices.length > 0 &&
     selectedRegion !== null &&
     !isPending;
+
+  // hydration 전에는 user가 null이라, 세션 복원 후 전화번호만 채운다 (사용자 입력은 유지)
+  useEffect(() => {
+    const sessionPhone = toDigits(user?.phoneNumber ?? '');
+    if (!sessionPhone) return;
+
+    setPhoneNumber((prev) => (prev ? prev : sessionPhone));
+  }, [user?.phoneNumber]);
 
   useEffect(() => {
     return () => {
@@ -189,9 +195,9 @@ export const CustomerProfileForm = () => {
         onSubmit={(event) => {
           void handleSubmit(event);
         }}
-        className="flex w-full max-w-[20.4375rem] flex-col items-center gap-8 lg:max-w-[40rem] lg:gap-14"
+        className="flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 lg:max-w-[40rem] lg:gap-14"
       >
-        <div className="flex w-full flex-col items-center gap-4 lg:gap-16">
+        <div className="flex w-full flex-col items-stretch gap-4 lg:gap-16">
           <header className="flex w-full flex-col items-start gap-4 lg:gap-8">
             <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
               프로필 등록

@@ -24,8 +24,13 @@ export const Header = () => {
   const { showToast } = useToast();
   const { user, isReady, clearSession } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // 프로필 미등록(404) 고객은 조회를 건너뛴다 — Header 아바타용
   const { data: customerProfile } = useCustomerProfile(
-    Boolean(isReady && user?.userType === 'CUSTOMER')
+    Boolean(
+      isReady &&
+        user?.userType === 'CUSTOMER' &&
+        user.isProfileCompleted
+    )
   );
 
   const handleMenuOpen = () => setIsMenuOpen(true);
