@@ -21,7 +21,26 @@ import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 import { ApiError } from '@/lib/apiClient';
 import { saveEstimateRequestStepBodySchema } from '@/lib/customerEstimateRequestSchema';
+import type { EstimateRequestVisualStep } from '@/types/customerEstimateRequest';
 import type { ApiMoveType } from '@/types/estimateRequest';
+
+/** 출발/도착 draft → Progress 채움 (미선택 2 → 출발 3 → 둘 다 4) */
+const toAddressProgressFill = (
+  departure: AddressDraft | null,
+  arrival: AddressDraft | null
+): EstimateRequestVisualStep => {
+  if (departure && arrival) {
+    return 4;
+  }
+  if (departure) {
+    return 3;
+  }
+  return 2;
+};
+
+interface AddressStepProps {
+  onProgressFillChange?: (fill: EstimateRequestVisualStep) => void;
+}
 
 /** Step1·2와 동일 옵션 — 답변 라벨·수정 패널 공용 */
 const MOVE_TYPE_OPTIONS: ReadonlyArray<{
@@ -64,9 +83,9 @@ const toDraftFromDetail = (
 /**
  * 스텝3 — 출발지/도착지.
  * CTA: zod 검증 후 saveStep(3) → Step4.
- * 이사종류/일자 「수정하기」: reviseField 후 visualStep=3 유지·주소 UI 복귀.
+ * Progress: 출발 draft=3/4, 도착까지=full. 이사종류/일자 수정은 reviseField.
  */
-export const AddressStep = () => {
+export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
   const {
     bootstrap,
     saveStep,
@@ -114,6 +133,11 @@ export const AddressStep = () => {
   useEffect(() => {
     setMinMoveDate(new Date());
   }, []);
+
+  // 로컬 draft 기준으로 Progress 채움 동기화
+  useEffect(() => {
+    onProgressFillChange?.(toAddressProgressFill(departure, arrival));
+  }, [departure, arrival, onProgressFillChange]);
 
   const isSubmitting = isSavingStep || isRevisingField;
   const isInReviseMode = isRevisingMoveType || isRevisingMoveDate;
