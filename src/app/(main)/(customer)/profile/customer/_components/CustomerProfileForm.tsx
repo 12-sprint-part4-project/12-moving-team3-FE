@@ -39,7 +39,12 @@ const PHONE_NUMBER_LENGTH = 11;
 const FIELD_CLASSNAME =
   'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
 
-const LABEL_CLASSNAME = 'text-xl-semibold text-black-300';
+/** Figma Tablet: lg-semibold / Desktop(lg+): xl-semibold */
+const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
+
+/** Figma Tablet chip/지역 sm: px-3 py-1.5 md-medium / Desktop: px-5 py-2.5 2lg-medium */
+const CHIP_CLASSNAME =
+  'px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium';
 
 const toDigits = (value: string): string => value.replace(/\D/g, '');
 
@@ -184,20 +189,22 @@ export const CustomerProfileForm = () => {
         onSubmit={(event) => {
           void handleSubmit(event);
         }}
-        className="flex w-full max-w-[40rem] flex-col items-center gap-14"
+        className="flex w-full max-w-[20.4375rem] flex-col items-center gap-8 lg:max-w-[40rem] lg:gap-14"
       >
-        <div className="flex w-full flex-col items-center gap-16">
-          <header className="flex w-full flex-col items-start gap-8">
-            <h1 className="text-3xl-semibold text-black-400">프로필 등록</h1>
-            <p className="text-xl-regular text-black-200">
+        <div className="flex w-full flex-col items-center gap-4 lg:gap-16">
+          <header className="flex w-full flex-col items-start gap-4 lg:gap-8">
+            <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
+              프로필 등록
+            </h1>
+            <p className="text-xs-regular text-black-100 lg:text-xl-regular lg:text-black-200">
               추가 정보를 입력하여 회원가입을 완료해주세요.
             </p>
             <div className="h-px w-full bg-line-100" aria-hidden />
           </header>
 
-          <div className="flex w-full flex-col items-start gap-8">
-            <section className="flex flex-col items-start gap-6">
-              <h2 className="text-xl-semibold text-black-300">프로필 이미지</h2>
+          <div className="flex w-full flex-col items-start gap-5 lg:gap-8">
+            <section className="flex flex-col items-start gap-4 lg:gap-6">
+              <h2 className={LABEL_CLASSNAME}>프로필 이미지</h2>
               <input
                 ref={imageInputRef}
                 id={imageInputId}
@@ -211,7 +218,7 @@ export const CustomerProfileForm = () => {
                 onClick={handleImageButtonClick}
                 aria-label="프로필 이미지 업로드"
                 className={cn(
-                  'flex size-40 items-center justify-center overflow-hidden rounded-md bg-background-200',
+                  'flex size-[6.25rem] items-center justify-center overflow-hidden rounded-md bg-background-200 lg:size-40',
                   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300'
                 )}
               >
@@ -223,14 +230,17 @@ export const CustomerProfileForm = () => {
                     className="size-full object-cover"
                   />
                 ) : (
-                  <NoImageIcon className="size-10 text-gray-300" aria-hidden />
+                  <NoImageIcon
+                    className="size-8 text-gray-300 lg:size-10"
+                    aria-hidden
+                  />
                 )}
               </button>
             </section>
 
             <div className="h-px w-full bg-line-100" aria-hidden />
 
-            <section className="flex w-full flex-col items-start gap-6">
+            <section className="flex w-full flex-col items-start gap-4 lg:gap-6">
               <label htmlFor={phoneInputId} className={LABEL_CLASSNAME}>
                 전화번호
               </label>
@@ -250,14 +260,14 @@ export const CustomerProfileForm = () => {
 
             <div className="h-px w-full bg-line-100" aria-hidden />
 
-            <section className="flex w-full flex-col items-start gap-8">
+            <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
               <div className="flex flex-col items-start gap-2">
-                <h2 className="text-xl-semibold text-black-300">이용 서비스</h2>
-                <p className="text-lg-regular text-gray-400">
+                <h2 className={LABEL_CLASSNAME}>이용 서비스</h2>
+                <p className="text-xs-regular text-gray-400 lg:text-lg-regular">
                   *이용 서비스는 중복 선택 가능하며, 언제든 수정 가능해요!
                 </p>
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-1.5 lg:gap-3">
                 {SERVICE_CHIP_OPTIONS.map((option) => (
                   <ServiceChip
                     key={option.value}
@@ -268,6 +278,7 @@ export const CustomerProfileForm = () => {
                         toggleService(prev, option.value)
                       )
                     }
+                    className={CHIP_CLASSNAME}
                   >
                     {option.label}
                   </ServiceChip>
@@ -277,16 +288,14 @@ export const CustomerProfileForm = () => {
 
             <div className="h-px w-full bg-line-100" aria-hidden />
 
-            <section className="flex w-full flex-col items-start gap-8">
+            <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
               <div className="flex w-full flex-col items-start gap-2">
-                <h2 className="text-xl-semibold text-black-300">
-                  내가 사는 지역
-                </h2>
-                <p className="text-lg-regular text-gray-400">
+                <h2 className={LABEL_CLASSNAME}>내가 사는 지역</h2>
+                <p className="text-xs-regular text-gray-400 lg:text-lg-regular">
                   *내가 사는 지역은 언제든 수정 가능해요!
                 </p>
               </div>
-              <div className="flex flex-wrap gap-x-3.5 gap-y-[1.125rem]">
+              <div className="flex flex-wrap gap-x-2 gap-y-3 lg:gap-x-3.5 lg:gap-y-[1.125rem]">
                 {REGION_CHIP_OPTIONS.map((option) => (
                   <RegionChip
                     key={option.value}
@@ -297,6 +306,7 @@ export const CustomerProfileForm = () => {
                         prev === option.value ? null : option.value
                       )
                     }
+                    className={CHIP_CLASSNAME}
                   >
                     {option.label}
                   </RegionChip>
@@ -310,8 +320,9 @@ export const CustomerProfileForm = () => {
           <Button
             type="submit"
             variant="solid"
-            size="md"
+            size="sm"
             disabled={!isSubmitEnabled}
+            className="lg:h-16 lg:text-xl-semibold"
           >
             {isPending ? '등록 중...' : '시작하기'}
           </Button>

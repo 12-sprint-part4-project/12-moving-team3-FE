@@ -1,5 +1,7 @@
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
 
+import { cn } from '@/lib/utils';
+
 /*
   BASE CHIP (내부 공용)
 
@@ -56,7 +58,7 @@ export const BaseChip = ({
   // button은 부모가 넘긴 isSelected로 색을 결정.
   const isActive = variant === 'textOnly' ? textOnlyActive : isSelected;
   const colorClass = isActive ? SELECTED_CLASS : UNSELECTED_CLASS;
-  const mergedClassName = `${BASE_CLASS} ${colorClass} ${className}`.trim();
+  const mergedClassName = cn(BASE_CLASS, colorClass, className);
 
   // textOnly: 시맨틱상 버튼이 아니므로 div로 렌더 (키보드/폼 제출 방지)
   if (variant === 'textOnly') {
