@@ -39,7 +39,7 @@ const SIDE_TITLE: Record<AddressSide, string> = {
 
 /**
  * Step3 주소 검색 모달 — 행안부 프록시 검색 + AddressCard + 상세주소.
- * SelectAddressModal 시안 구조에 상세주소(TextFieldOutlined)를 더한 견적요청 전용.
+ * 반응형: 기본(모바일) 좁은 패널 → md+ MODAL_PANEL 스펙 (공용 sm:은 이 모달에서 md로 재매핑).
  */
 export const EstimateRequestAddressModal = ({
   side,
@@ -60,7 +60,8 @@ export const EstimateRequestAddressModal = ({
 
   const selected = addresses.find((item) => item.id === selectedId) ?? null;
   const trimmedDetail = detailAddress.trim();
-  const canSubmit = selected != null && trimmedDetail.length > 0 && !isSearching;
+  const canSubmit =
+    selected != null && trimmedDetail.length > 0 && !isSearching;
 
   const handleSearch = async (keyword: string) => {
     const next = keyword.trim();
@@ -114,17 +115,28 @@ export const EstimateRequestAddressModal = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={cn(MODAL_PANEL_CLASS)}
+        // 모바일: max-w 18.25rem·패딩/갭. md+: MODAL_PANEL 스펙
+        // MODAL_PANEL_CLASS의 sm: 확장을 md로 미룸
+        className={cn(
+          MODAL_PANEL_CLASS,
+          'mx-auto max-w-[18.25rem] gap-[1.875rem] px-4 py-6',
+          'sm:max-w-[18.25rem] sm:gap-[1.875rem] sm:rounded-[1.5rem]',
+          'md:max-w-[38rem] md:gap-10 md:rounded-[2rem] md:px-6 md:pt-8 md:pb-10'
+        )}
       >
         <ModalHeader
           title={SIDE_TITLE[side]}
           onClose={onClose}
           titleId={titleId}
+          // 굵기 bold 고정 — 크기만 md에서 확대 (공용 헤더 sm:semibold 덮어씀)
+          titleClassName="!text-2lg-bold sm:!text-2lg-bold md:!text-2xl-bold"
+          className="[&_button]:sm:!size-6 [&_button]:md:!size-9"
         />
 
-        <div className="flex w-full flex-col gap-6">
+        <div className="flex w-full flex-col gap-4 md:gap-6">
+          {/* 모바일 검색(14px) → md+ 검색(20px·h-16) */}
           <TextFieldSearch
-            size="md"
+            size="sm"
             value={query}
             onChange={(event) => {
               setQuery(event.target.value);
@@ -141,19 +153,27 @@ export const EstimateRequestAddressModal = ({
               void handleSearch(query);
             }}
             placeholder="텍스트를 입력해 주세요."
-            className="!max-w-none"
+            className={cn(
+              '!max-w-none',
+              'md:h-16 md:gap-2 md:px-6',
+              'md:[&_input]:text-xl-regular',
+              'md:[&>svg]:size-9 md:[&_button]:size-9 md:[&>div]:gap-4'
+            )}
             aria-label="주소 검색"
             disabled={isSearching}
           />
 
           {isSearching ? (
-            <p className="text-md-medium text-gray-400" role="status">
+            <p
+              className="text-md-medium text-gray-400 md:text-lg-medium"
+              role="status"
+            >
               주소를 검색하는 중…
             </p>
           ) : null}
 
           {addresses.length > 0 ? (
-            <ul className="flex max-h-[16rem] w-full flex-col gap-3 overflow-y-auto sm:max-h-[20rem]">
+            <ul className="flex max-h-[16rem] w-full flex-col gap-3 overflow-y-auto md:max-h-[20rem] md:gap-4">
               {addresses.map((address) => (
                 <li key={address.id}>
                   <AddressCard
@@ -161,6 +181,13 @@ export const EstimateRequestAddressModal = ({
                     roadAddress={address.roadAddress}
                     lotAddress={address.lotAddress}
                     isSelected={selectedId === address.id}
+                    // AddressCard 공용 sm: → 이 모달만 md로
+                    className={cn(
+                      '[&>p]:sm:!text-md-semibold [&>p]:md:!text-lg-semibold',
+                      '[&_.min-w-0]:sm:!text-md-regular [&_.min-w-0]:md:!text-lg-regular',
+                      '[&_[class*="text-xs-semibold"]]:sm:!min-w-11 [&_[class*="text-xs-semibold"]]:sm:!px-1.5 [&_[class*="text-xs-semibold"]]:sm:!text-xs-semibold',
+                      '[&_[class*="text-xs-semibold"]]:md:!min-w-[3.375rem] [&_[class*="text-xs-semibold"]]:md:!px-2 [&_[class*="text-xs-semibold"]]:md:!text-md-semibold'
+                    )}
                     onClick={() => {
                       setSelectedId(address.id);
                       setErrorMessage(null);
@@ -172,23 +199,29 @@ export const EstimateRequestAddressModal = ({
           ) : null}
 
           {hasSearched && !isSearching && addresses.length === 0 ? (
-            <p className="text-md-medium text-gray-400" role="status">
+            <p
+              className="text-md-medium text-gray-400 md:text-lg-medium"
+              role="status"
+            >
               검색 결과가 없습니다.
             </p>
           ) : null}
 
-          {/* BE 필수 detailAddress — 시안에 없어 선택 후 입력 */}
+          {/* BE 필수 detailAddress — 선택 후 입력 */}
           <div className="flex w-full flex-col gap-2">
             <label
               htmlFor={`address-detail-${side}`}
-              className="text-md-medium text-black-400"
+              className="text-md-medium text-black-400 md:text-lg-medium"
             >
               상세주소
             </label>
             <TextFieldOutlined
               id={`address-detail-${side}`}
               size="sm"
-              className="[&>div]:!w-full"
+              className={cn(
+                '[&>div]:!w-full',
+                'md:[&>div]:!min-h-8 md:[&_input]:text-xl-regular'
+              )}
               value={detailAddress}
               onChange={(event) => setDetailAddress(event.target.value)}
               placeholder="상세주소를 입력해 주세요."
@@ -198,13 +231,20 @@ export const EstimateRequestAddressModal = ({
           </div>
 
           {errorMessage ? (
-            <p className="text-md-medium text-red-200" role="alert">
+            <p
+              className="text-md-medium text-red-200 md:text-lg-medium"
+              role="alert"
+            >
               {errorMessage}
             </p>
           ) : null}
         </div>
 
-        <ModalCtaButton disabled={!canSubmit} onClick={handleSubmit}>
+        <ModalCtaButton
+          disabled={!canSubmit}
+          onClick={handleSubmit}
+          className="sm:h-[3.375rem] sm:text-lg-semibold md:h-16 md:text-xl-semibold"
+        >
           선택완료
         </ModalCtaButton>
       </section>

@@ -24,7 +24,7 @@ export interface AddressSelectCardProps {
 }
 
 /**
- * Step3 출발/도착 선택 카드 — empty / filled (Figma input/견적요청_주소).
+ * Step3 출발/도착 선택 카드 — empty / filled.
  */
 export const AddressSelectCard = ({
   departure = null,
