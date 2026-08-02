@@ -161,7 +161,7 @@ export const CustomerProfileForm = () => {
       });
 
       await queryClient.invalidateQueries({
-        queryKey: customerProfileQueryKeys.me(),
+        queryKey: customerProfileQueryKeys.all,
       });
 
       const session = getAuthSession();

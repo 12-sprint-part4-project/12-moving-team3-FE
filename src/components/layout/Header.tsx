@@ -2,13 +2,17 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { GnbDefault } from '@/components/Gnb/GnbDefault';
 import { GnbLanding } from '@/components/Gnb/GnbLanding';
 import { GnbMenu } from '@/components/Gnb/GnbMenu';
 import type { GnbNavItem } from '@/components/Gnb/gnbNav';
 import { useAuth } from '@/hooks/useAuth';
-import { useCustomerProfile } from '@/hooks/useCustomerProfile';
+import {
+  customerProfileQueryKeys,
+  useCustomerProfile,
+} from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { logout } from '@/services/authApi';
@@ -21,6 +25,7 @@ const LANDING_MENU_ITEMS: GnbNavItem[] = [
 /** 비로그인: GnbLanding / 로그인: GnbDefault */
 export const Header = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { showToast } = useToast();
   const { user, isReady, clearSession } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -48,6 +53,7 @@ export const Header = () => {
       return;
     }
 
+    queryClient.removeQueries({ queryKey: customerProfileQueryKeys.all });
     clearSession();
     showToast({ content: '로그아웃되었습니다.' });
     router.replace('/');
