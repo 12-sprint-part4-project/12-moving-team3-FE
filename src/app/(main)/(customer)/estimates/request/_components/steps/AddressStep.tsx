@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { AddressSelectCard } from '../AddressSelectCard';
 import {
@@ -11,13 +11,19 @@ import {
 import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGroup';
 import { EstimateRequestChatPanel } from '../EstimateRequestChatPanel';
 import { InlineErrorMessage } from '../InlineErrorMessage';
+import { MoveTypeRevisePanel } from '../MoveTypeRevisePanel';
+import { Calendar } from '@/components/ui/Calendar/Calendar';
+import {
+  formatDateOnly,
+  parseDateOnly,
+} from '@/components/ui/Calendar/Calendar.utils';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 import { ApiError } from '@/lib/apiClient';
 import { saveEstimateRequestStepBodySchema } from '@/lib/customerEstimateRequestSchema';
 import type { ApiMoveType } from '@/types/estimateRequest';
 
-/** Step1·2와 동일 옵션 — 답변 라벨 표시용 */
+/** Step1·2와 동일 옵션 — 답변 라벨·수정 패널 공용 */
 const MOVE_TYPE_OPTIONS: ReadonlyArray<{
   value: ApiMoveType;
   label: string;
@@ -57,14 +63,22 @@ const toDraftFromDetail = (
 
 /**
  * 스텝3 — 출발지/도착지.
- * CTA: zod 검증 후 saveStep(3) → syncDetail → visualStep=4.
+ * CTA: zod 검증 후 saveStep(3) → Step4.
+ * 이사종류/일자 「수정하기」: reviseField 후 visualStep=3 유지·주소 UI 복귀.
  */
 export const AddressStep = () => {
-  const { bootstrap, saveStep, isSavingStep } = useCustomerEstimateRequest();
+  const {
+    bootstrap,
+    saveStep,
+    reviseField,
+    isSavingStep,
+    isRevisingField,
+  } = useCustomerEstimateRequest();
   const detail = bootstrap.detail;
+  const moveType = detail?.moveType ?? null;
   const moveTypeLabel =
-    MOVE_TYPE_OPTIONS.find((option) => option.value === detail?.moveType)
-      ?.label ?? null;
+    MOVE_TYPE_OPTIONS.find((option) => option.value === moveType)?.label ??
+    null;
   const moveDateLabel = detail?.moveDate
     ? formatChatMoveDate(detail.moveDate)
     : null;
@@ -86,8 +100,95 @@ export const AddressStep = () => {
   const [activeSide, setActiveSide] = useState<AddressSide | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const canConfirm =
-    departure != null && arrival != null && !isSavingStep && detail != null;
+  const [isRevisingMoveType, setIsRevisingMoveType] = useState(false);
+  const [draftMoveType, setDraftMoveType] = useState<ApiMoveType | null>(
+    moveType
+  );
+  const [isRevisingMoveDate, setIsRevisingMoveDate] = useState(false);
+  const [draftDate, setDraftDate] = useState<Date | undefined>(() =>
+    detail?.moveDate ? parseDateOnly(detail.moveDate) : undefined
+  );
+  // SSR/클라이언트 시각·시간대 불일치 방지 — 마운트 후 로컬 "오늘"을 minDate로 사용
+  const [minMoveDate, setMinMoveDate] = useState<Date | undefined>(undefined);
+
+  useEffect(() => {
+    setMinMoveDate(new Date());
+  }, []);
+
+  const isSubmitting = isSavingStep || isRevisingField;
+  const isInReviseMode = isRevisingMoveType || isRevisingMoveDate;
+  const canConfirmAddress =
+    departure != null &&
+    arrival != null &&
+    !isSubmitting &&
+    !isInReviseMode &&
+    detail != null;
+  const canConfirmMoveType =
+    draftMoveType != null && !isSubmitting && detail != null;
+
+  const handleStartReviseMoveType = () => {
+    setErrorMessage(null);
+    setActiveSide(null);
+    setIsRevisingMoveDate(false);
+    setDraftMoveType(moveType);
+    setIsRevisingMoveType(true);
+  };
+
+  const handleConfirmMoveType = async () => {
+    if (!detail || !draftMoveType) {
+      return;
+    }
+
+    setErrorMessage(null);
+
+    try {
+      await reviseField({
+        estimateRequestId: detail.id,
+        body: { field: 'moveType', value: draftMoveType },
+      });
+      // syncDetail 후에도 주소 미완 → visualStep=3, 주소 UI 복귀
+      setIsRevisingMoveType(false);
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : '이사 종류 수정 중 오류가 발생했습니다.';
+      setErrorMessage(message);
+    }
+  };
+
+  const handleStartReviseMoveDate = () => {
+    setErrorMessage(null);
+    setActiveSide(null);
+    setIsRevisingMoveType(false);
+    setDraftDate(detail?.moveDate ? parseDateOnly(detail.moveDate) : undefined);
+    setIsRevisingMoveDate(true);
+  };
+
+  const handleConfirmMoveDate = async (date: Date) => {
+    if (!detail) {
+      return;
+    }
+
+    setDraftDate(date);
+    setErrorMessage(null);
+    const moveDate = formatDateOnly(date);
+
+    try {
+      await reviseField({
+        estimateRequestId: detail.id,
+        body: { field: 'moveDate', value: moveDate },
+      });
+      // syncDetail 후에도 주소 미완 → visualStep=3, 주소 UI 복귀
+      setIsRevisingMoveDate(false);
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : '이사 예정일 수정 중 오류가 발생했습니다.';
+      setErrorMessage(message);
+    }
+  };
 
   const handleConfirmDraft = (draft: AddressDraft) => {
     if (activeSide === 'departure') {
@@ -160,69 +261,107 @@ export const AddressStep = () => {
         </TextFieldChat>
       </EstimateRequestChatBubbleGroup>
 
-      {/* 유저: 이사종류 답변 + 수정하기 (UI만 — 주소 CTA 우선) */}
-      {moveTypeLabel ? (
+      {/* 유저: 이사종류 답변 + 수정하기 (수정 모드 중에는 숨김) */}
+      {moveTypeLabel && !isRevisingMoveType ? (
         <EstimateRequestChatBubbleGroup align="end">
           <TextFieldChat color="mePrimary">{moveTypeLabel}</TextFieldChat>
           <button
             type="button"
             className="pr-2 text-xs-medium text-gray-500 underline md:text-lg-medium"
-            disabled={isSavingStep}
+            disabled={isSubmitting}
+            onClick={handleStartReviseMoveType}
           >
             수정하기
           </button>
         </EstimateRequestChatBubbleGroup>
       ) : null}
 
-      {/* 시스템: 날짜 프롬프트 */}
-      <EstimateRequestChatBubbleGroup>
-        <TextFieldChat>{MOVE_DATE_PROMPT}</TextFieldChat>
-      </EstimateRequestChatBubbleGroup>
-
-      {/* 유저: 날짜 답변 + 수정하기 (UI만) */}
-      {moveDateLabel ? (
-        <EstimateRequestChatBubbleGroup align="end">
-          <TextFieldChat color="mePrimary">{moveDateLabel}</TextFieldChat>
-          <button
-            type="button"
-            className="pr-2 text-xs-medium text-gray-500 underline md:text-lg-medium"
-            disabled={isSavingStep}
-          >
-            수정하기
-          </button>
-        </EstimateRequestChatBubbleGroup>
-      ) : null}
-
-      {/* 시스템: 지역 선택 프롬프트 */}
-      <EstimateRequestChatBubbleGroup>
-        <TextFieldChat>{ADDRESS_PROMPT}</TextFieldChat>
-      </EstimateRequestChatBubbleGroup>
-
-      {/* 출발/도착 선택 카드 + step3 저장 CTA */}
-      <EstimateRequestChatPanel>
-        <AddressSelectCard
-          departure={departure}
-          arrival={arrival}
-          selectDisabled={isSavingStep}
-          confirmDisabled={!canConfirm}
-          confirmBusy={isSavingStep}
-          confirmLabel={isSavingStep ? '저장 중…' : '견적 확정하기'}
-          onSelectDeparture={() => {
-            setErrorMessage(null);
-            setActiveSide('departure');
-          }}
-          onSelectArrival={() => {
-            setErrorMessage(null);
-            setActiveSide('arrival');
-          }}
+      {isRevisingMoveType ? (
+        <MoveTypeRevisePanel
+          options={MOVE_TYPE_OPTIONS}
+          draftMoveType={draftMoveType}
+          onSelect={setDraftMoveType}
+          isSubmitting={isSubmitting}
+          isRevisingField={isRevisingField}
+          canConfirm={canConfirmMoveType}
+          errorMessage={errorMessage}
           onConfirm={() => {
-            void handleConfirmBoth();
+            void handleConfirmMoveType();
           }}
         />
-        <InlineErrorMessage message={errorMessage} />
-      </EstimateRequestChatPanel>
+      ) : (
+        <>
+          {/* 시스템: 날짜 프롬프트 */}
+          <EstimateRequestChatBubbleGroup>
+            <TextFieldChat>{MOVE_DATE_PROMPT}</TextFieldChat>
+          </EstimateRequestChatBubbleGroup>
 
-      {activeSide && !isSavingStep ? (
+          {/* 유저: 날짜 답변 + 수정하기 (날짜 수정 모드 중에는 숨김) */}
+          {moveDateLabel && !isRevisingMoveDate ? (
+            <EstimateRequestChatBubbleGroup align="end">
+              <TextFieldChat color="mePrimary">{moveDateLabel}</TextFieldChat>
+              <button
+                type="button"
+                className="pr-2 text-xs-medium text-gray-500 underline md:text-lg-medium"
+                disabled={isSubmitting}
+                onClick={handleStartReviseMoveDate}
+              >
+                수정하기
+              </button>
+            </EstimateRequestChatBubbleGroup>
+          ) : null}
+
+          {isRevisingMoveDate ? (
+            <div className="flex w-full flex-col gap-2 md:items-end">
+              <Calendar
+                className="max-w-[20.4375rem] md:max-w-[40rem]"
+                value={draftDate}
+                onValueChange={setDraftDate}
+                minDate={minMoveDate}
+                confirmDisabled={isSubmitting || detail == null}
+                confirmLabel={isSubmitting ? '저장 중…' : '선택완료'}
+                onConfirm={(date) => {
+                  void handleConfirmMoveDate(date);
+                }}
+              />
+              <InlineErrorMessage message={errorMessage} />
+            </div>
+          ) : (
+            <>
+              {/* 시스템: 지역 선택 프롬프트 */}
+              <EstimateRequestChatBubbleGroup>
+                <TextFieldChat>{ADDRESS_PROMPT}</TextFieldChat>
+              </EstimateRequestChatBubbleGroup>
+
+              {/* 출발/도착 선택 카드 + step3 저장 CTA */}
+              <EstimateRequestChatPanel>
+                <AddressSelectCard
+                  departure={departure}
+                  arrival={arrival}
+                  selectDisabled={isSubmitting}
+                  confirmDisabled={!canConfirmAddress}
+                  confirmBusy={isSavingStep}
+                  confirmLabel={isSavingStep ? '저장 중…' : '견적 확정하기'}
+                  onSelectDeparture={() => {
+                    setErrorMessage(null);
+                    setActiveSide('departure');
+                  }}
+                  onSelectArrival={() => {
+                    setErrorMessage(null);
+                    setActiveSide('arrival');
+                  }}
+                  onConfirm={() => {
+                    void handleConfirmBoth();
+                  }}
+                />
+                <InlineErrorMessage message={errorMessage} />
+              </EstimateRequestChatPanel>
+            </>
+          )}
+        </>
+      )}
+
+      {activeSide && !isSubmitting && !isInReviseMode ? (
         <EstimateRequestAddressModal
           side={activeSide}
           initialDraft={activeSide === 'departure' ? departure : arrival}

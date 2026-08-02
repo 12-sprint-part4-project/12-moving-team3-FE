@@ -21,8 +21,8 @@ interface MoveTypeRevisePanelProps {
 }
 
 /**
- * Step2에서 이사종류 「수정하기」 시 노출되는 재선택 패널.
- * Calendar 자리에 Step1 옵션 UI를 재사용한다.
+ * 이사종류 「수정하기」 시 노출되는 재선택 패널.
+ * Step2·Step3에서 Calendar/주소 카드 자리에 Step1 옵션 UI를 재사용한다.
  */
 export const MoveTypeRevisePanel = ({
   options,
