@@ -1,10 +1,9 @@
-import { ApiError } from '@/lib/apiClient';
 import {
   API_BASE_URL,
-  authFetch,
   createApiTimeoutSignal,
-} from '@/services/apiClient.legacy';
-import type { ApiErrorBody } from '@/types/api';
+  throwApiError,
+} from '@/lib/apiClient';
+import { authFetch } from '@/lib/authFetch';
 import type {
   CustomerProfileMeResponse,
   CustomerProfileResponse,
@@ -12,15 +11,6 @@ import type {
 } from '@/types/customerProfile';
 
 const PROFILE_PATH = '/api/users/customers/profile';
-
-const parseError = async (response: Response): Promise<never> => {
-  const body = (await response.json().catch(() => null)) as ApiErrorBody | null;
-  throw new ApiError(
-    response.status,
-    body?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
-    body?.error?.code ?? 'UNKNOWN_ERROR'
-  );
-};
 
 /** GET /api/users/customers/profile */
 export const getCustomerProfile =
@@ -31,7 +21,7 @@ export const getCustomerProfile =
     });
 
     if (!response.ok) {
-      return parseError(response);
+      return throwApiError(response);
     }
 
     return (await response.json()) as CustomerProfileMeResponse;
@@ -51,7 +41,7 @@ export const upsertCustomerProfile = async (
   });
 
   if (!response.ok) {
-    return parseError(response);
+    return throwApiError(response);
   }
 
   return (await response.json()) as CustomerProfileResponse;

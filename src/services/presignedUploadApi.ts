@@ -1,23 +1,14 @@
-import { ApiError } from '@/lib/apiClient';
 import {
   API_BASE_URL,
-  authFetch,
+  ApiError,
   createApiTimeoutSignal,
-} from '@/services/apiClient.legacy';
-import type { ApiErrorBody } from '@/types/api';
+  throwApiError,
+} from '@/lib/apiClient';
+import { authFetch } from '@/lib/authFetch';
 import type {
   PresignedUploadParams,
   PresignedUploadResponse,
 } from '@/types/presignedUpload';
-
-const parseError = async (response: Response): Promise<never> => {
-  const body = (await response.json().catch(() => null)) as ApiErrorBody | null;
-  throw new ApiError(
-    response.status,
-    body?.error?.message ?? '요청 처리 중 오류가 발생했습니다.',
-    body?.error?.code ?? 'UNKNOWN_ERROR'
-  );
-};
 
 /** GET /api/presigned-upload-url */
 export const getPresignedUploadUrl = async (
@@ -38,7 +29,7 @@ export const getPresignedUploadUrl = async (
   );
 
   if (!response.ok) {
-    return parseError(response);
+    return throwApiError(response);
   }
 
   return (await response.json()) as PresignedUploadResponse;
