@@ -6,9 +6,13 @@ import {
 } from '@/lib/apiClient';
 import { authFetch } from '@/lib/authFetch';
 import type {
+  CommentListQuery,
+  CommentListResponse,
+  CreateCommentBody,
   CreatePostBody,
   PostDetailResponse,
   PostIdResponse,
+  PostLikeResponse,
   PostListQuery,
   PostListResponse,
   UpdatePostBody,
@@ -18,6 +22,14 @@ const BASE_PATH = '/api/posts';
 
 const JSON_HEADERS: HeadersInit = {
   'Content-Type': 'application/json',
+};
+
+const appendCursorPaginationParams = (
+  params: URLSearchParams,
+  query: Pick<PostListQuery, 'cursor' | 'limit'>
+): void => {
+  if (query.cursor) params.set('cursor', query.cursor);
+  if (query.limit !== undefined) params.set('limit', String(query.limit));
 };
 
 /** 인증이 필요한 JSON API 요청 공통 처리 */
@@ -58,8 +70,7 @@ export const buildPostListQueryString = (query: PostListQuery = {}): string => {
   if (query.category) params.set('category', query.category);
   if (query.region) params.set('region', query.region);
   if (query.sort) params.set('sort', query.sort);
-  if (query.cursor) params.set('cursor', query.cursor);
-  if (query.limit !== undefined) params.set('limit', String(query.limit));
+  appendCursorPaginationParams(params, query);
 
   const qs = params.toString();
   return qs ? `?${qs}` : '';
@@ -100,5 +111,71 @@ export const updatePost = (
 /** 게시글 삭제 */
 export const deletePost = (postId: number): Promise<void> =>
   communityFetch<void>(`${BASE_PATH}/${postId}`, {
+    method: 'DELETE',
+  });
+
+/** 댓글 목록 조회 쿼리스트링 생성 */
+export const buildCommentListQueryString = (
+  query: CommentListQuery = {}
+): string => {
+  const params = new URLSearchParams();
+  appendCursorPaginationParams(params, query);
+
+  const qs = params.toString();
+  return qs ? `?${qs}` : '';
+};
+
+/** 댓글 목록 조회 */
+export const getComments = (
+  postId: number,
+  query: CommentListQuery = {}
+): Promise<CommentListResponse> =>
+  communityFetch<CommentListResponse>(
+    `${BASE_PATH}/${postId}/comments${buildCommentListQueryString(query)}`,
+    { method: 'GET' }
+  );
+
+/** 댓글 작성 */
+export const createComment = (
+  postId: number,
+  body: CreateCommentBody
+): Promise<PostIdResponse> =>
+  communityFetch<PostIdResponse>(`${BASE_PATH}/${postId}/comments`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+
+/** 대댓글 작성 */
+export const createReply = (
+  postId: number,
+  commentId: number,
+  body: CreateCommentBody
+): Promise<PostIdResponse> =>
+  communityFetch<PostIdResponse>(
+    `${BASE_PATH}/${postId}/comments/${commentId}/replies`,
+    {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }
+  );
+
+/** 댓글 삭제 */
+export const deleteComment = (
+  postId: number,
+  commentId: number
+): Promise<void> =>
+  communityFetch<void>(`${BASE_PATH}/${postId}/comments/${commentId}`, {
+    method: 'DELETE',
+  });
+
+/** 게시글 좋아요 */
+export const likePost = (postId: number): Promise<PostLikeResponse> =>
+  communityFetch<PostLikeResponse>(`${BASE_PATH}/${postId}/likes`, {
+    method: 'POST',
+  });
+
+/** 게시글 좋아요 취소 */
+export const unlikePost = (postId: number): Promise<void> =>
+  communityFetch<void>(`${BASE_PATH}/${postId}/likes`, {
     method: 'DELETE',
   });
