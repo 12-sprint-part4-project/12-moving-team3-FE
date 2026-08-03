@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import {
   useEffect,
   useId,
@@ -14,13 +14,18 @@ import NoImageIcon from '@/assets/icons/no-image.svg';
 import { Button } from '@/components/Button/Button';
 import { RegionChip, ServiceChip } from '@/components/ui/Chip';
 import { TextFieldOutlined } from '@/components/ui/Input';
+import { Spinner } from '@/components/ui/Spinner/Spinner';
 import {
   REGION_CHIP_OPTIONS,
   SERVICE_CHIP_OPTIONS,
   type RegionChipValue,
   type ServiceChipValue,
 } from '@/constants/chipOptions';
+import { useAuth } from '@/hooks/useAuth';
+import { useCustomerProfile } from '@/hooks/useCustomerProfile';
+import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
+import type { CustomerProfileMe } from '@/types/customerProfile';
 
 import { ProfileImageCropModal } from './ProfileImageCropModal';
 
@@ -43,8 +48,16 @@ const toggleService = (
     ? values.filter((item) => item !== value)
     : [...values, value];
 
-/** 고객 프로필 수정 폼 (UI only). Figma 내 프로필/Desktop */
-export const CustomerProfileEditForm = () => {
+interface CustomerProfileEditFieldsProps {
+  profile: CustomerProfileMe;
+  nickname: string;
+}
+
+/** 쿼리 데이터로 초기화된 수정 폼. 마운트 시점에 profile이 이미 존재한다. */
+const CustomerProfileEditFields = ({
+  profile,
+  nickname: initialNickname,
+}: CustomerProfileEditFieldsProps) => {
   const router = useRouter();
   const imageInputId = useId();
   const nameInputId = useId();
@@ -58,19 +71,21 @@ export const CustomerProfileEditForm = () => {
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
-  const [name, setName] = useState('김코드');
-  const [nickname, setNickname] = useState('김가나');
-  const [email] = useState('codeit@email.com');
-  const [phoneNumber, setPhoneNumber] = useState('010-1234-5678');
+  const [name, setName] = useState(profile.name);
+  const [nickname, setNickname] = useState(initialNickname);
+  const [email] = useState(profile.email);
+  const [phoneNumber, setPhoneNumber] = useState(profile.phoneNumber ?? '');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [selectedServices, setSelectedServices] = useState<ServiceChipValue[]>([
-    'SMALL',
+    ...profile.service,
   ]);
   const [selectedRegion, setSelectedRegion] = useState<RegionChipValue | null>(
-    'SEOUL'
+    profile.region
   );
+
+  const displayImageUrl = previewUrl ?? profile.profileImageUrl;
 
   useEffect(() => {
     return () => {
@@ -96,7 +111,10 @@ export const CustomerProfileEditForm = () => {
   };
 
   const handleCropComplete = (blob: Blob) => {
-    setPreviewUrl(URL.createObjectURL(blob));
+    setPreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(blob);
+    });
     setCropImageSrc(null);
   };
 
@@ -272,11 +290,11 @@ export const CustomerProfileEditForm = () => {
                     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300'
                   )}
                 >
-                  {previewUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element -- blob preview
+                  {displayImageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- Presigned URL / blob preview
                     <img
-                      src={previewUrl}
-                      alt="선택한 프로필 이미지 미리보기"
+                      src={displayImageUrl}
+                      alt="프로필 이미지"
                       className="size-full object-cover"
                     />
                   ) : (
@@ -376,5 +394,57 @@ export const CustomerProfileEditForm = () => {
         />
       ) : null}
     </>
+  );
+};
+
+/** 고객 프로필 수정. useCustomerProfile로 조회 후 폼에 전달 */
+export const CustomerProfileEditForm = () => {
+  const { user } = useAuth();
+  const {
+    data: profile,
+    isPending,
+    isError,
+    error,
+    refetch,
+  } = useCustomerProfile();
+
+  if (isPending) {
+    return <Spinner message="프로필 불러오는 중..." />;
+  }
+
+  if (isError) {
+    const message =
+      error instanceof ApiError
+        ? error.message
+        : '프로필을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
+
+    return (
+      <div className="flex w-full max-w-[87.5rem] flex-col items-center gap-6 py-16">
+        <p className="text-center text-lg-medium text-gray-400">{message}</p>
+        <Button
+          type="button"
+          variant="outlined"
+          size="sm"
+          onClick={() => {
+            void refetch();
+          }}
+          className="max-w-[12rem]"
+        >
+          다시 시도
+        </Button>
+      </div>
+    );
+  }
+
+  if (profile === null) {
+    redirect('/profile/customer');
+  }
+
+  return (
+    <CustomerProfileEditFields
+      key={profile.updatedAt}
+      profile={profile}
+      nickname={user?.nickname ?? ''}
+    />
   );
 };
