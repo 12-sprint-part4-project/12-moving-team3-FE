@@ -183,7 +183,7 @@ export const submitEstimateRequestResultSchema = z.object({
   submittedAt: z.string(),
 });
 
-/** 상세 응답 기준 제출 가능 여부 (step3 완료 후 확인 UI 판단용) */
+/** 상세 응답 기준 제출 가능 여부 (필수 입력 필드 완성도) */
 export const isEstimateRequestReadyToSubmit = (detail: {
   moveType: string | null;
   moveDate: string | null;
@@ -204,19 +204,16 @@ export const isEstimateRequestReadyToSubmit = (detail: {
   detail.arrivalDetailAddress != null;
 
 /**
- * 서버 currentStep + 필드 완성도로 FE 시각 스텝 계산.
- * DRAFT에서 필수값이 모두 있으면 확인 UI(4), 그 외에는 currentStep(1~3).
+ * 서버 currentStep 기준 FE 시각 스텝.
+ * DRAFT는 입력 1~3만 — 확인용 Step4 UI 없음(필수값 완료여도 4로 올리지 않음).
+ * non-DRAFT는 4(blocked 분기에서 Progress 미사용, 타입 호환용).
  */
 export const toVisualStep = (
   status: string,
   currentStep: number,
-  detail: Parameters<typeof isEstimateRequestReadyToSubmit>[0]
+  _detail: Parameters<typeof isEstimateRequestReadyToSubmit>[0]
 ): 1 | 2 | 3 | 4 => {
   if (status !== 'DRAFT') {
-    return 4;
-  }
-
-  if (isEstimateRequestReadyToSubmit(detail)) {
     return 4;
   }
 

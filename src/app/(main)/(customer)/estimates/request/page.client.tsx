@@ -8,15 +8,15 @@ import { EstimateRequestShell } from './_components/EstimateRequestShell';
 import { AddressStep } from './_components/steps/AddressStep';
 import { MoveDateStep } from './_components/steps/MoveDateStep';
 import { MoveTypeStep } from './_components/steps/MoveTypeStep';
-import { SubmitStep } from './_components/steps/SubmitStep';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 import type { EstimateRequestVisualStep } from '@/types/customerEstimateRequest';
 
 /**
  * 견적요청 페이지 클라이언트 — bootstrap 분기 + 스텝 렌더.
  * 비회원·프로필 미등록: Shell + 채팅형 Gate.
- * 진행중(blocked): EstimateRequestBlocked.
+ * 진행중(blocked): EstimateRequestBlocked (제출 직후·재진입 공통).
  * 일반 에러: 훅에서 토스트 + 자동 재시도 → 로딩 UI 유지.
+ * 확인용 Step4 UI 없음 — Step3 「견적 확정하기」에서 submit.
  */
 export const EstimateRequestPageClient = () => {
   const { bootstrap } = useCustomerEstimateRequest();
@@ -64,8 +64,8 @@ export const EstimateRequestPageClient = () => {
     );
   }
 
-  // ready — 시각 스텝에 맞는 렌더
-  const { visualStep, detail } = bootstrap;
+  // ready — 시각 스텝에 맞는 렌더 (입력은 1~3만)
+  const { visualStep } = bootstrap;
   const progressFill: EstimateRequestVisualStep =
     visualStep === 3 ? step3ProgressFill : visualStep;
 
@@ -79,7 +79,6 @@ export const EstimateRequestPageClient = () => {
       {visualStep === 3 ? (
         <AddressStep onProgressFillChange={setStep3ProgressFill} />
       ) : null}
-      {visualStep === 4 ? <SubmitStep detail={detail} /> : null}
     </EstimateRequestShell>
   );
 };

@@ -52,6 +52,7 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
   } = useCustomerEstimateRequest();
 
   const detail = bootstrap.detail;
+  const { refetch } = bootstrap;
   const moveType = detail?.moveType ?? null;
   const moveTypeLabel =
     MOVE_TYPE_OPTIONS.find((option) => option.value === moveType)?.label ??
@@ -189,6 +190,7 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
     setErrorMessage,
     saveStep,
     submit,
+    refetch,
     isSavingStep,
     isRevisingField,
     isSubmittingRequest,

@@ -80,6 +80,7 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
     setErrorMessage,
     saveStep,
     submit,
+    refetch,
     isSavingStep,
     isRevisingField,
     isSubmittingRequest,
@@ -174,6 +175,15 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
       });
       await submit(detail.id);
     } catch (error) {
+      // 이미 제출된 요청이면 재조회로 blocked(진행 중 안내)로 수렴
+      if (
+        error instanceof ApiError &&
+        error.code === 'REQUEST_ALREADY_SUBMITTED'
+      ) {
+        await refetch();
+        return;
+      }
+
       // REQUIRED_FIELD_MISSING 등 ApiError.message 그대로 노출
       const message =
         error instanceof ApiError

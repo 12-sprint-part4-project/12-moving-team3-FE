@@ -15,10 +15,10 @@ export type EstimateRequestStatus =
   | 'CONFIRMED'
   | 'COMPLETED';
 
-/** 프로그레스 총 단계 (입력 3 + 확인/제출 1) */
+/** 프로그레스 총 단계 (입력 3 + 완료/full 1) */
 export const TOTAL_PROGRESS_STEPS = 4;
 
-/** FE 시각 스텝 (1~4, 4=확인/제출 UI) */
+/** FE 시각·Progress 스텝 (1~3 입력, 4=Progress full / blocked 호환) */
 export type EstimateRequestVisualStep = 1 | 2 | 3 | 4;
 
 /** GET /active — 활성 요청 요약 */
