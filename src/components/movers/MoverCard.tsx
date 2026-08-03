@@ -202,9 +202,7 @@ export const MoverCard = ({
             aria-hidden
           />
           {mover.favoritedCount !== null ? (
-            <span className="text-black-400 sm:text-2lg-medium">
-              {mover.favoritedCount}
-            </span>
+            <span className="text-black-400">{mover.favoritedCount}</span>
           ) : null}
         </button>
       </div>

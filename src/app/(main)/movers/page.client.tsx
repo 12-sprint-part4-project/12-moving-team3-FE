@@ -23,6 +23,7 @@ import {
 import { LoginRequiredModal } from './_components/LoginRequiredModal';
 import { MoversSidebar } from './_components/MoversSidebar';
 import { MoversToolbar } from './_components/MoversToolbar';
+import { Button } from '@/components/Button/Button';
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -131,7 +132,7 @@ export const MoversPageClient = () => {
       <div
         className={cn(
           'border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8',
-          pageXPadding,
+          pageXPadding
         )}
       >
         <h1 className="text-2lg-semibold text-black-400 lg:text-2xl-semibold">
@@ -142,7 +143,7 @@ export const MoversPageClient = () => {
       <div
         className={cn(
           'mx-auto flex w-full max-w-[1920px] flex-col gap-6 py-6 md:py-8 xl:flex-row xl:items-start xl:gap-8 min-[90rem]:gap-12',
-          pageXPadding,
+          pageXPadding
         )}
       >
         <MoversSidebar
@@ -184,6 +185,15 @@ export const MoversPageClient = () => {
               >
                 다시 시도
               </button>
+              {/* <Button
+                type="button"
+                variant="solid"
+                size="sm"
+                onClick={handleRetry}
+                className="w-auto"
+              >
+                다시 시도
+              </Button> */}
             </div>
           ) : null}
 
@@ -203,9 +213,7 @@ export const MoversPageClient = () => {
                     mover={mover}
                     size="lg"
                     onFavoriteClick={handleFavoriteClick}
-                    isFavoritePending={
-                      favoritePendingMoverId === mover.moverId
-                    }
+                    isFavoritePending={favoritePendingMoverId === mover.moverId}
                   />
                 </li>
               ))}
