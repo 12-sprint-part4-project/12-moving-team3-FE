@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import type { ReviewStats } from '@/types/mover';
+import type { ReviewStats } from '@/types/review';
 
 export interface MoverReviewsProps {
   moverId: string;
