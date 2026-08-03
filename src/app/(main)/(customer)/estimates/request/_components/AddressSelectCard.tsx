@@ -45,7 +45,7 @@ export const AddressSelectCard = ({
   return (
     <div
       className={cn(
-        'flex w-full flex-col gap-6 md:gap-[1.3125rem]',
+        'flex w-full flex-col gap-6 md:gap-5',
         className
       )}
     >
