@@ -50,7 +50,7 @@ export interface PostListMeta {
   hasNextPage: boolean;
 }
 
-export type CommentListMeta = PostListMeta;
+export interface CommentListMeta extends PostListMeta {}
 
 export interface PostListResponse
   extends ApiSuccessResponse<{ items: PostListItem[] }, PostListMeta> {
@@ -110,7 +110,7 @@ export interface CommentListQuery {
 }
 
 /** 댓글 목록 조회 파라미터 (cursor 제외) */
-export type CommentListParams = Omit<CommentListQuery, 'cursor'>;
+export interface CommentListParams extends Omit<CommentListQuery, 'cursor'> {}
 
 export interface CreateCommentBody {
   content: string;
@@ -120,4 +120,4 @@ export interface CreateReplyBody extends CreateCommentBody {
   commentId: number;
 }
 
-export type PostLikeResponse = ApiSuccessResponse<null>;
+export interface PostLikeResponse extends ApiSuccessResponse<null> {}
