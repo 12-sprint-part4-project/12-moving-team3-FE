@@ -3,13 +3,13 @@
 import Link from 'next/link';
 
 import { Button } from '@/components/Button/Button';
+import { QuoteShareButtons } from '@/components/QuoteShareButtons/QuoteShareButtons';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useMoverQuoteDetail } from '@/hooks/useMoverQuoteDetail';
 import { ApiError } from '@/lib/apiClient';
 
 import { QuoteDetailInfoSection } from './_components/QuoteDetailInfoSection';
 import { QuoteDetailSummaryCard } from './_components/QuoteDetailSummaryCard';
-import { QuoteShareButtons } from './_components/QuoteShareButtons';
 
 export interface MoverQuoteDetailPageClientProps {
   quoteId: string;
@@ -101,9 +101,7 @@ const MoverQuoteDetailPageClient = ({
       {/* 본문 — 보낸 견적: 모바일 요약→공유→본문 / 데스크톱 좌측 본문·우측 공유 */}
       <div
         className={`mx-auto grid w-full max-w-[1920px] flex-1 grid-cols-1 gap-6 py-6 md:gap-8 md:py-8 lg:items-start lg:justify-between lg:gap-10 lg:py-10 ${
-          detail.isRejected
-            ? ''
-            : 'lg:grid-cols-[minmax(0,59.6875rem)_auto]'
+          detail.isRejected ? '' : 'lg:grid-cols-[minmax(0,59.6875rem)_auto]'
         } ${pageXPadding}`}
       >
         <QuoteDetailSummaryCard detail={detail} className="col-start-1" />
