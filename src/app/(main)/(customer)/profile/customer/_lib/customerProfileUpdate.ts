@@ -1,7 +1,7 @@
 import type {
   RegionChipValue,
   ServiceChipValue,
-} from '@/constants/chipOptions';
+} from '@/constants/commonOptions';
 import type {
   CustomerProfileMe,
   UpsertCustomerProfileRequest,

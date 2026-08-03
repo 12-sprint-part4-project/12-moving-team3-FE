@@ -1,3 +1,4 @@
+import type { RegionChipValue } from '@/constants/commonOptions';
 import type { ApiSuccessResponse } from '@/types/api';
 
 export type PostCategory =
@@ -5,23 +6,7 @@ export type PostCategory =
 
 export type PostSort = 'LATEST' | 'POPULAR' | 'MOST_COMMENTED';
 
-export type Region =
-  | 'SEOUL'
-  | 'GYEONGGI'
-  | 'INCHEON'
-  | 'GANGWON'
-  | 'CHUNGBUK'
-  | 'CHUNGNAM'
-  | 'SEJONG'
-  | 'DAEJEON'
-  | 'JEONBUK'
-  | 'GWANGJU_JEONNAM'
-  | 'GYEONGBUK'
-  | 'DAEGU'
-  | 'ULSAN'
-  | 'GYEONGNAM'
-  | 'BUSAN'
-  | 'JEJU';
+export type Region = RegionChipValue;
 
 export interface PostAuthor {
   id: string;

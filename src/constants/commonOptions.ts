@@ -1,9 +1,11 @@
+/** 서비스(이사 유형) — 칩/폼용 (전체 없음) */
 export const SERVICE_CHIP_OPTIONS = [
   { label: '소형이사', value: 'SMALL' },
   { label: '가정이사', value: 'HOME' },
   { label: '사무실이사', value: 'OFFICE' },
 ] as const;
 
+/** 지역 — 칩/폼용 (전체 없음) */
 export const REGION_CHIP_OPTIONS = [
   { label: '서울', value: 'SEOUL' },
   { label: '경기', value: 'GYEONGGI' },
@@ -24,5 +26,4 @@ export const REGION_CHIP_OPTIONS = [
 ] as const;
 
 export type ServiceChipValue = (typeof SERVICE_CHIP_OPTIONS)[number]['value'];
-
 export type RegionChipValue = (typeof REGION_CHIP_OPTIONS)[number]['value'];

@@ -17,7 +17,7 @@ import { TextFieldOutlined } from '@/components/ui/Input';
 import {
   REGION_CHIP_OPTIONS,
   SERVICE_CHIP_OPTIONS,
-} from '@/constants/chipOptions';
+} from '@/constants/commonOptions';
 import { useAuth } from '@/hooks/useAuth';
 import { customerProfileQueryKeys } from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';

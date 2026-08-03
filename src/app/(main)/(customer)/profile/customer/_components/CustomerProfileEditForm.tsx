@@ -14,7 +14,7 @@ import {
   SERVICE_CHIP_OPTIONS,
   type RegionChipValue,
   type ServiceChipValue,
-} from '@/constants/chipOptions';
+} from '@/constants/commonOptions';
 import { useAuth } from '@/hooks/useAuth';
 import {
   customerProfileQueryKeys,
