@@ -34,6 +34,8 @@ export interface CustomerProfile {
 }
 
 export interface CustomerProfileMe extends CustomerProfile {
+  /** LOCAL 비밀번호 존재 여부. false면 소셜 전용 가입자 */
+  hasPassword: boolean;
   createdAt: string;
 }
 
