@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/Calendar/Calendar.utils';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
+import { useLocalToday } from '@/hooks/useLocalToday';
 import { ApiError } from '@/lib/apiClient';
 import { saveEstimateRequestStepBodySchema } from '@/lib/customerEstimateRequestSchema';
 import type { EstimateRequestVisualStep } from '@/types/customerEstimateRequest';
@@ -127,12 +128,8 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
   const [draftDate, setDraftDate] = useState<Date | undefined>(() =>
     detail?.moveDate ? parseDateOnly(detail.moveDate) : undefined
   );
-  // SSR/클라이언트 시각·시간대 불일치 방지 — 마운트 후 로컬 "오늘"을 minDate로 사용
-  const [minMoveDate, setMinMoveDate] = useState<Date | undefined>(undefined);
-
-  useEffect(() => {
-    setMinMoveDate(new Date());
-  }, []);
+  // SSR/클라이언트 시각·시간대 불일치 방지 — 하이드레이션 후 로컬 "오늘"
+  const minMoveDate = useLocalToday();
 
   // 로컬 draft 기준으로 Progress 채움 동기화
   useEffect(() => {

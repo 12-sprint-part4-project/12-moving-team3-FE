@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGroup';
 import { InlineErrorMessage } from '../InlineErrorMessage';
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/Calendar/Calendar.utils';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
+import { useLocalToday } from '@/hooks/useLocalToday';
 import { ApiError } from '@/lib/apiClient';
 import type { ApiMoveType } from '@/types/estimateRequest';
 
@@ -58,12 +59,8 @@ export const MoveDateStep = () => {
     moveType
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  // SSR/클라이언트 시각·시간대 불일치 방지 — 마운트 후 로컬 "오늘"을 minDate로 사용
-  const [minMoveDate, setMinMoveDate] = useState<Date | undefined>(undefined);
-
-  useEffect(() => {
-    setMinMoveDate(new Date());
-  }, []);
+  // SSR/클라이언트 시각·시간대 불일치 방지 — 하이드레이션 후 로컬 "오늘"
+  const minMoveDate = useLocalToday();
 
   const isSubmitting = isSavingStep || isRevisingField;
   const canConfirmMoveType =
