@@ -45,10 +45,16 @@ export const EstimateRequestBlocked = ({
   };
 
   return (
-    <div className={cn('flex w-full flex-col bg-background-200', className)}>
+    // flex-1: GNB 아래 main 남은 높이를 채워 빈 화면에서도 배경이 뷰포트까지 이어짐
+    <div
+      className={cn(
+        'flex min-h-0 w-full flex-1 flex-col bg-background-200',
+        className
+      )}
+    >
       <EstimateRequestPageHeader />
 
-      <div className="flex w-full flex-col gap-4 py-6 md:py-[3rem]">
+      <div className="flex w-full flex-1 flex-col justify-center gap-4 py-6 md:py-[3rem]">
         <div className="page-content flex flex-col items-center gap-8 md:gap-6">
           <div className="flex flex-col items-center gap-16">
             <Image

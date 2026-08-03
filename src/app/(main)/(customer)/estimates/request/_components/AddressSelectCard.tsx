@@ -12,7 +12,7 @@ export interface AddressSelectCardProps {
   onSelectArrival?: () => void;
   /**
    * 양쪽 채워진 뒤 CTA — 라벨 시안 「견적 확정하기」.
-   * 저장 연동은 AddressStep에서 saveStep(3).
+   * AddressStep에서 saveStep(3) + submit 연동.
    */
   onConfirm?: () => void;
   confirmDisabled?: boolean;
