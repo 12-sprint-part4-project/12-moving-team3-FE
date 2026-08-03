@@ -58,7 +58,7 @@ export const Button = ({
   <button
     type={type}
     disabled={disabled}
-    className={`inline-flex w-full items-center justify-center rounded-2xl transition-colors ${VARIANT_STYLE[variant]} ${SIZE_STYLE[variant][size]} ${className}`}
+    className={`inline-flex w-full cursor-pointer items-center justify-center rounded-2xl transition-colors disabled:cursor-not-allowed ${VARIANT_STYLE[variant]} ${SIZE_STYLE[variant][size]} ${className}`}
     {...rest}
   >
     {children}

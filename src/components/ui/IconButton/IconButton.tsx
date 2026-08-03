@@ -59,7 +59,7 @@ export const IconButton = ({
 }: IconButtonProps) => (
   <button
     type={type}
-    className={`inline-flex shrink-0 items-center justify-center ${SIZE_STYLE[size]} ${VARIANT_STYLE[variant]} ${className}`}
+    className={`inline-flex shrink-0 cursor-pointer items-center justify-center disabled:cursor-not-allowed ${SIZE_STYLE[size]} ${VARIANT_STYLE[variant]} ${className}`}
     {...rest}
   >
     <Icon
