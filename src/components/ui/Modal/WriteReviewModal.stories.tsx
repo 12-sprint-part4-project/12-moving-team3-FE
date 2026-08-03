@@ -19,7 +19,7 @@ export default meta;
 type Story = StoryObj<typeof WriteReviewModal>;
 
 const SAMPLE = {
-  moveType: 'small' as const,
+  moveType: 'SMALL' as const,
   isDesignated: true,
   moverName: '김코드',
   moveDate: '2024. 07. 01',

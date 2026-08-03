@@ -9,6 +9,14 @@ import { TextArea } from '@/components/ui/Input/TextArea';
 import { StarRating } from '@/components/ui/StarRating/StarRating';
 
 import { cn } from '@/lib/utils';
+import {
+  API_MOVE_TYPE_TO_UI,
+  type ApiMoveType,
+} from '@/types/estimateRequest';
+import {
+  MAX_REVIEW_CONTENT_LENGTH,
+  MIN_REVIEW_CONTENT_LENGTH,
+} from '@/types/review';
 
 import { ModalCtaButton } from './ModalCtaButton';
 import { ModalHeader } from './ModalHeader';
@@ -18,17 +26,12 @@ import {
   MOVE_TYPE_CHIP_RESPONSIVE_CLASS,
 } from './modalPanel';
 
-/** 리뷰 본문 최소 글자 수 (Figma: 10자 이상일 때 버튼 활성화) */
-const MIN_CONTENT_LENGTH = 10;
-
-type MoveTypeOption = 'small' | 'home' | 'office';
-
 export interface WriteReviewModalProps {
   onClose: () => void;
   /** 등록 버튼 클릭 시 호출. API 연동은 호출 측(리뷰 도메인)에서 담당 */
   onSubmit: (review: { rating: number; content: string }) => void;
-  /** 이사 유형 칩 (소형/가정/사무실) */
-  moveType?: MoveTypeOption;
+  /** 이사 유형 (API ApiMoveType). null이면 칩 미표시 */
+  moveType?: ApiMoveType | null;
   /** 지정 견적 요청 칩 표시 여부 */
   isDesignated?: boolean;
   /** 기사님 이름 (예: '김코드') */
@@ -50,7 +53,7 @@ export interface WriteReviewModalProps {
 export const WriteReviewModal = ({
   onClose,
   onSubmit,
-  moveType = 'small',
+  moveType = null,
   isDesignated = false,
   moverName,
   moveDate,
@@ -62,8 +65,13 @@ export const WriteReviewModal = ({
   const [rating, setRating] = useState(0);
   const [content, setContent] = useState('');
 
+  const trimmedLength = content.trim().length;
   const isSubmittable =
-    rating > 0 && content.trim().length >= MIN_CONTENT_LENGTH;
+    rating > 0 &&
+    trimmedLength >= MIN_REVIEW_CONTENT_LENGTH &&
+    trimmedLength <= MAX_REVIEW_CONTENT_LENGTH;
+
+  const moveTypeUi = moveType ? API_MOVE_TYPE_TO_UI[moveType] : null;
 
   const handleSubmit = () => {
     if (!isSubmittable) return;
@@ -86,11 +94,13 @@ export const WriteReviewModal = ({
       <div className="flex w-full flex-col gap-5 sm:gap-8">
         <div className="flex flex-col gap-3.5 sm:gap-6">
           <div className="flex items-center gap-2 sm:gap-3">
-            <MoveTypeChip
-              type={moveType}
-              size="sm"
-              className={MOVE_TYPE_CHIP_RESPONSIVE_CLASS}
-            />
+            {moveTypeUi ? (
+              <MoveTypeChip
+                type={moveTypeUi}
+                size="sm"
+                className={MOVE_TYPE_CHIP_RESPONSIVE_CLASS}
+              />
+            ) : null}
             {isDesignated && (
               <MoveTypeChip
                 type="designated"
@@ -160,8 +170,11 @@ export const WriteReviewModal = ({
             size="sm"
             rows={4}
             value={content}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder="최소 10자 이상 입력해주세요"
+            maxLength={MAX_REVIEW_CONTENT_LENGTH}
+            onChange={(event) =>
+              setContent(event.target.value.slice(0, MAX_REVIEW_CONTENT_LENGTH))
+            }
+            placeholder="10자 이상 600자 이하로 작성해주세요"
             className="[&>div]:w-full [&>div>textarea]:sm:text-xl-regular"
             aria-label="상세 후기"
           />
