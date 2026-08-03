@@ -27,6 +27,21 @@ export const formatReviewCreatedDate = (value: string): string => {
   return `${year}-${month}-${day}`;
 };
 
+/** YYYY-MM-DD → 2024. 07. 01 (리뷰 카드·모달용, 요일 없음) */
+export const formatReviewMoveDate = (value: string | null): string => {
+  if (!value) {
+    return '-';
+  }
+
+  const datePart = value.slice(0, 10);
+  const [year, month, day] = datePart.split('-');
+  if (!year || !month || !day) {
+    return '-';
+  }
+
+  return `${year}. ${month}. ${day}`;
+};
+
 const SCORE_KEYS = [
   { score: 5, key: 'five' },
   { score: 4, key: 'four' },

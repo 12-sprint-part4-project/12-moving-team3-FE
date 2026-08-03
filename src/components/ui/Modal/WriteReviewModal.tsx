@@ -42,6 +42,8 @@ export interface WriteReviewModalProps {
   quotePrice: string;
   /** 프로필 이미지 URL. 없으면 기본 ProfileIcon */
   avatarSrc?: string;
+  /** 등록 요청 진행 중 — CTA 비활성 */
+  isSubmitting?: boolean;
   className?: string;
 }
 
@@ -59,6 +61,7 @@ export const WriteReviewModal = ({
   moveDate,
   quotePrice,
   avatarSrc,
+  isSubmitting = false,
   className = '',
 }: WriteReviewModalProps) => {
   const titleId = useId();
@@ -67,6 +70,7 @@ export const WriteReviewModal = ({
 
   const trimmedLength = content.trim().length;
   const isSubmittable =
+    !isSubmitting &&
     rating > 0 &&
     trimmedLength >= MIN_REVIEW_CONTENT_LENGTH &&
     trimmedLength <= MAX_REVIEW_CONTENT_LENGTH;
