@@ -98,9 +98,6 @@ export const EstimateRequestAddressModal = ({
       const result = await searchAddresses({ keyword: next });
       setAddresses(result.addresses);
       setHasSearched(true);
-      if (result.addresses.length === 0) {
-        setErrorMessage('검색 결과가 없습니다. 다른 검색어를 입력해 주세요.');
-      }
     } catch (error) {
       setAddresses([]);
       setHasSearched(true);
@@ -215,12 +212,16 @@ export const EstimateRequestAddressModal = ({
             </ul>
           ) : null}
 
-          {hasSearched && !isSearching && addresses.length === 0 ? (
+          {/* 성공·0건만 status — API 오류(errorMessage)와 동시 표시하지 않음 */}
+          {hasSearched &&
+          !isSearching &&
+          addresses.length === 0 &&
+          !errorMessage ? (
             <p
               className="text-md-medium text-gray-400 md:text-lg-medium"
               role="status"
             >
-              검색 결과가 없습니다.
+              검색 결과가 없습니다. 다른 검색어를 입력해 주세요.
             </p>
           ) : null}
 
