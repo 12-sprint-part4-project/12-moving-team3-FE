@@ -25,7 +25,7 @@ import { saveEstimateRequestStepBodySchema } from '@/lib/customerEstimateRequest
 import type { EstimateRequestVisualStep } from '@/types/customerEstimateRequest';
 import type { ApiMoveType } from '@/types/estimateRequest';
 
-/** 출발/도착 draft → Progress 채움 (미선택 2 → 출발 3 → 둘 다 4) */
+/** 출발/도착 draft → Progress 채움 (미선택 2 → 한쪽만 3 → 둘 다 4, 선택 순서 무관) */
 const toAddressProgressFill = (
   departure: AddressDraft | null,
   arrival: AddressDraft | null
@@ -33,7 +33,7 @@ const toAddressProgressFill = (
   if (departure && arrival) {
     return 4;
   }
-  if (departure) {
+  if (departure || arrival) {
     return 3;
   }
   return 2;
