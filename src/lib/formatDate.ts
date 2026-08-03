@@ -50,6 +50,47 @@ export const formatShortDateLabel = (value: string | null): string => {
 };
 
 /**
+ * 견적 신청일 등 한국어 긴 날짜 라벨 (로컬 타임존)
+ * 예: 2024-06-24T00:00:00.000Z → 2024년 6월 24일
+ */
+export const formatKoreanDateLabel = (value: string | null): string => {
+  if (!value) {
+    return '-';
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '-';
+  }
+
+  return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+};
+
+/**
+ * 이사일 한국어 긴 날짜 라벨 (date-only, 타임존 변환 없음)
+ * 예: 2024-07-01 → 2024년 07월 01일 (월)
+ */
+export const formatKoreanMoveDateLabel = (value: string | null): string => {
+  if (!value) {
+    return '-';
+  }
+
+  const datePart = value.slice(0, 10);
+  const [year, month, day] = datePart.split('-').map(Number);
+  if (!year || !month || !day) {
+    return '-';
+  }
+
+  const date = new Date(year, month - 1, day);
+  if (Number.isNaN(date.getTime())) {
+    return '-';
+  }
+
+  const weekday = WEEKDAY_LABELS[date.getDay()];
+  return `${year}년 ${pad2(month)}월 ${pad2(day)}일 (${weekday})`;
+};
+
+/**
  * 이사일(date-only) 표시 문자열 포맷
  * YYYY-MM-DD 캘린더 날짜는 타임존 변환하지 않음 (일자 밀림 방지)
  */

@@ -1,16 +1,25 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 's3-moving.s3.ap-northeast-2.amazonaws.com',
+        pathname: '/**',
+      },
+    ],
+  },
   turbopack: {
     rules: {
-      "*.svg": {
+      '*.svg': {
         loaders: [
           {
-            loader: "@svgr/webpack",
+            loader: '@svgr/webpack',
             options: { icon: true },
           },
         ],
-        as: "*.js",
+        as: '*.js',
       },
     },
   },
