@@ -8,8 +8,8 @@ import {
 } from '@/lib/jusoAddressSearch';
 import type { AddressSearchResult } from '@/types/addressSearch';
 
-/** 검색어 최소 길이 — 너무 짧은 요청으로 행안부 부하·차단 완화 */
-const MIN_KEYWORD_LENGTH = 1;
+/** 검색어 최소 길이 — 1자 요청으로 행안부 부하·차단 완화 */
+const MIN_KEYWORD_LENGTH = 2;
 
 /**
  * GET /api/address/search?keyword=&page=
@@ -30,7 +30,7 @@ export const GET = async (request: Request) => {
     return NextResponse.json(
       {
         success: false,
-        message: '검색어를 입력해 주세요.',
+        message: '검색어를 2자 이상 입력해 주세요.',
         code: 'INVALID_KEYWORD',
       },
       { status: 400 }
