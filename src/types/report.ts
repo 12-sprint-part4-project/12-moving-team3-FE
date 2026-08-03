@@ -2,17 +2,10 @@ import type { ApiSuccessResponse } from '@/types/api';
 
 /** 신고 대상 타입 (BE UserReportTarget) */
 export type ReportTarget =
-  | 'USER'
-  | 'REVIEW'
-  | 'CHAT_ROOM'
-  | 'MESSAGE'
-  | 'ARTICLE'
-  | 'COMMENT';
+  'USER' | 'REVIEW' | 'CHAT_ROOM' | 'MESSAGE' | 'ARTICLE' | 'COMMENT';
 
 /** 신고 사유 카테고리 (BE UserReportCategory) */
-export type ReportCategory =
-  | 'INAPPROPRIATE_PROFILE'
-  | 'ABUSIVE_LANGUAGE';
+export type ReportCategory = 'INAPPROPRIATE_PROFILE' | 'ABUSIVE_LANGUAGE';
 
 /** 신고 처리 상태 */
 export type ReportStatus = 'PENDING' | 'RESOLVED' | 'REJECTED';
@@ -38,11 +31,14 @@ export interface ReportDetail {
 
 export type CreateReportResponse = ApiSuccessResponse<ReportDetail>;
 
-/** 신고 사유 선택 UI용 라벨 */
-export const REPORT_CATEGORY_OPTIONS: {
+/** 신고 사유 선택 UI용 옵션 */
+export interface ReportCategoryOption {
   value: ReportCategory;
   label: string;
-}[] = [
+}
+
+/** 신고 사유 선택 UI용 라벨 */
+export const REPORT_CATEGORY_OPTIONS: ReportCategoryOption[] = [
   { value: 'INAPPROPRIATE_PROFILE', label: '부적절한 프로필' },
   { value: 'ABUSIVE_LANGUAGE', label: '욕설 / 비방' },
 ];
