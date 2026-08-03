@@ -83,7 +83,7 @@ export const CustomerProfileForm = () => {
     selectedRegion !== null &&
     !isPending;
 
-  // hydration 전에는 user가 null이라, 세션 복원 후 전화번호만 채운다 (사용자 입력은 유지)
+  // 세션에 번호가 있으면(이전 데이터 등) 미리 채운다. 신규 가입은 비어 있다.
   useEffect(() => {
     const sessionPhone = toDigits(user?.phoneNumber ?? '');
     if (!sessionPhone) return;
