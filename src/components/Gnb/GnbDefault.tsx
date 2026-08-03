@@ -1,22 +1,22 @@
+'use client';
+
 import Link from 'next/link';
+import { useRef, useState } from 'react';
 
 import AlarmIcon from '@/assets/icons/alarm.svg';
 import MenuIcon from '@/assets/icons/menu.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
 
 import { GNB_NAV_BY_ROLE, type GnbNavItem } from '@/components/Gnb/gnbNav';
+import { GnbProfileDropdown } from '@/components/Gnb/GnbProfileDropdown';
 import { Logo } from '@/components/Logo/Logo';
 import { Tab } from '@/components/ui/Tab/Tab';
+import { useOutsideClick } from '@/hooks/useOutsideClick';
 
 export type GnbDefaultSize = 'sm' | 'md' | 'lg';
-/** Figma Property 1(sort): gnb=헤더, tab=탭바, component=헤더+탭 */
+/** gnb=헤더, tab=탭바, component=헤더+탭 */
 export type GnbDefaultSort = 'gnb' | 'tab' | 'component';
-/**
- * Figma Property 2(sort-2).
- * - iconProfile: sm/md 헤더 (알림·프로필·메뉴)
- * - twoMenu: lg 기사 네비 (받은 요청, 내 견적 관리)
- * - threeMenu: lg 고객 네비 (견적 요청, 기사님 찾기, 내 견적 관리)
- */
+/** iconProfile: sm/md, twoMenu: lg 기사, threeMenu: lg 고객 */
 export type GnbDefaultMenu = 'iconProfile' | 'twoMenu' | 'threeMenu';
 
 export interface GnbTabItem {
@@ -30,21 +30,18 @@ export interface GnbDefaultProps {
   size?: GnbDefaultSize;
   sort?: GnbDefaultSort;
   menu?: GnbDefaultMenu;
-  /** lg 프로필 옆에 표시할 사용자 이름 */
   userName?: string;
-  /** 프로필 이미지 URL */
   avatarSrc?: string | null;
-  /** 현재 활성 탭 id (tab / component) */
   activeTabId?: string;
-  /** 탭 목록. 미지정 시 Figma 기본값 사용 */
   tabs?: GnbTabItem[];
-  /** lg 네비 링크. 미지정 시 menu 기본값 사용 */
   navItems?: GnbNavItem[];
   homeHref?: string;
+  nameSuffix?: string;
   onTabChange?: (tabId: string) => void;
   onAlarmClick?: () => void;
   onProfileClick?: () => void;
   onMenuClick?: () => void;
+  onLogout?: () => void;
   className?: string;
 }
 
@@ -107,40 +104,66 @@ interface GnbProfileAvatarProps {
 const GnbProfileAvatar = ({ src, className }: GnbProfileAvatarProps) => {
   if (src) {
     return (
-      <span className={`shrink-0 overflow-hidden rounded-full ${className}`}>
+      <span
+        className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full ${className}`}
+      >
         {/* eslint-disable-next-line @next/next/no-img-element -- Presigned URL */}
-        <img src={src} alt="" className="size-full object-cover" />
+        <img
+          src={src}
+          alt=""
+          className="size-full object-cover object-center"
+        />
       </span>
     );
   }
 
-  return <ProfileIcon className={`shrink-0 ${className}`} aria-hidden />;
+  return <ProfileIcon className={`block shrink-0 ${className}`} aria-hidden />;
 };
 
 interface GnbHeaderProps {
   size: GnbDefaultSize;
   userName: string;
+  nameSuffix: string;
   avatarSrc?: string | null;
   homeHref: string;
   navItems: GnbNavItem[];
   onAlarmClick?: () => void;
   onProfileClick?: () => void;
   onMenuClick?: () => void;
+  onLogout?: () => void;
   withBorder?: boolean;
 }
 
 const GnbHeader = ({
   size,
   userName,
+  nameSuffix,
   avatarSrc,
   homeHref,
   navItems,
   onAlarmClick,
   onProfileClick,
   onMenuClick,
+  onLogout,
   withBorder = true,
 }: GnbHeaderProps) => {
   const isDesktop = size === 'lg';
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useOutsideClick(profileRef, isProfileOpen, setIsProfileOpen);
+
+  const handleProfileToggle = () => {
+    setIsProfileOpen((prev) => !prev);
+    onProfileClick?.();
+  };
+
+  const handleLogout = () => {
+    setIsProfileOpen(false);
+    onLogout?.();
+  };
+
+  const dropdownSize = size === 'sm' ? 'sm' : 'md';
 
   return (
     <header
@@ -192,53 +215,69 @@ const GnbHeader = ({
             />
           </button>
 
-          {isDesktop ? (
-            <button
-              type="button"
-              aria-label={`${userName} 프로필`}
-              onClick={onProfileClick}
-              className="flex shrink-0 items-center gap-4"
-            >
-              <GnbProfileAvatar src={avatarSrc} className="size-9" />
-              <span className="text-2lg-medium whitespace-nowrap text-black-400">
-                {userName}
-              </span>
-            </button>
-          ) : (
-            <>
+          <div ref={profileRef} className="relative flex items-center">
+            {isDesktop ? (
+              <button
+                type="button"
+                aria-label={`${userName} 프로필`}
+                aria-haspopup="menu"
+                aria-expanded={isProfileOpen}
+                onClick={handleProfileToggle}
+                className="flex shrink-0 cursor-pointer items-center gap-4"
+              >
+                <GnbProfileAvatar src={avatarSrc} className="size-9" />
+                <span className="text-2lg-medium whitespace-nowrap text-black-400">
+                  {userName}
+                </span>
+              </button>
+            ) : (
               <button
                 type="button"
                 aria-label="프로필"
-                onClick={onProfileClick}
-                className="inline-flex size-6 shrink-0 items-center justify-center"
+                aria-haspopup="menu"
+                aria-expanded={isProfileOpen}
+                onClick={handleProfileToggle}
+                className="inline-flex size-6 shrink-0 cursor-pointer items-center justify-center"
               >
                 <GnbProfileAvatar src={avatarSrc} className="size-6" />
               </button>
-              <button
-                type="button"
-                aria-label="메뉴 열기"
-                onClick={onMenuClick}
-                className="inline-flex size-6 shrink-0 items-center justify-center [&_path]:stroke-gray-300"
-              >
-                <MenuIcon className="size-6" aria-hidden />
-              </button>
-            </>
-          )}
+            )}
+
+            {isProfileOpen ? (
+              <div className="absolute top-full right-0 z-50 mt-2">
+                <GnbProfileDropdown
+                  size={dropdownSize}
+                  userName={userName}
+                  nameSuffix={nameSuffix}
+                  onLogout={handleLogout}
+                />
+              </div>
+            ) : null}
+          </div>
+
+          {!isDesktop ? (
+            <button
+              type="button"
+              aria-label="메뉴 열기"
+              onClick={onMenuClick}
+              className="inline-flex size-6 shrink-0 items-center justify-center [&_path]:stroke-gray-300"
+            >
+              <MenuIcon className="size-6" aria-hidden />
+            </button>
+          ) : null}
         </div>
       </div>
     </header>
   );
 };
 
-/**
- * 로그인 상태 기본 GNB.
- * Figma "gnb/default" — sort=gnb|tab|component, size=sm|md|lg.
- */
+/** 로그인 상태 기본 GNB */
 export const GnbDefault = ({
   size = 'sm',
   sort = 'gnb',
   menu = 'iconProfile',
-  userName = '김가나',
+  userName = '',
+  nameSuffix = '',
   avatarSrc,
   activeTabId = 'pending',
   tabs = DEFAULT_TABS,
@@ -248,6 +287,7 @@ export const GnbDefault = ({
   onAlarmClick,
   onProfileClick,
   onMenuClick,
+  onLogout,
   className = '',
 }: GnbDefaultProps) => {
   const resolvedNavItems =
@@ -277,12 +317,14 @@ export const GnbDefault = ({
         <GnbHeader
           size={size === 'lg' ? 'md' : size}
           userName={userName}
+          nameSuffix={nameSuffix}
           avatarSrc={avatarSrc}
           homeHref={homeHref}
           navItems={resolvedNavItems}
           onAlarmClick={onAlarmClick}
           onProfileClick={onProfileClick}
           onMenuClick={onMenuClick}
+          onLogout={onLogout}
           withBorder={false}
         />
         <GnbTabBar
@@ -300,12 +342,14 @@ export const GnbDefault = ({
       <GnbHeader
         size={size}
         userName={userName}
+        nameSuffix={nameSuffix}
         avatarSrc={avatarSrc}
         homeHref={homeHref}
         navItems={resolvedNavItems}
         onAlarmClick={onAlarmClick}
         onProfileClick={onProfileClick}
         onMenuClick={onMenuClick}
+        onLogout={onLogout}
       />
     </div>
   );
