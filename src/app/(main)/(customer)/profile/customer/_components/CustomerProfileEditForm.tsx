@@ -27,6 +27,8 @@ import { ProfileImageCropModal } from './ProfileImageCropModal';
 const FIELD_CLASSNAME =
   'w-full [&_>div]:min-h-16 [&_>div]:w-full [&_>div]:max-w-full [&_input]:text-xl-regular';
 
+const READONLY_FIELD_CLASSNAME = `${FIELD_CLASSNAME} [&_input]:!text-gray-300`;
+
 const LABEL_CLASSNAME = 'text-xl-semibold text-black-300';
 
 const CHIP_CLASSNAME = 'px-5 py-2.5 text-2lg-medium';
@@ -167,7 +169,7 @@ export const CustomerProfileEditForm = () => {
                   autoComplete="email"
                   value={email}
                   readOnly
-                  className={FIELD_CLASSNAME}
+                  className={READONLY_FIELD_CLASSNAME}
                 />
               </section>
 
@@ -266,7 +268,7 @@ export const CustomerProfileEditForm = () => {
                   onClick={() => imageInputRef.current?.click()}
                   aria-label="프로필 이미지 업로드"
                   className={cn(
-                    'flex size-40 items-center justify-center overflow-hidden rounded-md bg-background-200',
+                    'flex size-40 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-background-200',
                     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300'
                   )}
                 >

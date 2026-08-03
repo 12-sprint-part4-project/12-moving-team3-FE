@@ -224,7 +224,7 @@ export const CustomerProfileForm = () => {
                 onClick={handleImageButtonClick}
                 aria-label="프로필 이미지 업로드"
                 className={cn(
-                  'flex size-[6.25rem] items-center justify-center overflow-hidden rounded-md bg-background-200 lg:size-40',
+                  'flex size-[6.25rem] cursor-pointer items-center justify-center overflow-hidden rounded-md bg-background-200 lg:size-40',
                   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300'
                 )}
               >
