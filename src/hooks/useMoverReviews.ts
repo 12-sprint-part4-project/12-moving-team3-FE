@@ -20,6 +20,9 @@ export const reviewQueryKeys = {
   customer: () => [...reviewQueryKeys.all, 'customer'] as const,
   customerList: (page: number, limit: number) =>
     [...reviewQueryKeys.customer(), { page, limit }] as const,
+  moverReceived: () => [...reviewQueryKeys.all, 'mover'] as const,
+  moverReceivedList: (page: number, limit: number) =>
+    [...reviewQueryKeys.moverReceived(), { page, limit }] as const,
 };
 
 /**

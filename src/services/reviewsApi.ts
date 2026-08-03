@@ -7,6 +7,8 @@ import type {
   CustomerReviewsResponse,
   MoverPublicReviewsParams,
   MoverPublicReviewsResponse,
+  MoverReceivedReviewsParams,
+  MoverReceivedReviewsResponse,
   ReviewBody,
   UpdateReviewResponse,
   WritableQuotesParams,
@@ -250,9 +252,9 @@ export const getCustomerReviews = async (
   );
 };
 
-const isMoverPublicReviewsResponse = (
+const isMoverReviewsWithStatsResponse = (
   body: unknown
-): body is MoverPublicReviewsResponse => {
+): body is MoverPublicReviewsResponse | MoverReceivedReviewsResponse => {
   if (!body || typeof body !== 'object') {
     return false;
   }
@@ -326,7 +328,35 @@ export const getMoverPublicReviews = async (
   return fetchAndValidate(
     `${API_BASE_URL}/api/movers/${moverId}/reviews${suffix}`,
     { method: 'GET' },
-    isMoverPublicReviewsResponse,
+    isMoverReviewsWithStatsResponse,
     '리뷰를 불러오지 못했습니다.'
+  );
+};
+
+/**
+ * 로그인한 기사님에게 달린 리뷰 목록 조회 (MOVER).
+ * GET /api/review/mover
+ */
+export const getMoverReceivedReviews = async (
+  params: MoverReceivedReviewsParams = {}
+): Promise<MoverReceivedReviewsResponse> => {
+  assertMoverAccessToken();
+
+  const searchParams = new URLSearchParams();
+  if (params.page !== undefined) {
+    searchParams.set('page', String(params.page));
+  }
+  if (params.limit !== undefined) {
+    searchParams.set('limit', String(params.limit));
+  }
+
+  const query = searchParams.toString();
+  const suffix = query ? `?${query}` : '';
+
+  return fetchAndValidate(
+    `${API_BASE_URL}/api/review/mover${suffix}`,
+    { method: 'GET' },
+    isMoverReviewsWithStatsResponse,
+    '받은 리뷰 목록을 불러오지 못했습니다.'
   );
 };

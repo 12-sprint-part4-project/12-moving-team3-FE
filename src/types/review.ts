@@ -86,6 +86,21 @@ export type MoverPublicReviewsResponse = ApiSuccessResponse<
   meta: MoverPublicReviewsMeta;
 };
 
+/** GET /api/review/mover 쿼리 (기사 본인 수신 리뷰) */
+export type MoverReceivedReviewsParams = MoverPublicReviewsParams;
+
+/** GET /api/review/mover → data.reviews[] (공개 리뷰 item과 동일 shape) */
+export type MoverReceivedReviewItem = MoverPublicReviewItem;
+
+export type MoverReceivedReviewsMeta = MoverPublicReviewsMeta;
+
+export type MoverReceivedReviewsResponse = ApiSuccessResponse<
+  { reviews: MoverReceivedReviewItem[] },
+  MoverReceivedReviewsMeta
+> & {
+  meta: MoverReceivedReviewsMeta;
+};
+
 /** GET /api/review/customer/writable 쿼리 */
 export interface WritableQuotesParams {
   page?: number;
