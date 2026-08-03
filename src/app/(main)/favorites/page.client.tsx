@@ -81,7 +81,7 @@ export const FavoritesPageClient = () => {
       <div
         className={cn(
           'border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8',
-          pageXPadding,
+          pageXPadding
         )}
       >
         <h1 className="text-2lg-semibold text-black-400 lg:text-2xl-semibold">
@@ -92,12 +92,10 @@ export const FavoritesPageClient = () => {
       <div
         className={cn(
           'mx-auto flex w-full max-w-[1920px] flex-col py-6 md:py-8',
-          pageXPadding,
+          pageXPadding
         )}
       >
-        {isPending ? (
-          <Spinner message="찜한 기사님을 불러오는 중..." />
-        ) : null}
+        {isPending ? <Spinner message="찜한 기사님을 불러오는 중..." /> : null}
 
         {isError ? (
           <div className="flex flex-col items-center gap-4 py-16">
@@ -112,7 +110,7 @@ export const FavoritesPageClient = () => {
           </div>
         ) : null}
 
-        {!isPending && !isError && isEmpty ? (
+        {isEmpty ? (
           <div className="flex flex-col items-center justify-center gap-4 py-16">
             <p className="text-xl-regular text-gray-400">
               찜한 기사님이 없어요
