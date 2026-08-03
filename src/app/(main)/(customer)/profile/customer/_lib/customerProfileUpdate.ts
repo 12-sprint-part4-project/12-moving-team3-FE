@@ -1,11 +1,11 @@
 import type {
-  CustomerProfileMe,
-  UpsertCustomerProfileRequest,
-} from '@/types/customerProfile';
-import type {
   RegionChipValue,
   ServiceChipValue,
 } from '@/constants/chipOptions';
+import type {
+  CustomerProfileMe,
+  UpsertCustomerProfileRequest,
+} from '@/types/customerProfile';
 
 const PHONE_NUMBER_LENGTH = 11;
 const NAME_MIN_LENGTH = 2;
@@ -27,6 +27,8 @@ interface BuildCustomerProfileUpdateBodyParams {
   newPassword: string;
   confirmPassword: string;
   s3Key?: string;
+  /** 이미지 업로드 전에도 변경 여부를 반영하기 위한 플래그 */
+  hasImageChange?: boolean;
 }
 
 const areServicesEqual = (
@@ -51,6 +53,7 @@ export const buildCustomerProfileUpdateBody = ({
   newPassword,
   confirmPassword,
   s3Key,
+  hasImageChange = false,
 }: BuildCustomerProfileUpdateBodyParams): UpsertCustomerProfileRequest | null => {
   const trimmedNickname = nickname.trim();
   const body: UpsertCustomerProfileRequest = {
@@ -97,7 +100,8 @@ export const buildCustomerProfileUpdateBody = ({
     body.service !== undefined ||
     body.region !== undefined ||
     body.currentPassword !== undefined ||
-    body.s3Key !== undefined;
+    body.s3Key !== undefined ||
+    hasImageChange;
 
   return hasOtherChanges ? body : null;
 };
@@ -114,6 +118,7 @@ export const getCustomerProfileUpdateError = ({
   newPassword,
   confirmPassword,
   s3Key,
+  hasImageChange,
 }: BuildCustomerProfileUpdateBodyParams): string | null => {
   const trimmedName = name.trim();
   if (
@@ -176,6 +181,7 @@ export const getCustomerProfileUpdateError = ({
     newPassword,
     confirmPassword,
     s3Key,
+    hasImageChange,
   });
 
   if (!body) {

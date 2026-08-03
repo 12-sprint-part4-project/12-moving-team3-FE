@@ -25,9 +25,13 @@ import { ApiError } from '@/lib/apiClient';
 import { getAuthSession } from '@/lib/authSession';
 import { uploadProfileImage } from '@/lib/uploadProfileImage';
 import { cn } from '@/lib/utils';
-import { updateCustomerProfile } from '@/services/customerProfileApi';
+import { upsertCustomerProfile } from '@/services/customerProfileApi';
 import type { CustomerProfileMe } from '@/types/customerProfile';
 
+import {
+  buildCustomerProfileUpdateBody,
+  getCustomerProfileUpdateError,
+} from '../_lib/customerProfileUpdate';
 import { toggleService } from '../_lib/toggleService';
 import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
 import { ProfileImageCropModal } from './ProfileImageCropModal';
@@ -99,6 +103,25 @@ const CustomerProfileEditFields = ({
     event.preventDefault();
     if (isSubmitting) return;
 
+    const updateParams = {
+      profile,
+      name,
+      nickname,
+      phoneNumber,
+      selectedServices,
+      selectedRegion,
+      currentPassword,
+      newPassword,
+      confirmPassword,
+      hasImageChange: Boolean(profileImageFile),
+    };
+
+    const validationError = getCustomerProfileUpdateError(updateParams);
+    if (validationError) {
+      showToast({ content: validationError });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -108,17 +131,17 @@ const CustomerProfileEditFields = ({
         s3Key = await uploadProfileImage(profileImageFile);
       }
 
-      const response = await updateCustomerProfile({
-        name,
-        nickname,
-        phoneNumber,
-        region: selectedRegion,
-        service: selectedServices,
-        currentPassword,
-        newPassword,
-        newPasswordConfirm: confirmPassword,
+      const body = buildCustomerProfileUpdateBody({
+        ...updateParams,
         s3Key,
       });
+
+      if (!body) {
+        showToast({ content: '변경된 내용이 없습니다.' });
+        return;
+      }
+
+      const response = await upsertCustomerProfile(body);
 
       await queryClient.invalidateQueries({
         queryKey: customerProfileQueryKeys.all,
