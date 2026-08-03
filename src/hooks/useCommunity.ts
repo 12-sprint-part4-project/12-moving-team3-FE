@@ -116,10 +116,15 @@ export const useDeletePost = () => {
 
   return useMutation({
     mutationFn: (postId: number) => deletePost(postId),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: communityQueryKeys.lists(),
-      });
+    onSuccess: async (_data, postId) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: communityQueryKeys.detail(postId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: communityQueryKeys.lists(),
+        }),
+      ]);
     },
   });
 };

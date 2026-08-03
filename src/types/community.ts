@@ -65,12 +65,10 @@ export interface PostListMeta {
   hasNextPage: boolean;
 }
 
-export type PostListResponse = ApiSuccessResponse<
-  { items: PostListItem[] },
-  PostListMeta
-> & {
+export interface PostListResponse
+  extends ApiSuccessResponse<{ items: PostListItem[] }, PostListMeta> {
   meta: PostListMeta;
-};
+}
 
 export type PostDetailResponse = ApiSuccessResponse<PostDetail>;
 
