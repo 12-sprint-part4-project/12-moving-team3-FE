@@ -1,18 +1,21 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
-import { moverQueryKeys } from '@/hooks/useMoversList';
 import { getMoverPublicReviews } from '@/services/reviewsApi';
 import { isMoverId } from '@/types/mover';
 
 /** BE 기본·최대 pageSize와 동일 */
 export const MOVER_REVIEWS_PAGE_SIZE = 6;
 
-export const moverReviewQueryKeys = {
-  all: (moverId: string) =>
-    [...moverQueryKeys.detail(moverId), 'reviews'] as const,
-  list: (moverId: string, page: number, limit: number) =>
-    [...moverReviewQueryKeys.all(moverId), { page, limit }] as const,
+/** 리뷰 도메인 공통 queryKey (등록 후 invalidate용) */
+export const reviewQueryKeys = {
+  all: ['reviews'] as const,
+  publicByMover: (moverId: string) =>
+    [...reviewQueryKeys.all, 'public', moverId] as const,
+  publicList: (moverId: string, page: number, limit: number) =>
+    [...reviewQueryKeys.publicByMover(moverId), { page, limit }] as const,
+  writable: () => [...reviewQueryKeys.all, 'writable'] as const,
+  customer: () => [...reviewQueryKeys.all, 'customer'] as const,
 };
 
 /**
@@ -29,7 +32,7 @@ export const useMoverReviews = (
   const enabled = isMoverId(moverId);
 
   const query = useQuery({
-    queryKey: moverReviewQueryKeys.list(moverId, page, limit),
+    queryKey: reviewQueryKeys.publicList(moverId, page, limit),
     queryFn: () => getMoverPublicReviews(moverId, { page, limit }),
     enabled,
     placeholderData: keepPreviousData,

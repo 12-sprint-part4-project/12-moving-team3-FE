@@ -1,5 +1,9 @@
 import type { ApiSuccessResponse } from '@/types/api';
 
+/** BE reviewBodySchema와 동일 */
+export const MIN_REVIEW_CONTENT_LENGTH = 10;
+export const MAX_REVIEW_CONTENT_LENGTH = 600;
+
 /** 목록·상세·찜 등에서 쓰는 별점 분포 카운트 */
 export interface ReviewRatingCounts {
   1: number;
@@ -15,6 +19,23 @@ export interface ReviewStats {
   totalCount: number;
   averageRating: number | null;
 }
+
+/** 리뷰 등록·수정 Body */
+export interface ReviewBody {
+  rating: number;
+  content: string;
+}
+
+/** POST / PATCH 성공 시 data */
+export interface ReviewDetail {
+  id: number;
+  quoteId: number;
+  rating: number;
+  content: string;
+  createdAt: string;
+}
+
+export type CreateReviewResponse = ApiSuccessResponse<ReviewDetail>;
 
 /** GET /api/movers/:id/reviews 쿼리 */
 export interface MoverPublicReviewsParams {

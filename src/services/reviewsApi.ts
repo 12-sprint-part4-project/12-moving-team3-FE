@@ -1,9 +1,63 @@
 import { API_BASE_URL } from '@/lib/apiClient';
 import { fetchAndValidate } from '@/services/moverApiResponse';
+import { assertMoverAccessToken } from '@/services/moversAuth';
 import type {
+  CreateReviewResponse,
   MoverPublicReviewsParams,
   MoverPublicReviewsResponse,
+  ReviewBody,
 } from '@/types/review';
+
+const isCreateReviewResponse = (
+  body: unknown
+): body is CreateReviewResponse => {
+  if (!body || typeof body !== 'object') {
+    return false;
+  }
+
+  const data = (body as { data?: unknown }).data;
+  if (!data || typeof data !== 'object') {
+    return false;
+  }
+
+  const review = data as {
+    id?: unknown;
+    quoteId?: unknown;
+    rating?: unknown;
+    content?: unknown;
+    createdAt?: unknown;
+  };
+
+  return (
+    typeof review.id === 'number' &&
+    typeof review.quoteId === 'number' &&
+    typeof review.rating === 'number' &&
+    typeof review.content === 'string' &&
+    typeof review.createdAt === 'string'
+  );
+};
+
+/**
+ * 리뷰 등록 (CUSTOMER).
+ * POST /api/review/quotes/:quoteId
+ */
+export const createReview = async (
+  quoteId: number,
+  body: ReviewBody
+): Promise<CreateReviewResponse> => {
+  assertMoverAccessToken();
+
+  return fetchAndValidate(
+    `${API_BASE_URL}/api/review/quotes/${quoteId}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    },
+    isCreateReviewResponse,
+    '리뷰 등록에 실패했습니다.'
+  );
+};
 
 const isMoverPublicReviewsResponse = (
   body: unknown
