@@ -18,6 +18,7 @@ export const useDeleteReview = () => {
   const mutation = useMutation({
     mutationFn: (reviewId: number) => deleteReview(reviewId),
     onSuccess: async () => {
+      showToast({ content: '리뷰가 삭제되었습니다.' });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: reviewQueryKeys.all }),
         queryClient.invalidateQueries({ queryKey: moverQueryKeys.lists() }),

@@ -25,6 +25,7 @@ export const useUpdateReview = () => {
     mutationFn: ({ reviewId, body }: UpdateReviewVariables) =>
       updateReview(reviewId, body),
     onSuccess: async () => {
+      showToast({ content: '리뷰가 수정되었습니다' });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: reviewQueryKeys.all }),
         queryClient.invalidateQueries({ queryKey: moverQueryKeys.lists() }),

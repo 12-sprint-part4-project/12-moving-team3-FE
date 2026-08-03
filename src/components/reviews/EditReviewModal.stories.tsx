@@ -4,12 +4,12 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { SAMPLE_CUSTOMER_REVIEW } from '@/components/reviews/_fixtures/reviewFixtures';
-import { ReviewDetailModal } from '@/components/reviews/ReviewDetailModal';
+import { EditReviewModal } from '@/components/reviews/EditReviewModal';
 import { Modal } from '@/components/ui/Modal/Modal';
 
-const meta: Meta<typeof ReviewDetailModal> = {
-  title: 'Reviews/ReviewDetailModal',
-  component: ReviewDetailModal,
+const meta: Meta<typeof EditReviewModal> = {
+  title: 'Reviews/EditReviewModal',
+  component: EditReviewModal,
   tags: ['autodocs'],
   parameters: {
     layout: 'fullscreen',
@@ -17,7 +17,7 @@ const meta: Meta<typeof ReviewDetailModal> = {
 };
 export default meta;
 
-type Story = StoryObj<typeof ReviewDetailModal>;
+type Story = StoryObj<typeof EditReviewModal>;
 
 /** Modal 셸과 조합 */
 export const WithModalShell: Story = {
@@ -31,15 +31,14 @@ export const WithModalShell: Story = {
           className="rounded-lg bg-blue-300 px-4 py-2 text-lg-semibold text-white"
           onClick={() => setIsOpen(true)}
         >
-          리뷰 상세 열기
+          리뷰 수정 열기
         </button>
         {isOpen ? (
           <Modal placement="bottom" onClose={() => setIsOpen(false)}>
-            <ReviewDetailModal
+            <EditReviewModal
               review={SAMPLE_CUSTOMER_REVIEW}
               onClose={() => setIsOpen(false)}
-              onEdit={() => setIsOpen(false)}
-              onDelete={() => setIsOpen(false)}
+              onSubmit={() => setIsOpen(false)}
             />
           </Modal>
         ) : null}
@@ -53,8 +52,7 @@ export const PanelOnly: Story = {
   args: {
     review: SAMPLE_CUSTOMER_REVIEW,
     onClose: () => {},
-    onEdit: () => {},
-    onDelete: () => {},
+    onSubmit: () => {},
   },
   decorators: [
     (Story) => (

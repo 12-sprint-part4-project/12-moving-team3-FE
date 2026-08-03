@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { EditReviewModal } from '@/components/reviews/EditReviewModal';
 import { ReviewsEmptyState } from '@/components/reviews/ReviewsEmptyState';
 import { ReviewDetailModal } from '@/components/reviews/ReviewDetailModal';
 import {
@@ -19,7 +20,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCreateReview } from '@/hooks/useCreateReview';
 import { useCustomerReviews } from '@/hooks/useCustomerReviews';
 import { useCustomerWritableQuotes } from '@/hooks/useCustomerWritableQuotes';
+import { useDeleteReview } from '@/hooks/useDeleteReview';
 import { useToast } from '@/hooks/useToast';
+import { useUpdateReview } from '@/hooks/useUpdateReview';
 import { ApiError } from '@/lib/apiClient';
 import { formatReviewMoveDate } from '@/lib/reviewDisplay';
 import { cn } from '@/lib/utils';
@@ -39,6 +42,8 @@ export const ReviewsPageClient = () => {
   );
   const [selectedReview, setSelectedReview] =
     useState<CustomerReviewItem | null>(null);
+  const [editingReview, setEditingReview] =
+    useState<CustomerReviewItem | null>(null);
 
   const isLoggedIn = Boolean(user);
 
@@ -50,6 +55,10 @@ export const ReviewsPageClient = () => {
   });
 
   const { mutateAsync, isPending: isSubmitting } = useCreateReview();
+  const { mutateAsync: updateReviewAsync, isPending: isUpdating } =
+    useUpdateReview();
+  const { mutateAsync: deleteReviewAsync, isPending: isDeleting } =
+    useDeleteReview();
 
   useEffect(() => {
     if (isReady && !user) {
@@ -89,11 +98,62 @@ export const ReviewsPageClient = () => {
   };
 
   const handleReviewClick = (item: CustomerReviewItem) => {
+    setEditingReview(null);
     setSelectedReview(item);
   };
 
   const handleCloseDetailModal = () => {
+    if (isDeleting) {
+      return;
+    }
     setSelectedReview(null);
+  };
+
+  const handleEditReview = () => {
+    if (!selectedReview || isDeleting) {
+      return;
+    }
+    setEditingReview(selectedReview);
+    setSelectedReview(null);
+  };
+
+  const handleCloseEditModal = () => {
+    if (isUpdating) {
+      return;
+    }
+    setEditingReview(null);
+  };
+
+  const handleSubmitUpdate = async (review: {
+    rating: number;
+    content: string;
+  }) => {
+    if (!editingReview || isUpdating) {
+      return;
+    }
+
+    try {
+      await updateReviewAsync({
+        reviewId: editingReview.id,
+        body: review,
+      });
+      setEditingReview(null);
+    } catch {
+      // 성공/실패 토스트는 useUpdateReview에서 처리
+    }
+  };
+
+  const handleDeleteReview = async () => {
+    if (!selectedReview || isDeleting) {
+      return;
+    }
+
+    try {
+      await deleteReviewAsync(selectedReview.id);
+      setSelectedReview(null);
+    } catch {
+      // 성공/실패 토스트는 useDeleteReview에서 처리
+    }
   };
 
   const writableErrorMessage =
@@ -283,6 +343,25 @@ export const ReviewsPageClient = () => {
           <ReviewDetailModal
             review={selectedReview}
             onClose={handleCloseDetailModal}
+            onEdit={handleEditReview}
+            onDelete={() => {
+              void handleDeleteReview();
+            }}
+            isDeleting={isDeleting}
+          />
+        </Modal>
+      ) : null}
+
+      {editingReview ? (
+        <Modal placement="bottom" onClose={handleCloseEditModal}>
+          <EditReviewModal
+            key={editingReview.id}
+            review={editingReview}
+            onClose={handleCloseEditModal}
+            onSubmit={(review) => {
+              void handleSubmitUpdate(review);
+            }}
+            isSubmitting={isUpdating}
           />
         </Modal>
       ) : null}

@@ -12,6 +12,8 @@ export { WriteReviewModal } from './WriteReviewModal';
 export type { WriteReviewModalProps } from './WriteReviewModal';
 export { ReviewDetailModal } from './ReviewDetailModal';
 export type { ReviewDetailModalProps } from './ReviewDetailModal';
+export { EditReviewModal } from './EditReviewModal';
+export type { EditReviewModalProps } from './EditReviewModal';
 export { ReviewsEmptyState } from './ReviewsEmptyState';
 export type { ReviewsEmptyStateProps } from './ReviewsEmptyState';
 export { ReviewsTabs } from './ReviewsTabs';
