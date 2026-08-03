@@ -19,14 +19,15 @@ export const EstimateRequestShell = ({
   children,
 }: EstimateRequestShellProps) => {
   return (
-    <div className="flex w-full flex-col bg-background-200">
+    // flex-1: 짧은 컨텐츠에서도 GNB 아래 남은 높이까지 배경 채움
+    <div className="flex min-h-0 w-full flex-1 flex-col bg-background-200">
       <EstimateRequestProgress
         currentStep={currentStep}
         progressFill={progressFill}
       />
 
       <div
-        className="flex w-full flex-col gap-4 py-6 md:py-[3rem]"
+        className="flex w-full flex-1 flex-col gap-4 py-6 md:py-[3rem]"
         aria-live="polite"
         aria-relevant="additions"
       >
