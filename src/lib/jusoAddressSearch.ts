@@ -111,7 +111,11 @@ export const searchJusoAddresses = async (
   params: SearchJusoAddressesParams
 ): Promise<SearchJusoAddressesResult> => {
   const keyword = sanitizeJusoKeyword(params.keyword);
-  const currentPage = Math.max(1, Math.floor(params.currentPage ?? 1));
+  // clampJusoPageSize와 동일하게 NaN·비정상 값은 1로 fallback
+  const rawPage = params.currentPage ?? 1;
+  const currentPage = Number.isFinite(rawPage)
+    ? Math.max(1, Math.floor(rawPage))
+    : 1;
   const countPerPage = clampJusoPageSize(params.countPerPage);
 
   const url = new URL(JUSO_ADDR_LINK_API_URL);
