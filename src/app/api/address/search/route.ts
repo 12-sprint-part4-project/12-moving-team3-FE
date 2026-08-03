@@ -61,19 +61,20 @@ export const GET = async (request: Request) => {
     };
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    const message =
+    // 행안부 원문(키/IP/쿼터 등)은 서버 로그만 — 클라이언트에는 고정 문구
+    const detail =
       error instanceof Error
         ? error.message
         : '주소 검색 중 오류가 발생했습니다.';
 
-    console.error('[address/search]', message, {
+    console.error('[address/search]', detail, {
       docs: JUSO_API_DOCS_URL,
     });
 
     return NextResponse.json(
       {
         success: false,
-        message,
+        message: '주소 검색 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
         code: 'ADDRESS_SEARCH_FAILED',
       },
       { status: 502 }
