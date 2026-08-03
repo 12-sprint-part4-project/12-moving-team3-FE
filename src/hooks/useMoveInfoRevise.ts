@@ -45,8 +45,10 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
     bootstrap,
     saveStep,
     reviseField,
+    submit,
     isSavingStep,
     isRevisingField,
+    isSubmitting: isSubmittingRequest,
   } = useCustomerEstimateRequest();
 
   const detail = bootstrap.detail;
@@ -69,7 +71,9 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const minMoveDate = useLocalToday();
 
-  const isSubmitting = isSavingStep || isRevisingField;
+  // 저장·수정·제출 중 공통 busy (버튼/수정하기 잠금)
+  const isSubmitting =
+    isSavingStep || isRevisingField || isSubmittingRequest;
   const isInReviseMode = isRevisingMoveType || isRevisingMoveDate;
   const canConfirmMoveType =
     draftMoveType != null && !isSubmitting && detail != null;
@@ -184,8 +188,10 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
     errorMessage,
     setErrorMessage,
     saveStep,
+    submit,
     isSavingStep,
     isRevisingField,
+    isSubmittingRequest,
     isSubmitting,
     isInReviseMode,
     canConfirmMoveType,

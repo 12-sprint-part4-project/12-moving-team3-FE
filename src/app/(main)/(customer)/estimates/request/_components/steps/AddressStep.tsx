@@ -58,7 +58,7 @@ const toDraftFromDetail = (
 
 /**
  * 스텝3 — 출발지/도착지.
- * CTA: zod 검증 후 saveStep(3) → Step4.
+ * CTA: zod 검증 후 saveStep(3) → submit → blocked(1-11375).
  * Progress: 한쪽 draft=3/4, 둘 다=full. 이사종류/일자 수정은 useMoveInfoRevise.
  */
 export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
@@ -79,8 +79,10 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
     errorMessage,
     setErrorMessage,
     saveStep,
+    submit,
     isSavingStep,
     isRevisingField,
+    isSubmittingRequest,
     isSubmitting,
     isInReviseMode,
     canConfirmMoveType,
@@ -91,6 +93,9 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
   } = useMoveInfoRevise({
     onBeforeStartRevise: () => setActiveSide(null),
   });
+
+  // 주소 저장·제출 중 CTA busy
+  const isConfirmBusy = isSavingStep || isSubmittingRequest;
 
   const [departure, setDeparture] = useState<AddressDraft | null>(() =>
     toDraftFromDetail(
@@ -162,17 +167,18 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
     setErrorMessage(null);
 
     try {
-      // 성공 시 syncDetail → visualStep=4 → SubmitStep
+      // step3 저장 후 바로 제출 — 성공 시 submit onSuccess → refetch → blocked
       await saveStep({
         estimateRequestId: detail.id,
         body: parsed.data,
       });
+      await submit(detail.id);
     } catch (error) {
-      // BE REQUIRED_FIELD_MISSING 등 ApiError.message 그대로 노출
+      // REQUIRED_FIELD_MISSING 등 ApiError.message 그대로 노출
       const message =
         error instanceof ApiError
           ? error.message
-          : '주소 저장 중 오류가 발생했습니다.';
+          : '견적 요청 제출 중 오류가 발생했습니다.';
       setErrorMessage(message);
     }
   };
@@ -262,15 +268,15 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
                 <TextFieldChat>{ADDRESS_PROMPT}</TextFieldChat>
               </EstimateRequestChatBubbleGroup>
 
-              {/* 출발/도착 선택 카드 + step3 저장 CTA */}
+              {/* 출발/도착 선택 카드 + 견적 확정(저장·제출) CTA */}
               <EstimateRequestChatPanel>
                 <AddressSelectCard
                   departure={departure}
                   arrival={arrival}
                   selectDisabled={isSubmitting}
-                  confirmDisabled={!canConfirmAddress}
-                  confirmBusy={isSavingStep}
-                  confirmLabel={isSavingStep ? '저장 중…' : '견적 확정하기'}
+                  confirmDisabled={!canConfirmAddress || isConfirmBusy}
+                  confirmBusy={isConfirmBusy}
+                  confirmLabel={isConfirmBusy ? '제출 중…' : '견적 확정하기'}
                   onSelectDeparture={() => {
                     setErrorMessage(null);
                     setActiveSide('departure');
