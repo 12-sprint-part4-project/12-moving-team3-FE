@@ -5,6 +5,8 @@ import type { EstimateRequestVisualStep } from '@/types/customerEstimateRequest'
 
 interface EstimateRequestShellProps {
   currentStep: EstimateRequestVisualStep;
+  /** Step3 출발/도착 세분 등 — 바 너비만 visualStep과 다르게 줄 때 */
+  progressFill?: EstimateRequestVisualStep;
   children: ReactNode;
 }
 
@@ -13,11 +15,15 @@ interface EstimateRequestShellProps {
  */
 export const EstimateRequestShell = ({
   currentStep,
+  progressFill,
   children,
 }: EstimateRequestShellProps) => {
   return (
     <div className="flex w-full flex-col bg-background-200">
-      <EstimateRequestProgress currentStep={currentStep} />
+      <EstimateRequestProgress
+        currentStep={currentStep}
+        progressFill={progressFill}
+      />
 
       <div
         className="flex w-full flex-col gap-4 py-6 md:py-[3rem]"

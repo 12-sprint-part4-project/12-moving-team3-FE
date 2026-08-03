@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import { EstimateRequestBlocked } from './_components/EstimateRequestBlocked';
 import { EstimateRequestGate } from './_components/EstimateRequestGate';
 import { EstimateRequestShell } from './_components/EstimateRequestShell';
@@ -8,6 +10,7 @@ import { MoveDateStep } from './_components/steps/MoveDateStep';
 import { MoveTypeStep } from './_components/steps/MoveTypeStep';
 import { SubmitStep } from './_components/steps/SubmitStep';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
+import type { EstimateRequestVisualStep } from '@/types/customerEstimateRequest';
 
 /**
  * 견적요청 페이지 클라이언트 — bootstrap 분기 + 스텝 렌더.
@@ -17,6 +20,9 @@ import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
  */
 export const EstimateRequestPageClient = () => {
   const { bootstrap } = useCustomerEstimateRequest();
+  // Step3 로컬 draft 기준 — 미선택 2/4 → 출발 3/4 → 도착 full
+  const [step3ProgressFill, setStep3ProgressFill] =
+    useState<EstimateRequestVisualStep>(2);
 
   // loading · 일반 에러(자동 재시도 중) 공통 — 풀페이지 에러 화면 없음
   if (bootstrap.status === 'loading' || bootstrap.status === 'error') {
@@ -60,12 +66,19 @@ export const EstimateRequestPageClient = () => {
 
   // ready — 시각 스텝에 맞는 렌더
   const { visualStep, detail } = bootstrap;
+  const progressFill: EstimateRequestVisualStep =
+    visualStep === 3 ? step3ProgressFill : visualStep;
 
   return (
-    <EstimateRequestShell currentStep={visualStep}>
+    <EstimateRequestShell
+      currentStep={visualStep}
+      progressFill={progressFill}
+    >
       {visualStep === 1 ? <MoveTypeStep /> : null}
       {visualStep === 2 ? <MoveDateStep /> : null}
-      {visualStep === 3 ? <AddressStep /> : null}
+      {visualStep === 3 ? (
+        <AddressStep onProgressFillChange={setStep3ProgressFill} />
+      ) : null}
       {visualStep === 4 ? <SubmitStep detail={detail} /> : null}
     </EstimateRequestShell>
   );

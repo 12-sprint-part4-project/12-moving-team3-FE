@@ -13,7 +13,7 @@ export const SubmitStep = ({ detail }: SubmitStepProps) => {
   return (
     <section
       aria-label="견적 요청 확인 및 제출"
-      className="mx-auto flex w-full max-w-[375px] flex-col gap-3 px-6 md:max-w-[1448px]"
+      className="page-content flex flex-col gap-3"
     >
       <p className="text-lg-medium text-black-400">
         입력하신 내용을 확인해 주세요. (스텝4 스텁)
