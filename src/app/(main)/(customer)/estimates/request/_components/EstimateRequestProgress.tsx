@@ -1,4 +1,5 @@
 import { EstimateRequestPageHeader } from './EstimateRequestPageHeader';
+import { cn } from '@/lib/utils';
 import { TOTAL_PROGRESS_STEPS } from '@/types/customerEstimateRequest';
 import type { EstimateRequestVisualStep } from '@/types/customerEstimateRequest';
 
@@ -42,7 +43,10 @@ export const EstimateRequestProgress = ({
         {/* 트랙: line-200, 필: blue-300, radius 30px */}
         <div className="h-1.5 w-full overflow-hidden rounded-[1.875rem] bg-line-200 md:h-2">
           <div
-            className={`h-full rounded-[1.875rem] bg-blue-300 transition-[width] duration-300 ${PROGRESS_WIDTH_CLASS[progressFill]}`}
+            className={cn(
+              'h-full rounded-[1.875rem] bg-blue-300 transition-[width] duration-300',
+              PROGRESS_WIDTH_CLASS[progressFill]
+            )}
           />
         </div>
       </div>
