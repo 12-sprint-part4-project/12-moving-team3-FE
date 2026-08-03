@@ -9,6 +9,7 @@ import {
   type ChangeEvent,
   type FormEvent,
 } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import NoImageIcon from '@/assets/icons/no-image.svg';
 import { Button } from '@/components/Button/Button';
@@ -22,9 +23,16 @@ import {
   type ServiceChipValue,
 } from '@/constants/chipOptions';
 import { useAuth } from '@/hooks/useAuth';
-import { useCustomerProfile } from '@/hooks/useCustomerProfile';
+import {
+  customerProfileQueryKeys,
+  useCustomerProfile,
+} from '@/hooks/useCustomerProfile';
+import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { getAuthSession } from '@/lib/authSession';
+import { uploadProfileImage } from '@/lib/uploadProfileImage';
 import { cn } from '@/lib/utils';
+import { updateCustomerProfile } from '@/services/customerProfileApi';
 import type { CustomerProfileMe } from '@/types/customerProfile';
 
 import { ProfileImageCropModal } from './ProfileImageCropModal';
@@ -50,15 +58,16 @@ const toggleService = (
 
 interface CustomerProfileEditFieldsProps {
   profile: CustomerProfileMe;
-  nickname: string;
 }
 
 /** 쿼리 데이터로 초기화된 수정 폼. 마운트 시점에 profile이 이미 존재한다. */
 const CustomerProfileEditFields = ({
   profile,
-  nickname: initialNickname,
 }: CustomerProfileEditFieldsProps) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { setSession } = useAuth();
+  const { showToast } = useToast();
   const imageInputId = useId();
   const nameInputId = useId();
   const nicknameInputId = useId();
@@ -71,8 +80,9 @@ const CustomerProfileEditFields = ({
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [name, setName] = useState(profile.name);
-  const [nickname, setNickname] = useState(initialNickname);
+  const [nickname, setNickname] = useState(profile.nickname);
   const [email] = useState(profile.email);
   const [phoneNumber, setPhoneNumber] = useState(profile.phoneNumber ?? '');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -84,6 +94,7 @@ const CustomerProfileEditFields = ({
   const [selectedRegion, setSelectedRegion] = useState<RegionChipValue | null>(
     profile.region
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const displayImageUrl = previewUrl ?? profile.profileImageUrl;
 
@@ -111,6 +122,10 @@ const CustomerProfileEditFields = ({
   };
 
   const handleCropComplete = (blob: Blob) => {
+    const file = new File([blob], 'profile.jpg', {
+      type: blob.type || 'image/jpeg',
+    });
+    setProfileImageFile(file);
     setPreviewUrl((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return URL.createObjectURL(blob);
@@ -122,14 +137,66 @@ const CustomerProfileEditFields = ({
     router.back();
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+
+    try {
+      let s3Key: string | undefined;
+
+      if (profileImageFile) {
+        s3Key = await uploadProfileImage(profileImageFile);
+      }
+
+      const response = await updateCustomerProfile({
+        name,
+        nickname,
+        phoneNumber,
+        region: selectedRegion,
+        service: selectedServices,
+        currentPassword,
+        newPassword,
+        newPasswordConfirm: confirmPassword,
+        s3Key,
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: customerProfileQueryKeys.all,
+      });
+
+      const session = getAuthSession();
+      if (session) {
+        setSession({
+          ...session,
+          user: {
+            ...session.user,
+            nickname: response.data.nickname,
+            phoneNumber: response.data.phoneNumber ?? session.user.phoneNumber,
+          },
+        });
+      }
+
+      showToast({ content: '프로필이 수정되었습니다.' });
+      router.back();
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : '프로필 수정에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+      showToast({ content: message });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <>
       <form
-        onSubmit={handleSubmit}
+        onSubmit={(event) => {
+          void handleSubmit(event);
+        }}
         className="flex w-full max-w-[87.5rem] flex-col items-stretch gap-10 rounded-[2rem] bg-white px-6 pt-8 pb-10 lg:gap-16"
       >
         <div className="flex w-full flex-col items-stretch gap-10">
@@ -379,9 +446,10 @@ const CustomerProfileEditFields = ({
             type="submit"
             variant="solid"
             size="md"
+            disabled={isSubmitting}
             className="lg:max-w-[41.25rem]"
           >
-            수정하기
+            {isSubmitting ? '수정 중...' : '수정하기'}
           </Button>
         </div>
       </form>
@@ -399,7 +467,6 @@ const CustomerProfileEditFields = ({
 
 /** 고객 프로필 수정. useCustomerProfile로 조회 후 폼에 전달 */
 export const CustomerProfileEditForm = () => {
-  const { user } = useAuth();
   const {
     data: profile,
     isPending,
@@ -441,10 +508,6 @@ export const CustomerProfileEditForm = () => {
   }
 
   return (
-    <CustomerProfileEditFields
-      key={profile.updatedAt}
-      profile={profile}
-      nickname={user?.nickname ?? ''}
-    />
+    <CustomerProfileEditFields key={profile.updatedAt} profile={profile} />
   );
 };

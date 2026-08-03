@@ -154,6 +154,7 @@ export const CustomerProfileForm = () => {
       }
 
       await upsertCustomerProfile({
+        nickname: user?.nickname ?? '',
         phoneNumber,
         region: selectedRegion,
         service: selectedServices,

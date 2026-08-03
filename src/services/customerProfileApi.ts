@@ -9,6 +9,8 @@ import type {
   CustomerProfileMe,
   CustomerProfileMeResponse,
   CustomerProfileResponse,
+  CustomerRegion,
+  CustomerServiceType,
   UpsertCustomerProfileRequest,
 } from '@/types/customerProfile';
 
@@ -64,4 +66,41 @@ export const upsertCustomerProfile = async (
   }
 
   return (await response.json()) as CustomerProfileResponse;
+};
+
+export interface UpdateCustomerProfileParams {
+  name: string;
+  nickname: string;
+  phoneNumber: string;
+  region?: CustomerRegion | null;
+  service?: CustomerServiceType[];
+  currentPassword?: string;
+  newPassword?: string;
+  newPasswordConfirm?: string;
+  s3Key?: string;
+}
+
+/** 프로필 수정 요청 body 조립 후 PATCH */
+export const updateCustomerProfile = async (
+  params: UpdateCustomerProfileParams
+): Promise<CustomerProfileResponse> => {
+  const body: UpsertCustomerProfileRequest = {
+    name: params.name,
+    nickname: params.nickname.trim(),
+    phoneNumber: params.phoneNumber.replace(/\D/g, ''),
+    ...(params.region ? { region: params.region } : {}),
+    ...(params.service && params.service.length > 0
+      ? { service: params.service }
+      : {}),
+    ...(params.newPassword
+      ? {
+          currentPassword: params.currentPassword,
+          newPassword: params.newPassword,
+          newPasswordConfirm: params.newPasswordConfirm,
+        }
+      : {}),
+    ...(params.s3Key ? { s3Key: params.s3Key } : {}),
+  };
+
+  return upsertCustomerProfile(body);
 };

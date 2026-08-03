@@ -9,6 +9,7 @@ export type CustomerRegion = RegionChipValue;
 
 export interface UpsertCustomerProfileRequest {
   name?: string;
+  nickname: string;
   phoneNumber?: string;
   currentPassword?: string;
   newPassword?: string;
@@ -22,6 +23,7 @@ export interface CustomerProfile {
   profileId: number;
   userId: string;
   name: string;
+  nickname: string;
   email: string;
   phoneNumber: string | null;
   /** Presigned GET URL (1시간), 없으면 null */
