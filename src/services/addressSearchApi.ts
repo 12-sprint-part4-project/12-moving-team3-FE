@@ -2,6 +2,7 @@ import {
   ApiError,
   DEFAULT_API_ERROR_MESSAGE,
   createApiTimeoutSignal,
+  toNetworkApiError,
 } from '@/lib/apiClient';
 import {
   addressSearchResultSchema,
@@ -42,8 +43,9 @@ export const searchAddresses = async (
       method: 'GET',
       signal: createApiTimeoutSignal(),
     });
-  } catch {
-    throw new ApiError(0, '주소 검색 요청에 실패했습니다.', 'NETWORK_ERROR');
+  } catch (error) {
+    // AbortError/TimeoutError → TIMEOUT, 그 외 → NETWORK_ERROR
+    throw toNetworkApiError(error);
   }
 
   const body = (await response.json().catch(() => null)) as
