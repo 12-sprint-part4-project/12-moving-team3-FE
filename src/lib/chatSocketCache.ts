@@ -40,16 +40,9 @@ const prependMessageToInfiniteCache = (
   queryClient.setQueryData<InfiniteData<ChatMessagesResponse>>(
     chatQueryKeys.messages(roomId),
     (current) => {
+      // 방을 아직 조회하지 않았다면 캐시를 만들지 않는다. 최초 조회는 서버 이력을 사용한다.
       if (!current?.pages.length) {
-        return {
-          pages: [
-            {
-              data: { messages: [message] },
-              meta: { hasNext: false, nextCursor: null },
-            },
-          ],
-          pageParams: [undefined],
-        };
+        return current;
       }
 
       const alreadyExists = current.pages.some((page) =>

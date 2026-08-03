@@ -114,6 +114,9 @@ export const ChatSocketProvider = ({ children }: ChatSocketProviderProps) => {
   }, []);
 
   const leaveRoom = useCallback((roomId: number) => {
+    if (!getChatSocket()?.connected) {
+      return;
+    }
     emitChatLeave(roomId);
   }, []);
 

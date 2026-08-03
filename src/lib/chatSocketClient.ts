@@ -95,6 +95,8 @@ export const connectChatSocket = (): ChatSocket | null => {
   }
 
   // 재연결마다 최신 accessToken을 handshake auth에 실어 보낸다.
+  // API_BASE_URL은 REST가 `/api`를 붙이므로 origin만 사용한다.
+  // socket.io-client@4.8.3의 io()는 이벤트 맵 제네릭을 받지 않아 단언이 필요하다.
   socket = io(API_BASE_URL, {
     autoConnect: false,
     withCredentials: true,

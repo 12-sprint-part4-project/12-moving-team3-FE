@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { useChatSocket } from '@/providers/ChatSocketProvider';
 
 const isValidRoomId = (roomId: number): boolean =>
-  Number.isFinite(roomId) && roomId > 0;
+  Number.isInteger(roomId) && roomId > 0;
 
 /**
  * 채팅방 화면 진입 시 `chat:join`, 퇴장/언마운트 시 `chat:leave`를 emit한다.
