@@ -6,6 +6,8 @@ import type {
   MoverPublicReviewsParams,
   MoverPublicReviewsResponse,
   ReviewBody,
+  WritableQuotesParams,
+  WritableQuotesResponse,
 } from '@/types/review';
 
 const isCreateReviewResponse = (
@@ -56,6 +58,81 @@ export const createReview = async (
     },
     isCreateReviewResponse,
     '리뷰 등록에 실패했습니다.'
+  );
+};
+
+const isWritableQuotesResponse = (
+  body: unknown
+): body is WritableQuotesResponse => {
+  if (!body || typeof body !== 'object') {
+    return false;
+  }
+
+  const { data, meta } = body as {
+    data?: unknown;
+    meta?: unknown;
+  };
+
+  if (!data || typeof data !== 'object') {
+    return false;
+  }
+
+  if (!Array.isArray((data as { writableQuotes?: unknown }).writableQuotes)) {
+    return false;
+  }
+
+  if (!meta || typeof meta !== 'object') {
+    return false;
+  }
+
+  const writableMeta = meta as { pagination?: unknown };
+  if (
+    !writableMeta.pagination ||
+    typeof writableMeta.pagination !== 'object'
+  ) {
+    return false;
+  }
+
+  const pagination = writableMeta.pagination as {
+    currentPage?: unknown;
+    pageSize?: unknown;
+    totalCount?: unknown;
+    hasNextPage?: unknown;
+  };
+
+  return (
+    typeof pagination.currentPage === 'number' &&
+    typeof pagination.pageSize === 'number' &&
+    typeof pagination.totalCount === 'number' &&
+    typeof pagination.hasNextPage === 'boolean'
+  );
+};
+
+/**
+ * 리뷰 작성 가능한 견적 목록 조회 (CUSTOMER).
+ * GET /api/review/customer/writable
+ */
+export const getCustomerWritableQuotes = async (
+  params: WritableQuotesParams = {}
+): Promise<WritableQuotesResponse> => {
+  assertMoverAccessToken();
+
+  const searchParams = new URLSearchParams();
+  if (params.page !== undefined) {
+    searchParams.set('page', String(params.page));
+  }
+  if (params.limit !== undefined) {
+    searchParams.set('limit', String(params.limit));
+  }
+
+  const query = searchParams.toString();
+  const suffix = query ? `?${query}` : '';
+
+  return fetchAndValidate(
+    `${API_BASE_URL}/api/review/customer/writable${suffix}`,
+    { method: 'GET' },
+    isWritableQuotesResponse,
+    '작성 가능한 견적 목록을 불러오지 못했습니다.'
   );
 };
 

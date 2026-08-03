@@ -1,4 +1,5 @@
 import type { ApiSuccessResponse } from '@/types/api';
+import type { ApiMoveType } from '@/types/estimateRequest';
 
 /** BE reviewBodySchema와 동일 */
 export const MIN_REVIEW_CONTENT_LENGTH = 10;
@@ -82,4 +83,38 @@ export type MoverPublicReviewsResponse = ApiSuccessResponse<
   MoverPublicReviewsMeta
 > & {
   meta: MoverPublicReviewsMeta;
+};
+
+/** GET /api/review/customer/writable 쿼리 */
+export interface WritableQuotesParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface WritableQuoteMover {
+  id: string;
+  name: string;
+  profileImageUrl: string | null;
+}
+
+/** GET /api/review/customer/writable → data.writableQuotes[] */
+export interface WritableQuoteItem {
+  quoteId: number;
+  moveType: ApiMoveType | null;
+  isDesignated: boolean;
+  /** YYYY-MM-DD */
+  moveDate: string | null;
+  price: number | null;
+  mover: WritableQuoteMover | null;
+}
+
+export interface WritableQuotesMeta {
+  pagination: ReviewPaginationMeta;
+}
+
+export type WritableQuotesResponse = ApiSuccessResponse<
+  { writableQuotes: WritableQuoteItem[] },
+  WritableQuotesMeta
+> & {
+  meta: WritableQuotesMeta;
 };

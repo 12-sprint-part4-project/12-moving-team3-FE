@@ -15,6 +15,8 @@ export const reviewQueryKeys = {
   publicList: (moverId: string, page: number, limit: number) =>
     [...reviewQueryKeys.publicByMover(moverId), { page, limit }] as const,
   writable: () => [...reviewQueryKeys.all, 'writable'] as const,
+  writableList: (page: number, limit: number) =>
+    [...reviewQueryKeys.writable(), { page, limit }] as const,
   customer: () => [...reviewQueryKeys.all, 'customer'] as const,
 };
 
