@@ -49,7 +49,7 @@ export const EstimateRequestBlocked = ({
       <EstimateRequestPageHeader />
 
       <div className="flex w-full flex-col gap-4 py-6 md:py-[3rem]">
-        <div className="mx-auto flex w-full max-w-[375px] flex-col items-center gap-2 gap-8 px-6 md:max-w-[1448px] md:gap-6">
+        <div className="page-content flex flex-col items-center gap-8 md:gap-6">
           <div className="flex flex-col items-center gap-16">
             <Image
               src="/images/no-estimate.svg"

@@ -69,7 +69,7 @@ export const MoveTypeStep = () => {
   return (
     <section
       aria-label="이사 종류 선택"
-      className="mx-auto flex w-full max-w-[375px] flex-col gap-2 px-6 md:max-w-[1448px] md:gap-6"
+      className="page-content flex flex-col gap-2 md:gap-6"
     >
       {/* 시스템 연속 발화 — 한 턴으로 묶어 좌측 정렬 */}
       <EstimateRequestChatBubbleGroup>

@@ -25,7 +25,7 @@ export const EstimateRequestPageHeader = ({
     >
       <div
         className={cn(
-          'mx-auto w-full max-w-[375px] px-6 md:max-w-[1448px]',
+          'page-content',
           children != null && 'flex flex-col gap-4 md:gap-6'
         )}
       >
