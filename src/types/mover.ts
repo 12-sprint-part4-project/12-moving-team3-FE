@@ -1,26 +1,15 @@
+import {
+  REGION_CHIP_OPTIONS,
+  SERVICE_CHIP_OPTIONS,
+  type RegionChipValue,
+} from '@/constants/commonOptions';
 import type { ApiSuccessResponse } from '@/types/api';
 import type { ApiMoveType } from '@/types/estimateRequest';
 
 export type { ApiMoveType };
 
 /** BE Region enum (prisma) */
-export type ApiRegion =
-  | 'SEOUL'
-  | 'GYEONGGI'
-  | 'INCHEON'
-  | 'GANGWON'
-  | 'CHUNGBUK'
-  | 'CHUNGNAM'
-  | 'SEJONG'
-  | 'DAEJEON'
-  | 'JEONBUK'
-  | 'GWANGJU_JEONNAM'
-  | 'GYEONGBUK'
-  | 'DAEGU'
-  | 'ULSAN'
-  | 'GYEONGNAM'
-  | 'BUSAN'
-  | 'JEJU';
+export type ApiRegion = RegionChipValue;
 
 /**
  * FE 정렬 ↔ BE 쿼리 제안 (BE가 이 스펙에 맞출 예정)
@@ -200,66 +189,30 @@ export interface MoverCardModel {
   isDesignated?: boolean;
 }
 
-export const ALL_API_MOVE_TYPES: ApiMoveType[] = ['SMALL', 'HOME', 'OFFICE'];
+export const ALL_API_MOVE_TYPES: ApiMoveType[] = SERVICE_CHIP_OPTIONS.map(
+  (option) => option.value
+);
 
-export const ALL_API_REGIONS: ApiRegion[] = [
-  'SEOUL',
-  'GYEONGGI',
-  'INCHEON',
-  'GANGWON',
-  'CHUNGBUK',
-  'CHUNGNAM',
-  'SEJONG',
-  'DAEJEON',
-  'JEONBUK',
-  'GWANGJU_JEONNAM',
-  'GYEONGBUK',
-  'DAEGU',
-  'ULSAN',
-  'GYEONGNAM',
-  'BUSAN',
-  'JEJU',
-];
+export const ALL_API_REGIONS: ApiRegion[] = REGION_CHIP_OPTIONS.map(
+  (option) => option.value
+);
 
-export const REGION_LABELS: Record<ApiRegion, string> = {
-  SEOUL: '서울',
-  GYEONGGI: '경기',
-  INCHEON: '인천',
-  GANGWON: '강원',
-  CHUNGBUK: '충북',
-  CHUNGNAM: '충남',
-  SEJONG: '세종',
-  DAEJEON: '대전',
-  JEONBUK: '전북',
-  GWANGJU_JEONNAM: '광주·전남',
-  GYEONGBUK: '경북',
-  DAEGU: '대구',
-  ULSAN: '울산',
-  GYEONGNAM: '경남',
-  BUSAN: '부산',
-  JEJU: '제주',
-};
+export const REGION_LABELS = Object.fromEntries(
+  REGION_CHIP_OPTIONS.map(({ value, label }) => [value, label])
+) as Record<ApiRegion, string>;
 
-export const MOVE_TYPE_LABELS: Record<ApiMoveType, string> = {
-  SMALL: '소형이사',
-  HOME: '가정이사',
-  OFFICE: '사무실이사',
-};
+export const SERVICE_LABELS = Object.fromEntries(
+  SERVICE_CHIP_OPTIONS.map(({ value, label }) => [value, label])
+) as Record<ApiMoveType, string>;
 
 export const REGION_FILTER_OPTIONS: { label: string; value: string }[] = [
   { label: '전체', value: 'ALL' },
-  ...ALL_API_REGIONS.map((region) => ({
-    label: REGION_LABELS[region],
-    value: region,
-  })),
+  ...REGION_CHIP_OPTIONS,
 ];
 
 export const SERVICE_FILTER_OPTIONS: { label: string; value: string }[] = [
   { label: '전체', value: 'ALL' },
-  ...ALL_API_MOVE_TYPES.map((moveType) => ({
-    label: MOVE_TYPE_LABELS[moveType],
-    value: moveType,
-  })),
+  ...SERVICE_CHIP_OPTIONS,
 ];
 
 /**
