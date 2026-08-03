@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { DeleteReviewConfirmModal } from '@/components/reviews/DeleteReviewConfirmModal';
 import { EditReviewModal } from '@/components/reviews/EditReviewModal';
 import { ReviewsEmptyState } from '@/components/reviews/ReviewsEmptyState';
 import { ReviewDetailModal } from '@/components/reviews/ReviewDetailModal';
@@ -21,7 +22,6 @@ import { useCreateReview } from '@/hooks/useCreateReview';
 import { useCustomerReviews } from '@/hooks/useCustomerReviews';
 import { useCustomerWritableQuotes } from '@/hooks/useCustomerWritableQuotes';
 import { useDeleteReview } from '@/hooks/useDeleteReview';
-import { useToast } from '@/hooks/useToast';
 import { useUpdateReview } from '@/hooks/useUpdateReview';
 import { ApiError } from '@/lib/apiClient';
 import { formatReviewMoveDate } from '@/lib/reviewDisplay';
@@ -35,7 +35,6 @@ const pageXPadding = 'px-6 md:px-[4.5rem] xl:px-[16.25rem]';
 export const ReviewsPageClient = () => {
   const router = useRouter();
   const { user, isReady } = useAuth();
-  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<ReviewsPageTab>('writable');
   const [selectedQuote, setSelectedQuote] = useState<WritableQuoteItem | null>(
     null
@@ -43,6 +42,8 @@ export const ReviewsPageClient = () => {
   const [selectedReview, setSelectedReview] =
     useState<CustomerReviewItem | null>(null);
   const [editingReview, setEditingReview] =
+    useState<CustomerReviewItem | null>(null);
+  const [reviewToDelete, setReviewToDelete] =
     useState<CustomerReviewItem | null>(null);
 
   const isLoggedIn = Boolean(user);
@@ -54,11 +55,9 @@ export const ReviewsPageClient = () => {
     enabled: isLoggedIn && activeTab === 'written',
   });
 
-  const { mutateAsync, isPending: isSubmitting } = useCreateReview();
-  const { mutateAsync: updateReviewAsync, isPending: isUpdating } =
-    useUpdateReview();
-  const { mutateAsync: deleteReviewAsync, isPending: isDeleting } =
-    useDeleteReview();
+  const { submitReview, isPending: isSubmitting } = useCreateReview();
+  const { submitUpdate, isPending: isUpdating } = useUpdateReview();
+  const { submitDelete, isPending: isDeleting } = useDeleteReview();
 
   useEffect(() => {
     if (isReady && !user) {
@@ -86,34 +85,36 @@ export const ReviewsPageClient = () => {
     }
 
     try {
-      await mutateAsync({
-        quoteId: selectedQuote.quoteId,
-        body: review,
-      });
+      await submitReview(selectedQuote.quoteId, review);
       setSelectedQuote(null);
-      showToast({ content: '리뷰가 등록되었습니다.' });
     } catch {
-      // onError 토스트는 useCreateReview에서 처리
+      // 성공/실패 토스트는 useCreateReview에서 처리
     }
   };
 
   const handleReviewClick = (item: CustomerReviewItem) => {
     setEditingReview(null);
+    setReviewToDelete(null);
     setSelectedReview(item);
   };
 
   const handleCloseDetailModal = () => {
-    if (isDeleting) {
-      return;
-    }
     setSelectedReview(null);
   };
 
   const handleEditReview = () => {
-    if (!selectedReview || isDeleting) {
+    if (!selectedReview) {
       return;
     }
     setEditingReview(selectedReview);
+    setSelectedReview(null);
+  };
+
+  const handleRequestDelete = () => {
+    if (!selectedReview) {
+      return;
+    }
+    setReviewToDelete(selectedReview);
     setSelectedReview(null);
   };
 
@@ -133,24 +134,28 @@ export const ReviewsPageClient = () => {
     }
 
     try {
-      await updateReviewAsync({
-        reviewId: editingReview.id,
-        body: review,
-      });
+      await submitUpdate(editingReview.id, review);
       setEditingReview(null);
     } catch {
       // 성공/실패 토스트는 useUpdateReview에서 처리
     }
   };
 
-  const handleDeleteReview = async () => {
-    if (!selectedReview || isDeleting) {
+  const handleCloseDeleteConfirm = () => {
+    if (isDeleting) {
+      return;
+    }
+    setReviewToDelete(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!reviewToDelete || isDeleting) {
       return;
     }
 
     try {
-      await deleteReviewAsync(selectedReview.id);
-      setSelectedReview(null);
+      await submitDelete(reviewToDelete.id);
+      setReviewToDelete(null);
     } catch {
       // 성공/실패 토스트는 useDeleteReview에서 처리
     }
@@ -344,10 +349,7 @@ export const ReviewsPageClient = () => {
             review={selectedReview}
             onClose={handleCloseDetailModal}
             onEdit={handleEditReview}
-            onDelete={() => {
-              void handleDeleteReview();
-            }}
-            isDeleting={isDeleting}
+            onDelete={handleRequestDelete}
           />
         </Modal>
       ) : null}
@@ -362,6 +364,18 @@ export const ReviewsPageClient = () => {
               void handleSubmitUpdate(review);
             }}
             isSubmitting={isUpdating}
+          />
+        </Modal>
+      ) : null}
+
+      {reviewToDelete ? (
+        <Modal placement="bottom" onClose={handleCloseDeleteConfirm}>
+          <DeleteReviewConfirmModal
+            onClose={handleCloseDeleteConfirm}
+            onConfirm={() => {
+              void handleConfirmDelete();
+            }}
+            isDeleting={isDeleting}
           />
         </Modal>
       ) : null}

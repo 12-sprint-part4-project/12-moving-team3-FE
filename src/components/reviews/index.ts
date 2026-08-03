@@ -1,7 +1,7 @@
 export { ReviewRatingChart } from './ReviewRatingChart';
 export type { ReviewRatingChartProps } from './ReviewRatingChart';
-export { ReviewListItem } from './MoverReviewListItem';
-export type { ReviewListItemProps } from './MoverReviewListItem';
+export { ReviewListItem } from './ReviewListItem';
+export type { ReviewListItemProps } from './ReviewListItem';
 export { MoverReviewSection } from './MoverReviewSection';
 export type { MoverReviewSectionProps } from './MoverReviewSection';
 export { WritableReviewCard } from './WritableReviewCard';
@@ -14,6 +14,8 @@ export { ReviewDetailModal } from './ReviewDetailModal';
 export type { ReviewDetailModalProps } from './ReviewDetailModal';
 export { EditReviewModal } from './EditReviewModal';
 export type { EditReviewModalProps } from './EditReviewModal';
+export { DeleteReviewConfirmModal } from './DeleteReviewConfirmModal';
+export type { DeleteReviewConfirmModalProps } from './DeleteReviewConfirmModal';
 export { ReviewsEmptyState } from './ReviewsEmptyState';
 export type { ReviewsEmptyStateProps } from './ReviewsEmptyState';
 export { ReviewsTabs } from './ReviewsTabs';

@@ -5,7 +5,7 @@ import type { ApiMoveType } from '@/types/estimateRequest';
 export const MIN_REVIEW_CONTENT_LENGTH = 10;
 export const MAX_REVIEW_CONTENT_LENGTH = 600;
 
-/** 목록·상세·찜 등에서 쓰는 별점 분포 카운트 */
+/** 목록·상세·찜 등에서 쓰는 별점 분포 카운트 (숫자 키 1~5) */
 export interface ReviewRatingCounts {
   1: number;
   2: number;
@@ -14,7 +14,12 @@ export interface ReviewRatingCounts {
   5: number;
 }
 
-/** 기사 리뷰 집계 (목록 item.review / 상세 reviewStats) */
+/**
+ * 기사 목록·상세 카드용 리뷰 집계.
+ * - 출처: `GET /api/movers` item.review, `GET /api/movers/:id` reviewStats
+ * - shape: ratingCounts(1~5) + totalCount + averageRating
+ * - 카드의 ★ 평균·(리뷰수) 표시에 사용. 리뷰 목록 차트에는 쓰지 않는다.
+ */
 export interface ReviewStats {
   ratingCounts: ReviewRatingCounts;
   totalCount: number;
@@ -64,7 +69,12 @@ export interface ReviewPaginationMeta {
   hasNextPage: boolean;
 }
 
-/** BE meta.ratingStatistics (별점 분포) */
+/**
+ * 리뷰 목록 API의 별점 분포 집계 (meta.ratingStatistics).
+ * - 출처: `GET /api/movers/:id/reviews`, `GET /api/review/mover`
+ * - shape: five~one 영문 키 + average (카드용 ReviewStats와 키가 다름)
+ * - ReviewRatingChart / MoverReviewSection 분포 바에 사용.
+ */
 export interface ReviewRatingStatistics {
   average: number;
   five: number;

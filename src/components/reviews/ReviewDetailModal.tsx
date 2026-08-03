@@ -27,10 +27,8 @@ export interface ReviewDetailModalProps {
   onClose: () => void;
   /** 리뷰 수정 버튼 — 수정 모달 오픈은 호출 측에서 담당 */
   onEdit: () => void;
-  /** 리뷰 삭제 버튼 */
+  /** 리뷰 삭제 버튼 — 삭제 확인 모달 오픈은 호출 측에서 담당 */
   onDelete: () => void;
-  /** 삭제 요청 진행 중 */
-  isDeleting?: boolean;
   className?: string;
 }
 
@@ -43,7 +41,6 @@ export const ReviewDetailModal = ({
   onClose,
   onEdit,
   onDelete,
-  isDeleting = false,
   className = '',
 }: ReviewDetailModalProps) => {
   const titleId = useId();
@@ -60,11 +57,6 @@ export const ReviewDetailModal = ({
     formatReviewCreatedDate(review.createdAt)
   );
 
-  const handleClose = () => {
-    if (isDeleting) return;
-    onClose();
-  };
-
   return (
     <section
       role="dialog"
@@ -77,7 +69,7 @@ export const ReviewDetailModal = ({
         className
       )}
     >
-      <ModalHeader title="리뷰 상세" onClose={handleClose} titleId={titleId} />
+      <ModalHeader title="리뷰 상세" onClose={onClose} titleId={titleId} />
 
       <div className="flex w-full flex-col gap-5 sm:gap-8">
         {(moveTypeUi || isDesignated) && (
@@ -167,7 +159,6 @@ export const ReviewDetailModal = ({
             variant="outlined"
             size="sm"
             className="sm:h-16 sm:text-xl-semibold"
-            disabled={isDeleting}
             onClick={onDelete}
           >
             리뷰 삭제
@@ -177,7 +168,6 @@ export const ReviewDetailModal = ({
             size="sm"
             showIcon
             className="sm:h-16 sm:text-xl-semibold"
-            disabled={isDeleting}
             onClick={onEdit}
           >
             리뷰 수정

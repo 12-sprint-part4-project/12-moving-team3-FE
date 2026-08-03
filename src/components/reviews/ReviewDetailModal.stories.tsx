@@ -4,6 +4,8 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { SAMPLE_CUSTOMER_REVIEW } from '@/components/reviews/_fixtures/reviewFixtures';
+import { DeleteReviewConfirmModal } from '@/components/reviews/DeleteReviewConfirmModal';
+import { EditReviewModal } from '@/components/reviews/EditReviewModal';
 import { ReviewDetailModal } from '@/components/reviews/ReviewDetailModal';
 import { Modal } from '@/components/ui/Modal/Modal';
 
@@ -19,27 +21,46 @@ export default meta;
 
 type Story = StoryObj<typeof ReviewDetailModal>;
 
-/** Modal 셸과 조합 */
+type DetailFlow = 'detail' | 'edit' | 'delete' | null;
+
+/** Modal 셸 + 수정/삭제 확인 플로우 */
 export const WithModalShell: Story = {
   render: () => {
-    const [isOpen, setIsOpen] = useState(false);
+    const [flow, setFlow] = useState<DetailFlow>(null);
 
     return (
       <div className="flex min-h-screen items-center justify-center bg-background-200">
         <button
           type="button"
           className="rounded-lg bg-blue-300 px-4 py-2 text-lg-semibold text-white"
-          onClick={() => setIsOpen(true)}
+          onClick={() => setFlow('detail')}
         >
           리뷰 상세 열기
         </button>
-        {isOpen ? (
-          <Modal placement="bottom" onClose={() => setIsOpen(false)}>
+        {flow === 'detail' ? (
+          <Modal placement="bottom" onClose={() => setFlow(null)}>
             <ReviewDetailModal
               review={SAMPLE_CUSTOMER_REVIEW}
-              onClose={() => setIsOpen(false)}
-              onEdit={() => setIsOpen(false)}
-              onDelete={() => setIsOpen(false)}
+              onClose={() => setFlow(null)}
+              onEdit={() => setFlow('edit')}
+              onDelete={() => setFlow('delete')}
+            />
+          </Modal>
+        ) : null}
+        {flow === 'edit' ? (
+          <Modal placement="bottom" onClose={() => setFlow(null)}>
+            <EditReviewModal
+              review={SAMPLE_CUSTOMER_REVIEW}
+              onClose={() => setFlow(null)}
+              onSubmit={() => setFlow(null)}
+            />
+          </Modal>
+        ) : null}
+        {flow === 'delete' ? (
+          <Modal placement="bottom" onClose={() => setFlow(null)}>
+            <DeleteReviewConfirmModal
+              onClose={() => setFlow(null)}
+              onConfirm={() => setFlow(null)}
             />
           </Modal>
         ) : null}

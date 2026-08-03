@@ -7,6 +7,8 @@ import {
   SAMPLE_CUSTOMER_REVIEW,
   SAMPLE_CUSTOMER_REVIEWS,
 } from '@/components/reviews/_fixtures/reviewFixtures';
+import { DeleteReviewConfirmModal } from '@/components/reviews/DeleteReviewConfirmModal';
+import { EditReviewModal } from '@/components/reviews/EditReviewModal';
 import { ReviewDetailModal } from '@/components/reviews/ReviewDetailModal';
 import { WrittenReviewCard } from '@/components/reviews/WrittenReviewCard';
 import { Modal } from '@/components/ui/Modal/Modal';
@@ -23,6 +25,8 @@ const meta: Meta<typeof WrittenReviewCard> = {
 export default meta;
 
 type Story = StoryObj<typeof WrittenReviewCard>;
+
+type ModalFlow = 'detail' | 'edit' | 'delete' | null;
 
 /** 단일 카드 */
 export const Default: Story = {
@@ -54,10 +58,21 @@ export const ShortContent: Story = {
   ],
 };
 
-/** 목록 그리드 + 상세 모달 연동 */
+/** 목록 그리드 + 상세·수정·삭제 확인 모달 연동 */
 export const ListWithDetailModal: Story = {
   render: () => {
     const [selected, setSelected] = useState<CustomerReviewItem | null>(null);
+    const [flow, setFlow] = useState<ModalFlow>(null);
+
+    const openDetail = (item: CustomerReviewItem) => {
+      setSelected(item);
+      setFlow('detail');
+    };
+
+    const closeAll = () => {
+      setSelected(null);
+      setFlow(null);
+    };
 
     return (
       <div className="min-h-screen bg-background-200 p-6 xl:px-16">
@@ -66,16 +81,38 @@ export const ListWithDetailModal: Story = {
             <WrittenReviewCard
               key={item.id}
               item={item}
-              onClick={setSelected}
+              onClick={openDetail}
             />
           ))}
         </div>
 
-        {selected ? (
-          <Modal placement="bottom" onClose={() => setSelected(null)}>
+        {selected && flow === 'detail' ? (
+          <Modal placement="bottom" onClose={closeAll}>
             <ReviewDetailModal
               review={selected}
-              onClose={() => setSelected(null)}
+              onClose={closeAll}
+              onEdit={() => setFlow('edit')}
+              onDelete={() => setFlow('delete')}
+            />
+          </Modal>
+        ) : null}
+
+        {selected && flow === 'edit' ? (
+          <Modal placement="bottom" onClose={closeAll}>
+            <EditReviewModal
+              key={selected.id}
+              review={selected}
+              onClose={closeAll}
+              onSubmit={closeAll}
+            />
+          </Modal>
+        ) : null}
+
+        {selected && flow === 'delete' ? (
+          <Modal placement="bottom" onClose={closeAll}>
+            <DeleteReviewConfirmModal
+              onClose={closeAll}
+              onConfirm={closeAll}
             />
           </Modal>
         ) : null}

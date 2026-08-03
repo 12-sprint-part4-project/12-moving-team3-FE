@@ -1,7 +1,7 @@
 'use client';
 
 import { ReviewRatingChart } from '@/components/reviews/ReviewRatingChart';
-import { ReviewListItem } from '@/components/reviews/MoverReviewListItem';
+import { ReviewListItem } from '@/components/reviews/ReviewListItem';
 import { Pagination } from '@/components/ui/Pagination/Pagination';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { cn } from '@/lib/utils';

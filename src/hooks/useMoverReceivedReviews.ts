@@ -4,14 +4,14 @@ import { useState } from 'react';
 import {
   MOVER_REVIEWS_PAGE_SIZE,
   reviewQueryKeys,
-} from '@/hooks/useMoverReviews';
+} from '@/hooks/reviewQueryKeys';
 import { getMoverAccessToken } from '@/services/moversAuth';
 import { getMoverReceivedReviews } from '@/services/reviewsApi';
 
 /**
  * 로그인한 기사님에게 달린 리뷰 목록 (페이지네이션).
  * GET /api/review/mover
- * 로그인(MOVER)일 때만 요청한다. UI 연동 전에도 캐시 키를 고정해 둔다.
+ * 로그인(MOVER)일 때만 요청한다.
  */
 export const useMoverReceivedReviews = (options?: {
   enabled?: boolean;

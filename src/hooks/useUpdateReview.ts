@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
+import { reviewQueryKeys } from '@/hooks/reviewQueryKeys';
 import { moverQueryKeys } from '@/hooks/useMoversList';
-import { reviewQueryKeys } from '@/hooks/useMoverReviews';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { updateReview } from '@/services/reviewsApi';
@@ -14,8 +14,8 @@ export interface UpdateReviewVariables {
 
 /**
  * 리뷰 수정.
- * 성공 시 리뷰·기사 목록/상세 쿼리를 invalidate 한다.
- * pending 중 추가 mutate는 무시한다 (연타 방지).
+ * 성공 시 토스트 + 리뷰·기사 목록/상세 쿼리 invalidate.
+ * pending 중 추가 호출은 무시한다 (연타 방지).
  */
 export const useUpdateReview = () => {
   const queryClient = useQueryClient();
@@ -41,16 +41,20 @@ export const useUpdateReview = () => {
     },
   });
 
-  const submitUpdate = (reviewId: number, body: ReviewBody): void => {
+  const submitUpdate = async (
+    reviewId: number,
+    body: ReviewBody
+  ): Promise<void> => {
     if (mutation.isPending) {
       return;
     }
-    mutation.mutate({ reviewId, body });
+    await mutation.mutateAsync({ reviewId, body });
   };
 
   return {
-    ...mutation,
     isPending: mutation.isPending,
+    isError: mutation.isError,
+    error: mutation.error,
     submitUpdate,
   };
 };
