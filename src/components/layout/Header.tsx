@@ -31,11 +31,7 @@ export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   // 프로필 미등록(404) 고객은 조회를 건너뛴다 — Header 아바타용
   const { data: customerProfile } = useCustomerProfile(
-    Boolean(
-      isReady &&
-        user?.userType === 'CUSTOMER' &&
-        user.isProfileCompleted
-    )
+    Boolean(isReady && user?.userType === 'CUSTOMER' && user.isProfileCompleted)
   );
 
   const handleMenuOpen = () => setIsMenuOpen(true);
@@ -64,10 +60,10 @@ export const Header = () => {
   if (!user) {
     return (
       <>
-        <div className="md:hidden">
+        <div className="min-[46.5rem]:hidden">
           <GnbLanding size="sm" onMenuClick={handleMenuOpen} />
         </div>
-        <div className="hidden md:block lg:hidden">
+        <div className="hidden min-[46.5rem]:block lg:hidden">
           <GnbLanding size="md" onMenuClick={handleMenuOpen} />
         </div>
         <div className="hidden lg:block">
@@ -96,26 +92,31 @@ export const Header = () => {
 
   const navRole = user.userType === 'MOVER' ? 'mover' : 'customer';
   const desktopMenu = navRole === 'mover' ? 'twoMenu' : 'threeMenu';
+  const nameSuffix = navRole === 'mover' ? '기사님' : '고객님';
   const avatarSrc = customerProfile?.profileImageUrl ?? null;
 
   return (
     <>
-      <div className="md:hidden">
+      <div className="min-[46.5rem]:hidden">
         <GnbDefault
           size="sm"
           menu="iconProfile"
           userName={user.nickname}
+          nameSuffix={nameSuffix}
           avatarSrc={avatarSrc}
           onMenuClick={handleMenuOpen}
+          onLogout={handleLogout}
         />
       </div>
-      <div className="hidden md:block lg:hidden">
+      <div className="hidden min-[46.5rem]:block lg:hidden">
         <GnbDefault
           size="md"
           menu="iconProfile"
           userName={user.nickname}
+          nameSuffix={nameSuffix}
           avatarSrc={avatarSrc}
           onMenuClick={handleMenuOpen}
+          onLogout={handleLogout}
         />
       </div>
       <div className="hidden lg:block">
@@ -123,7 +124,9 @@ export const Header = () => {
           size="lg"
           menu={desktopMenu}
           userName={user.nickname}
+          nameSuffix={nameSuffix}
           avatarSrc={avatarSrc}
+          onLogout={handleLogout}
         />
       </div>
 
