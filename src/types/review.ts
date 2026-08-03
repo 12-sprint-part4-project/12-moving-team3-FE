@@ -37,6 +37,7 @@ export interface ReviewDetail {
 }
 
 export type CreateReviewResponse = ApiSuccessResponse<ReviewDetail>;
+export type UpdateReviewResponse = ApiSuccessResponse<ReviewDetail>;
 
 /** GET /api/movers/:id/reviews 쿼리 */
 export interface MoverPublicReviewsParams {

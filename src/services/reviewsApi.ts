@@ -1,5 +1,5 @@
 import { API_BASE_URL } from '@/lib/apiClient';
-import { fetchAndValidate } from '@/services/moverApiResponse';
+import { fetchAndValidate, fetchNoContent } from '@/services/moverApiResponse';
 import { assertMoverAccessToken } from '@/services/moversAuth';
 import type {
   CreateReviewResponse,
@@ -8,13 +8,14 @@ import type {
   MoverPublicReviewsParams,
   MoverPublicReviewsResponse,
   ReviewBody,
+  UpdateReviewResponse,
   WritableQuotesParams,
   WritableQuotesResponse,
 } from '@/types/review';
 
-const isCreateReviewResponse = (
+const isReviewDetailResponse = (
   body: unknown
-): body is CreateReviewResponse => {
+): body is CreateReviewResponse | UpdateReviewResponse => {
   if (!body || typeof body !== 'object') {
     return false;
   }
@@ -58,8 +59,44 @@ export const createReview = async (
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     },
-    isCreateReviewResponse,
+    isReviewDetailResponse,
     '리뷰 등록에 실패했습니다.'
+  );
+};
+
+/**
+ * 리뷰 수정 (CUSTOMER).
+ * PATCH /api/review/:reviewId
+ */
+export const updateReview = async (
+  reviewId: number,
+  body: ReviewBody
+): Promise<UpdateReviewResponse> => {
+  assertMoverAccessToken();
+
+  return fetchAndValidate(
+    `${API_BASE_URL}/api/review/${reviewId}`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    },
+    isReviewDetailResponse,
+    '리뷰 수정에 실패했습니다.'
+  );
+};
+
+/**
+ * 리뷰 삭제(소프트 딜리트) (CUSTOMER).
+ * DELETE /api/review/:reviewId → 204
+ */
+export const deleteReview = async (reviewId: number): Promise<void> => {
+  assertMoverAccessToken();
+
+  return fetchNoContent(
+    `${API_BASE_URL}/api/review/${reviewId}`,
+    { method: 'DELETE' },
+    '리뷰 삭제에 실패했습니다.'
   );
 };
 
