@@ -118,3 +118,40 @@ export type WritableQuotesResponse = ApiSuccessResponse<
 > & {
   meta: WritableQuotesMeta;
 };
+
+/** GET /api/review/customer 쿼리 */
+export interface CustomerReviewsParams {
+  page?: number;
+  limit?: number;
+}
+
+/** GET /api/review/customer → data.reviews[].quote */
+export interface CustomerReviewQuote {
+  id: number;
+  moveType: ApiMoveType | null;
+  /** YYYY-MM-DD */
+  moveDate: string | null;
+  price: number | null;
+  isDesignated: boolean;
+}
+
+/** GET /api/review/customer → data.reviews[] */
+export interface CustomerReviewItem {
+  id: number;
+  rating: number;
+  content: string;
+  createdAt: string;
+  mover: WritableQuoteMover | null;
+  quote: CustomerReviewQuote | null;
+}
+
+export interface CustomerReviewsMeta {
+  pagination: ReviewPaginationMeta;
+}
+
+export type CustomerReviewsResponse = ApiSuccessResponse<
+  { reviews: CustomerReviewItem[] },
+  CustomerReviewsMeta
+> & {
+  meta: CustomerReviewsMeta;
+};

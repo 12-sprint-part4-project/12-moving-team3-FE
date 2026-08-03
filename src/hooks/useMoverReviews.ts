@@ -18,6 +18,8 @@ export const reviewQueryKeys = {
   writableList: (page: number, limit: number) =>
     [...reviewQueryKeys.writable(), { page, limit }] as const,
   customer: () => [...reviewQueryKeys.all, 'customer'] as const,
+  customerList: (page: number, limit: number) =>
+    [...reviewQueryKeys.customer(), { page, limit }] as const,
 };
 
 /**

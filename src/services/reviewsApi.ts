@@ -3,6 +3,8 @@ import { fetchAndValidate } from '@/services/moverApiResponse';
 import { assertMoverAccessToken } from '@/services/moversAuth';
 import type {
   CreateReviewResponse,
+  CustomerReviewsParams,
+  CustomerReviewsResponse,
   MoverPublicReviewsParams,
   MoverPublicReviewsResponse,
   ReviewBody,
@@ -133,6 +135,81 @@ export const getCustomerWritableQuotes = async (
     { method: 'GET' },
     isWritableQuotesResponse,
     '작성 가능한 견적 목록을 불러오지 못했습니다.'
+  );
+};
+
+const isCustomerReviewsResponse = (
+  body: unknown
+): body is CustomerReviewsResponse => {
+  if (!body || typeof body !== 'object') {
+    return false;
+  }
+
+  const { data, meta } = body as {
+    data?: unknown;
+    meta?: unknown;
+  };
+
+  if (!data || typeof data !== 'object') {
+    return false;
+  }
+
+  if (!Array.isArray((data as { reviews?: unknown }).reviews)) {
+    return false;
+  }
+
+  if (!meta || typeof meta !== 'object') {
+    return false;
+  }
+
+  const customerMeta = meta as { pagination?: unknown };
+  if (
+    !customerMeta.pagination ||
+    typeof customerMeta.pagination !== 'object'
+  ) {
+    return false;
+  }
+
+  const pagination = customerMeta.pagination as {
+    currentPage?: unknown;
+    pageSize?: unknown;
+    totalCount?: unknown;
+    hasNextPage?: unknown;
+  };
+
+  return (
+    typeof pagination.currentPage === 'number' &&
+    typeof pagination.pageSize === 'number' &&
+    typeof pagination.totalCount === 'number' &&
+    typeof pagination.hasNextPage === 'boolean'
+  );
+};
+
+/**
+ * 고객이 작성한 리뷰 목록 조회 (CUSTOMER).
+ * GET /api/review/customer
+ */
+export const getCustomerReviews = async (
+  params: CustomerReviewsParams = {}
+): Promise<CustomerReviewsResponse> => {
+  assertMoverAccessToken();
+
+  const searchParams = new URLSearchParams();
+  if (params.page !== undefined) {
+    searchParams.set('page', String(params.page));
+  }
+  if (params.limit !== undefined) {
+    searchParams.set('limit', String(params.limit));
+  }
+
+  const query = searchParams.toString();
+  const suffix = query ? `?${query}` : '';
+
+  return fetchAndValidate(
+    `${API_BASE_URL}/api/review/customer${suffix}`,
+    { method: 'GET' },
+    isCustomerReviewsResponse,
+    '작성한 리뷰 목록을 불러오지 못했습니다.'
   );
 };
 
