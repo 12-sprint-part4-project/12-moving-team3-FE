@@ -159,6 +159,26 @@ export const useCreateChatRoom = () => {
   });
 };
 
+/** 방 목록 캐시 공통 갱신 (null 가드 + rooms transform) */
+const updateRoomsListCache = (
+  queryClient: QueryClient,
+  transform: (rooms: ChatRoomListItem[]) => ChatRoomListItem[]
+) => {
+  queryClient.setQueryData<ChatRoomListResponse>(
+    chatQueryKeys.rooms(),
+    (current) => {
+      if (!current) {
+        return current;
+      }
+
+      return {
+        ...current,
+        data: { rooms: transform(current.data.rooms) },
+      };
+    }
+  );
+};
+
 /** 전송 성공 시 메시지·목록 캐시 갱신 */
 const applySentMessageToCaches = (
   queryClient: QueryClient,
@@ -197,34 +217,34 @@ const applySentMessageToCaches = (
     }
   );
 
-  queryClient.setQueryData<ChatRoomListResponse>(
-    chatQueryKeys.rooms(),
-    (current) => {
-      if (!current) {
-        return current;
-      }
-
-      const lastMessage = {
-        content: message.content,
-        messageType: message.messageType,
-        createdAt: message.createdAt,
-      };
-
-      const updatedRooms: ChatRoomListItem[] = current.data.rooms.map((room) =>
-        room.roomId === roomId ? { ...room, lastMessage } : room
-      );
-
-      const target = updatedRooms.find((room) => room.roomId === roomId);
-      const others = updatedRooms.filter((room) => room.roomId !== roomId);
-
-      return {
-        ...current,
-        data: {
-          rooms: target ? [target, ...others] : updatedRooms,
-        },
-      };
-    }
+  const roomsCache = queryClient.getQueryData<ChatRoomListResponse>(
+    chatQueryKeys.rooms()
   );
+  const hasRoomInList = roomsCache?.data.rooms.some(
+    (room) => room.roomId === roomId
+  );
+
+  // 목록에 아직 없는 방(생성 직후 등)은 캐시 패치 대신 목록 재조회로 동기화
+  if (!hasRoomInList) {
+    void queryClient.invalidateQueries({ queryKey: chatQueryKeys.rooms() });
+    return;
+  }
+
+  const lastMessage = {
+    content: message.content,
+    messageType: message.messageType,
+    createdAt: message.createdAt,
+  };
+
+  updateRoomsListCache(queryClient, (rooms) => {
+    const target = rooms.find((room) => room.roomId === roomId);
+    if (!target) {
+      return rooms;
+    }
+
+    const others = rooms.filter((room) => room.roomId !== roomId);
+    return [{ ...target, lastMessage }, ...others];
+  });
 };
 
 /** POST /api/chat/rooms/:roomId/messages — TEXT/IMAGE 전송 */
@@ -247,22 +267,10 @@ export const useMarkChatRoomAsRead = (roomId: number) => {
     mutationFn: (body: MarkChatRoomAsReadRequest) =>
       markChatRoomAsRead(roomId, body),
     onSuccess: async () => {
-      queryClient.setQueryData<ChatRoomListResponse>(
-        chatQueryKeys.rooms(),
-        (current) => {
-          if (!current) {
-            return current;
-          }
-
-          return {
-            ...current,
-            data: {
-              rooms: current.data.rooms.map((room) =>
-                room.roomId === roomId ? { ...room, unreadCount: 0 } : room
-              ),
-            },
-          };
-        }
+      updateRoomsListCache(queryClient, (rooms) =>
+        rooms.map((room) =>
+          room.roomId === roomId ? { ...room, unreadCount: 0 } : room
+        )
       );
 
       await queryClient.invalidateQueries({ queryKey: chatQueryKeys.unread() });
@@ -277,20 +285,8 @@ export const useLeaveChatRoom = () => {
   return useMutation({
     mutationFn: (roomId: number) => leaveChatRoom(roomId),
     onSuccess: async (_data, roomId) => {
-      queryClient.setQueryData<ChatRoomListResponse>(
-        chatQueryKeys.rooms(),
-        (current) => {
-          if (!current) {
-            return current;
-          }
-
-          return {
-            ...current,
-            data: {
-              rooms: current.data.rooms.filter((room) => room.roomId !== roomId),
-            },
-          };
-        }
+      updateRoomsListCache(queryClient, (rooms) =>
+        rooms.filter((room) => room.roomId !== roomId)
       );
 
       queryClient.removeQueries({ queryKey: chatQueryKeys.room(roomId) });
