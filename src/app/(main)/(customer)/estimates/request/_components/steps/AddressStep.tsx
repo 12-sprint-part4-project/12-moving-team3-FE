@@ -95,8 +95,13 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
     onBeforeStartRevise: () => setActiveSide(null),
   });
 
-  // 주소 저장·제출 중 CTA busy
+  // 주소 저장·제출 중 CTA busy — 라벨은 단계별로 구분
   const isConfirmBusy = isSavingStep || isSubmittingRequest;
+  const confirmLabel = isSubmittingRequest
+    ? '제출 중…'
+    : isSavingStep
+      ? '저장 중…'
+      : '견적 확정하기';
 
   const [departure, setDeparture] = useState<AddressDraft | null>(() =>
     toDraftFromDetail(
@@ -286,7 +291,7 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
                   selectDisabled={isSubmitting}
                   confirmDisabled={!canConfirmAddress || isConfirmBusy}
                   confirmBusy={isConfirmBusy}
-                  confirmLabel={isConfirmBusy ? '제출 중…' : '견적 확정하기'}
+                  confirmLabel={confirmLabel}
                   onSelectDeparture={() => {
                     setErrorMessage(null);
                     setActiveSide('departure');
