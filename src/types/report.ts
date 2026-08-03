@@ -1,14 +1,26 @@
 import type { ApiSuccessResponse } from '@/types/api';
 
 /** 신고 대상 타입 (BE UserReportTarget) */
-export type ReportTarget =
-  'USER' | 'REVIEW' | 'CHAT_ROOM' | 'MESSAGE' | 'ARTICLE' | 'COMMENT';
+export const REPORT_TARGETS = [
+  'USER',
+  'REVIEW',
+  'CHAT_ROOM',
+  'MESSAGE',
+  'ARTICLE',
+  'COMMENT',
+] as const;
+export type ReportTarget = (typeof REPORT_TARGETS)[number];
 
 /** 신고 사유 카테고리 (BE UserReportCategory) */
-export type ReportCategory = 'INAPPROPRIATE_PROFILE' | 'ABUSIVE_LANGUAGE';
+export const REPORT_CATEGORIES = [
+  'INAPPROPRIATE_PROFILE',
+  'ABUSIVE_LANGUAGE',
+] as const;
+export type ReportCategory = (typeof REPORT_CATEGORIES)[number];
 
 /** 신고 처리 상태 */
-export type ReportStatus = 'PENDING' | 'RESOLVED' | 'REJECTED';
+export const REPORT_STATUSES = ['PENDING', 'RESOLVED', 'REJECTED'] as const;
+export type ReportStatus = (typeof REPORT_STATUSES)[number];
 
 /** POST /api/reports Body */
 export interface CreateReportBody {
