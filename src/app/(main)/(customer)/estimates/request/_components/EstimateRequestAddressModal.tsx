@@ -9,10 +9,14 @@ import { Modal } from '@/components/ui/Modal/Modal';
 import { ModalCtaButton } from '@/components/ui/Modal/ModalCtaButton';
 import { ModalHeader } from '@/components/ui/Modal/ModalHeader';
 import { MODAL_PANEL_CLASS } from '@/components/ui/Modal/modalPanel';
+import { Pagination } from '@/components/ui/Pagination';
 import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 import { searchAddresses } from '@/services/addressSearchApi';
-import type { AddressSearchItem } from '@/types/addressSearch';
+import {
+  ADDRESS_SEARCH_PAGE_SIZE,
+  type AddressSearchItem,
+} from '@/types/addressSearch';
 
 /** 출발/도착 draft — saveStep(3) body와 맞춤 */
 export interface AddressDraft {
@@ -74,19 +78,33 @@ export const EstimateRequestAddressModal = ({
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   const selected = addresses.find((item) => item.id === selectedId) ?? null;
   const trimmedDetail = detailAddress.trim();
   const canSubmit =
     selected != null && trimmedDetail.length > 0 && !isSearching;
+  const totalPages = Math.max(
+    1,
+    Math.ceil(totalCount / ADDRESS_SEARCH_PAGE_SIZE)
+  );
+  const showPagination =
+    hasSearched && !isSearching && totalCount > ADDRESS_SEARCH_PAGE_SIZE;
 
-  const handleSearch = async (keyword: string) => {
+  const resetSearchResults = () => {
+    setAddresses([]);
+    setSelectedId(null);
+    setHasSearched(false);
+    setCurrentPage(1);
+    setTotalCount(0);
+  };
+
+  const handleSearch = async (keyword: string, page = 1) => {
     const next = keyword.trim();
     if (!next) {
       setErrorMessage('검색어를 입력해 주세요.');
-      setAddresses([]);
-      setSelectedId(null);
-      setHasSearched(false);
+      resetSearchResults();
       return;
     }
 
@@ -95,11 +113,15 @@ export const EstimateRequestAddressModal = ({
     setSelectedId(null);
 
     try {
-      const result = await searchAddresses({ keyword: next });
+      const result = await searchAddresses({ keyword: next, page });
       setAddresses(result.addresses);
+      setCurrentPage(result.currentPage);
+      setTotalCount(result.totalCount);
       setHasSearched(true);
     } catch (error) {
       setAddresses([]);
+      setCurrentPage(1);
+      setTotalCount(0);
       setHasSearched(true);
       setErrorMessage(
         error instanceof ApiError
@@ -109,6 +131,10 @@ export const EstimateRequestAddressModal = ({
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const handlePageChange = (page: number) => {
+    void handleSearch(query, page);
   };
 
   const handleSubmit = () => {
@@ -158,13 +184,12 @@ export const EstimateRequestAddressModal = ({
             }}
             onClear={() => {
               setQuery('');
-              setAddresses([]);
-              setSelectedId(null);
-              setHasSearched(false);
+              resetSearchResults();
               setErrorMessage(null);
             }}
             onSearch={() => {
-              void handleSearch(query);
+              // 새 검색어는 항상 1페이지부터
+              void handleSearch(query, 1);
             }}
             placeholder="텍스트를 입력해 주세요."
             className={cn(
@@ -210,6 +235,18 @@ export const EstimateRequestAddressModal = ({
                 </li>
               ))}
             </ul>
+          ) : null}
+
+          {/* 시안 없음 — 공용 Pagination sm, 2페이지 이상일 때만 */}
+          {showPagination ? (
+            <div className="flex w-full justify-center overflow-x-auto">
+              <Pagination
+                size="sm"
+                page={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
           ) : null}
 
           {/* 성공·0건만 status — API 오류(errorMessage)와 동시 표시하지 않음 */}

@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+/** 행안부·mock·FE Pagination 공통 페이지 크기 */
+export const ADDRESS_SEARCH_PAGE_SIZE = 10;
+
 /**
  * 주소 검색 결과 1건 — SelectAddressModal AddressOption 과 동일 shape.
  * @see https://business.juso.go.kr/jst/jstRoadNmAddrApiSearch

@@ -1,4 +1,7 @@
-import type { AddressSearchItem } from '@/types/addressSearch';
+import {
+  ADDRESS_SEARCH_PAGE_SIZE,
+  type AddressSearchItem,
+} from '@/types/addressSearch';
 
 /** 행안부 도로명주소 검색 API (서버 전용 호출) */
 export const JUSO_ADDR_LINK_API_URL =
@@ -8,7 +11,7 @@ export const JUSO_ADDR_LINK_API_URL =
 export const JUSO_API_DOCS_URL =
   'https://business.juso.go.kr/jst/jstRoadNmAddrApiSearch';
 
-const DEFAULT_COUNT_PER_PAGE = 10;
+const DEFAULT_COUNT_PER_PAGE = ADDRESS_SEARCH_PAGE_SIZE;
 const MAX_COUNT_PER_PAGE = 50;
 
 /** 키 없을 때 UI 검증용 — Figma AddressCard 샘플에 맞춤 */
@@ -153,7 +156,7 @@ export const searchJusoAddresses = async (
   };
 };
 
-/** mock: keyword 포함 여부로 fixture 필터 (빈 키워드는 전체) */
+/** mock: keyword 포함 여부로 fixture 필터 후 페이지 슬라이스 (실API와 동일 pageSize) */
 export const searchJusoMockAddresses = (
   keyword: string,
   currentPage = 1
@@ -169,9 +172,16 @@ export const searchJusoMockAddresses = (
             item.zipCode.includes(normalized)
         );
 
+  const pageSize = DEFAULT_COUNT_PER_PAGE;
+  const totalCount = filtered.length;
+  const rawPage = Number.isFinite(currentPage) ? Math.floor(currentPage) : 1;
+  const maxPage = Math.max(1, Math.ceil(totalCount / pageSize) || 1);
+  const page = Math.min(Math.max(1, rawPage), maxPage);
+  const start = (page - 1) * pageSize;
+
   return {
-    addresses: filtered,
-    totalCount: filtered.length,
-    currentPage: Math.max(1, currentPage),
+    addresses: filtered.slice(start, start + pageSize),
+    totalCount,
+    currentPage: page,
   };
 };
