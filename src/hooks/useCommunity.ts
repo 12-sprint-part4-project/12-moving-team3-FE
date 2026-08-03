@@ -187,7 +187,6 @@ export const useCommentList = (
       getComments(postId, { ...queryParams, cursor: pageParam }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: getCursorNextPageParam,
-    placeholderData: keepPreviousData,
     enabled: postId > 0,
   });
 
