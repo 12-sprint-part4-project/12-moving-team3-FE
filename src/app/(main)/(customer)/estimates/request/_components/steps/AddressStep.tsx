@@ -13,17 +13,11 @@ import { EstimateRequestChatPanel } from '../EstimateRequestChatPanel';
 import { InlineErrorMessage } from '../InlineErrorMessage';
 import { MoveTypeRevisePanel } from '../MoveTypeRevisePanel';
 import { Calendar } from '@/components/ui/Calendar/Calendar';
-import {
-  formatDateOnly,
-  parseDateOnly,
-} from '@/components/ui/Calendar/Calendar.utils';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
-import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
-import { useLocalToday } from '@/hooks/useLocalToday';
+import { useMoveInfoRevise } from '@/hooks/useMoveInfoRevise';
 import { ApiError } from '@/lib/apiClient';
 import { saveEstimateRequestStepBodySchema } from '@/lib/customerEstimateRequestSchema';
 import type { EstimateRequestVisualStep } from '@/types/customerEstimateRequest';
-import type { ApiMoveType } from '@/types/estimateRequest';
 
 /** 출발/도착 draft → Progress 채움 (미선택 2 → 한쪽만 3 → 둘 다 4, 선택 순서 무관) */
 const toAddressProgressFill = (
@@ -43,31 +37,12 @@ interface AddressStepProps {
   onProgressFillChange?: (fill: EstimateRequestVisualStep) => void;
 }
 
-/** Step1·2와 동일 옵션 — 답변 라벨·수정 패널 공용 */
-const MOVE_TYPE_OPTIONS: ReadonlyArray<{
-  value: ApiMoveType;
-  label: string;
-}> = [
-  { value: 'SMALL', label: '소형이사 (원룸, 투룸, 20평대 미만)' },
-  { value: 'HOME', label: '가정이사 (쓰리룸, 20평대 이상)' },
-  { value: 'OFFICE', label: '사무실이사 (사무실, 상업공간)' },
-];
-
 const INTRO_MESSAGE =
   '몇 가지 정보만 알려주시면 최대 5개의 견적을 받을 수 있어요 :)';
 const MOVE_TYPE_PROMPT_MOBILE = '이사 종류를 알려주세요.';
 const MOVE_TYPE_PROMPT_DESKTOP = '이사 종류를 선택해 주세요.';
 const MOVE_DATE_PROMPT = '이사 예정일을 선택해주세요.';
 const ADDRESS_PROMPT = '이사 지역을 선택해주세요.';
-
-/** YYYY-MM-DD → 채팅 버블용 「YYYY년 M월 D일」 (시안 표기) */
-const formatChatMoveDate = (moveDate: string): string => {
-  const [year, month, day] = moveDate.slice(0, 10).split('-').map(Number);
-  if (!year || !month || !day) {
-    return moveDate;
-  }
-  return `${year}년 ${month}월 ${day}일`;
-};
 
 /** detail에 저장된 주소가 있으면 draft로 복원 */
 const toDraftFromDetail = (
@@ -84,24 +59,38 @@ const toDraftFromDetail = (
 /**
  * 스텝3 — 출발지/도착지.
  * CTA: zod 검증 후 saveStep(3) → Step4.
- * Progress: 출발 draft=3/4, 도착까지=full. 이사종류/일자 수정은 reviseField.
+ * Progress: 한쪽 draft=3/4, 둘 다=full. 이사종류/일자 수정은 useMoveInfoRevise.
  */
 export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
+  const [activeSide, setActiveSide] = useState<AddressSide | null>(null);
+
   const {
-    bootstrap,
+    detail,
+    moveTypeLabel,
+    moveDateLabel,
+    moveTypeOptions,
+    draftMoveType,
+    setDraftMoveType,
+    isRevisingMoveType,
+    draftDate,
+    setDraftDate,
+    isRevisingMoveDate,
+    minMoveDate,
+    errorMessage,
+    setErrorMessage,
     saveStep,
-    reviseField,
     isSavingStep,
     isRevisingField,
-  } = useCustomerEstimateRequest();
-  const detail = bootstrap.detail;
-  const moveType = detail?.moveType ?? null;
-  const moveTypeLabel =
-    MOVE_TYPE_OPTIONS.find((option) => option.value === moveType)?.label ??
-    null;
-  const moveDateLabel = detail?.moveDate
-    ? formatChatMoveDate(detail.moveDate)
-    : null;
+    isSubmitting,
+    isInReviseMode,
+    canConfirmMoveType,
+    startReviseMoveType,
+    confirmMoveType,
+    startReviseMoveDate,
+    confirmMoveDateRevise,
+  } = useMoveInfoRevise({
+    onBeforeStartRevise: () => setActiveSide(null),
+  });
 
   const [departure, setDeparture] = useState<AddressDraft | null>(() =>
     toDraftFromDetail(
@@ -117,99 +106,18 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
       detail?.arrivalDetailAddress
     )
   );
-  const [activeSide, setActiveSide] = useState<AddressSide | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const [isRevisingMoveType, setIsRevisingMoveType] = useState(false);
-  const [draftMoveType, setDraftMoveType] = useState<ApiMoveType | null>(
-    moveType
-  );
-  const [isRevisingMoveDate, setIsRevisingMoveDate] = useState(false);
-  const [draftDate, setDraftDate] = useState<Date | undefined>(() =>
-    detail?.moveDate ? parseDateOnly(detail.moveDate) : undefined
-  );
-  // SSR/클라이언트 시각·시간대 불일치 방지 — 하이드레이션 후 로컬 "오늘"
-  const minMoveDate = useLocalToday();
 
   // 로컬 draft 기준으로 Progress 채움 동기화
   useEffect(() => {
     onProgressFillChange?.(toAddressProgressFill(departure, arrival));
   }, [departure, arrival, onProgressFillChange]);
 
-  const isSubmitting = isSavingStep || isRevisingField;
-  const isInReviseMode = isRevisingMoveType || isRevisingMoveDate;
   const canConfirmAddress =
     departure != null &&
     arrival != null &&
     !isSubmitting &&
     !isInReviseMode &&
     detail != null;
-  const canConfirmMoveType =
-    draftMoveType != null && !isSubmitting && detail != null;
-
-  const handleStartReviseMoveType = () => {
-    setErrorMessage(null);
-    setActiveSide(null);
-    setIsRevisingMoveDate(false);
-    setDraftMoveType(moveType);
-    setIsRevisingMoveType(true);
-  };
-
-  const handleConfirmMoveType = async () => {
-    if (!detail || !draftMoveType) {
-      return;
-    }
-
-    setErrorMessage(null);
-
-    try {
-      await reviseField({
-        estimateRequestId: detail.id,
-        body: { field: 'moveType', value: draftMoveType },
-      });
-      // syncDetail 후에도 주소 미완 → visualStep=3, 주소 UI 복귀
-      setIsRevisingMoveType(false);
-    } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : '이사 종류 수정 중 오류가 발생했습니다.';
-      setErrorMessage(message);
-    }
-  };
-
-  const handleStartReviseMoveDate = () => {
-    setErrorMessage(null);
-    setActiveSide(null);
-    setIsRevisingMoveType(false);
-    setDraftDate(detail?.moveDate ? parseDateOnly(detail.moveDate) : undefined);
-    setIsRevisingMoveDate(true);
-  };
-
-  const handleConfirmMoveDate = async (date: Date) => {
-    if (!detail) {
-      return;
-    }
-
-    setDraftDate(date);
-    setErrorMessage(null);
-    const moveDate = formatDateOnly(date);
-
-    try {
-      await reviseField({
-        estimateRequestId: detail.id,
-        body: { field: 'moveDate', value: moveDate },
-      });
-      // syncDetail 후에도 주소 미완 → visualStep=3, 주소 UI 복귀
-      setIsRevisingMoveDate(false);
-    } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : '이사 예정일 수정 중 오류가 발생했습니다.';
-      setErrorMessage(message);
-    }
-  };
 
   const handleConfirmDraft = (draft: AddressDraft) => {
     if (activeSide === 'departure') {
@@ -290,7 +198,7 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
             type="button"
             className="pr-2 text-xs-medium text-gray-500 underline md:text-lg-medium"
             disabled={isSubmitting}
-            onClick={handleStartReviseMoveType}
+            onClick={startReviseMoveType}
           >
             수정하기
           </button>
@@ -299,7 +207,7 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
 
       {isRevisingMoveType ? (
         <MoveTypeRevisePanel
-          options={MOVE_TYPE_OPTIONS}
+          options={moveTypeOptions}
           draftMoveType={draftMoveType}
           onSelect={setDraftMoveType}
           isSubmitting={isSubmitting}
@@ -307,7 +215,7 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
           canConfirm={canConfirmMoveType}
           errorMessage={errorMessage}
           onConfirm={() => {
-            void handleConfirmMoveType();
+            void confirmMoveType();
           }}
         />
       ) : (
@@ -325,7 +233,7 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
                 type="button"
                 className="pr-2 text-xs-medium text-gray-500 underline md:text-lg-medium"
                 disabled={isSubmitting}
-                onClick={handleStartReviseMoveDate}
+                onClick={startReviseMoveDate}
               >
                 수정하기
               </button>
@@ -342,7 +250,7 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
                 confirmDisabled={isSubmitting || detail == null}
                 confirmLabel={isSubmitting ? '저장 중…' : '선택완료'}
                 onConfirm={(date) => {
-                  void handleConfirmMoveDate(date);
+                  void confirmMoveDateRevise(date);
                 }}
               />
               <InlineErrorMessage message={errorMessage} />

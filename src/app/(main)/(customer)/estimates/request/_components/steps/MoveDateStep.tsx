@@ -1,30 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-
 import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGroup';
 import { InlineErrorMessage } from '../InlineErrorMessage';
 import { MoveTypeRevisePanel } from '../MoveTypeRevisePanel';
 import { Calendar } from '@/components/ui/Calendar/Calendar';
-import {
-  formatDateOnly,
-  parseDateOnly,
-} from '@/components/ui/Calendar/Calendar.utils';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
-import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
-import { useLocalToday } from '@/hooks/useLocalToday';
-import { ApiError } from '@/lib/apiClient';
-import type { ApiMoveType } from '@/types/estimateRequest';
-
-/** Step1과 동일 옵션 — 답변 라벨·수정 패널 공용 */
-const MOVE_TYPE_OPTIONS: ReadonlyArray<{
-  value: ApiMoveType;
-  label: string;
-}> = [
-  { value: 'SMALL', label: '소형이사 (원룸, 투룸, 20평대 미만)' },
-  { value: 'HOME', label: '가정이사 (쓰리룸, 20평대 이상)' },
-  { value: 'OFFICE', label: '사무실이사 (사무실, 상업공간)' },
-];
+import { useMoveInfoRevise } from '@/hooks/useMoveInfoRevise';
 
 const INTRO_MESSAGE =
   '몇 가지 정보만 알려주시면 최대 5개의 견적을 받을 수 있어요 :)';
@@ -35,97 +16,27 @@ const MOVE_DATE_PROMPT = '이사 예정일을 선택해주세요.';
 /**
  * 스텝2 — 이사 예정일 선택.
  * 선택완료: 최초 saveStep(step:2) / 재수정 reviseField(moveDate).
- * 이사종류 수정하기: reviseField(moveType) 후 Calendar 복귀 (visualStep 유지).
+ * 이사종류 수정하기: useMoveInfoRevise → Calendar 복귀 (visualStep 유지).
  */
 export const MoveDateStep = () => {
   const {
-    bootstrap,
-    saveStep,
-    reviseField,
-    isSavingStep,
+    detail,
+    moveTypeLabel,
+    moveTypeOptions,
+    draftMoveType,
+    setDraftMoveType,
+    isRevisingMoveType,
+    draftDate,
+    setDraftDate,
+    minMoveDate,
+    errorMessage,
+    isSubmitting,
     isRevisingField,
-  } = useCustomerEstimateRequest();
-  const detail = bootstrap.detail;
-  const moveType = detail?.moveType ?? null;
-  const moveTypeLabel =
-    MOVE_TYPE_OPTIONS.find((option) => option.value === moveType)?.label ??
-    null;
-
-  const [draftDate, setDraftDate] = useState<Date | undefined>(() =>
-    detail?.moveDate ? parseDateOnly(detail.moveDate) : undefined
-  );
-  const [isRevisingMoveType, setIsRevisingMoveType] = useState(false);
-  const [draftMoveType, setDraftMoveType] = useState<ApiMoveType | null>(
-    moveType
-  );
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  // SSR/클라이언트 시각·시간대 불일치 방지 — 하이드레이션 후 로컬 "오늘"
-  const minMoveDate = useLocalToday();
-
-  const isSubmitting = isSavingStep || isRevisingField;
-  const canConfirmMoveType =
-    draftMoveType != null && !isSubmitting && detail != null;
-
-  const handleStartReviseMoveType = () => {
-    setErrorMessage(null);
-    setDraftMoveType(moveType);
-    setIsRevisingMoveType(true);
-  };
-
-  const handleConfirmMoveType = async () => {
-    if (!detail || !draftMoveType) {
-      return;
-    }
-
-    setErrorMessage(null);
-
-    try {
-      await reviseField({
-        estimateRequestId: detail.id,
-        body: { field: 'moveType', value: draftMoveType },
-      });
-      // syncDetail 후에도 currentStep 유지 → visualStep=2, Calendar 복귀
-      setIsRevisingMoveType(false);
-    } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : '이사 종류 수정 중 오류가 발생했습니다.';
-      setErrorMessage(message);
-    }
-  };
-
-  const handleConfirmDate = async (date: Date) => {
-    if (!detail) {
-      return;
-    }
-
-    setDraftDate(date);
-    setErrorMessage(null);
-    const moveDate = formatDateOnly(date);
-
-    try {
-      // 이미 저장된 날짜면 field 재수정, 아니면 step 전진
-      if (detail.moveDate != null) {
-        await reviseField({
-          estimateRequestId: detail.id,
-          body: { field: 'moveDate', value: moveDate },
-        });
-      } else {
-        await saveStep({
-          estimateRequestId: detail.id,
-          body: { step: 2, data: { moveDate } },
-        });
-      }
-      // 성공 시 syncDetail → visualStep=3 → AddressStep
-    } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : '이사 예정일 저장 중 오류가 발생했습니다.';
-      setErrorMessage(message);
-    }
-  };
+    canConfirmMoveType,
+    startReviseMoveType,
+    confirmMoveType,
+    confirmMoveDate,
+  } = useMoveInfoRevise();
 
   return (
     <section
@@ -148,7 +59,7 @@ export const MoveDateStep = () => {
             type="button"
             className="pr-2 text-xs-medium text-gray-500 underline md:text-lg-medium"
             disabled={isSubmitting}
-            onClick={handleStartReviseMoveType}
+            onClick={startReviseMoveType}
           >
             수정하기
           </button>
@@ -157,7 +68,7 @@ export const MoveDateStep = () => {
 
       {isRevisingMoveType ? (
         <MoveTypeRevisePanel
-          options={MOVE_TYPE_OPTIONS}
+          options={moveTypeOptions}
           draftMoveType={draftMoveType}
           onSelect={setDraftMoveType}
           isSubmitting={isSubmitting}
@@ -165,7 +76,7 @@ export const MoveDateStep = () => {
           canConfirm={canConfirmMoveType}
           errorMessage={errorMessage}
           onConfirm={() => {
-            void handleConfirmMoveType();
+            void confirmMoveType();
           }}
         />
       ) : (
@@ -185,7 +96,7 @@ export const MoveDateStep = () => {
               confirmDisabled={isSubmitting || detail == null}
               confirmLabel={isSubmitting ? '저장 중…' : '선택완료'}
               onConfirm={(date) => {
-                void handleConfirmDate(date);
+                void confirmMoveDate(date);
               }}
             />
             <InlineErrorMessage message={errorMessage} />
