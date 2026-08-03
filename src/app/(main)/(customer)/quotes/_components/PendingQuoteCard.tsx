@@ -7,6 +7,7 @@ import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
 import { cn } from '@/lib/utils';
 import type { PendingQuoteCardModel } from '@/types/customerQuote';
+import type { MoveTypeOption } from '@/types/estimateRequest';
 
 import { MoverQuoteProfile } from './MoverQuoteProfile';
 
@@ -20,9 +21,19 @@ export interface PendingQuoteCardProps {
   className?: string;
 }
 
+/** Figma Mobile Card-list/대기중인내역 — 짧은 이사 유형 라벨 */
+const MOVE_TYPE_SHORT_LABEL: Record<MoveTypeOption, string> = {
+  small: '소형',
+  home: '가정',
+  office: '사무실',
+};
+
 const FIELD_LABEL_CLASS =
   'px-1.5 py-0.5 text-md-medium text-gray-400 lg:py-1 lg:text-2lg-regular lg:text-gray-500';
 const FIELD_VALUE_CLASS = 'text-md-medium text-black-300 lg:text-2lg-medium';
+
+const CTA_CLASS =
+  'h-12 w-full rounded-lg text-lg-semibold md:flex-1 lg:h-16 lg:rounded-2xl lg:text-xl-semibold';
 
 /** 고객 대기 중 견적 카드 */
 export const PendingQuoteCard = ({
@@ -42,29 +53,44 @@ export const PendingQuoteCard = ({
   return (
     <article
       className={cn(
-        'flex w-full flex-col gap-6 rounded-2xl border border-line-100 bg-white px-3.5 py-4 shadow-request-card lg:gap-6 lg:px-6 lg:pt-7 lg:pb-[1.375rem]',
+        'flex w-full flex-col gap-2 rounded-2xl border border-line-100 bg-white px-3 pt-5 pb-3.5 shadow-request-card lg:gap-6 lg:px-6 lg:pt-7 lg:pb-[1.375rem]',
         className
       )}
     >
       <div className="flex w-full flex-col gap-3.5 lg:gap-6">
-        {/* 상태·이사 유형·지정 칩 */}
-        <div className="flex w-full flex-wrap items-center gap-2 lg:gap-3">
+        <div className="flex w-full flex-wrap items-center gap-2 lg:hidden">
           <MoveTypeChip type="quotePending" size="sm">
             견적 대기
           </MoveTypeChip>
           {quote.moveType ? (
-            <MoveTypeChip type={quote.moveType} size="sm" />
+            <MoveTypeChip type={quote.moveType} size="sm">
+              {MOVE_TYPE_SHORT_LABEL[quote.moveType]}
+            </MoveTypeChip>
           ) : null}
           {quote.isDesignated ? (
-            <MoveTypeChip type="designated" size="sm" />
+            <MoveTypeChip type="designated" size="sm">
+              지정 견적
+            </MoveTypeChip>
+          ) : null}
+        </div>
+
+        <div className="hidden w-full flex-wrap items-center gap-3 lg:flex">
+          <MoveTypeChip type="quotePending" size="md">
+            견적 대기
+          </MoveTypeChip>
+          {quote.moveType ? (
+            <MoveTypeChip type={quote.moveType} size="md" />
+          ) : null}
+          {quote.isDesignated ? (
+            <MoveTypeChip type="designated" size="md" />
           ) : null}
         </div>
 
         <div className="flex w-full flex-col gap-3.5 lg:gap-6">
           <MoverQuoteProfile mover={quote.mover} />
 
-          {/* 이사일·출발·도착 */}
-          <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
+          {/* 이사일 · 출발 · 도착 — Mobile: 2행 / Desktop: 1행 */}
+          <div className="flex w-full flex-col gap-3.5 lg:flex-row lg:flex-wrap lg:items-center lg:gap-4">
             <InfoField
               label="이사일"
               value={quote.moveDate}
@@ -75,28 +101,30 @@ export const PendingQuoteCard = ({
             />
             <span
               aria-hidden
-              className="hidden h-4 w-px shrink-0 bg-line-200 sm:block"
+              className="hidden h-4 w-px shrink-0 bg-line-200 lg:block"
             />
-            <InfoField
-              label="출발"
-              value={quote.departure}
-              color="neutral"
-              className="min-w-0 gap-2 lg:gap-3"
-              labelClassName={FIELD_LABEL_CLASS}
-              valueClassName={cn(FIELD_VALUE_CLASS, 'min-w-0 break-keep')}
-            />
-            <span
-              aria-hidden
-              className="hidden h-4 w-px shrink-0 bg-line-200 sm:block"
-            />
-            <InfoField
-              label="도착"
-              value={quote.arrival}
-              color="neutral"
-              className="min-w-0 gap-2 lg:gap-3"
-              labelClassName={FIELD_LABEL_CLASS}
-              valueClassName={cn(FIELD_VALUE_CLASS, 'min-w-0 break-keep')}
-            />
+            <div className="flex min-w-0 flex-wrap items-center gap-x-3.5 gap-y-2 lg:gap-x-4">
+              <InfoField
+                label="출발"
+                value={quote.departure}
+                color="neutral"
+                className="min-w-0 gap-2 lg:gap-3"
+                labelClassName={FIELD_LABEL_CLASS}
+                valueClassName={cn(FIELD_VALUE_CLASS, 'min-w-0 break-keep')}
+              />
+              <span
+                aria-hidden
+                className="h-3.5 w-px shrink-0 bg-line-200 lg:h-4"
+              />
+              <InfoField
+                label="도착"
+                value={quote.arrival}
+                color="neutral"
+                className="min-w-0 gap-2 lg:gap-3"
+                labelClassName={FIELD_LABEL_CLASS}
+                valueClassName={cn(FIELD_VALUE_CLASS, 'min-w-0 break-keep')}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -111,12 +139,12 @@ export const PendingQuoteCard = ({
         </p>
       </div>
 
-      {/* CTA */}
-      <div className="flex w-full gap-2 lg:gap-[0.6875rem]">
+      {/* CTA — Mobile 세로 / Tablet·Desktop 가로 */}
+      <div className="flex w-full flex-col gap-2 md:flex-row lg:gap-[0.6875rem]">
         <Button
           size="md"
           variant="solid"
-          className="flex-1"
+          className={CTA_CLASS}
           disabled={isConfirming}
           onClick={handleConfirm}
           aria-label={`${quote.mover.nickname} 기사님 견적 확정하기`}
@@ -128,8 +156,10 @@ export const PendingQuoteCard = ({
           className={getButtonClassName({
             size: 'md',
             variant: 'outlined',
-            className:
-              'flex-1 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:outline-none',
+            className: cn(
+              CTA_CLASS,
+              'focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:outline-none'
+            ),
           })}
           aria-label={`${quote.mover.nickname} 기사님 견적 상세보기`}
         >
