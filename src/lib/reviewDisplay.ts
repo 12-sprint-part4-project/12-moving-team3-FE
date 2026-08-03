@@ -50,11 +50,11 @@ const SCORE_KEYS = [
   { score: 1, key: 'one' },
 ] as const;
 
-export type ReviewScoreBreakdownItem = {
+export interface ReviewScoreBreakdownItem {
   score: 1 | 2 | 3 | 4 | 5;
   count: number;
   isMajority: boolean;
-};
+}
 
 /** 5점→1점 분포 + 최다 점수 강조 */
 export const getReviewScoreBreakdown = (
