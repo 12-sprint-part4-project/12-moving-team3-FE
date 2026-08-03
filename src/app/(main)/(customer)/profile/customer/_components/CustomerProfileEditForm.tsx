@@ -257,65 +257,79 @@ const CustomerProfileEditFields = ({
                 />
               </section>
 
-              <div className="h-px w-full bg-line-100" aria-hidden />
+              {profile.hasPassword ? (
+                <>
+                  <div className="h-px w-full bg-line-100" aria-hidden />
 
-              <section className="flex w-full flex-col items-start gap-4">
-                <label htmlFor={currentPasswordId} className={LABEL_CLASSNAME}>
-                  현재 비밀번호
-                </label>
-                <TextFieldOutlined
-                  id={currentPasswordId}
-                  size="md"
-                  type="password"
-                  name="currentPassword"
-                  autoComplete="current-password"
-                  placeholder="현재 비밀번호를 입력해주세요"
-                  showVisibilityToggle
-                  value={currentPassword}
-                  onChange={(event) => setCurrentPassword(event.target.value)}
-                  className={FIELD_CLASSNAME}
-                />
-              </section>
+                  <section className="flex w-full flex-col items-start gap-4">
+                    <label
+                      htmlFor={currentPasswordId}
+                      className={LABEL_CLASSNAME}
+                    >
+                      현재 비밀번호
+                    </label>
+                    <TextFieldOutlined
+                      id={currentPasswordId}
+                      size="md"
+                      type="password"
+                      name="currentPassword"
+                      autoComplete="current-password"
+                      placeholder="현재 비밀번호를 입력해주세요"
+                      showVisibilityToggle
+                      value={currentPassword}
+                      onChange={(event) =>
+                        setCurrentPassword(event.target.value)
+                      }
+                      className={FIELD_CLASSNAME}
+                    />
+                  </section>
 
-              <div className="h-px w-full bg-line-100" aria-hidden />
+                  <div className="h-px w-full bg-line-100" aria-hidden />
 
-              <section className="flex w-full flex-col items-start gap-4">
-                <label htmlFor={newPasswordId} className={LABEL_CLASSNAME}>
-                  새 비밀번호
-                </label>
-                <TextFieldOutlined
-                  id={newPasswordId}
-                  size="md"
-                  type="password"
-                  name="newPassword"
-                  autoComplete="new-password"
-                  placeholder="새 비밀번호를 입력해주세요"
-                  showVisibilityToggle
-                  value={newPassword}
-                  onChange={(event) => setNewPassword(event.target.value)}
-                  className={FIELD_CLASSNAME}
-                />
-              </section>
+                  <section className="flex w-full flex-col items-start gap-4">
+                    <label htmlFor={newPasswordId} className={LABEL_CLASSNAME}>
+                      새 비밀번호
+                    </label>
+                    <TextFieldOutlined
+                      id={newPasswordId}
+                      size="md"
+                      type="password"
+                      name="newPassword"
+                      autoComplete="new-password"
+                      placeholder="새 비밀번호를 입력해주세요"
+                      showVisibilityToggle
+                      value={newPassword}
+                      onChange={(event) => setNewPassword(event.target.value)}
+                      className={FIELD_CLASSNAME}
+                    />
+                  </section>
 
-              <div className="h-px w-full bg-line-100" aria-hidden />
+                  <div className="h-px w-full bg-line-100" aria-hidden />
 
-              <section className="flex w-full flex-col items-start gap-4">
-                <label htmlFor={confirmPasswordId} className={LABEL_CLASSNAME}>
-                  새 비밀번호 확인
-                </label>
-                <TextFieldOutlined
-                  id={confirmPasswordId}
-                  size="md"
-                  type="password"
-                  name="confirmPassword"
-                  autoComplete="new-password"
-                  placeholder="새 비밀번호를 다시 한번 입력해주세요"
-                  showVisibilityToggle
-                  value={confirmPassword}
-                  onChange={(event) => setConfirmPassword(event.target.value)}
-                  className={FIELD_CLASSNAME}
-                />
-              </section>
+                  <section className="flex w-full flex-col items-start gap-4">
+                    <label
+                      htmlFor={confirmPasswordId}
+                      className={LABEL_CLASSNAME}
+                    >
+                      새 비밀번호 확인
+                    </label>
+                    <TextFieldOutlined
+                      id={confirmPasswordId}
+                      size="md"
+                      type="password"
+                      name="confirmPassword"
+                      autoComplete="new-password"
+                      placeholder="새 비밀번호를 다시 한번 입력해주세요"
+                      showVisibilityToggle
+                      value={confirmPassword}
+                      onChange={(event) =>
+                        setConfirmPassword(event.target.value)
+                      }
+                      className={FIELD_CLASSNAME}
+                    />
+                  </section>
+                </>
+              ) : null}
             </div>
 
             <div className="flex w-full flex-col items-start gap-8 lg:max-w-[40rem]">
