@@ -4,26 +4,31 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { ReviewsEmptyState } from '@/components/reviews/ReviewsEmptyState';
-import { ReviewsTabs, type ReviewsPageTab } from '@/components/reviews/ReviewsTabs';
+import {
+  ReviewsTabs,
+  type ReviewsPageTab,
+} from '@/components/reviews/ReviewsTabs';
 import { WritableReviewCard } from '@/components/reviews/WritableReviewCard';
+import { WrittenReviewCard } from '@/components/reviews/WrittenReviewCard';
 import { Modal } from '@/components/ui/Modal/Modal';
+import { ReviewDetailModal } from '@/components/ui/Modal/ReviewDetailModal';
 import { WriteReviewModal } from '@/components/ui/Modal/WriteReviewModal';
 import { Pagination } from '@/components/ui/Pagination/Pagination';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
 import { useCreateReview } from '@/hooks/useCreateReview';
+import { useCustomerReviews } from '@/hooks/useCustomerReviews';
 import { useCustomerWritableQuotes } from '@/hooks/useCustomerWritableQuotes';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { formatReviewMoveDate } from '@/lib/reviewDisplay';
 import { cn } from '@/lib/utils';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
-import type { WritableQuoteItem } from '@/types/review';
+import type { CustomerReviewItem, WritableQuoteItem } from '@/types/review';
 
-const pageXPadding =
-  'px-6 md:px-[4.5rem] xl:px-[16.25rem]';
+const pageXPadding = 'px-6 md:px-[4.5rem] xl:px-[16.25rem]';
 
-/** 이사 리뷰 — 작성 가능 목록 + 등록 모달 */
+/** 이사 리뷰 — 작성 가능 / 내가 작성한 리뷰 + 모달 */
 export const ReviewsPageClient = () => {
   const router = useRouter();
   const { user, isReady } = useAuth();
@@ -32,20 +37,17 @@ export const ReviewsPageClient = () => {
   const [selectedQuote, setSelectedQuote] = useState<WritableQuoteItem | null>(
     null
   );
+  const [selectedReview, setSelectedReview] =
+    useState<CustomerReviewItem | null>(null);
 
   const isLoggedIn = Boolean(user);
-  const {
-    writableQuotes,
-    pagination,
-    page,
-    totalPages,
-    setPage,
-    isPending,
-    isError,
-    error,
-    isEmpty,
-    refetch,
-  } = useCustomerWritableQuotes({ enabled: isLoggedIn && activeTab === 'writable' });
+
+  const writable = useCustomerWritableQuotes({
+    enabled: isLoggedIn && activeTab === 'writable',
+  });
+  const written = useCustomerReviews({
+    enabled: isLoggedIn && activeTab === 'written',
+  });
 
   const { mutateAsync, isPending: isSubmitting } = useCreateReview();
 
@@ -59,7 +61,7 @@ export const ReviewsPageClient = () => {
     setSelectedQuote(item);
   };
 
-  const handleCloseModal = () => {
+  const handleCloseWriteModal = () => {
     if (isSubmitting) {
       return;
     }
@@ -86,10 +88,24 @@ export const ReviewsPageClient = () => {
     }
   };
 
-  const errorMessage =
-    error instanceof ApiError
-      ? error.message
-      : (error?.message ?? '작성 가능한 리뷰를 불러오지 못했습니다.');
+  const handleReviewClick = (item: CustomerReviewItem) => {
+    setSelectedReview(item);
+  };
+
+  const handleCloseDetailModal = () => {
+    setSelectedReview(null);
+  };
+
+  const writableErrorMessage =
+    writable.error instanceof ApiError
+      ? writable.error.message
+      : (writable.error?.message ??
+        '작성 가능한 리뷰를 불러오지 못했습니다.');
+
+  const writtenErrorMessage =
+    written.error instanceof ApiError
+      ? written.error.message
+      : (written.error?.message ?? '작성한 리뷰를 불러오지 못했습니다.');
 
   if (!isReady || !user) {
     return (
@@ -99,8 +115,17 @@ export const ReviewsPageClient = () => {
     );
   }
 
-  const totalCount = pagination?.totalCount ?? 0;
-  const showWritableEmpty = !isPending && !isError && (isEmpty || totalCount === 0);
+  const writableTotal = writable.pagination?.totalCount ?? 0;
+  const showWritableEmpty =
+    !writable.isPending &&
+    !writable.isError &&
+    (writable.isEmpty || writableTotal === 0);
+
+  const writtenTotal = written.pagination?.totalCount ?? 0;
+  const showWrittenEmpty =
+    !written.isPending &&
+    !written.isError &&
+    (written.isEmpty || writtenTotal === 0);
 
   return (
     <div className="flex w-full flex-col overflow-x-hidden bg-background-200">
@@ -112,21 +137,21 @@ export const ReviewsPageClient = () => {
           pageXPadding
         )}
       >
-        {activeTab === 'written' ? (
-          <ReviewsEmptyState message="아직 작성한 리뷰가 없어요" />
-        ) : (
+        {activeTab === 'writable' ? (
           <>
-            {isPending && writableQuotes.length === 0 ? (
+            {writable.isPending && writable.writableQuotes.length === 0 ? (
               <Spinner message="작성 가능한 리뷰를 불러오는 중..." />
             ) : null}
 
-            {isError ? (
+            {writable.isError ? (
               <div className="flex flex-col items-start gap-3 py-10">
-                <p className="text-md-medium text-gray-400">{errorMessage}</p>
+                <p className="text-md-medium text-gray-400">
+                  {writableErrorMessage}
+                </p>
                 <button
                   type="button"
                   onClick={() => {
-                    void refetch();
+                    void writable.refetch();
                   }}
                   className="text-md-semibold text-blue-300 underline"
                 >
@@ -135,14 +160,16 @@ export const ReviewsPageClient = () => {
               </div>
             ) : null}
 
-            {!isError && showWritableEmpty ? (
+            {!writable.isError && showWritableEmpty ? (
               <ReviewsEmptyState />
             ) : null}
 
-            {!isError && !showWritableEmpty && writableQuotes.length > 0 ? (
+            {!writable.isError &&
+            !showWritableEmpty &&
+            writable.writableQuotes.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 gap-8 xl:grid-cols-2 xl:gap-x-6 xl:gap-y-10">
-                  {writableQuotes.map((item) => (
+                  {writable.writableQuotes.map((item) => (
                     <WritableReviewCard
                       key={item.quoteId}
                       item={item}
@@ -154,16 +181,76 @@ export const ReviewsPageClient = () => {
                 <div className="flex justify-center pt-2">
                   <Pagination
                     size="sm"
-                    page={page}
-                    totalPages={Math.max(1, totalPages)}
-                    onPageChange={setPage}
+                    page={writable.page}
+                    totalPages={Math.max(1, writable.totalPages)}
+                    onPageChange={writable.setPage}
                     className="xl:hidden"
                   />
                   <Pagination
                     size="lg"
-                    page={page}
-                    totalPages={Math.max(1, totalPages)}
-                    onPageChange={setPage}
+                    page={writable.page}
+                    totalPages={Math.max(1, writable.totalPages)}
+                    onPageChange={writable.setPage}
+                    className="hidden xl:flex"
+                  />
+                </div>
+              </>
+            ) : null}
+          </>
+        ) : (
+          <>
+            {written.isPending && written.reviews.length === 0 ? (
+              <Spinner message="작성한 리뷰를 불러오는 중..." />
+            ) : null}
+
+            {written.isError ? (
+              <div className="flex flex-col items-start gap-3 py-10">
+                <p className="text-md-medium text-gray-400">
+                  {writtenErrorMessage}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    void written.refetch();
+                  }}
+                  className="text-md-semibold text-blue-300 underline"
+                >
+                  다시 시도
+                </button>
+              </div>
+            ) : null}
+
+            {!written.isError && showWrittenEmpty ? (
+              <ReviewsEmptyState message="아직 작성한 리뷰가 없어요" />
+            ) : null}
+
+            {!written.isError &&
+            !showWrittenEmpty &&
+            written.reviews.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 gap-8 xl:grid-cols-2 xl:gap-x-6 xl:gap-y-10">
+                  {written.reviews.map((item) => (
+                    <WrittenReviewCard
+                      key={item.id}
+                      item={item}
+                      onClick={handleReviewClick}
+                    />
+                  ))}
+                </div>
+
+                <div className="flex justify-center pt-2">
+                  <Pagination
+                    size="sm"
+                    page={written.page}
+                    totalPages={Math.max(1, written.totalPages)}
+                    onPageChange={written.setPage}
+                    className="xl:hidden"
+                  />
+                  <Pagination
+                    size="lg"
+                    page={written.page}
+                    totalPages={Math.max(1, written.totalPages)}
+                    onPageChange={written.setPage}
                     className="hidden xl:flex"
                   />
                 </div>
@@ -174,9 +261,9 @@ export const ReviewsPageClient = () => {
       </div>
 
       {selectedQuote ? (
-        <Modal placement="bottom" onClose={handleCloseModal}>
+        <Modal placement="bottom" onClose={handleCloseWriteModal}>
           <WriteReviewModal
-            onClose={handleCloseModal}
+            onClose={handleCloseWriteModal}
             onSubmit={(review) => {
               void handleSubmitReview(review);
             }}
@@ -187,6 +274,15 @@ export const ReviewsPageClient = () => {
             quotePrice={formatQuotePriceLabel(selectedQuote.price)}
             avatarSrc={selectedQuote.mover?.profileImageUrl ?? undefined}
             isSubmitting={isSubmitting}
+          />
+        </Modal>
+      ) : null}
+
+      {selectedReview ? (
+        <Modal placement="bottom" onClose={handleCloseDetailModal}>
+          <ReviewDetailModal
+            review={selectedReview}
+            onClose={handleCloseDetailModal}
           />
         </Modal>
       ) : null}

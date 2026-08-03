@@ -6,6 +6,8 @@ export { MoverReviewSection } from './MoverReviewSection';
 export type { MoverReviewSectionProps } from './MoverReviewSection';
 export { WritableReviewCard } from './WritableReviewCard';
 export type { WritableReviewCardProps } from './WritableReviewCard';
+export { WrittenReviewCard } from './WrittenReviewCard';
+export type { WrittenReviewCardProps } from './WrittenReviewCard';
 export { ReviewsEmptyState } from './ReviewsEmptyState';
 export type { ReviewsEmptyStateProps } from './ReviewsEmptyState';
 export { ReviewsTabs } from './ReviewsTabs';
