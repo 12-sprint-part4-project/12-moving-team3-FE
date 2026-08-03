@@ -12,7 +12,7 @@ import type { AddressSearchResult } from '@/types/addressSearch';
 const MIN_KEYWORD_LENGTH = 2;
 
 /**
- * GET /api/address/search?keyword=&page=
+ * GET /api/addresses?keyword=&page=
  * 행안부 도로명주소 API 프록시. confmKey(JUSO_API_KEY)는 서버에만 둔다.
  * 키 없으면 mock fixture 반환 → 키 발급 전 UI 연동 가능.
  *
@@ -67,7 +67,7 @@ export const GET = async (request: Request) => {
         ? error.message
         : '주소 검색 중 오류가 발생했습니다.';
 
-    console.error('[address/search]', detail, {
+    console.error('[addresses]', detail, {
       docs: JUSO_API_DOCS_URL,
     });
 

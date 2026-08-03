@@ -21,7 +21,7 @@ interface AddressSearchErrorBody {
 }
 
 /**
- * Next.js 프록시 GET /api/address/search 호출.
+ * Next.js 프록시 GET /api/addresses 호출.
  * 행안부 confmKey는 서버 Route Handler에만 있고, FE는 이 API만 사용한다.
  */
 export const searchAddresses = async (
@@ -39,7 +39,7 @@ export const searchAddresses = async (
 
   let response: Response;
   try {
-    response = await fetch(`/api/address/search?${query.toString()}`, {
+    response = await fetch(`/api/addresses?${query.toString()}`, {
       method: 'GET',
       signal: createApiTimeoutSignal(),
     });

@@ -13,7 +13,7 @@ export const addressSearchItemSchema = z.object({
 
 export type AddressSearchItem = z.infer<typeof addressSearchItemSchema>;
 
-/** GET /api/address/search 성공 data */
+/** GET /api/addresses 성공 data */
 export const addressSearchResultSchema = z.object({
   addresses: z.array(addressSearchItemSchema),
   totalCount: z.number().int().nonnegative(),
