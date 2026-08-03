@@ -1,14 +1,7 @@
 'use client';
 
 import { redirect, useRouter } from 'next/navigation';
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type ChangeEvent,
-  type FormEvent,
-} from 'react';
+import { useId, useState, type FormEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import NoImageIcon from '@/assets/icons/no-image.svg';
@@ -35,6 +28,8 @@ import { cn } from '@/lib/utils';
 import { updateCustomerProfile } from '@/services/customerProfileApi';
 import type { CustomerProfileMe } from '@/types/customerProfile';
 
+import { toggleService } from '../_lib/toggleService';
+import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
 import { ProfileImageCropModal } from './ProfileImageCropModal';
 
 const FIELD_CLASSNAME =
@@ -47,14 +42,6 @@ const LABEL_CLASSNAME = 'text-xl-semibold text-black-300';
 const CHIP_CLASSNAME = 'px-5 py-2.5 text-2lg-medium';
 
 const HELPER_CLASSNAME = 'text-lg-regular text-gray-400';
-
-const toggleService = (
-  values: ServiceChipValue[],
-  value: ServiceChipValue
-): ServiceChipValue[] =>
-  values.includes(value)
-    ? values.filter((item) => item !== value)
-    : [...values, value];
 
 interface CustomerProfileEditFieldsProps {
   profile: CustomerProfileMe;
@@ -76,11 +63,17 @@ const CustomerProfileEditFields = ({
   const currentPasswordId = useId();
   const newPasswordId = useId();
   const confirmPasswordId = useId();
-  const imageInputRef = useRef<HTMLInputElement>(null);
+  const {
+    imageInputRef,
+    previewUrl,
+    cropImageSrc,
+    profileImageFile,
+    handleImageChange,
+    handleImageButtonClick,
+    handleCropClose,
+    handleCropComplete,
+  } = useProfileImageCrop();
 
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
-  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [name, setName] = useState(profile.name);
   const [nickname, setNickname] = useState(profile.nickname);
   const [email] = useState(profile.email);
@@ -97,41 +90,6 @@ const CustomerProfileEditFields = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const displayImageUrl = previewUrl ?? profile.profileImageUrl;
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
-
-  useEffect(() => {
-    return () => {
-      if (cropImageSrc) URL.revokeObjectURL(cropImageSrc);
-    };
-  }, [cropImageSrc]);
-
-  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = '';
-    if (!file) return;
-    setCropImageSrc(URL.createObjectURL(file));
-  };
-
-  const handleCropClose = () => {
-    setCropImageSrc(null);
-  };
-
-  const handleCropComplete = (blob: Blob) => {
-    const file = new File([blob], 'profile.jpg', {
-      type: blob.type || 'image/jpeg',
-    });
-    setProfileImageFile(file);
-    setPreviewUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return URL.createObjectURL(blob);
-    });
-    setCropImageSrc(null);
-  };
 
   const handleCancel = () => {
     router.back();
@@ -350,7 +308,7 @@ const CustomerProfileEditFields = ({
                 />
                 <button
                   type="button"
-                  onClick={() => imageInputRef.current?.click()}
+                  onClick={handleImageButtonClick}
                   aria-label="프로필 이미지 업로드"
                   className={cn(
                     'flex size-40 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-background-200',

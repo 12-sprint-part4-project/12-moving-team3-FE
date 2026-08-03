@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import {
   useEffect,
   useId,
-  useRef,
   useState,
   type ChangeEvent,
   type FormEvent,
@@ -32,6 +31,8 @@ import type {
   CustomerServiceType,
 } from '@/types/customerProfile';
 
+import { toggleService } from '../_lib/toggleService';
+import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
 import { ProfileImageCropModal } from './ProfileImageCropModal';
 
 const PHONE_NUMBER_LENGTH = 11;
@@ -48,14 +49,6 @@ const CHIP_CLASSNAME =
 
 const toDigits = (value: string): string => value.replace(/\D/g, '');
 
-const toggleService = (
-  values: CustomerServiceType[],
-  value: CustomerServiceType
-): CustomerServiceType[] =>
-  values.includes(value)
-    ? values.filter((item) => item !== value)
-    : [...values, value];
-
 export const CustomerProfileForm = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -63,11 +56,17 @@ export const CustomerProfileForm = () => {
   const { showToast } = useToast();
   const imageInputId = useId();
   const phoneInputId = useId();
-  const imageInputRef = useRef<HTMLInputElement>(null);
+  const {
+    imageInputRef,
+    previewUrl,
+    cropImageSrc,
+    profileImageFile,
+    handleImageChange,
+    handleImageButtonClick,
+    handleCropClose,
+    handleCropComplete,
+  } = useProfileImageCrop();
 
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
-  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [selectedServices, setSelectedServices] = useState<
     CustomerServiceType[]
@@ -92,45 +91,8 @@ export const CustomerProfileForm = () => {
     setPhoneNumber((prev) => (prev ? prev : sessionPhone));
   }, [user?.phoneNumber]);
 
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
-
-  useEffect(() => {
-    return () => {
-      if (cropImageSrc) URL.revokeObjectURL(cropImageSrc);
-    };
-  }, [cropImageSrc]);
-
-  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = '';
-    if (!file) return;
-
-    setCropImageSrc(URL.createObjectURL(file));
-  };
-
-  const handleImageButtonClick = () => {
-    imageInputRef.current?.click();
-  };
-
   const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
     setPhoneNumber(toDigits(event.target.value).slice(0, PHONE_NUMBER_LENGTH));
-  };
-
-  const handleCropClose = () => {
-    setCropImageSrc(null);
-  };
-
-  const handleCropComplete = (blob: Blob) => {
-    const file = new File([blob], 'profile.jpg', {
-      type: blob.type || 'image/jpeg',
-    });
-    setProfileImageFile(file);
-    setPreviewUrl(URL.createObjectURL(blob));
-    setCropImageSrc(null);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
