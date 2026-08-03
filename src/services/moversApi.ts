@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@/services/apiClient.legacy';
+import { API_BASE_URL } from '@/lib/apiClient';
 import { fetchAndValidate } from '@/services/moverApiResponse';
 import { assertMoverAccessToken } from '@/services/moversAuth';
 import type {
@@ -17,14 +17,13 @@ import type {
 /**
  * 기사님 목록 쿼리스트링 생성.
  * - region / moveType: 부분 선택만 전달. 미선택·전체 선택 시 생략 → BE 전체 조회
- * - sort / order: 기본 reviewCount + desc (FE 정렬 제안 참고: types/mover.ts)
+ * - sort: 기본 reviewCount (모두 내림차순)
  */
 export const buildMoversListQuery = (params: MoversListParams): string => {
   const searchParams = new URLSearchParams();
   const regions = params.regions ?? [];
   const moveTypes = params.moveTypes ?? [];
   const sort = params.sort ?? 'reviewCount';
-  const order = params.order ?? 'desc';
 
   if (params.keyword?.trim()) {
     searchParams.set('keyword', params.keyword.trim());
@@ -39,7 +38,6 @@ export const buildMoversListQuery = (params: MoversListParams): string => {
   }
 
   searchParams.set('sort', sort);
-  searchParams.set('order', order);
 
   if (params.cursor) {
     searchParams.set('cursor', params.cursor);

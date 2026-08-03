@@ -23,24 +23,20 @@ export type ApiRegion =
   | 'JEJU';
 
 /**
- * FE 정렬 ↔ BE 쿼리 제안 (BE가 이 스펙에 맞출 예정)
- * - reviewCountDesc    → sort=reviewCount&order=desc
- * - ratingDesc         → sort=averageRating&order=desc
- * - careerDesc         → sort=career&order=desc
- * - confirmedCountDesc → sort=confirmedCount&order=desc
- *
- * BE movers list query `sort` enum에 위 필드 추가를 권장한다.
+ * FE 정렬 ↔ BE 쿼리
+ * - reviewCountDesc    → sort=reviewCount
+ * - ratingDesc         → sort=averageRating
+ * - careerDesc         → sort=career
+ * - confirmedCountDesc → sort=confirmedCount
+ * (정렬 방향은 모두 내림차순 고정)
  */
 export type MoverSortField =
   | 'reviewCount'
   | 'averageRating'
   | 'career'
-  | 'confirmedCount'
-  | 'createdAt';
+  | 'confirmedCount';
 
-export type MoverSortOrder = 'asc' | 'desc';
-
-/** UI 정렬 값 → API sort + order */
+/** UI 정렬 값 → API sort */
 export type MoversSortValue =
   | 'reviewCountDesc'
   | 'ratingDesc'
@@ -53,7 +49,6 @@ export interface MoversListParams {
   regions?: ApiRegion[];
   moveTypes?: ApiMoveType[];
   sort?: MoverSortField;
-  order?: MoverSortOrder;
   cursor?: string;
   limit?: number;
 }
@@ -263,20 +258,17 @@ export const SERVICE_FILTER_OPTIONS: { label: string; value: string }[] = [
 ];
 
 /**
- * FE 정렬 ↔ BE 쿼리 제안 (BE가 이 스펙에 맞출 예정)
- * - reviewCountDesc    → sort=reviewCount&order=desc
- * - ratingDesc         → sort=averageRating&order=desc
- * - careerDesc         → sort=career&order=desc
- * - confirmedCountDesc → sort=confirmedCount&order=desc
+ * FE 정렬 ↔ BE 쿼리
+ * - reviewCountDesc    → sort=reviewCount
+ * - ratingDesc         → sort=averageRating
+ * - careerDesc         → sort=career
+ * - confirmedCountDesc → sort=confirmedCount
  */
-export const SORT_VALUE_TO_API: Record<
-  MoversSortValue,
-  { sort: MoverSortField; order: MoverSortOrder }
-> = {
-  reviewCountDesc: { sort: 'reviewCount', order: 'desc' },
-  ratingDesc: { sort: 'averageRating', order: 'desc' },
-  careerDesc: { sort: 'career', order: 'desc' },
-  confirmedCountDesc: { sort: 'confirmedCount', order: 'desc' },
+export const SORT_VALUE_TO_API: Record<MoversSortValue, MoverSortField> = {
+  reviewCountDesc: 'reviewCount',
+  ratingDesc: 'averageRating',
+  careerDesc: 'career',
+  confirmedCountDesc: 'confirmedCount',
 };
 
 export const MOVERS_SORT_OPTIONS: { label: string; value: MoversSortValue }[] =

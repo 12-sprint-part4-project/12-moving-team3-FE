@@ -55,7 +55,7 @@ export const useMoversList = ({
     [moveTypes]
   );
 
-  const { sort: apiSort, order: apiOrder } = SORT_VALUE_TO_API[sort];
+  const apiSort = SORT_VALUE_TO_API[sort];
 
   const queryParams = useMemo(
     (): Omit<MoversListParams, 'cursor'> => ({
@@ -63,10 +63,9 @@ export const useMoversList = ({
       regions: stableRegions.length > 0 ? stableRegions : undefined,
       moveTypes: stableMoveTypes.length > 0 ? stableMoveTypes : undefined,
       sort: apiSort,
-      order: apiOrder,
       limit,
     }),
-    [keyword, stableRegions, stableMoveTypes, apiSort, apiOrder, limit]
+    [keyword, stableRegions, stableMoveTypes, apiSort, limit]
   );
 
   const query = useInfiniteQuery({

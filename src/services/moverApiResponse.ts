@@ -1,8 +1,5 @@
-import { ApiError } from '@/lib/apiClient';
-import {
-  authFetch,
-  createApiTimeoutSignal,
-} from '@/services/apiClient.legacy';
+import { ApiError, createApiTimeoutSignal } from '@/lib/apiClient';
+import { authFetch } from '@/lib/authFetch';
 import type { ApiErrorBody } from '@/types/api';
 
 const parseErrorBody = (body: unknown): ApiErrorBody | null =>
