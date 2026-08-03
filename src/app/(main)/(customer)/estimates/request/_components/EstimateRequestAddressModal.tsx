@@ -37,6 +37,17 @@ const SIDE_TITLE: Record<AddressSide, string> = {
   arrival: '도착지를 선택해주세요',
 };
 
+/** 수정하기 진입 — draft를 AddressCard용 검색 항목으로 시드 (재검색 없이 상세만 수정 가능) */
+const toInitialItem = (draft: AddressDraft | null): AddressSearchItem | null =>
+  draft
+    ? {
+        id: `initial-${draft.zipCode}-${draft.address}`,
+        zipCode: draft.zipCode,
+        roadAddress: draft.address,
+        lotAddress: '',
+      }
+    : null;
+
 /**
  * Step3 주소 검색 모달 — 행안부 프록시 검색 + AddressCard + 상세주소.
  * 반응형: 기본(모바일) 좁은 패널 → md+ MODAL_PANEL 스펙 (공용 sm:은 이 모달에서 md로 재매핑).
@@ -49,8 +60,14 @@ export const EstimateRequestAddressModal = ({
 }: EstimateRequestAddressModalProps) => {
   const titleId = useId();
   const [query, setQuery] = useState('');
-  const [addresses, setAddresses] = useState<AddressSearchItem[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // initialDraft가 있으면 목록·선택 상태를 미리 채워 상세주소·선택완료를 바로 활성화
+  const [addresses, setAddresses] = useState<AddressSearchItem[]>(() => {
+    const item = toInitialItem(initialDraft);
+    return item ? [item] : [];
+  });
+  const [selectedId, setSelectedId] = useState<string | null>(
+    () => toInitialItem(initialDraft)?.id ?? null
+  );
   const [detailAddress, setDetailAddress] = useState(
     initialDraft?.detailAddress ?? ''
   );
