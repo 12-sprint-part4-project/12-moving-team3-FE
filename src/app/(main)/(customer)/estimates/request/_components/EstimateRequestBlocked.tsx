@@ -54,7 +54,7 @@ export const EstimateRequestBlocked = ({
     >
       <EstimateRequestPageHeader />
 
-      <div className="flex w-full flex-1 flex-col gap-4 py-6 md:py-[3rem]">
+      <div className="flex w-full flex-1 flex-col justify-center gap-4 py-6 md:py-[3rem]">
         <div className="page-content flex flex-col items-center gap-8 md:gap-6">
           <div className="flex flex-col items-center gap-16">
             <Image
