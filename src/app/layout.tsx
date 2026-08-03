@@ -3,6 +3,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import { Header } from '@/components/layout/Header';
 import { AuthProvider } from '@/providers/AuthProvider';
+import { ChatSocketProvider } from '@/providers/ChatSocketProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { ToastProvider } from '@/providers/ToastProvider';
 
@@ -29,8 +30,10 @@ export default function RootLayout({
         <QueryProvider>
           <AuthProvider>
             <ToastProvider>
-              <Header />
-              <main className="flex flex-1 flex-col">{children}</main>
+              <ChatSocketProvider>
+                <Header />
+                <main className="flex flex-1 flex-col">{children}</main>
+              </ChatSocketProvider>
             </ToastProvider>
           </AuthProvider>
         </QueryProvider>
