@@ -328,7 +328,12 @@ export const useCustomerEstimateRequest = () => {
       body: SaveEstimateRequestStepBody;
     }) => saveEstimateRequestStep(estimateRequestId, body),
     onSuccess: async (_result, variables) => {
-      await syncDetail(variables.estimateRequestId);
+      // 저장 성공과 캐시 동기화 분리 — GET 실패가 mutateAsync reject로 이어지면 submit이 스킵됨
+      try {
+        await syncDetail(variables.estimateRequestId);
+      } catch (error) {
+        console.error('[saveStep] syncDetail failed', error);
+      }
     },
   });
 
