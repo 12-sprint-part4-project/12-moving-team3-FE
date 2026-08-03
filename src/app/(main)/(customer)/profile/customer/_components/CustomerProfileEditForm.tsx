@@ -36,16 +36,20 @@ import { toggleService } from '../_lib/toggleService';
 import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
 import { ProfileImageCropModal } from './ProfileImageCropModal';
 
+/** Figma Mobile·Tablet: input sm / Desktop(lg+): md 높이·텍스트 */
 const FIELD_CLASSNAME =
-  'w-full [&_>div]:min-h-16 [&_>div]:w-full [&_>div]:max-w-full [&_input]:text-xl-regular';
+  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
 
 const READONLY_FIELD_CLASSNAME = `${FIELD_CLASSNAME} [&_input]:!text-gray-300`;
 
-const LABEL_CLASSNAME = 'text-xl-semibold text-black-300';
+/** Figma Mobile·Tablet: lg-semibold / Desktop(lg+): xl-semibold */
+const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
 
-const CHIP_CLASSNAME = 'px-5 py-2.5 text-2lg-medium';
+/** Figma Mobile·Tablet chip sm / Desktop: md */
+const CHIP_CLASSNAME =
+  'px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium';
 
-const HELPER_CLASSNAME = 'text-lg-regular text-gray-400';
+const HELPER_CLASSNAME = 'text-xs-regular text-gray-400 lg:text-lg-regular';
 
 interface CustomerProfileEditFieldsProps {
   profile: CustomerProfileMe;
@@ -178,23 +182,25 @@ const CustomerProfileEditFields = ({
         onSubmit={(event) => {
           void handleSubmit(event);
         }}
-        className="flex w-full max-w-[87.5rem] flex-col items-stretch gap-10 rounded-[2rem] bg-white px-6 pt-8 pb-10 lg:gap-16"
+        className="flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 bg-white lg:max-w-[87.5rem] lg:gap-16 lg:rounded-[2rem] lg:px-6 lg:pt-8 lg:pb-10"
       >
-        <div className="flex w-full flex-col items-stretch gap-10">
-          <header className="flex w-full flex-col items-start gap-10">
-            <h1 className="text-3xl-semibold text-black-400">프로필 수정</h1>
+        <div className="flex w-full flex-col items-stretch gap-5 lg:gap-10">
+          <header className="flex w-full flex-col items-start gap-8 lg:gap-10">
+            <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
+              프로필 수정
+            </h1>
             <div className="h-px w-full bg-line-100" aria-hidden />
           </header>
 
-          <div className="flex w-full flex-col items-stretch gap-10 lg:flex-row lg:items-start lg:justify-between">
-            <div className="flex w-full flex-col items-start gap-8 lg:max-w-[40rem]">
+          <div className="flex w-full flex-col items-stretch gap-5 lg:flex-row lg:items-start lg:justify-between lg:gap-10">
+            <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
               <section className="flex w-full flex-col items-start gap-4">
                 <label htmlFor={nameInputId} className={LABEL_CLASSNAME}>
                   이름
                 </label>
                 <TextFieldOutlined
                   id={nameInputId}
-                  size="md"
+                  size="sm"
                   name="name"
                   autoComplete="name"
                   value={name}
@@ -211,7 +217,7 @@ const CustomerProfileEditFields = ({
                 </label>
                 <TextFieldOutlined
                   id={nicknameInputId}
-                  size="md"
+                  size="sm"
                   name="nickname"
                   autoComplete="nickname"
                   placeholder="닉네임을 입력해 주세요"
@@ -229,7 +235,7 @@ const CustomerProfileEditFields = ({
                 </label>
                 <TextFieldOutlined
                   id={emailInputId}
-                  size="md"
+                  size="sm"
                   type="email"
                   name="email"
                   autoComplete="email"
@@ -247,7 +253,7 @@ const CustomerProfileEditFields = ({
                 </label>
                 <TextFieldOutlined
                   id={phoneInputId}
-                  size="md"
+                  size="sm"
                   type="tel"
                   name="phone"
                   autoComplete="tel"
@@ -270,7 +276,7 @@ const CustomerProfileEditFields = ({
                     </label>
                     <TextFieldOutlined
                       id={currentPasswordId}
-                      size="md"
+                      size="sm"
                       type="password"
                       name="currentPassword"
                       autoComplete="current-password"
@@ -292,7 +298,7 @@ const CustomerProfileEditFields = ({
                     </label>
                     <TextFieldOutlined
                       id={newPasswordId}
-                      size="md"
+                      size="sm"
                       type="password"
                       name="newPassword"
                       autoComplete="new-password"
@@ -315,7 +321,7 @@ const CustomerProfileEditFields = ({
                     </label>
                     <TextFieldOutlined
                       id={confirmPasswordId}
-                      size="md"
+                      size="sm"
                       type="password"
                       name="confirmPassword"
                       autoComplete="new-password"
@@ -332,8 +338,13 @@ const CustomerProfileEditFields = ({
               ) : null}
             </div>
 
-            <div className="flex w-full flex-col items-start gap-8 lg:max-w-[40rem]">
-              <section className="flex flex-col items-start gap-6">
+            <div
+              className="h-px w-full bg-line-100 lg:hidden"
+              aria-hidden
+            />
+
+            <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
+              <section className="flex flex-col items-start gap-4 lg:gap-6">
                 <h2 className={LABEL_CLASSNAME}>프로필 이미지</h2>
                 <input
                   ref={imageInputRef}
@@ -348,7 +359,7 @@ const CustomerProfileEditFields = ({
                   onClick={handleImageButtonClick}
                   aria-label="프로필 이미지 업로드"
                   className={cn(
-                    'flex size-40 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-background-200',
+                    'flex size-[6.25rem] cursor-pointer items-center justify-center overflow-hidden rounded-md bg-background-200 lg:size-40',
                     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300'
                   )}
                 >
@@ -361,7 +372,7 @@ const CustomerProfileEditFields = ({
                     />
                   ) : (
                     <NoImageIcon
-                      className="size-10 text-gray-300"
+                      className="size-8 text-gray-300 lg:size-10"
                       aria-hidden
                     />
                   )}
@@ -370,14 +381,14 @@ const CustomerProfileEditFields = ({
 
               <div className="h-px w-full bg-line-100" aria-hidden />
 
-              <section className="flex w-full flex-col items-start gap-8">
+              <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
                 <div className="flex flex-col items-start gap-2">
                   <h2 className={LABEL_CLASSNAME}>이용 서비스</h2>
                   <p className={HELPER_CLASSNAME}>
                     *견적 요청 시 이용 서비스를 선택할 수 있어요.
                   </p>
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-1.5 lg:gap-3">
                   {SERVICE_CHIP_OPTIONS.map((option) => (
                     <ServiceChip
                       key={option.value}
@@ -398,14 +409,14 @@ const CustomerProfileEditFields = ({
 
               <div className="h-px w-full bg-line-100" aria-hidden />
 
-              <section className="flex w-full flex-col items-start gap-8">
+              <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
                 <div className="flex w-full flex-col items-start gap-2">
                   <h2 className={LABEL_CLASSNAME}>내가 사는 지역</h2>
                   <p className={HELPER_CLASSNAME}>
                     *견적 요청 시 지역을 설정할 수 있어요.
                   </p>
                 </div>
-                <div className="flex flex-wrap gap-x-3.5 gap-y-[1.125rem]">
+                <div className="flex flex-wrap gap-x-2 gap-y-3 lg:gap-x-3.5 lg:gap-y-[1.125rem]">
                   {REGION_CHIP_OPTIONS.map((option) => (
                     <RegionChip
                       key={option.value}
@@ -427,24 +438,24 @@ const CustomerProfileEditFields = ({
           </div>
         </div>
 
-        <div className="flex w-full flex-col gap-4 lg:flex-row lg:justify-between">
-          <Button
-            type="button"
-            variant="outlined"
-            size="md"
-            onClick={handleCancel}
-            className="border-gray-200 text-gray-300 shadow-cta hover:border-gray-200 hover:bg-transparent hover:text-gray-300 hover:shadow-cta lg:max-w-[41.25rem]"
-          >
-            취소
-          </Button>
+        <div className="flex w-full flex-col gap-2 lg:flex-row lg:justify-between lg:gap-4">
           <Button
             type="submit"
             variant="solid"
-            size="md"
+            size="sm"
             disabled={isSubmitting}
-            className="lg:max-w-[41.25rem]"
+            className="order-1 lg:order-2 lg:h-16 lg:max-w-[41.25rem] lg:text-xl-semibold"
           >
             {isSubmitting ? '수정 중...' : '수정하기'}
+          </Button>
+          <Button
+            type="button"
+            variant="outlined"
+            size="sm"
+            onClick={handleCancel}
+            className="order-2 border-gray-200 text-gray-300 shadow-cta hover:border-gray-200 hover:bg-transparent hover:text-gray-300 hover:shadow-cta lg:order-1 lg:h-16 lg:max-w-[41.25rem] lg:text-xl-semibold"
+          >
+            취소
           </Button>
         </div>
       </form>
