@@ -53,7 +53,6 @@ interface SignupFormValues {
   name: string;
   email: string;
   nickname: string;
-  phone: string;
   password: string;
   passwordConfirm: string;
 }
@@ -62,7 +61,6 @@ const INITIAL_VALUES: SignupFormValues = {
   name: '',
   email: '',
   nickname: '',
-  phone: '',
   password: '',
   passwordConfirm: '',
 };
@@ -85,6 +83,7 @@ const HELPER_LINK_CLASSNAME =
 
 /**
  * 회원가입 폼 (customer / mover 공통).
+ * 전화번호는 프로필 등록 API에서 수집한다.
  * Figma: Mobile(1:2900) · Tablet(1:2608) · Desktop(1:2756).
  * role → API userType(CUSTOMER|MOVER)으로 매핑한다.
  */
@@ -99,7 +98,6 @@ export const SignupForm = ({ role }: SignupFormProps) => {
     values.name.trim().length > 0 &&
     values.email.trim().length > 0 &&
     values.nickname.trim().length > 0 &&
-    values.phone.trim().length > 0 &&
     values.password.length > 0 &&
     values.passwordConfirm.length > 0 &&
     !isPending;
@@ -107,12 +105,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
   const handleChange =
     (field: keyof SignupFormValues) =>
     (event: ChangeEvent<HTMLInputElement>) => {
-      const nextValue =
-        field === 'phone'
-          ? event.target.value.replace(/\D/g, '')
-          : event.target.value;
-
-      setValues((prev) => ({ ...prev, [field]: nextValue }));
+      setValues((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -132,7 +125,6 @@ export const SignupForm = ({ role }: SignupFormProps) => {
         name: values.name.trim(),
         nickname: values.nickname.trim(),
         email: values.email.trim(),
-        phoneNumber: values.phone.trim(),
         password: values.password,
         passwordConfirmation: values.passwordConfirm,
       });
@@ -234,24 +226,6 @@ export const SignupForm = ({ role }: SignupFormProps) => {
                   placeholder="닉네임을 입력해 주세요"
                   value={values.nickname}
                   onChange={handleChange('nickname')}
-                  className={FIELD_CLASSNAME}
-                />
-              </div>
-
-              <div className={FIELD_GROUP_CLASSNAME}>
-                <label htmlFor="signup-phone" className={LABEL_CLASSNAME}>
-                  전화번호
-                </label>
-                <TextFieldOutlined
-                  id="signup-phone"
-                  size="sm"
-                  type="tel"
-                  name="phone"
-                  inputMode="numeric"
-                  autoComplete="tel"
-                  placeholder="숫자만 입력해 주세요"
-                  value={values.phone}
-                  onChange={handleChange('phone')}
                   className={FIELD_CLASSNAME}
                 />
               </div>
