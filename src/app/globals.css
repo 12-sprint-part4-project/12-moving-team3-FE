@@ -85,6 +85,13 @@
   --shadow-request-card-body: 0.25rem 0.25rem 0.5rem 0
     color-mix(in srgb, var(--color-shadow-gray-100) 10%, transparent);
 
+  /**
+   * Layout — 페이지 컨텐츠 max-width
+   * 콘텐츠 전체 영역은 px 허용 (모바일 375 / md+ 1448)
+   */
+  --max-width-page: 375px;
+  --max-width-page-md: 1448px;
+
   /* Dimmer — Figma Component/dimmer (#141414, opacity 50%) */
   --color-dimmer: #141414;
 
@@ -201,4 +208,13 @@
 
 body {
   font-family: var(--font-sans);
+}
+
+/**
+ * 페이지 공통 컨텐츠 래퍼 — 가로 중앙·폭·좌우 패딩.
+ * flex / gap 은 화면별로 조합한다.
+ * 예: className="page-content flex flex-col gap-2 md:gap-6"
+ */
+@utility page-content {
+  @apply mx-auto w-full max-w-page px-6 md:max-w-page-md;
 }

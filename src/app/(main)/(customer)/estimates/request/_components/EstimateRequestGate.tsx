@@ -47,7 +47,7 @@ export const EstimateRequestGate = ({ kind }: EstimateRequestGateProps) => {
   return (
     <section
       aria-label={ariaLabel}
-      className="mx-auto flex w-full max-w-[375px] flex-col gap-2 px-6 md:max-w-[1448px] md:gap-6"
+      className="page-content flex flex-col gap-2 md:gap-6"
     >
       <EstimateRequestChatBubbleGroup>
         <TextFieldChat role="status">{message}</TextFieldChat>

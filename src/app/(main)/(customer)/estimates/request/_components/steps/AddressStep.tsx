@@ -180,7 +180,7 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
   return (
     <section
       aria-label="출발지 도착지 입력"
-      className="mx-auto flex w-full max-w-[375px] flex-col gap-2 px-6 md:max-w-[1448px] md:gap-6"
+      className="page-content flex flex-col gap-2 md:gap-6"
     >
       {/* 시스템: 안내 + 이사종류 질문 */}
       <EstimateRequestChatBubbleGroup>
