@@ -6,8 +6,14 @@ import ProfileIcon from '@/assets/icons/profile.svg';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
 import { TextArea } from '@/components/ui/Input/TextArea';
+import { ModalCtaButton } from '@/components/ui/Modal/ModalCtaButton';
+import { ModalHeader } from '@/components/ui/Modal/ModalHeader';
+import {
+  MODAL_PANEL_BOTTOM_SHEET_CLASS,
+  MODAL_PANEL_CLASS,
+  MOVE_TYPE_CHIP_RESPONSIVE_CLASS,
+} from '@/components/ui/Modal/modalPanel';
 import { StarRating } from '@/components/ui/StarRating/StarRating';
-
 import { cn } from '@/lib/utils';
 import {
   API_MOVE_TYPE_TO_UI,
@@ -17,14 +23,6 @@ import {
   MAX_REVIEW_CONTENT_LENGTH,
   MIN_REVIEW_CONTENT_LENGTH,
 } from '@/types/review';
-
-import { ModalCtaButton } from './ModalCtaButton';
-import { ModalHeader } from './ModalHeader';
-import {
-  MODAL_PANEL_BOTTOM_SHEET_CLASS,
-  MODAL_PANEL_CLASS,
-  MOVE_TYPE_CHIP_RESPONSIVE_CLASS,
-} from './modalPanel';
 
 export interface WriteReviewModalProps {
   onClose: () => void;

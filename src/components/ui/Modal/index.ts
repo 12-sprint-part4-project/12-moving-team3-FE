@@ -7,12 +7,6 @@ export type { ModalHeaderProps } from './ModalHeader';
 export { ModalCtaButton } from './ModalCtaButton';
 export type { ModalCtaButtonProps } from './ModalCtaButton';
 
-export { WriteReviewModal } from './WriteReviewModal';
-export type { WriteReviewModalProps } from './WriteReviewModal';
-
-export { ReviewDetailModal } from './ReviewDetailModal';
-export type { ReviewDetailModalProps } from './ReviewDetailModal';
-
 export { SendQuoteModal } from './SendQuoteModal';
 export type { SendQuoteModalProps } from './SendQuoteModal';
 

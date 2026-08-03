@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
-import { Modal } from './Modal';
-import { WriteReviewModal } from './WriteReviewModal';
+import { SAMPLE_CUSTOMER_REVIEW } from '@/components/reviews/_fixtures/reviewFixtures';
+import { ReviewDetailModal } from '@/components/reviews/ReviewDetailModal';
+import { Modal } from '@/components/ui/Modal/Modal';
 
-const meta: Meta<typeof WriteReviewModal> = {
-  title: 'UI/Modal/WriteReviewModal',
-  component: WriteReviewModal,
+const meta: Meta<typeof ReviewDetailModal> = {
+  title: 'Reviews/ReviewDetailModal',
+  component: ReviewDetailModal,
   tags: ['autodocs'],
   parameters: {
     layout: 'fullscreen',
@@ -16,17 +17,9 @@ const meta: Meta<typeof WriteReviewModal> = {
 };
 export default meta;
 
-type Story = StoryObj<typeof WriteReviewModal>;
+type Story = StoryObj<typeof ReviewDetailModal>;
 
-const SAMPLE = {
-  moveType: 'SMALL' as const,
-  isDesignated: true,
-  moverName: '김코드',
-  moveDate: '2024. 07. 01',
-  quotePrice: '210,000원',
-};
-
-/** Modal 셸과 조합해 실제 사용 형태를 확인 */
+/** Modal 셸과 조합 */
 export const WithModalShell: Story = {
   render: () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -38,29 +31,34 @@ export const WithModalShell: Story = {
           className="rounded-lg bg-blue-300 px-4 py-2 text-lg-semibold text-white"
           onClick={() => setIsOpen(true)}
         >
-          리뷰 쓰기 열기
+          리뷰 상세 열기
         </button>
-        {isOpen && (
+        {isOpen ? (
           <Modal placement="bottom" onClose={() => setIsOpen(false)}>
-            <WriteReviewModal
-              {...SAMPLE}
+            <ReviewDetailModal
+              review={SAMPLE_CUSTOMER_REVIEW}
               onClose={() => setIsOpen(false)}
-              onSubmit={() => {
-                setIsOpen(false);
-              }}
             />
           </Modal>
-        )}
+        ) : null}
       </div>
     );
   },
 };
 
-/** 콘텐츠 패널만 (셸 없이) */
+/** 콘텐츠 패널만 */
 export const PanelOnly: Story = {
   args: {
-    ...SAMPLE,
+    review: SAMPLE_CUSTOMER_REVIEW,
     onClose: () => {},
-    onSubmit: () => {},
   },
+  decorators: [
+    (Story) => (
+      <div className="flex min-h-screen items-start justify-center bg-background-200 p-6">
+        <div className="w-full max-w-[38rem]">
+          <Story />
+        </div>
+      </div>
+    ),
+  ],
 };

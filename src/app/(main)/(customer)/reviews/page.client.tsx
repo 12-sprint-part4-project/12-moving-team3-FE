@@ -4,15 +4,15 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { ReviewsEmptyState } from '@/components/reviews/ReviewsEmptyState';
+import { ReviewDetailModal } from '@/components/reviews/ReviewDetailModal';
 import {
   ReviewsTabs,
   type ReviewsPageTab,
 } from '@/components/reviews/ReviewsTabs';
 import { WritableReviewCard } from '@/components/reviews/WritableReviewCard';
+import { WriteReviewModal } from '@/components/reviews/WriteReviewModal';
 import { WrittenReviewCard } from '@/components/reviews/WrittenReviewCard';
 import { Modal } from '@/components/ui/Modal/Modal';
-import { ReviewDetailModal } from '@/components/ui/Modal/ReviewDetailModal';
-import { WriteReviewModal } from '@/components/ui/Modal/WriteReviewModal';
 import { Pagination } from '@/components/ui/Pagination/Pagination';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';

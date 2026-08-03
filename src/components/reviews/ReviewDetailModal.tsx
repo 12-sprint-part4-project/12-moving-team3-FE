@@ -5,13 +5,13 @@ import { useId } from 'react';
 import ProfileIcon from '@/assets/icons/profile.svg';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
-import { StarRating } from '@/components/ui/StarRating/StarRating';
 import { ModalHeader } from '@/components/ui/Modal/ModalHeader';
 import {
   MODAL_PANEL_BOTTOM_SHEET_CLASS,
   MODAL_PANEL_CLASS,
   MOVE_TYPE_CHIP_RESPONSIVE_CLASS,
 } from '@/components/ui/Modal/modalPanel';
+import { StarRating } from '@/components/ui/StarRating/StarRating';
 import {
   formatReviewCreatedDate,
   formatReviewMoveDate,
