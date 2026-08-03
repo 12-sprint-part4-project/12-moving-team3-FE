@@ -46,3 +46,5 @@ storybook-static
 
 # local-only Cursor rules
 .cursor/rules/chat.mdc
+.cursor/rules/pre-push.mdc
+.cursor/rules/code-review.mdc
