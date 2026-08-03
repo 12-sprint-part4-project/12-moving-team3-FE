@@ -16,7 +16,7 @@ export interface GnbProfileDropdownProps {
 }
 
 const DEFAULT_MENU_ITEMS: GnbNavItem[] = [
-  { label: '프로필 수정', href: '/profile/customer' },
+  { label: '프로필 수정', href: '/profile/customer/edit' },
   { label: '찜한 기사님', href: '/favorites' },
   { label: '이사 리뷰', href: '/reviews' },
 ];
