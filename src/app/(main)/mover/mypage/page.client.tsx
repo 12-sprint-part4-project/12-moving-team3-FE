@@ -15,7 +15,7 @@ import { toMoverMyProfileCardData } from './_lib/toMoverMyProfileCardData';
 
 /**
  * 기사님 마이페이지 클라이언트.
- * Figma 내 프로필/Desktop(1:8536)
+ * Figma 내 프로필 Tablet(1:8521) · Desktop(1:8536)
  * — GET /api/users/movers/profile · GET /api/review/mover
  */
 const MoverMyPageClient = () => {
@@ -83,7 +83,7 @@ const MoverMyPageClient = () => {
       <div
         className={`border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8 ${pageXPadding}`}
       >
-        <h1 className="text-2lg-semibold text-black-300 lg:text-2xl-semibold">
+        <h1 className="text-md-semibold text-black-400 md:text-2lg-semibold lg:text-2xl-semibold">
           마이페이지
         </h1>
       </div>
