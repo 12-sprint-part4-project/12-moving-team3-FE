@@ -2,7 +2,7 @@ import { MoverProfileForm } from './_components/MoverProfileForm';
 
 /**
  * 기사님 프로필 등록.
- * Figma Desktop(1:10326) → lg+.
+ * Figma: Tablet(1:10107) → lg 미만, Desktop(1:10326) → lg+.
  */
 const MoverProfilePage = () => {
   return (

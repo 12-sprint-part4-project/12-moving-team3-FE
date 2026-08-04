@@ -28,10 +28,10 @@ const FIELD_CLASSNAME =
 const TEXTAREA_CLASSNAME =
   'w-full [&_>div]:min-h-40 [&_>div]:w-full [&_>div]:max-w-full [&_textarea]:lg:text-xl-regular';
 
-/** Figma Desktop: xl-semibold */
+/** Figma Mobile·Tablet: lg-semibold / Desktop(lg+): xl-semibold */
 const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
 
-/** Figma Desktop chip md */
+/** Figma Mobile·Tablet chip sm / Desktop: md */
 const CHIP_CLASSNAME =
   'px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium';
 
@@ -151,7 +151,7 @@ export const MoverProfileForm = () => {
     <>
       <form
         onSubmit={handleSubmit}
-        className="flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 md:max-w-[40rem] lg:max-w-[87.5rem] lg:items-end lg:gap-12"
+        className="flex w-full max-w-[20.4375rem] flex-col items-stretch gap-6 lg:max-w-[87.5rem] lg:items-end lg:gap-12"
       >
         <header className="flex w-full flex-col items-start gap-4 lg:gap-8">
           <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
@@ -163,7 +163,7 @@ export const MoverProfileForm = () => {
           <div className="h-px w-full bg-line-100" aria-hidden />
         </header>
 
-        <div className="flex w-full flex-col items-start gap-8 lg:flex-row lg:justify-between lg:gap-10">
+        <div className="flex w-full flex-col items-start gap-5 lg:flex-row lg:justify-between lg:gap-10">
           <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
             <section className="flex flex-col items-start gap-4">
               <h2 className={LABEL_CLASSNAME}>프로필 이미지</h2>
@@ -282,6 +282,8 @@ export const MoverProfileForm = () => {
               />
             </section>
           </div>
+
+          <div className="h-px w-full bg-line-100 lg:hidden" aria-hidden />
 
           <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
             <section className="flex w-full flex-col items-start gap-4">
