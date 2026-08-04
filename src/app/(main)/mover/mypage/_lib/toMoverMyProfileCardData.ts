@@ -1,13 +1,17 @@
 import { REGION_LABELS, SERVICE_LABELS } from '@/types/mover';
 import type { MoverProfileMe } from '@/types/moverProfile';
-import type { ReviewStats } from '@/types/mover';
 
 import type { MoverMyProfileCardData } from '../_components/MoverMyProfileCard';
 
-/** 본인 프로필 + 리뷰 통계 → 마이페이지 카드 모델 */
+export interface MoverMyPageReviewSummary {
+  averageRating: number | null;
+  reviewCount: number;
+}
+
+/** 본인 프로필 + 리뷰 요약 → 마이페이지 카드 모델 */
 export const toMoverMyProfileCardData = (
   profile: MoverProfileMe,
-  reviewStats?: ReviewStats
+  reviewSummary?: MoverMyPageReviewSummary
 ): MoverMyProfileCardData => {
   const servicesLabel =
     profile.service.length > 0
@@ -25,10 +29,10 @@ export const toMoverMyProfileCardData = (
     shortDescription:
       profile.shortDescription?.trim() || '등록된 한 줄 소개가 없습니다.',
     profileImageUrl: profile.profileImageUrl,
-    averageRating: reviewStats?.averageRating ?? null,
-    reviewCount: reviewStats?.totalCount ?? 0,
+    averageRating: reviewSummary?.averageRating ?? null,
+    reviewCount: reviewSummary?.reviewCount ?? 0,
     career: profile.career,
-    confirmedCount: profile.confirmedCount,
+    confirmedCount: profile.confirmedCount ?? null,
     servicesLabel,
     regionsLabel,
   };

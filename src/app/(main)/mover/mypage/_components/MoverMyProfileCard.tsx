@@ -62,7 +62,7 @@ export const MoverMyProfileCard = ({
   const careerLabel =
     profile.career === null ? '-' : `${profile.career}년`;
   const confirmedLabel =
-    profile.confirmedCount === null
+    profile.confirmedCount == null
       ? '-'
       : `${profile.confirmedCount}건`;
 

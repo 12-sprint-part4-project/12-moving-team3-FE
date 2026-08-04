@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 
-import { MoverReviews } from '@/components/movers/MoverReviews';
+import { MoverReviewSection } from '@/components/reviews/MoverReviewSection';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useMoverProfile } from '@/hooks/useMoverProfile';
-import { useMoverReviews } from '@/hooks/useMoverReviews';
+import { useMoverReceivedReviews } from '@/hooks/useMoverReceivedReviews';
 import { ApiError } from '@/lib/apiClient';
+import { getReviewStatsTotalCount } from '@/lib/reviewDisplay';
 
 import { MoverMyProfileCard } from './_components/MoverMyProfileCard';
 import { toMoverMyProfileCardData } from './_lib/toMoverMyProfileCardData';
@@ -20,7 +20,6 @@ import { toMoverMyProfileCardData } from './_lib/toMoverMyProfileCardData';
  */
 const MoverMyPageClient = () => {
   const router = useRouter();
-  const [page, setPage] = useState(1);
 
   const {
     data: profile,
@@ -32,28 +31,18 @@ const MoverMyPageClient = () => {
 
   const {
     reviews,
-    reviewStats,
+    ratingStatistics,
+    pagination,
+    page,
     totalPages,
-    currentPage,
+    setPage,
     isPending: isReviewsPending,
     isError: isReviewsError,
-    error: reviewsError,
     refetch: refetchReviews,
-  } = useMoverReviews({ page, enabled: Boolean(profile) });
-
-  /** 총 페이지 감소 시 현재 페이지 보정 */
-  useEffect(() => {
-    if (totalPages > 0 && page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [page, totalPages]);
+  } = useMoverReceivedReviews({ enabled: Boolean(profile) });
 
   const pageXPadding =
     'px-6 md:px-[4.5rem] lg:px-10 xl:px-16 min-[90rem]:px-[16.25rem]';
-
-  const handlePageChange = (nextPage: number) => {
-    setPage(nextPage);
-  };
 
   const handleEditBasicInfo = () => {
     // 기본 정보 수정 화면 미구현 — 프로필 수정과 동일 경로로 이동
@@ -73,10 +62,14 @@ const MoverMyPageClient = () => {
     profileError instanceof ApiError
       ? profileError.message
       : '프로필을 불러오지 못했습니다.';
-  const reviewsErrorMessage =
-    reviewsError instanceof ApiError
-      ? reviewsError.message
-      : '리뷰를 불러오지 못했습니다.';
+
+  const reviewCount =
+    pagination?.totalCount ??
+    (ratingStatistics ? getReviewStatsTotalCount(ratingStatistics) : 0);
+  const averageRating =
+    reviewCount > 0 && ratingStatistics
+      ? ratingStatistics.average
+      : null;
 
   return (
     <div className="flex w-full flex-col overflow-x-hidden bg-white">
@@ -119,40 +112,29 @@ const MoverMyPageClient = () => {
         ) : (
           <>
             <MoverMyProfileCard
-              profile={toMoverMyProfileCardData(profile, reviewStats)}
+              profile={toMoverMyProfileCardData(profile, {
+                averageRating,
+                reviewCount,
+              })}
               onEditBasicInfo={handleEditBasicInfo}
               onEditProfile={handleEditProfile}
             />
 
             <div className="border-t border-line-100" />
 
-            {isReviewsPending && !reviewStats ? (
-              <Spinner message="리뷰를 불러오는 중..." />
-            ) : isReviewsError ? (
-              <div className="flex flex-col items-center gap-4 py-10">
-                <p className="text-lg-medium text-gray-400">
-                  {reviewsErrorMessage}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    void refetchReviews();
-                  }}
-                  className="cursor-pointer rounded-lg bg-blue-300 px-4 py-2 text-lg-semibold text-white"
-                >
-                  다시 시도
-                </button>
-              </div>
-            ) : (
-              <MoverReviews
-                moverId={profile.userId}
-                reviewStats={reviewStats}
-                reviews={reviews}
-                page={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-              />
-            )}
+            <MoverReviewSection
+              reviews={reviews}
+              ratingStatistics={ratingStatistics}
+              totalCount={reviewCount}
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              isPending={isReviewsPending}
+              isError={isReviewsError}
+              onRetry={() => {
+                void refetchReviews();
+              }}
+            />
           </>
         )}
       </div>
