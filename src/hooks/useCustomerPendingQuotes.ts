@@ -29,6 +29,8 @@ export const useCustomerPendingQuotes = ({
     queryFn: getCustomerPendingQuotes,
     select: (response) => toPendingQuotesPageModel(response.data),
     enabled,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const pageModel = query.data;
