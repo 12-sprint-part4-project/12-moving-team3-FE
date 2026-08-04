@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import {
   useId,
   useState,
@@ -7,6 +8,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { ProfileImageCropModal } from '@/app/(main)/(customer)/profile/customer/_components/ProfileImageCropModal';
 import { useProfileImageCrop } from '@/app/(main)/(customer)/profile/customer/_lib/useProfileImageCrop';
@@ -20,7 +22,14 @@ import {
   type RegionChipValue,
   type ServiceChipValue,
 } from '@/constants/commonOptions';
+import { useAuth } from '@/hooks/useAuth';
+import { moverProfileQueryKeys } from '@/hooks/useMoverProfile';
+import { useToast } from '@/hooks/useToast';
+import { ApiError } from '@/lib/apiClient';
+import { getAuthSession } from '@/lib/authSession';
+import { uploadProfileImage } from '@/lib/uploadProfileImage';
 import { cn } from '@/lib/utils';
+import { upsertMoverProfile } from '@/services/moverProfileApi';
 
 const FIELD_CLASSNAME =
   'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
@@ -36,6 +45,9 @@ const CHIP_CLASSNAME =
   'px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium';
 
 const PHONE_NUMBER_LENGTH = 11;
+const CAREER_MAX = 50;
+const SHORT_DESCRIPTION_MAX = 10;
+const DESCRIPTION_MIN = 8;
 
 const toDigits = (value: string): string => value.replace(/\D/g, '');
 
@@ -78,6 +90,10 @@ const RequiredLabel = ({ htmlFor, children }: RequiredLabelProps) => {
 };
 
 export const MoverProfileForm = () => {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { user, setSession } = useAuth();
+  const { showToast } = useToast();
   const imageInputId = useId();
   const phoneInputId = useId();
   const careerInputId = useId();
@@ -88,13 +104,14 @@ export const MoverProfileForm = () => {
     imageInputRef,
     previewUrl,
     cropImageSrc,
+    profileImageFile,
     handleImageChange,
     handleImageButtonClick,
     handleCropClose,
     handleCropComplete,
   } = useProfileImageCrop();
 
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneDraft, setPhoneDraft] = useState<string | null>(null);
   const [career, setCareer] = useState('');
   const [shortIntro, setShortIntro] = useState('');
   const [description, setDescription] = useState('');
@@ -102,41 +119,131 @@ export const MoverProfileForm = () => {
     []
   );
   const [selectedRegions, setSelectedRegions] = useState<RegionChipValue[]>([]);
+  const [isPending, setIsPending] = useState(false);
 
+  const phoneNumber = phoneDraft ?? toDigits(user?.phoneNumber ?? '');
+  const careerValue = career === '' ? null : Number(career);
+  const isCareerValid =
+    careerValue !== null &&
+    Number.isInteger(careerValue) &&
+    careerValue >= 0 &&
+    careerValue <= CAREER_MAX;
   const isPhoneValid = phoneNumber.length === PHONE_NUMBER_LENGTH;
+  const isShortIntroValid =
+    shortIntro.trim().length > 0 &&
+    shortIntro.trim().length <= SHORT_DESCRIPTION_MAX;
+  const isDescriptionValid = description.trim().length >= DESCRIPTION_MIN;
   const isSubmitEnabled =
     isPhoneValid &&
-    career.trim().length > 0 &&
-    shortIntro.trim().length > 0 &&
-    description.trim().length > 0 &&
+    isCareerValid &&
+    isShortIntroValid &&
+    isDescriptionValid &&
     selectedServices.length > 0 &&
-    selectedRegions.length > 0;
+    selectedRegions.length > 0 &&
+    !isPending;
 
   const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setPhoneNumber(toDigits(event.target.value).slice(0, PHONE_NUMBER_LENGTH));
+    setPhoneDraft(toDigits(event.target.value).slice(0, PHONE_NUMBER_LENGTH));
   };
 
   const handleCareerChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setCareer(event.target.value);
+    const digits = toDigits(event.target.value);
+    if (digits === '') {
+      setCareer('');
+      return;
+    }
+
+    const nextValue = Number(digits);
+    if (nextValue > CAREER_MAX) return;
+    setCareer(String(nextValue));
   };
 
   const handleShortIntroChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setShortIntro(event.target.value);
+    setShortIntro(event.target.value.slice(0, SHORT_DESCRIPTION_MAX));
   };
 
   const handleDescriptionChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setDescription(event.target.value);
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isSubmitEnabled) return;
+    if (
+      !isPhoneValid ||
+      !isCareerValid ||
+      careerValue === null ||
+      !isShortIntroValid ||
+      !isDescriptionValid ||
+      selectedServices.length === 0 ||
+      selectedRegions.length === 0 ||
+      isPending
+    ) {
+      return;
+    }
+
+    const nickname = user?.nickname?.trim() ?? '';
+    if (nickname.length < 2) {
+      showToast({
+        content: '회원가입 시 등록한 별명 정보가 필요합니다.',
+      });
+      return;
+    }
+
+    setIsPending(true);
+
+    try {
+      let s3Key: string | undefined;
+
+      if (profileImageFile) {
+        s3Key = await uploadProfileImage(profileImageFile);
+      }
+
+      await upsertMoverProfile({
+        nickname,
+        phoneNumber,
+        career: careerValue,
+        shortDescription: shortIntro.trim(),
+        description: description.trim(),
+        service: selectedServices,
+        serviceRegions: selectedRegions,
+        ...(s3Key ? { s3Key } : {}),
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: moverProfileQueryKeys.all,
+      });
+
+      const session = getAuthSession();
+      if (session) {
+        setSession({
+          ...session,
+          user: {
+            ...session.user,
+            phoneNumber,
+            isProfileCompleted: true,
+          },
+        });
+      }
+
+      showToast({ content: '프로필 등록이 완료되었습니다.' });
+      router.replace('/mover/requests');
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : '프로필 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+      showToast({ content: message });
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
     <>
       <form
-        onSubmit={handleSubmit}
+        onSubmit={(event) => {
+          void handleSubmit(event);
+        }}
         className="flex w-full max-w-[20.4375rem] flex-col items-stretch gap-6 lg:max-w-[87.5rem] lg:items-end lg:gap-12"
       >
         <header className="flex w-full flex-col items-start gap-4 lg:gap-8">
@@ -212,6 +319,7 @@ export const MoverProfileForm = () => {
                 id={careerInputId}
                 size="sm"
                 name="career"
+                inputMode="numeric"
                 placeholder="기사님의 경력을 입력해 주세요"
                 value={career}
                 onChange={handleCareerChange}
@@ -229,6 +337,7 @@ export const MoverProfileForm = () => {
                 id={shortIntroInputId}
                 size="sm"
                 name="shortIntro"
+                maxLength={SHORT_DESCRIPTION_MAX}
                 placeholder="한 줄 소개를 입력해 주세요"
                 value={shortIntro}
                 onChange={handleShortIntroChange}
@@ -311,7 +420,7 @@ export const MoverProfileForm = () => {
             disabled={!isSubmitEnabled}
             className="lg:h-16 lg:text-xl-semibold"
           >
-            시작하기
+            {isPending ? '등록 중...' : '시작하기'}
           </Button>
         </div>
       </form>
