@@ -79,8 +79,6 @@ const RequiredLabel = ({ htmlFor, children }: RequiredLabelProps) => {
 
 export const MoverProfileForm = () => {
   const imageInputId = useId();
-  const nameInputId = useId();
-  const nicknameInputId = useId();
   const phoneInputId = useId();
   const careerInputId = useId();
   const shortIntroInputId = useId();
@@ -96,8 +94,6 @@ export const MoverProfileForm = () => {
     handleCropComplete,
   } = useProfileImageCrop();
 
-  const [name, setName] = useState('');
-  const [nickname, setNickname] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [career, setCareer] = useState('');
   const [shortIntro, setShortIntro] = useState('');
@@ -109,22 +105,12 @@ export const MoverProfileForm = () => {
 
   const isPhoneValid = phoneNumber.length === PHONE_NUMBER_LENGTH;
   const isSubmitEnabled =
-    name.trim().length > 0 &&
-    nickname.trim().length > 0 &&
     isPhoneValid &&
     career.trim().length > 0 &&
     shortIntro.trim().length > 0 &&
     description.trim().length > 0 &&
     selectedServices.length > 0 &&
     selectedRegions.length > 0;
-
-  const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
-  };
-
-  const handleNicknameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setNickname(event.target.value);
-  };
 
   const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
     setPhoneNumber(toDigits(event.target.value).slice(0, PHONE_NUMBER_LENGTH));
@@ -198,38 +184,6 @@ export const MoverProfileForm = () => {
                   />
                 )}
               </button>
-            </section>
-
-            <div className="h-px w-full bg-line-100" aria-hidden />
-
-            <section className="flex w-full flex-col items-start gap-4">
-              <RequiredLabel htmlFor={nameInputId}>이름</RequiredLabel>
-              <TextFieldOutlined
-                id={nameInputId}
-                size="sm"
-                name="name"
-                autoComplete="name"
-                placeholder="이름을 입력해 주세요"
-                value={name}
-                onChange={handleNameChange}
-                className={FIELD_CLASSNAME}
-              />
-            </section>
-
-            <div className="h-px w-full bg-line-100" aria-hidden />
-
-            <section className="flex w-full flex-col items-start gap-4">
-              <RequiredLabel htmlFor={nicknameInputId}>별명</RequiredLabel>
-              <TextFieldOutlined
-                id={nicknameInputId}
-                size="sm"
-                name="nickname"
-                autoComplete="nickname"
-                placeholder="사이트에 노출될 별명을 입력해 주세요"
-                value={nickname}
-                onChange={handleNicknameChange}
-                className={FIELD_CLASSNAME}
-              />
             </section>
 
             <div className="h-px w-full bg-line-100" aria-hidden />
