@@ -35,7 +35,8 @@ export const ChatComposer = ({
     try {
       await onSend(content);
     } catch {
-      setValue(content);
+      // 전송 중 새 입력이 있으면 덮어쓰지 않음
+      setValue((current) => (current.length === 0 ? content : current));
     }
   };
 
@@ -64,7 +65,7 @@ export const ChatComposer = ({
         value={value}
         onChange={(event) => setValue(event.target.value)}
         onKeyDown={handleKeyDown}
-        disabled={disabled || isSending}
+        disabled={disabled}
         placeholder="메시지를 입력하세요"
         aria-label="메시지 입력"
         className={cn(

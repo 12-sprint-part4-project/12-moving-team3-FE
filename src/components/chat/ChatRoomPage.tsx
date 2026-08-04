@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 
@@ -58,27 +58,45 @@ export const ChatRoomPage = ({
   const sendMutation = useSendChatMessage(roomId);
   const { mutate: markAsRead } = useMarkChatRoomAsRead(roomId);
   const lastMarkedMessageIdRef = useRef<number | null>(null);
+  const [isNearBottom, setIsNearBottom] = useState(true);
+  const [trackedRoomId, setTrackedRoomId] = useState(roomId);
+
+  // 방 전환 시 하단 고정 상태 초기화 (props 변경에 맞춘 state 조정)
+  if (trackedRoomId !== roomId) {
+    setTrackedRoomId(roomId);
+    setIsNearBottom(true);
+  }
 
   useChatSocketRoom(enabled ? roomId : 0);
 
-  // 방 입장·최신 메시지 확인 시 읽음 처리
+  useEffect(() => {
+    lastMarkedMessageIdRef.current = null;
+  }, [roomId]);
+
+  // 상대 최신 메시지를 실제로 보고 있을 때만 읽음 처리
   useEffect(() => {
     if (!enabled) {
       lastMarkedMessageIdRef.current = null;
       return;
     }
 
-    const latestMessageId = messages.at(-1)?.messageId;
-    if (
-      latestMessageId == null ||
-      lastMarkedMessageIdRef.current === latestMessageId
-    ) {
+    if (!isNearBottom) {
+      return;
+    }
+
+    const latest = messages.at(-1);
+    if (!latest || latest.senderId === user?.id) {
+      return;
+    }
+
+    const latestMessageId = latest.messageId;
+    if (lastMarkedMessageIdRef.current === latestMessageId) {
       return;
     }
 
     lastMarkedMessageIdRef.current = latestMessageId;
     markAsRead({ lastReadMessageId: latestMessageId });
-  }, [enabled, messages, markAsRead]);
+  }, [enabled, roomId, messages, markAsRead, user?.id, isNearBottom]);
 
   const handleSend = async (content: string) => {
     try {
@@ -176,6 +194,7 @@ export const ChatRoomPage = ({
       ) : (
         <>
           <ChatMessageList
+            key={roomId}
             messages={messages}
             currentUserId={user.id}
             isPending={isMessagesPending}
@@ -186,6 +205,7 @@ export const ChatRoomPage = ({
             onLoadOlder={() => {
               void fetchNextPage();
             }}
+            onNearBottomChange={setIsNearBottom}
           />
           <ChatComposer
             isSending={sendMutation.isPending}
