@@ -1,6 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
+import ReportIcon from '@/assets/icons/report.svg';
 
 export interface ReportButtonProps {
   onClick: () => void;
@@ -26,9 +27,7 @@ export const ReportButton = ({
       className
     )}
   >
-    <span aria-hidden className="text-base leading-none">
-      🚨
-    </span>
+    <ReportIcon className="size-4" />
     <span>신고</span>
   </button>
 );
