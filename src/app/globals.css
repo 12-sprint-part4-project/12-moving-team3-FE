@@ -92,6 +92,13 @@
   --max-width-page: 375px;
   --max-width-page-md: 1448px;
 
+  /* Layout — 채팅 목록/상세 */
+  --max-width-chat: 43rem;
+  --min-height-chat-room: 50vh;
+
+  /* Layout — GNB 채팅 미리보기 드롭다운 */
+  --width-chat-preview: 22.4375rem;
+
   /* Dimmer — Figma Component/dimmer (#141414, opacity 50%) */
   --color-dimmer: #141414;
 
@@ -217,4 +224,14 @@ body {
  */
 @utility page-content {
   @apply mx-auto w-full max-w-page px-6 md:max-w-page-md;
+}
+
+/** 채팅 목록·안내 화면 공통 래퍼 */
+@utility chat-content {
+  @apply mx-auto flex w-full max-w-chat flex-col px-6 py-10;
+}
+
+/** 채팅방(상세) 공통 래퍼 */
+@utility chat-room-content {
+  @apply mx-auto flex min-h-chat-room w-full max-w-chat flex-col;
 }

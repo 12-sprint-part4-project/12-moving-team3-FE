@@ -1,7 +1,10 @@
+'use client';
+
 import AlarmIcon from '@/assets/icons/alarm.svg';
 import MenuIcon from '@/assets/icons/menu.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
 
+import { ChatGnbButton } from '@/components/chat/ChatGnbButton';
 import { Logo } from '@/components/Logo/Logo';
 import { Tab } from '@/components/ui/Tab/Tab';
 
@@ -72,6 +75,7 @@ const Gnb2DepthHeader = ({
       />
 
       <div className="flex shrink-0 items-center justify-end gap-6">
+        <ChatGnbButton size="sm" />
         <button
           type="button"
           aria-label="알림"
