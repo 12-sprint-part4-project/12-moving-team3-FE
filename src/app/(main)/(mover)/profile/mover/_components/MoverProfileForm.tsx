@@ -59,9 +59,14 @@ const toggleChip = <T extends string>(values: T[], value: T): T[] =>
 interface RequiredLabelProps {
   htmlFor?: string;
   children: ReactNode;
+  className?: string;
 }
 
-const RequiredLabel = ({ htmlFor, children }: RequiredLabelProps) => {
+const RequiredLabel = ({
+  htmlFor,
+  children,
+  className,
+}: RequiredLabelProps) => {
   const content = (
     <>
       <span>{children}</span>
@@ -75,7 +80,7 @@ const RequiredLabel = ({ htmlFor, children }: RequiredLabelProps) => {
     return (
       <label
         htmlFor={htmlFor}
-        className={cn(LABEL_CLASSNAME, 'flex items-center gap-1')}
+        className={cn(LABEL_CLASSNAME, 'flex items-center gap-1', className)}
       >
         {content}
       </label>
@@ -83,13 +88,19 @@ const RequiredLabel = ({ htmlFor, children }: RequiredLabelProps) => {
   }
 
   return (
-    <h2 className={cn(LABEL_CLASSNAME, 'flex items-center gap-1')}>
+    <h2
+      className={cn(LABEL_CLASSNAME, 'flex items-center gap-1', className)}
+    >
       {content}
     </h2>
   );
 };
 
-export const MoverProfileForm = () => {
+interface MoverProfileFormProps {
+  className?: string;
+}
+
+export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { user, setSession } = useAuth();
@@ -244,7 +255,10 @@ export const MoverProfileForm = () => {
         onSubmit={(event) => {
           void handleSubmit(event);
         }}
-        className="flex w-full max-w-[20.4375rem] flex-col items-stretch gap-6 lg:max-w-[87.5rem] lg:items-end lg:gap-12"
+        className={cn(
+          'flex w-full max-w-[20.4375rem] flex-col items-stretch gap-6 lg:max-w-[87.5rem] lg:items-end lg:gap-12',
+          className
+        )}
       >
         <header className="flex w-full flex-col items-start gap-4 lg:gap-8">
           <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
