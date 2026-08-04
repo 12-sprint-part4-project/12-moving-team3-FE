@@ -49,8 +49,10 @@ export const ChatRoomPage = ({
     messages,
     isPending: isMessagesPending,
     isError: isMessagesError,
+    isFetchNextPageError,
     isEmpty,
     hasNextPage,
+    isFetching,
     isFetchingNextPage,
     fetchNextPage,
   } = useChatMessages(roomId, { enabled });
@@ -208,8 +210,10 @@ export const ChatRoomPage = ({
             currentUserId={user.id}
             isPending={isMessagesPending}
             isError={isMessagesError}
+            isFetchNextPageError={isFetchNextPageError}
             isEmpty={isEmpty}
             hasNextPage={Boolean(hasNextPage)}
+            isFetching={isFetching}
             isFetchingNextPage={isFetchingNextPage}
             onLoadOlder={() => {
               void fetchNextPage();

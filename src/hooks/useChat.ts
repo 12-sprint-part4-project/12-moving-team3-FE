@@ -284,6 +284,9 @@ export const useMarkChatRoomAsRead = (roomId: number) => {
   return useMutation({
     mutationFn: (body: MarkChatRoomAsReadRequest) =>
       markChatRoomAsRead(roomId, body),
+    // 멱등 API — 일시 실패 시 제한 재시도 (UI effect 재호출에 의존하지 않음)
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 4000),
     onSuccess: async () => {
       updateRoomsListCache(queryClient, (rooms) =>
         rooms.map((room) =>

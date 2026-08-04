@@ -21,9 +21,13 @@ export interface ChatMessageListProps {
   messages: ChatMessage[];
   currentUserId: string;
   isPending: boolean;
+  /** 초기 조회 실패(메시지 없음) */
   isError: boolean;
+  /** 이전 이력(fetchNextPage) 실패 — 기존 메시지는 유지 */
+  isFetchNextPageError?: boolean;
   isEmpty: boolean;
   hasNextPage: boolean;
+  isFetching: boolean;
   isFetchingNextPage: boolean;
   onLoadOlder: () => void;
   /** 최신 메시지 가시 영역(하단 근처) 여부 — 읽음 처리 등에 사용 */
@@ -40,8 +44,10 @@ export const ChatMessageList = ({
   currentUserId,
   isPending,
   isError,
+  isFetchNextPageError = false,
   isEmpty,
   hasNextPage,
+  isFetching,
   isFetchingNextPage,
   onLoadOlder,
   onNearBottomChange,
@@ -58,6 +64,9 @@ export const ChatMessageList = ({
   const prevMessageCountRef = useRef(0);
   const oldestMessageIdRef = useRef<number | null>(null);
   const wasFetchingNextPageRef = useRef(false);
+
+  const isInitialError = isError && messages.length === 0;
+  const canRenderMessages = !isPending && !isInitialError;
 
   const reportNearBottom = useCallback(
     (isNearBottom: boolean) => {
@@ -83,7 +92,8 @@ export const ChatMessageList = ({
     [reportNearBottom]
   );
 
-  // 이전 메시지 prepend 시에만 스크롤 앵커 복원 (소켓 append에는 적용하지 않음)
+  // 이전 메시지 prepend 시에만 스크롤 복원.
+  // 대기 중 oldest가 같으면(소켓 append·스크롤) 앵커 geometry만 갱신.
   useLayoutEffect(() => {
     const el = scrollRef.current;
     const anchor = scrollAnchorRef.current;
@@ -92,10 +102,16 @@ export const ChatMessageList = ({
     }
 
     const currentOldestId = messages[0]?.messageId ?? null;
-    if (
-      currentOldestId == null ||
-      currentOldestId === anchor.oldestMessageId
-    ) {
+    if (currentOldestId == null) {
+      return;
+    }
+
+    if (currentOldestId === anchor.oldestMessageId) {
+      scrollAnchorRef.current = {
+        ...anchor,
+        height: el.scrollHeight,
+        top: el.scrollTop,
+      };
       return;
     }
 
@@ -157,10 +173,20 @@ export const ChatMessageList = ({
       el.scrollHeight - el.scrollTop - el.clientHeight;
     reportNearBottom(distanceFromBottom <= NEAR_BOTTOM_PX);
 
+    const pendingAnchor = scrollAnchorRef.current;
+    if (pendingAnchor != null) {
+      scrollAnchorRef.current = {
+        ...pendingAnchor,
+        height: el.scrollHeight,
+        top: el.scrollTop,
+      };
+    }
+
     const oldestMessageId = messages[0]?.messageId;
     if (
       el.scrollTop <= NEAR_TOP_PX &&
       hasNextPage &&
+      !isFetching &&
       !isFetchingNextPage &&
       scrollAnchorRef.current == null &&
       oldestMessageId != null
@@ -190,27 +216,41 @@ export const ChatMessageList = ({
           </p>
         ) : null}
 
+        {!isFetchingNextPage && isFetchNextPageError ? (
+          <div className="flex flex-col items-center gap-1 py-1">
+            <p className="text-center text-sm-medium text-gray-300">
+              이전 대화를 불러오지 못했어요
+            </p>
+            <button
+              type="button"
+              onClick={onLoadOlder}
+              className="cursor-pointer text-sm-medium text-blue-300 underline-offset-2 hover:underline"
+            >
+              다시 시도
+            </button>
+          </div>
+        ) : null}
+
         {isPending ? (
           <p className="m-auto text-center text-lg-medium text-gray-300">
             불러오는 중…
           </p>
         ) : null}
 
-        {!isPending && isError ? (
+        {isInitialError ? (
           <p className="m-auto text-center text-lg-medium text-gray-300">
             메시지를 불러오지 못했어요
           </p>
         ) : null}
 
-        {!isPending && !isError && isEmpty ? (
+        {canRenderMessages && isEmpty ? (
           <p className="m-auto text-center text-lg-medium text-gray-300">
             대화를 시작해 보세요
           </p>
         ) : null}
       </div>
 
-      {!isPending &&
-        !isError &&
+      {canRenderMessages &&
         messages.map((message, index) => {
           const previous = messages[index - 1];
           const showDateSeparator =
