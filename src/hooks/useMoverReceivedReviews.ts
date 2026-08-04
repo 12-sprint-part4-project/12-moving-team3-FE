@@ -1,12 +1,10 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
-
-import {
-  MOVER_REVIEWS_PAGE_SIZE,
-  reviewQueryKeys,
-} from '@/hooks/reviewQueryKeys';
-import { getMoverAccessToken } from '@/services/moversAuth';
+import { reviewQueryKeys } from '@/hooks/reviewQueryKeys';
+import { useReviewPagedQuery } from '@/hooks/useReviewPagedQuery';
 import { getMoverReceivedReviews } from '@/services/reviewsApi';
+import type {
+  MoverReceivedReviewItem,
+  MoverReceivedReviewsResponse,
+} from '@/types/review';
 
 /**
  * 로그인한 기사님에게 달린 리뷰 목록 (페이지네이션).
@@ -17,33 +15,21 @@ export const useMoverReceivedReviews = (options?: {
   enabled?: boolean;
   limit?: number;
 }) => {
-  const enabled = options?.enabled ?? true;
-  const limit = options?.limit ?? MOVER_REVIEWS_PAGE_SIZE;
-  const [page, setPage] = useState(1);
-
-  const query = useQuery({
-    queryKey: reviewQueryKeys.moverReceivedList(page, limit),
-    queryFn: () => getMoverReceivedReviews({ page, limit }),
-    enabled: enabled && Boolean(getMoverAccessToken()),
-    placeholderData: keepPreviousData,
+  const { items, data, ...rest } = useReviewPagedQuery<
+    MoverReceivedReviewsResponse,
+    MoverReceivedReviewItem
+  >({
+    enabled: options?.enabled,
+    limit: options?.limit,
+    queryKey: reviewQueryKeys.moverReceivedList,
+    queryFn: getMoverReceivedReviews,
+    selectItems: (response) => response.data.reviews,
   });
 
-  const pagination = query.data?.meta.pagination;
-  const totalPages = pagination
-    ? Math.max(1, Math.ceil(pagination.totalCount / pagination.pageSize))
-    : 1;
-
   return {
-    ...query,
-    reviews: query.data?.data.reviews ?? [],
-    ratingStatistics: query.data?.meta.ratingStatistics,
-    pagination,
-    page,
-    totalPages,
-    setPage,
-    isEmpty:
-      !query.isPending &&
-      !query.isError &&
-      (query.data?.data.reviews.length ?? 0) === 0,
+    ...rest,
+    data,
+    reviews: items,
+    ratingStatistics: data?.meta.ratingStatistics,
   };
 };
