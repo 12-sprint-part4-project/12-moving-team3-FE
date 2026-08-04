@@ -48,3 +48,6 @@ storybook-static
 .cursor/rules/chat.mdc
 .cursor/rules/pre-push.mdc
 .cursor/rules/code-review.mdc
+
+# local-only chat UI planning / mockup (개인용)
+/docs/local/
