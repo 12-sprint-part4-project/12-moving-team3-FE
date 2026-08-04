@@ -158,7 +158,16 @@ export const formatRelativeTime = (value: string): string => {
   }
 
   const diffDays = Math.floor(diffHours / 24);
-  if (diffDays === 1) {
+
+  // 달력 기준 어제만 「어제」(24h 경과량만으로는 이틀 전을 잘못 표기할 수 있음)
+  const now = new Date();
+  const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  const isLocalYesterday =
+    date.getFullYear() === yesterday.getFullYear() &&
+    date.getMonth() === yesterday.getMonth() &&
+    date.getDate() === yesterday.getDate();
+
+  if (isLocalYesterday) {
     return '어제';
   }
   if (diffDays < 7) {

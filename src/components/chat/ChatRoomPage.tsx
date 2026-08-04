@@ -7,16 +7,21 @@ import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import { ChatAvatar } from '@/components/chat/ChatAvatar';
 import { useAuth } from '@/hooks/useAuth';
 import { useChatRoom } from '@/hooks/useChat';
+import { cn } from '@/lib/utils';
 
 export interface ChatRoomPageProps {
   roomId: string;
+  className?: string;
 }
 
 /**
  * Phase 1 채팅방 진입점.
  * 상세 대화 UI는 Phase 2에서 구현한다. 목록·드롭다운에서 네비게이션만 보장.
  */
-export const ChatRoomPage = ({ roomId: roomIdParam }: ChatRoomPageProps) => {
+export const ChatRoomPage = ({
+  roomId: roomIdParam,
+  className,
+}: ChatRoomPageProps) => {
   const roomId = Number(roomIdParam);
   const isValidRoomId = Number.isFinite(roomId) && roomId > 0;
 
@@ -30,7 +35,12 @@ export const ChatRoomPage = ({ roomId: roomIdParam }: ChatRoomPageProps) => {
 
   if (!user) {
     return (
-      <div className="mx-auto flex w-full max-w-[43rem] flex-col px-6 py-10">
+      <div
+        className={cn(
+          'mx-auto flex w-full max-w-[43rem] flex-col px-6 py-10',
+          className
+        )}
+      >
         <h1 className="text-2xl-bold text-black-400">채팅</h1>
         <p className="mt-8 text-center text-lg-medium text-gray-300">
           로그인 후 채팅을 이용할 수 있어요
@@ -41,7 +51,12 @@ export const ChatRoomPage = ({ roomId: roomIdParam }: ChatRoomPageProps) => {
 
   if (!isValidRoomId) {
     return (
-      <div className="mx-auto flex w-full max-w-[43rem] flex-col px-6 py-10">
+      <div
+        className={cn(
+          'mx-auto flex w-full max-w-[43rem] flex-col px-6 py-10',
+          className
+        )}
+      >
         <Link
           href="/chat"
           className="inline-flex w-fit items-center gap-1 text-md-medium text-gray-400 hover:text-black-400"
@@ -57,7 +72,12 @@ export const ChatRoomPage = ({ roomId: roomIdParam }: ChatRoomPageProps) => {
   }
 
   return (
-    <div className="mx-auto flex min-h-[50vh] w-full max-w-[43rem] flex-col">
+    <div
+      className={cn(
+        'mx-auto flex min-h-[50vh] w-full max-w-[43rem] flex-col',
+        className
+      )}
+    >
       <header className="flex w-full items-center gap-3 border-b border-line-100 bg-white px-4 py-3 md:px-6">
         <Link
           href="/chat"

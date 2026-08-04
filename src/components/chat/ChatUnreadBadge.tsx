@@ -24,16 +24,19 @@ export const ChatUnreadBadge = ({
     return null;
   }
 
+  const isIcon = variant === 'icon';
+
   return (
     <span
       className={cn(
-        'inline-flex items-center justify-center rounded-full bg-red-200 text-white',
-        variant === 'icon'
-          ? 'absolute -top-0.5 -right-0.5 min-w-4 px-1 text-[0.625rem] leading-4 font-semibold'
-          : 'min-w-5 px-1.5 py-0.5 text-xs-semibold',
+        'inline-flex items-center justify-center rounded-full bg-red-200 text-xs-semibold text-white',
+        isIcon
+          ? 'absolute -top-0.5 -right-0.5 min-w-4 px-1'
+          : 'min-w-5 px-1.5 py-0.5',
         className
       )}
-      aria-label={`미읽음 ${count}개`}
+      aria-hidden={isIcon ? true : undefined}
+      aria-label={isIcon ? undefined : `미읽음 ${count}개`}
     >
       {formatUnreadCount(count)}
     </span>

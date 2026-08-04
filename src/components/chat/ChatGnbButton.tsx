@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import ChatIcon from '@/assets/icons/chat.svg';
 
@@ -28,29 +28,35 @@ export const ChatGnbButton = ({
   className,
 }: ChatGnbButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [prevCloseSignal, setPrevCloseSignal] = useState(closeSignal);
   const containerRef = useRef<HTMLDivElement>(null);
   const { unreadCount } = useChatUnreadCount();
   const iconSizeClass = size === 'lg' ? 'size-9' : 'size-6';
 
   useOutsideClick(containerRef, isOpen, setIsOpen);
 
-  useEffect(() => {
+  // props 변화에 맞춘 상태 조정 (effect setState 대신 render-time 패턴)
+  if (closeSignal !== prevCloseSignal) {
+    setPrevCloseSignal(closeSignal);
     if (closeSignal > 0) {
       setIsOpen(false);
     }
-  }, [closeSignal]);
+  }
 
   const handleToggle = () => {
-    setIsOpen((prev) => {
-      const next = !prev;
-      if (next) {
-        onOpen?.();
-      }
-      return next;
-    });
+    const next = !isOpen;
+    if (next) {
+      onOpen?.();
+    }
+    setIsOpen(next);
   };
 
   const handleClose = () => setIsOpen(false);
+
+  const ariaLabel =
+    unreadCount > 0
+      ? `채팅, 읽지 않은 메시지 ${unreadCount}개`
+      : '채팅';
 
   return (
     <div
@@ -59,7 +65,7 @@ export const ChatGnbButton = ({
     >
       <button
         type="button"
-        aria-label="채팅"
+        aria-label={ariaLabel}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
         onClick={handleToggle}
