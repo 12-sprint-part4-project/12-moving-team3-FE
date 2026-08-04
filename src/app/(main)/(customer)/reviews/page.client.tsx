@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
 import type { CustomerReviewItem, WritableQuoteItem } from '@/types/review';
 
-const pageXPadding = 'px-6 md:px-[4.5rem] xl:px-[16.25rem]';
+const PAGE_X_PADDING = 'px-6 md:px-[4.5rem] xl:px-[16.25rem]';
 
 /** 이사 리뷰 — 작성 가능 / 내가 작성한 리뷰 + 모달 */
 export const ReviewsPageClient = () => {
@@ -199,7 +199,7 @@ export const ReviewsPageClient = () => {
       <div
         className={cn(
           'mx-auto flex w-full max-w-[1920px] flex-col gap-8 py-6 md:py-10 xl:py-10',
-          pageXPadding
+          PAGE_X_PADDING
         )}
       >
         {activeTab === 'writable' ? (
