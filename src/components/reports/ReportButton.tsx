@@ -10,8 +10,7 @@ export interface ReportButtonProps {
 }
 
 /**
- * 신고 트리거 버튼 (이모지 + 「신고」).
- * 아이콘 SVG는 추후 교체 예정.
+ * 신고 트리거 버튼 (신고 아이콘 + 「신고」).
  */
 export const ReportButton = ({
   onClick,
