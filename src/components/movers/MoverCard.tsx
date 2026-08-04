@@ -93,11 +93,13 @@ export const MoverCard = ({
             <MoveTypeChip type="designated" size="sm" />
           ) : null}
         </div>
-        <ReportAction
-          target="USER"
-          targetId={mover.moverId}
-          className="relative z-10"
-        />
+        {!isCompact ? (
+          <ReportAction
+            target="USER"
+            targetId={mover.moverId}
+            className="relative z-10"
+          />
+        ) : null}
       </div>
 
       {showDescription ? (
