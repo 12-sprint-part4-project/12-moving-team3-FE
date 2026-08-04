@@ -18,8 +18,8 @@ import { formatReviewMoveDate } from '@/lib/reviewDisplay';
 import { cn } from '@/lib/utils';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
 import { API_MOVE_TYPE_TO_UI } from '@/types/estimateRequest';
-import type { CustomerReviewItem } from '@/types/review';
 import {
+  type CustomerReviewItem,
   MAX_REVIEW_CONTENT_LENGTH,
   MIN_REVIEW_CONTENT_LENGTH,
 } from '@/types/review';
@@ -117,11 +117,7 @@ export const EditReviewModal = ({
           <div className="size-[2.875rem] shrink-0 overflow-hidden rounded-full sm:size-14">
             {avatarSrc ? (
               // eslint-disable-next-line @next/next/no-img-element -- 프로필 CDN 도메인 미확정
-              <img
-                src={avatarSrc}
-                alt=""
-                className="size-full object-cover"
-              />
+              <img src={avatarSrc} alt="" className="size-full object-cover" />
             ) : (
               <ProfileIcon className="size-full" aria-hidden />
             )}
