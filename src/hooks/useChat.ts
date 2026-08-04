@@ -48,6 +48,7 @@ const isValidRoomId = (roomId: number): boolean =>
 /**
  * BE는 페이지 내 메시지를 id desc(최신→과거)로 반환한다.
  * InfiniteQuery pages[0] = 최신 배치이므로, UI용 시간순(과거→최신)으로 펼친다.
+ * messageId 기준 중복은 제거한다(REST·소켓 레이스 잔여 방어).
  */
 const flattenMessagesChronological = (
   pages: ChatMessagesResponse[] | undefined
@@ -56,7 +57,16 @@ const flattenMessagesChronological = (
     return [];
   }
 
-  return pages.flatMap((page) => page.data.messages).reverse();
+  const seen = new Set<number>();
+  const chronological = pages.flatMap((page) => page.data.messages).reverse();
+
+  return chronological.filter((message) => {
+    if (seen.has(message.messageId)) {
+      return false;
+    }
+    seen.add(message.messageId);
+    return true;
+  });
 };
 
 /** GET /api/chat/rooms — 채팅방 목록 */
@@ -200,6 +210,14 @@ const applySentMessageToCaches = (
         };
       }
 
+      // 소켓 chat:message 에코가 먼저 반영된 경우 중복 prepend 방지
+      const alreadyExists = current.pages.some((page) =>
+        page.data.messages.some((item) => item.messageId === message.messageId)
+      );
+      if (alreadyExists) {
+        return current;
+      }
+
       const [firstPage, ...restPages] = current.pages;
 
       return {
@@ -266,6 +284,9 @@ export const useMarkChatRoomAsRead = (roomId: number) => {
   return useMutation({
     mutationFn: (body: MarkChatRoomAsReadRequest) =>
       markChatRoomAsRead(roomId, body),
+    // 멱등 API — 일시 실패 시 제한 재시도 (UI effect 재호출에 의존하지 않음)
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 4000),
     onSuccess: async () => {
       updateRoomsListCache(queryClient, (rooms) =>
         rooms.map((room) =>

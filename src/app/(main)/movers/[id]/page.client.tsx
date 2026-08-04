@@ -28,14 +28,8 @@ export const MoverDetailPageClient = () => {
     closeLoginModal,
   } = useFavoriteAction();
 
-  const {
-    mover,
-    isPending,
-    isError,
-    error,
-    isNotFound,
-    refetch,
-  } = useMoverDetail(moverId);
+  const { mover, isPending, isError, error, isNotFound, refetch } =
+    useMoverDetail(moverId);
 
   const handleRetry = () => {
     void refetch();
@@ -47,9 +41,7 @@ export const MoverDetailPageClient = () => {
   if (isNotFound) {
     return (
       <div className="flex w-full flex-col items-center justify-center py-24">
-        <p className="text-lg-medium text-gray-400">
-          기사님을 찾을 수 없어요.
-        </p>
+        <p className="text-lg-medium text-gray-400">기사님을 찾을 수 없어요.</p>
       </div>
     );
   }
@@ -87,7 +79,7 @@ export const MoverDetailPageClient = () => {
       <div
         className={cn(
           'mx-auto flex w-full max-w-[1920px] flex-col gap-0 py-6 md:py-8 xl:flex-row xl:items-start xl:gap-[7.6875rem] xl:py-9',
-          pageXPadding,
+          pageXPadding
         )}
       >
         <div className="flex min-w-0 flex-1 flex-col">
@@ -135,10 +127,7 @@ export const MoverDetailPageClient = () => {
         }
       />
 
-      <LoginRequiredModal
-        open={isLoginModalOpen}
-        onClose={closeLoginModal}
-      />
+      <LoginRequiredModal open={isLoginModalOpen} onClose={closeLoginModal} />
     </div>
   );
 };

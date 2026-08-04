@@ -94,7 +94,6 @@
 
   /* Layout — 채팅 목록/상세 */
   --max-width-chat: 43rem;
-  --min-height-chat-room: 50vh;
 
   /* Layout — GNB 채팅 미리보기 드롭다운 */
   --width-chat-preview: 22.4375rem;
@@ -231,7 +230,7 @@ body {
   @apply mx-auto flex w-full max-w-chat flex-col px-6 py-10;
 }
 
-/** 채팅방(상세) 공통 래퍼 */
+/** 채팅방(상세) 공통 래퍼 — main flex-1 높이를 채워 메시지 영역 스크롤 */
 @utility chat-room-content {
-  @apply mx-auto flex min-h-chat-room w-full max-w-chat flex-col;
+  @apply mx-auto flex min-h-0 w-full max-w-chat flex-1 flex-col;
 }

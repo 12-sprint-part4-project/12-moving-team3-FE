@@ -7,10 +7,11 @@ import LikeActiveIcon from '@/assets/icons/like-active.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
 import StarIcon from '@/assets/icons/star.svg';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
+import { ReportAction } from '@/components/reports';
 
 import { cn } from '@/lib/utils';
 import { API_MOVE_TYPE_TO_UI } from '@/types/estimateRequest';
-import type { MoverCardModel } from '@/types/mover';
+import type { ApiMoveType, MoverCardModel } from '@/types/mover';
 
 export type MoverCardSize = 'lg' | 'sm';
 export type MoverCardVariant = 'default' | 'favorite';
@@ -75,20 +76,29 @@ export const MoverCard = ({
         className
       )}
     >
-      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-        {mover.services.length > 0 ? (
-          mover.services.map((service) => (
-            <MoveTypeChip
-              key={service}
-              type={API_MOVE_TYPE_TO_UI[service]}
-              size="sm"
-            />
-          ))
-        ) : (
-          <span className="text-md-medium text-gray-300">서비스 미등록</span>
-        )}
-        {mover.isDesignated ? (
-          <MoveTypeChip type="designated" size="sm" />
+      <div className={cn('flex justify-between')}>
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          {mover.services.length > 0 ? (
+            mover.services.map((service: ApiMoveType) => (
+              <MoveTypeChip
+                key={service}
+                type={API_MOVE_TYPE_TO_UI[service]}
+                size="sm"
+              />
+            ))
+          ) : (
+            <span className="text-md-medium text-gray-300">서비스 미등록</span>
+          )}
+          {mover.isDesignated ? (
+            <MoveTypeChip type="designated" size="sm" />
+          ) : null}
+        </div>
+        {!isCompact ? (
+          <ReportAction
+            target="USER"
+            targetId={mover.moverId}
+            className="relative z-10"
+          />
         ) : null}
       </div>
 
