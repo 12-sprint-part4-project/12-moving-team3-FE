@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fn } from 'storybook/test';
 
+import { withQueryClient } from '@/storybook/withQueryClient';
 import { Gnb2Depth } from './Gnb2Depth';
 
 const meta: Meta<typeof Gnb2Depth> = {
@@ -11,23 +11,7 @@ const meta: Meta<typeof Gnb2Depth> = {
   parameters: {
     layout: 'fullscreen',
   },
-  decorators: [
-    (Story) => {
-      // ChatGnbButton → useChatUnreadCount 가 QueryClient를 필요로 함
-      const queryClient = new QueryClient({
-        defaultOptions: {
-          queries: { retry: false },
-          mutations: { retry: false },
-        },
-      });
-
-      return (
-        <QueryClientProvider client={queryClient}>
-          <Story />
-        </QueryClientProvider>
-      );
-    },
-  ],
+  decorators: [withQueryClient],
   argTypes: {
     size: {
       control: 'select',
