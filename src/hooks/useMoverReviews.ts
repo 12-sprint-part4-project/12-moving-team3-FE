@@ -28,9 +28,10 @@ export const useMoverReviews = (
   });
 
   const pagination = query.data?.meta.pagination;
-  const totalPages = pagination
-    ? Math.max(1, Math.ceil(pagination.totalCount / pagination.pageSize))
-    : 1;
+  const totalPages =
+    pagination && pagination.pageSize > 0
+      ? Math.max(1, Math.ceil(pagination.totalCount / pagination.pageSize))
+      : 1;
 
   return {
     ...query,
