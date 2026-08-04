@@ -33,8 +33,34 @@ import type {
 } from '@/types/customerQuote';
 import type { ApiMoveType } from '@/types/estimateRequest';
 import { API_MOVE_TYPE_TO_UI, MOVE_TYPE_LABELS } from '@/types/estimateRequest';
+import type { ZodType } from 'zod';
 
 const CUSTOMER_QUOTES_BASE = `${API_BASE_URL}/api/users/customers/quotes`;
+
+/** authFetch + 상태 처리 + JSON 파싱 + zod 검증 공통 흐름 */
+const requestCustomerQuoteJson = async <T>(
+  url: string,
+  init: RequestInit,
+  schema: ZodType<T>
+): Promise<T> => {
+  const response = await authFetch(url, {
+    cache: 'no-store',
+    ...init,
+  });
+
+  if (!response.ok) {
+    return throwApiError(response);
+  }
+
+  const body: unknown = await response.json().catch(() => null);
+  const parsed = schema.safeParse(body);
+
+  if (!parsed.success) {
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
+  }
+
+  return parsed.data;
+};
 
 interface PendingRequestContext {
   serviceType: ApiMoveType | null;
@@ -157,25 +183,12 @@ export const toCustomerQuoteDetailViewModel = (
  * GET /api/users/customers/quotes
  */
 export const getCustomerPendingQuotes =
-  async (): Promise<CustomerPendingQuotesResponse> => {
-    const response = await authFetch(CUSTOMER_QUOTES_BASE, {
-      method: 'GET',
-      cache: 'no-store',
-    });
-
-    if (!response.ok) {
-      return throwApiError(response);
-    }
-
-    const body: unknown = await response.json().catch(() => null);
-    const parsed = customerPendingQuotesResponseSchema.safeParse(body);
-
-    if (!parsed.success) {
-      throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
-    }
-
-    return parsed.data;
-  };
+  async (): Promise<CustomerPendingQuotesResponse> =>
+    requestCustomerQuoteJson(
+      CUSTOMER_QUOTES_BASE,
+      { method: 'GET' },
+      customerPendingQuotesResponseSchema
+    );
 
 /**
  * 고객 견적 상세 조회.
@@ -183,25 +196,12 @@ export const getCustomerPendingQuotes =
  */
 export const getCustomerQuoteDetail = async (
   quoteId: number
-): Promise<CustomerQuoteDetailResponse> => {
-  const response = await authFetch(`${CUSTOMER_QUOTES_BASE}/${quoteId}`, {
-    method: 'GET',
-    cache: 'no-store',
-  });
-
-  if (!response.ok) {
-    return throwApiError(response);
-  }
-
-  const body: unknown = await response.json().catch(() => null);
-  const parsed = customerQuoteDetailResponseSchema.safeParse(body);
-
-  if (!parsed.success) {
-    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
-  }
-
-  return parsed.data;
-};
+): Promise<CustomerQuoteDetailResponse> =>
+  requestCustomerQuoteJson(
+    `${CUSTOMER_QUOTES_BASE}/${quoteId}`,
+    { method: 'GET' },
+    customerQuoteDetailResponseSchema
+  );
 
 /**
  * 견적 확정하기.
@@ -209,22 +209,9 @@ export const getCustomerQuoteDetail = async (
  */
 export const confirmCustomerQuote = async (
   quoteId: number
-): Promise<ConfirmCustomerQuoteResponse> => {
-  const response = await authFetch(`${CUSTOMER_QUOTES_BASE}/${quoteId}`, {
-    method: 'PATCH',
-    cache: 'no-store',
-  });
-
-  if (!response.ok) {
-    return throwApiError(response);
-  }
-
-  const body: unknown = await response.json().catch(() => null);
-  const parsed = confirmCustomerQuoteResponseSchema.safeParse(body);
-
-  if (!parsed.success) {
-    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
-  }
-
-  return parsed.data;
-};
+): Promise<ConfirmCustomerQuoteResponse> =>
+  requestCustomerQuoteJson(
+    `${CUSTOMER_QUOTES_BASE}/${quoteId}`,
+    { method: 'PATCH' },
+    confirmCustomerQuoteResponseSchema
+  );
