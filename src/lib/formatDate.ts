@@ -135,6 +135,24 @@ export const formatMoveDateLabel = (value: string | null): string => {
   return toDateLabel(parts.year, parts.month, parts.day, parts.weekdayIndex);
 };
 
+/**
+ * 채팅 메시지 시각 (로컬 타임존)
+ * 예: 2026-08-04T14:10:00.000Z → 오후 2:10
+ */
+export const formatChatMessageTime = (value: string): string => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const hours24 = date.getHours();
+  const minutes = pad2(date.getMinutes());
+  const period = hours24 < 12 ? '오전' : '오후';
+  const hours12 = hours24 % 12 === 0 ? 12 : hours24 % 12;
+
+  return `${period} ${hours12}:${minutes}`;
+};
+
 /** 상대 시간 표시 문자열 포맷 (예: 3분 전, 어제, 2일 전) */
 export const formatRelativeTime = (value: string): string => {
   const date = new Date(value);
