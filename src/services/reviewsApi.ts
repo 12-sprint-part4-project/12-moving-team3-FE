@@ -102,6 +102,26 @@ export const deleteReview = async (reviewId: number): Promise<void> => {
   );
 };
 
+const isPaginationMeta = (value: unknown): boolean => {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const pagination = value as {
+    currentPage?: unknown;
+    pageSize?: unknown;
+    totalCount?: unknown;
+    hasNextPage?: unknown;
+  };
+
+  return (
+    typeof pagination.currentPage === 'number' &&
+    typeof pagination.pageSize === 'number' &&
+    typeof pagination.totalCount === 'number' &&
+    typeof pagination.hasNextPage === 'boolean'
+  );
+};
+
 const isWritableQuotesResponse = (
   body: unknown
 ): body is WritableQuotesResponse => {
@@ -126,27 +146,7 @@ const isWritableQuotesResponse = (
     return false;
   }
 
-  const writableMeta = meta as { pagination?: unknown };
-  if (
-    !writableMeta.pagination ||
-    typeof writableMeta.pagination !== 'object'
-  ) {
-    return false;
-  }
-
-  const pagination = writableMeta.pagination as {
-    currentPage?: unknown;
-    pageSize?: unknown;
-    totalCount?: unknown;
-    hasNextPage?: unknown;
-  };
-
-  return (
-    typeof pagination.currentPage === 'number' &&
-    typeof pagination.pageSize === 'number' &&
-    typeof pagination.totalCount === 'number' &&
-    typeof pagination.hasNextPage === 'boolean'
-  );
+  return isPaginationMeta((meta as { pagination?: unknown }).pagination);
 };
 
 /**
@@ -201,27 +201,7 @@ const isCustomerReviewsResponse = (
     return false;
   }
 
-  const customerMeta = meta as { pagination?: unknown };
-  if (
-    !customerMeta.pagination ||
-    typeof customerMeta.pagination !== 'object'
-  ) {
-    return false;
-  }
-
-  const pagination = customerMeta.pagination as {
-    currentPage?: unknown;
-    pageSize?: unknown;
-    totalCount?: unknown;
-    hasNextPage?: unknown;
-  };
-
-  return (
-    typeof pagination.currentPage === 'number' &&
-    typeof pagination.pageSize === 'number' &&
-    typeof pagination.totalCount === 'number' &&
-    typeof pagination.hasNextPage === 'boolean'
-  );
+  return isPaginationMeta((meta as { pagination?: unknown }).pagination);
 };
 
 /**
@@ -281,27 +261,10 @@ const isMoverReviewsWithStatsResponse = (
     ratingStatistics?: unknown;
   };
 
-  if (
-    !reviewsMeta.pagination ||
-    typeof reviewsMeta.pagination !== 'object' ||
-    !reviewsMeta.ratingStatistics ||
-    typeof reviewsMeta.ratingStatistics !== 'object'
-  ) {
-    return false;
-  }
-
-  const pagination = reviewsMeta.pagination as {
-    currentPage?: unknown;
-    pageSize?: unknown;
-    totalCount?: unknown;
-    hasNextPage?: unknown;
-  };
-
   return (
-    typeof pagination.currentPage === 'number' &&
-    typeof pagination.pageSize === 'number' &&
-    typeof pagination.totalCount === 'number' &&
-    typeof pagination.hasNextPage === 'boolean'
+    isPaginationMeta(reviewsMeta.pagination) &&
+    Boolean(reviewsMeta.ratingStatistics) &&
+    typeof reviewsMeta.ratingStatistics === 'object'
   );
 };
 
