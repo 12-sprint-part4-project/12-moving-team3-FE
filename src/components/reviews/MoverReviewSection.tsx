@@ -48,8 +48,13 @@ export const MoverReviewSection = ({
   onRetry,
   className,
 }: MoverReviewSectionProps) => {
-  const isInitialLoading = isPending && !ratingStatistics && reviews.length === 0;
-  const isEmpty = !isPending && !isError && totalCount === 0;
+  const isInitialLoading =
+    isPending && !ratingStatistics && reviews.length === 0;
+  const hasLoadedData =
+    Boolean(ratingStatistics) || reviews.length > 0;
+  /** 이전 데이터가 없을 때만 에러 UI가 본문 전체를 대체한다 */
+  const isInitialError = isError && !hasLoadedData;
+  const isEmpty = !isPending && totalCount === 0;
   const statistics = ratingStatistics ?? EMPTY_RATING_STATISTICS;
 
   return (
@@ -62,7 +67,7 @@ export const MoverReviewSection = ({
         <Spinner message="리뷰를 불러오는 중..." />
       ) : null}
 
-      {isError ? (
+      {isInitialError ? (
         <div className="flex flex-col items-start gap-3 py-6">
           <p className="text-md-medium text-gray-400">
             리뷰를 불러오지 못했습니다.
@@ -79,8 +84,25 @@ export const MoverReviewSection = ({
         </div>
       ) : null}
 
-      {!isError && !isInitialLoading ? (
+      {!isInitialLoading && !isInitialError ? (
         <div className="flex flex-col gap-10">
+          {isError ? (
+            <div className="flex flex-col items-start gap-3">
+              <p className="text-md-medium text-gray-400">
+                리뷰를 불러오지 못했습니다.
+              </p>
+              {onRetry ? (
+                <button
+                  type="button"
+                  onClick={onRetry}
+                  className="text-md-semibold text-blue-300 underline"
+                >
+                  다시 시도
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+
           <ReviewRatingChart statistics={statistics} />
 
           {isEmpty ? (
