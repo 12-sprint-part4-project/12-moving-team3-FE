@@ -1,0 +1,34 @@
+'use client';
+
+import { cn } from '@/lib/utils';
+
+export interface ReportButtonProps {
+  onClick: () => void;
+  disabled?: boolean;
+  className?: string;
+}
+
+/**
+ * 신고 트리거 버튼 (이모지 + 「신고」).
+ * 아이콘 SVG는 추후 교체 예정.
+ */
+export const ReportButton = ({
+  onClick,
+  disabled = false,
+  className = '',
+}: ReportButtonProps) => (
+  <button
+    type="button"
+    disabled={disabled}
+    onClick={onClick}
+    className={cn(
+      'inline-flex cursor-pointer items-center gap-1 text-md-medium text-gray-400 transition-colors hover:text-black-300 disabled:cursor-not-allowed disabled:opacity-50',
+      className
+    )}
+  >
+    <span aria-hidden className="text-base leading-none">
+      🚨
+    </span>
+    <span>신고</span>
+  </button>
+);
