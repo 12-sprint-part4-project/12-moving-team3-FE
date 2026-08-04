@@ -28,8 +28,7 @@ export const ChatPreviewDropdown = ({
       role="dialog"
       aria-label="채팅 미리보기"
       className={cn(
-        // 알림/프로필 GNB 드롭다운과 동일: Figma rem 폭 + shadow-shadow-gray 토큰
-        'flex w-[22.4375rem] flex-col items-stretch rounded-3xl border border-line-200 bg-white px-4 py-2.5 shadow-[0.125rem_0.125rem_0.25rem] shadow-shadow-gray-200/20',
+        'flex w-chat-preview max-w-[100vw] flex-col items-stretch rounded-3xl border border-line-200 bg-white px-4 py-2.5 shadow-[0.125rem_0.125rem_0.25rem] shadow-shadow-gray-200/20',
         className
       )}
     >

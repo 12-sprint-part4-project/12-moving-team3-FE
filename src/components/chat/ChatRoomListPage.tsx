@@ -21,12 +21,7 @@ export const ChatRoomListPage = ({ className }: ChatRoomListPageProps) => {
 
   if (!user) {
     return (
-      <div
-        className={cn(
-          'mx-auto flex w-full max-w-[43rem] flex-col px-6 py-10',
-          className
-        )}
-      >
+      <div className={cn('chat-content', className)}>
         <h1 className="text-2xl-bold text-black-400">채팅</h1>
         <p className="mt-8 text-center text-lg-medium text-gray-300">
           로그인 후 채팅을 이용할 수 있어요
@@ -36,12 +31,7 @@ export const ChatRoomListPage = ({ className }: ChatRoomListPageProps) => {
   }
 
   return (
-    <div
-      className={cn(
-        'mx-auto flex w-full max-w-[43rem] flex-col px-6 py-10',
-        className
-      )}
-    >
+    <div className={cn('chat-content', className)}>
       <h1 className="text-2xl-bold text-black-400">채팅</h1>
 
       <div className="mt-6 flex flex-col overflow-hidden rounded-3xl border border-line-200 bg-white">
