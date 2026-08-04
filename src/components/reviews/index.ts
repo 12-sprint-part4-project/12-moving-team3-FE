@@ -10,6 +10,8 @@ export { WrittenReviewCard } from './WrittenReviewCard';
 export type { WrittenReviewCardProps } from './WrittenReviewCard';
 export { WriteReviewModal } from './WriteReviewModal';
 export type { WriteReviewModalProps } from './WriteReviewModal';
+export { ReviewMoverSummaryCard } from './ReviewMoverSummaryCard';
+export type { ReviewMoverSummaryCardProps } from './ReviewMoverSummaryCard';
 export { ReviewDetailModal } from './ReviewDetailModal';
 export type { ReviewDetailModalProps } from './ReviewDetailModal';
 export { EditReviewModal } from './EditReviewModal';
