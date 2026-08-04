@@ -50,7 +50,7 @@ export const formatShortDateLabel = (value: string | null): string => {
 };
 
 /**
- * 견적 신청일 등 한국어 긴 날짜 라벨 (로컬 타임존)
+ * 견적 신청일 등 한국어 긴 날짜 라벨 (Asia/Seoul 캘린더 일자)
  * 예: 2024-06-24T00:00:00.000Z → 2024년 6월 24일
  */
 export const formatKoreanDateLabel = (value: string | null): string => {
@@ -63,7 +63,43 @@ export const formatKoreanDateLabel = (value: string | null): string => {
     return '-';
   }
 
-  return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  }).formatToParts(date);
+
+  const year = parts.find((part) => part.type === 'year')?.value;
+  const month = parts.find((part) => part.type === 'month')?.value;
+  const day = parts.find((part) => part.type === 'day')?.value;
+  if (!year || !month || !day) {
+    return '-';
+  }
+
+  return `${year}년 ${month}월 ${day}일`;
+};
+
+/** date-only(YYYY-MM-DD…) 파싱. 타임존 변환 없이 로컬 캘린더 일자로 검증 */
+const parseDateOnlyParts = (
+  value: string | null
+): { year: number; month: number; day: number; weekdayIndex: number } | null => {
+  if (!value) {
+    return null;
+  }
+
+  const datePart = value.slice(0, 10);
+  const [year, month, day] = datePart.split('-').map(Number);
+  if (!year || !month || !day) {
+    return null;
+  }
+
+  const date = new Date(year, month - 1, day);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return { year, month, day, weekdayIndex: date.getDay() };
 };
 
 /**
@@ -71,22 +107,13 @@ export const formatKoreanDateLabel = (value: string | null): string => {
  * 예: 2024-07-01 → 2024년 07월 01일 (월)
  */
 export const formatKoreanMoveDateLabel = (value: string | null): string => {
-  if (!value) {
+  const parts = parseDateOnlyParts(value);
+  if (!parts) {
     return '-';
   }
 
-  const datePart = value.slice(0, 10);
-  const [year, month, day] = datePart.split('-').map(Number);
-  if (!year || !month || !day) {
-    return '-';
-  }
-
-  const date = new Date(year, month - 1, day);
-  if (Number.isNaN(date.getTime())) {
-    return '-';
-  }
-
-  const weekday = WEEKDAY_LABELS[date.getDay()];
+  const { year, month, day, weekdayIndex } = parts;
+  const weekday = WEEKDAY_LABELS[weekdayIndex];
   return `${year}년 ${pad2(month)}월 ${pad2(day)}일 (${weekday})`;
 };
 
@@ -95,22 +122,12 @@ export const formatKoreanMoveDateLabel = (value: string | null): string => {
  * YYYY-MM-DD 캘린더 날짜는 타임존 변환하지 않음 (일자 밀림 방지)
  */
 export const formatMoveDateLabel = (value: string | null): string => {
-  if (!value) {
+  const parts = parseDateOnlyParts(value);
+  if (!parts) {
     return '-';
   }
 
-  const datePart = value.slice(0, 10);
-  const [year, month, day] = datePart.split('-').map(Number);
-  if (!year || !month || !day) {
-    return '-';
-  }
-
-  const date = new Date(year, month - 1, day);
-  if (Number.isNaN(date.getTime())) {
-    return '-';
-  }
-
-  return toDateLabel(year, month, day, date.getDay());
+  return toDateLabel(parts.year, parts.month, parts.day, parts.weekdayIndex);
 };
 
 /** 상대 시간 표시 문자열 포맷 (예: 3분 전, 2일 전) */
