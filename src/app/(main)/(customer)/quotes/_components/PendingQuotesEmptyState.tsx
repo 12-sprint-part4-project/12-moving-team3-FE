@@ -1,9 +1,7 @@
-'use client';
-
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
-import { Button } from '@/components/Button/Button';
+import { getButtonClassName } from '@/components/Button/Button';
 import { cn } from '@/lib/utils';
 
 export type PendingQuotesEmptyVariant =
@@ -36,7 +34,6 @@ export const PendingQuotesEmptyState = ({
   variant,
   className = '',
 }: PendingQuotesEmptyStateProps) => {
-  const router = useRouter();
   const copy = EMPTY_COPY[variant];
 
   return (
@@ -52,7 +49,7 @@ export const PendingQuotesEmptyState = ({
         alt=""
         width={184}
         height={136}
-        className="h-[8.5rem] w-[11.5rem]"
+        className="h-34 w-46"
       />
       <div className="flex flex-col items-center gap-1">
         {copy.lines.map((line) => (
@@ -65,18 +62,19 @@ export const PendingQuotesEmptyState = ({
         ))}
       </div>
       {copy.actionHref && copy.actionLabel ? (
-        <Button
-          size="sm"
-          variant="solid"
-          className="max-w-[12rem]"
-          onClick={() => {
-            if (copy.actionHref) {
-              router.push(copy.actionHref);
-            }
-          }}
+        <Link
+          href={copy.actionHref}
+          className={getButtonClassName({
+            size: 'sm',
+            variant: 'solid',
+            className: cn(
+              'max-w-[12rem]',
+              'focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:outline-none'
+            ),
+          })}
         >
           {copy.actionLabel}
-        </Button>
+        </Link>
       ) : null}
     </div>
   );

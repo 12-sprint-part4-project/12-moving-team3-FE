@@ -18,7 +18,7 @@ export const MoverQuoteProfile = ({
 }: MoverQuoteProfileProps) => (
   <div
     className={cn(
-      'flex w-full items-start gap-3 rounded-md border border-line-100 bg-white px-3.5 py-4 shadow-request-card-body lg:gap-6 lg:px-[1.125rem] lg:py-4',
+      'flex w-full items-start gap-3 rounded-md border border-line-100 bg-white px-3.5 py-4 shadow-request-card-body lg:gap-6 lg:px-4.5 lg:py-4',
       className
     )}
   >
@@ -44,6 +44,7 @@ export const MoverQuoteProfile = ({
         </h3>
         <div
           className="flex shrink-0 items-center gap-1"
+          role="img"
           aria-label={`찜 ${mover.favoriteCountLabel}`}
         >
           <LikeActiveIcon
@@ -53,7 +54,10 @@ export const MoverQuoteProfile = ({
             )}
             aria-hidden
           />
-          <span className="text-lg-medium text-blue-400 lg:text-2lg-medium">
+          <span
+            aria-hidden
+            className="text-lg-medium text-blue-400 lg:text-2lg-medium"
+          >
             {mover.favoriteCountLabel}
           </span>
         </div>

@@ -1,14 +1,15 @@
 'use client';
 
-import { Button } from '@/components/Button/Button';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { ModalBasic } from '@/components/ui/Modal/ModalBasic';
+import { ModalCtaButton } from '@/components/ui/Modal/ModalCtaButton';
 
 export interface ConfirmQuoteModalProps {
   open: boolean;
   isConfirming?: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  className?: string;
 }
 
 /**
@@ -19,6 +20,7 @@ export const ConfirmQuoteModal = ({
   isConfirming = false,
   onClose,
   onConfirm,
+  className = '',
 }: ConfirmQuoteModalProps) => {
   if (!open) {
     return null;
@@ -38,33 +40,15 @@ export const ConfirmQuoteModal = ({
         title="견적 확정하기"
         onClose={handleClose}
         closeDisabled={isConfirming}
+        className={className}
         footer={
-          <div className="flex w-full flex-col gap-2 sm:flex-row sm:gap-3">
-            <Button
-              type="button"
-              variant="outlined"
-              size="sm"
-              disabled={isConfirming}
-              onClick={handleClose}
-              className="sm:flex-1"
-            >
-              취소
-            </Button>
-            <Button
-              type="button"
-              variant="solid"
-              size="sm"
-              disabled={isConfirming}
-              onClick={onConfirm}
-              className="sm:flex-1"
-            >
-              {isConfirming ? '확정 중...' : '견적 확정하기'}
-            </Button>
-          </div>
+          <ModalCtaButton disabled={isConfirming} onClick={onConfirm}>
+            {isConfirming ? '확정 중...' : '견적 확정하기'}
+          </ModalCtaButton>
         }
       >
         <p className="text-2lg-medium text-black-300">
-          견적 확정을 진행하시겠습니까?
+          정말 견적 확정을 진행하시겠습니까?
         </p>
       </ModalBasic>
     </Modal>

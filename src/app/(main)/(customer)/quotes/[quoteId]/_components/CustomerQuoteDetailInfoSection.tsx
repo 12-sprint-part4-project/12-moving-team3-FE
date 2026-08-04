@@ -1,7 +1,9 @@
+import { cn } from '@/lib/utils';
 import type { CustomerQuoteDetailViewModel } from '@/types/customerQuote';
 
 export interface CustomerQuoteDetailInfoSectionProps {
   detail: CustomerQuoteDetailViewModel;
+  className?: string;
 }
 
 interface InfoRow {
@@ -21,11 +23,14 @@ const buildInfoRows = (detail: CustomerQuoteDetailViewModel): InfoRow[] => [
 /** 고객 견적 상세 정보 섹션 */
 export const CustomerQuoteDetailInfoSection = ({
   detail,
+  className = '',
 }: CustomerQuoteDetailInfoSectionProps) => {
   const rows = buildInfoRows(detail);
 
   return (
-    <section className="flex w-full flex-col gap-5 lg:gap-10">
+    <section
+      className={cn('flex w-full flex-col gap-5 lg:gap-10', className)}
+    >
       <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
         견적 정보
       </h2>

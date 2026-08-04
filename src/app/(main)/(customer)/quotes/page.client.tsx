@@ -23,7 +23,7 @@ const TABS: { id: QuotesTabId; label: string }[] = [
 ];
 
 const PAGE_X_PADDING =
-  'px-6 md:px-[4.5rem] lg:px-10 xl:px-16 min-[90rem]:px-[16.25rem]';
+  'px-6 md:px-18 lg:px-10 xl:px-16 min-[90rem]:px-65';
 
 const CONTENT_CLASS = `mx-auto w-full max-w-[1920px] py-6 md:py-8 lg:py-10 ${PAGE_X_PADDING}`;
 

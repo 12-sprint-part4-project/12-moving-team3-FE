@@ -53,7 +53,7 @@ export const PendingQuoteCard = ({
   return (
     <article
       className={cn(
-        'flex w-full flex-col gap-2 rounded-2xl border border-line-100 bg-white px-3 pt-5 pb-3.5 shadow-request-card lg:gap-6 lg:px-6 lg:pt-7 lg:pb-[1.375rem]',
+        'flex w-full flex-col gap-2 rounded-2xl border border-line-100 bg-white px-3 pt-5 pb-3.5 shadow-request-card lg:gap-6 lg:px-6 lg:pt-7 lg:pb-5.5',
         className
       )}
     >
