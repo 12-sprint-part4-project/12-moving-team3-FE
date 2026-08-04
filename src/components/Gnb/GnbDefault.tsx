@@ -36,6 +36,8 @@ export interface GnbDefaultProps {
   activeTabId?: string;
   tabs?: GnbTabItem[];
   navItems?: GnbNavItem[];
+  /** 프로필 드롭다운 메뉴. 미지정 시 고객용 기본값 */
+  profileMenuItems?: GnbNavItem[];
   homeHref?: string;
   nameSuffix?: string;
   onTabChange?: (tabId: string) => void;
@@ -128,6 +130,7 @@ interface GnbHeaderProps {
   avatarSrc?: string | null;
   homeHref: string;
   navItems: GnbNavItem[];
+  profileMenuItems?: GnbNavItem[];
   onAlarmClick?: () => void;
   onProfileClick?: () => void;
   onMenuClick?: () => void;
@@ -142,6 +145,7 @@ const GnbHeader = ({
   avatarSrc,
   homeHref,
   navItems,
+  profileMenuItems,
   onAlarmClick,
   onProfileClick,
   onMenuClick,
@@ -262,6 +266,7 @@ const GnbHeader = ({
                   size={dropdownSize}
                   userName={userName}
                   nameSuffix={nameSuffix}
+                  menuItems={profileMenuItems}
                   onLogout={handleLogout}
                 />
               </div>
@@ -295,6 +300,7 @@ export const GnbDefault = ({
   activeTabId = 'pending',
   tabs = DEFAULT_TABS,
   navItems,
+  profileMenuItems,
   homeHref = '/',
   onTabChange,
   onAlarmClick,
@@ -334,6 +340,7 @@ export const GnbDefault = ({
           avatarSrc={avatarSrc}
           homeHref={homeHref}
           navItems={resolvedNavItems}
+          profileMenuItems={profileMenuItems}
           onAlarmClick={onAlarmClick}
           onProfileClick={onProfileClick}
           onMenuClick={onMenuClick}
@@ -359,6 +366,7 @@ export const GnbDefault = ({
         avatarSrc={avatarSrc}
         homeHref={homeHref}
         navItems={resolvedNavItems}
+        profileMenuItems={profileMenuItems}
         onAlarmClick={onAlarmClick}
         onProfileClick={onProfileClick}
         onMenuClick={onMenuClick}

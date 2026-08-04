@@ -55,6 +55,8 @@ export interface MoverProfileMe {
   description: string | null;
   service: MoverServiceType[];
   serviceRegions: MoverRegion[];
+  /** 확정 견적(CONFIRMED) 건수 — BE 미포함 시 없을 수 있음 */
+  confirmedCount?: number;
   createdAt: string;
   updatedAt: string;
 }
