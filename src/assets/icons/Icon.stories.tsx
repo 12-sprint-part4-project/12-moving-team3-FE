@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import AlarmIcon from './alarm.svg';
 import ArrowRightIcon from './arrow-right.svg';
 import BoxFillIcon from './box-fill.svg';
+import ChatIcon from './chat.svg';
 import CheckIcon from './check.svg';
 import ChevronDownIcon from './chevron-down.svg';
 import ChevronLeftIcon from './chevron-left.svg';
@@ -45,6 +46,7 @@ import VisibilityOnIcon from './visibility-on.svg';
 const MONO_ICONS = [
   ['star', StarIcon],
   ['alarm', AlarmIcon],
+  ['chat', ChatIcon],
   ['chevron-up', ChevronUpIcon],
   ['chevron-down', ChevronDownIcon],
   ['chevron-left', ChevronLeftIcon],

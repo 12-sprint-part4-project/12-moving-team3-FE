@@ -135,7 +135,7 @@ export const formatMoveDateLabel = (value: string | null): string => {
   return toDateLabel(parts.year, parts.month, parts.day, parts.weekdayIndex);
 };
 
-/** 상대 시간 표시 문자열 포맷 (예: 3분 전, 2일 전) */
+/** 상대 시간 표시 문자열 포맷 (예: 3분 전, 어제, 2일 전) */
 export const formatRelativeTime = (value: string): string => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
@@ -158,6 +158,9 @@ export const formatRelativeTime = (value: string): string => {
   }
 
   const diffDays = Math.floor(diffHours / 24);
+  if (diffDays === 1) {
+    return '어제';
+  }
   if (diffDays < 7) {
     return `${diffDays}일 전`;
   }
