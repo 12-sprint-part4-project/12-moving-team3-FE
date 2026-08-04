@@ -12,10 +12,8 @@ export interface SentQuoteCardProps {
   className?: string;
 }
 
-/** Figma Card-list/이사완료 오버레이 문구 */
-const CLOSED_OVERLAY_MESSAGE: Partial<
-  Record<EstimateRequestStatus, string>
-> = {
+/** 견적 카드 종료 오버레이 문구 */
+const CLOSED_OVERLAY_MESSAGE: Partial<Record<EstimateRequestStatus, string>> = {
   COMPLETED: '이사 완료된 견적이에요',
   EXPIRED: '만료된 견적이에요',
   CANCELED: '취소된 견적이에요',
@@ -76,9 +74,7 @@ export const SentQuoteCard = ({
       )}
     >
       {isClosedCard ? (
-        <div className="flex w-full flex-col gap-6.5 lg:gap-4">
-          {cardBody}
-        </div>
+        <div className="flex w-full flex-col gap-6.5 lg:gap-4">{cardBody}</div>
       ) : (
         <Link
           href={detailHref}

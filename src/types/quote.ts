@@ -68,7 +68,6 @@ export interface SentQuoteListItem extends QuoteListItemBase {
   isConfirmed: boolean;
   price: number | null;
   estimateRequestStatus: EstimateRequestStatus;
-  /** 완료·만료·취소 시 카드 종료 오버레이 표시 */
   isMoveCompleted: boolean;
 }
 
@@ -103,7 +102,6 @@ export interface SentQuoteCardModel {
   arrival: string;
   priceLabel: string;
   estimateRequestStatus: EstimateRequestStatus;
-  /** 완료·만료·취소 시 카드 종료 오버레이 표시 */
   isMoveCompleted: boolean;
 }
 

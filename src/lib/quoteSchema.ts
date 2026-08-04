@@ -5,7 +5,7 @@ import { moveTypeSchema } from '@/lib/customerEstimateRequestSchema';
 /** 견적 상태 */
 export const quoteStatusSchema = z.enum(['PENDING', 'CONFIRMED', 'REJECTED']);
 
-/** 견적 요청 상태 (보낸 견적 카드 종료 오버레이 분기) */
+/** 견적 요청 상태 */
 export const estimateRequestStatusForQuoteSchema = z.enum([
   'DRAFT',
   'SUBMITTED',
