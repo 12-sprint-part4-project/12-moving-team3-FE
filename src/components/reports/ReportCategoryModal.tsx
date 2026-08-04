@@ -6,10 +6,7 @@ import { ModalCtaButton } from '@/components/ui/Modal/ModalCtaButton';
 import { ModalBasic } from '@/components/ui/Modal/ModalBasic';
 import { MODAL_PANEL_BOTTOM_SHEET_CLASS } from '@/components/ui/Modal/modalPanel';
 import { cn } from '@/lib/utils';
-import {
-  REPORT_CATEGORY_OPTIONS,
-  type ReportCategory,
-} from '@/types/report';
+import { REPORT_CATEGORY_OPTIONS, type ReportCategory } from '@/types/report';
 
 export interface ReportCategoryModalProps {
   onClose: () => void;
@@ -48,6 +45,8 @@ export const ReportCategoryModal = ({
     <ModalBasic
       title="신고하기"
       onClose={handleClose}
+      titleAlign="center"
+      titleClassName="text-black-500 sm:text-2xl-bold"
       className={cn(MODAL_PANEL_BOTTOM_SHEET_CLASS, className)}
       footer={
         <ModalCtaButton disabled={!canSubmit} onClick={handleSubmit}>
@@ -56,7 +55,7 @@ export const ReportCategoryModal = ({
       }
     >
       <fieldset className="flex w-full flex-col gap-3 sm:gap-4">
-        <legend className="mb-1 text-lg-semibold text-black-300 sm:text-xl-semibold">
+        <legend className="mb-1 pb-4 text-lg-semibold text-black-200 sm:text-2lg-semibold">
           신고 사유를 선택해 주세요
         </legend>
         {REPORT_CATEGORY_OPTIONS.map((option) => {

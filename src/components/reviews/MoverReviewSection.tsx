@@ -50,8 +50,7 @@ export const MoverReviewSection = ({
 }: MoverReviewSectionProps) => {
   const isInitialLoading =
     isPending && !ratingStatistics && reviews.length === 0;
-  const hasLoadedData =
-    Boolean(ratingStatistics) || reviews.length > 0;
+  const hasLoadedData = Boolean(ratingStatistics) || reviews.length > 0;
   /** 이전 데이터가 없을 때만 에러 UI가 본문 전체를 대체한다 */
   const isInitialError = isError && !hasLoadedData;
   const isEmpty = !isPending && totalCount === 0;
@@ -63,9 +62,7 @@ export const MoverReviewSection = ({
         리뷰 ({totalCount})
       </h2>
 
-      {isInitialLoading ? (
-        <Spinner message="리뷰를 불러오는 중..." />
-      ) : null}
+      {isInitialLoading ? <Spinner message="리뷰를 불러오는 중..." /> : null}
 
       {isInitialError ? (
         <div className="flex flex-col items-start gap-3 py-6">
@@ -118,6 +115,7 @@ export const MoverReviewSection = ({
                   createdAt={review.createdAt}
                   rating={review.rating}
                   content={review.content}
+                  reviewId={review.id}
                 />
               ))}
             </div>

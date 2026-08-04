@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import {
   EMPTY_RATING_STATISTICS,
@@ -9,6 +10,8 @@ import {
   SAMPLE_RATING_STATISTICS,
 } from '@/components/reviews/_fixtures/reviewFixtures';
 import { MoverReviewSection } from '@/components/reviews/MoverReviewSection';
+import { AuthProvider } from '@/providers/AuthProvider';
+import { ToastProvider } from '@/providers/ToastProvider';
 import type { MoverPublicReviewItem } from '@/types/review';
 
 const meta: Meta<typeof MoverReviewSection> = {
@@ -18,6 +21,26 @@ const meta: Meta<typeof MoverReviewSection> = {
   parameters: {
     layout: 'padded',
   },
+  decorators: [
+    (Story) => {
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: { retry: false },
+          mutations: { retry: false },
+        },
+      });
+
+      return (
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <ToastProvider>
+              <Story />
+            </ToastProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      );
+    },
+  ],
 };
 export default meta;
 
