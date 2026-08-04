@@ -95,7 +95,12 @@ const parseDateOnlyParts = (
   }
 
   const date = new Date(year, month - 1, day);
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.getFullYear() !== year ||
+    date.getMonth() + 1 !== month ||
+    date.getDate() !== day
+  ) {
     return null;
   }
 
