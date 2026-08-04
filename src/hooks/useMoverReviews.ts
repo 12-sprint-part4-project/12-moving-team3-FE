@@ -1,64 +1,45 @@
-'use client';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 
-import { useQuery } from '@tanstack/react-query';
-
-import { useAuth } from '@/hooks/useAuth';
 import {
-  getMoverReviews,
-  toMoverReviewsViewModel,
-} from '@/services/reviewApi';
-import type { MoverReviewsViewModel } from '@/types/review';
-
-/** 마이페이지 리뷰 목록 기본 페이지 크기 (Figma 카드 5개) */
-const DEFAULT_REVIEWS_LIMIT = 5;
-
-export const moverReviewQueryKeys = {
-  all: ['mover-reviews'] as const,
-  lists: () => [...moverReviewQueryKeys.all, 'list'] as const,
-  list: (userId: string, page: number, limit: number) =>
-    [...moverReviewQueryKeys.lists(), userId, { page, limit }] as const,
-};
-
-export interface UseMoverReviewsParams {
-  page: number;
-  limit?: number;
-  enabled?: boolean;
-}
+  MOVER_REVIEWS_PAGE_SIZE,
+  reviewQueryKeys,
+} from '@/hooks/reviewQueryKeys';
+import { getMoverPublicReviews } from '@/services/reviewsApi';
+import { isMoverId } from '@/types/mover';
 
 /**
- * 기사님 본인 리뷰 목록 + 평점 통계 조회.
- * GET /api/review/mover
+ * 기사님 공개 리뷰 목록 (페이지네이션).
+ * GET /api/movers/:id/reviews
  */
-export const useMoverReviews = ({
-  page,
-  limit = DEFAULT_REVIEWS_LIMIT,
-  enabled = true,
-}: UseMoverReviewsParams) => {
-  const { user } = useAuth();
-  const userId = user?.id;
+export const useMoverReviews = (
+  moverId: string,
+  options?: { limit?: number }
+) => {
+  const limit = options?.limit ?? MOVER_REVIEWS_PAGE_SIZE;
+  const [page, setPage] = useState(1);
+  const enabled = isMoverId(moverId);
 
   const query = useQuery({
-    queryKey: moverReviewQueryKeys.list(userId ?? 'anonymous', page, limit),
-    queryFn: async (): Promise<MoverReviewsViewModel> => {
-      const response = await getMoverReviews({ page, limit });
-      return toMoverReviewsViewModel(response);
-    },
-    enabled: enabled && Boolean(userId),
-    placeholderData: (previousData) => previousData,
+    queryKey: reviewQueryKeys.publicList(moverId, page, limit),
+    queryFn: () => getMoverPublicReviews(moverId, { page, limit }),
+    enabled,
+    placeholderData: keepPreviousData,
   });
 
-  const reviews = query.data?.reviews ?? [];
-  const reviewStats = query.data?.reviewStats;
-  const totalPages = query.data?.totalPages ?? 0;
-  const currentPage = query.data?.currentPage ?? page;
+  const pagination = query.data?.meta.pagination;
+  const totalPages =
+    pagination && pagination.pageSize > 0
+      ? Math.max(1, Math.ceil(pagination.totalCount / pagination.pageSize))
+      : 1;
 
   return {
     ...query,
-    reviews,
-    reviewStats,
-    totalCount: query.data?.totalCount ?? 0,
+    reviews: query.data?.data.reviews ?? [],
+    ratingStatistics: query.data?.meta.ratingStatistics,
+    pagination,
+    page,
     totalPages,
-    currentPage,
-    isEmpty: !query.isPending && !query.isError && reviews.length === 0,
+    setPage,
   };
 };

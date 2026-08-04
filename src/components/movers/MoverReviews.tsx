@@ -1,95 +1,45 @@
 'use client';
 
-import { Pagination } from '@/components/ui/Pagination';
+import { MoverReviewSection } from '@/components/reviews/MoverReviewSection';
+import { useMoverReviews } from '@/hooks/useMoverReviews';
 import { cn } from '@/lib/utils';
-import type { ReviewStats } from '@/types/mover';
-
-import {
-  ReviewListItem,
-  type ReviewListItemData,
-} from './ReviewListItem';
-import { ReviewRatingChart } from './ReviewRatingChart';
 
 export interface MoverReviewsProps {
   moverId: string;
-  reviewStats?: ReviewStats;
-  /** 현재 페이지 리뷰 목록 */
-  reviews?: ReviewListItemData[];
-  page?: number;
-  totalPages?: number;
-  onPageChange?: (page: number) => void;
   className?: string;
 }
 
-const EMPTY_RATING_COUNTS = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } as const;
-
 /**
- * 기사님 리뷰 영역.
- * Figma 리뷰 섹션 — Mobile(1:8552) · Tablet(1:8521) · Desktop(1:8536).
+ * 기사님 상세 공개 리뷰 영역.
+ * GET /api/movers/:id/reviews — 통계·목록·페이지네이션.
  */
-export const MoverReviews = ({
-  moverId: _moverId,
-  reviewStats,
-  reviews = [],
-  page = 1,
-  totalPages = 1,
-  onPageChange,
-  className,
-}: MoverReviewsProps) => {
-  const totalCount = reviewStats?.totalCount ?? 0;
-  const averageRating = reviewStats?.averageRating ?? null;
-  const ratingCounts = reviewStats?.ratingCounts ?? EMPTY_RATING_COUNTS;
-  const showPagination =
-    typeof onPageChange === 'function' && totalPages > 1;
+export const MoverReviews = ({ moverId, className }: MoverReviewsProps) => {
+  const {
+    reviews,
+    ratingStatistics,
+    pagination,
+    page,
+    totalPages,
+    setPage,
+    isPending,
+    isError,
+    refetch,
+  } = useMoverReviews(moverId);
 
   return (
-    <section
-      className={cn('flex w-full flex-col gap-[2.6875rem] lg:gap-10', className)}
-    >
-      <div className="flex w-full flex-col gap-6 lg:gap-8">
-        <h2 className="text-lg-bold text-black-400 lg:text-2xl-bold">
-          리뷰 ({totalCount})
-        </h2>
-
-        {totalCount > 0 ? (
-          <ReviewRatingChart
-            averageRating={averageRating}
-            totalCount={totalCount}
-            ratingCounts={ratingCounts}
-          />
-        ) : (
-          <p className="rounded-[2rem] bg-background-200 px-6 py-10 text-center text-lg-medium text-gray-400 lg:py-12">
-            아직 등록된 리뷰가 없어요.
-          </p>
-        )}
-      </div>
-
-      {reviews.length > 0 ? (
-        <div className="flex w-full flex-col">
-          {reviews.map((review) => (
-            <ReviewListItem key={review.id} review={review} />
-          ))}
-        </div>
-      ) : null}
-
-      {showPagination ? (
-        <div className="flex w-full justify-center pt-2 lg:pt-4">
-          <Pagination
-            size="sm"
-            className="lg:hidden"
-            page={page}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
-          />
-          <Pagination
-            size="lg"
-            className="hidden lg:inline-flex"
-            page={page}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
-          />
-        </div>
-      ) : null}
-    </section>
+    <MoverReviewSection
+      className={cn(className)}
+      reviews={reviews}
+      ratingStatistics={ratingStatistics}
+      totalCount={pagination?.totalCount ?? 0}
+      page={page}
+      totalPages={totalPages}
+      onPageChange={setPage}
+      isPending={isPending}
+      isError={isError}
+      onRetry={() => {
+        void refetch();
+      }}
+    />
   );
 };

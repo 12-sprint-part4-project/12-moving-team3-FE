@@ -2,33 +2,33 @@
 
 import { useId, useState } from 'react';
 
-import ProfileIcon from '@/assets/icons/profile.svg';
+import { ReviewMoverSummaryCard } from '@/components/reviews/ReviewMoverSummaryCard';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
-import { InfoField } from '@/components/ui/InfoField/InfoField';
 import { TextArea } from '@/components/ui/Input/TextArea';
-import { StarRating } from '@/components/ui/StarRating/StarRating';
-
-import { cn } from '@/lib/utils';
-
-import { ModalCtaButton } from './ModalCtaButton';
-import { ModalHeader } from './ModalHeader';
+import { ModalCtaButton } from '@/components/ui/Modal/ModalCtaButton';
+import { ModalHeader } from '@/components/ui/Modal/ModalHeader';
 import {
   MODAL_PANEL_BOTTOM_SHEET_CLASS,
   MODAL_PANEL_CLASS,
   MOVE_TYPE_CHIP_RESPONSIVE_CLASS,
-} from './modalPanel';
-
-/** 리뷰 본문 최소 글자 수 (Figma: 10자 이상일 때 버튼 활성화) */
-const MIN_CONTENT_LENGTH = 10;
-
-type MoveTypeOption = 'small' | 'home' | 'office';
+} from '@/components/ui/Modal/modalPanel';
+import { StarRating } from '@/components/ui/StarRating/StarRating';
+import { cn } from '@/lib/utils';
+import {
+  API_MOVE_TYPE_TO_UI,
+  type ApiMoveType,
+} from '@/types/estimateRequest';
+import {
+  MAX_REVIEW_CONTENT_LENGTH,
+  MIN_REVIEW_CONTENT_LENGTH,
+} from '@/types/review';
 
 export interface WriteReviewModalProps {
   onClose: () => void;
   /** 등록 버튼 클릭 시 호출. API 연동은 호출 측(리뷰 도메인)에서 담당 */
   onSubmit: (review: { rating: number; content: string }) => void;
-  /** 이사 유형 칩 (소형/가정/사무실) */
-  moveType?: MoveTypeOption;
+  /** 이사 유형 (API ApiMoveType). null이면 칩 미표시 */
+  moveType?: ApiMoveType | null;
   /** 지정 견적 요청 칩 표시 여부 */
   isDesignated?: boolean;
   /** 기사님 이름 (예: '김코드') */
@@ -39,6 +39,8 @@ export interface WriteReviewModalProps {
   quotePrice: string;
   /** 프로필 이미지 URL. 없으면 기본 ProfileIcon */
   avatarSrc?: string;
+  /** 등록 요청 진행 중 — CTA 비활성 */
+  isSubmitting?: boolean;
   className?: string;
 }
 
@@ -50,20 +52,27 @@ export interface WriteReviewModalProps {
 export const WriteReviewModal = ({
   onClose,
   onSubmit,
-  moveType = 'small',
+  moveType = null,
   isDesignated = false,
   moverName,
   moveDate,
   quotePrice,
   avatarSrc,
+  isSubmitting = false,
   className = '',
 }: WriteReviewModalProps) => {
   const titleId = useId();
   const [rating, setRating] = useState(0);
   const [content, setContent] = useState('');
 
+  const trimmedLength = content.trim().length;
   const isSubmittable =
-    rating > 0 && content.trim().length >= MIN_CONTENT_LENGTH;
+    !isSubmitting &&
+    rating > 0 &&
+    trimmedLength >= MIN_REVIEW_CONTENT_LENGTH &&
+    trimmedLength <= MAX_REVIEW_CONTENT_LENGTH;
+
+  const moveTypeUi = moveType ? API_MOVE_TYPE_TO_UI[moveType] : null;
 
   const handleSubmit = () => {
     if (!isSubmittable) return;
@@ -86,11 +95,13 @@ export const WriteReviewModal = ({
       <div className="flex w-full flex-col gap-5 sm:gap-8">
         <div className="flex flex-col gap-3.5 sm:gap-6">
           <div className="flex items-center gap-2 sm:gap-3">
-            <MoveTypeChip
-              type={moveType}
-              size="sm"
-              className={MOVE_TYPE_CHIP_RESPONSIVE_CLASS}
-            />
+            {moveTypeUi ? (
+              <MoveTypeChip
+                type={moveTypeUi}
+                size="sm"
+                className={MOVE_TYPE_CHIP_RESPONSIVE_CLASS}
+              />
+            ) : null}
             {isDesignated && (
               <MoveTypeChip
                 type="designated"
@@ -101,47 +112,12 @@ export const WriteReviewModal = ({
           </div>
 
           {/* 기사님 요약 카드 */}
-          <div className="flex w-full items-center gap-3 rounded-xl border border-line-100 bg-white px-3.5 py-3 shadow-[0.25rem_0.25rem_0.5rem] shadow-shadow-gray-200/10 sm:gap-4 sm:rounded-2xl sm:px-[1.125rem] sm:py-6">
-            <div className="size-[2.875rem] shrink-0 overflow-hidden rounded-full sm:size-14">
-              {avatarSrc ? (
-                // eslint-disable-next-line @next/next/no-img-element -- 프로필 이미지 CDN 도메인이 아직 확정되지 않아 next/image 대신 img 사용
-                <img
-                  src={avatarSrc}
-                  alt=""
-                  className="size-full object-cover"
-                />
-              ) : (
-                <ProfileIcon className="size-full" aria-hidden />
-              )}
-            </div>
-            <div className="flex min-w-0 flex-col gap-1.5 sm:gap-4">
-              <p className="text-md-semibold text-black-300 sm:text-2xl-semibold">
-                {moverName} 기사님
-              </p>
-              <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                <InfoField
-                  label="이사일"
-                  value={moveDate}
-                  color="neutral"
-                  className="gap-1 sm:gap-3"
-                  labelClassName="px-1.5 py-0.5 text-md-medium sm:py-1 sm:text-2lg-regular"
-                  valueClassName="text-md-medium text-black-300 sm:text-2lg-medium"
-                />
-                <span
-                  aria-hidden
-                  className="hidden h-3.5 w-px bg-line-200 sm:block sm:h-4"
-                />
-                <InfoField
-                  label="견적가"
-                  value={quotePrice}
-                  color="neutral"
-                  className="gap-1 sm:gap-3"
-                  labelClassName="px-1.5 py-0.5 text-md-medium sm:py-1 sm:text-2lg-regular"
-                  valueClassName="text-md-bold text-black-300 sm:text-2lg-bold"
-                />
-              </div>
-            </div>
-          </div>
+          <ReviewMoverSummaryCard
+            moverName={moverName}
+            moveDate={moveDate}
+            quotePrice={quotePrice}
+            avatarSrc={avatarSrc}
+          />
         </div>
 
         <div className="flex flex-col gap-4">
@@ -160,8 +136,11 @@ export const WriteReviewModal = ({
             size="sm"
             rows={4}
             value={content}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder="최소 10자 이상 입력해주세요"
+            maxLength={MAX_REVIEW_CONTENT_LENGTH}
+            onChange={(event) =>
+              setContent(event.target.value.slice(0, MAX_REVIEW_CONTENT_LENGTH))
+            }
+            placeholder="10자 이상 600자 이하로 작성해주세요"
             className="[&>div]:w-full [&>div>textarea]:sm:text-xl-regular"
             aria-label="상세 후기"
           />

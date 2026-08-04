@@ -7,6 +7,7 @@ import AlarmIcon from '@/assets/icons/alarm.svg';
 import MenuIcon from '@/assets/icons/menu.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
 
+import { ChatGnbButton } from '@/components/chat/ChatGnbButton';
 import { GNB_NAV_BY_ROLE, type GnbNavItem } from '@/components/Gnb/gnbNav';
 import { GnbProfileDropdown } from '@/components/Gnb/GnbProfileDropdown';
 import { Logo } from '@/components/Logo/Logo';
@@ -153,11 +154,17 @@ const GnbHeader = ({
 }: GnbHeaderProps) => {
   const isDesktop = size === 'lg';
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [chatCloseSignal, setChatCloseSignal] = useState(0);
   const profileRef = useRef<HTMLDivElement>(null);
 
   useOutsideClick(profileRef, isProfileOpen, setIsProfileOpen);
 
+  const handleChatOpen = () => {
+    setIsProfileOpen(false);
+  };
+
   const handleProfileToggle = () => {
+    setChatCloseSignal((prev) => prev + 1);
     setIsProfileOpen((prev) => !prev);
     onProfileClick?.();
   };
@@ -205,6 +212,12 @@ const GnbHeader = ({
             isDesktop ? 'gap-8' : 'gap-6'
           }`}
         >
+          <ChatGnbButton
+            size={isDesktop ? 'lg' : 'sm'}
+            onOpen={handleChatOpen}
+            closeSignal={chatCloseSignal}
+          />
+
           <button
             type="button"
             aria-label="알림"

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
 
+import { withQueryClient } from '@/storybook/withQueryClient';
 import { Gnb2Depth } from './Gnb2Depth';
 
 const meta: Meta<typeof Gnb2Depth> = {
@@ -10,6 +11,7 @@ const meta: Meta<typeof Gnb2Depth> = {
   parameters: {
     layout: 'fullscreen',
   },
+  decorators: [withQueryClient],
   argTypes: {
     size: {
       control: 'select',
