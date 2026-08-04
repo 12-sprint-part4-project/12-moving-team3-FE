@@ -15,7 +15,7 @@ import { toMoverMyProfileCardData } from './_lib/toMoverMyProfileCardData';
 
 /**
  * 기사님 마이페이지 클라이언트.
- * Figma 내 프로필 Tablet(1:8521) · Desktop(1:8536)
+ * Figma 내 프로필 Mobile(1:8552) · Tablet(1:8521) · Desktop(1:8536)
  * — GET /api/users/movers/profile · GET /api/review/mover
  */
 const MoverMyPageClient = () => {

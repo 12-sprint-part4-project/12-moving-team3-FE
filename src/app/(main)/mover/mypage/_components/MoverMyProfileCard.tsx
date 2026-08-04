@@ -47,7 +47,7 @@ const ProfileAvatar = ({
 
 /**
  * 기사님 마이페이지 프로필 카드.
- * Figma Card-list/profile — Tablet(1:8521) · Desktop(1:8536).
+ * Figma Card-list/profile — Mobile(1:8552) · Tablet(1:8521) · Desktop(1:8536).
  */
 export const MoverMyProfileCard = ({
   profile,
@@ -66,14 +66,14 @@ export const MoverMyProfileCard = ({
       ? '-'
       : `${profile.confirmedCount}건`;
 
-  const editButtonsTablet = (
-    <div className="flex w-full items-center gap-2 md:justify-between lg:hidden">
+  const editButtonsMobileAndTablet = (
+    <div className="flex w-full flex-col gap-2 md:flex-row md:items-center md:justify-between lg:hidden">
       <Button
         type="button"
         size="sm"
         showIcon
         onClick={onEditProfile}
-        className="min-w-0 flex-1 md:max-w-[18.5rem]"
+        className="w-full md:min-w-0 md:flex-1 md:max-w-[18.5rem]"
       >
         내 프로필 수정
       </Button>
@@ -82,7 +82,7 @@ export const MoverMyProfileCard = ({
         size="sm"
         showIcon
         onClick={onEditBasicInfo}
-        className="min-w-0 flex-1 border border-gray-200 bg-white text-gray-300 hover:bg-white md:max-w-[18.5rem]"
+        className="w-full border border-gray-200 bg-white text-gray-300 hover:bg-white md:min-w-0 md:flex-1 md:max-w-[18.5rem]"
       >
         기본 정보 수정
       </Button>
@@ -173,7 +173,7 @@ export const MoverMyProfileCard = ({
               </span>
             </div>
 
-            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3.5 lg:gap-4">
+            <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:gap-3.5 lg:gap-4">
               <dl className="inline-flex items-center gap-2 lg:gap-3">
                 <dt className="inline-flex items-center rounded-sm border border-line-100 bg-background-200 px-1.5 py-0.5 text-md-medium text-gray-400 lg:py-1 lg:text-2lg-regular lg:text-gray-500">
                   제공 서비스
@@ -184,7 +184,7 @@ export const MoverMyProfileCard = ({
               </dl>
               <span
                 aria-hidden
-                className="hidden h-3.5 w-px bg-line-200 sm:block lg:h-4"
+                className="hidden h-3.5 w-px bg-line-200 md:block lg:h-4"
               />
               <dl className="inline-flex items-center gap-2 lg:gap-3">
                 <dt className="inline-flex items-center rounded-sm border border-line-100 bg-background-200 px-1.5 py-0.5 text-md-medium text-gray-400 lg:py-1 lg:text-2lg-regular lg:text-gray-500">
@@ -199,7 +199,7 @@ export const MoverMyProfileCard = ({
         </div>
       </div>
 
-      {editButtonsTablet}
+      {editButtonsMobileAndTablet}
     </section>
   );
 };

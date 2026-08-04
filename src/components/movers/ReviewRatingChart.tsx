@@ -21,7 +21,10 @@ const getRatingRatio = (count: number, totalCount: number): number => {
 
 /**
  * 리뷰 평점 요약 차트.
- * Figma Component/review-chart — Mobile·Tablet(md) · Desktop(lg).
+ * Figma Component/review-chart
+ * — Mobile(1:8552): 점수 위 · 분포 바 박스 아래
+ * — Tablet(1:8521): 점수 | 분포 바 박스 가로
+ * — Desktop(1:8536): 전체가 하나의 회색 박스
  */
 export const ReviewRatingChart = ({
   averageRating,
@@ -47,8 +50,8 @@ export const ReviewRatingChart = ({
   return (
     <div
       className={cn(
-        'flex w-full flex-col items-center justify-center gap-8 overflow-hidden rounded-[2rem] bg-background-200 px-6 py-8',
-        'md:flex-row md:gap-14 md:rounded-none md:bg-transparent md:px-0 md:py-0',
+        'flex w-full flex-col items-center gap-10',
+        'md:flex-row md:justify-center md:gap-14',
         'lg:gap-[5.1875rem] lg:rounded-[2rem] lg:bg-background-200 lg:px-16 lg:py-10',
         className
       )}
@@ -56,9 +59,7 @@ export const ReviewRatingChart = ({
       <div className="flex flex-col items-center gap-[0.9375rem]">
         <div className="flex items-end gap-2">
           <p className="text-3xl-bold text-black-400">{ratingLabel}</p>
-          <p className="pb-1 text-2xl-bold text-gray-100 md:pb-2 md:text-2xl-bold lg:pb-1">
-            / 5
-          </p>
+          <p className="pb-2 text-2xl-bold text-gray-100 lg:pb-1">/ 5</p>
         </div>
         <div
           className="flex items-center"
@@ -71,7 +72,7 @@ export const ReviewRatingChart = ({
               <StarIcon
                 key={index}
                 className={cn(
-                  'size-6 shrink-0 md:size-6 lg:size-12',
+                  'size-6 shrink-0 lg:size-12',
                   isFilled ? 'text-yellow-100' : 'text-gray-100'
                 )}
                 aria-hidden
@@ -83,8 +84,8 @@ export const ReviewRatingChart = ({
 
       <div
         className={cn(
-          'flex w-full max-w-[30rem] flex-col gap-3.5',
-          'md:w-[20.4375rem] md:max-w-none md:gap-1.5 md:rounded-3xl md:bg-background-200 md:px-[1.125rem] md:py-4',
+          'flex w-full flex-col gap-1.5 rounded-3xl bg-background-200 px-[1.125rem] py-4',
+          'md:w-[20.4375rem] md:shrink-0',
           'lg:w-auto lg:gap-3.5 lg:rounded-none lg:bg-transparent lg:px-0 lg:py-0'
         )}
       >
@@ -96,14 +97,14 @@ export const ReviewRatingChart = ({
           return (
             <div
               key={score}
-              className="flex w-full items-center gap-4 md:gap-4 lg:gap-[1.875rem]"
+              className="flex w-full items-center gap-4 lg:gap-[1.875rem]"
             >
               <p
                 className={cn(
                   'w-9 shrink-0 text-black-300',
                   isMajority
-                    ? 'text-md-bold md:text-md-bold lg:text-xl-bold'
-                    : 'text-md-medium md:text-md-medium lg:text-xl-medium'
+                    ? 'text-md-bold lg:text-xl-bold'
+                    : 'text-md-medium lg:text-xl-medium'
                 )}
               >
                 {score}점
@@ -116,10 +117,10 @@ export const ReviewRatingChart = ({
               </div>
               <p
                 className={cn(
-                  'w-9 shrink-0 text-gray-300 md:w-9 lg:w-11',
+                  'w-9 shrink-0 text-gray-300 lg:w-11',
                   isMajority
-                    ? 'text-md-bold md:text-md-bold lg:text-xl-bold'
-                    : 'text-md-medium md:text-md-medium lg:text-xl-medium'
+                    ? 'text-md-bold lg:text-xl-bold'
+                    : 'text-md-medium lg:text-xl-medium'
                 )}
               >
                 {count}

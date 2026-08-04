@@ -25,7 +25,7 @@ const EMPTY_RATING_COUNTS = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } as const;
 
 /**
  * 기사님 리뷰 영역.
- * Figma 리뷰 섹션 — Tablet(1:8521) · Desktop(1:8536).
+ * Figma 리뷰 섹션 — Mobile(1:8552) · Tablet(1:8521) · Desktop(1:8536).
  */
 export const MoverReviews = ({
   moverId: _moverId,
