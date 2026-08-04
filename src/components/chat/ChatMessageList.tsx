@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Fragment,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -9,6 +10,10 @@ import {
 } from 'react';
 
 import { ChatMessageItem } from '@/components/chat/ChatMessageItem';
+import {
+  formatChatDateSeparator,
+  isSameLocalCalendarDay,
+} from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
 import type { ChatMessage } from '@/types/chat';
 
@@ -21,6 +26,8 @@ export interface ChatMessageListProps {
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   onLoadOlder: () => void;
+  /** 최신 메시지 가시 영역(하단 근처) 여부 — 읽음 처리 등에 사용 */
+  onNearBottomChange?: (isNearBottom: boolean) => void;
   className?: string;
 }
 
@@ -37,32 +44,50 @@ export const ChatMessageList = ({
   hasNextPage,
   isFetchingNextPage,
   onLoadOlder,
+  onNearBottomChange,
   className,
 }: ChatMessageListProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const prevScrollHeightRef = useRef<number | null>(null);
+  const scrollAnchorRef = useRef<{ height: number; top: number } | null>(null);
   const shouldStickToBottomRef = useRef(true);
+  const reportedNearBottomRef = useRef<boolean | null>(null);
   const prevMessageCountRef = useRef(0);
   const oldestMessageIdRef = useRef<number | null>(null);
 
-  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'auto') => {
-    const el = scrollRef.current;
-    if (!el) {
-      return;
-    }
-    el.scrollTo({ top: el.scrollHeight, behavior });
-  }, []);
+  const reportNearBottom = useCallback(
+    (isNearBottom: boolean) => {
+      shouldStickToBottomRef.current = isNearBottom;
+      if (reportedNearBottomRef.current === isNearBottom) {
+        return;
+      }
+      reportedNearBottomRef.current = isNearBottom;
+      onNearBottomChange?.(isNearBottom);
+    },
+    [onNearBottomChange]
+  );
+
+  const scrollToBottom = useCallback(
+    (behavior: ScrollBehavior = 'auto') => {
+      const el = scrollRef.current;
+      if (!el) {
+        return;
+      }
+      el.scrollTo({ top: el.scrollHeight, behavior });
+      reportNearBottom(true);
+    },
+    [reportNearBottom]
+  );
 
   // 이전 페이지 로드 후 스크롤 위치 보정
   useLayoutEffect(() => {
     const el = scrollRef.current;
-    const prevHeight = prevScrollHeightRef.current;
-    if (!el || prevHeight == null) {
+    const anchor = scrollAnchorRef.current;
+    if (!el || anchor == null) {
       return;
     }
 
-    el.scrollTop = el.scrollHeight - prevHeight;
-    prevScrollHeightRef.current = null;
+    el.scrollTop = anchor.top + (el.scrollHeight - anchor.height);
+    scrollAnchorRef.current = null;
   }, [messages]);
 
   // 최초 로드·하단 고정 시 스크롤 / 새 메시지 도착
@@ -97,14 +122,18 @@ export const ChatMessageList = ({
     const el = event.currentTarget;
     const distanceFromBottom =
       el.scrollHeight - el.scrollTop - el.clientHeight;
-    shouldStickToBottomRef.current = distanceFromBottom <= NEAR_BOTTOM_PX;
+    reportNearBottom(distanceFromBottom <= NEAR_BOTTOM_PX);
 
     if (
       el.scrollTop <= NEAR_TOP_PX &&
       hasNextPage &&
-      !isFetchingNextPage
+      !isFetchingNextPage &&
+      scrollAnchorRef.current == null
     ) {
-      prevScrollHeightRef.current = el.scrollHeight;
+      scrollAnchorRef.current = {
+        height: el.scrollHeight,
+        top: el.scrollTop,
+      };
       onLoadOlder();
     }
   };
@@ -118,39 +147,61 @@ export const ChatMessageList = ({
         className
       )}
     >
-      {isFetchingNextPage ? (
-        <p className="py-1 text-center text-sm-medium text-gray-300">
-          이전 대화 불러오는 중…
-        </p>
-      ) : null}
+      <div aria-live="polite" aria-atomic="true">
+        {isFetchingNextPage ? (
+          <p className="py-1 text-center text-sm-medium text-gray-300">
+            이전 대화 불러오는 중…
+          </p>
+        ) : null}
 
-      {isPending ? (
-        <p className="m-auto text-center text-lg-medium text-gray-300">
-          불러오는 중…
-        </p>
-      ) : null}
+        {isPending ? (
+          <p className="m-auto text-center text-lg-medium text-gray-300">
+            불러오는 중…
+          </p>
+        ) : null}
 
-      {!isPending && isError ? (
-        <p className="m-auto text-center text-lg-medium text-gray-300">
-          메시지를 불러오지 못했어요
-        </p>
-      ) : null}
+        {!isPending && isError ? (
+          <p className="m-auto text-center text-lg-medium text-gray-300">
+            메시지를 불러오지 못했어요
+          </p>
+        ) : null}
 
-      {!isPending && !isError && isEmpty ? (
-        <p className="m-auto text-center text-lg-medium text-gray-300">
-          대화를 시작해 보세요
-        </p>
-      ) : null}
+        {!isPending && !isError && isEmpty ? (
+          <p className="m-auto text-center text-lg-medium text-gray-300">
+            대화를 시작해 보세요
+          </p>
+        ) : null}
+      </div>
 
       {!isPending &&
         !isError &&
-        messages.map((message) => (
-          <ChatMessageItem
-            key={message.messageId}
-            message={message}
-            isMine={message.senderId === currentUserId}
-          />
-        ))}
+        messages.map((message, index) => {
+          const previous = messages[index - 1];
+          const showDateSeparator =
+            !previous ||
+            !isSameLocalCalendarDay(previous.createdAt, message.createdAt);
+          const dateLabel = showDateSeparator
+            ? formatChatDateSeparator(message.createdAt)
+            : '';
+
+          return (
+            <Fragment key={message.messageId}>
+              {showDateSeparator && dateLabel ? (
+                <p
+                  role="separator"
+                  aria-label={dateLabel}
+                  className="py-1 text-center text-xs-medium text-gray-300"
+                >
+                  {dateLabel}
+                </p>
+              ) : null}
+              <ChatMessageItem
+                message={message}
+                isMine={message.senderId === currentUserId}
+              />
+            </Fragment>
+          );
+        })}
     </div>
   );
 };
