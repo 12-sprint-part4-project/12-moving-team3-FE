@@ -40,11 +40,12 @@ export const useReviewMutation = <TVariables>({
     },
   });
 
-  const submit = async (variables: TVariables): Promise<void> => {
+  const submit = async (variables: TVariables): Promise<boolean> => {
     if (mutation.isPending) {
-      return;
+      return false;
     }
     await mutation.mutateAsync(variables);
+    return true;
   };
 
   return {

@@ -10,7 +10,7 @@ export interface CreateReviewVariables {
 /**
  * 리뷰 등록.
  * 성공 시 토스트 + 리뷰·기사 목록/상세 쿼리 invalidate.
- * pending 중 추가 호출은 무시한다 (연타 방지).
+ * pending 중 추가 호출은 무시하고 false를 반환한다 (연타 방지).
  */
 export const useCreateReview = () => {
   const { submit, isPending, isError, error } =
@@ -23,9 +23,7 @@ export const useCreateReview = () => {
   const submitReview = async (
     quoteId: number,
     body: ReviewBody
-  ): Promise<void> => {
-    await submit({ quoteId, body });
-  };
+  ): Promise<boolean> => submit({ quoteId, body });
 
   return {
     isPending,

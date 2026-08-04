@@ -85,8 +85,10 @@ export const ReviewsPageClient = () => {
     }
 
     try {
-      await submitReview(selectedQuote.quoteId, review);
-      setSelectedQuote(null);
+      const performed = await submitReview(selectedQuote.quoteId, review);
+      if (performed) {
+        setSelectedQuote(null);
+      }
     } catch {
       // 성공/실패 토스트는 useCreateReview에서 처리
     }
@@ -134,8 +136,10 @@ export const ReviewsPageClient = () => {
     }
 
     try {
-      await submitUpdate(editingReview.id, review);
-      setEditingReview(null);
+      const performed = await submitUpdate(editingReview.id, review);
+      if (performed) {
+        setEditingReview(null);
+      }
     } catch {
       // 성공/실패 토스트는 useUpdateReview에서 처리
     }
@@ -154,8 +158,10 @@ export const ReviewsPageClient = () => {
     }
 
     try {
-      await submitDelete(reviewToDelete.id);
-      setReviewToDelete(null);
+      const performed = await submitDelete(reviewToDelete.id);
+      if (performed) {
+        setReviewToDelete(null);
+      }
     } catch {
       // 성공/실패 토스트는 useDeleteReview에서 처리
     }
