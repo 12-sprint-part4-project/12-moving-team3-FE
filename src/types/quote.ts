@@ -1,4 +1,5 @@
 import type { ApiSuccessResponse } from '@/types/api';
+import type { EstimateRequestStatus } from '@/types/customerEstimateRequest';
 import type { ApiMoveType, MoveTypeOption } from '@/types/estimateRequest';
 
 /** 견적 상태 */
@@ -66,6 +67,8 @@ export type RejectedQuoteListItem = QuoteListItemBase;
 export interface SentQuoteListItem extends QuoteListItemBase {
   isConfirmed: boolean;
   price: number | null;
+  estimateRequestStatus: EstimateRequestStatus;
+  /** 완료·만료·취소 시 카드 종료 오버레이 표시 */
   isMoveCompleted: boolean;
 }
 
@@ -99,6 +102,8 @@ export interface SentQuoteCardModel {
   departure: string;
   arrival: string;
   priceLabel: string;
+  estimateRequestStatus: EstimateRequestStatus;
+  /** 완료·만료·취소 시 카드 종료 오버레이 표시 */
   isMoveCompleted: boolean;
 }
 
@@ -120,6 +125,7 @@ export interface QuoteDetail {
   price: number | null;
   status: QuoteStatus;
   rejectReason: string | null;
+  estimateRequestStatus: EstimateRequestStatus;
   isMoveCompleted: boolean;
   customer: { name: string };
   moveType: ApiMoveType | null;
@@ -140,6 +146,7 @@ export interface QuoteDetailViewModel {
   isConfirmed: boolean;
   isRejected: boolean;
   isDesignated: boolean;
+  estimateRequestStatus: EstimateRequestStatus;
   isMoveCompleted: boolean;
   priceLabel: string;
   rejectReason: string | null;

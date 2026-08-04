@@ -5,6 +5,16 @@ import { moveTypeSchema } from '@/lib/customerEstimateRequestSchema';
 /** 견적 상태 */
 export const quoteStatusSchema = z.enum(['PENDING', 'CONFIRMED', 'REJECTED']);
 
+/** 견적 요청 상태 (보낸 견적 카드 종료 오버레이 분기) */
+export const estimateRequestStatusForQuoteSchema = z.enum([
+  'DRAFT',
+  'SUBMITTED',
+  'CONFIRMED',
+  'COMPLETED',
+  'EXPIRED',
+  'CANCELED',
+]);
+
 /** 목록/상세 공통 고객 구조 */
 const quoteCustomerSchema = z.object({
   name: z.string(),
@@ -39,6 +49,7 @@ export const rejectedQuoteListItemSchema = quoteListItemBaseSchema;
 export const sentQuoteListItemSchema = quoteListItemBaseSchema.extend({
   isConfirmed: z.boolean(),
   price: z.number().nullable(),
+  estimateRequestStatus: estimateRequestStatusForQuoteSchema,
   isMoveCompleted: z.boolean(),
 });
 

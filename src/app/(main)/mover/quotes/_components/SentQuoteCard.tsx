@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { cn } from '@/lib/utils';
+import type { EstimateRequestStatus } from '@/types/customerEstimateRequest';
 import type { SentQuoteCardModel } from '@/types/quote';
 
 import { QuoteCardInfo } from './QuoteCardInfo';
@@ -11,12 +12,25 @@ export interface SentQuoteCardProps {
   className?: string;
 }
 
+/** Figma Card-list/이사완료 오버레이 문구 */
+const CLOSED_OVERLAY_MESSAGE: Partial<
+  Record<EstimateRequestStatus, string>
+> = {
+  COMPLETED: '이사 완료된 견적이에요',
+  EXPIRED: '만료된 견적이에요',
+  CANCELED: '취소된 견적이에요',
+};
+
 /** 보낸 견적 카드 */
 export const SentQuoteCard = ({
   quote,
   className = '',
 }: SentQuoteCardProps) => {
   const detailHref = `/mover/quotes/${quote.id}`;
+  const isClosedCard = quote.isMoveCompleted;
+  const overlayMessage =
+    CLOSED_OVERLAY_MESSAGE[quote.estimateRequestStatus] ??
+    '이사 완료된 견적이에요';
 
   const cardBody = (
     <>
@@ -61,7 +75,7 @@ export const SentQuoteCard = ({
         className
       )}
     >
-      {quote.isMoveCompleted ? (
+      {isClosedCard ? (
         <div className="flex w-full flex-col gap-6.5 lg:gap-4">
           {cardBody}
         </div>
@@ -75,15 +89,15 @@ export const SentQuoteCard = ({
         </Link>
       )}
 
-      {/* 이사 완료 오버레이 렌더 */}
-      {quote.isMoveCompleted ? (
+      {/* 완료·만료·취소 오버레이 — Figma Card-list/이사완료 */}
+      {isClosedCard ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl border border-gray-300 bg-black-500/65">
           <p className="text-lg-semibold text-white lg:text-2lg-semibold">
-            이사 완료된 견적이에요
+            {overlayMessage}
           </p>
           <Link
             href={detailHref}
-            aria-label={`${quote.customerName} 고객님 이사 완료 견적 상세보기`}
+            aria-label={`${quote.customerName} 고객님 ${overlayMessage} 상세보기`}
             className="inline-flex items-center justify-center rounded-2xl border border-blue-200 bg-blue-100 px-4 py-2 text-md-semibold text-blue-300 transition-colors hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:outline-none lg:px-[1.125rem] lg:py-2.5 lg:text-lg-semibold"
           >
             견적 상세보기
