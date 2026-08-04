@@ -95,7 +95,16 @@ export const ChatRoomPage = ({
     }
 
     lastMarkedMessageIdRef.current = latestMessageId;
-    markAsRead({ lastReadMessageId: latestMessageId });
+    markAsRead(
+      { lastReadMessageId: latestMessageId },
+      {
+        onError: () => {
+          if (lastMarkedMessageIdRef.current === latestMessageId) {
+            lastMarkedMessageIdRef.current = null;
+          }
+        },
+      }
+    );
   }, [enabled, roomId, messages, markAsRead, user?.id, isNearBottom]);
 
   const handleSend = async (content: string) => {

@@ -48,11 +48,16 @@ export const ChatMessageList = ({
   className,
 }: ChatMessageListProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const scrollAnchorRef = useRef<{ height: number; top: number } | null>(null);
+  const scrollAnchorRef = useRef<{
+    height: number;
+    top: number;
+    oldestMessageId: number;
+  } | null>(null);
   const shouldStickToBottomRef = useRef(true);
   const reportedNearBottomRef = useRef<boolean | null>(null);
   const prevMessageCountRef = useRef(0);
   const oldestMessageIdRef = useRef<number | null>(null);
+  const wasFetchingNextPageRef = useRef(false);
 
   const reportNearBottom = useCallback(
     (isNearBottom: boolean) => {
@@ -78,7 +83,7 @@ export const ChatMessageList = ({
     [reportNearBottom]
   );
 
-  // 이전 페이지 로드 후 스크롤 위치 보정
+  // 이전 메시지 prepend 시에만 스크롤 앵커 복원 (소켓 append에는 적용하지 않음)
   useLayoutEffect(() => {
     const el = scrollRef.current;
     const anchor = scrollAnchorRef.current;
@@ -86,9 +91,37 @@ export const ChatMessageList = ({
       return;
     }
 
+    const currentOldestId = messages[0]?.messageId ?? null;
+    if (
+      currentOldestId == null ||
+      currentOldestId === anchor.oldestMessageId
+    ) {
+      return;
+    }
+
     el.scrollTop = anchor.top + (el.scrollHeight - anchor.height);
     scrollAnchorRef.current = null;
   }, [messages]);
+
+  // 이전 페이지 요청이 끝나도 oldest가 그대로면(실패·빈 페이지) 앵커 해제 → 재시도 가능
+  useEffect(() => {
+    const wasFetching = wasFetchingNextPageRef.current;
+    wasFetchingNextPageRef.current = isFetchingNextPage;
+
+    if (!wasFetching || isFetchingNextPage) {
+      return;
+    }
+
+    const anchor = scrollAnchorRef.current;
+    if (!anchor) {
+      return;
+    }
+
+    const currentOldestId = messages[0]?.messageId ?? null;
+    if (currentOldestId === anchor.oldestMessageId) {
+      scrollAnchorRef.current = null;
+    }
+  }, [isFetchingNextPage, messages]);
 
   // 최초 로드·하단 고정 시 스크롤 / 새 메시지 도착
   useEffect(() => {
@@ -124,15 +157,18 @@ export const ChatMessageList = ({
       el.scrollHeight - el.scrollTop - el.clientHeight;
     reportNearBottom(distanceFromBottom <= NEAR_BOTTOM_PX);
 
+    const oldestMessageId = messages[0]?.messageId;
     if (
       el.scrollTop <= NEAR_TOP_PX &&
       hasNextPage &&
       !isFetchingNextPage &&
-      scrollAnchorRef.current == null
+      scrollAnchorRef.current == null &&
+      oldestMessageId != null
     ) {
       scrollAnchorRef.current = {
         height: el.scrollHeight,
         top: el.scrollTop,
+        oldestMessageId,
       };
       onLoadOlder();
     }
