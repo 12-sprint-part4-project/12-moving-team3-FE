@@ -13,7 +13,7 @@ import { ReviewRatingChart } from './ReviewRatingChart';
 export interface MoverReviewsProps {
   moverId: string;
   reviewStats?: ReviewStats;
-  /** 현재 페이지 리뷰 목록 (UI 표시용 — API 연동 전) */
+  /** 현재 페이지 리뷰 목록 */
   reviews?: ReviewListItemData[];
   page?: number;
   totalPages?: number;
