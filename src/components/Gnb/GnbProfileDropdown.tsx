@@ -1,6 +1,9 @@
 import Link from 'next/link';
 
-import type { GnbNavItem } from '@/components/Gnb/gnbNav';
+import {
+  GNB_PROFILE_MENU_BY_ROLE,
+  type GnbNavItem,
+} from '@/components/Gnb/gnbNav';
 import { cn } from '@/lib/utils';
 
 export type GnbProfileDropdownSize = 'sm' | 'md';
@@ -16,9 +19,7 @@ export interface GnbProfileDropdownProps {
 }
 
 const DEFAULT_MENU_ITEMS: GnbNavItem[] = [
-  { label: '프로필 수정', href: '/profile/customer/edit' },
-  { label: '찜한 기사님', href: '/favorites' },
-  { label: '이사 리뷰', href: '/reviews' },
+  ...GNB_PROFILE_MENU_BY_ROLE.customer,
 ];
 
 const SIZE_STYLES = {
