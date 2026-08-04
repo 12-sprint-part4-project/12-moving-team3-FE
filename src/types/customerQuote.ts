@@ -1,14 +1,19 @@
 import type { ApiSuccessResponse } from '@/types/api';
+import type { EstimateRequestStatus } from '@/types/customerEstimateRequest';
 import type { ApiMoveType, MoveTypeOption } from '@/types/estimateRequest';
 
 /** 고객 견적 상태 */
 export type CustomerQuoteStatus = 'PENDING' | 'CONFIRMED';
+
+/** 받았던 견적 필터 */
+export type CustomerPastQuoteFilter = 'ALL' | 'CONFIRMED';
 
 /** 고객 견적 응답의 기사님 카드 (BE) */
 export interface CustomerQuoteMover {
   moverId: string;
   nickname: string;
   profileImage: string | null;
+  shortDescription: string | null;
   rating: number;
   reviewCount: number;
   career: number | null;
@@ -45,6 +50,40 @@ export interface CustomerPendingQuotesData {
 export type CustomerPendingQuotesResponse =
   ApiSuccessResponse<CustomerPendingQuotesData | null>;
 
+/** 받았던 견적 그룹 (BE) */
+export interface CustomerPastQuoteGroup {
+  estimateRequestId: number;
+  status: EstimateRequestStatus;
+  submittedAt: string | null;
+  serviceType: ApiMoveType | null;
+  moveDate: string | null;
+  fromAddress: string | null;
+  toAddress: string | null;
+  quotes: CustomerQuoteItem[];
+}
+
+/** 받았던 견적 리스트 응답 meta */
+export interface CustomerPastQuotesMeta {
+  nextCursor: number | null;
+  hasNextPage: boolean;
+}
+
+/** 받았던 견적 리스트 응답 (BE) */
+export interface CustomerPastQuotesResponse {
+  data: {
+    items: CustomerPastQuoteGroup[];
+  };
+  meta: CustomerPastQuotesMeta;
+}
+
+/** 받았던 견적 조회 파라미터 */
+export interface CustomerPastQuotesParams {
+  cursor?: number;
+  limit?: number;
+  filter?: CustomerPastQuoteFilter;
+  estimateRequestId?: number;
+}
+
 /** 고객 견적 상세 (BE) */
 export interface CustomerQuoteDetail {
   quoteId: number;
@@ -53,6 +92,7 @@ export interface CustomerQuoteDetail {
   comment: string | null;
   status: CustomerQuoteStatus;
   isDesignated: boolean;
+  estimateRequestStatus: EstimateRequestStatus;
   serviceType: ApiMoveType | null;
   moveDate: string | null;
   submittedAt: string | null;
@@ -74,13 +114,22 @@ export interface CustomerQuoteMoverViewModel {
   moverId: string;
   nickname: string;
   profileImageUrl: string | null;
-  ratingLabel: string;
-  reviewCountLabel: string;
-  careerLabel: string | null;
-  confirmedCountLabel: string;
+  shortDescription: string | null;
+  averageRating: number;
+  reviewCount: number;
+  career: number | null;
+  confirmedCount: number;
   favoriteCount: number;
-  favoriteCountLabel: string;
   isFavorited: boolean;
+}
+
+/** 견적 정보 섹션 공통 UI 모델 */
+export interface QuoteInfoViewModel {
+  requestedAtLabel: string;
+  serviceLabel: string;
+  moveDateLabel: string;
+  departure: string;
+  arrival: string;
 }
 
 /** 대기 중 견적 카드 UI 모델 */
@@ -112,6 +161,24 @@ export interface PendingQuotesPageModel {
   isWaitingForQuotes: boolean;
 }
 
+/** 받았던 견적 카드 UI 모델 */
+export interface ReceivedQuoteCardModel {
+  quoteId: number;
+  moveType: MoveTypeOption | null;
+  isDesignated: boolean;
+  isConfirmed: boolean;
+  shortDescription: string | null;
+  priceLabel: string;
+  mover: CustomerQuoteMoverViewModel;
+}
+
+/** 받았던 견적 그룹 UI 모델 */
+export interface ReceivedQuoteGroupModel {
+  estimateRequestId: number;
+  info: QuoteInfoViewModel;
+  quotes: ReceivedQuoteCardModel[];
+}
+
 /** 고객 견적 상세 UI 모델 */
 export interface CustomerQuoteDetailViewModel {
   quoteId: number;
@@ -120,6 +187,10 @@ export interface CustomerQuoteDetailViewModel {
   isDesignated: boolean;
   isPending: boolean;
   isConfirmed: boolean;
+  /** 활성 SUBMITTED 요청의 PENDING 견적만 확정 가능 */
+  canConfirm: boolean;
+  /** 과거 미확정 견적 안내 배너 */
+  showUnconfirmedBanner: boolean;
   priceLabel: string;
   comment: string | null;
   serviceLabel: string;
