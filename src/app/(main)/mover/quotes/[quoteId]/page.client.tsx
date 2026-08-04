@@ -111,7 +111,11 @@ const MoverQuoteDetailPageClient = ({
 
         {!detail.isRejected ? (
           <aside className="col-start-1 lg:col-start-2 lg:row-span-3 lg:row-start-1">
-            <QuoteShareButtons sharePath={`/mover/quotes/${quoteId}`} />
+            <QuoteShareButtons
+              sharePath={`/mover/quotes/${quoteId}`}
+              shareTitle={`${detail.customerName} 고객님 견적서`}
+              shareDescription={`${detail.serviceLabel} · ${detail.priceLabel}`}
+            />
           </aside>
         ) : null}
 
