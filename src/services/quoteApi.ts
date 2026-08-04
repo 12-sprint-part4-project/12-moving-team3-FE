@@ -57,6 +57,7 @@ export const toSentQuoteCardModel = (
   departure: item.fromRegionLabel ?? '-',
   arrival: item.toRegionLabel ?? '-',
   priceLabel: formatQuotePriceLabel(item.price),
+  estimateRequestStatus: item.estimateRequestStatus,
   isMoveCompleted: item.isMoveCompleted,
 });
 
@@ -88,6 +89,7 @@ export const toQuoteDetailViewModel = (
     isConfirmed: detail.status === 'CONFIRMED',
     isRejected: detail.status === 'REJECTED',
     isDesignated: detail.isDesignated,
+    estimateRequestStatus: detail.estimateRequestStatus,
     isMoveCompleted: detail.isMoveCompleted,
     priceLabel: formatQuotePriceLabel(detail.price),
     rejectReason: detail.rejectReason,
@@ -231,6 +233,7 @@ const isQuoteDetailResponse = (body: unknown): body is QuoteDetailResponse => {
     typeof detail.id === 'number' &&
     typeof detail.estimateRequestId === 'number' &&
     typeof detail.status === 'string' &&
+    typeof detail.estimateRequestStatus === 'string' &&
     typeof detail.isMoveCompleted === 'boolean' &&
     !!detail.customer &&
     typeof detail.customer.name === 'string'

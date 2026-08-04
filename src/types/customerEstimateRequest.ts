@@ -13,7 +13,9 @@ export type EstimateRequestStatus =
   | 'DRAFT'
   | 'SUBMITTED'
   | 'CONFIRMED'
-  | 'COMPLETED';
+  | 'COMPLETED'
+  | 'EXPIRED'
+  | 'CANCELED';
 
 /** 프로그레스 총 단계 (입력 3 + 완료/full 1) */
 export const TOTAL_PROGRESS_STEPS = 4;

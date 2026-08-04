@@ -108,6 +108,8 @@ export const estimateRequestStatusSchema = z.enum([
   'SUBMITTED',
   'CONFIRMED',
   'COMPLETED',
+  'EXPIRED',
+  'CANCELED',
 ]);
 
 const nullableMoveTypeSchema = moveTypeSchema.nullable();
