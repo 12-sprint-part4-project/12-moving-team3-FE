@@ -5,6 +5,7 @@ import {
 } from '@/constants/commonOptions';
 import type { ApiSuccessResponse } from '@/types/api';
 import type { ApiMoveType } from '@/types/estimateRequest';
+import type { ReviewRatingCounts, ReviewStats } from '@/types/review';
 
 export type { ApiMoveType };
 
@@ -46,20 +47,6 @@ export interface MoversListParams {
 export interface FavoriteMoversParams {
   cursor?: string;
   limit?: number;
-}
-
-export interface ReviewRatingCounts {
-  1: number;
-  2: number;
-  3: number;
-  4: number;
-  5: number;
-}
-
-export interface ReviewStats {
-  ratingCounts: ReviewRatingCounts;
-  totalCount: number;
-  averageRating: number | null;
 }
 
 export interface MoverListUser {

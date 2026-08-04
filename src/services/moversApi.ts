@@ -11,8 +11,8 @@ import type {
   MoverListItem,
   MoversListParams,
   MoversListResponse,
-  ReviewStats,
 } from '@/types/mover';
+import type { ReviewStats } from '@/types/review';
 
 /**
  * 기사님 목록 쿼리스트링 생성.

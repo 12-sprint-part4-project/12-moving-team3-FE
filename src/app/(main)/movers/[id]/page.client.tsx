@@ -29,7 +29,6 @@ export const MoverDetailPageClient = () => {
 
   const {
     mover,
-    reviewStats,
     isPending,
     isError,
     error,
@@ -126,7 +125,7 @@ export const MoverDetailPageClient = () => {
           <MoverDetailSections mover={mover} />
 
           <div className="py-6 lg:py-10">
-            <MoverReviews moverId={mover.moverId} reviewStats={reviewStats} />
+            <MoverReviews moverId={mover.moverId} />
           </div>
         </div>
 

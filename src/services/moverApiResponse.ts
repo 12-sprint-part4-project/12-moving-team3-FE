@@ -47,3 +47,28 @@ export const fetchAndValidate = async <T>(
 
   return body;
 };
+
+/**
+ * authFetch + !ok ApiError. 성공 시 본문 없음 (204 등).
+ */
+export const fetchNoContent = async (
+  url: string,
+  options: RequestInit,
+  fallbackMessage: string
+): Promise<void> => {
+  const response = await authFetch(url, {
+    cache: 'no-store',
+    ...options,
+    signal: options.signal ?? createApiTimeoutSignal(),
+  });
+
+  if (!response.ok) {
+    const body: unknown = await response.json().catch(() => null);
+    const errorBody = parseErrorBody(body);
+    throw new ApiError(
+      response.status,
+      errorBody?.error?.message ?? fallbackMessage,
+      errorBody?.error?.code ?? 'UNKNOWN_ERROR'
+    );
+  }
+};
