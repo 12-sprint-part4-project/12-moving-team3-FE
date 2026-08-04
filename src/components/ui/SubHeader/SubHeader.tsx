@@ -26,7 +26,8 @@ export interface SubHeaderProps {
 const ROOT_STYLE: Record<SubHeaderSize, string> = {
   sm: 'px-6 py-5',
   md: 'px-[4.5rem] py-8',
-  lg: 'px-[16.25rem] py-8',
+  // 페이지 본문(pageXPadding)과 lg~2xl 구간 정렬을 맞춤
+  lg: 'px-10 py-8 xl:px-16 min-[90rem]:px-[16.25rem]',
 };
 
 interface DetailColumnProps {

@@ -24,7 +24,7 @@ export const ModalCtaButton = ({
     type={type}
     disabled={disabled}
     className={cn(
-      'flex h-[3.375rem] w-full items-center justify-center rounded-2xl bg-blue-300 p-4 text-lg-semibold text-white transition-colors disabled:bg-gray-100 sm:h-16 sm:text-xl-semibold',
+      'flex h-[3.375rem] w-full cursor-pointer items-center justify-center rounded-2xl bg-blue-300 p-4 text-lg-semibold text-white transition-colors disabled:cursor-default disabled:bg-gray-100 sm:h-16 sm:text-xl-semibold',
       className
     )}
     {...rest}

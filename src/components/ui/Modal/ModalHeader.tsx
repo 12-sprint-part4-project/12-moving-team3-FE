@@ -15,6 +15,8 @@ export interface ModalHeaderProps {
   titleClassName?: string;
   /** aria-labelledby 연결용 id. 미지정 시 내부에서 생성 */
   titleId?: string;
+  /** true면 닫기 버튼 비활성 (요청 진행 중 등) */
+  closeDisabled?: boolean;
 }
 
 /**
@@ -27,6 +29,7 @@ export const ModalHeader = ({
   className = '',
   titleClassName,
   titleId: titleIdProp,
+  closeDisabled = false,
 }: ModalHeaderProps) => {
   const generatedId = useId();
   const titleId = titleIdProp ?? generatedId;
@@ -45,8 +48,13 @@ export const ModalHeader = ({
       <button
         type="button"
         aria-label="닫기"
+        disabled={closeDisabled}
+        aria-disabled={closeDisabled}
         onClick={onClose}
-        className="flex size-6 shrink-0 cursor-pointer items-center justify-center text-gray-400 sm:size-9"
+        className={cn(
+          'flex size-6 shrink-0 items-center justify-center text-gray-400 sm:size-9',
+          closeDisabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+        )}
       >
         <CloseIcon className="size-full" aria-hidden />
       </button>
