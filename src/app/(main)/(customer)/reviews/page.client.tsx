@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { DeleteReviewConfirmModal } from '@/components/reviews/DeleteReviewConfirmModal';
 import { EditReviewModal } from '@/components/reviews/EditReviewModal';
+import { ReviewListSection } from '@/components/reviews/ReviewListSection';
 import { ReviewsEmptyState } from '@/components/reviews/ReviewsEmptyState';
 import { ReviewDetailModal } from '@/components/reviews/ReviewDetailModal';
 import {
@@ -15,7 +16,6 @@ import { WritableReviewCard } from '@/components/reviews/WritableReviewCard';
 import { WriteReviewModal } from '@/components/reviews/WriteReviewModal';
 import { WrittenReviewCard } from '@/components/reviews/WrittenReviewCard';
 import { Modal } from '@/components/ui/Modal/Modal';
-import { Pagination } from '@/components/ui/Pagination/Pagination';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
 import { useCreateReview } from '@/hooks/useCreateReview';
@@ -203,125 +203,53 @@ export const ReviewsPageClient = () => {
         )}
       >
         {activeTab === 'writable' ? (
-          <>
-            {writable.isPending && writable.writableQuotes.length === 0 ? (
-              <Spinner message="작성 가능한 리뷰를 불러오는 중..." />
-            ) : null}
-
-            {writable.isError ? (
-              <div className="flex flex-col items-start gap-3 py-10">
-                <p className="text-md-medium text-gray-400">
-                  {writableErrorMessage}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    void writable.refetch();
-                  }}
-                  className="text-md-semibold text-blue-300 underline"
-                >
-                  다시 시도
-                </button>
-              </div>
-            ) : null}
-
-            {!writable.isError && showWritableEmpty ? (
-              <ReviewsEmptyState />
-            ) : null}
-
-            {!writable.isError &&
-            !showWritableEmpty &&
-            writable.writableQuotes.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 gap-8 xl:grid-cols-2 xl:gap-x-6 xl:gap-y-10">
-                  {writable.writableQuotes.map((item) => (
-                    <WritableReviewCard
-                      key={item.quoteId}
-                      item={item}
-                      onWriteClick={handleWriteClick}
-                    />
-                  ))}
-                </div>
-
-                <div className="flex justify-center pt-2">
-                  <Pagination
-                    size="sm"
-                    page={writable.page}
-                    totalPages={Math.max(1, writable.totalPages)}
-                    onPageChange={writable.setPage}
-                    className="xl:hidden"
-                  />
-                  <Pagination
-                    size="lg"
-                    page={writable.page}
-                    totalPages={Math.max(1, writable.totalPages)}
-                    onPageChange={writable.setPage}
-                    className="hidden xl:flex"
-                  />
-                </div>
-              </>
-            ) : null}
-          </>
+          <ReviewListSection
+            items={writable.writableQuotes}
+            isPending={writable.isPending}
+            isError={writable.isError}
+            showEmpty={showWritableEmpty}
+            pendingMessage="작성 가능한 리뷰를 불러오는 중..."
+            errorMessage={writableErrorMessage}
+            onRetry={() => {
+              void writable.refetch();
+            }}
+            emptyState={<ReviewsEmptyState />}
+            renderItem={(item) => (
+              <WritableReviewCard
+                key={item.quoteId}
+                item={item}
+                onWriteClick={handleWriteClick}
+              />
+            )}
+            page={writable.page}
+            totalPages={writable.totalPages}
+            onPageChange={writable.setPage}
+          />
         ) : (
-          <>
-            {written.isPending && written.reviews.length === 0 ? (
-              <Spinner message="작성한 리뷰를 불러오는 중..." />
-            ) : null}
-
-            {written.isError ? (
-              <div className="flex flex-col items-start gap-3 py-10">
-                <p className="text-md-medium text-gray-400">
-                  {writtenErrorMessage}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    void written.refetch();
-                  }}
-                  className="text-md-semibold text-blue-300 underline"
-                >
-                  다시 시도
-                </button>
-              </div>
-            ) : null}
-
-            {!written.isError && showWrittenEmpty ? (
+          <ReviewListSection
+            items={written.reviews}
+            isPending={written.isPending}
+            isError={written.isError}
+            showEmpty={showWrittenEmpty}
+            pendingMessage="작성한 리뷰를 불러오는 중..."
+            errorMessage={writtenErrorMessage}
+            onRetry={() => {
+              void written.refetch();
+            }}
+            emptyState={
               <ReviewsEmptyState message="아직 작성한 리뷰가 없어요" />
-            ) : null}
-
-            {!written.isError &&
-            !showWrittenEmpty &&
-            written.reviews.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 gap-8 xl:grid-cols-2 xl:gap-x-6 xl:gap-y-10">
-                  {written.reviews.map((item) => (
-                    <WrittenReviewCard
-                      key={item.id}
-                      item={item}
-                      onClick={handleReviewClick}
-                    />
-                  ))}
-                </div>
-
-                <div className="flex justify-center pt-2">
-                  <Pagination
-                    size="sm"
-                    page={written.page}
-                    totalPages={Math.max(1, written.totalPages)}
-                    onPageChange={written.setPage}
-                    className="xl:hidden"
-                  />
-                  <Pagination
-                    size="lg"
-                    page={written.page}
-                    totalPages={Math.max(1, written.totalPages)}
-                    onPageChange={written.setPage}
-                    className="hidden xl:flex"
-                  />
-                </div>
-              </>
-            ) : null}
-          </>
+            }
+            renderItem={(item) => (
+              <WrittenReviewCard
+                key={item.id}
+                item={item}
+                onClick={handleReviewClick}
+              />
+            )}
+            page={written.page}
+            totalPages={written.totalPages}
+            onPageChange={written.setPage}
+          />
         )}
       </div>
 
