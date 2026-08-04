@@ -135,6 +135,82 @@ export const formatMoveDateLabel = (value: string | null): string => {
   return toDateLabel(parts.year, parts.month, parts.day, parts.weekdayIndex);
 };
 
+/**
+ * 채팅 메시지 시각 (로컬 타임존)
+ * 예: 2026-08-04T14:10:00.000Z → 오후 11:10 (KST)
+ */
+export const formatChatMessageTime = (value: string): string => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const hours24 = date.getHours();
+  const minutes = pad2(date.getMinutes());
+  const period = hours24 < 12 ? '오전' : '오후';
+  const hours12 = hours24 % 12 === 0 ? 12 : hours24 % 12;
+
+  return `${period} ${hours12}:${minutes}`;
+};
+
+/** 로컬 캘린더 일자가 같은지 비교 */
+export const isSameLocalCalendarDay = (a: string, b: string): boolean => {
+  const dateA = new Date(a);
+  const dateB = new Date(b);
+  if (Number.isNaN(dateA.getTime()) || Number.isNaN(dateB.getTime())) {
+    return false;
+  }
+
+  return (
+    dateA.getFullYear() === dateB.getFullYear() &&
+    dateA.getMonth() === dateB.getMonth() &&
+    dateA.getDate() === dateB.getDate()
+  );
+};
+
+/**
+ * 채팅 날짜 구분선 라벨 (로컬 캘린더 기준)
+ * 오늘 / 어제 / 그저께 / M월 D일 / YYYY년 M월 D일
+ */
+export const formatChatDateSeparator = (
+  value: string,
+  now: Date = new Date()
+): string => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const targetStart = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  );
+  const diffDays = Math.round(
+    (todayStart.getTime() - targetStart.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  if (diffDays === 0) {
+    return '오늘';
+  }
+  if (diffDays === 1) {
+    return '어제';
+  }
+  if (diffDays === 2) {
+    return '그저께';
+  }
+
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  if (date.getFullYear() === now.getFullYear()) {
+    return `${month}월 ${day}일`;
+  }
+
+  return `${date.getFullYear()}년 ${month}월 ${day}일`;
+};
+
 /** 상대 시간 표시 문자열 포맷 (예: 3분 전, 어제, 2일 전) */
 export const formatRelativeTime = (value: string): string => {
   const date = new Date(value);

@@ -22,6 +22,7 @@ import NoImageIcon from './no-image.svg';
 import OfficeFillIcon from './office-fill.svg';
 import ProfileIcon from './profile.svg';
 import SearchIcon from './search.svg';
+import SendIcon from './send.svg';
 import StarIcon from './star.svg';
 import SymbolFacebookIcon from './symbol-facebook.svg';
 import SymbolKakaoIcon from './symbol-kakao.svg';
@@ -53,6 +54,7 @@ const MONO_ICONS = [
   ['chevron-right', ChevronRightIcon],
   ['heart', HeartIcon],
   ['clip', ClipIcon],
+  ['send', SendIcon],
   ['close (X)', CloseIcon],
   ['check', CheckIcon],
   ['arrow-right', ArrowRightIcon],
