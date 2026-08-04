@@ -2,15 +2,17 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 
+import InfoIcon from '@/assets/icons/info.svg';
+import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { Button } from '@/components/Button/Button';
 import { QuoteShareButtons } from '@/components/QuoteShareButtons/QuoteShareButtons';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { Toast } from '@/components/ui/Toast/Toast';
 import { useConfirmQuoteModal } from '@/hooks/useConfirmQuoteModal';
 import { useCustomerQuoteDetail } from '@/hooks/useCustomerQuoteDetail';
+import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { ApiError } from '@/lib/apiClient';
-import type { CustomerQuoteMoverViewModel } from '@/types/customerQuote';
 
 import { ConfirmQuoteModal } from '../_components/ConfirmQuoteModal';
 import { CustomerQuoteDetailActions } from './_components/CustomerQuoteDetailActions';
@@ -30,25 +32,21 @@ const parseQuoteId = (value: string): number => {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : NaN;
 };
 
-/** 로컬 찜 오버라이드 (API 연동 전 UI 전용) */
-interface FavoriteDraft {
-  quoteId: number;
-  isFavorited: boolean;
-  favoriteCount: number;
-}
-
 /** 고객 견적 상세 페이지 클라이언트 */
 const CustomerQuoteDetailPageClient = ({
   quoteId,
 }: CustomerQuoteDetailPageClientProps) => {
   const router = useRouter();
   const numericQuoteId = parseQuoteId(quoteId);
+  const {
+    handleFavoriteClick,
+    isMoverPending,
+    isLoginModalOpen,
+    closeLoginModal,
+  } = useFavoriteAction();
+
   const { detail, isPending, isError, error, refetch } =
     useCustomerQuoteDetail(numericQuoteId);
-
-  const [favoriteDraft, setFavoriteDraft] = useState<FavoriteDraft | null>(
-    null
-  );
 
   const {
     isConfirmModalOpen,
@@ -115,32 +113,16 @@ const CustomerQuoteDetailPageClient = ({
     );
   }
 
-  const isFavorited =
-    favoriteDraft?.quoteId === detail.quoteId
-      ? favoriteDraft.isFavorited
-      : detail.mover.isFavorited;
-  const favoriteCount =
-    favoriteDraft?.quoteId === detail.quoteId
-      ? favoriteDraft.favoriteCount
-      : detail.mover.favoriteCount;
-
-  /** 로컬 찜 토글 (API 미연결) */
-  const handleToggleFavorite = () => {
-    setFavoriteDraft({
-      quoteId: detail.quoteId,
-      isFavorited: !isFavorited,
-      favoriteCount: Math.max(0, favoriteCount + (isFavorited ? -1 : 1)),
-    });
+  const showMobileActionBar = detail.canConfirm;
+  const quoteShareProps = {
+    sharePath: `/quotes/${quoteId}`,
+    shareTitle: `${detail.mover.nickname} 기사님 견적서`,
+    shareDescription:
+      detail.comment?.trim() ||
+      detail.mover.shortDescription ||
+      `${detail.serviceLabel} · ${detail.priceLabel}`,
+    shareImageUrl: detail.mover.profileImageUrl,
   };
-
-  const moverView: CustomerQuoteMoverViewModel = {
-    ...detail.mover,
-    isFavorited,
-    favoriteCount,
-    favoriteCountLabel: favoriteCount.toLocaleString('ko-KR'),
-  };
-
-  const showMobileActionBar = detail.isPending;
 
   return (
     <div
@@ -159,9 +141,14 @@ const CustomerQuoteDetailPageClient = ({
       <div
         className={`mx-auto grid w-full max-w-[1920px] flex-1 grid-cols-1 gap-6 py-6 md:gap-8 md:py-8 lg:grid-cols-[minmax(0,59.6875rem)_20.5rem] lg:items-start lg:justify-between lg:gap-10 lg:py-10 ${PAGE_X_PADDING}`}
       >
-        {/* 본문: 카드 → 견적가 → (모바일 공유) → 견적 정보 */}
+        {/* 본문: 카드 → 견적가 → (모바일 공유) → 견적 정보 → 미확정 배너 */}
         <div className="col-start-1 flex w-full max-w-[59.6875rem] flex-col gap-6 md:gap-8 lg:gap-10">
-          <CustomerQuoteDetailSummaryCard detail={detail} mover={moverView} />
+          <CustomerQuoteDetailSummaryCard
+            detail={detail}
+            mover={detail.mover}
+            onFavoriteClick={handleFavoriteClick}
+            isFavoritePending={isMoverPending(detail.mover.moverId)}
+          />
 
           <div className="h-px w-full bg-line-100" />
 
@@ -174,42 +161,73 @@ const CustomerQuoteDetailPageClient = ({
             </p>
           </section>
 
+          {detail.comment ? (
+            <>
+              <div className="h-px w-full bg-line-100" />
+              <section className="flex w-full flex-col gap-4 lg:gap-8">
+                <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
+                  코멘트
+                </h2>
+                <p className="text-lg-regular whitespace-pre-wrap text-black-400 lg:text-2lg-regular">
+                  {detail.comment}
+                </p>
+              </section>
+            </>
+          ) : null}
+
           {/* 모바일·태블릿: 본문 내 공유 */}
           <div className="flex flex-col gap-6 lg:hidden">
             <div className="h-px w-full bg-line-100" />
-            <QuoteShareButtons sharePath={`/quotes/${quoteId}`} />
+            <QuoteShareButtons {...quoteShareProps} />
           </div>
 
           <div className="h-px w-full bg-line-100" />
 
           <CustomerQuoteDetailInfoSection detail={detail} />
+
+          {detail.showUnconfirmedBanner ? (
+            <Toast
+              icon={InfoIcon}
+              content="확정하지 않은 견적이에요!"
+              className="w-full justify-center"
+            />
+          ) : null}
         </div>
 
         {/* 데스크톱: 우측 확정 CTA + 공유 */}
         <aside className="col-start-1 hidden w-full flex-col gap-10 lg:col-start-2 lg:row-span-1 lg:row-start-1 lg:flex lg:w-[20.5rem]">
           <CustomerQuoteDetailActions
             variant="desktop"
-            isPending={detail.isPending}
+            canConfirm={detail.canConfirm}
             isConfirming={isConfirming}
-            isFavorited={isFavorited}
+            isFavorited={detail.mover.isFavorited}
+            isFavoritePending={isMoverPending(detail.mover.moverId)}
             onConfirm={() => openConfirmModal(detail.quoteId)}
-            onToggleFavorite={handleToggleFavorite}
+            onToggleFavorite={() =>
+              handleFavoriteClick(
+                detail.mover.moverId,
+                !detail.mover.isFavorited
+              )
+            }
           />
-          {detail.isPending ? (
+          {detail.canConfirm ? (
             <div className="h-px w-full bg-line-100" />
           ) : null}
-          <QuoteShareButtons sharePath={`/quotes/${quoteId}`} />
+          <QuoteShareButtons {...quoteShareProps} />
         </aside>
       </div>
 
-      {/* 모바일·태블릿: 하단 고정 찜 + 확정 (대기 중일 때만) */}
+      {/* 모바일·태블릿: 하단 고정 찜 + 확정 (확정 가능할 때만) */}
       <CustomerQuoteDetailActions
         variant="mobile"
-        isPending={detail.isPending}
+        canConfirm={detail.canConfirm}
         isConfirming={isConfirming}
-        isFavorited={isFavorited}
+        isFavorited={detail.mover.isFavorited}
+        isFavoritePending={isMoverPending(detail.mover.moverId)}
         onConfirm={() => openConfirmModal(detail.quoteId)}
-        onToggleFavorite={handleToggleFavorite}
+        onToggleFavorite={() =>
+          handleFavoriteClick(detail.mover.moverId, !detail.mover.isFavorited)
+        }
       />
 
       <ConfirmQuoteModal
@@ -217,6 +235,11 @@ const CustomerQuoteDetailPageClient = ({
         isConfirming={isConfirming}
         onClose={closeConfirmModal}
         onConfirm={submitConfirm}
+      />
+
+      <LoginRequiredModal
+        open={isLoginModalOpen}
+        onClose={closeLoginModal}
       />
     </div>
   );

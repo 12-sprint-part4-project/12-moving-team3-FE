@@ -10,7 +10,7 @@ import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 
 import { cn } from '@/lib/utils';
 import { API_MOVE_TYPE_TO_UI } from '@/types/estimateRequest';
-import type { ApiMoveType, MoverCardModel } from '@/types/mover';
+import type { MoverCardModel } from '@/types/mover';
 
 export type MoverCardSize = 'lg' | 'sm';
 export type MoverCardVariant = 'default' | 'favorite';
@@ -21,7 +21,7 @@ export interface MoverCardProps {
   /** favorite: 한 줄 소개 숨김 + 경력/확정 항상 표시 (Figma Card-list/찜한 기사님) */
   variant?: MoverCardVariant;
   onFavoriteClick?: (moverId: string, nextFavorited: boolean) => void;
-  /** 찜 요청 진행 중 — 버튼 비활성 */
+  /** 찜 요청 진행 중 — 시각적 busy 표시 (클릭은 허용) */
   isFavoritePending?: boolean;
   /** true면 상세 이동 비활성 (이미 상세 페이지일 때) */
   disableNavigation?: boolean;
@@ -48,19 +48,19 @@ export const MoverCard = ({
   const ratingLabel =
     mover.averageRating === null ? '-' : mover.averageRating.toFixed(1);
   const careerLabel = mover.career === null ? '-' : `${mover.career}년`;
+  const confirmedLabel =
+    mover.confirmedCount === null ? '-' : `${mover.confirmedCount}건`;
   const description =
     mover.shortDescription?.trim() || '등록된 한 줄 소개가 없습니다.';
   const nicknameClassName = cn(
     'text-black-300',
     isCompact ? 'text-lg-semibold' : 'text-2lg-semibold'
   );
+  const profileAlt = `${mover.nickname} 기사님 프로필`;
 
   const handleFavoriteClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     event.preventDefault();
-    if (isFavoritePending) {
-      return;
-    }
     onFavoriteClick?.(mover.moverId, !mover.isFavorited);
   };
 
@@ -77,7 +77,7 @@ export const MoverCard = ({
     >
       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         {mover.services.length > 0 ? (
-          mover.services.map((service: ApiMoveType) => (
+          mover.services.map((service) => (
             <MoveTypeChip
               key={service}
               type={API_MOVE_TYPE_TO_UI[service]}
@@ -116,7 +116,7 @@ export const MoverCard = ({
             // eslint-disable-next-line @next/next/no-img-element -- CDN 도메인 미확정
             <img
               src={mover.profileImageUrl}
-              alt=""
+              alt={profileAlt}
               className="size-full object-cover"
             />
           ) : (
@@ -151,7 +151,9 @@ export const MoverCard = ({
                 aria-hidden
               />
               <span className="text-black-300">{ratingLabel}</span>
-              <span className="text-gray-300">({mover.reviewCount})</span>
+              <span className="text-gray-300">
+                ({mover.reviewCount.toLocaleString('ko-KR')})
+              </span>
             </span>
             {showCareerAndConfirmed ? (
               <>
@@ -168,11 +170,7 @@ export const MoverCard = ({
                   className="hidden h-3.5 w-px bg-line-200 sm:block"
                 />
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="text-black-300">
-                    {mover.confirmedCount === null
-                      ? '-'
-                      : `${mover.confirmedCount}건`}
-                  </span>
+                  <span className="text-black-300">{confirmedLabel}</span>
                   <span className="text-gray-300">확정</span>
                 </span>
               </>
@@ -183,15 +181,12 @@ export const MoverCard = ({
         <button
           type="button"
           onClick={handleFavoriteClick}
-          disabled={isFavoritePending}
           aria-label={mover.isFavorited ? '찜 취소' : '찜하기'}
           aria-pressed={mover.isFavorited}
           aria-busy={isFavoritePending}
           className={cn(
-            'relative z-10 flex shrink-0 items-center gap-1 text-2lg-medium text-blue-400',
-            isFavoritePending
-              ? 'cursor-not-allowed opacity-60'
-              : 'cursor-pointer'
+            'relative z-10 flex shrink-0 cursor-pointer items-center gap-1 text-2lg-medium text-blue-400',
+            isFavoritePending && 'opacity-60'
           )}
         >
           <LikeActiveIcon

@@ -2,13 +2,14 @@
 
 import LikeActiveIcon from '@/assets/icons/like-active.svg';
 import { Button } from '@/components/Button/Button';
-import { IconButton } from '@/components/ui/IconButton/IconButton';
 import { cn } from '@/lib/utils';
 
 export interface CustomerQuoteDetailActionsProps {
-  isPending: boolean;
+  /** 확정 CTA 노출 (활성 SUBMITTED + PENDING) */
+  canConfirm: boolean;
   isConfirming: boolean;
   isFavorited: boolean;
+  isFavoritePending?: boolean;
   onConfirm: () => void;
   onToggleFavorite: () => void;
   /** desktop=사이드바 CTA / mobile=하단 고정바 */
@@ -18,16 +19,17 @@ export interface CustomerQuoteDetailActionsProps {
 
 /** 견적 상세 확정·찜 액션 */
 export const CustomerQuoteDetailActions = ({
-  isPending,
+  canConfirm,
   isConfirming,
   isFavorited,
+  isFavoritePending = false,
   onConfirm,
   onToggleFavorite,
   variant,
   className = '',
 }: CustomerQuoteDetailActionsProps) => {
   if (variant === 'desktop') {
-    if (!isPending) {
+    if (!canConfirm) {
       return null;
     }
 
@@ -45,8 +47,8 @@ export const CustomerQuoteDetailActions = ({
     );
   }
 
-  // 대기 중이 아니면 하단 고정바를 숨김
-  if (!isPending) {
+  // 확정 불가면 하단 고정바를 숨김
+  if (!canConfirm) {
     return null;
   }
 
@@ -58,18 +60,25 @@ export const CustomerQuoteDetailActions = ({
       )}
     >
       <div className="mx-auto flex w-full max-w-[37.5rem] items-center gap-2">
-        <IconButton
-          icon={LikeActiveIcon}
-          size="sm"
-          variant="outlined"
-          aria-label={isFavorited ? '찜 해제하기' : '찜하기'}
-          aria-pressed={isFavorited}
-          className={cn(
-            'cursor-pointer',
-            isFavorited ? 'text-blue-400' : 'text-gray-200'
-          )}
+        <button
+          type="button"
           onClick={onToggleFavorite}
-        />
+          aria-label={isFavorited ? '기사님 찜 취소' : '기사님 찜하기'}
+          aria-pressed={isFavorited}
+          aria-busy={isFavoritePending}
+          className={cn(
+            'inline-flex size-[3.375rem] shrink-0 cursor-pointer items-center justify-center rounded-2xl border border-line-200 bg-white',
+            isFavoritePending && 'opacity-60'
+          )}
+        >
+          <LikeActiveIcon
+            className={cn(
+              'size-6',
+              isFavorited ? 'text-blue-400' : 'text-gray-200'
+            )}
+            aria-hidden
+          />
+        </button>
         <Button
           size="sm"
           variant="solid"
