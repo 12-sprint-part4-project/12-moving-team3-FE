@@ -2,6 +2,8 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 import EditIcon from '@/assets/icons/edit.svg';
 
+import { cn } from '@/lib/utils';
+
 export type ButtonSize = 'sm' | 'md';
 export type ButtonVariant = 'solid' | 'outlined';
 
@@ -40,6 +42,23 @@ const VARIANT_STYLE: Record<ButtonVariant, string> = {
     'border border-blue-300 bg-transparent text-blue-300 shadow-cta hover:bg-blue-50 hover:shadow-cta-hover disabled:border-gray-100 disabled:text-gray-300 disabled:hover:bg-transparent disabled:hover:shadow-cta',
 };
 
+/** Button / Link CTA 공통 클래스 */
+export const getButtonClassName = ({
+  size = 'sm',
+  variant = 'solid',
+  className = '',
+}: {
+  size?: ButtonSize;
+  variant?: ButtonVariant;
+  className?: string;
+} = {}): string =>
+  cn(
+    'inline-flex w-full cursor-pointer items-center justify-center rounded-2xl transition-colors disabled:cursor-not-allowed',
+    VARIANT_STYLE[variant],
+    SIZE_STYLE[variant][size],
+    className
+  );
+
 /**
  * Primary CTA 버튼.
  * - solid: Figma "Button Solid CTA" — default(blue-300) / hover(blue-200) / disabled(gray-100)
@@ -58,7 +77,7 @@ export const Button = ({
   <button
     type={type}
     disabled={disabled}
-    className={`inline-flex w-full cursor-pointer items-center justify-center rounded-2xl transition-colors disabled:cursor-not-allowed ${VARIANT_STYLE[variant]} ${SIZE_STYLE[variant][size]} ${className}`}
+    className={getButtonClassName({ size, variant, className })}
     {...rest}
   >
     {children}

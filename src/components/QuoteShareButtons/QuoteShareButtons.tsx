@@ -7,7 +7,7 @@ import { IconButton } from '@/components/ui/IconButton/IconButton';
 import { useToast } from '@/hooks/useToast';
 
 export interface QuoteShareButtonsProps {
-  /** 공유할 경로 (예: /mover/quotes/1) */
+  /** 공유할 경로 (예: /quotes/1) */
   sharePath: string;
   className?: string;
 }

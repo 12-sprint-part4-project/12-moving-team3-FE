@@ -50,6 +50,8 @@ export interface PostListMeta {
   hasNextPage: boolean;
 }
 
+export type CommentListMeta = PostListMeta;
+
 export interface PostListResponse
   extends ApiSuccessResponse<{ items: PostListItem[] }, PostListMeta> {
   meta: PostListMeta;
@@ -83,4 +85,43 @@ export interface CreatePostBody {
 export interface UpdatePostBody {
   content?: string;
   imageKeys?: string[];
+}
+
+export interface CommentItem {
+  id: number;
+  content: string;
+  author: PostAuthor;
+  isMine: boolean | null;
+  createdAt: string;
+}
+
+export interface CommentWithReplies extends CommentItem {
+  replies: CommentItem[];
+}
+
+export interface CommentListResponse
+  extends ApiSuccessResponse<{ items: CommentWithReplies[] }, CommentListMeta> {
+  meta: CommentListMeta;
+}
+
+export interface CommentListQuery {
+  cursor?: string;
+  limit?: number;
+}
+
+/** 댓글 목록 조회 파라미터 (cursor 제외) */
+export interface CommentListParams {
+  limit?: number;
+}
+
+export interface CreateCommentBody {
+  content: string;
+}
+
+export interface CreateReplyBody extends CreateCommentBody {
+  commentId: number;
+}
+
+export interface PostLikeResponse extends ApiSuccessResponse<null> {
+  data: null;
 }

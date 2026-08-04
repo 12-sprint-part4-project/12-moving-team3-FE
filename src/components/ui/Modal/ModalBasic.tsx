@@ -15,6 +15,8 @@ export interface ModalBasicProps {
   /** 하단 CTA 등. 없으면 미렌더 */
   footer?: ReactNode;
   className?: string;
+  /** true면 헤더 닫기 버튼 비활성 */
+  closeDisabled?: boolean;
 }
 
 /**
@@ -41,6 +43,7 @@ export const ModalBasic = ({
   children,
   footer,
   className = '',
+  closeDisabled = false,
 }: ModalBasicProps) => {
   const titleId = useId();
 
@@ -51,7 +54,12 @@ export const ModalBasic = ({
       aria-labelledby={titleId}
       className={cn(MODAL_PANEL_CLASS, className)}
     >
-      <ModalHeader title={title} onClose={onClose} titleId={titleId} />
+      <ModalHeader
+        title={title}
+        onClose={onClose}
+        titleId={titleId}
+        closeDisabled={closeDisabled}
+      />
 
       {children}
 

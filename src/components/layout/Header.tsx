@@ -9,10 +9,7 @@ import { GnbLanding } from '@/components/Gnb/GnbLanding';
 import { GnbMenu } from '@/components/Gnb/GnbMenu';
 import type { GnbNavItem } from '@/components/Gnb/gnbNav';
 import { useAuth } from '@/hooks/useAuth';
-import {
-  customerProfileQueryKeys,
-  useCustomerProfile,
-} from '@/hooks/useCustomerProfile';
+import { useCustomerProfile } from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { logout } from '@/services/authApi';
@@ -49,7 +46,7 @@ export const Header = () => {
       return;
     }
 
-    queryClient.removeQueries({ queryKey: customerProfileQueryKeys.all });
+    queryClient.clear();
     clearSession();
     showToast({ content: '로그아웃되었습니다.' });
     router.replace('/');

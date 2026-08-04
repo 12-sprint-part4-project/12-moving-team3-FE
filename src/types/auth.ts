@@ -11,7 +11,6 @@ export interface SignupRequest {
   name: string;
   nickname: string;
   email: string;
-  phoneNumber: string;
   password: string;
   passwordConfirmation: string;
 }
@@ -21,6 +20,7 @@ export interface AuthUser {
   userType: ApiUserType;
   nickname: string;
   email: string;
+  /** 프로필 등록 전에는 빈 문자열 */
   phoneNumber: string;
   isProfileCompleted: boolean;
 }

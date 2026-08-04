@@ -41,7 +41,7 @@ const areServicesEqual = (
   return sortedLeft.every((value, index) => value === sortedRight[index]);
 };
 
-/** PATCH body 구성. nickname은 필수라 항상 포함한다. */
+/** PATCH body 구성. nickname·phoneNumber는 필수라 항상 포함한다. */
 export const buildCustomerProfileUpdateBody = ({
   profile,
   name,
@@ -56,18 +56,15 @@ export const buildCustomerProfileUpdateBody = ({
   hasImageChange = false,
 }: BuildCustomerProfileUpdateBodyParams): UpsertCustomerProfileRequest | null => {
   const trimmedNickname = nickname.trim();
+  const phoneDigits = toPhoneDigits(phoneNumber);
   const body: UpsertCustomerProfileRequest = {
     nickname: trimmedNickname,
+    phoneNumber: phoneDigits,
   };
 
   const trimmedName = name.trim();
   if (trimmedName !== profile.name) {
     body.name = trimmedName;
-  }
-
-  const phoneDigits = toPhoneDigits(phoneNumber);
-  if (phoneDigits !== (profile.phoneNumber ?? '')) {
-    body.phoneNumber = phoneDigits;
   }
 
   if (!areServicesEqual(selectedServices, profile.service)) {
@@ -96,7 +93,7 @@ export const buildCustomerProfileUpdateBody = ({
   const hasOtherChanges =
     body.name !== undefined ||
     trimmedNickname !== profile.nickname ||
-    body.phoneNumber !== undefined ||
+    phoneDigits !== (profile.phoneNumber ?? '') ||
     body.service !== undefined ||
     body.region !== undefined ||
     body.currentPassword !== undefined ||
@@ -138,10 +135,7 @@ export const getCustomerProfileUpdateError = ({
   }
 
   const phoneDigits = toPhoneDigits(phoneNumber);
-  if (
-    phoneDigits !== (profile.phoneNumber ?? '') &&
-    phoneDigits.length !== PHONE_NUMBER_LENGTH
-  ) {
+  if (phoneDigits.length !== PHONE_NUMBER_LENGTH) {
     return '전화번호는 숫자 11자리로 입력해 주세요.';
   }
 

@@ -1,9 +1,18 @@
 import type { AuthUser } from '@/types/auth';
 
-/** 프로필 미등록 고객은 /profile/customer 로 보냄 */
+/**
+ * 로그인·소셜 인증 후 이동 경로.
+ * 프로필 미등록 고객 → /profile/customer
+ * 프로필 미등록 기사 → /profile/mover
+ */
 export const getPostAuthRedirectPath = (user: AuthUser): string => {
-  if (user.userType === 'CUSTOMER' && !user.isProfileCompleted) {
-    return '/profile/customer';
+  if (!user.isProfileCompleted) {
+    if (user.userType === 'CUSTOMER') {
+      return '/profile/customer';
+    }
+    if (user.userType === 'MOVER') {
+      return '/profile/mover';
+    }
   }
 
   return '/';
