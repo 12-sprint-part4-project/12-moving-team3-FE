@@ -80,13 +80,13 @@ export const ChatComposer = ({
         disabled={!canSend}
         aria-label="전송"
         className={cn(
-          'inline-flex size-9 shrink-0 items-center justify-center rounded-full transition-colors',
+          'inline-flex size-11 shrink-0 items-center justify-center transition-colors',
           canSend
-            ? 'cursor-pointer bg-blue-300 text-white hover:bg-blue-200'
-            : 'cursor-not-allowed bg-gray-100 text-white'
+            ? 'cursor-pointer text-blue-300 hover:text-blue-200'
+            : 'cursor-not-allowed text-gray-200'
         )}
       >
-        <SendIcon className="size-5" aria-hidden />
+        <SendIcon className="size-9 translate-x-px -translate-y-px" aria-hidden />
       </button>
     </form>
   );
