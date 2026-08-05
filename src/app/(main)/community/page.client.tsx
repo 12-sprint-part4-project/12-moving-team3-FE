@@ -41,7 +41,7 @@ import { CommunitySidebarFilter } from './_components/CommunitySidebarFilter';
 import { CommunityTabBar } from './_components/CommunityTabBar';
 
 const SORT_CLASS =
-  'w-[7.125rem] [&_button]:w-full [&_button]:justify-center [&_button]:shadow-community-sort';
+  'w-[7.125rem] [&_button]:w-full [&_button]:justify-center [&_button]:!shadow-none';
 
 /** 커뮤니티 게시글 목록 — Figma Mobile / Tablet / Desktop */
 export const CommunityPageClient = () => {
