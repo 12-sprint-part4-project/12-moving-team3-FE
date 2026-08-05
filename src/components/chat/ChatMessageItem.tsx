@@ -16,6 +16,12 @@ export interface ChatMessageItemProps {
   className?: string;
 }
 
+interface ChatImageAttachmentsProps {
+  attachments: string[];
+  isMine: boolean;
+  onSelectImage: (imageUrl: string) => void;
+}
+
 const getTextMessageBody = (message: ChatMessage): string => {
   const content = message.content.trim();
   if (message.isFiltered && !content) {
@@ -34,11 +40,7 @@ const ChatImageAttachments = ({
   attachments,
   isMine,
   onSelectImage,
-}: {
-  attachments: string[];
-  isMine: boolean;
-  onSelectImage: (imageUrl: string) => void;
-}) => {
+}: ChatImageAttachmentsProps) => {
   const count = attachments.length;
   const isSingle = count === 1;
 
@@ -60,11 +62,7 @@ const ChatImageAttachments = ({
           <button
             type="button"
             key={`${url}-${index}`}
-            className={cn(
-              'relative cursor-pointer overflow-hidden bg-background-200',
-              'transition-opacity hover:opacity-95',
-              isSingle ? 'aspect-square' : 'aspect-square'
-            )}
+            className="relative aspect-square cursor-pointer overflow-hidden bg-background-200 transition-opacity hover:opacity-95"
             onClick={() => onSelectImage(url)}
             aria-label={`${index + 1}번째 이미지 크게 보기`}
           >
@@ -126,12 +124,15 @@ export const ChatMessageItem = ({
       </div>
 
       {selectedImageUrl ? (
-        <Modal onClose={() => setSelectedImageUrl(null)}>
+        <Modal
+          onClose={() => setSelectedImageUrl(null)}
+          panelClassName="max-w-[90vw] bg-transparent sm:max-w-[90vw]"
+        >
           <section
             role="dialog"
             aria-modal="true"
             aria-label="원본 이미지 보기"
-            className="mx-auto flex w-full max-w-[90vw] items-center justify-center bg-transparent p-0 outline-none"
+            className="mx-auto flex w-full items-center justify-center bg-transparent p-0 outline-none"
           >
             <div className="relative inline-flex max-h-[85vh] max-w-full">
               <button
@@ -141,7 +142,7 @@ export const ChatMessageItem = ({
                 className="absolute -top-1 -right-1 z-10 inline-flex size-12 items-center justify-center text-white"
               >
                 <CloseIcon
-                  className="size-7 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]"
+                  className="size-7 drop-shadow-icon-on-media"
                   aria-hidden
                 />
               </button>

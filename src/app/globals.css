@@ -70,6 +70,9 @@
   --shadow-cta: 0.25rem 0.25rem 0.625rem 0 rgb(195 217 242 / 0.2);
   --shadow-cta-hover: 0.25rem 0.25rem 0.3125rem 0 rgb(195 217 242 / 0.2);
 
+  /* Drop Shadow — 어두운 미디어 위 아이콘 가독성 */
+  --drop-shadow-icon-on-media: 0 0.0625rem 0.125rem rgb(0 0 0 / 0.8);
+
   /* Box Shadow — Figma img/landing card */
   --shadow-card: 0.25rem 0.25rem 0.3125rem 0
     color-mix(in srgb, var(--color-shadow-gray-100) 10%, transparent);
@@ -101,6 +104,10 @@
 
   /* Layout — GNB 채팅 미리보기 드롭다운 */
   --width-chat-preview: 22.4375rem;
+
+  /* Layout — GNB 높이 (GnbDefault/GnbLanding sm·md / lg 와 동기화) */
+  --height-gnb: 3.375rem;
+  --height-gnb-lg: 5.5rem;
 
   /* Dimmer — Figma Component/dimmer (#141414, opacity 50%) */
   --color-dimmer: #141414;
@@ -234,7 +241,7 @@ body {
   @apply mx-auto flex w-full max-w-chat flex-col px-6 py-10;
 }
 
-/** 채팅방(상세) 공통 래퍼 — 메시지 리스트만 스크롤되도록 overflow 차단 */
+/** 채팅방(상세) 공통 래퍼 — 높이는 ChatRoomPage에서 뷰포트 기준으로 고정, 내부만 스크롤 */
 @utility chat-room-content {
   @apply mx-auto flex w-full max-w-chat flex-col overflow-hidden;
 }

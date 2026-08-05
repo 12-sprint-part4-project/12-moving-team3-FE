@@ -88,38 +88,19 @@ export const ChatMessageList = ({
     [onNearBottomChange]
   );
 
-  const scrollToBottom = useCallback(
-    (behavior: ScrollBehavior = 'auto') => {
-      const el = scrollRef.current;
-      if (!el) {
-        return;
-      }
+  const scrollToBottom = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) {
+      return;
+    }
 
-      isProgrammaticScrollRef.current = true;
-      if (behavior === 'smooth') {
-        el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-      } else {
-        el.scrollTop = el.scrollHeight;
-      }
-      reportNearBottom(true);
-
-      // smooth/레이아웃 지연 후에도 한 번 더 맞춤
-      requestAnimationFrame(() => {
-        if (!scrollRef.current) {
-          return;
-        }
-        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        requestAnimationFrame(() => {
-          if (!scrollRef.current) {
-            return;
-          }
-          scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-          isProgrammaticScrollRef.current = false;
-        });
-      });
-    },
-    [reportNearBottom]
-  );
+    isProgrammaticScrollRef.current = true;
+    el.scrollTop = el.scrollHeight;
+    reportNearBottom(true);
+    requestAnimationFrame(() => {
+      isProgrammaticScrollRef.current = false;
+    });
+  }, [reportNearBottom]);
 
   // 이전 메시지 prepend 시에만 스크롤 복원 (앵커 스냅샷은 로드 중 유지)
   useLayoutEffect(() => {
@@ -172,7 +153,7 @@ export const ChatMessageList = ({
       return;
     }
 
-    scrollToBottom('auto');
+    scrollToBottom();
     didInitialScrollRef.current = true;
     prevMessageCountRef.current = messages.length;
     oldestMessageIdRef.current = messages[0]?.messageId ?? null;
@@ -202,7 +183,7 @@ export const ChatMessageList = ({
     }
 
     if (nextCount > prevCount && shouldStickToBottomRef.current) {
-      scrollToBottom('smooth');
+      scrollToBottom();
     }
   }, [messages, isPending, scrollToBottom]);
 
@@ -213,7 +194,7 @@ export const ChatMessageList = ({
     }
 
     shouldStickToBottomRef.current = true;
-    scrollToBottom('smooth');
+    scrollToBottom();
   }, [scrollToBottomSignal, scrollToBottom]);
 
   // 이미지 등으로 콘텐츠 높이가 늘어나도 하단 고정 중이면 따라감

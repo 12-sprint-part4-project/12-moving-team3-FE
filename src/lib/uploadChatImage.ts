@@ -22,6 +22,9 @@ export const validateChatImageFile = (file: File): string | null => {
   if (!isAllowedChatImageType(contentType)) {
     return '지원하지 않는 이미지 형식입니다.';
   }
+  if (file.size === 0) {
+    return '빈 이미지 파일은 업로드할 수 없습니다.';
+  }
   if (file.size > CHAT_IMAGE_MAX_BYTES) {
     return '이미지 용량은 5MB 이하만 업로드할 수 있습니다.';
   }
@@ -30,7 +33,7 @@ export const validateChatImageFile = (file: File): string | null => {
 
 /** Presigned 업로드 후 IMAGE 메시지용 s3Key 반환 */
 export const uploadChatImage = async (file: File): Promise<string> => {
-  const contentType = file.type || 'image/jpeg';
+  const contentType = file.type;
   const filename = file.name.trim().length > 0 ? file.name : 'chat-image.jpg';
 
   const { data } = await getChatPresignedUploadUrl({

@@ -8,6 +8,7 @@ import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import { ChatComposer } from '@/components/chat/ChatComposer';
 import { ChatMessageList } from '@/components/chat/ChatMessageList';
 import { ChatRoomHeader } from '@/components/chat/ChatRoomHeader';
+import { ChatRoomHeaderPlaceholder } from '@/components/chat/ChatRoomHeaderPlaceholder';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useChatMessages,
@@ -192,21 +193,15 @@ export const ChatRoomPage = ({
   return (
     <div
       className={cn(
-        'chat-room-content h-[calc(100dvh-3.375rem)] max-h-[calc(100dvh-3.375rem)] lg:h-[calc(100dvh-5.5rem)] lg:max-h-[calc(100dvh-5.5rem)]',
+        'chat-room-content h-[calc(100dvh-var(--height-gnb))] max-h-[calc(100dvh-var(--height-gnb))] lg:h-[calc(100dvh-var(--height-gnb-lg))] lg:max-h-[calc(100dvh-var(--height-gnb-lg))]',
         className
       )}
     >
       {isRoomPending ? (
-        <header className="flex w-full shrink-0 items-center gap-3 border-b border-line-100 bg-white px-4 py-3 md:px-6">
-          <Link
-            href="/chat"
-            aria-label="채팅 목록으로"
-            className="inline-flex size-6 shrink-0 items-center justify-center text-black-400"
-          >
-            <ChevronLeftIcon className="size-6" aria-hidden />
-          </Link>
-          <p className="text-2lg-semibold text-gray-300">불러오는 중…</p>
-        </header>
+        <ChatRoomHeaderPlaceholder
+          title="불러오는 중…"
+          titleClassName="text-gray-300"
+        />
       ) : null}
 
       {!isRoomPending && room ? (
@@ -218,16 +213,10 @@ export const ChatRoomPage = ({
       ) : null}
 
       {!isRoomPending && (isRoomError || !room) ? (
-        <header className="flex w-full shrink-0 items-center gap-3 border-b border-line-100 bg-white px-4 py-3 md:px-6">
-          <Link
-            href="/chat"
-            aria-label="채팅 목록으로"
-            className="inline-flex size-6 shrink-0 items-center justify-center text-black-400"
-          >
-            <ChevronLeftIcon className="size-6" aria-hidden />
-          </Link>
-          <p className="text-2lg-semibold text-black-400">채팅방</p>
-        </header>
+        <ChatRoomHeaderPlaceholder
+          title="채팅방"
+          titleClassName="text-black-400"
+        />
       ) : null}
 
       {isRoomError && !room ? (

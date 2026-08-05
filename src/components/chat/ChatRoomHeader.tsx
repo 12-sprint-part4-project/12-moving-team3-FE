@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
@@ -38,6 +38,21 @@ export const ChatRoomHeader = ({
   const menuRef = useRef<HTMLDivElement>(null);
 
   useOutsideClick(menuRef, isMenuOpen, setIsMenuOpen);
+
+  useEffect(() => {
+    if (!isMenuOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMenuOpen]);
 
   const handleLeaveConfirm = async () => {
     try {

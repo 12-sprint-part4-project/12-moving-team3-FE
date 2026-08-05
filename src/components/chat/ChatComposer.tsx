@@ -2,7 +2,6 @@
 
 import {
   useEffect,
-  useMemo,
   useRef,
   useState,
   type ChangeEvent,
@@ -22,6 +21,11 @@ import { cn } from '@/lib/utils';
 
 const CHAT_IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
 
+interface PendingChatImage {
+  file: File;
+  previewUrl: string;
+}
+
 export interface ChatComposerProps {
   disabled?: boolean;
   isSending?: boolean;
@@ -30,6 +34,16 @@ export interface ChatComposerProps {
   focusInputSignal?: number;
   className?: string;
 }
+
+const createPendingImages = (files: File[]): PendingChatImage[] =>
+  files.map((file) => ({
+    file,
+    previewUrl: URL.createObjectURL(file),
+  }));
+
+const revokePendingImages = (items: PendingChatImage[]) => {
+  items.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+};
 
 /** 채팅방 하단 텍스트·이미지 입력·전송 */
 export const ChatComposer = ({
@@ -43,9 +57,10 @@ export const ChatComposer = ({
   const composerRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState('');
-  const [pendingImages, setPendingImages] = useState<File[]>([]);
+  const [pendingImages, setPendingImages] = useState<PendingChatImage[]>([]);
   const [imageError, setImageError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const pendingImagesRef = useRef(pendingImages);
 
   const trimmed = value.trim();
   const hasPendingImages = pendingImages.length > 0;
@@ -53,7 +68,12 @@ export const ChatComposer = ({
   const canSend =
     !isBusy && (trimmed.length > 0 || (hasPendingImages && Boolean(onSendImages)));
 
+  useEffect(() => {
+    pendingImagesRef.current = pendingImages;
+  }, [pendingImages]);
+
   const clearPendingImages = () => {
+    revokePendingImages(pendingImages);
     setPendingImages([]);
     setImageError(null);
   };
@@ -64,13 +84,17 @@ export const ChatComposer = ({
     }
 
     if (hasPendingImages && onSendImages) {
-      const files = pendingImages;
+      const files = pendingImages.map((item) => item.file);
       clearPendingImages();
       try {
         await onSendImages(files);
       } catch {
-        setPendingImages(files);
+        setPendingImages(createPendingImages(files));
+        return;
       }
+    }
+
+    if (trimmed.length === 0) {
       return;
     }
 
@@ -111,24 +135,35 @@ export const ChatComposer = ({
     }
 
     const validFiles: File[] = [];
+    let firstError: string | null = null;
     for (const file of selected) {
       const errorMessage = validateChatImageFile(file);
       if (errorMessage) {
-        setImageError(errorMessage);
-        return;
+        firstError ??= errorMessage;
+        continue;
       }
       validFiles.push(file);
     }
 
-    setPendingImages((current) => {
-      const combined = [...current, ...validFiles];
-      if (combined.length > CHAT_IMAGE_MAX_COUNT) {
-        setImageError(`이미지는 최대 ${CHAT_IMAGE_MAX_COUNT}장까지 첨부할 수 있습니다.`);
-        return combined.slice(0, CHAT_IMAGE_MAX_COUNT);
-      }
-      setImageError(null);
-      return combined;
-    });
+    if (validFiles.length === 0) {
+      setImageError(firstError);
+      return;
+    }
+
+    const newItems = createPendingImages(validFiles);
+    const combined = [...pendingImages, ...newItems];
+    const isOverLimit = combined.length > CHAT_IMAGE_MAX_COUNT;
+    if (isOverLimit) {
+      const kept = combined.slice(0, CHAT_IMAGE_MAX_COUNT);
+      revokePendingImages(combined.slice(CHAT_IMAGE_MAX_COUNT));
+      setPendingImages(kept);
+      setImageError(
+        `이미지는 최대 ${CHAT_IMAGE_MAX_COUNT}장까지 첨부할 수 있습니다.`
+      );
+    } else {
+      setPendingImages(combined);
+      setImageError(firstError);
+    }
 
     requestAnimationFrame(() => {
       inputRef.current?.focus();
@@ -136,20 +171,19 @@ export const ChatComposer = ({
   };
 
   const handleRemoveImage = (index: number) => {
+    const removed = pendingImages[index];
+    if (removed) {
+      URL.revokeObjectURL(removed.previewUrl);
+    }
     setPendingImages((current) => current.filter((_, i) => i !== index));
     setImageError(null);
   };
 
-  const previewUrls = useMemo(
-    () => pendingImages.map((file) => URL.createObjectURL(file)),
-    [pendingImages]
-  );
-
   useEffect(
     () => () => {
-      previewUrls.forEach((url) => URL.revokeObjectURL(url));
+      revokePendingImages(pendingImagesRef.current);
     },
-    [previewUrls]
+    []
   );
 
   useEffect(() => {
@@ -189,20 +223,20 @@ export const ChatComposer = ({
             className="flex min-h-[4.75rem] gap-2 overflow-x-auto pt-2 pr-2 pb-1"
             aria-label="첨부 이미지 미리보기"
           >
-            {pendingImages.map((file, index) => (
+            {pendingImages.map((item, index) => (
               <li
-                key={`${file.name}-${file.lastModified}-${index}`}
+                key={`${item.file.name}-${item.file.lastModified}-${index}`}
                 className="relative shrink-0"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={previewUrls[index]}
-                  alt={file.name}
+                  src={item.previewUrl}
+                  alt={item.file.name}
                   className="size-16 rounded-xl border border-line-200 object-cover"
                 />
                 <button
                   type="button"
-                  aria-label={`${file.name} 삭제`}
+                  aria-label={`${item.file.name} 삭제`}
                   disabled={isBusy}
                   onClick={() => handleRemoveImage(index)}
                   className="absolute -top-1.5 -right-1.5 inline-flex size-5 cursor-pointer items-center justify-center rounded-full bg-black-400 text-white disabled:cursor-not-allowed"
