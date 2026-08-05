@@ -25,19 +25,13 @@ const meta: Meta<typeof GnbNotificationItem> = {
       values: [{ name: 'dark', value: '#525252' }],
     },
   },
-  argTypes: {
-    size: {
-      control: 'select',
-      options: ['sm', 'md'],
-    },
-  },
   args: {
     item: offerItem,
     onClick: fn(),
   },
   decorators: [
     (Story) => (
-      <div className="w-[20.4375rem] overflow-hidden rounded-2xl bg-white">
+      <div className="w-[19.5rem] overflow-hidden rounded-2xl bg-white md:w-[22.5rem]">
         <Story />
       </div>
     ),
@@ -47,28 +41,15 @@ export default meta;
 
 type Story = StoryObj<typeof GnbNotificationItem>;
 
-export const Medium: Story = {
-  args: { size: 'md', item: offerItem },
-};
-
-export const Small: Story = {
-  args: { size: 'sm', item: offerItem },
-  decorators: [
-    (Story) => (
-      <div className="w-[17.25rem] overflow-hidden rounded-2xl bg-white">
-        <Story />
-      </div>
-    ),
-  ],
-};
+export const Default: Story = {};
 
 /** 강조 규칙 샘플 — 견적 / 확정 / 이사 예정일 */
 export const HighlightVariants: Story = {
   render: () => (
-    <div className="flex w-[20.4375rem] flex-col overflow-hidden rounded-2xl bg-white">
-      <GnbNotificationItem item={offerItem} size="md" onClick={fn()} />
-      <GnbNotificationItem item={confirmedItem} size="md" onClick={fn()} />
-      <GnbNotificationItem item={reminderItem} size="md" onClick={fn()} />
+    <div className="flex w-[19.5rem] flex-col overflow-hidden rounded-2xl bg-white md:w-[22.5rem]">
+      <GnbNotificationItem item={offerItem} onClick={fn()} />
+      <GnbNotificationItem item={confirmedItem} onClick={fn()} />
+      <GnbNotificationItem item={reminderItem} onClick={fn()} />
     </div>
   ),
   decorators: [],
@@ -77,14 +58,9 @@ export const HighlightVariants: Story = {
 /** 12종 타입 전체 */
 export const AllTypes: Story = {
   render: () => (
-    <div className="flex max-h-[40rem] w-[20.4375rem] flex-col overflow-y-auto rounded-2xl bg-white">
+    <div className="flex max-h-[40rem] w-[19.5rem] flex-col overflow-y-auto rounded-2xl bg-white md:w-[22.5rem]">
       {NOTIFICATION_FIXTURES.map((item) => (
-        <GnbNotificationItem
-          key={item.id}
-          item={item}
-          size="md"
-          onClick={fn()}
-        />
+        <GnbNotificationItem key={item.id} item={item} onClick={fn()} />
       ))}
     </div>
   ),

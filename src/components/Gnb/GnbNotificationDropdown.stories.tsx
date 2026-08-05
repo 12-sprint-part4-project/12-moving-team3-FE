@@ -18,12 +18,6 @@ const meta: Meta<typeof GnbNotificationDropdown> = {
       values: [{ name: 'dark', value: '#525252' }],
     },
   },
-  argTypes: {
-    size: {
-      control: 'select',
-      options: ['sm', 'md'],
-    },
-  },
   args: {
     items: NOTIFICATION_LIST_FIXTURE,
     onClose: fn(),
@@ -34,34 +28,18 @@ export default meta;
 
 type Story = StoryObj<typeof GnbNotificationDropdown>;
 
-export const ListMedium: Story = {
-  args: { size: 'md', items: NOTIFICATION_LIST_FIXTURE },
-};
-
-export const ListSmall: Story = {
-  args: { size: 'sm', items: NOTIFICATION_LIST_FIXTURE },
+export const List: Story = {
+  args: { items: NOTIFICATION_LIST_FIXTURE },
 };
 
 export const Empty: Story = {
-  args: { size: 'md', items: [] },
+  args: { items: [] },
 };
 
 export const Loading: Story = {
-  args: { size: 'md', items: [], isLoading: true },
+  args: { items: [], isLoading: true },
 };
 
 export const AllTypes: Story = {
-  args: { size: 'md', items: NOTIFICATION_FIXTURES },
-};
-
-export const SizeComparison: Story = {
-  render: (args) => (
-    <div className="flex items-start gap-8">
-      <GnbNotificationDropdown {...args} size="sm" />
-      <GnbNotificationDropdown {...args} size="md" />
-    </div>
-  ),
-  args: {
-    items: NOTIFICATION_LIST_FIXTURE,
-  },
+  args: { items: NOTIFICATION_FIXTURES },
 };
