@@ -32,6 +32,7 @@ const meta: Meta<typeof GnbDefault> = {
     menu: 'iconProfile',
     userName: '김가나',
     activeTabId: 'pending',
+    notificationRole: 'customer',
     onTabChange: fn(),
     onAlarmClick: fn(),
     onProfileClick: fn(),
@@ -158,11 +159,19 @@ export const AllVariants: Story = {
       </div>
       <div className="w-full min-w-[75rem]">
         <p className="mb-2 text-md-medium text-black-400">gnb / lg / 2-menu</p>
-        <GnbDefault size="lg" menu="twoMenu" />
+        <GnbDefault
+          size="lg"
+          menu="twoMenu"
+          notificationRole="mover"
+        />
       </div>
       <div className="w-full min-w-[75rem]">
         <p className="mb-2 text-md-medium text-black-400">gnb / lg / 3-menu</p>
-        <GnbDefault size="lg" menu="threeMenu" />
+        <GnbDefault
+          size="lg"
+          menu="threeMenu"
+          notificationRole="customer"
+        />
       </div>
     </div>
   ),

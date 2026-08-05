@@ -107,6 +107,7 @@ export const Header = () => {
           nameSuffix={nameSuffix}
           avatarSrc={avatarSrc}
           profileMenuItems={profileMenuItems}
+          notificationRole={navRole}
           onMenuClick={handleMenuOpen}
           onLogout={handleLogout}
         />
@@ -119,6 +120,7 @@ export const Header = () => {
           nameSuffix={nameSuffix}
           avatarSrc={avatarSrc}
           profileMenuItems={profileMenuItems}
+          notificationRole={navRole}
           onMenuClick={handleMenuOpen}
           onLogout={handleLogout}
         />
@@ -131,6 +133,7 @@ export const Header = () => {
           nameSuffix={nameSuffix}
           avatarSrc={avatarSrc}
           profileMenuItems={profileMenuItems}
+          notificationRole={navRole}
           onLogout={handleLogout}
         />
       </div>

@@ -1,12 +1,15 @@
 'use client';
 
-import AlarmIcon from '@/assets/icons/alarm.svg';
+import { useState } from 'react';
+
 import MenuIcon from '@/assets/icons/menu.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
 
 import { ChatGnbButton } from '@/components/chat/ChatGnbButton';
+import { NotificationGnbButton } from '@/components/Gnb/NotificationGnbButton';
 import { Logo } from '@/components/Logo/Logo';
 import { Tab } from '@/components/ui/Tab/Tab';
+import type { NotificationRole } from '@/types/notification';
 
 export type Gnb2DepthSize = 'sm' | 'md' | 'lg';
 /** Figma Property 2 — lg 활성 탭. tab-1=대기 중인 견적, tab-2=받았던 견적 */
@@ -27,6 +30,8 @@ export interface Gnb2DepthProps {
   /** 탭 목록. 미지정 시 Figma 기본값 사용 */
   tabs?: Gnb2DepthTabItem[];
   homeHref?: string;
+  /** 알림 API role — Header navRole과 동일 */
+  notificationRole?: NotificationRole;
   onTabChange?: (tabId: Gnb2DepthActiveTab) => void;
   onAlarmClick?: () => void;
   onProfileClick?: () => void;
@@ -52,6 +57,7 @@ const TITLE_BAR_STYLE: Record<'sm' | 'md', string> = {
 interface Gnb2DepthHeaderProps {
   size: 'sm' | 'md';
   homeHref: string;
+  notificationRole: NotificationRole;
   onAlarmClick?: () => void;
   onProfileClick?: () => void;
   onMenuClick?: () => void;
@@ -60,50 +66,68 @@ interface Gnb2DepthHeaderProps {
 const Gnb2DepthHeader = ({
   size,
   homeHref,
+  notificationRole,
   onAlarmClick,
   onProfileClick,
   onMenuClick,
-}: Gnb2DepthHeaderProps) => (
-  <header
-    className={`flex w-full items-center bg-white ${HEADER_STYLE[size]}`}
-  >
-    <div className="flex w-full items-center justify-between">
-      <Logo
-        size="sm"
-        variant={size === 'sm' ? 'icon' : 'iconText'}
-        href={homeHref}
-      />
+}: Gnb2DepthHeaderProps) => {
+  // 채팅·알림 상호 배타 (2Depth는 프로필 드롭다운 없음)
+  const [chatCloseSignal, setChatCloseSignal] = useState(0);
+  const [notificationCloseSignal, setNotificationCloseSignal] = useState(0);
 
-      <div className="flex shrink-0 items-center justify-end gap-6">
-        <ChatGnbButton size="sm" />
-        <button
-          type="button"
-          aria-label="알림"
-          onClick={onAlarmClick}
-          className="inline-flex size-6 shrink-0 items-center justify-center text-gray-200"
-        >
-          <AlarmIcon className="size-6" aria-hidden />
-        </button>
-        <button
-          type="button"
-          aria-label="프로필"
-          onClick={onProfileClick}
-          className="inline-flex size-6 shrink-0 items-center justify-center"
-        >
-          <ProfileIcon className="size-6" aria-hidden />
-        </button>
-        <button
-          type="button"
-          aria-label="메뉴 열기"
-          onClick={onMenuClick}
-          className="inline-flex size-6 shrink-0 items-center justify-center [&_path]:stroke-gray-300"
-        >
-          <MenuIcon className="size-6" aria-hidden />
-        </button>
+  const handleChatOpen = () => {
+    setNotificationCloseSignal((prev) => prev + 1);
+  };
+
+  const handleNotificationOpen = () => {
+    setChatCloseSignal((prev) => prev + 1);
+  };
+
+  return (
+    <header
+      className={`flex w-full items-center bg-white ${HEADER_STYLE[size]}`}
+    >
+      <div className="flex w-full items-center justify-between">
+        <Logo
+          size="sm"
+          variant={size === 'sm' ? 'icon' : 'iconText'}
+          href={homeHref}
+        />
+
+        <div className="flex shrink-0 items-center justify-end gap-6">
+          <ChatGnbButton
+            size="sm"
+            onOpen={handleChatOpen}
+            closeSignal={chatCloseSignal}
+          />
+          <NotificationGnbButton
+            role={notificationRole}
+            size="sm"
+            onOpen={handleNotificationOpen}
+            closeSignal={notificationCloseSignal}
+            onAlarmClick={onAlarmClick}
+          />
+          <button
+            type="button"
+            aria-label="프로필"
+            onClick={onProfileClick}
+            className="inline-flex size-6 shrink-0 items-center justify-center"
+          >
+            <ProfileIcon className="size-6" aria-hidden />
+          </button>
+          <button
+            type="button"
+            aria-label="메뉴 열기"
+            onClick={onMenuClick}
+            className="inline-flex size-6 shrink-0 items-center justify-center [&_path]:stroke-gray-300"
+          >
+            <MenuIcon className="size-6" aria-hidden />
+          </button>
+        </div>
       </div>
-    </div>
-  </header>
-);
+    </header>
+  );
+};
 
 interface Gnb2DepthTitleBarProps {
   size: 'sm' | 'md';
@@ -160,6 +184,7 @@ export const Gnb2Depth = ({
   title,
   tabs = DEFAULT_TABS,
   homeHref = '/',
+  notificationRole = 'customer',
   onTabChange,
   onAlarmClick,
   onProfileClick,
@@ -188,6 +213,7 @@ export const Gnb2Depth = ({
       <Gnb2DepthHeader
         size={size}
         homeHref={homeHref}
+        notificationRole={notificationRole}
         onAlarmClick={onAlarmClick}
         onProfileClick={onProfileClick}
         onMenuClick={onMenuClick}

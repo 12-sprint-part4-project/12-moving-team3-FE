@@ -3,16 +3,17 @@
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 
-import AlarmIcon from '@/assets/icons/alarm.svg';
 import MenuIcon from '@/assets/icons/menu.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
 
 import { ChatGnbButton } from '@/components/chat/ChatGnbButton';
 import { GNB_NAV_BY_ROLE, type GnbNavItem } from '@/components/Gnb/gnbNav';
 import { GnbProfileDropdown } from '@/components/Gnb/GnbProfileDropdown';
+import { NotificationGnbButton } from '@/components/Gnb/NotificationGnbButton';
 import { Logo } from '@/components/Logo/Logo';
 import { Tab } from '@/components/ui/Tab/Tab';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
+import type { NotificationRole } from '@/types/notification';
 
 export type GnbDefaultSize = 'sm' | 'md' | 'lg';
 /** gnb=헤더, tab=탭바, component=헤더+탭 */
@@ -40,6 +41,8 @@ export interface GnbDefaultProps {
   profileMenuItems?: GnbNavItem[];
   homeHref?: string;
   nameSuffix?: string;
+  /** 알림 API role — Header navRole과 동일 */
+  notificationRole?: NotificationRole;
   onTabChange?: (tabId: string) => void;
   onAlarmClick?: () => void;
   onProfileClick?: () => void;
@@ -131,6 +134,7 @@ interface GnbHeaderProps {
   homeHref: string;
   navItems: GnbNavItem[];
   profileMenuItems?: GnbNavItem[];
+  notificationRole: NotificationRole;
   onAlarmClick?: () => void;
   onProfileClick?: () => void;
   onMenuClick?: () => void;
@@ -146,6 +150,7 @@ const GnbHeader = ({
   homeHref,
   navItems,
   profileMenuItems,
+  notificationRole,
   onAlarmClick,
   onProfileClick,
   onMenuClick,
@@ -154,17 +159,26 @@ const GnbHeader = ({
 }: GnbHeaderProps) => {
   const isDesktop = size === 'lg';
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  // 채팅·알림·프로필 상호 배타 — 각각 별도 closeSignal
   const [chatCloseSignal, setChatCloseSignal] = useState(0);
+  const [notificationCloseSignal, setNotificationCloseSignal] = useState(0);
   const profileRef = useRef<HTMLDivElement>(null);
 
   useOutsideClick(profileRef, isProfileOpen, setIsProfileOpen);
 
   const handleChatOpen = () => {
     setIsProfileOpen(false);
+    setNotificationCloseSignal((prev) => prev + 1);
+  };
+
+  const handleNotificationOpen = () => {
+    setIsProfileOpen(false);
+    setChatCloseSignal((prev) => prev + 1);
   };
 
   const handleProfileToggle = () => {
     setChatCloseSignal((prev) => prev + 1);
+    setNotificationCloseSignal((prev) => prev + 1);
     setIsProfileOpen((prev) => !prev);
     onProfileClick?.();
   };
@@ -175,6 +189,7 @@ const GnbHeader = ({
   };
 
   const dropdownSize = size === 'sm' ? 'sm' : 'md';
+  const iconSize = isDesktop ? 'lg' : 'sm';
 
   return (
     <header
@@ -213,24 +228,18 @@ const GnbHeader = ({
           }`}
         >
           <ChatGnbButton
-            size={isDesktop ? 'lg' : 'sm'}
+            size={iconSize}
             onOpen={handleChatOpen}
             closeSignal={chatCloseSignal}
           />
 
-          <button
-            type="button"
-            aria-label="알림"
-            onClick={onAlarmClick}
-            className={`inline-flex shrink-0 items-center justify-center text-gray-200 ${
-              isDesktop ? 'size-9' : 'size-6'
-            }`}
-          >
-            <AlarmIcon
-              className={isDesktop ? 'size-9' : 'size-6'}
-              aria-hidden
-            />
-          </button>
+          <NotificationGnbButton
+            role={notificationRole}
+            size={iconSize}
+            onOpen={handleNotificationOpen}
+            closeSignal={notificationCloseSignal}
+            onAlarmClick={onAlarmClick}
+          />
 
           <div ref={profileRef} className="relative flex items-center">
             {isDesktop ? (
@@ -302,6 +311,7 @@ export const GnbDefault = ({
   navItems,
   profileMenuItems,
   homeHref = '/',
+  notificationRole = 'customer',
   onTabChange,
   onAlarmClick,
   onProfileClick,
@@ -341,6 +351,7 @@ export const GnbDefault = ({
           homeHref={homeHref}
           navItems={resolvedNavItems}
           profileMenuItems={profileMenuItems}
+          notificationRole={notificationRole}
           onAlarmClick={onAlarmClick}
           onProfileClick={onProfileClick}
           onMenuClick={onMenuClick}
@@ -367,6 +378,7 @@ export const GnbDefault = ({
         homeHref={homeHref}
         navItems={resolvedNavItems}
         profileMenuItems={profileMenuItems}
+        notificationRole={notificationRole}
         onAlarmClick={onAlarmClick}
         onProfileClick={onProfileClick}
         onMenuClick={onMenuClick}
