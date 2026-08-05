@@ -44,6 +44,10 @@ export interface EstimateRequestListItem {
   };
   isDesignated: boolean;
   submittedAt: string | null;
+  quoteCount: {
+    designated: number;
+    general: number;
+  };
 }
 
 /** BE 필터 건수 */
@@ -79,6 +83,10 @@ export interface ReceivedRequestCardModel {
   moveDate: string;
   departure: string;
   arrival: string;
+  quoteCount: {
+    designated: number;
+    general: number;
+  };
 }
 
 /** UI 이사 유형 건수 */
