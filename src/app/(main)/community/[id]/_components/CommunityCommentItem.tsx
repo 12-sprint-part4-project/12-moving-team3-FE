@@ -7,30 +7,39 @@ import type { CommentItem, CommentWithReplies } from '@/types/community';
 
 import { CommunityPostAuthorBadge } from './CommunityPostAuthorBadge';
 
-interface CommunityCommentItemProps {
-  comment: CommentWithReplies;
+interface CommunityCommentInteractionProps {
   postAuthorId?: string;
   currentUserId?: string;
   deletingCommentId?: number | null;
   onDeleteRequest?: (commentId: number) => void;
+}
+
+interface CommunityCommentItemProps extends CommunityCommentInteractionProps {
+  comment: CommentWithReplies;
   className?: string;
 }
 
-interface CommunityCommentRowProps {
+interface CommunityCommentRowProps extends CommunityCommentInteractionProps {
   item: CommentItem;
-  postAuthorId?: string;
-  currentUserId?: string;
-  deletingCommentId?: number | null;
-  onDeleteRequest?: (commentId: number) => void;
   isReply?: boolean;
 }
 
 const isOwnComment = (
   item: CommentItem,
   currentUserId: string | undefined
-): boolean =>
-  item.isMine === true ||
-  (currentUserId !== undefined && item.author.id === currentUserId);
+): boolean => {
+  if (item.isMine === true) {
+    return true;
+  }
+
+  if (item.isMine === false) {
+    return false;
+  }
+
+  return (
+    currentUserId !== undefined && item.author.id === currentUserId
+  );
+};
 
 /** Figma — Mobile 28px / Tablet 40px / Desktop 52px 아바타 */
 const CommunityCommentRow = ({

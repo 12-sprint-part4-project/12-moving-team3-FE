@@ -48,14 +48,12 @@ export const CommunityPostDetailImages = ({
   const [failedUrls, setFailedUrls] = useState<ReadonlySet<string>>(
     () => new Set()
   );
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [preview, setPreview] = useState<{
+    urls: string[];
+    initialIndex: number;
+  } | null>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
-
-  const validUrls = useMemo(
-    () => visibleUrls.filter((url) => !failedUrls.has(url)),
-    [visibleUrls, failedUrls]
-  );
 
   const updateScrollState = useCallback(() => {
     const element = scrollRef.current;
@@ -126,10 +124,9 @@ export const CommunityPostDetailImages = ({
         <div
           ref={scrollRef}
           className={cn(
-            'flex gap-2 overflow-x-auto scroll-smooth',
+            'flex touch-pan-x gap-2 overflow-x-auto scroll-smooth',
             '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
           )}
-          style={{ touchAction: 'pan-x' }}
         >
           {visibleUrls.map((url, index) => {
             const hasError = failedUrls.has(url);
@@ -141,7 +138,11 @@ export const CommunityPostDetailImages = ({
                 aria-label={`게시글 이미지 ${index + 1} 원본 보기`}
                 onClick={() => {
                   if (!hasError) {
-                    setPreviewUrl(url);
+                    const urls = visibleUrls.filter((url) => !failedUrls.has(url));
+                    setPreview({
+                      urls,
+                      initialIndex: Math.max(0, urls.indexOf(url)),
+                    });
                   }
                 }}
                 disabled={hasError}
@@ -205,11 +206,11 @@ export const CommunityPostDetailImages = ({
         ) : null}
       </div>
 
-      {previewUrl ? (
+      {preview ? (
         <CommunityPostImagePreviewModal
-          imageUrls={validUrls}
-          initialIndex={Math.max(0, validUrls.indexOf(previewUrl))}
-          onClose={() => setPreviewUrl(null)}
+          imageUrls={preview.urls}
+          initialIndex={preview.initialIndex}
+          onClose={() => setPreview(null)}
         />
       ) : null}
     </>

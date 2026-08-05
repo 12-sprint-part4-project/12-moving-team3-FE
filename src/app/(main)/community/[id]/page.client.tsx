@@ -107,7 +107,6 @@ export const CommunityPostDetailPageClient = ({
     comments,
     isPending: isCommentsPending,
     isError: isCommentsError,
-    isEmpty: isCommentsEmpty,
     isFetchingNextPage: isCommentsFetchingNextPage,
     isFetchNextPageError: isCommentsFetchNextPageError,
     error: commentsError,
@@ -477,7 +476,6 @@ export const CommunityPostDetailPageClient = ({
             onDeleteRequest={user ? handleDeleteCommentRequest : undefined}
             isPending={isCommentsPending}
             isError={isCommentsError}
-            isEmpty={isCommentsEmpty}
             isFetchingNextPage={isCommentsFetchingNextPage}
             isFetchNextPageError={isCommentsFetchNextPageError}
             errorMessage={commentsErrorMessage}

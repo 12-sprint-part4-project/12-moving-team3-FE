@@ -29,7 +29,7 @@ export const CommunityPostEngagementBar = ({
   isLikePending,
   isCommentPending,
   onLikeClick,
-  commentValue = '',
+  commentValue,
   onCommentChange,
   onCommentSubmit,
   onCommentFocus,
@@ -100,7 +100,7 @@ export const CommunityPostEngagementBar = ({
         <input
           id="community-comment-input"
           type="text"
-          value={commentValue ?? ''}
+          value={commentValue}
           onChange={(event) => onCommentChange(event.target.value)}
           onFocus={onCommentFocus}
           onKeyDown={handleCommentKeyDown}

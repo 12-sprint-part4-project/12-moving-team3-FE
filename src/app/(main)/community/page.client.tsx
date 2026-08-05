@@ -12,16 +12,16 @@ import {
   isCommunityRegion,
   isPostSort,
   isRegionFilterValue,
-  parseCommunityTabId,
   POST_SORT_OPTIONS,
   REGION_FILTER_OPTIONS,
   type CommunityTabId,
-  type RegionFilterValue,
 } from '@/constants/communityOptions';
 import { usePostList } from '@/hooks/useCommunity';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { ApiError } from '@/lib/apiClient';
 import {
+  buildPostListContextSearchParams,
+  parsePostListContextFromSearchParams,
   type PostListContext,
 } from '@/lib/communityListContext';
 import {
@@ -29,7 +29,7 @@ import {
   getCommunitySearchKeyword,
 } from '@/lib/communitySearch';
 import { cn } from '@/lib/utils';
-import type { PostCategory, PostSort, Region } from '@/types/community';
+import type { PostCategory, Region } from '@/types/community';
 
 import {
   COMMUNITY_DESKTOP_MAIN_GAP,
@@ -50,22 +50,40 @@ const SORT_CLASS =
 export const CommunityPageClient = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const activeTab = parseCommunityTabId(searchParams.get('tab'));
-
-  const [categoryFilter, setCategoryFilter] = useState<PostCategory | 'ALL'>(
-    'ALL'
+  const parsedContext = useMemo(
+    () => parsePostListContextFromSearchParams(searchParams),
+    [searchParams]
   );
-  const [regionFilter, setRegionFilter] = useState<RegionFilterValue>('ALL');
-  const [sortValue, setSortValue] = useState<PostSort>('LATEST');
-  const [searchValue, setSearchValue] = useState('');
+  const activeTab = parsedContext.tab;
+  const categoryFilter = parsedContext.categoryFilter;
+  const regionFilter = parsedContext.regionFilter;
+  const sortValue = parsedContext.sort;
+
+  const [searchDraft, setSearchDraft] = useState('');
   const [isSearchFlushed, setIsSearchFlushed] = useState(false);
 
+  const replaceListContextUrl = useCallback(
+    (context: PostListContext) => {
+      const params = buildPostListContextSearchParams(context);
+      const qs = params.toString();
+      router.replace(qs ? `/community?${qs}` : '/community', { scroll: false });
+    },
+    [router]
+  );
+
+  const searchInputValue =
+    parsedContext.keyword !== undefined ? parsedContext.keyword : searchDraft;
+
   const debouncedSearch = useDebouncedValue(
-    searchValue,
+    searchDraft,
     COMMUNITY_SEARCH_DEBOUNCE_MS
   );
   const listKeyword = useMemo(() => {
-    const trimmed = searchValue.trim();
+    if (parsedContext.keyword !== undefined) {
+      return parsedContext.keyword;
+    }
+
+    const trimmed = searchDraft.trim();
 
     if (trimmed.length === 0) {
       return undefined;
@@ -76,7 +94,12 @@ export const CommunityPageClient = () => {
     }
 
     return getCommunitySearchKeyword(debouncedSearch);
-  }, [searchValue, isSearchFlushed, debouncedSearch]);
+  }, [
+    parsedContext.keyword,
+    searchDraft,
+    isSearchFlushed,
+    debouncedSearch,
+  ]);
 
   const listCategory = useMemo((): PostCategory | undefined => {
     if (activeTab === 'furniture') {
@@ -147,52 +170,96 @@ export const CommunityPageClient = () => {
 
   const handleTabChange = useCallback(
     (tabId: CommunityTabId) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (tabId === 'board') {
-        params.delete('tab');
-      } else {
-        params.set('tab', tabId);
-      }
-      const query = params.toString();
-      router.replace(query ? `/community?${query}` : '/community');
+      replaceListContextUrl({
+        tab: tabId,
+        sort: sortValue,
+        categoryFilter,
+        regionFilter,
+        keyword: listKeyword,
+      });
     },
-    [router, searchParams]
+    [
+      replaceListContextUrl,
+      sortValue,
+      categoryFilter,
+      regionFilter,
+      listKeyword,
+    ]
   );
 
   const handleSortChange = (value: string) => {
-    if (isPostSort(value)) {
-      setSortValue(value);
+    if (!isPostSort(value)) {
+      return;
     }
+
+    replaceListContextUrl({
+      tab: activeTab,
+      sort: value,
+      categoryFilter,
+      regionFilter,
+      keyword: listKeyword,
+    });
   };
 
   const handleCategoryFilterChange = (value: string) => {
-    if (isBoardCategoryFilter(value)) {
-      setCategoryFilter(value);
+    if (!isBoardCategoryFilter(value)) {
+      return;
     }
+
+    replaceListContextUrl({
+      tab: activeTab,
+      sort: sortValue,
+      categoryFilter: value,
+      regionFilter,
+      keyword: listKeyword,
+    });
   };
 
   const handleRegionFilterChange = (value: string) => {
-    if (isRegionFilterValue(value)) {
-      setRegionFilter(value);
+    if (!isRegionFilterValue(value)) {
+      return;
     }
+
+    replaceListContextUrl({
+      tab: activeTab,
+      sort: sortValue,
+      categoryFilter,
+      regionFilter: value,
+      keyword: listKeyword,
+    });
   };
 
   const handleSearchChange = (value: string) => {
     setIsSearchFlushed(false);
-    setSearchValue(value);
+    setSearchDraft(value);
+
+    if (parsedContext.keyword !== undefined) {
+      replaceListContextUrl({
+        ...parsedContext,
+        keyword: undefined,
+      });
+    }
   };
 
   const handleSearch = () => {
-    setSearchValue(searchValue.trim());
+    const trimmed = searchDraft.trim();
+    setSearchDraft(trimmed);
     setIsSearchFlushed(true);
+    replaceListContextUrl({
+      ...parsedContext,
+      keyword: trimmed.length > 0 ? trimmed : undefined,
+    });
   };
 
   const handleFilterReset = () => {
-    setCategoryFilter('ALL');
-    setRegionFilter('ALL');
-    setSortValue('LATEST');
-    setSearchValue('');
+    setSearchDraft('');
     setIsSearchFlushed(false);
+    replaceListContextUrl({
+      tab: activeTab,
+      sort: 'LATEST',
+      categoryFilter: 'ALL',
+      regionFilter: 'ALL',
+    });
   };
 
   const handleRetry = () => {
@@ -278,7 +345,7 @@ export const CommunityPageClient = () => {
         )}
       >
         <CommunitySearchField
-          value={searchValue}
+          value={searchInputValue}
           onChange={handleSearchChange}
           onSearch={handleSearch}
           className="min-[46.5rem]:max-w-[37.5625rem]"
@@ -299,7 +366,7 @@ export const CommunityPageClient = () => {
           showCategoryFilter={activeTab === 'board'}
           categoryFilter={categoryFilter}
           regionFilter={regionFilter}
-          searchValue={searchValue}
+          searchValue={searchInputValue}
           onCategoryChange={handleCategoryFilterChange}
           onRegionChange={handleRegionFilterChange}
           onSearchChange={handleSearchChange}

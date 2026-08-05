@@ -46,7 +46,7 @@ export const CommunityPostThumbnail = ({
     >
       {hasError ? (
         <NoImageIcon
-          className="size-6 text-[#bbbbbb] min-[46.5rem]:size-7 xl:size-8"
+          className="size-6 text-gray-200 min-[46.5rem]:size-7 xl:size-8"
           aria-hidden
         />
       ) : (

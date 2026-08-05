@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import Image from 'next/image';
+import { useCallback, useEffect, useState } from 'react';
 
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
@@ -31,9 +32,27 @@ export const CommunityPostImagePreviewModal = ({
     setActiveIndex((prev) => (prev >= imageUrls.length - 1 ? 0 : prev + 1));
   }, [imageUrls.length]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowLeft') {
+        handlePrev();
+      } else if (event.key === 'ArrowRight') {
+        handleNext();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handlePrev, handleNext]);
+
   if (!activeUrl) {
     return null;
   }
+
+  const imageAlt =
+    imageUrls.length > 1
+      ? `게시글 이미지 ${activeIndex + 1}/${imageUrls.length}`
+      : '게시글 이미지';
 
   return (
     <Modal
@@ -62,10 +81,12 @@ export const CommunityPostImagePreviewModal = ({
           </button>
         ) : null}
 
-        {/* eslint-disable-next-line @next/next/no-img-element -- Presigned URL */}
-        <img
+        <Image
           src={activeUrl}
-          alt=""
+          alt={imageAlt}
+          width={900}
+          height={900}
+          unoptimized
           className="max-h-[75vh] w-auto max-w-full object-contain"
         />
 

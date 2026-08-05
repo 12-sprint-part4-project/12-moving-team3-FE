@@ -31,7 +31,7 @@ export const ReportButton = ({
       variant === 'default' &&
         'gap-1 text-md-medium text-gray-400 hover:text-black-300',
       variant === 'icon-only' &&
-        'size-5 min-[46.5rem]:size-6 xl:size-7 shrink-0 justify-center text-[#8c8c8c] hover:text-[#1a1a1a]',
+        'size-5 shrink-0 justify-center text-gray-400 hover:text-black-300 min-[46.5rem]:size-6 xl:size-7',
       className
     )}
   >

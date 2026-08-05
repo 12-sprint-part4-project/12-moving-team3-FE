@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+import MoreVerticalIcon from '@/assets/icons/more-vertical.svg';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
 import { cn } from '@/lib/utils';
 
@@ -64,17 +65,10 @@ export const CommunityPostMoreMenu = ({
         onClick={() => setIsOpen((prev) => !prev)}
         className={COMMUNITY_POST_META_ACTION_BUTTON_CLASS}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
+        <MoreVerticalIcon
           className={COMMUNITY_POST_META_ACTION_ICON_CLASS}
           aria-hidden
-        >
-          <circle cx="12" cy="5" r="1.75" />
-          <circle cx="12" cy="12" r="1.75" />
-          <circle cx="12" cy="19" r="1.75" />
-        </svg>
+        />
       </button>
 
       {isOpen ? (

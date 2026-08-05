@@ -190,6 +190,8 @@ export const usePostNeighbors = (
  * 게시글 조회수 BE 전송 — 상세 로드 성공 후 세션당 1회.
  * UI에 조회수를 표시하지 않으며, 실패해도 사용자에게 노출하지 않는다.
  */
+const inFlightPostViewIds = new Set<number>();
+
 export const useRecordPostView = (postId: number, enabled: boolean) => {
   useEffect(() => {
     if (!enabled || postId <= 0) {
@@ -200,12 +202,21 @@ export const useRecordPostView = (postId: number, enabled: boolean) => {
       return;
     }
 
+    if (inFlightPostViewIds.has(postId)) {
+      return;
+    }
+
+    inFlightPostViewIds.add(postId);
+
     void recordPostView(postId)
       .then(() => {
         markPostViewRecordedInSession(postId);
       })
       .catch(() => {
         // BE 미구현·네트워크 오류 — UI 영향 없음
+      })
+      .finally(() => {
+        inFlightPostViewIds.delete(postId);
       });
   }, [postId, enabled]);
 };

@@ -19,7 +19,6 @@ interface CommunityCommentListProps {
   onDeleteRequest?: (commentId: number) => void;
   isPending: boolean;
   isError: boolean;
-  isEmpty: boolean;
   isFetchingNextPage: boolean;
   isFetchNextPageError?: boolean;
   errorMessage: string;
@@ -40,7 +39,6 @@ export const CommunityCommentList = ({
   onDeleteRequest,
   isPending,
   isError,
-  isEmpty,
   isFetchingNextPage,
   isFetchNextPageError = false,
   errorMessage,
@@ -51,7 +49,8 @@ export const CommunityCommentList = ({
   className = '',
 }: CommunityCommentListProps) => {
   const isInitialError = isError && comments.length === 0;
-  const showEmpty = !isPending && !isInitialError && isEmpty;
+  const showEmpty =
+    !isPending && !isInitialError && comments.length === 0;
   const showComments = !isPending && !isInitialError && comments.length > 0;
 
   const commentAreaPadding =
@@ -124,13 +123,15 @@ export const CommunityCommentList = ({
             <p className="text-center text-md-medium text-gray-400">
               다음 댓글을 불러오지 못했습니다.
             </p>
-            <button
-              type="button"
-              onClick={onRetryNextPage}
-              className="cursor-pointer text-md-medium text-blue-300 underline-offset-2 hover:underline"
-            >
-              다시 시도
-            </button>
+            {onRetryNextPage ? (
+              <button
+                type="button"
+                onClick={onRetryNextPage}
+                className="cursor-pointer text-md-medium text-blue-300 underline-offset-2 hover:underline"
+              >
+                다시 시도
+              </button>
+            ) : null}
           </div>
         ) : null}
 
