@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 interface CommunitySearchFieldProps {
   value: string;
   onChange: (value: string) => void;
+  onSearch?: () => void;
   size?: 'sm' | 'md';
   className?: string;
   inputClassName?: string;
@@ -17,6 +18,7 @@ interface CommunitySearchFieldProps {
 export const CommunitySearchField = ({
   value,
   onChange,
+  onSearch,
   size = 'sm',
   className = '',
   inputClassName = '',
@@ -36,6 +38,7 @@ export const CommunitySearchField = ({
         value={value}
         onChange={handleChange}
         onClear={handleClear}
+        onSearch={onSearch}
         className={inputClassName}
         placeholder="텍스트를 입력해 주세요."
         aria-label="게시글 검색"

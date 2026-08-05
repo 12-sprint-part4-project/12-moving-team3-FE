@@ -72,7 +72,6 @@ export const CommunitySelectDropdown = ({
     >
       <button
         type="button"
-        aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label={`${label}: ${triggerText}`}
         onClick={() => setIsOpen((prev) => !prev)}
@@ -109,8 +108,6 @@ export const CommunitySelectDropdown = ({
 
       {isOpen ? (
         <div
-          role="listbox"
-          aria-label={`${label} 옵션`}
           className={cn(
             'absolute top-full left-0 z-20 mt-1 border border-line-200 bg-white',
             isDesktop
@@ -131,13 +128,10 @@ export const CommunitySelectDropdown = ({
               return (
                 <li
                   key={option.value}
-                  role="presentation"
                   className={cn(isLeftColumn && 'border-r border-line-200')}
                 >
                   <button
                     type="button"
-                    role="option"
-                    aria-selected={isSelected}
                     onClick={() => handleSelect(option.value)}
                     className={cn(
                       'flex w-full cursor-pointer items-center whitespace-nowrap text-black-400',

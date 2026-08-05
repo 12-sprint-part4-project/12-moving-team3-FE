@@ -13,9 +13,11 @@ interface CommunityPostListProps {
   isError: boolean;
   isEmpty: boolean;
   isFetchingNextPage: boolean;
+  isFetchNextPageError?: boolean;
   errorMessage: string;
   emptyMessage: string;
   onRetry: () => void;
+  onRetryNextPage?: () => void;
   loadMoreRef: (node?: Element | null) => void;
   className?: string;
   listClassName?: string;
@@ -28,14 +30,18 @@ export const CommunityPostList = ({
   isError,
   isEmpty,
   isFetchingNextPage,
+  isFetchNextPageError = false,
   errorMessage,
   emptyMessage,
   onRetry,
+  onRetryNextPage,
   loadMoreRef,
   className = '',
   listClassName = 'flex flex-col gap-2 min-[46.5rem]:gap-8 xl:gap-12',
 }: CommunityPostListProps) => {
-  const showEmpty = !isPending && !isError && isEmpty;
+  const isInitialError = isError && posts.length === 0;
+  const showEmpty = !isPending && !isInitialError && isEmpty;
+  const showPosts = !isPending && !isInitialError && posts.length > 0;
 
   return (
     <div className={className}>
@@ -45,7 +51,7 @@ export const CommunityPostList = ({
         </div>
       ) : null}
 
-      {isError ? (
+      {isInitialError ? (
         <div className="flex flex-col items-center gap-4 py-16">
           <p className="text-center text-lg-medium text-gray-400">
             {errorMessage}
@@ -62,7 +68,7 @@ export const CommunityPostList = ({
         </p>
       ) : null}
 
-      {!isPending && !isError && posts.length > 0 ? (
+      {showPosts ? (
         <ul className={cn(listClassName)}>
           {posts.map((post) => (
             <li key={post.id}>
@@ -75,6 +81,21 @@ export const CommunityPostList = ({
       {isFetchingNextPage ? (
         <div className="flex justify-center py-6">
           <Spinner message="더 불러오는 중..." className="py-6" />
+        </div>
+      ) : null}
+
+      {!isFetchingNextPage && isFetchNextPageError ? (
+        <div className="flex flex-col items-center gap-2 py-4">
+          <p className="text-center text-md-medium text-gray-400">
+            다음 게시글을 불러오지 못했습니다.
+          </p>
+          <button
+            type="button"
+            onClick={onRetryNextPage}
+            className="cursor-pointer text-md-medium text-blue-300 underline-offset-2 hover:underline"
+          >
+            다시 시도
+          </button>
         </div>
       ) : null}
 

@@ -41,7 +41,7 @@ import { CommunitySidebarFilter } from './_components/CommunitySidebarFilter';
 import { CommunityTabBar } from './_components/CommunityTabBar';
 
 const SORT_CLASS =
-  'w-[7.125rem] [&_button]:w-full [&_button]:justify-center [&_button]:shadow-[0.25rem_0.25rem_0.3125rem_0_rgb(220_220_220_/_0.2)]';
+  'w-[7.125rem] [&_button]:w-full [&_button]:justify-center [&_button]:shadow-community-sort';
 
 /** 커뮤니티 게시글 목록 — Figma Mobile / Tablet / Desktop */
 export const CommunityPageClient = () => {
@@ -55,15 +55,25 @@ export const CommunityPageClient = () => {
   const [regionFilter, setRegionFilter] = useState<RegionFilterValue>('ALL');
   const [sortValue, setSortValue] = useState<PostSort>('LATEST');
   const [searchValue, setSearchValue] = useState('');
+  const [isSearchFlushed, setIsSearchFlushed] = useState(false);
 
   const debouncedSearch = useDebouncedValue(
     searchValue,
     COMMUNITY_SEARCH_DEBOUNCE_MS
   );
-  const listKeyword = useMemo(
-    () => getCommunitySearchKeyword(debouncedSearch),
-    [debouncedSearch]
-  );
+  const listKeyword = useMemo(() => {
+    const trimmed = searchValue.trim();
+
+    if (trimmed.length === 0) {
+      return undefined;
+    }
+
+    if (isSearchFlushed) {
+      return trimmed;
+    }
+
+    return getCommunitySearchKeyword(debouncedSearch);
+  }, [searchValue, isSearchFlushed, debouncedSearch]);
 
   const listCategory = useMemo((): PostCategory | undefined => {
     if (activeTab === 'furniture') {
@@ -86,6 +96,7 @@ export const CommunityPageClient = () => {
     posts,
     isPending,
     isFetchingNextPage,
+    isFetchNextPageError,
     isError,
     error,
     hasNextPage,
@@ -104,10 +115,21 @@ export const CommunityPageClient = () => {
   });
 
   useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
+    if (
+      inView &&
+      hasNextPage &&
+      !isFetchingNextPage &&
+      !isFetchNextPageError
+    ) {
       void fetchNextPage();
     }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [
+    inView,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    fetchNextPage,
+  ]);
 
   const handleTabChange = useCallback(
     (tabId: CommunityTabId) => {
@@ -142,7 +164,13 @@ export const CommunityPageClient = () => {
   };
 
   const handleSearchChange = (value: string) => {
+    setIsSearchFlushed(false);
     setSearchValue(value);
+  };
+
+  const handleSearch = () => {
+    setSearchValue(searchValue.trim());
+    setIsSearchFlushed(true);
   };
 
   const handleFilterReset = () => {
@@ -150,10 +178,15 @@ export const CommunityPageClient = () => {
     setRegionFilter('ALL');
     setSortValue('LATEST');
     setSearchValue('');
+    setIsSearchFlushed(false);
   };
 
   const handleRetry = () => {
     void refetch();
+  };
+
+  const handleRetryNextPage = () => {
+    void fetchNextPage();
   };
 
   const errorMessage =
@@ -233,6 +266,7 @@ export const CommunityPageClient = () => {
         <CommunitySearchField
           value={searchValue}
           onChange={handleSearchChange}
+          onSearch={handleSearch}
           className="min-[46.5rem]:max-w-[37.5625rem]"
           inputClassName="h-11 max-w-none gap-1.5 rounded-2xl bg-background-200 px-4 py-3.5"
         />
@@ -255,6 +289,7 @@ export const CommunityPageClient = () => {
           onCategoryChange={handleCategoryFilterChange}
           onRegionChange={handleRegionFilterChange}
           onSearchChange={handleSearchChange}
+          onSearch={handleSearch}
           onReset={handleFilterReset}
           className="hidden xl:block"
         />
@@ -276,9 +311,11 @@ export const CommunityPageClient = () => {
             isError={isError}
             isEmpty={isEmpty}
             isFetchingNextPage={isFetchingNextPage}
+            isFetchNextPageError={isFetchNextPageError}
             errorMessage={errorMessage}
             emptyMessage={emptyMessage}
             onRetry={handleRetry}
+            onRetryNextPage={handleRetryNextPage}
             loadMoreRef={loadMoreRef}
           />
         </div>

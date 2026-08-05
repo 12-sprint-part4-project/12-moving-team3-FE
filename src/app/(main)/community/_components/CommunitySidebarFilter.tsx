@@ -19,6 +19,7 @@ interface CommunitySidebarFilterProps {
   onCategoryChange: (value: string) => void;
   onRegionChange: (value: string) => void;
   onSearchChange: (value: string) => void;
+  onSearch?: () => void;
   onReset: () => void;
   className?: string;
 }
@@ -32,6 +33,7 @@ export const CommunitySidebarFilter = ({
   onCategoryChange,
   onRegionChange,
   onSearchChange,
+  onSearch,
   onReset,
   className = '',
 }: CommunitySidebarFilterProps) => (
@@ -87,6 +89,7 @@ export const CommunitySidebarFilter = ({
         size="md"
         value={searchValue}
         onChange={onSearchChange}
+        onSearch={onSearch}
         inputClassName="h-16 w-[20.5rem] max-w-none rounded-2xl bg-background-200"
       />
     </section>

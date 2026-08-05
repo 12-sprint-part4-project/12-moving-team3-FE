@@ -30,7 +30,7 @@ export const CommunityTabBar = ({
   onTabChange,
   className = '',
 }: CommunityTabBarProps) => (
-  <div
+  <nav
     className={cn(
       'relative flex h-11 gap-2 border-b border-line-200 bg-white',
       'min-[46.5rem]:gap-2 xl:h-12 xl:gap-2',
@@ -38,7 +38,6 @@ export const CommunityTabBar = ({
       COMMUNITY_DESKTOP_X,
       className
     )}
-    role="tablist"
     aria-label="커뮤니티 탭"
   >
     {COMMUNITY_TABS.map((tab) => {
@@ -48,8 +47,7 @@ export const CommunityTabBar = ({
         <button
           key={tab.id}
           type="button"
-          role="tab"
-          aria-selected={isActive}
+          aria-current={isActive ? 'page' : undefined}
           onClick={() => onTabChange(tab.id)}
           className={cn(
             'relative flex h-11 shrink-0 items-start justify-center pt-2.5 xl:h-12',
@@ -69,11 +67,11 @@ export const CommunityTabBar = ({
           {isActive ? (
             <span
               aria-hidden
-              className="absolute bottom-0 left-0 h-[3px] w-full rounded-sm bg-blue-300"
+              className="absolute bottom-0 left-0 h-[0.1875rem] w-full rounded-sm bg-blue-300"
             />
           ) : null}
         </button>
       );
     })}
-  </div>
+  </nav>
 );

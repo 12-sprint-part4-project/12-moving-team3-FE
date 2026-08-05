@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState, type SyntheticEvent } from 'react';
+import { useState, type SyntheticEvent } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -20,19 +20,18 @@ export const CommunityPostThumbnail = ({
   thumbnailUrl,
   className = '',
 }: CommunityPostThumbnailProps) => {
-  const [hasError, setHasError] = useState(false);
-
-  useEffect(() => {
-    setHasError(false);
-  }, [thumbnailUrl]);
+  const [failedThumbnailUrl, setFailedThumbnailUrl] = useState<string | null>(
+    null
+  );
+  const hasError = failedThumbnailUrl === thumbnailUrl;
 
   const handleError = () => {
-    setHasError(true);
+    setFailedThumbnailUrl(thumbnailUrl);
   };
 
   const handleLoad = (event: SyntheticEvent<HTMLImageElement>) => {
     if (isBrokenImage(event.currentTarget)) {
-      setHasError(true);
+      setFailedThumbnailUrl(thumbnailUrl);
     }
   };
 

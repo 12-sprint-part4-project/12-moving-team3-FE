@@ -78,6 +78,10 @@
   --shadow-chat-panel: 0.25rem 0.25rem 0.3125rem 0
     color-mix(in srgb, var(--color-shadow-gray-200) 20%, transparent);
 
+  /* Box Shadow — Figma 커뮤니티 정렬 Sort */
+  --shadow-community-sort: 0.25rem 0.25rem 0.3125rem 0
+    color-mix(in srgb, var(--color-shadow-gray-300) 20%, transparent);
+
   /* Box Shadow — Figma 받은 요청 페이지 타이틀·카드 */
   --shadow-page-title: 0 0.125rem 0.625rem 0
     color-mix(in srgb, var(--color-background-200) 10%, transparent);
