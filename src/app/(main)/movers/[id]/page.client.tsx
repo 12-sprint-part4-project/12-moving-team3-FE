@@ -47,6 +47,9 @@ export const MoverDetailPageClient = () => {
   const { mover, isPending, isError, error, isNotFound, refetch } =
     useMoverDetail(moverId);
 
+  /** 기사 계정은 지정 견적 CTA 숨김. 게스트·고객은 표시 */
+  const showDesignatedCta = user?.userType !== 'MOVER';
+
   const handleDesignatedQuoteClick = () => {
     if (!user) {
       openLoginModal();
@@ -141,6 +144,7 @@ export const MoverDetailPageClient = () => {
           onFavoriteClick={() =>
             handleFavoriteClick(mover.moverId, !mover.isFavorited)
           }
+          showDesignatedCta={showDesignatedCta}
           onDesignatedQuoteClick={handleDesignatedQuoteClick}
           isDesignatedPending={isDesignatedPending}
           isAlreadyDesignated={isAlreadyDesignated}
@@ -154,6 +158,7 @@ export const MoverDetailPageClient = () => {
         onFavoriteClick={() =>
           handleFavoriteClick(mover.moverId, !mover.isFavorited)
         }
+        showDesignatedCta={showDesignatedCta}
         onDesignatedQuoteClick={handleDesignatedQuoteClick}
         isDesignatedPending={isDesignatedPending}
         isAlreadyDesignated={isAlreadyDesignated}

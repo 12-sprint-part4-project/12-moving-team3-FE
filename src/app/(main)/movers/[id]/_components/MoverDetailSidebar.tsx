@@ -10,6 +10,8 @@ export interface MoverDetailSidebarProps {
   isFavorited: boolean;
   onFavoriteClick: () => void;
   isFavoritePending?: boolean;
+  /** false면 지정 견적 안내·버튼 숨김 (기사 로그인 등) */
+  showDesignatedCta?: boolean;
   onDesignatedQuoteClick: () => void;
   isDesignatedPending?: boolean;
   isAlreadyDesignated?: boolean;
@@ -38,6 +40,7 @@ export const MoverDetailSidebar = ({
   isFavorited,
   onFavoriteClick,
   isFavoritePending = false,
+  showDesignatedCta = true,
   onDesignatedQuoteClick,
   isDesignatedPending = false,
   isAlreadyDesignated = false,
@@ -57,9 +60,11 @@ export const MoverDetailSidebar = ({
       )}
     >
       <div className="flex flex-col gap-4">
-        <p className="text-xl-semibold text-black-400">
-          {name} 기사님에게 지정 견적을 요청해보세요!
-        </p>
+        {showDesignatedCta ? (
+          <p className="text-xl-semibold text-black-400">
+            {name} 기사님에게 지정 견적을 요청해보세요!
+          </p>
+        ) : null}
         <button
           type="button"
           onClick={onFavoriteClick}
@@ -80,16 +85,18 @@ export const MoverDetailSidebar = ({
           />
           {isFavorited ? '기사님 찜 취소' : '기사님 찜하기'}
         </button>
-        <Button
-          type="button"
-          variant="solid"
-          size="md"
-          onClick={onDesignatedQuoteClick}
-          disabled={isDesignatedDisabled}
-          aria-busy={isDesignatedPending || isDesignatedStatusLoading}
-        >
-          {getDesignatedButtonLabel(isAlreadyDesignated, isDesignatedPending)}
-        </Button>
+        {showDesignatedCta ? (
+          <Button
+            type="button"
+            variant="solid"
+            size="md"
+            onClick={onDesignatedQuoteClick}
+            disabled={isDesignatedDisabled}
+            aria-busy={isDesignatedPending || isDesignatedStatusLoading}
+          >
+            {getDesignatedButtonLabel(isAlreadyDesignated, isDesignatedPending)}
+          </Button>
+        ) : null}
       </div>
 
       <div className="flex flex-col gap-[1.375rem] border-t border-line-100 pt-10">
