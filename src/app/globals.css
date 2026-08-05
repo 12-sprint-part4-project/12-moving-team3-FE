@@ -37,6 +37,10 @@
   /* Secondary-Yellow */
   --color-yellow-100: #ffc149;
 
+  /* Community category badge */
+  --color-orange-300: #f29900;
+  --color-green-300: #33b266;
+
   /* Secondary-Red */
   --color-red-100: #ffeef0;
   --color-red-200: #ff4f64;

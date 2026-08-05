@@ -95,10 +95,11 @@ export const usePostList = ({
   category,
   region,
   sort,
+  keyword,
 }: PostListParams = {}) => {
   const queryParams = useMemo(
-    () => ({ category, region, sort, limit }),
-    [category, region, sort, limit]
+    () => ({ category, region, sort, keyword, limit }),
+    [category, region, sort, keyword, limit]
   );
 
   const query = useInfiniteQuery({
