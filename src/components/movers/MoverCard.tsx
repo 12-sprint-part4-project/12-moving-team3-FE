@@ -57,7 +57,7 @@ export const MoverCard = ({
     'text-black-300',
     isCompact ? 'text-lg-semibold' : 'text-2lg-semibold'
   );
-  const profileAlt = `${mover.nickname} 기사님 프로필`;
+  const profileAlt = `${mover.name} 기사님 프로필`;
 
   const handleFavoriteClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();

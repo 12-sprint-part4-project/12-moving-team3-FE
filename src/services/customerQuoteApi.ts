@@ -101,7 +101,7 @@ export const toMoverCardModelFromCustomerQuoteMover = (
   mover: CustomerQuoteMoverViewModel
 ): MoverCardModel => ({
   moverId: mover.moverId,
-  nickname: mover.nickname,
+  name: mover.nickname,
   profileImageUrl: mover.profileImageUrl,
   services: [],
   regions: [],

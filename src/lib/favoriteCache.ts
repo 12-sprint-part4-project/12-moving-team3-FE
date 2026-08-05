@@ -119,7 +119,7 @@ const buildOptimisticFavoriteItem = (
         createdAt: new Date().toISOString(),
         mover: {
           id: item.user.id,
-          name: item.user.nickname,
+          name: item.user.name,
           profileImageUrl: item.user.profileImageUrl,
           moverProfile: {
             career: item.career,
@@ -148,7 +148,7 @@ const buildOptimisticFavoriteItem = (
       createdAt: new Date().toISOString(),
       mover: {
         id: moverDetail.user.id,
-        name: moverDetail.user.nickname,
+        name: moverDetail.user.name,
         profileImageUrl: moverDetail.user.profileImageUrl,
         moverProfile: {
           career: moverDetail.career,
