@@ -5,7 +5,11 @@ import { useState, type FormEvent, type KeyboardEvent } from 'react';
 import LikeActiveIcon from '@/assets/icons/like-active.svg';
 import { cn } from '@/lib/utils';
 
-import { COMMUNITY_DETAIL_COMMENT_INPUT } from './communityDetailStyles';
+import {
+  COMMUNITY_DETAIL_COMMENT_INPUT,
+  COMMUNITY_ENGAGEMENT_BUTTON_CLASS,
+  COMMUNITY_ENGAGEMENT_ICON_CLASS,
+} from './communityDetailStyles';
 
 export interface CommunityPostEngagementBarProps {
   isLiked: boolean;
@@ -74,15 +78,15 @@ export const CommunityPostEngagementBar = ({
           aria-busy={isLikePending}
           disabled={isLikePending}
           className={cn(
-            'inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-2xl border border-line-200 bg-white p-2.5',
-            'xl:size-[3.625rem] xl:p-2.5',
+            COMMUNITY_ENGAGEMENT_BUTTON_CLASS,
+            'border border-line-200 bg-white',
             isLikePending && 'opacity-60',
             isLiked && 'border-blue-300'
           )}
         >
           <LikeActiveIcon
             className={cn(
-              'size-6 shrink-0 xl:size-9',
+              COMMUNITY_ENGAGEMENT_ICON_CLASS,
               isLiked ? 'text-blue-400' : 'text-gray-200'
             )}
             aria-hidden
