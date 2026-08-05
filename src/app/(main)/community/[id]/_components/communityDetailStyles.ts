@@ -7,17 +7,15 @@ export const COMMUNITY_DETAIL_DIVIDER = 'h-px w-full bg-shadow-gray-200';
 export const COMMUNITY_DETAIL_COMMENT_INPUT =
   'h-11 min-w-0 flex-1 rounded-lg border border-shadow-gray-200 bg-background-200 px-4 text-sm-medium text-black-400 placeholder:text-gray-400 min-[46.5rem]:text-sm-medium xl:h-[3.625rem] xl:rounded-lg xl:px-5 xl:text-md-regular';
 
-/** 메타 텍스트 */
-export const COMMUNITY_DETAIL_META_TEXT =
+/** 메타 텍스트 공통 */
+const COMMUNITY_DETAIL_META_BASE =
   'text-xs-regular text-gray-400 min-[46.5rem]:text-sm-medium xl:text-md-regular';
 
 /** 메타 닉네임 */
-export const COMMUNITY_DETAIL_META_NICKNAME =
-  'text-xs-regular font-bold text-gray-400 min-[46.5rem]:text-sm-medium xl:text-md-regular';
+export const COMMUNITY_DETAIL_META_NICKNAME = `${COMMUNITY_DETAIL_META_BASE} font-bold`;
 
 /** 메타 날짜 */
-export const COMMUNITY_DETAIL_META_DATE =
-  'text-xs-regular text-gray-400 min-[46.5rem]:text-sm-medium xl:text-md-regular';
+export const COMMUNITY_DETAIL_META_DATE = COMMUNITY_DETAIL_META_BASE;
 
 /** 게시글 메타 행 액션 — Mobile 20px / Tablet 24px / Desktop 28px */
 export const COMMUNITY_POST_META_ACTION_BUTTON_CLASS =

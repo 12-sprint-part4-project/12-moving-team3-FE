@@ -1,13 +1,12 @@
 import type { InfiniteData, QueryClient } from '@tanstack/react-query';
 
+import { communityQueryKeys } from '@/lib/communityQueryKeys';
 import type {
   PostListParams,
   PostListResponse,
   PostNeighborSummary,
   PostNeighbors,
 } from '@/types/community';
-
-const COMMUNITY_LISTS_QUERY_KEY = ['community', 'list'] as const;
 
 const toNeighborSummary = (post: {
   id: number;
@@ -35,7 +34,7 @@ export const findPostNeighborsInListCache = (
   const entries = queryClient.getQueriesData<
     InfiniteData<PostListResponse>
   >({
-    queryKey: COMMUNITY_LISTS_QUERY_KEY,
+    queryKey: communityQueryKeys.lists(),
   });
 
   for (const [queryKey, data] of entries) {

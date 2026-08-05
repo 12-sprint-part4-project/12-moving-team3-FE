@@ -1,24 +1,30 @@
 'use client';
 
+import type { ReactNode } from 'react';
+
 import { Button } from '@/components/Button/Button';
 import { ModalBasic } from '@/components/ui/Modal/ModalBasic';
 import { MODAL_PANEL_BOTTOM_SHEET_CLASS } from '@/components/ui/Modal/modalPanel';
 import { cn } from '@/lib/utils';
 
-export interface PostDeleteModalProps {
+export interface ConfirmDeleteModalProps {
+  title: string;
+  message: ReactNode;
   onClose: () => void;
   onConfirm: () => void;
   isDeleting?: boolean;
   className?: string;
 }
 
-/** 게시글 삭제 확인 모달 */
-export const PostDeleteModal = ({
+/** 삭제 확인 모달 — 댓글·게시글 공통 */
+export const ConfirmDeleteModal = ({
+  title,
+  message,
   onClose,
   onConfirm,
   isDeleting = false,
   className = '',
-}: PostDeleteModalProps) => {
+}: ConfirmDeleteModalProps) => {
   const handleClose = () => {
     if (isDeleting) {
       return;
@@ -28,7 +34,7 @@ export const PostDeleteModal = ({
 
   return (
     <ModalBasic
-      title="게시글 삭제"
+      title={title}
       onClose={handleClose}
       closeDisabled={isDeleting}
       className={cn(MODAL_PANEL_BOTTOM_SHEET_CLASS, className)}
@@ -55,11 +61,9 @@ export const PostDeleteModal = ({
         </div>
       }
     >
-      <p className="text-lg-medium text-black-300 sm:text-2lg-medium">
-        작성한 게시글을 삭제하시겠습니까?
-        <br />
-        삭제 후에는 복구할 수 없습니다.
-      </p>
+      <div className="text-lg-medium text-black-300 sm:text-2lg-medium">
+        {message}
+      </div>
     </ModalBasic>
   );
 };

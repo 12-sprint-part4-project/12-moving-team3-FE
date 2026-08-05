@@ -1,6 +1,6 @@
 const POST_VIEW_SESSION_PREFIX = 'community-post-view:';
 
-export const getPostViewSessionKey = (postId: number): string =>
+const getPostViewSessionKey = (postId: number): string =>
   `${POST_VIEW_SESSION_PREFIX}${postId}`;
 
 /** 같은 탭 세션에서 이미 조회수를 전송했는지 확인 */

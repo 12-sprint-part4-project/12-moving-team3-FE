@@ -8,6 +8,11 @@ import {
 } from '@/constants/communityOptions';
 import type { PostCategory, PostListParams, PostSort } from '@/types/community';
 
+/** 게시글 카테고리 → 목록 탭 */
+export const getTabFromPostCategory = (
+  category: PostCategory
+): CommunityTabId => (category === 'FURNITURE_SHARE' ? 'furniture' : 'board');
+
 /** 목록 필터 컨텍스트 — 상세 이전/다음글 API·URL 공유용 */
 export interface PostListContext {
   tab: CommunityTabId;
@@ -72,6 +77,13 @@ export const buildPostListContextSearchParams = (
   }
 
   return params;
+};
+
+export const buildCommunityListHref = (
+  context: PostListContext
+): string => {
+  const qs = buildPostListContextSearchParams(context).toString();
+  return qs ? `/community?${qs}` : '/community';
 };
 
 export const buildCommunityPostDetailHref = (

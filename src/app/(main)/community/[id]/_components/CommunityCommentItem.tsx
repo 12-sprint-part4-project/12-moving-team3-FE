@@ -16,7 +16,6 @@ interface CommunityCommentInteractionProps {
 
 interface CommunityCommentItemProps extends CommunityCommentInteractionProps {
   comment: CommentWithReplies;
-  className?: string;
 }
 
 interface CommunityCommentRowProps extends CommunityCommentInteractionProps {
@@ -109,9 +108,8 @@ export const CommunityCommentItem = ({
   currentUserId,
   deletingCommentId = null,
   onDeleteRequest,
-  className = '',
 }: CommunityCommentItemProps) => (
-  <li className={cn('flex flex-col gap-4 min-[46.5rem]:gap-5', className)}>
+  <li className="flex flex-col gap-4 min-[46.5rem]:gap-5">
     <CommunityCommentRow
       item={comment}
       postAuthorId={postAuthorId}

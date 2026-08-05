@@ -24,14 +24,15 @@ import {
   useTogglePostLike,
 } from '@/hooks/useCommunity';
 import { useToast } from '@/hooks/useToast';
-import { ApiError } from '@/lib/apiClient';
+import { ApiError, resolveApiErrorMessage } from '@/lib/apiClient';
 import {
+  buildCommunityListHref,
+  getTabFromPostCategory,
   parsePostListContextFromSearchParams,
   postListContextToParams,
 } from '@/lib/communityListContext';
 import { formatDotDateLabel } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
-import type { PostCategory } from '@/types/community';
 
 import { CommunityCategoryBadge } from '../_components/CommunityCategoryBadge';
 import {
@@ -43,8 +44,7 @@ import {
 } from '../_components/communityLayout';
 import { CommunityTabBar } from '../_components/CommunityTabBar';
 import { CommunityCommentList } from './_components/CommunityCommentList';
-import { CommentDeleteModal } from './_components/CommentDeleteModal';
-import { PostDeleteModal } from './_components/PostDeleteModal';
+import { ConfirmDeleteModal } from './_components/ConfirmDeleteModal';
 import {
   COMMUNITY_DETAIL_BODY_TEXT,
   COMMUNITY_DETAIL_DIVIDER,
@@ -62,8 +62,8 @@ interface CommunityPostDetailPageClientProps {
   postId: number;
 }
 
-const getActiveTab = (category: PostCategory): CommunityTabId =>
-  category === 'FURNITURE_SHARE' ? 'furniture' : 'board';
+const DETAIL_STATE_MESSAGE_CLASS =
+  'flex w-full flex-col items-center justify-center py-24';
 
 /** 커뮤니티 게시글 상세 — Figma Mobile / Tablet / Desktop */
 export const CommunityPostDetailPageClient = ({
@@ -115,8 +115,7 @@ export const CommunityPostDetailPageClient = ({
     refetch: refetchComments,
   } = useCommentList(postId);
 
-  const { mutate: togglePostLikeMutate, isPending: isLikePending } =
-    useTogglePostLike();
+  const { togglePostLike, isPending: isLikePending } = useTogglePostLike();
   const { mutate: createComment, isPending: isCommentPending } =
     useCreateComment(postId);
   const { mutate: deleteCommentMutate, isPending: isDeleteCommentPending } =
@@ -128,8 +127,15 @@ export const CommunityPostDetailPageClient = ({
     useInView({ rootMargin: '200px' });
 
   const activeTab = useMemo(
-    () => (post ? getActiveTab(post.category) : 'board'),
-    [post]
+    () => (post ? getTabFromPostCategory(post.category) : listContext.tab),
+    [post, listContext.tab]
+  );
+
+  const showMutationError = useCallback(
+    (error: unknown, fallback: string) => {
+      showToast({ content: resolveApiErrorMessage(error, fallback) });
+    },
+    [showToast]
   );
 
   const imageUrls = useMemo(
@@ -145,9 +151,9 @@ export const CommunityPostDetailPageClient = ({
 
   const handleTabChange = useCallback(
     (tabId: CommunityTabId) => {
-      router.push(`/community?tab=${tabId}`);
+      router.push(buildCommunityListHref({ ...listContext, tab: tabId }));
     },
-    [router]
+    [router, listContext]
   );
 
   const openLoginModal = useCallback(() => {
@@ -173,31 +179,12 @@ export const CommunityPostDetailPageClient = ({
       return;
     }
 
-    if (isLikePending) {
-      return;
-    }
-
-    togglePostLikeMutate(
-      { postId, nextLiked: !post.isLiked },
-      {
-        onError: (error: unknown) => {
-          const message =
-            error instanceof ApiError
-              ? error.message
-              : '좋아요 처리에 실패했습니다.';
-          showToast({ content: message });
-        },
-      }
-    );
-  }, [
-    user,
-    post,
-    postId,
-    isLikePending,
-    togglePostLikeMutate,
-    openLoginModal,
-    showToast,
-  ]);
+    togglePostLike(postId, !post.isLiked, {
+      onError: (error) => {
+        showMutationError(error, '좋아요 처리에 실패했습니다.');
+      },
+    });
+  }, [user, post, postId, togglePostLike, openLoginModal, showToast, showMutationError]);
 
   const handleCommentSubmit = useCallback(
     (content: string) => {
@@ -212,17 +199,13 @@ export const CommunityPostDetailPageClient = ({
           onSuccess: () => {
             setCommentDraft('');
           },
-          onError: (error: unknown) => {
-            const message =
-              error instanceof ApiError
-                ? error.message
-                : '댓글 작성에 실패했습니다.';
-            showToast({ content: message });
+          onError: (error) => {
+            showMutationError(error, '댓글 작성에 실패했습니다.');
           },
         }
       );
     },
-    [user, createComment, openLoginModal, showToast]
+    [user, createComment, openLoginModal, showMutationError]
   );
 
   const handleCommentInputFocus = useCallback(() => {
@@ -252,12 +235,8 @@ export const CommunityPostDetailPageClient = ({
         setCommentIdToDelete(null);
         showToast({ content: '댓글이 삭제되었습니다.' });
       },
-      onError: (error: unknown) => {
-        const message =
-          error instanceof ApiError
-            ? error.message
-            : '댓글 삭제에 실패했습니다.';
-        showToast({ content: message });
+      onError: (error) => {
+        showMutationError(error, '댓글 삭제에 실패했습니다.');
       },
     });
   }, [
@@ -265,6 +244,7 @@ export const CommunityPostDetailPageClient = ({
     deleteCommentMutate,
     isDeleteCommentPending,
     showToast,
+    showMutationError,
   ]);
 
   const handlePostEdit = useCallback(() => {
@@ -302,21 +282,18 @@ export const CommunityPostDetailPageClient = ({
         showToast({ content: '게시글이 삭제되었습니다.' });
         router.push('/community');
       },
-      onError: (error: unknown) => {
-        const message =
-          error instanceof ApiError
-            ? error.message
-            : '게시글 삭제에 실패했습니다.';
-        showToast({ content: message });
+      onError: (error) => {
+        showMutationError(error, '게시글 삭제에 실패했습니다.');
       },
     });
-  }, [deletePostMutate, isDeletePostPending, postId, router, showToast]);
+  }, [deletePostMutate, isDeletePostPending, postId, router, showToast, showMutationError]);
 
   useEffect(() => {
     if (
       isCommentsLoadMoreInView &&
       hasCommentsNextPage &&
-      !isCommentsFetchingNextPage
+      !isCommentsFetchingNextPage &&
+      !isCommentsFetchNextPageError
     ) {
       void fetchCommentsNextPage();
     }
@@ -324,12 +301,13 @@ export const CommunityPostDetailPageClient = ({
     isCommentsLoadMoreInView,
     hasCommentsNextPage,
     isCommentsFetchingNextPage,
+    isCommentsFetchNextPageError,
     fetchCommentsNextPage,
   ]);
 
   if (postId <= 0 || Number.isNaN(postId)) {
     return (
-      <div className="flex w-full flex-col items-center justify-center py-24">
+      <div className={DETAIL_STATE_MESSAGE_CLASS}>
         <p className="text-lg-medium text-gray-400">잘못된 게시글 주소예요.</p>
       </div>
     );
@@ -338,7 +316,10 @@ export const CommunityPostDetailPageClient = ({
   if (isPostPending) {
     return (
       <div className={COMMUNITY_PAGE_SHELL}>
-        <CommunityTabBar activeTab="board" onTabChange={handleTabChange} />
+        <CommunityTabBar
+          activeTab={listContext.tab}
+          onTabChange={handleTabChange}
+        />
         <div className="flex justify-center py-24">
           <Spinner message="게시글 불러오는 중..." />
         </div>
@@ -352,8 +333,11 @@ export const CommunityPostDetailPageClient = ({
   if (isNotFound) {
     return (
       <div className={COMMUNITY_PAGE_SHELL}>
-        <CommunityTabBar activeTab="board" onTabChange={handleTabChange} />
-        <div className="flex w-full flex-col items-center justify-center py-24">
+        <CommunityTabBar
+          activeTab={listContext.tab}
+          onTabChange={handleTabChange}
+        />
+        <div className={DETAIL_STATE_MESSAGE_CLASS}>
           <p className="text-lg-medium text-gray-400">
             게시글을 찾을 수 없어요.
           </p>
@@ -363,14 +347,17 @@ export const CommunityPostDetailPageClient = ({
   }
 
   if (isPostError || !post) {
-    const errorMessage =
-      postError instanceof ApiError
-        ? postError.message
-        : (postError?.message ?? '게시글을 불러오지 못했습니다.');
+    const errorMessage = resolveApiErrorMessage(
+      postError,
+      '게시글을 불러오지 못했습니다.'
+    );
 
     return (
       <div className={COMMUNITY_PAGE_SHELL}>
-        <CommunityTabBar activeTab="board" onTabChange={handleTabChange} />
+        <CommunityTabBar
+          activeTab={listContext.tab}
+          onTabChange={handleTabChange}
+        />
         <div className="flex w-full flex-col items-center gap-4 py-24">
           <p className="text-lg-medium text-gray-400">{errorMessage}</p>
           <Button
@@ -389,10 +376,10 @@ export const CommunityPostDetailPageClient = ({
 
   const postDateLabel = formatDotDateLabel(post.createdAt);
 
-  const commentsErrorMessage =
-    commentsError instanceof ApiError
-      ? commentsError.message
-      : (commentsError?.message ?? '댓글을 불러오지 못했습니다.');
+  const commentsErrorMessage = resolveApiErrorMessage(
+    commentsError,
+    '댓글을 불러오지 못했습니다.'
+  );
 
   const isLiked = post.isLiked === true;
   const isLikeDisabled = user !== undefined && post.isLiked === null;
@@ -513,6 +500,9 @@ export const CommunityPostDetailPageClient = ({
               void refetchComments();
             }}
             onRetryNextPage={() => {
+              if (isCommentsFetchingNextPage) {
+                return;
+              }
               void fetchCommentsNextPage();
             }}
             loadMoreRef={commentsLoadMoreRef}
@@ -551,7 +541,9 @@ export const CommunityPostDetailPageClient = ({
 
       {commentIdToDelete !== null ? (
         <Modal placement="bottom" onClose={handleDeleteCommentModalClose}>
-          <CommentDeleteModal
+          <ConfirmDeleteModal
+            title="댓글 삭제"
+            message="작성한 댓글을 삭제하시겠습니까?"
             onClose={handleDeleteCommentModalClose}
             onConfirm={handleDeleteCommentConfirm}
             isDeleting={isDeleteCommentPending}
@@ -561,7 +553,15 @@ export const CommunityPostDetailPageClient = ({
 
       {isPostDeleteModalOpen ? (
         <Modal placement="bottom" onClose={handlePostDeleteModalClose}>
-          <PostDeleteModal
+          <ConfirmDeleteModal
+            title="게시글 삭제"
+            message={
+              <>
+                작성한 게시글을 삭제하시겠습니까?
+                <br />
+                삭제 후에는 복구할 수 없습니다.
+              </>
+            }
             onClose={handlePostDeleteModalClose}
             onConfirm={handlePostDeleteConfirm}
             isDeleting={isDeletePostPending}

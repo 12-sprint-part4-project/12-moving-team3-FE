@@ -10,6 +10,7 @@ import {
 import { useEffect, useMemo } from 'react';
 
 import { findPostNeighborsInListCache } from '@/lib/communityPostNeighbors';
+import { communityQueryKeys } from '@/lib/communityQueryKeys';
 
 import {
   hasRecordedPostViewInSession,
@@ -41,22 +42,7 @@ import type {
   UpdatePostBody,
 } from '@/types/community';
 
-export const communityQueryKeys = {
-  all: ['community'] as const,
-  lists: () => [...communityQueryKeys.all, 'list'] as const,
-  list: (query: PostListParams) =>
-    [...communityQueryKeys.lists(), query] as const,
-  details: () => [...communityQueryKeys.all, 'detail'] as const,
-  detail: (postId: number) =>
-    [...communityQueryKeys.details(), postId] as const,
-  comments: () => [...communityQueryKeys.all, 'comments'] as const,
-  commentLists: () => [...communityQueryKeys.comments(), 'list'] as const,
-  commentList: (postId: number, query: CommentListParams) =>
-    [...communityQueryKeys.commentLists(), postId, query] as const,
-  neighborLists: () => [...communityQueryKeys.all, 'neighbors'] as const,
-  neighbors: (postId: number, query: PostListParams) =>
-    [...communityQueryKeys.neighborLists(), postId, query] as const,
-};
+export { communityQueryKeys } from '@/lib/communityQueryKeys';
 
 export interface TogglePostLikeVariables {
   postId: number;
@@ -149,32 +135,17 @@ export const usePostNeighbors = (
 ) => {
   const queryClient = useQueryClient();
 
-  const queryParams = useMemo(
-    () => ({
-      category: listParams.category,
-      region: listParams.region,
-      sort: listParams.sort,
-      keyword: listParams.keyword,
-    }),
-    [
-      listParams.category,
-      listParams.region,
-      listParams.sort,
-      listParams.keyword,
-    ]
-  );
-
   const query = useQuery({
-    queryKey: communityQueryKeys.neighbors(postId, queryParams),
-    queryFn: () => getPostNeighbors(postId, queryParams),
+    queryKey: communityQueryKeys.neighbors(postId, listParams),
+    queryFn: () => getPostNeighbors(postId, listParams),
     select: (response) => response.data,
     enabled: postId > 0,
     retry: false,
   });
 
   const cachedNeighbors = useMemo(
-    () => findPostNeighborsInListCache(queryClient, postId, queryParams),
-    [queryClient, postId, queryParams]
+    () => findPostNeighborsInListCache(queryClient, postId, listParams),
+    [queryClient, postId, listParams]
   );
 
   const neighbors = query.data ?? cachedNeighbors;
@@ -182,7 +153,6 @@ export const usePostNeighbors = (
   return {
     ...query,
     neighbors,
-    isResolved: query.isSuccess || cachedNeighbors !== null,
   };
 };
 
@@ -309,11 +279,15 @@ export const useTogglePostLike = () => {
     },
   });
 
-  const togglePostLike = (postId: number, nextLiked: boolean): void => {
+  const togglePostLike = (
+    postId: number,
+    nextLiked: boolean,
+    options?: { onError?: (error: unknown) => void }
+  ): void => {
     if (mutation.isPending) {
       return;
     }
-    mutation.mutate({ postId, nextLiked });
+    mutation.mutate({ postId, nextLiked }, options);
   };
 
   return {

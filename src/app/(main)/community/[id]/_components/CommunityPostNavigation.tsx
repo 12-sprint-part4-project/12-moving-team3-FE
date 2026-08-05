@@ -21,7 +21,7 @@ interface CommunityPostNavigationProps {
 }
 
 const NAV_LABEL_CLASS =
-  'text-xs-medium text-gray-400 min-[46.5rem]:text-xs-medium xl:text-sm-medium';
+  'text-xs-medium text-gray-400 xl:text-sm-medium';
 
 const NAV_TITLE_CLASS =
   'mt-1 line-clamp-1 text-sm-semibold text-black-400 min-[46.5rem]:text-sm-semibold xl:text-md-semibold';
