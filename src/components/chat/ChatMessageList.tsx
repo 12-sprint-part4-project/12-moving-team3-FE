@@ -122,10 +122,12 @@ export const ChatMessageList = ({
     isProgrammaticScrollRef.current = true;
     el.scrollTop = anchor.top + (el.scrollHeight - anchor.height);
     scrollAnchorRef.current = null;
+    // prepend 복원 중 ResizeObserver가 최하단으로 끌어가지 않도록 하단 고정 해제
+    reportNearBottom(false);
     requestAnimationFrame(() => {
       isProgrammaticScrollRef.current = false;
     });
-  }, [messages]);
+  }, [messages, reportNearBottom]);
 
   // 이전 페이지 요청이 끝나도 oldest가 그대로면(실패·빈 페이지) 앵커 해제 → 재시도 가능
   useEffect(() => {
