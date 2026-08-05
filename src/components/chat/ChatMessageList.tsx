@@ -13,6 +13,7 @@ import { ChatMessageItem } from '@/components/chat/ChatMessageItem';
 import {
   formatChatDateSeparator,
   isSameLocalCalendarDay,
+  isSameLocalMinute,
 } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
 import type { ChatMessage } from '@/types/chat';
@@ -39,6 +40,23 @@ export interface ChatMessageListProps {
 
 const NEAR_TOP_PX = 80;
 const NEAR_BOTTOM_PX = 120;
+
+/**
+ * 같은 보낸이가 같은 분(분 단위)에 연속 메시지를 보내면
+ * 시간은 묶음의 마지막 메시지에만 표시한다 (카톡식).
+ */
+const shouldShowMessageTime = (
+  current: ChatMessage,
+  next: ChatMessage | undefined
+): boolean => {
+  if (!next) {
+    return true;
+  }
+  if (next.senderId !== current.senderId) {
+    return true;
+  }
+  return !isSameLocalMinute(current.createdAt, next.createdAt);
+};
 
 /** 메시지 스크롤 영역 — 상단 도달 시 이전 이력 로드 */
 export const ChatMessageList = ({
@@ -307,12 +325,14 @@ export const ChatMessageList = ({
         {canRenderMessages &&
           messages.map((message, index) => {
             const previous = messages[index - 1];
+            const next = messages[index + 1];
             const showDateSeparator =
               !previous ||
               !isSameLocalCalendarDay(previous.createdAt, message.createdAt);
             const dateLabel = showDateSeparator
               ? formatChatDateSeparator(message.createdAt)
               : '';
+            const showTime = shouldShowMessageTime(message, next);
 
             return (
               <Fragment key={message.messageId}>
@@ -328,6 +348,8 @@ export const ChatMessageList = ({
                 <ChatMessageItem
                   message={message}
                   isMine={message.senderId === currentUserId}
+                  showTime={showTime}
+                  className={showTime ? undefined : '-mb-2'}
                 />
               </Fragment>
             );

@@ -13,6 +13,8 @@ import type { ChatMessage } from '@/types/chat';
 export interface ChatMessageItemProps {
   message: ChatMessage;
   isMine: boolean;
+  /** false면 시각 숨김 — 같은 보낸이·같은 분 연속 묶음의 중간 메시지 */
+  showTime?: boolean;
   className?: string;
 }
 
@@ -84,43 +86,52 @@ const ChatImageAttachments = ({
 export const ChatMessageItem = ({
   message,
   isMine,
+  showTime = true,
   className,
 }: ChatMessageItemProps) => {
   const isImageMessage =
     message.messageType === 'IMAGE' && message.attachments.length > 0;
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
+  const bubble = isImageMessage ? (
+    <ChatImageAttachments
+      attachments={message.attachments}
+      isMine={isMine}
+      onSelectImage={setSelectedImageUrl}
+    />
+  ) : (
+    <TextFieldChat
+      color={isMine ? 'mePrimary' : 'incoming'}
+      className="px-3.5 py-2.5 drop-shadow-none md:px-3.5 md:py-2.5"
+    >
+      {message.messageType === 'IMAGE'
+        ? '사진'
+        : getTextMessageBody(message)}
+    </TextFieldChat>
+  );
+
+  const timeLabel = showTime ? (
+    <time
+      dateTime={message.createdAt}
+      className="shrink-0 self-end whitespace-nowrap text-xs-medium text-gray-300"
+    >
+      {formatChatMessageTime(message.createdAt)}
+    </time>
+  ) : null;
+
   return (
     <>
       <div
         className={cn(
-          'flex max-w-[75%] flex-col gap-1',
-          isMine ? 'items-end self-end' : 'items-start self-start',
+          'flex max-w-[75%] items-end gap-1.5',
+          isMine ? 'flex-row self-end' : 'flex-row self-start',
           className
         )}
       >
-        {isImageMessage ? (
-          <ChatImageAttachments
-            attachments={message.attachments}
-            isMine={isMine}
-            onSelectImage={setSelectedImageUrl}
-          />
-        ) : (
-          <TextFieldChat
-            color={isMine ? 'mePrimary' : 'incoming'}
-            className="px-3.5 py-2.5 drop-shadow-none md:px-3.5 md:py-2.5"
-          >
-            {message.messageType === 'IMAGE'
-              ? '사진'
-              : getTextMessageBody(message)}
-          </TextFieldChat>
-        )}
-        <time
-          dateTime={message.createdAt}
-          className="px-1 text-xs-medium text-gray-300"
-        >
-          {formatChatMessageTime(message.createdAt)}
-        </time>
+        {/* 내 메시지: 시간 | 말풍선 (왼쪽 하단). 상대: 말풍선 | 시간 */}
+        {isMine ? timeLabel : null}
+        <div className="min-w-0">{bubble}</div>
+        {!isMine ? timeLabel : null}
       </div>
 
       {selectedImageUrl ? (
