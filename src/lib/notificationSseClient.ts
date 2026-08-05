@@ -39,16 +39,23 @@ const waitForReconnect = (
   signal: AbortSignal
 ): Promise<void> =>
   new Promise((resolve) => {
-    const timeoutId = setTimeout(resolve, delayMs);
+    if (signal.aborted) {
+      resolve();
+      return;
+    }
 
-    signal.addEventListener(
-      'abort',
-      () => {
-        clearTimeout(timeoutId);
-        resolve();
-      },
-      { once: true }
-    );
+    const handleAbort = () => {
+      clearTimeout(timeoutId);
+      resolve();
+    };
+
+    // 정상 대기 완료 시 abort 리스너도 제거해 재연결마다 누적되지 않게 한다.
+    const timeoutId = setTimeout(() => {
+      signal.removeEventListener('abort', handleAbort);
+      resolve();
+    }, delayMs);
+
+    signal.addEventListener('abort', handleAbort, { once: true });
   });
 
 const fetchStream = async (
