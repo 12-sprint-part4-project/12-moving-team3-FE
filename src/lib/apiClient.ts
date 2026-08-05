@@ -76,6 +76,31 @@ export const toNetworkApiError = (error: unknown): ApiError => {
   return new ApiError(0, '네트워크 오류가 발생했습니다.', 'NETWORK_ERROR');
 };
 
+/** API·일반 Error에서 사용자 메시지 추출 (React Query error.message 호환) */
+export const resolveApiErrorMessage = (
+  error: unknown,
+  fallback: string
+): string => {
+  if (error instanceof ApiError) {
+    return error.message;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof error.message === 'string'
+  ) {
+    return error.message;
+  }
+
+  return fallback;
+};
+
 /** 실패 응답을 ApiError로 변환 후 throw */
 export const throwApiError = async (response: Response): Promise<never> => {
   const body = (await response.json().catch(() => null)) as ApiErrorBody | null;

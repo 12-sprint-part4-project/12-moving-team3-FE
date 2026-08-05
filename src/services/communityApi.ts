@@ -13,8 +13,10 @@ import type {
   PostDetailResponse,
   PostIdResponse,
   PostLikeResponse,
+  PostListParams,
   PostListQuery,
   PostListResponse,
+  PostNeighborsResponse,
   UpdatePostBody,
 } from '@/types/community';
 
@@ -91,6 +93,16 @@ export const getPostById = (postId: number): Promise<PostDetailResponse> =>
   communityFetch<PostDetailResponse>(`${BASE_PATH}/${postId}`, {
     method: 'GET',
   });
+
+/** 게시글 이전/다음글 조회 — GET /api/posts/:postId/neighbors */
+export const getPostNeighbors = (
+  postId: number,
+  query: PostListParams = {}
+): Promise<PostNeighborsResponse> =>
+  communityFetch<PostNeighborsResponse>(
+    `${BASE_PATH}/${postId}/neighbors${buildPostListQueryString(query)}`,
+    { method: 'GET' }
+  );
 
 /** 게시글 작성 */
 export const createPost = (body: CreatePostBody): Promise<PostIdResponse> =>
@@ -179,4 +191,10 @@ export const likePost = (postId: number): Promise<PostLikeResponse> =>
 export const unlikePost = (postId: number): Promise<void> =>
   communityFetch<void>(`${BASE_PATH}/${postId}/likes`, {
     method: 'DELETE',
+  });
+
+/** 게시글 조회수 기록 — POST /api/posts/:postId/views */
+export const recordPostView = (postId: number): Promise<void> =>
+  communityFetch<void>(`${BASE_PATH}/${postId}/views`, {
+    method: 'POST',
   });

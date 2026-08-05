@@ -1,6 +1,10 @@
 import Link from 'next/link';
 
 import { formatRelativeTime } from '@/lib/formatDate';
+import {
+  buildCommunityPostDetailHref,
+  type PostListContext,
+} from '@/lib/communityListContext';
 import { cn } from '@/lib/utils';
 import type { PostListItem } from '@/types/community';
 
@@ -9,6 +13,7 @@ import { CommunityPostThumbnail } from './CommunityPostThumbnail';
 
 interface CommunityPostCardProps {
   post: PostListItem;
+  listContext?: PostListContext;
   className?: string;
 }
 
@@ -26,6 +31,7 @@ const formatPostMeta = (post: PostListItem): string => {
 /** Figma post-card — Mobile 343×116 / Tablet 600×120 / Desktop 955×140 */
 export const CommunityPostCard = ({
   post,
+  listContext,
   className = '',
 }: CommunityPostCardProps) => {
   const thumbnailUrl = post.thumbnailUrl;
@@ -33,7 +39,7 @@ export const CommunityPostCard = ({
 
   return (
     <Link
-      href={`/community/${post.id}`}
+      href={buildCommunityPostDetailHref(post.id, listContext)}
       className={cn(
         'relative flex h-[7.25rem] w-full overflow-hidden rounded-2xl bg-white p-3.5 shadow-request-card',
         'min-[46.5rem]:h-[7.5rem] min-[46.5rem]:px-5 min-[46.5rem]:py-4',

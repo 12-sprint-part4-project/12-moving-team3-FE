@@ -3,12 +3,14 @@
 import { Button } from '@/components/Button/Button';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { cn } from '@/lib/utils';
+import type { PostListContext } from '@/lib/communityListContext';
 import type { PostListItem } from '@/types/community';
 
 import { CommunityPostCard } from './CommunityPostCard';
 
 interface CommunityPostListProps {
   posts: PostListItem[];
+  listContext?: PostListContext;
   isPending: boolean;
   isError: boolean;
   isEmpty: boolean;
@@ -26,6 +28,7 @@ interface CommunityPostListProps {
 /** 커뮤니티 게시글 목록 — 무한스크롤 sentinel 포함 */
 export const CommunityPostList = ({
   posts,
+  listContext,
   isPending,
   isError,
   isEmpty,
@@ -72,7 +75,7 @@ export const CommunityPostList = ({
         <ul className={cn(listClassName)}>
           {posts.map((post) => (
             <li key={post.id}>
-              <CommunityPostCard post={post} />
+              <CommunityPostCard post={post} listContext={listContext} />
             </li>
           ))}
         </ul>

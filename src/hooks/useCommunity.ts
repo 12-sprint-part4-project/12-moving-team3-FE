@@ -7,8 +7,15 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
+import { findPostNeighborsInListCache } from '@/lib/communityPostNeighbors';
+import { communityQueryKeys } from '@/lib/communityQueryKeys';
+
+import {
+  hasRecordedPostViewInSession,
+  markPostViewRecordedInSession,
+} from '@/lib/postViewTracking';
 import { uploadPostImage } from '@/lib/uploadPostImage';
 import {
   createComment,
@@ -18,8 +25,10 @@ import {
   deletePost,
   getComments,
   getPostById,
+  getPostNeighbors,
   getPosts,
   likePost,
+  recordPostView,
   unlikePost,
   updatePost,
 } from '@/services/communityApi';
@@ -33,19 +42,7 @@ import type {
   UpdatePostBody,
 } from '@/types/community';
 
-export const communityQueryKeys = {
-  all: ['community'] as const,
-  lists: () => [...communityQueryKeys.all, 'list'] as const,
-  list: (query: PostListParams) =>
-    [...communityQueryKeys.lists(), query] as const,
-  details: () => [...communityQueryKeys.all, 'detail'] as const,
-  detail: (postId: number) =>
-    [...communityQueryKeys.details(), postId] as const,
-  comments: () => [...communityQueryKeys.all, 'comments'] as const,
-  commentLists: () => [...communityQueryKeys.comments(), 'list'] as const,
-  commentList: (postId: number, query: CommentListParams) =>
-    [...communityQueryKeys.commentLists(), postId, query] as const,
-};
+export { communityQueryKeys } from '@/lib/communityQueryKeys';
 
 export interface TogglePostLikeVariables {
   postId: number;
@@ -130,6 +127,69 @@ export const usePost = (postId: number) =>
     select: (response) => response.data,
     enabled: postId > 0,
   });
+
+/** 게시글 이전/다음글 조회 — BE 우선, 목록 캐시 fallback */
+export const usePostNeighbors = (
+  postId: number,
+  listParams: PostListParams = {}
+) => {
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
+    queryKey: communityQueryKeys.neighbors(postId, listParams),
+    queryFn: () => getPostNeighbors(postId, listParams),
+    select: (response) => response.data,
+    enabled: postId > 0,
+    retry: false,
+  });
+
+  const cachedNeighbors = useMemo(
+    () => findPostNeighborsInListCache(queryClient, postId, listParams),
+    [queryClient, postId, listParams]
+  );
+
+  const neighbors = query.data ?? cachedNeighbors;
+
+  return {
+    ...query,
+    neighbors,
+  };
+};
+
+/**
+ * 게시글 조회수 BE 전송 — 상세 로드 성공 후 세션당 1회.
+ * UI에 조회수를 표시하지 않으며, 실패해도 사용자에게 노출하지 않는다.
+ */
+const inFlightPostViewIds = new Set<number>();
+
+export const useRecordPostView = (postId: number, enabled: boolean) => {
+  useEffect(() => {
+    if (!enabled || postId <= 0) {
+      return;
+    }
+
+    if (hasRecordedPostViewInSession(postId)) {
+      return;
+    }
+
+    if (inFlightPostViewIds.has(postId)) {
+      return;
+    }
+
+    inFlightPostViewIds.add(postId);
+
+    void recordPostView(postId)
+      .then(() => {
+        markPostViewRecordedInSession(postId);
+      })
+      .catch(() => {
+        // BE 미구현·네트워크 오류 — UI 영향 없음
+      })
+      .finally(() => {
+        inFlightPostViewIds.delete(postId);
+      });
+  }, [postId, enabled]);
+};
 
 /** 게시글 작성 */
 export const useCreatePost = () => {
@@ -219,11 +279,15 @@ export const useTogglePostLike = () => {
     },
   });
 
-  const togglePostLike = (postId: number, nextLiked: boolean): void => {
+  const togglePostLike = (
+    postId: number,
+    nextLiked: boolean,
+    options?: { onError?: (error: unknown) => void }
+  ): void => {
     if (mutation.isPending) {
       return;
     }
-    mutation.mutate({ postId, nextLiked });
+    mutation.mutate({ postId, nextLiked }, options);
   };
 
   return {

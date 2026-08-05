@@ -19,19 +19,20 @@ export const useOutsideClick = (
       return;
     }
 
-    const handlePointerDown = (event: MouseEvent) => {
+    const handleOutside = (event: MouseEvent) => {
       const target = event.target;
       if (!(target instanceof Node)) {
         return;
       }
-      if (!ref.current?.contains(target)) {
-        setIsOpen(false);
+      if (ref.current?.contains(target)) {
+        return;
       }
+      setIsOpen(false);
     };
 
-    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('mousedown', handleOutside);
     return () => {
-      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('mousedown', handleOutside);
     };
   }, [ref, isActive, setIsOpen]);
 };
