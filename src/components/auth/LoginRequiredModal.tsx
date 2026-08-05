@@ -1,6 +1,6 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { Button } from '@/components/Button/Button';
 import { Modal } from '@/components/ui/Modal/Modal';
@@ -9,15 +9,18 @@ import { ModalBasic } from '@/components/ui/Modal/ModalBasic';
 export interface LoginRequiredModalProps {
   open: boolean;
   onClose: () => void;
+  className?: string;
 }
 
 /** 비회원 찜 등 — 로그인 필요 안내 모달 */
 export const LoginRequiredModal = ({
   open,
   onClose,
+  className,
 }: LoginRequiredModalProps) => {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   if (!open) {
     return null;
@@ -25,7 +28,9 @@ export const LoginRequiredModal = ({
 
   const handleLogin = () => {
     onClose();
-    router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+    const search = searchParams.toString();
+    const redirectTo = search ? `${pathname}?${search}` : pathname;
+    router.push(`/login?redirect=${encodeURIComponent(redirectTo)}`);
   };
 
   return (
@@ -33,6 +38,7 @@ export const LoginRequiredModal = ({
       <ModalBasic
         title="로그인이 필요해요"
         onClose={onClose}
+        className={className}
         footer={
           <div className="flex w-full flex-col gap-2 sm:flex-row sm:gap-3">
             <Button
