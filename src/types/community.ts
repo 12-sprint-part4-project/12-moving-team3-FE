@@ -61,6 +61,18 @@ export type PostDetailResponse = ApiSuccessResponse<PostDetail>;
 
 export type PostIdResponse = ApiSuccessResponse<{ id: number }>;
 
+export interface PostNeighborSummary {
+  id: number;
+  title: string;
+}
+
+export interface PostNeighbors {
+  prev: PostNeighborSummary | null;
+  next: PostNeighborSummary | null;
+}
+
+export type PostNeighborsResponse = ApiSuccessResponse<PostNeighbors>;
+
 export interface PostListQuery {
   category?: PostCategory;
   region?: Region;

@@ -13,8 +13,10 @@ import type {
   PostDetailResponse,
   PostIdResponse,
   PostLikeResponse,
+  PostListParams,
   PostListQuery,
   PostListResponse,
+  PostNeighborsResponse,
   UpdatePostBody,
 } from '@/types/community';
 
@@ -91,6 +93,16 @@ export const getPostById = (postId: number): Promise<PostDetailResponse> =>
   communityFetch<PostDetailResponse>(`${BASE_PATH}/${postId}`, {
     method: 'GET',
   });
+
+/** 게시글 이전/다음글 조회 — GET /api/posts/:postId/neighbors */
+export const getPostNeighbors = (
+  postId: number,
+  query: PostListParams = {}
+): Promise<PostNeighborsResponse> =>
+  communityFetch<PostNeighborsResponse>(
+    `${BASE_PATH}/${postId}/neighbors${buildPostListQueryString(query)}`,
+    { method: 'GET' }
+  );
 
 /** 게시글 작성 */
 export const createPost = (body: CreatePostBody): Promise<PostIdResponse> =>

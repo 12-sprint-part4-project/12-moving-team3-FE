@@ -9,6 +9,8 @@ import {
 } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 
+import { findPostNeighborsInListCache } from '@/lib/communityPostNeighbors';
+
 import {
   hasRecordedPostViewInSession,
   markPostViewRecordedInSession,
@@ -22,6 +24,7 @@ import {
   deletePost,
   getComments,
   getPostById,
+  getPostNeighbors,
   getPosts,
   likePost,
   recordPostView,
@@ -50,6 +53,9 @@ export const communityQueryKeys = {
   commentLists: () => [...communityQueryKeys.comments(), 'list'] as const,
   commentList: (postId: number, query: CommentListParams) =>
     [...communityQueryKeys.commentLists(), postId, query] as const,
+  neighborLists: () => [...communityQueryKeys.all, 'neighbors'] as const,
+  neighbors: (postId: number, query: PostListParams) =>
+    [...communityQueryKeys.neighborLists(), postId, query] as const,
 };
 
 export interface TogglePostLikeVariables {
@@ -135,6 +141,50 @@ export const usePost = (postId: number) =>
     select: (response) => response.data,
     enabled: postId > 0,
   });
+
+/** 게시글 이전/다음글 조회 — BE 우선, 목록 캐시 fallback */
+export const usePostNeighbors = (
+  postId: number,
+  listParams: PostListParams = {}
+) => {
+  const queryClient = useQueryClient();
+
+  const queryParams = useMemo(
+    () => ({
+      category: listParams.category,
+      region: listParams.region,
+      sort: listParams.sort,
+      keyword: listParams.keyword,
+    }),
+    [
+      listParams.category,
+      listParams.region,
+      listParams.sort,
+      listParams.keyword,
+    ]
+  );
+
+  const query = useQuery({
+    queryKey: communityQueryKeys.neighbors(postId, queryParams),
+    queryFn: () => getPostNeighbors(postId, queryParams),
+    select: (response) => response.data,
+    enabled: postId > 0,
+    retry: false,
+  });
+
+  const cachedNeighbors = useMemo(
+    () => findPostNeighborsInListCache(queryClient, postId, queryParams),
+    [queryClient, postId, queryParams]
+  );
+
+  const neighbors = query.data ?? cachedNeighbors;
+
+  return {
+    ...query,
+    neighbors,
+    isResolved: query.isSuccess || cachedNeighbors !== null,
+  };
+};
 
 /**
  * 게시글 조회수 BE 전송 — 상세 로드 성공 후 세션당 1회.
