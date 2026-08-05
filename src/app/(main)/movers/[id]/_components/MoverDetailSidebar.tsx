@@ -6,7 +6,7 @@ import { MoverShareButtons } from '@/components/movers/MoverShareButtons';
 import { cn } from '@/lib/utils';
 
 export interface MoverDetailSidebarProps {
-  nickname: string;
+  name: string;
   isFavorited: boolean;
   onFavoriteClick: () => void;
   isFavoritePending?: boolean;
@@ -34,7 +34,7 @@ const getDesignatedButtonLabel = (
 
 /** Desktop 우측 — 지정 견적 CTA · 찜 · 공유 */
 export const MoverDetailSidebar = ({
-  nickname,
+  name,
   isFavorited,
   onFavoriteClick,
   isFavoritePending = false,
@@ -58,7 +58,7 @@ export const MoverDetailSidebar = ({
     >
       <div className="flex flex-col gap-4">
         <p className="text-xl-semibold text-black-400">
-          {nickname} 기사님에게 지정 견적을 요청해보세요!
+          {name} 기사님에게 지정 견적을 요청해보세요!
         </p>
         <button
           type="button"
@@ -101,7 +101,7 @@ export const MoverDetailSidebar = ({
         </p>
         <MoverShareButtons
           size="md"
-          nickname={nickname}
+          name={name}
           description={description}
           profileImageUrl={profileImageUrl}
         />

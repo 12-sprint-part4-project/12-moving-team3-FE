@@ -51,7 +51,7 @@ export const MoverCard = ({
   const careerLabel = mover.career === null ? '-' : `${mover.career}년`;
   const description =
     mover.shortDescription?.trim() || '등록된 한 줄 소개가 없습니다.';
-  const nicknameClassName = cn(
+  const nameClassName = cn(
     'text-black-300',
     isCompact ? 'text-lg-semibold' : 'text-2lg-semibold'
   );
@@ -136,14 +136,14 @@ export const MoverCard = ({
 
         <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:gap-2">
           {disableNavigation ? (
-            <p className={nicknameClassName}>{mover.nickname} 기사님</p>
+            <p className={nameClassName}>{mover.name} 기사님</p>
           ) : (
             <Link
               href={`/movers/${mover.moverId}`}
-              className={nicknameClassName}
+              className={nameClassName}
             >
               <span className="absolute inset-0 z-0" aria-hidden />
-              {mover.nickname} 기사님
+              {mover.name} 기사님
             </Link>
           )}
           <div

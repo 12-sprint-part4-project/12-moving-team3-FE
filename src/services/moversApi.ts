@@ -227,8 +227,7 @@ export const toMoverCardModelFromFavorite = (
 
   return toCardModel({
     moverId: item.moverId,
-    // favorites BE가 아직 nickname이면 그 값을 name 슬롯에 매핑
-    name: item.mover.nickname,
+    name: item.mover.name,
     profileImageUrl: item.mover.profileImageUrl,
     services,
     regions: item.mover.moverProfile?.serviceRegions ?? [],

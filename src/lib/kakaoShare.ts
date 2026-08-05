@@ -102,7 +102,7 @@ const toHttpsImageUrl = (imageUrl: string | null | undefined): string => {
 };
 
 export interface ShareMoverToKakaoParams {
-  nickname: string;
+  name: string;
   description?: string | null;
   profileImageUrl?: string | null;
   shareUrl?: string;
@@ -113,7 +113,7 @@ export interface ShareMoverToKakaoParams {
  * NEXT_PUBLIC_KAKAO_JS_KEY 필요 (로그인용 REST 키와 별개).
  */
 export const shareMoverToKakao = async ({
-  nickname,
+  name,
   description,
   profileImageUrl,
   shareUrl,
@@ -127,7 +127,7 @@ export const shareMoverToKakao = async ({
     throw new Error('공유할 주소가 없습니다.');
   }
 
-  const title = `${nickname} 기사님`;
+  const title = `${name} 기사님`;
   const desc =
     description?.trim() || '이사 전문가 프로필을 확인해보세요.';
 

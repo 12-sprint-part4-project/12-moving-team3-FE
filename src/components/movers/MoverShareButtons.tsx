@@ -15,7 +15,7 @@ export interface MoverShareButtonsProps {
   className?: string;
   /** IconButton 크기 — Desktop md, Tablet/Mobile xs */
   size?: 'xs' | 'md';
-  nickname?: string;
+  name?: string;
   description?: string | null;
   profileImageUrl?: string | null;
 }
@@ -26,7 +26,7 @@ export interface MoverShareButtonsProps {
 export const MoverShareButtons = ({
   className = '',
   size = 'xs',
-  nickname = '이사',
+  name = '이사',
   description = null,
   profileImageUrl = null,
 }: MoverShareButtonsProps) => {
@@ -50,7 +50,7 @@ export const MoverShareButtons = ({
     }
 
     void shareMoverToKakao({
-      nickname,
+      name,
       description,
       profileImageUrl,
       shareUrl: window.location.href,

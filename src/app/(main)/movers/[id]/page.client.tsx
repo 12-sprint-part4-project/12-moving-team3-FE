@@ -131,7 +131,7 @@ export const MoverDetailPageClient = () => {
           <div className="mt-6 border-t border-line-100 xl:mt-10" />
 
           <MoverDetailShareSection
-            nickname={mover.nickname}
+            name={mover.name}
             description={mover.shortDescription}
             profileImageUrl={mover.profileImageUrl}
           />
@@ -145,7 +145,7 @@ export const MoverDetailPageClient = () => {
 
         <MoverDetailSidebar
           className="hidden xl:flex"
-          nickname={mover.nickname}
+          name={mover.name}
           description={mover.shortDescription}
           profileImageUrl={mover.profileImageUrl}
           isFavorited={mover.isFavorited}

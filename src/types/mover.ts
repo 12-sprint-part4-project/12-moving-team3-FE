@@ -126,7 +126,7 @@ export interface FavoriteMoverListItem {
   createdAt: string;
   mover: {
     id: string;
-    nickname: string;
+    name: string;
     profileImageUrl: string | null;
     moverProfile: {
       career: number | null;
