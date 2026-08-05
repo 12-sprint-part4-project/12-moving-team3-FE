@@ -63,14 +63,11 @@ export const MoverDetailSidebar = ({
         <button
           type="button"
           onClick={onFavoriteClick}
-          disabled={isFavoritePending}
           aria-pressed={isFavorited}
           aria-busy={isFavoritePending}
           className={cn(
-            'inline-flex h-[3.375rem] w-full items-center justify-center gap-2 rounded-2xl border border-line-200 bg-white text-xl-semibold text-black-400 transition-colors',
-            isFavoritePending
-              ? 'cursor-not-allowed opacity-60'
-              : 'cursor-pointer hover:border-blue-200',
+            'inline-flex h-[3.375rem] w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-line-200 bg-white text-xl-semibold text-black-400 transition-colors hover:border-blue-200',
+            isFavoritePending && 'opacity-60',
             isFavorited && 'border-blue-300 text-blue-400'
           )}
         >

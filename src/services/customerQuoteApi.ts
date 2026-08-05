@@ -7,6 +7,7 @@ import {
 import { authFetch } from '@/lib/authFetch';
 import {
   confirmCustomerQuoteResponseSchema,
+  customerPastQuotesResponseSchema,
   customerPendingQuotesResponseSchema,
   customerQuoteDetailResponseSchema,
 } from '@/lib/customerQuoteSchema';
@@ -19,6 +20,9 @@ import {
 import { formatQuotePriceLabel } from '@/services/quoteApi';
 import type {
   ConfirmCustomerQuoteResponse,
+  CustomerPastQuoteGroup,
+  CustomerPastQuotesParams,
+  CustomerPastQuotesResponse,
   CustomerPendingQuotesData,
   CustomerPendingQuotesResponse,
   CustomerQuoteDetail,
@@ -30,12 +34,17 @@ import type {
   PendingQuoteCardModel,
   PendingQuotesPageModel,
   PendingRequestSummaryModel,
+  QuoteInfoViewModel,
+  ReceivedQuoteCardModel,
+  ReceivedQuoteGroupModel,
 } from '@/types/customerQuote';
 import type { ApiMoveType } from '@/types/estimateRequest';
 import { API_MOVE_TYPE_TO_UI, MOVE_TYPE_LABELS } from '@/types/estimateRequest';
+import type { MoverCardModel } from '@/types/mover';
 import type { ZodType } from 'zod';
 
 const CUSTOMER_QUOTES_BASE = `${API_BASE_URL}/api/users/customers/quotes`;
+const CUSTOMER_PAST_QUOTES_URL = `${API_BASE_URL}/api/users/customers/past-quotes`;
 
 /** authFetch + 상태 처리 + JSON 파싱 + zod 검증 공통 흐름 */
 const requestCustomerQuoteJson = async <T>(
@@ -69,8 +78,7 @@ interface PendingRequestContext {
   toAddress: string | null;
 }
 
-/** 평점 표시 (소수 1자리) */
-const formatRatingLabel = (rating: number): string => rating.toFixed(1);
+const EMPTY_RATING_COUNTS = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } as const;
 
 /** 기사님 BE → UI 모델 */
 export const toCustomerQuoteMoverViewModel = (
@@ -79,15 +87,55 @@ export const toCustomerQuoteMoverViewModel = (
   moverId: mover.moverId,
   nickname: mover.nickname,
   profileImageUrl: mover.profileImage,
-  ratingLabel: formatRatingLabel(mover.rating),
-  reviewCountLabel: `(${mover.reviewCount.toLocaleString('ko-KR')})`,
-  careerLabel:
-    mover.career !== null ? `${mover.career.toLocaleString('ko-KR')}년` : null,
-  confirmedCountLabel: `${mover.confirmedQuoteCount.toLocaleString('ko-KR')}건`,
+  shortDescription: mover.shortDescription,
+  averageRating: mover.rating,
+  reviewCount: mover.reviewCount,
+  career: mover.career,
+  confirmedCount: mover.confirmedQuoteCount,
   favoriteCount: mover.favoriteCount,
-  favoriteCountLabel: mover.favoriteCount.toLocaleString('ko-KR'),
   isFavorited: mover.isFavorited,
 });
+
+/** 견적 기사님 뷰모델 → MoverCard 모델 */
+export const toMoverCardModelFromCustomerQuoteMover = (
+  mover: CustomerQuoteMoverViewModel
+): MoverCardModel => ({
+  moverId: mover.moverId,
+  nickname: mover.nickname,
+  profileImageUrl: mover.profileImageUrl,
+  services: [],
+  regions: [],
+  career: mover.career,
+  shortDescription: mover.shortDescription,
+  description: null,
+  averageRating: mover.averageRating,
+  reviewCount: mover.reviewCount,
+  ratingCounts: EMPTY_RATING_COUNTS,
+  isFavorited: mover.isFavorited,
+  favoritedCount: mover.favoriteCount,
+  confirmedCount: mover.confirmedCount,
+});
+
+/** 견적 정보 공통 UI 모델 */
+export const toQuoteInfoViewModel = (input: {
+  submittedAt: string | null;
+  serviceType: ApiMoveType | null;
+  moveDate: string | null;
+  fromAddress: string | null;
+  toAddress: string | null;
+}): QuoteInfoViewModel => {
+  const moveType = input.serviceType
+    ? API_MOVE_TYPE_TO_UI[input.serviceType]
+    : null;
+
+  return {
+    requestedAtLabel: formatShortDateLabel(input.submittedAt),
+    serviceLabel: moveType ? MOVE_TYPE_LABELS[moveType] : '-',
+    moveDateLabel: formatMoveDateLabel(input.moveDate),
+    departure: input.fromAddress ?? '-',
+    arrival: input.toAddress ?? '-',
+  };
+};
 
 /** 대기 중 견적 아이템 → 카드 UI 모델 */
 export const toPendingQuoteCardModel = (
@@ -104,6 +152,31 @@ export const toPendingQuoteCardModel = (
   arrival: request.toAddress ?? '-',
   priceLabel: formatQuotePriceLabel(item.price),
   mover: toCustomerQuoteMoverViewModel(item.mover),
+});
+
+/** 받았던 견적 아이템 → 카드 UI 모델 */
+export const toReceivedQuoteCardModel = (
+  item: CustomerQuoteItem,
+  serviceType: ApiMoveType | null
+): ReceivedQuoteCardModel => ({
+  quoteId: item.quoteId,
+  moveType: serviceType ? API_MOVE_TYPE_TO_UI[serviceType] : null,
+  isDesignated: item.isDesignated,
+  isConfirmed: item.status === 'CONFIRMED',
+  shortDescription: item.mover.shortDescription,
+  priceLabel: formatQuotePriceLabel(item.price),
+  mover: toCustomerQuoteMoverViewModel(item.mover),
+});
+
+/** 받았던 견적 그룹 BE → UI 모델 */
+export const toReceivedQuoteGroupModel = (
+  group: CustomerPastQuoteGroup
+): ReceivedQuoteGroupModel => ({
+  estimateRequestId: group.estimateRequestId,
+  info: toQuoteInfoViewModel(group),
+  quotes: group.quotes.map((item) =>
+    toReceivedQuoteCardModel(item, group.serviceType)
+  ),
 });
 
 /** 대기 중 요청 요약 UI 모델 */
@@ -159,14 +232,19 @@ export const toCustomerQuoteDetailViewModel = (
   const moveType = detail.serviceType
     ? API_MOVE_TYPE_TO_UI[detail.serviceType]
     : null;
+  const isPending = detail.status === 'PENDING';
+  const isConfirmed = detail.status === 'CONFIRMED';
+  const canConfirm = isPending && detail.estimateRequestStatus === 'SUBMITTED';
 
   return {
     quoteId: detail.quoteId,
     estimateRequestId: detail.estimateRequestId,
     moveType,
     isDesignated: detail.isDesignated,
-    isPending: detail.status === 'PENDING',
-    isConfirmed: detail.status === 'CONFIRMED',
+    isPending,
+    isConfirmed,
+    canConfirm,
+    showUnconfirmedBanner: isPending && !canConfirm,
     priceLabel: formatQuotePriceLabel(detail.price),
     comment: detail.comment,
     serviceLabel: moveType ? MOVE_TYPE_LABELS[moveType] : '-',
@@ -189,6 +267,36 @@ export const getCustomerPendingQuotes =
       { method: 'GET' },
       customerPendingQuotesResponseSchema
     );
+
+/**
+ * 받았던 견적(과거) 리스트 조회.
+ * GET /api/users/customers/past-quotes
+ */
+export const getCustomerPastQuotes = async (
+  params: CustomerPastQuotesParams = {}
+): Promise<CustomerPastQuotesResponse> => {
+  const searchParams = new URLSearchParams();
+
+  if (params.cursor != null) {
+    searchParams.set('cursor', String(params.cursor));
+  }
+  if (params.limit != null) {
+    searchParams.set('limit', String(params.limit));
+  }
+  if (params.filter) {
+    searchParams.set('filter', params.filter);
+  }
+  if (params.estimateRequestId != null) {
+    searchParams.set('estimateRequestId', String(params.estimateRequestId));
+  }
+
+  const query = searchParams.toString();
+  return requestCustomerQuoteJson(
+    `${CUSTOMER_PAST_QUOTES_URL}${query ? `?${query}` : ''}`,
+    { method: 'GET' },
+    customerPastQuotesResponseSchema
+  );
+};
 
 /**
  * 고객 견적 상세 조회.

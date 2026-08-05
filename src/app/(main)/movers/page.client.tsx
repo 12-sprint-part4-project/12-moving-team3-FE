@@ -4,12 +4,14 @@ import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import { MoverCard } from '@/components/movers/MoverCard';
+import { Button } from '@/components/Button/Button';
+import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useFavoriteMoversPreview } from '@/hooks/useFavoriteMoversPreview';
 import { useMoversList } from '@/hooks/useMoversList';
-import { useToggleFavorite } from '@/hooks/useToggleFavorite';
 import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 import {
@@ -20,10 +22,8 @@ import {
   type MoversSortValue,
 } from '@/types/mover';
 
-import { LoginRequiredModal } from './_components/LoginRequiredModal';
 import { MoversSidebar } from './_components/MoversSidebar';
 import { MoversToolbar } from './_components/MoversToolbar';
-import { Button } from '@/components/Button/Button';
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -32,21 +32,17 @@ export const MoversPageClient = () => {
   const { user } = useAuth();
   const isLoggedIn = Boolean(user);
   const {
-    toggleFavorite,
-    isPending: isFavoritePending,
-    variables: favoriteVariables,
-  } = useToggleFavorite();
-  const favoritePendingMoverId =
-    isFavoritePending && favoriteVariables?.moverId
-      ? favoriteVariables.moverId
-      : null;
+    handleFavoriteClick,
+    isMoverPending,
+    isLoginModalOpen,
+    closeLoginModal,
+  } = useFavoriteAction();
 
   const [searchValue, setSearchValue] = useState('');
   const [sortValue, setSortValue] =
     useState<MoversSortValue>('reviewCountDesc');
   const [regionValue, setRegionValue] = useState('ALL');
   const [serviceValue, setServiceValue] = useState('ALL');
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const debouncedSearch = useDebouncedValue(searchValue, SEARCH_DEBOUNCE_MS);
 
@@ -102,19 +98,6 @@ export const MoversPageClient = () => {
     setServiceValue('ALL');
   };
 
-  const handleFavoriteClick = (moverId: string, nextFavorited: boolean) => {
-    if (!user) {
-      setIsLoginModalOpen(true);
-      return;
-    }
-
-    toggleFavorite(moverId, nextFavorited);
-  };
-
-  const handleCloseLoginModal = () => {
-    setIsLoginModalOpen(false);
-  };
-
   const handleRetry = () => {
     void refetch();
   };
@@ -156,7 +139,7 @@ export const MoversPageClient = () => {
           isLoggedIn={isLoggedIn}
           favoriteMovers={favorites}
           onFavoriteClick={handleFavoriteClick}
-          favoritePendingMoverId={favoritePendingMoverId}
+          isMoverPending={isMoverPending}
         />
 
         <div className="flex min-w-0 flex-1 flex-col gap-6 lg:gap-8">
@@ -178,14 +161,7 @@ export const MoversPageClient = () => {
           {isError ? (
             <div className="flex flex-col items-center gap-4 py-16">
               <p className="text-lg-medium text-gray-400">{errorMessage}</p>
-              <button
-                type="button"
-                onClick={handleRetry}
-                className="cursor-pointer rounded-lg bg-blue-300 px-4 py-2 text-lg-semibold text-white"
-              >
-                다시 시도
-              </button>
-              {/* <Button
+              <Button
                 type="button"
                 variant="solid"
                 size="sm"
@@ -193,7 +169,7 @@ export const MoversPageClient = () => {
                 className="w-auto"
               >
                 다시 시도
-              </Button> */}
+              </Button>
             </div>
           ) : null}
 
@@ -213,7 +189,7 @@ export const MoversPageClient = () => {
                     mover={mover}
                     size="lg"
                     onFavoriteClick={handleFavoriteClick}
-                    isFavoritePending={favoritePendingMoverId === mover.moverId}
+                    isFavoritePending={isMoverPending(mover.moverId)}
                   />
                 </li>
               ))}
@@ -228,10 +204,7 @@ export const MoversPageClient = () => {
         </div>
       </div>
 
-      <LoginRequiredModal
-        open={isLoginModalOpen}
-        onClose={handleCloseLoginModal}
-      />
+      <LoginRequiredModal open={isLoginModalOpen} onClose={closeLoginModal} />
     </div>
   );
 };

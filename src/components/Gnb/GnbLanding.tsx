@@ -13,6 +13,8 @@ export interface GnbLandingProps {
   homeHref?: string;
   /** 기사님 찾기 링크 (lg 전용) */
   findDriverHref?: string;
+  /** 커뮤니티 링크 (lg 전용) */
+  communityHref?: string;
   /** 로그인 링크 (lg 전용) */
   loginHref?: string;
   /** 햄버거 메뉴 클릭 (sm/md 전용) */
@@ -36,6 +38,7 @@ export const GnbLanding = ({
   size = 'sm',
   homeHref = '/',
   findDriverHref = '/movers',
+  communityHref = '/community',
   loginHref = '/login',
   onMenuClick,
   className = '',
@@ -50,12 +53,18 @@ export const GnbLanding = ({
 
       {isDesktop ? (
         <>
-          <nav className="min-w-0 flex-1">
+          <nav className="flex min-w-0 flex-1 items-center gap-10">
             <Link
               href={findDriverHref}
               className="text-2lg-bold text-black-400"
             >
               기사님 찾기
+            </Link>
+            <Link
+              href={communityHref}
+              className="text-2lg-bold text-black-400"
+            >
+              커뮤니티
             </Link>
           </nav>
           <Link

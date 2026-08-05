@@ -1,16 +1,18 @@
+import { MoverProfileBlock } from '@/components/movers/MoverProfileBlock';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { cn } from '@/lib/utils';
+import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
 import type {
   CustomerQuoteDetailViewModel,
   CustomerQuoteMoverViewModel,
 } from '@/types/customerQuote';
 
-import { MoverQuoteProfile } from '../../_components/MoverQuoteProfile';
-
 export interface CustomerQuoteDetailSummaryCardProps {
   detail: CustomerQuoteDetailViewModel;
-  /** 로컬 찜 상태가 반영된 기사님 프로필 */
+  /** 찜 상태가 반영된 기사님 프로필 */
   mover: CustomerQuoteMoverViewModel;
+  onFavoriteClick?: (moverId: string, nextFavorited: boolean) => void;
+  isFavoritePending?: boolean;
   className?: string;
 }
 
@@ -18,6 +20,8 @@ export interface CustomerQuoteDetailSummaryCardProps {
 export const CustomerQuoteDetailSummaryCard = ({
   detail,
   mover,
+  onFavoriteClick,
+  isFavoritePending = false,
   className = '',
 }: CustomerQuoteDetailSummaryCardProps) => (
   <article
@@ -44,12 +48,17 @@ export const CustomerQuoteDetailSummaryCard = ({
       ) : null}
     </div>
 
-    {detail.comment ? (
+    {mover.shortDescription ? (
       <p className="text-lg-semibold text-black-300 lg:text-xl-semibold">
-        {detail.comment}
+        {mover.shortDescription}
       </p>
     ) : null}
 
-    <MoverQuoteProfile mover={mover} />
+    <MoverProfileBlock
+      mover={toMoverCardModelFromCustomerQuoteMover(mover)}
+      disableNavigation
+      onFavoriteClick={onFavoriteClick}
+      isFavoritePending={isFavoritePending}
+    />
   </article>
 );

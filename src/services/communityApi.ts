@@ -70,6 +70,7 @@ export const buildPostListQueryString = (query: PostListQuery = {}): string => {
   if (query.category) params.set('category', query.category);
   if (query.region) params.set('region', query.region);
   if (query.sort) params.set('sort', query.sort);
+  if (query.keyword) params.set('keyword', query.keyword);
   appendCursorPaginationParams(params, query);
 
   const qs = params.toString();

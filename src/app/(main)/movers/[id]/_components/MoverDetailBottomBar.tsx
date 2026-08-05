@@ -53,15 +53,12 @@ export const MoverDetailBottomBar = ({
         <button
           type="button"
           onClick={onFavoriteClick}
-          disabled={isFavoritePending}
           aria-label={isFavorited ? '기사님 찜 취소' : '기사님 찜하기'}
           aria-pressed={isFavorited}
           aria-busy={isFavoritePending}
           className={cn(
-            'inline-flex size-[3.375rem] shrink-0 items-center justify-center rounded-2xl border border-line-200 bg-white',
-            isFavoritePending
-              ? 'cursor-not-allowed opacity-60'
-              : 'cursor-pointer'
+            'inline-flex size-[3.375rem] shrink-0 cursor-pointer items-center justify-center rounded-2xl border border-line-200 bg-white',
+            isFavoritePending && 'opacity-60'
           )}
         >
           <LikeActiveIcon

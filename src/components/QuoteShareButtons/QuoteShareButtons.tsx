@@ -5,16 +5,29 @@ import FacebookIcon from '@/assets/icons/symbol-facebook.svg';
 import KakaoIcon from '@/assets/icons/symbol-kakao.svg';
 import { IconButton } from '@/components/ui/IconButton/IconButton';
 import { useToast } from '@/hooks/useToast';
+import {
+  isKakaoShareConfigured,
+  shareQuoteToKakao,
+} from '@/lib/kakaoShare';
 
 export interface QuoteShareButtonsProps {
   /** 공유할 경로 (예: /quotes/1) */
   sharePath: string;
+  /** 카카오 공유 카드 제목 */
+  shareTitle?: string;
+  /** 카카오 공유 카드 설명 */
+  shareDescription?: string | null;
+  /** 카카오 공유 미리보기 이미지 */
+  shareImageUrl?: string | null;
   className?: string;
 }
 
 /** 견적서 공유 버튼 그룹 */
 export const QuoteShareButtons = ({
   sharePath,
+  shareTitle = '견적서',
+  shareDescription = null,
+  shareImageUrl = null,
   className = '',
 }: QuoteShareButtonsProps) => {
   const { showToast } = useToast();
@@ -30,6 +43,29 @@ export const QuoteShareButtons = ({
     } catch {
       showToast({ content: '링크 복사에 실패했습니다.' });
     }
+  };
+
+  /** 카카오톡 피드 공유 */
+  const handleShareKakao = () => {
+    if (!isKakaoShareConfigured()) {
+      showToast({
+        content: '카카오톡 공유 설정이 되어 있지 않습니다.',
+      });
+      return;
+    }
+
+    void shareQuoteToKakao({
+      title: shareTitle,
+      description: shareDescription,
+      imageUrl: shareImageUrl,
+      shareUrl: getShareUrl(),
+    }).catch((error: unknown) => {
+      const message =
+        error instanceof Error
+          ? error.message
+          : '카카오톡 공유에 실패했습니다.';
+      showToast({ content: message });
+    });
   };
 
   /** 페이스북 공유 창 열기 */
@@ -54,13 +90,13 @@ export const QuoteShareButtons = ({
             void handleCopyLink();
           }}
         />
-        {/* 카카오톡 공유는 추후 연동 예정 */}
         <IconButton
           icon={KakaoIcon}
           size="xs"
           variant="kakao"
           aria-label="카카오톡으로 공유하기"
           className="cursor-pointer lg:size-16 lg:rounded-2xl lg:[&_svg]:size-7"
+          onClick={handleShareKakao}
         />
         <IconButton
           icon={FacebookIcon}

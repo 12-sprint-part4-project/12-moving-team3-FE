@@ -1,19 +1,17 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
 
+import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { MoverCard } from '@/components/movers/MoverCard';
 import { MoverReviews } from '@/components/movers/MoverReviews';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
-import { useAuth } from '@/hooks/useAuth';
 import { useDesignatedEstimateRequest } from '@/hooks/useDesignatedEstimateRequest';
+import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useMoverDetail } from '@/hooks/useMoverDetail';
-import { useToggleFavorite } from '@/hooks/useToggleFavorite';
 import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 
-import { LoginRequiredModal } from '../_components/LoginRequiredModal';
 import { AlreadyDesignatedModal } from './_components/AlreadyDesignatedModal';
 import { MoverDetailBottomBar } from './_components/MoverDetailBottomBar';
 import { MoverDetailSections } from './_components/MoverDetailSections';
@@ -26,8 +24,15 @@ export const MoverDetailPageClient = () => {
   const params = useParams();
   const moverId = typeof params.id === 'string' ? params.id : '';
 
-  const { user } = useAuth();
-  const { toggleFavorite, isPending: isFavoritePending } = useToggleFavorite();
+  const {
+    user,
+    handleFavoriteClick,
+    isMoverPending,
+    isLoginModalOpen,
+    openLoginModal,
+    closeLoginModal,
+  } = useFavoriteAction();
+
   const {
     isPending: isDesignatedPending,
     isAlreadyDesignated,
@@ -38,34 +43,17 @@ export const MoverDetailPageClient = () => {
     closeAlreadyDesignatedModal,
     requestDesignatedEstimate,
   } = useDesignatedEstimateRequest(moverId);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const { mover, isPending, isError, error, isNotFound, refetch } =
     useMoverDetail(moverId);
 
-  const handleFavoriteClick = (
-    targetMoverId: string,
-    nextFavorited: boolean
-  ) => {
-    if (!user) {
-      setIsLoginModalOpen(true);
-      return;
-    }
-
-    toggleFavorite(targetMoverId, nextFavorited);
-  };
-
   const handleDesignatedQuoteClick = () => {
     if (!user) {
-      setIsLoginModalOpen(true);
+      openLoginModal();
       return;
     }
 
     requestDesignatedEstimate();
-  };
-
-  const handleCloseLoginModal = () => {
-    setIsLoginModalOpen(false);
   };
 
   const handleRetry = () => {
@@ -125,7 +113,7 @@ export const MoverDetailPageClient = () => {
             size="lg"
             disableNavigation
             onFavoriteClick={handleFavoriteClick}
-            isFavoritePending={isFavoritePending}
+            isFavoritePending={isMoverPending(mover.moverId)}
           />
 
           <div className="mt-6 border-t border-line-100 xl:mt-10" />
@@ -149,7 +137,7 @@ export const MoverDetailPageClient = () => {
           description={mover.shortDescription}
           profileImageUrl={mover.profileImageUrl}
           isFavorited={mover.isFavorited}
-          isFavoritePending={isFavoritePending}
+          isFavoritePending={isMoverPending(mover.moverId)}
           onFavoriteClick={() =>
             handleFavoriteClick(mover.moverId, !mover.isFavorited)
           }
@@ -162,7 +150,7 @@ export const MoverDetailPageClient = () => {
 
       <MoverDetailBottomBar
         isFavorited={mover.isFavorited}
-        isFavoritePending={isFavoritePending}
+        isFavoritePending={isMoverPending(mover.moverId)}
         onFavoriteClick={() =>
           handleFavoriteClick(mover.moverId, !mover.isFavorited)
         }
@@ -172,10 +160,7 @@ export const MoverDetailPageClient = () => {
         isDesignatedStatusLoading={isDesignatedStatusLoading}
       />
 
-      <LoginRequiredModal
-        open={isLoginModalOpen}
-        onClose={handleCloseLoginModal}
-      />
+      <LoginRequiredModal open={isLoginModalOpen} onClose={closeLoginModal} />
       <NeedGeneralEstimateModal
         open={needGeneralOpen}
         onClose={closeNeedGeneralModal}

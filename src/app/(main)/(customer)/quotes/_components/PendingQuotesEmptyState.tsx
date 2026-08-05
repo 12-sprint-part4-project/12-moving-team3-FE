@@ -5,7 +5,7 @@ import { getButtonClassName } from '@/components/Button/Button';
 import { cn } from '@/lib/utils';
 
 export type PendingQuotesEmptyVariant =
-  'waiting' | 'noRequest' | 'receivedPlaceholder';
+  'waiting' | 'noRequest' | 'receivedEmpty';
 
 export interface PendingQuotesEmptyStateProps {
   variant: PendingQuotesEmptyVariant;
@@ -24,7 +24,7 @@ const EMPTY_COPY: Record<
     actionHref: '/estimates/request',
     actionLabel: '견적 요청하기',
   },
-  receivedPlaceholder: {
+  receivedEmpty: {
     lines: ['아직 받았던 견적이 없어요!'],
   },
 };

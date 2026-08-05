@@ -65,6 +65,7 @@ export interface PostListQuery {
   category?: PostCategory;
   region?: Region;
   sort?: PostSort;
+  keyword?: string;
   cursor?: string;
   limit?: number;
 }
