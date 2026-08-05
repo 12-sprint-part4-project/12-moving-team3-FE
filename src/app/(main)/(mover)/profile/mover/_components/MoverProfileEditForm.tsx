@@ -1,12 +1,13 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import {
   useId,
   useState,
   type ChangeEvent,
   type FormEvent,
 } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { ProfileImageCropModal } from '@/app/(main)/(customer)/profile/customer/_components/ProfileImageCropModal';
 import { useProfileImageCrop } from '@/app/(main)/(customer)/profile/customer/_lib/useProfileImageCrop';
@@ -14,13 +15,25 @@ import NoImageIcon from '@/assets/icons/no-image.svg';
 import { Button } from '@/components/Button/Button';
 import { RegionChip, ServiceChip } from '@/components/ui/Chip';
 import { TextArea, TextFieldOutlined } from '@/components/ui/Input';
+import { Spinner } from '@/components/ui/Spinner/Spinner';
 import {
   REGION_CHIP_OPTIONS,
   SERVICE_CHIP_OPTIONS,
   type RegionChipValue,
   type ServiceChipValue,
 } from '@/constants/commonOptions';
+import { useAuth } from '@/hooks/useAuth';
+import {
+  moverProfileQueryKeys,
+  useMoverProfile,
+} from '@/hooks/useMoverProfile';
+import { useToast } from '@/hooks/useToast';
+import { ApiError } from '@/lib/apiClient';
+import { getAuthSession } from '@/lib/authSession';
+import { uploadProfileImage } from '@/lib/uploadProfileImage';
 import { cn } from '@/lib/utils';
+import { upsertMoverProfile } from '@/services/moverProfileApi';
+import type { MoverProfileMe } from '@/types/moverProfile';
 
 /** Figma Mobile·Tablet: input sm / Desktop(lg+): md 높이·텍스트 */
 const FIELD_CLASSNAME =
@@ -38,18 +51,10 @@ const CHIP_CLASSNAME =
 
 const NICKNAME_MIN = 2;
 const NICKNAME_MAX = 20;
+const PHONE_NUMBER_LENGTH = 11;
 const CAREER_MAX = 50;
 const SHORT_DESCRIPTION_MAX = 10;
 const DESCRIPTION_MIN = 8;
-
-/** Figma Desktop·Tablet·Mobile 샘플 초기값 — UI 전용 */
-const INITIAL_NICKNAME = '김코드';
-const INITIAL_CAREER = '13';
-const INITIAL_SHORT_INTRO = '안녕하세요';
-const INITIAL_DESCRIPTION =
-  '안녕하세요. 이사업계 경력 7년으로 안전한 이사를 도와드리는 김코드입니다. 고객님의 물품을 소중하고 안전하게 운송하여 드립니다. 소형이사 및 가정이사 서비스를 제공하며 서비스 가능 지역은 서울과 경기권입니다. 그 외 기타 지역';
-const INITIAL_SERVICES: ServiceChipValue[] = ['SMALL'];
-const INITIAL_REGIONS: RegionChipValue[] = ['SEOUL'];
 
 const toDigits = (value: string): string => value.replace(/\D/g, '');
 
@@ -58,19 +63,20 @@ const toggleChip = <T extends string>(values: T[], value: T): T[] =>
     ? values.filter((item) => item !== value)
     : [...values, value];
 
-interface MoverProfileEditFormProps {
+interface MoverProfileEditFieldsProps {
+  profile: MoverProfileMe;
   className?: string;
 }
 
-/**
- * 기사님 프로필 수정 폼.
- * Figma: Mobile(1:11040)·Tablet(1:10785) → lg 미만, Desktop(1:10909) → lg+
- * UI만 구현 — 제출 시 API 호출 없음.
- */
-export const MoverProfileEditForm = ({
+/** 쿼리 데이터로 초기화된 수정 폼. 마운트 시점에 profile이 이미 존재한다. */
+const MoverProfileEditFields = ({
+  profile,
   className,
-}: MoverProfileEditFormProps) => {
+}: MoverProfileEditFieldsProps) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { setSession } = useAuth();
+  const { showToast } = useToast();
   const imageInputId = useId();
   const nicknameInputId = useId();
   const careerInputId = useId();
@@ -81,21 +87,28 @@ export const MoverProfileEditForm = ({
     imageInputRef,
     previewUrl,
     cropImageSrc,
+    profileImageFile,
     handleImageChange,
     handleImageButtonClick,
     handleCropClose,
     handleCropComplete,
   } = useProfileImageCrop();
 
-  const [nickname, setNickname] = useState(INITIAL_NICKNAME);
-  const [career, setCareer] = useState(INITIAL_CAREER);
-  const [shortIntro, setShortIntro] = useState(INITIAL_SHORT_INTRO);
-  const [description, setDescription] = useState(INITIAL_DESCRIPTION);
-  const [selectedServices, setSelectedServices] =
-    useState<ServiceChipValue[]>(INITIAL_SERVICES);
-  const [selectedRegions, setSelectedRegions] =
-    useState<RegionChipValue[]>(INITIAL_REGIONS);
+  const [nickname, setNickname] = useState(profile.nickname);
+  const [career, setCareer] = useState(
+    profile.career !== null ? String(profile.career) : ''
+  );
+  const [shortIntro, setShortIntro] = useState(profile.shortDescription ?? '');
+  const [description, setDescription] = useState(profile.description ?? '');
+  const [selectedServices, setSelectedServices] = useState<ServiceChipValue[]>([
+    ...profile.service,
+  ]);
+  const [selectedRegions, setSelectedRegions] = useState<RegionChipValue[]>([
+    ...profile.serviceRegions,
+  ]);
+  const [isPending, setIsPending] = useState(false);
 
+  const phoneNumber = toDigits(profile.phoneNumber ?? '');
   const careerValue = career === '' ? null : Number(career);
   const isNicknameValid =
     nickname.trim().length >= NICKNAME_MIN &&
@@ -115,7 +128,10 @@ export const MoverProfileEditForm = ({
     isShortIntroValid &&
     isDescriptionValid &&
     selectedServices.length > 0 &&
-    selectedRegions.length > 0;
+    selectedRegions.length > 0 &&
+    !isPending;
+
+  const displayImageUrl = previewUrl ?? profile.profileImageUrl;
 
   const handleCancel = () => {
     router.back();
@@ -145,15 +161,83 @@ export const MoverProfileEditForm = ({
     setDescription(event.target.value);
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isSubmitEnabled) return;
+    if (
+      !isNicknameValid ||
+      !isCareerValid ||
+      careerValue === null ||
+      !isShortIntroValid ||
+      !isDescriptionValid ||
+      selectedServices.length === 0 ||
+      selectedRegions.length === 0 ||
+      isPending
+    ) {
+      return;
+    }
+
+    if (phoneNumber.length !== PHONE_NUMBER_LENGTH) {
+      showToast({
+        content: '등록된 전화번호가 없습니다. 기본정보를 먼저 수정해 주세요.',
+      });
+      return;
+    }
+
+    setIsPending(true);
+
+    try {
+      let s3Key: string | undefined;
+
+      if (profileImageFile) {
+        s3Key = await uploadProfileImage(profileImageFile);
+      }
+
+      const response = await upsertMoverProfile({
+        nickname: nickname.trim(),
+        phoneNumber,
+        career: careerValue,
+        shortDescription: shortIntro.trim(),
+        description: description.trim(),
+        service: selectedServices,
+        serviceRegions: selectedRegions,
+        ...(s3Key ? { s3Key } : {}),
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: moverProfileQueryKeys.all,
+      });
+
+      const session = getAuthSession();
+      if (session) {
+        setSession({
+          ...session,
+          user: {
+            ...session.user,
+            nickname: response.data.nickname,
+            phoneNumber: response.data.phoneNumber || session.user.phoneNumber,
+          },
+        });
+      }
+
+      showToast({ content: '프로필이 수정되었습니다.' });
+      router.back();
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : '프로필 수정에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+      showToast({ content: message });
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
     <>
       <form
-        onSubmit={handleSubmit}
+        onSubmit={(event) => {
+          void handleSubmit(event);
+        }}
         className={cn(
           'flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 bg-white lg:max-w-[87.5rem] lg:gap-16 lg:rounded-[2rem] lg:px-6 lg:pt-8 lg:pb-10',
           className
@@ -209,11 +293,11 @@ export const MoverProfileEditForm = ({
                   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300'
                 )}
               >
-                {previewUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- blob preview
+                {displayImageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- Presigned URL / blob preview
                   <img
-                    src={previewUrl}
-                    alt="선택한 프로필 이미지 미리보기"
+                    src={displayImageUrl}
+                    alt="프로필 이미지 미리보기"
                     className="size-full object-cover"
                   />
                 ) : (
@@ -329,13 +413,14 @@ export const MoverProfileEditForm = ({
             disabled={!isSubmitEnabled}
             className="order-1 lg:order-2 lg:h-16 lg:max-w-[41.25rem] lg:text-xl-semibold"
           >
-            수정하기
+            {isPending ? '수정 중...' : '수정하기'}
           </Button>
           <Button
             type="button"
             variant="outlined"
             size="sm"
             onClick={handleCancel}
+            disabled={isPending}
             className="order-2 border-gray-200 text-gray-300 shadow-cta hover:border-gray-200 hover:bg-transparent hover:text-gray-300 hover:shadow-cta lg:order-1 lg:h-16 lg:max-w-[41.25rem] lg:text-xl-semibold"
           >
             취소
@@ -351,5 +436,62 @@ export const MoverProfileEditForm = ({
         />
       ) : null}
     </>
+  );
+};
+
+interface MoverProfileEditFormProps {
+  className?: string;
+}
+
+/** 기사님 프로필 수정. useMoverProfile로 조회 후 폼에 전달 */
+export const MoverProfileEditForm = ({
+  className,
+}: MoverProfileEditFormProps) => {
+  const {
+    data: profile,
+    isPending,
+    isError,
+    error,
+    refetch,
+  } = useMoverProfile();
+
+  if (isPending) {
+    return <Spinner message="프로필 불러오는 중..." />;
+  }
+
+  if (isError) {
+    const message =
+      error instanceof ApiError
+        ? error.message
+        : '프로필을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
+
+    return (
+      <div className="flex w-full max-w-[87.5rem] flex-col items-center gap-6 py-16">
+        <p className="text-center text-lg-medium text-gray-400">{message}</p>
+        <Button
+          type="button"
+          variant="outlined"
+          size="sm"
+          onClick={() => {
+            void refetch();
+          }}
+          className="max-w-[12rem]"
+        >
+          다시 시도
+        </Button>
+      </div>
+    );
+  }
+
+  if (profile === null) {
+    redirect('/profile/mover');
+  }
+
+  return (
+    <MoverProfileEditFields
+      key={profile.updatedAt}
+      profile={profile}
+      className={className}
+    />
   );
 };

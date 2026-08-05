@@ -55,8 +55,10 @@ export interface MoverProfileMe {
   description: string | null;
   service: MoverServiceType[];
   serviceRegions: MoverRegion[];
-  /** 확정 견적(CONFIRMED) 건수 — BE 미포함 시 없을 수 있음 */
-  confirmedCount?: number;
+  /** 확정 견적(CONFIRMED) 건수 */
+  confirmedCount: number;
+  /** LOCAL 비밀번호 보유 여부 (카카오 전용 계정이면 false) */
+  hasPassword: boolean;
   createdAt: string;
   updatedAt: string;
 }
