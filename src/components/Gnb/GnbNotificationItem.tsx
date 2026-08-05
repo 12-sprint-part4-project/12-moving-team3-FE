@@ -9,13 +9,15 @@ export interface GnbNotificationItemProps {
   className?: string;
 }
 
-/** GNB 알림 드롭다운 리스트 아이템 — 본문 강조 + 상대 시간 */
+/** GNB 알림 드롭다운 리스트 아이템 — 미읽음 강조 / 읽음은 gray-300 plain */
 export const GnbNotificationItem = ({
   item,
   onClick,
   className,
 }: GnbNotificationItemProps) => {
   const relativeTime = formatRelativeTime(item.createdAt);
+  // 읽음: 파란 강조 제거 + 시간색(gray-300)으로 읽힘 표시. 미읽음: black-400 + 강조
+  const isRead = item.isRead;
 
   return (
     <button
@@ -28,8 +30,13 @@ export const GnbNotificationItem = ({
         className
       )}
     >
-      <p className="w-full break-words text-md-medium text-black-400 md:text-lg-medium">
-        {renderNotificationHighlighted(item)}
+      <p
+        className={cn(
+          'w-full break-words text-md-medium md:text-lg-medium',
+          isRead ? 'text-gray-300' : 'text-black-400'
+        )}
+      >
+        {isRead ? item.content : renderNotificationHighlighted(item)}
       </p>
       {relativeTime ? (
         <p className="w-full text-sm-medium text-gray-300 md:text-md-medium">

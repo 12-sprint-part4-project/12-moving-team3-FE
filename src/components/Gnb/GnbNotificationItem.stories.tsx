@@ -43,13 +43,30 @@ type Story = StoryObj<typeof GnbNotificationItem>;
 
 export const Default: Story = {};
 
-/** 강조 규칙 샘플 — 견적 / 확정 / 이사 예정일 */
+/** 강조 규칙 샘플 — 견적 / 확정 / 이사 예정일 (미읽음) */
 export const HighlightVariants: Story = {
   render: () => (
     <div className="flex w-[19.5rem] flex-col overflow-hidden rounded-2xl bg-white md:w-[22.5rem]">
       <GnbNotificationItem item={offerItem} onClick={fn()} />
       <GnbNotificationItem item={confirmedItem} onClick={fn()} />
       <GnbNotificationItem item={reminderItem} onClick={fn()} />
+    </div>
+  ),
+  decorators: [],
+};
+
+/** 미읽음(파란 강조) vs 읽음(gray-300 plain) */
+export const ReadVsUnread: Story = {
+  render: () => (
+    <div className="flex w-[19.5rem] flex-col overflow-hidden rounded-2xl bg-white md:w-[22.5rem]">
+      <GnbNotificationItem
+        item={{ ...offerItem, isRead: false }}
+        onClick={fn()}
+      />
+      <GnbNotificationItem
+        item={{ ...offerItem, id: offerItem.id + 100, isRead: true }}
+        onClick={fn()}
+      />
     </div>
   ),
   decorators: [],
