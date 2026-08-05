@@ -54,7 +54,7 @@ const SAMPLE_PUBLIC_REVIEWS: MoverPublicReviewItem[] =
     createdAt: item.createdAt,
     customer: {
       id: `customer-${item.id}`,
-      name: item.id === 1 ? 'kim고객' : '이가입',
+      nickname: item.id === 1 ? 'kim고객' : '이가입',
     },
   }));
 

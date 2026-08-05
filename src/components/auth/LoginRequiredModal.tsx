@@ -63,7 +63,7 @@ export const LoginRequiredModal = ({
         }
       >
         <p className="px-6 pb-6 text-2lg-medium text-black-300">
-          찜하기는 로그인 후 이용할 수 있습니다.
+          로그인 후 이용할 수 있습니다.
         </p>
       </ModalBasic>
     </Modal>

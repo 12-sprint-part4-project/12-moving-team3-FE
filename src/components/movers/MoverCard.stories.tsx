@@ -11,7 +11,7 @@ import type { MoverCardModel } from '@/types/mover';
 
 const SAMPLE_MOVER: MoverCardModel = {
   moverId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-  nickname: '김코드',
+  name: '김코드',
   profileImageUrl: null,
   services: ['SMALL', 'HOME'],
   regions: ['SEOUL', 'GYEONGGI'],

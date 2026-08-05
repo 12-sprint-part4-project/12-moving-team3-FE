@@ -130,7 +130,7 @@ const EMPTY_RATING_COUNTS = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } as const;
 
 const toCardModel = ({
   moverId,
-  nickname,
+  name,
   profileImageUrl,
   services,
   regions,
@@ -144,7 +144,7 @@ const toCardModel = ({
   isDesignated,
 }: {
   moverId: string;
-  nickname: string;
+  name: string;
   profileImageUrl: string | null;
   services: MoverListItem['service'];
   regions: MoverServiceRegionLike[];
@@ -158,7 +158,7 @@ const toCardModel = ({
   isDesignated?: boolean;
 }): MoverCardModel => ({
   moverId,
-  nickname,
+  name,
   profileImageUrl,
   services,
   regions: regions.map((region) => region.region),
@@ -182,7 +182,7 @@ export const toMoverCardModelFromListItem = (
 ): MoverCardModel =>
   toCardModel({
     moverId: item.user.id,
-    nickname: item.user.nickname,
+    name: item.user.name,
     profileImageUrl: item.user.profileImageUrl,
     services: item.service,
     regions: item.serviceRegions,
@@ -201,7 +201,7 @@ export const toMoverCardModelFromDetail = (
 ): MoverCardModel =>
   toCardModel({
     moverId: data.moverDetail.user.id,
-    nickname: data.moverDetail.user.nickname,
+    name: data.moverDetail.user.name,
     profileImageUrl: data.moverDetail.user.profileImageUrl,
     services: data.moverDetail.service,
     regions: data.moverDetail.serviceRegions,
@@ -227,7 +227,7 @@ export const toMoverCardModelFromFavorite = (
 
   return toCardModel({
     moverId: item.moverId,
-    nickname: item.mover.name,
+    name: item.mover.name,
     profileImageUrl: item.mover.profileImageUrl,
     services,
     regions: item.mover.moverProfile?.serviceRegions ?? [],

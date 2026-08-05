@@ -6,15 +6,18 @@ import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { MoverCard } from '@/components/movers/MoverCard';
 import { MoverReviews } from '@/components/movers/MoverReviews';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { useDesignatedEstimateRequest } from '@/hooks/useDesignatedEstimateRequest';
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useMoverDetail } from '@/hooks/useMoverDetail';
 import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 
+import { AlreadyDesignatedModal } from './_components/AlreadyDesignatedModal';
 import { MoverDetailBottomBar } from './_components/MoverDetailBottomBar';
 import { MoverDetailSections } from './_components/MoverDetailSections';
 import { MoverDetailShareSection } from './_components/MoverDetailShareSection';
 import { MoverDetailSidebar } from './_components/MoverDetailSidebar';
+import { NeedGeneralEstimateModal } from './_components/NeedGeneralEstimateModal';
 
 /** 기사님 상세 페이지 클라이언트 */
 export const MoverDetailPageClient = () => {
@@ -22,14 +25,39 @@ export const MoverDetailPageClient = () => {
   const moverId = typeof params.id === 'string' ? params.id : '';
 
   const {
+    user,
     handleFavoriteClick,
     isMoverPending,
     isLoginModalOpen,
+    openLoginModal,
     closeLoginModal,
   } = useFavoriteAction();
 
+  const {
+    isPending: isDesignatedPending,
+    isAlreadyDesignated,
+    isStatusLoading: isDesignatedStatusLoading,
+    needGeneralOpen,
+    alreadyDesignatedOpen,
+    closeNeedGeneralModal,
+    closeAlreadyDesignatedModal,
+    requestDesignatedEstimate,
+  } = useDesignatedEstimateRequest(moverId);
+
   const { mover, isPending, isError, error, isNotFound, refetch } =
     useMoverDetail(moverId);
+
+  /** 기사 계정은 지정 견적 CTA 숨김. 게스트·고객은 표시 */
+  const showDesignatedCta = user?.userType !== 'MOVER';
+
+  const handleDesignatedQuoteClick = () => {
+    if (!user) {
+      openLoginModal();
+      return;
+    }
+
+    requestDesignatedEstimate();
+  };
 
   const handleRetry = () => {
     void refetch();
@@ -94,7 +122,7 @@ export const MoverDetailPageClient = () => {
           <div className="mt-6 border-t border-line-100 xl:mt-10" />
 
           <MoverDetailShareSection
-            nickname={mover.nickname}
+            name={mover.name}
             description={mover.shortDescription}
             profileImageUrl={mover.profileImageUrl}
           />
@@ -108,7 +136,7 @@ export const MoverDetailPageClient = () => {
 
         <MoverDetailSidebar
           className="hidden xl:flex"
-          nickname={mover.nickname}
+          name={mover.name}
           description={mover.shortDescription}
           profileImageUrl={mover.profileImageUrl}
           isFavorited={mover.isFavorited}
@@ -116,6 +144,11 @@ export const MoverDetailPageClient = () => {
           onFavoriteClick={() =>
             handleFavoriteClick(mover.moverId, !mover.isFavorited)
           }
+          showDesignatedCta={showDesignatedCta}
+          onDesignatedQuoteClick={handleDesignatedQuoteClick}
+          isDesignatedPending={isDesignatedPending}
+          isAlreadyDesignated={isAlreadyDesignated}
+          isDesignatedStatusLoading={isDesignatedStatusLoading}
         />
       </div>
 
@@ -125,9 +158,22 @@ export const MoverDetailPageClient = () => {
         onFavoriteClick={() =>
           handleFavoriteClick(mover.moverId, !mover.isFavorited)
         }
+        showDesignatedCta={showDesignatedCta}
+        onDesignatedQuoteClick={handleDesignatedQuoteClick}
+        isDesignatedPending={isDesignatedPending}
+        isAlreadyDesignated={isAlreadyDesignated}
+        isDesignatedStatusLoading={isDesignatedStatusLoading}
       />
 
       <LoginRequiredModal open={isLoginModalOpen} onClose={closeLoginModal} />
+      <NeedGeneralEstimateModal
+        open={needGeneralOpen}
+        onClose={closeNeedGeneralModal}
+      />
+      <AlreadyDesignatedModal
+        open={alreadyDesignatedOpen}
+        onClose={closeAlreadyDesignatedModal}
+      />
     </div>
   );
 };

@@ -111,7 +111,7 @@ export const MoverReviewSection = ({
               {reviews.map((review) => (
                 <ReviewListItem
                   key={review.id}
-                  customerName={review.customer.name}
+                  customerName={review.customer.nickname}
                   createdAt={review.createdAt}
                   rating={review.rating}
                   content={review.content}

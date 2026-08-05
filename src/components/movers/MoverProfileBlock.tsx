@@ -34,7 +34,7 @@ export const MoverProfileBlock = ({
   const careerLabel = mover.career === null ? null : `${mover.career}년`;
   const confirmedLabel =
     mover.confirmedCount === null ? '-' : `${mover.confirmedCount}건`;
-  const profileAlt = `${mover.nickname} 기사님 프로필`;
+  const profileAlt = `${mover.name} 기사님 프로필`;
 
   const handleFavoriteClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -66,7 +66,7 @@ export const MoverProfileBlock = ({
         <div className="flex items-start justify-between gap-2">
           {disableNavigation ? (
             <p className="text-lg-semibold text-black-300 lg:text-2lg-semibold">
-              {mover.nickname}
+              {mover.name}
               <span className="ml-1 lg:ml-2">기사님</span>
             </p>
           ) : (
@@ -74,7 +74,7 @@ export const MoverProfileBlock = ({
               href={`/movers/${mover.moverId}`}
               className="text-lg-semibold text-black-300 lg:text-2lg-semibold"
             >
-              {mover.nickname}
+              {mover.name}
               <span className="ml-1 lg:ml-2">기사님</span>
             </Link>
           )}

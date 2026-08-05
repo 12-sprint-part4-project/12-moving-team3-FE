@@ -4,7 +4,7 @@ import { MoverShareButtons } from '@/components/movers/MoverShareButtons';
 import { cn } from '@/lib/utils';
 
 export interface MoverDetailShareSectionProps {
-  nickname: string;
+  name: string;
   description?: string | null;
   profileImageUrl?: string | null;
   className?: string;
@@ -12,7 +12,7 @@ export interface MoverDetailShareSectionProps {
 
 /** Tablet / Mobile 본문 중간 공유 영역 */
 export const MoverDetailShareSection = ({
-  nickname,
+  name,
   description = null,
   profileImageUrl = null,
   className = '',
@@ -29,7 +29,7 @@ export const MoverDetailShareSection = ({
       </p>
       <MoverShareButtons
         size="xs"
-        nickname={nickname}
+        name={name}
         description={description}
         profileImageUrl={profileImageUrl}
       />

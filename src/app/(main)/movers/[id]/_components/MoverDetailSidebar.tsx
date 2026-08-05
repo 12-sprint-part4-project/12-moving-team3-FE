@@ -5,11 +5,19 @@ import { Button } from '@/components/Button/Button';
 import { MoverShareButtons } from '@/components/movers/MoverShareButtons';
 import { cn } from '@/lib/utils';
 
+import { getDesignatedButtonLabel } from './getDesignatedButtonLabel';
+
 export interface MoverDetailSidebarProps {
-  nickname: string;
+  name: string;
   isFavorited: boolean;
   onFavoriteClick: () => void;
   isFavoritePending?: boolean;
+  /** false면 지정 견적 안내·버튼 숨김 (기사 로그인 등) */
+  showDesignatedCta?: boolean;
+  onDesignatedQuoteClick: () => void;
+  isDesignatedPending?: boolean;
+  isAlreadyDesignated?: boolean;
+  isDesignatedStatusLoading?: boolean;
   description?: string | null;
   profileImageUrl?: string | null;
   className?: string;
@@ -17,17 +25,21 @@ export interface MoverDetailSidebarProps {
 
 /** Desktop 우측 — 지정 견적 CTA · 찜 · 공유 */
 export const MoverDetailSidebar = ({
-  nickname,
+  name,
   isFavorited,
   onFavoriteClick,
   isFavoritePending = false,
+  showDesignatedCta = true,
+  onDesignatedQuoteClick,
+  isDesignatedPending = false,
+  isAlreadyDesignated = false,
+  isDesignatedStatusLoading = false,
   description = null,
   profileImageUrl = null,
   className = '',
 }: MoverDetailSidebarProps) => {
-  const handleDesignatedQuoteClick = () => {
-    // TODO: 지정 견적 요청 API 연동
-  };
+  const isDesignatedDisabled =
+    isDesignatedPending || isAlreadyDesignated || isDesignatedStatusLoading;
 
   return (
     <aside
@@ -37,9 +49,11 @@ export const MoverDetailSidebar = ({
       )}
     >
       <div className="flex flex-col gap-4">
-        <p className="text-xl-semibold text-black-400">
-          {nickname} 기사님에게 지정 견적을 요청해보세요!
-        </p>
+        {showDesignatedCta ? (
+          <p className="text-xl-semibold text-black-400">
+            {name} 기사님에게 지정 견적을 요청해보세요!
+          </p>
+        ) : null}
         <button
           type="button"
           onClick={onFavoriteClick}
@@ -60,14 +74,22 @@ export const MoverDetailSidebar = ({
           />
           {isFavorited ? '기사님 찜 취소' : '기사님 찜하기'}
         </button>
-        <Button
-          type="button"
-          variant="solid"
-          size="md"
-          onClick={handleDesignatedQuoteClick}
-        >
-          지정 견적 요청하기
-        </Button>
+        {showDesignatedCta ? (
+          <Button
+            type="button"
+            variant="solid"
+            size="md"
+            onClick={onDesignatedQuoteClick}
+            disabled={isDesignatedDisabled}
+            aria-busy={isDesignatedPending || isDesignatedStatusLoading}
+          >
+            {getDesignatedButtonLabel(
+              isAlreadyDesignated,
+              isDesignatedPending,
+              isDesignatedStatusLoading
+            )}
+          </Button>
+        ) : null}
       </div>
 
       <div className="flex flex-col gap-[1.375rem] border-t border-line-100 pt-10">
@@ -76,7 +98,7 @@ export const MoverDetailSidebar = ({
         </p>
         <MoverShareButtons
           size="md"
-          nickname={nickname}
+          name={name}
           description={description}
           profileImageUrl={profileImageUrl}
         />

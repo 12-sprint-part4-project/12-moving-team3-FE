@@ -84,10 +84,10 @@ export const MoversToolbar = ({
       <TextFieldSearch
         size="sm"
         className="w-full max-w-none lg:h-16 lg:gap-2 lg:px-6 lg:py-3.5 lg:[&_button]:size-9 lg:[&_input]:text-xl-regular lg:[&_svg]:size-9"
-        placeholder="텍스트를 입력해 주세요"
+        placeholder="검색어를 입력해 주세요"
         value={searchValue}
         onChange={onSearchChange}
-        aria-label="기사님 닉네임 검색"
+        aria-label="기사님 이름 검색"
       />
     </div>
   );
