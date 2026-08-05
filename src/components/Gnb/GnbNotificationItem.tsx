@@ -1,5 +1,5 @@
+import { NotificationHighlightedContent } from '@/components/Gnb/NotificationHighlightedContent';
 import { formatRelativeTime } from '@/lib/formatDate';
-import { renderNotificationHighlighted } from '@/lib/notificationHighlight';
 import { cn } from '@/lib/utils';
 import type { NotificationItem } from '@/types/notification';
 
@@ -36,7 +36,7 @@ export const GnbNotificationItem = ({
           isRead ? 'text-gray-300' : 'text-black-400'
         )}
       >
-        {isRead ? item.content : renderNotificationHighlighted(item)}
+        {isRead ? item.content : <NotificationHighlightedContent item={item} />}
       </p>
       {relativeTime ? (
         <p className="w-full text-sm-medium text-gray-300 md:text-md-medium">

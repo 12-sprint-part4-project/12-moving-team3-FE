@@ -1,5 +1,3 @@
-import type { ReactNode } from 'react';
-
 import type {
   NotificationItem,
   NotificationType,
@@ -64,13 +62,14 @@ const getHighlightPhrase = (
   }
 };
 
-/**
- * 알림 content에서 강조 구간만 파란 span으로 감싼 ReactNode를 반환한다.
- * 강조 문구를 못 찾으면 plain content를 그대로 반환한다.
- */
-export const renderNotificationHighlighted = (
-  item: Pick<NotificationItem, 'type' | 'content' | 'payload'>
-): ReactNode => {
+export interface NotificationHighlightedContentProps {
+  item: Pick<NotificationItem, 'type' | 'content' | 'payload'>;
+}
+
+/** 알림 content에서 강조 구간만 파란 span으로 감싼다. 못 찾으면 plain content. */
+export const NotificationHighlightedContent = ({
+  item,
+}: NotificationHighlightedContentProps) => {
   const { type, content, payload } = item;
   const phrase = getHighlightPhrase(type, payload, content);
 
