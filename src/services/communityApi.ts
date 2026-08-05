@@ -180,3 +180,9 @@ export const unlikePost = (postId: number): Promise<void> =>
   communityFetch<void>(`${BASE_PATH}/${postId}/likes`, {
     method: 'DELETE',
   });
+
+/** 게시글 조회수 기록 — POST /api/posts/:postId/views */
+export const recordPostView = (postId: number): Promise<void> =>
+  communityFetch<void>(`${BASE_PATH}/${postId}/views`, {
+    method: 'POST',
+  });

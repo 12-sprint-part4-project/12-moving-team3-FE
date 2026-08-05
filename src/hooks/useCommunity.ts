@@ -7,8 +7,12 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
+import {
+  hasRecordedPostViewInSession,
+  markPostViewRecordedInSession,
+} from '@/lib/postViewTracking';
 import { uploadPostImage } from '@/lib/uploadPostImage';
 import {
   createComment,
@@ -20,6 +24,7 @@ import {
   getPostById,
   getPosts,
   likePost,
+  recordPostView,
   unlikePost,
   updatePost,
 } from '@/services/communityApi';
@@ -130,6 +135,30 @@ export const usePost = (postId: number) =>
     select: (response) => response.data,
     enabled: postId > 0,
   });
+
+/**
+ * 게시글 조회수 BE 전송 — 상세 로드 성공 후 세션당 1회.
+ * UI에 조회수를 표시하지 않으며, 실패해도 사용자에게 노출하지 않는다.
+ */
+export const useRecordPostView = (postId: number, enabled: boolean) => {
+  useEffect(() => {
+    if (!enabled || postId <= 0) {
+      return;
+    }
+
+    if (hasRecordedPostViewInSession(postId)) {
+      return;
+    }
+
+    void recordPostView(postId)
+      .then(() => {
+        markPostViewRecordedInSession(postId);
+      })
+      .catch(() => {
+        // BE 미구현·네트워크 오류 — UI 영향 없음
+      });
+  }, [postId, enabled]);
+};
 
 /** 게시글 작성 */
 export const useCreatePost = () => {
