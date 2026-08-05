@@ -51,7 +51,7 @@ export interface FavoriteMoversParams {
 
 export interface MoverListUser {
   id: string;
-  nickname: string;
+  name: string;
   profileImageUrl: string | null;
 }
 
@@ -91,9 +91,7 @@ export type MoversListResponse = ApiSuccessResponse<
   meta: MoversListMeta;
 };
 
-export interface MoverDetailUser extends MoverListUser {
-  name: string;
-}
+export interface MoverDetailUser extends MoverListUser {}
 
 /** GET /api/movers/:id → data.moverDetail */
 export interface MoverDetail {
@@ -128,7 +126,7 @@ export interface FavoriteMoverListItem {
   createdAt: string;
   mover: {
     id: string;
-    name: string;
+    nickname: string;
     profileImageUrl: string | null;
     moverProfile: {
       career: number | null;
@@ -154,7 +152,7 @@ export type FavoriteMoversResponse = ApiSuccessResponse<
 /** 카드·상세 공통 UI 모델 */
 export interface MoverCardModel {
   moverId: string;
-  nickname: string;
+  name: string;
   profileImageUrl: string | null;
   services: ApiMoveType[];
   regions: ApiRegion[];
