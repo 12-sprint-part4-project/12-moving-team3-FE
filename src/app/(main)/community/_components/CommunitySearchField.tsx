@@ -1,0 +1,45 @@
+'use client';
+
+import type { ChangeEvent } from 'react';
+
+import { TextFieldSearch } from '@/components/ui/Input/TextFieldSearch';
+import { cn } from '@/lib/utils';
+
+interface CommunitySearchFieldProps {
+  value: string;
+  onChange: (value: string) => void;
+  size?: 'sm' | 'md';
+  className?: string;
+  inputClassName?: string;
+}
+
+/** 커뮤니티 게시글 검색 — Mobile/Tablet·Desktop 공통 */
+export const CommunitySearchField = ({
+  value,
+  onChange,
+  size = 'sm',
+  className = '',
+  inputClassName = '',
+}: CommunitySearchFieldProps) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    onChange(event.target.value);
+  };
+
+  const handleClear = () => {
+    onChange('');
+  };
+
+  return (
+    <div className={cn(className)}>
+      <TextFieldSearch
+        size={size}
+        value={value}
+        onChange={handleChange}
+        onClear={handleClear}
+        className={inputClassName}
+        placeholder="텍스트를 입력해 주세요."
+        aria-label="게시글 검색"
+      />
+    </div>
+  );
+};
