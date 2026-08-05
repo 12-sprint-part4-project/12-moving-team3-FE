@@ -22,7 +22,6 @@ export const GnbNotificationItem = ({
   return (
     <button
       type="button"
-      role="menuitem"
       onClick={() => onClick?.(item)}
       className={cn(
         'flex w-full cursor-pointer flex-col items-start gap-0.5 border-b border-line-200 bg-white px-4 py-3 text-left last:border-b-0 md:px-6 md:py-4',

@@ -28,7 +28,7 @@ export const GnbNotificationDropdown = ({
 
   return (
     <div
-      role="menu"
+      role="dialog"
       aria-label="알림"
       className={cn(
         'flex w-[19.5rem] max-w-[100vw] flex-col items-stretch rounded-3xl border border-line-200 bg-white px-4 py-2.5 shadow-[0.125rem_0.125rem_0.25rem] shadow-shadow-gray-200/20 md:w-[22.5rem]',
