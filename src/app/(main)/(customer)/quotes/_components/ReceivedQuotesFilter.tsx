@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 
@@ -19,31 +19,123 @@ const FILTER_OPTIONS: { value: CustomerPastQuoteFilter; label: string }[] = [
   { value: 'CONFIRMED', label: '확정한 견적서' },
 ];
 
-/** 받았던 견적 필터 (전체 / 확정한 견적서) */
+/** 받았던 견적 필터 (전체 / 확정한 견적서) — 커스텀 listbox + 키보드·포커스 계약 */
 export const ReceivedQuotesFilter = ({
   value,
   onValueChange,
   className = '',
 }: ReceivedQuotesFilterProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const selected =
-    FILTER_OPTIONS.find((option) => option.value === value) ??
-    FILTER_OPTIONS[0];
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const optionRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const listboxId = useId();
+
+  const selectedIndex = Math.max(
+    0,
+    FILTER_OPTIONS.findIndex((option) => option.value === value)
+  );
+  const selected = FILTER_OPTIONS[selectedIndex] ?? FILTER_OPTIONS[0];
 
   useOutsideClick(containerRef, isOpen, setIsOpen);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const frame = requestAnimationFrame(() => {
+      optionRefs.current[activeIndex]?.focus();
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [isOpen, activeIndex]);
 
   if (!selected) {
     return null;
   }
 
+  const closeAndRestoreFocus = () => {
+    setIsOpen(false);
+    requestAnimationFrame(() => {
+      triggerRef.current?.focus();
+    });
+  };
+
+  const openListbox = () => {
+    setActiveIndex(selectedIndex);
+    setIsOpen(true);
+  };
+
+  const focusOption = (index: number) => {
+    setActiveIndex(Math.min(Math.max(index, 0), FILTER_OPTIONS.length - 1));
+  };
+
   const handleToggle = () => {
-    setIsOpen((prev) => !prev);
+    if (isOpen) {
+      setIsOpen(false);
+      return;
+    }
+    openListbox();
   };
 
   const handleSelect = (nextValue: CustomerPastQuoteFilter) => {
     onValueChange(nextValue);
-    setIsOpen(false);
+    closeAndRestoreFocus();
+  };
+
+  const handleTriggerKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (
+      event.key === 'ArrowDown' ||
+      event.key === 'ArrowUp' ||
+      event.key === 'Enter' ||
+      event.key === ' '
+    ) {
+      event.preventDefault();
+      openListbox();
+    }
+  };
+
+  const handleListKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    const lastIndex = FILTER_OPTIONS.length - 1;
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        focusOption(activeIndex + 1);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        focusOption(activeIndex - 1);
+        break;
+      case 'Home':
+        event.preventDefault();
+        focusOption(0);
+        break;
+      case 'End':
+        event.preventDefault();
+        focusOption(lastIndex);
+        break;
+      case 'Enter':
+      case ' ': {
+        event.preventDefault();
+        const activeOption = FILTER_OPTIONS[activeIndex];
+        if (activeOption) {
+          handleSelect(activeOption.value);
+        }
+        break;
+      }
+      case 'Escape':
+        event.preventDefault();
+        closeAndRestoreFocus();
+        break;
+      case 'Tab':
+        setIsOpen(false);
+        break;
+      default:
+        break;
+    }
   };
 
   const triggerStateClass = isOpen
@@ -56,11 +148,14 @@ export const ReceivedQuotesFilter = ({
       className={cn('relative inline-grid w-max', className)}
     >
       <button
+        ref={triggerRef}
         type="button"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
+        aria-controls={listboxId}
         aria-label={`견적 필터: ${selected.label}`}
         onClick={handleToggle}
+        onKeyDown={handleTriggerKeyDown}
         className={cn(
           'flex w-full cursor-pointer items-center justify-between gap-1.5 rounded-lg border py-1.5 pr-2.5 pl-3.5 text-md-medium lg:h-16 lg:px-4 lg:text-lg-medium',
           triggerStateClass
@@ -75,27 +170,35 @@ export const ReceivedQuotesFilter = ({
 
       {isOpen ? (
         <ul
+          id={listboxId}
           role="listbox"
           aria-label="견적 필터 옵션"
+          tabIndex={-1}
+          onKeyDown={handleListKeyDown}
           className="absolute top-full left-0 z-10 mt-1 flex w-max min-w-full flex-col overflow-hidden rounded-lg border border-line-200 bg-white shadow-[0.25rem_0.25rem_0.625rem] shadow-shadow-gray-400/20"
         >
-          {FILTER_OPTIONS.map((option) => {
+          {FILTER_OPTIONS.map((option, index) => {
             const isSelected = option.value === value;
+            const isActive = index === activeIndex;
 
             return (
               <li key={option.value} role="presentation">
-                <button
-                  type="button"
+                <div
+                  ref={(node) => {
+                    optionRefs.current[index] = node;
+                  }}
                   role="option"
+                  tabIndex={isActive ? 0 : -1}
                   aria-selected={isSelected}
                   onClick={() => handleSelect(option.value)}
+                  onKeyDown={handleListKeyDown}
                   className={cn(
-                    'flex w-full cursor-pointer items-center px-3.5 py-1.5 text-md-medium whitespace-nowrap text-black-400',
+                    'flex w-full cursor-pointer items-center px-3.5 py-1.5 text-md-medium whitespace-nowrap text-black-400 outline-none focus-visible:bg-background-300',
                     isSelected ? 'bg-background-300' : 'hover:bg-background-300'
                   )}
                 >
                   {option.label}
-                </button>
+                </div>
               </li>
             );
           })}

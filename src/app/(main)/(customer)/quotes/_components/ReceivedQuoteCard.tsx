@@ -33,13 +33,11 @@ export const ReceivedQuoteCard = ({
   const detailHref = `/quotes/${quote.quoteId}`;
 
   return (
-    <Link
-      href={detailHref}
+    <article
       className={cn(
-        'flex w-full flex-col gap-3.5 rounded-2xl border border-line-100 bg-white px-3.5 py-4 shadow-request-card transition-shadow outline-none hover:shadow-md focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 lg:gap-4 lg:px-6 lg:py-5',
+        'relative flex w-full flex-col gap-3.5 rounded-2xl border border-line-100 bg-white px-3.5 py-4 shadow-request-card transition-shadow hover:shadow-md lg:gap-4 lg:px-6 lg:py-5',
         className
       )}
-      aria-label={`${quote.mover.nickname} 기사님 견적 상세보기`}
     >
       <div className="flex w-full flex-wrap items-center gap-2 lg:hidden">
         {quote.isConfirmed ? (
@@ -92,6 +90,13 @@ export const ReceivedQuoteCard = ({
           {quote.priceLabel}
         </p>
       </div>
-    </Link>
+
+      {/* stretched link — 찜 버튼(z-10)과 형제로 두어 Link 안 버튼 중첩 방지 */}
+      <Link
+        href={detailHref}
+        className="absolute inset-0 z-0 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
+        aria-label={`${quote.mover.nickname} 기사님 견적 상세보기`}
+      />
+    </article>
   );
 };

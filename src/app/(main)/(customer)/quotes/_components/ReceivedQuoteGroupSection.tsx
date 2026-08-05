@@ -13,8 +13,13 @@ import type {
 import { ReceivedQuoteCard } from './ReceivedQuoteCard';
 import { ReceivedQuotesFilter } from './ReceivedQuotesFilter';
 
-/** 견적 정보 행 — Figma 견적 정보 박스 */
-const InfoRows = ({ info }: { info: QuoteInfoViewModel }) => {
+interface InfoRowsProps {
+  info: QuoteInfoViewModel;
+  className?: string;
+}
+
+/** 견적 정보 행 */
+const InfoRows = ({ info, className }: InfoRowsProps) => {
   const rows = [
     { label: '견적 요청일', value: info.requestedAtLabel },
     { label: '서비스', value: info.serviceLabel },
@@ -24,7 +29,12 @@ const InfoRows = ({ info }: { info: QuoteInfoViewModel }) => {
   ];
 
   return (
-    <dl className="flex w-full flex-col gap-2 rounded-2xl bg-background-200 px-5 py-4 md:gap-2 md:px-10 md:py-8 lg:gap-2.5">
+    <dl
+      className={cn(
+        'flex w-full flex-col gap-2 rounded-2xl bg-background-200 px-5 py-4 md:gap-2 md:px-10 md:py-8 lg:gap-2.5',
+        className
+      )}
+    >
       {rows.map((row) => (
         <div
           key={row.label}
