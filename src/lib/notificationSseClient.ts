@@ -168,6 +168,10 @@ const consumeStream = async (
       }
 
       if (done) {
+        // 구분자 없이 스트림이 끝나도 마지막 SSE 이벤트를 유실하지 않는다.
+        if (buffer) {
+          parseEventBlock(buffer, handlers);
+        }
         return;
       }
     }
