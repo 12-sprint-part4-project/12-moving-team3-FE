@@ -10,8 +10,23 @@ export interface MoverDetailBottomBarProps {
   isFavoritePending?: boolean;
   onDesignatedQuoteClick: () => void;
   isDesignatedPending?: boolean;
+  isAlreadyDesignated?: boolean;
+  isDesignatedStatusLoading?: boolean;
   className?: string;
 }
+
+const getDesignatedButtonLabel = (
+  isAlreadyDesignated: boolean,
+  isDesignatedPending: boolean
+): string => {
+  if (isAlreadyDesignated) {
+    return '지정 견적 요청 완료';
+  }
+  if (isDesignatedPending) {
+    return '요청 중...';
+  }
+  return '지정 견적 요청하기';
+};
 
 /** Tablet / Mobile 하단 sticky — 찜 아이콘 + 지정 견적 CTA */
 export const MoverDetailBottomBar = ({
@@ -20,8 +35,13 @@ export const MoverDetailBottomBar = ({
   isFavoritePending = false,
   onDesignatedQuoteClick,
   isDesignatedPending = false,
+  isAlreadyDesignated = false,
+  isDesignatedStatusLoading = false,
   className = '',
 }: MoverDetailBottomBarProps) => {
+  const isDesignatedDisabled =
+    isDesignatedPending || isAlreadyDesignated || isDesignatedStatusLoading;
+
   return (
     <div
       className={cn(
@@ -57,11 +77,11 @@ export const MoverDetailBottomBar = ({
           variant="solid"
           size="sm"
           onClick={onDesignatedQuoteClick}
-          disabled={isDesignatedPending}
-          aria-busy={isDesignatedPending}
+          disabled={isDesignatedDisabled}
+          aria-busy={isDesignatedPending || isDesignatedStatusLoading}
           className="flex-1"
         >
-          {isDesignatedPending ? '요청 중...' : '지정 견적 요청하기'}
+          {getDesignatedButtonLabel(isAlreadyDesignated, isDesignatedPending)}
         </Button>
       </div>
     </div>

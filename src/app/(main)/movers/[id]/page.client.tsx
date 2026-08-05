@@ -30,12 +30,14 @@ export const MoverDetailPageClient = () => {
   const { toggleFavorite, isPending: isFavoritePending } = useToggleFavorite();
   const {
     isPending: isDesignatedPending,
+    isAlreadyDesignated,
+    isStatusLoading: isDesignatedStatusLoading,
     needGeneralOpen,
     alreadyDesignatedOpen,
     closeNeedGeneralModal,
     closeAlreadyDesignatedModal,
     requestDesignatedEstimate,
-  } = useDesignatedEstimateRequest();
+  } = useDesignatedEstimateRequest(moverId);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const { mover, isPending, isError, error, isNotFound, refetch } =
@@ -59,7 +61,7 @@ export const MoverDetailPageClient = () => {
       return;
     }
 
-    void requestDesignatedEstimate(moverId);
+    requestDesignatedEstimate();
   };
 
   const handleCloseLoginModal = () => {
@@ -153,6 +155,8 @@ export const MoverDetailPageClient = () => {
           }
           onDesignatedQuoteClick={handleDesignatedQuoteClick}
           isDesignatedPending={isDesignatedPending}
+          isAlreadyDesignated={isAlreadyDesignated}
+          isDesignatedStatusLoading={isDesignatedStatusLoading}
         />
       </div>
 
@@ -164,6 +168,8 @@ export const MoverDetailPageClient = () => {
         }
         onDesignatedQuoteClick={handleDesignatedQuoteClick}
         isDesignatedPending={isDesignatedPending}
+        isAlreadyDesignated={isAlreadyDesignated}
+        isDesignatedStatusLoading={isDesignatedStatusLoading}
       />
 
       <LoginRequiredModal

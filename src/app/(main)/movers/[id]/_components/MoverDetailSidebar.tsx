@@ -12,10 +12,25 @@ export interface MoverDetailSidebarProps {
   isFavoritePending?: boolean;
   onDesignatedQuoteClick: () => void;
   isDesignatedPending?: boolean;
+  isAlreadyDesignated?: boolean;
+  isDesignatedStatusLoading?: boolean;
   description?: string | null;
   profileImageUrl?: string | null;
   className?: string;
 }
+
+const getDesignatedButtonLabel = (
+  isAlreadyDesignated: boolean,
+  isDesignatedPending: boolean
+): string => {
+  if (isAlreadyDesignated) {
+    return '지정 견적 요청 완료';
+  }
+  if (isDesignatedPending) {
+    return '요청 중...';
+  }
+  return '지정 견적 요청하기';
+};
 
 /** Desktop 우측 — 지정 견적 CTA · 찜 · 공유 */
 export const MoverDetailSidebar = ({
@@ -25,10 +40,15 @@ export const MoverDetailSidebar = ({
   isFavoritePending = false,
   onDesignatedQuoteClick,
   isDesignatedPending = false,
+  isAlreadyDesignated = false,
+  isDesignatedStatusLoading = false,
   description = null,
   profileImageUrl = null,
   className = '',
 }: MoverDetailSidebarProps) => {
+  const isDesignatedDisabled =
+    isDesignatedPending || isAlreadyDesignated || isDesignatedStatusLoading;
+
   return (
     <aside
       className={cn(
@@ -68,10 +88,10 @@ export const MoverDetailSidebar = ({
           variant="solid"
           size="md"
           onClick={onDesignatedQuoteClick}
-          disabled={isDesignatedPending}
-          aria-busy={isDesignatedPending}
+          disabled={isDesignatedDisabled}
+          aria-busy={isDesignatedPending || isDesignatedStatusLoading}
         >
-          {isDesignatedPending ? '요청 중...' : '지정 견적 요청하기'}
+          {getDesignatedButtonLabel(isAlreadyDesignated, isDesignatedPending)}
         </Button>
       </div>
 

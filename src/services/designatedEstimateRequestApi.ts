@@ -7,10 +7,13 @@ import {
 import { authFetch } from '@/lib/authFetch';
 import {
   createDesignatedEstimateBodySchema,
+  designatedEstimateExistenceSchema,
   designatedEstimateMoverSchema,
   type CreateDesignatedEstimateBody,
+  type DesignatedEstimateExistence,
   type DesignatedEstimateMover,
 } from '@/lib/designatedEstimateRequestSchema';
+import type { z } from 'zod';
 
 const BASE_PATH = '/api/designated-estimate-requests';
 
@@ -30,6 +33,75 @@ const toNetworkApiError = (error: unknown): ApiError => {
   return new ApiError(0, '네트워크 오류가 발생했습니다.', 'NETWORK_ERROR');
 };
 
+const parseResponseData = <T>(schema: z.ZodType<T>, body: unknown): T => {
+  if (!body || typeof body !== 'object' || !('data' in body)) {
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
+  }
+
+  const result = schema.safeParse((body as { data: unknown }).data);
+  if (!result.success) {
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
+  }
+
+  return result.data;
+};
+
+const requestJson = async <T>(
+  path: string,
+  init: RequestInit,
+  schema: z.ZodType<T>
+): Promise<T> => {
+  let response: Response;
+
+  try {
+    response = await authFetch(`${API_BASE_URL}${path}`, {
+      cache: 'no-store',
+      ...init,
+    });
+  } catch (error) {
+    throw toNetworkApiError(error);
+  }
+
+  if (!response.ok) {
+    return throwApiError(response);
+  }
+
+  try {
+    const body: unknown = await response.json();
+    return parseResponseData(schema, body);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    if (isTimeoutError(error)) {
+      throw toNetworkApiError(error);
+    }
+    throw new ApiError(
+      500,
+      '요청 처리 중 오류가 발생했습니다.',
+      'INVALID_RESPONSE'
+    );
+  }
+};
+
+/**
+ * 지정 견적 존재 여부 조회.
+ * GET /api/designated-estimate-requests/:estimateRequestId/movers/:moverId
+ */
+export const getDesignatedEstimateExistence = async (
+  estimateRequestId: number,
+  moverId: string
+): Promise<DesignatedEstimateExistence> => {
+  return requestJson(
+    `${BASE_PATH}/${estimateRequestId}/movers/${moverId}`,
+    {
+      method: 'GET',
+      headers: {},
+    },
+    designatedEstimateExistenceSchema
+  );
+};
+
 /**
  * 지정 견적 요청 생성.
  * POST /api/designated-estimate-requests
@@ -46,48 +118,13 @@ export const createDesignatedEstimateRequest = async (
     );
   }
 
-  let response: Response;
-
-  try {
-    response = await authFetch(`${API_BASE_URL}${BASE_PATH}`, {
+  return requestJson(
+    BASE_PATH,
+    {
       method: 'POST',
-      cache: 'no-store',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(parsedBody.data),
-    });
-  } catch (error) {
-    throw toNetworkApiError(error);
-  }
-
-  if (!response.ok) {
-    return throwApiError(response);
-  }
-
-  try {
-    const json: unknown = await response.json();
-    if (!json || typeof json !== 'object' || !('data' in json)) {
-      throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
-    }
-
-    const result = designatedEstimateMoverSchema.safeParse(
-      (json as { data: unknown }).data
-    );
-    if (!result.success) {
-      throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
-    }
-
-    return result.data;
-  } catch (error) {
-    if (error instanceof ApiError) {
-      throw error;
-    }
-    if (isTimeoutError(error)) {
-      throw toNetworkApiError(error);
-    }
-    throw new ApiError(
-      500,
-      '요청 처리 중 오류가 발생했습니다.',
-      'INVALID_RESPONSE'
-    );
-  }
+    },
+    designatedEstimateMoverSchema
+  );
 };
