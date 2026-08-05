@@ -3,13 +3,13 @@
 import Link from 'next/link';
 
 import { Button, getButtonClassName } from '@/components/Button/Button';
+import { MoverProfileBlock } from '@/components/movers/MoverProfileBlock';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
 import { cn } from '@/lib/utils';
+import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
 import type { PendingQuoteCardModel } from '@/types/customerQuote';
 import type { MoveTypeOption } from '@/types/estimateRequest';
-
-import { MoverQuoteProfile } from './MoverQuoteProfile';
 
 export interface PendingQuoteCardProps {
   quote: PendingQuoteCardModel;
@@ -18,6 +18,8 @@ export interface PendingQuoteCardProps {
   /** 이 카드의 확정 요청 진행 중 */
   isConfirmingThis?: boolean;
   onConfirm?: (quoteId: number) => void;
+  onFavoriteClick?: (moverId: string, nextFavorited: boolean) => void;
+  isFavoritePending?: boolean;
   className?: string;
 }
 
@@ -41,6 +43,8 @@ export const PendingQuoteCard = ({
   isConfirming = false,
   isConfirmingThis = false,
   onConfirm,
+  onFavoriteClick,
+  isFavoritePending = false,
   className = '',
 }: PendingQuoteCardProps) => {
   const detailHref = `/quotes/${quote.quoteId}`;
@@ -87,7 +91,12 @@ export const PendingQuoteCard = ({
         </div>
 
         <div className="flex w-full flex-col gap-3.5 lg:gap-6">
-          <MoverQuoteProfile mover={quote.mover} />
+          <MoverProfileBlock
+            mover={toMoverCardModelFromCustomerQuoteMover(quote.mover)}
+            disableNavigation
+            onFavoriteClick={onFavoriteClick}
+            isFavoritePending={isFavoritePending}
+          />
 
           {/* 이사일 · 출발 · 도착 — Mobile: 2행 / Desktop: 1행 */}
           <div className="flex w-full flex-col gap-3.5 lg:flex-row lg:flex-wrap lg:items-center lg:gap-4">

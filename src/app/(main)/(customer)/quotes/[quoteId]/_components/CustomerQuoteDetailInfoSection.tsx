@@ -1,8 +1,8 @@
 import { cn } from '@/lib/utils';
-import type { CustomerQuoteDetailViewModel } from '@/types/customerQuote';
+import type { QuoteInfoViewModel } from '@/types/customerQuote';
 
 export interface CustomerQuoteDetailInfoSectionProps {
-  detail: CustomerQuoteDetailViewModel;
+  detail: QuoteInfoViewModel;
   className?: string;
 }
 
@@ -12,7 +12,7 @@ interface InfoRow {
 }
 
 /** 견적 정보 라벨·값 행 목록 생성 */
-const buildInfoRows = (detail: CustomerQuoteDetailViewModel): InfoRow[] => [
+const buildInfoRows = (detail: QuoteInfoViewModel): InfoRow[] => [
   { label: '견적 요청일', value: detail.requestedAtLabel },
   { label: '서비스', value: detail.serviceLabel },
   { label: '이용일', value: detail.moveDateLabel },
@@ -28,9 +28,7 @@ export const CustomerQuoteDetailInfoSection = ({
   const rows = buildInfoRows(detail);
 
   return (
-    <section
-      className={cn('flex w-full flex-col gap-5 lg:gap-10', className)}
-    >
+    <section className={cn('flex w-full flex-col gap-5 lg:gap-10', className)}>
       <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
         견적 정보
       </h2>

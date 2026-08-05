@@ -1,15 +1,22 @@
 import { z } from 'zod';
 
-import { moveTypeSchema } from '@/lib/customerEstimateRequestSchema';
+import {
+  estimateRequestStatusSchema,
+  moveTypeSchema,
+} from '@/lib/customerEstimateRequestSchema';
 
 /** 고객 견적 상태 */
 export const customerQuoteStatusSchema = z.enum(['PENDING', 'CONFIRMED']);
+
+/** 받았던 견적 필터 */
+export const customerPastQuoteFilterSchema = z.enum(['ALL', 'CONFIRMED']);
 
 /** 고객 견적 기사님 카드 */
 export const customerQuoteMoverSchema = z.object({
   moverId: z.string(),
   nickname: z.string(),
   profileImage: z.string().nullable(),
+  shortDescription: z.string().nullable(),
   rating: z.number(),
   reviewCount: z.number(),
   career: z.number().nullable(),
@@ -47,6 +54,28 @@ export const customerPendingQuotesResponseSchema = z.object({
     .nullable(),
 });
 
+/** GET /api/users/customers/past-quotes 응답 */
+export const customerPastQuotesResponseSchema = z.object({
+  data: z.object({
+    items: z.array(
+      z.object({
+        estimateRequestId: z.number(),
+        status: estimateRequestStatusSchema,
+        submittedAt: z.string().nullable(),
+        serviceType: moveTypeSchema.nullable(),
+        moveDate: z.string().nullable(),
+        fromAddress: z.string().nullable(),
+        toAddress: z.string().nullable(),
+        quotes: z.array(customerQuoteItemSchema),
+      })
+    ),
+  }),
+  meta: z.object({
+    nextCursor: z.number().nullable(),
+    hasNextPage: z.boolean(),
+  }),
+});
+
 /** GET /api/users/customers/quotes/:quoteId 응답 */
 export const customerQuoteDetailResponseSchema = z.object({
   data: z.object({
@@ -56,6 +85,7 @@ export const customerQuoteDetailResponseSchema = z.object({
     comment: z.string().nullable(),
     status: customerQuoteStatusSchema,
     isDesignated: z.boolean(),
+    estimateRequestStatus: estimateRequestStatusSchema,
     serviceType: moveTypeSchema.nullable(),
     moveDate: z.string().nullable(),
     submittedAt: z.string().nullable(),

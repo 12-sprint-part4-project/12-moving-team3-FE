@@ -1,0 +1,139 @@
+'use client';
+
+import Link from 'next/link';
+import type { MouseEvent } from 'react';
+
+import LikeActiveIcon from '@/assets/icons/like-active.svg';
+import ProfileIcon from '@/assets/icons/profile.svg';
+import StarIcon from '@/assets/icons/star.svg';
+
+import { cn } from '@/lib/utils';
+import type { MoverCardModel } from '@/types/mover';
+
+export interface MoverProfileBlockProps {
+  mover: MoverCardModel;
+  onFavoriteClick?: (moverId: string, nextFavorited: boolean) => void;
+  isFavoritePending?: boolean;
+  /** true면 닉네임 상세 링크 비활성 */
+  disableNavigation?: boolean;
+  className?: string;
+}
+
+/**
+ * 견적 카드/상세용 기사님 프로필 블록
+ */
+export const MoverProfileBlock = ({
+  mover,
+  onFavoriteClick,
+  isFavoritePending = false,
+  disableNavigation = true,
+  className = '',
+}: MoverProfileBlockProps) => {
+  const ratingLabel =
+    mover.averageRating === null ? '-' : mover.averageRating.toFixed(1);
+  const careerLabel = mover.career === null ? null : `${mover.career}년`;
+  const confirmedLabel =
+    mover.confirmedCount === null ? '-' : `${mover.confirmedCount}건`;
+  const profileAlt = `${mover.nickname} 기사님 프로필`;
+
+  const handleFavoriteClick = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    event.preventDefault();
+    onFavoriteClick?.(mover.moverId, !mover.isFavorited);
+  };
+
+  return (
+    <div
+      className={cn(
+        'relative flex w-full items-start gap-3 rounded-md border border-line-100 bg-white px-3.5 py-4 shadow-request-card-body lg:gap-6 lg:px-4.5 lg:py-4',
+        className
+      )}
+    >
+      <div className="relative size-12 shrink-0 overflow-hidden rounded-full lg:size-14">
+        {mover.profileImageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element -- CDN 도메인 미확정
+          <img
+            src={mover.profileImageUrl}
+            alt={profileAlt}
+            className="size-full object-cover"
+          />
+        ) : (
+          <ProfileIcon className="size-full text-gray-200" aria-hidden />
+        )}
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col gap-1 lg:gap-2">
+        <div className="flex items-start justify-between gap-2">
+          {disableNavigation ? (
+            <p className="text-lg-semibold text-black-300 lg:text-2lg-semibold">
+              {mover.nickname}
+              <span className="ml-1 lg:ml-2">기사님</span>
+            </p>
+          ) : (
+            <Link
+              href={`/movers/${mover.moverId}`}
+              className="text-lg-semibold text-black-300 lg:text-2lg-semibold"
+            >
+              {mover.nickname}
+              <span className="ml-1 lg:ml-2">기사님</span>
+            </Link>
+          )}
+
+          <button
+            type="button"
+            onClick={handleFavoriteClick}
+            aria-label={mover.isFavorited ? '찜 취소' : '찜하기'}
+            aria-pressed={mover.isFavorited}
+            aria-busy={isFavoritePending}
+            className={cn(
+              'relative z-10 flex shrink-0 cursor-pointer items-center gap-1 text-lg-medium text-blue-400 lg:text-2lg-medium',
+              isFavoritePending && 'opacity-60'
+            )}
+          >
+            <LikeActiveIcon
+              className={cn(
+                'size-5 lg:size-6',
+                mover.isFavorited ? 'text-blue-400' : 'text-gray-200'
+              )}
+              aria-hidden
+            />
+            {mover.favoritedCount !== null ? (
+              <span className="text-blue-400">
+                {mover.favoritedCount.toLocaleString('ko-KR')}
+              </span>
+            ) : null}
+          </button>
+        </div>
+
+        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-md-medium lg:gap-x-4 lg:text-lg-medium">
+          <span className="inline-flex items-center gap-0.5 lg:gap-1.5">
+            <StarIcon
+              className="size-5 shrink-0 text-yellow-100 lg:size-6"
+              aria-hidden
+            />
+            <span className="text-black-300">{ratingLabel}</span>
+            <span className="text-gray-300">
+              ({mover.reviewCount.toLocaleString('ko-KR')})
+            </span>
+          </span>
+
+          {careerLabel ? (
+            <>
+              <span aria-hidden className="h-3.5 w-px bg-line-200" />
+              <span className="inline-flex items-center gap-1.5">
+                <span className="text-gray-300">경력</span>
+                <span className="text-black-300">{careerLabel}</span>
+              </span>
+            </>
+          ) : null}
+
+          <span aria-hidden className="h-3.5 w-px bg-line-200" />
+          <span className="inline-flex items-center gap-1.5">
+            <span className="text-black-300">{confirmedLabel}</span>
+            <span className="text-gray-300">확정</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};

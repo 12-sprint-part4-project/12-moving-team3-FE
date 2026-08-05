@@ -154,4 +154,58 @@ export const shareMoverToKakao = async ({
   });
 };
 
+export interface ShareQuoteToKakaoParams {
+  /** 공유 카드 제목 (예: 김코드 기사님 견적서) */
+  title: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  shareUrl: string;
+  /** 버튼 문구 — 기본: 견적서 보기 */
+  buttonTitle?: string;
+}
+
+/**
+ * 견적서를 카카오톡 피드로 공유한다.
+ * NEXT_PUBLIC_KAKAO_JS_KEY 필요.
+ */
+export const shareQuoteToKakao = async ({
+  title,
+  description,
+  imageUrl,
+  shareUrl,
+  buttonTitle = '견적서 보기',
+}: ShareQuoteToKakaoParams): Promise<void> => {
+  const kakao = await ensureKakaoInitialized();
+  const url = shareUrl.trim();
+
+  if (!url) {
+    throw new Error('공유할 주소가 없습니다.');
+  }
+
+  const desc =
+    description?.trim() || '받은 견적서를 확인해보세요.';
+
+  kakao.Share.sendDefault({
+    objectType: 'feed',
+    content: {
+      title: title.trim() || '견적서',
+      description: desc,
+      imageUrl: toHttpsImageUrl(imageUrl),
+      link: {
+        mobileWebUrl: url,
+        webUrl: url,
+      },
+    },
+    buttons: [
+      {
+        title: buttonTitle,
+        link: {
+          mobileWebUrl: url,
+          webUrl: url,
+        },
+      },
+    ],
+  });
+};
+
 export const isKakaoShareConfigured = (): boolean => Boolean(getKakaoJsKey());

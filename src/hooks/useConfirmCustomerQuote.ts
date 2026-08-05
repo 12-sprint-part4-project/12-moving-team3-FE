@@ -24,6 +24,9 @@ export const useConfirmCustomerQuote = () => {
           queryKey: customerQuoteQueryKeys.pending(),
         }),
         queryClient.invalidateQueries({
+          queryKey: [...customerQuoteQueryKeys.all, 'past'],
+        }),
+        queryClient.invalidateQueries({
           queryKey: customerQuoteQueryKeys.details(),
         }),
         queryClient.invalidateQueries({
