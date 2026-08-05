@@ -87,7 +87,7 @@ export const MoversToolbar = ({
         placeholder="검색어를 입력해 주세요"
         value={searchValue}
         onChange={onSearchChange}
-        aria-label="기사님 닉네임 검색"
+        aria-label="기사님 이름 검색"
       />
     </div>
   );
