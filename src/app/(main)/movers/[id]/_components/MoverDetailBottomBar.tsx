@@ -8,6 +8,8 @@ export interface MoverDetailBottomBarProps {
   isFavorited: boolean;
   onFavoriteClick: () => void;
   isFavoritePending?: boolean;
+  onDesignatedQuoteClick: () => void;
+  isDesignatedPending?: boolean;
   className?: string;
 }
 
@@ -16,12 +18,10 @@ export const MoverDetailBottomBar = ({
   isFavorited,
   onFavoriteClick,
   isFavoritePending = false,
+  onDesignatedQuoteClick,
+  isDesignatedPending = false,
   className = '',
 }: MoverDetailBottomBarProps) => {
-  const handleDesignatedQuoteClick = () => {
-    // TODO: 지정 견적 요청 API 연동
-  };
-
   return (
     <div
       className={cn(
@@ -56,10 +56,12 @@ export const MoverDetailBottomBar = ({
           type="button"
           variant="solid"
           size="sm"
-          onClick={handleDesignatedQuoteClick}
+          onClick={onDesignatedQuoteClick}
+          disabled={isDesignatedPending}
+          aria-busy={isDesignatedPending}
           className="flex-1"
         >
-          지정 견적 요청하기
+          {isDesignatedPending ? '요청 중...' : '지정 견적 요청하기'}
         </Button>
       </div>
     </div>

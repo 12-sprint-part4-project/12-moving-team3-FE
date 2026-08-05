@@ -7,16 +7,19 @@ import { MoverCard } from '@/components/movers/MoverCard';
 import { MoverReviews } from '@/components/movers/MoverReviews';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
+import { useDesignatedEstimateRequest } from '@/hooks/useDesignatedEstimateRequest';
 import { useMoverDetail } from '@/hooks/useMoverDetail';
 import { useToggleFavorite } from '@/hooks/useToggleFavorite';
 import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 
 import { LoginRequiredModal } from '../_components/LoginRequiredModal';
+import { AlreadyDesignatedModal } from './_components/AlreadyDesignatedModal';
 import { MoverDetailBottomBar } from './_components/MoverDetailBottomBar';
 import { MoverDetailSections } from './_components/MoverDetailSections';
 import { MoverDetailShareSection } from './_components/MoverDetailShareSection';
 import { MoverDetailSidebar } from './_components/MoverDetailSidebar';
+import { NeedGeneralEstimateModal } from './_components/NeedGeneralEstimateModal';
 
 /** 기사님 상세 페이지 클라이언트 */
 export const MoverDetailPageClient = () => {
@@ -25,6 +28,14 @@ export const MoverDetailPageClient = () => {
 
   const { user } = useAuth();
   const { toggleFavorite, isPending: isFavoritePending } = useToggleFavorite();
+  const {
+    isPending: isDesignatedPending,
+    needGeneralOpen,
+    alreadyDesignatedOpen,
+    closeNeedGeneralModal,
+    closeAlreadyDesignatedModal,
+    requestDesignatedEstimate,
+  } = useDesignatedEstimateRequest();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const { mover, isPending, isError, error, isNotFound, refetch } =
@@ -40,6 +51,15 @@ export const MoverDetailPageClient = () => {
     }
 
     toggleFavorite(targetMoverId, nextFavorited);
+  };
+
+  const handleDesignatedQuoteClick = () => {
+    if (!user) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
+    void requestDesignatedEstimate(moverId);
   };
 
   const handleCloseLoginModal = () => {
@@ -131,6 +151,8 @@ export const MoverDetailPageClient = () => {
           onFavoriteClick={() =>
             handleFavoriteClick(mover.moverId, !mover.isFavorited)
           }
+          onDesignatedQuoteClick={handleDesignatedQuoteClick}
+          isDesignatedPending={isDesignatedPending}
         />
       </div>
 
@@ -140,11 +162,21 @@ export const MoverDetailPageClient = () => {
         onFavoriteClick={() =>
           handleFavoriteClick(mover.moverId, !mover.isFavorited)
         }
+        onDesignatedQuoteClick={handleDesignatedQuoteClick}
+        isDesignatedPending={isDesignatedPending}
       />
 
       <LoginRequiredModal
         open={isLoginModalOpen}
         onClose={handleCloseLoginModal}
+      />
+      <NeedGeneralEstimateModal
+        open={needGeneralOpen}
+        onClose={closeNeedGeneralModal}
+      />
+      <AlreadyDesignatedModal
+        open={alreadyDesignatedOpen}
+        onClose={closeAlreadyDesignatedModal}
       />
     </div>
   );

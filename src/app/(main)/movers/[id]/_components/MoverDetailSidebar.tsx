@@ -10,6 +10,8 @@ export interface MoverDetailSidebarProps {
   isFavorited: boolean;
   onFavoriteClick: () => void;
   isFavoritePending?: boolean;
+  onDesignatedQuoteClick: () => void;
+  isDesignatedPending?: boolean;
   description?: string | null;
   profileImageUrl?: string | null;
   className?: string;
@@ -21,14 +23,12 @@ export const MoverDetailSidebar = ({
   isFavorited,
   onFavoriteClick,
   isFavoritePending = false,
+  onDesignatedQuoteClick,
+  isDesignatedPending = false,
   description = null,
   profileImageUrl = null,
   className = '',
 }: MoverDetailSidebarProps) => {
-  const handleDesignatedQuoteClick = () => {
-    // TODO: 지정 견적 요청 API 연동
-  };
-
   return (
     <aside
       className={cn(
@@ -67,9 +67,11 @@ export const MoverDetailSidebar = ({
           type="button"
           variant="solid"
           size="md"
-          onClick={handleDesignatedQuoteClick}
+          onClick={onDesignatedQuoteClick}
+          disabled={isDesignatedPending}
+          aria-busy={isDesignatedPending}
         >
-          지정 견적 요청하기
+          {isDesignatedPending ? '요청 중...' : '지정 견적 요청하기'}
         </Button>
       </div>
 
