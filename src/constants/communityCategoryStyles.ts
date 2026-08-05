@@ -10,12 +10,12 @@ export const POST_CATEGORY_STYLE: Record<
     labelClassName: 'text-blue-300',
   },
   QUESTION: {
-    badgeClassName: 'bg-[#f29900]/12',
-    labelClassName: 'text-[#f29900]',
+    badgeClassName: 'bg-orange-300/12',
+    labelClassName: 'text-orange-300',
   },
   REVIEW: {
-    badgeClassName: 'bg-[#33b266]/12',
-    labelClassName: 'text-[#33b266]',
+    badgeClassName: 'bg-green-300/12',
+    labelClassName: 'text-green-300',
   },
   ETC: {
     badgeClassName: 'bg-gray-300/12',

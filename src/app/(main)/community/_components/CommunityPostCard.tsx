@@ -20,9 +20,7 @@ const formatPostMeta = (post: PostListItem): string => {
     `좋아요 ${post.likeCount}`,
     `댓글 ${post.commentCount}`,
     relativeTime,
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  ].join(' · ');
 };
 
 /** Figma post-card — Mobile 343×116 / Tablet 600×120 / Desktop 955×140 */

@@ -3,17 +3,18 @@
 import {
   BOARD_CATEGORY_FILTER_OPTIONS,
   REGION_FILTER_OPTIONS,
+  type RegionFilterValue,
 } from '@/constants/communityOptions';
 import { cn } from '@/lib/utils';
 import type { PostCategory } from '@/types/community';
 
-import { CommunityDesktopDropdown } from './CommunityDesktopDropdown';
 import { CommunitySearchField } from './CommunitySearchField';
+import { CommunitySelectDropdown } from './CommunitySelectDropdown';
 
 interface CommunitySidebarFilterProps {
   showCategoryFilter: boolean;
   categoryFilter: PostCategory | 'ALL';
-  regionFilter: string;
+  regionFilter: RegionFilterValue;
   searchValue: string;
   onCategoryChange: (value: string) => void;
   onRegionChange: (value: string) => void;
@@ -51,12 +52,13 @@ export const CommunitySidebarFilter = ({
         <p className="text-lg-semibold text-black-400">
           카테고리를 선택해주세요
         </p>
-        <CommunityDesktopDropdown
+        <CommunitySelectDropdown
           label="카테고리"
           placeholder="카테고리"
           options={BOARD_CATEGORY_FILTER_OPTIONS}
           value={categoryFilter}
           onValueChange={onCategoryChange}
+          size="desktop"
         />
       </section>
     ) : null}
@@ -68,13 +70,14 @@ export const CommunitySidebarFilter = ({
       )}
     >
       <p className="text-lg-semibold text-black-400">지역을 선택해주세요</p>
-      <CommunityDesktopDropdown
+      <CommunitySelectDropdown
         label="지역"
         placeholder="지역"
         options={REGION_FILTER_OPTIONS}
         value={regionFilter}
         onValueChange={onRegionChange}
         listColumns={2}
+        size="desktop"
       />
     </section>
 

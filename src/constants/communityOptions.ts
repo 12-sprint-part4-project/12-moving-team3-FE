@@ -18,15 +18,22 @@ export const POST_CATEGORY_LABEL: Record<PostCategory, string> = {
   FURNITURE_SHARE: '가구나눔',
 };
 
+const BOARD_CATEGORY_VALUES = [
+  'MOVING_TIP',
+  'QUESTION',
+  'REVIEW',
+  'ETC',
+] as const satisfies readonly PostCategory[];
+
 export const BOARD_CATEGORY_FILTER_OPTIONS: {
   label: string;
   value: PostCategory | 'ALL';
 }[] = [
   { label: '전체', value: 'ALL' },
-  { label: '이사팁', value: 'MOVING_TIP' },
-  { label: '질문', value: 'QUESTION' },
-  { label: '후기', value: 'REVIEW' },
-  { label: '기타', value: 'ETC' },
+  ...BOARD_CATEGORY_VALUES.map((value) => ({
+    label: POST_CATEGORY_LABEL[value],
+    value,
+  })),
 ];
 
 /** 커뮤니티 지역 필터 — commonOptions 칩 + 전체 */
@@ -59,14 +66,13 @@ export const POST_SORT_OPTIONS: { label: string; value: PostSort }[] = [
 export const isCommunityTabId = (value: string): value is CommunityTabId =>
   value === 'board' || value === 'furniture';
 
+export const parseCommunityTabId = (value: string | null): CommunityTabId =>
+  value && isCommunityTabId(value) ? value : 'board';
+
 export const isPostSort = (value: string): value is PostSort =>
   value === 'LATEST' || value === 'POPULAR' || value === 'MOST_COMMENTED';
 
 export const isBoardCategoryFilter = (
   value: string
 ): value is PostCategory | 'ALL' =>
-  value === 'ALL' ||
-  value === 'MOVING_TIP' ||
-  value === 'QUESTION' ||
-  value === 'REVIEW' ||
-  value === 'ETC';
+  BOARD_CATEGORY_FILTER_OPTIONS.some((option) => option.value === value);
