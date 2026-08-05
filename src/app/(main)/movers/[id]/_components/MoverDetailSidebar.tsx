@@ -5,6 +5,8 @@ import { Button } from '@/components/Button/Button';
 import { MoverShareButtons } from '@/components/movers/MoverShareButtons';
 import { cn } from '@/lib/utils';
 
+import { getDesignatedButtonLabel } from './getDesignatedButtonLabel';
+
 export interface MoverDetailSidebarProps {
   name: string;
   isFavorited: boolean;
@@ -20,19 +22,6 @@ export interface MoverDetailSidebarProps {
   profileImageUrl?: string | null;
   className?: string;
 }
-
-const getDesignatedButtonLabel = (
-  isAlreadyDesignated: boolean,
-  isDesignatedPending: boolean
-): string => {
-  if (isAlreadyDesignated) {
-    return '지정 견적 요청 완료';
-  }
-  if (isDesignatedPending) {
-    return '요청 중...';
-  }
-  return '지정 견적 요청하기';
-};
 
 /** Desktop 우측 — 지정 견적 CTA · 찜 · 공유 */
 export const MoverDetailSidebar = ({
@@ -94,7 +83,11 @@ export const MoverDetailSidebar = ({
             disabled={isDesignatedDisabled}
             aria-busy={isDesignatedPending || isDesignatedStatusLoading}
           >
-            {getDesignatedButtonLabel(isAlreadyDesignated, isDesignatedPending)}
+            {getDesignatedButtonLabel(
+              isAlreadyDesignated,
+              isDesignatedPending,
+              isDesignatedStatusLoading
+            )}
           </Button>
         ) : null}
       </div>

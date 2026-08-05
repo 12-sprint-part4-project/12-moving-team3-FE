@@ -4,6 +4,8 @@ import LikeActiveIcon from '@/assets/icons/like-active.svg';
 import { Button } from '@/components/Button/Button';
 import { cn } from '@/lib/utils';
 
+import { getDesignatedButtonLabel } from './getDesignatedButtonLabel';
+
 export interface MoverDetailBottomBarProps {
   isFavorited: boolean;
   onFavoriteClick: () => void;
@@ -16,19 +18,6 @@ export interface MoverDetailBottomBarProps {
   isDesignatedStatusLoading?: boolean;
   className?: string;
 }
-
-const getDesignatedButtonLabel = (
-  isAlreadyDesignated: boolean,
-  isDesignatedPending: boolean
-): string => {
-  if (isAlreadyDesignated) {
-    return '지정 견적 요청 완료';
-  }
-  if (isDesignatedPending) {
-    return '요청 중...';
-  }
-  return '지정 견적 요청하기';
-};
 
 /** Tablet / Mobile 하단 sticky — 찜 아이콘 + 지정 견적 CTA */
 export const MoverDetailBottomBar = ({
@@ -85,7 +74,8 @@ export const MoverDetailBottomBar = ({
             >
               {getDesignatedButtonLabel(
                 isAlreadyDesignated,
-                isDesignatedPending
+                isDesignatedPending,
+                isDesignatedStatusLoading
               )}
             </Button>
           </>
