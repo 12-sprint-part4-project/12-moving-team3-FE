@@ -230,7 +230,7 @@ body {
   @apply mx-auto flex w-full max-w-chat flex-col px-6 py-10;
 }
 
-/** 채팅방(상세) 공통 래퍼 — main flex-1 높이를 채워 메시지 영역 스크롤 */
+/** 채팅방(상세) 공통 래퍼 — 메시지 리스트만 스크롤되도록 overflow 차단 */
 @utility chat-room-content {
-  @apply mx-auto flex min-h-0 w-full max-w-chat flex-1 flex-col;
+  @apply mx-auto flex w-full max-w-chat flex-col overflow-hidden;
 }

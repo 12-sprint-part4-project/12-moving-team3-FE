@@ -26,13 +26,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${pretendard.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col">
+      <body className="flex h-full flex-col overflow-hidden">
         <QueryProvider>
           <AuthProvider>
             <ToastProvider>
               <ChatSocketProvider>
                 <Header />
-                <main className="flex flex-1 flex-col">{children}</main>
+                <main className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+                  {children}
+                </main>
               </ChatSocketProvider>
             </ToastProvider>
           </AuthProvider>

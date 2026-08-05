@@ -47,7 +47,7 @@ const isValidRoomId = (roomId: number): boolean =>
 
 /**
  * BE는 페이지 내 메시지를 id desc(최신→과거)로 반환한다.
- * InfiniteQuery pages[0] = 최신 배치이므로, UI용 시간순(과거→최신)으로 펼친다.
+ * InfiniteQuery pages[0] = 최신 배치이므로, 페이지를 뒤집은 뒤 각 페이지를 오름차순으로 펼친다.
  * messageId 기준 중복은 제거한다(REST·소켓 레이스 잔여 방어).
  */
 const flattenMessagesChronological = (
@@ -58,7 +58,9 @@ const flattenMessagesChronological = (
   }
 
   const seen = new Set<number>();
-  const chronological = pages.flatMap((page) => page.data.messages).reverse();
+  const chronological = [...pages]
+    .reverse()
+    .flatMap((page) => [...page.data.messages].reverse());
 
   return chronological.filter((message) => {
     if (seen.has(message.messageId)) {

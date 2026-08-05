@@ -1,32 +1,76 @@
 'use client';
 
-import { useState, type FormEvent, type KeyboardEvent } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+  type KeyboardEvent,
+} from 'react';
 
+import ClipIcon from '@/assets/icons/clip.svg';
+import CloseIcon from '@/assets/icons/close.svg';
 import SendIcon from '@/assets/icons/send.svg';
 
+import {
+  CHAT_IMAGE_MAX_COUNT,
+  validateChatImageFile,
+} from '@/lib/uploadChatImage';
 import { cn } from '@/lib/utils';
+
+const CHAT_IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
 
 export interface ChatComposerProps {
   disabled?: boolean;
   isSending?: boolean;
   onSend: (content: string) => Promise<void> | void;
+  onSendImages?: (files: File[]) => Promise<void> | void;
+  focusInputSignal?: number;
   className?: string;
 }
 
-/** 채팅방 하단 텍스트 입력·전송 (Phase 2 — 첨부 없음) */
+/** 채팅방 하단 텍스트·이미지 입력·전송 */
 export const ChatComposer = ({
   disabled = false,
   isSending = false,
   onSend,
+  onSendImages,
+  focusInputSignal = 0,
   className,
 }: ChatComposerProps) => {
+  const composerRef = useRef<HTMLFormElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState('');
+  const [pendingImages, setPendingImages] = useState<File[]>([]);
+  const [imageError, setImageError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const trimmed = value.trim();
-  const canSend = !disabled && !isSending && trimmed.length > 0;
+  const hasPendingImages = pendingImages.length > 0;
+  const isBusy = disabled || isSending;
+  const canSend =
+    !isBusy && (trimmed.length > 0 || (hasPendingImages && Boolean(onSendImages)));
+
+  const clearPendingImages = () => {
+    setPendingImages([]);
+    setImageError(null);
+  };
 
   const submit = async () => {
     if (!canSend) {
+      return;
+    }
+
+    if (hasPendingImages && onSendImages) {
+      const files = pendingImages;
+      clearPendingImages();
+      try {
+        await onSendImages(files);
+      } catch {
+        setPendingImages(files);
+      }
       return;
     }
 
@@ -35,7 +79,6 @@ export const ChatComposer = ({
     try {
       await onSend(content);
     } catch {
-      // 전송 중 새 입력이 있으면 덮어쓰지 않음
       setValue((current) => (current.length === 0 ? content : current));
     }
   };
@@ -52,42 +95,187 @@ export const ChatComposer = ({
     }
   };
 
+  const handleClipClick = () => {
+    if (isBusy || !onSendImages) {
+      return;
+    }
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(event.target.files ?? []);
+    event.target.value = '';
+
+    if (selected.length === 0) {
+      return;
+    }
+
+    const validFiles: File[] = [];
+    for (const file of selected) {
+      const errorMessage = validateChatImageFile(file);
+      if (errorMessage) {
+        setImageError(errorMessage);
+        return;
+      }
+      validFiles.push(file);
+    }
+
+    setPendingImages((current) => {
+      const combined = [...current, ...validFiles];
+      if (combined.length > CHAT_IMAGE_MAX_COUNT) {
+        setImageError(`이미지는 최대 ${CHAT_IMAGE_MAX_COUNT}장까지 첨부할 수 있습니다.`);
+        return combined.slice(0, CHAT_IMAGE_MAX_COUNT);
+      }
+      setImageError(null);
+      return combined;
+    });
+
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setPendingImages((current) => current.filter((_, i) => i !== index));
+    setImageError(null);
+  };
+
+  const previewUrls = useMemo(
+    () => pendingImages.map((file) => URL.createObjectURL(file)),
+    [pendingImages]
+  );
+
+  useEffect(
+    () => () => {
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    },
+    [previewUrls]
+  );
+
+  useEffect(() => {
+    if (pendingImages.length === 0) {
+      return;
+    }
+
+    composerRef.current?.scrollIntoView({
+      block: 'end',
+      inline: 'nearest',
+    });
+  }, [pendingImages.length]);
+
+  useEffect(() => {
+    if (focusInputSignal === 0 || isBusy) {
+      return;
+    }
+
+    inputRef.current?.focus();
+  }, [focusInputSignal, isBusy]);
+
   return (
     <form
+      ref={composerRef}
       onSubmit={handleSubmit}
       className={cn(
-        'flex shrink-0 items-center gap-2.5 border-t border-line-100 bg-white px-4 py-3 md:px-6',
+        'flex shrink-0 flex-col gap-2 border-t border-line-100 bg-white px-4 py-3 md:px-6',
         className
       )}
     >
-      <input
-        type="text"
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
-        onKeyDown={handleKeyDown}
-        disabled={disabled}
-        placeholder="메시지를 입력하세요"
-        aria-label="메시지 입력"
-        className={cn(
-          'min-w-0 flex-1 rounded-full border border-line-200 bg-background-100 px-3.5 py-2.5 text-md-medium text-black-400 outline-none',
-          'placeholder:text-gray-300',
-          'focus:border-blue-300',
-          'disabled:cursor-not-allowed disabled:bg-background-200 disabled:text-gray-300'
-        )}
-      />
-      <button
-        type="submit"
-        disabled={!canSend}
-        aria-label="전송"
-        className={cn(
-          'inline-flex size-11 shrink-0 items-center justify-center transition-colors',
-          canSend
-            ? 'cursor-pointer text-blue-300 hover:text-blue-200'
-            : 'cursor-not-allowed text-gray-200'
-        )}
-      >
-        <SendIcon className="size-9 translate-x-px -translate-y-px" aria-hidden />
-      </button>
+      {hasPendingImages ? (
+        <div className="flex flex-col gap-1.5">
+          <p className="text-xs-medium text-gray-400">
+            첨부한 사진 {pendingImages.length}장
+          </p>
+          <ul
+            className="flex min-h-[4.75rem] gap-2 overflow-x-auto pt-2 pr-2 pb-1"
+            aria-label="첨부 이미지 미리보기"
+          >
+            {pendingImages.map((file, index) => (
+              <li
+                key={`${file.name}-${file.lastModified}-${index}`}
+                className="relative shrink-0"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={previewUrls[index]}
+                  alt={file.name}
+                  className="size-16 rounded-xl border border-line-200 object-cover"
+                />
+                <button
+                  type="button"
+                  aria-label={`${file.name} 삭제`}
+                  disabled={isBusy}
+                  onClick={() => handleRemoveImage(index)}
+                  className="absolute -top-1.5 -right-1.5 inline-flex size-5 cursor-pointer items-center justify-center rounded-full bg-black-400 text-white disabled:cursor-not-allowed"
+                >
+                  <CloseIcon className="size-3" aria-hidden />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {imageError ? (
+        <p className="text-sm-medium text-red-200" role="alert">
+          {imageError}
+        </p>
+      ) : null}
+
+      <div className="flex items-center gap-2.5">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={CHAT_IMAGE_ACCEPT}
+          multiple
+          className="sr-only"
+          aria-hidden
+          tabIndex={-1}
+          onChange={handleFileChange}
+        />
+        <button
+          type="button"
+          aria-label="이미지 첨부"
+          disabled={isBusy || !onSendImages}
+          onClick={handleClipClick}
+          className={cn(
+            'inline-flex size-9 shrink-0 items-center justify-center transition-colors',
+            isBusy || !onSendImages
+              ? 'cursor-not-allowed text-gray-200'
+              : 'cursor-pointer text-gray-300 hover:text-blue-300'
+          )}
+        >
+          <ClipIcon className="size-9" aria-hidden />
+        </button>
+        <input
+          ref={inputRef}
+          type="text"
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          onKeyDown={handleKeyDown}
+          disabled={isBusy}
+          placeholder="메시지를 입력하세요"
+          aria-label="메시지 입력"
+          className={cn(
+            'min-w-0 flex-1 rounded-full border border-line-200 bg-background-100 px-3.5 py-2.5 text-md-medium text-black-400 outline-none',
+            'placeholder:text-gray-300',
+            'focus:border-blue-300',
+            'disabled:cursor-not-allowed disabled:bg-background-200 disabled:text-gray-300'
+          )}
+        />
+        <button
+          type="submit"
+          disabled={!canSend}
+          aria-label="전송"
+          className={cn(
+            'inline-flex size-11 shrink-0 items-center justify-center transition-colors',
+            canSend
+              ? 'cursor-pointer text-blue-300 hover:text-blue-200'
+              : 'cursor-not-allowed text-gray-200'
+          )}
+        >
+          <SendIcon className="size-9 translate-x-px -translate-y-px" aria-hidden />
+        </button>
+      </div>
     </form>
   );
 };
