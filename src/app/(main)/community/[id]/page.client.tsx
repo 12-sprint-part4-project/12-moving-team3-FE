@@ -78,6 +78,7 @@ export const CommunityPostDetailPageClient = ({
     null
   );
   const [isPostDeleteModalOpen, setIsPostDeleteModalOpen] = useState(false);
+  const [commentDraft, setCommentDraft] = useState('');
 
   const {
     data: post,
@@ -177,9 +178,23 @@ export const CommunityPostDetailPageClient = ({
         return;
       }
 
-      createComment({ content });
+      createComment(
+        { content },
+        {
+          onSuccess: () => {
+            setCommentDraft('');
+          },
+          onError: (error: unknown) => {
+            const message =
+              error instanceof ApiError
+                ? error.message
+                : '댓글 작성에 실패했습니다.';
+            showToast({ content: message });
+          },
+        }
+      );
     },
-    [user, createComment, openLoginModal]
+    [user, createComment, openLoginModal, showToast]
   );
 
   const handleCommentInputFocus = useCallback(() => {
@@ -488,6 +503,8 @@ export const CommunityPostDetailPageClient = ({
             isLikePending={isLikePending}
             isCommentPending={isCommentPending}
             onLikeClick={handleLikeClick}
+            commentValue={commentDraft}
+            onCommentChange={setCommentDraft}
             onCommentSubmit={handleCommentSubmit}
             onCommentFocus={handleCommentInputFocus}
             className="max-[46.4375rem]:mt-0 mt-6 min-[46.5rem]:mt-8 xl:mt-10"

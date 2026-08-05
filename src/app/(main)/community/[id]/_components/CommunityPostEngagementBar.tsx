@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent, type KeyboardEvent } from 'react';
+import { type FormEvent, type KeyboardEvent } from 'react';
 
 import LikeActiveIcon from '@/assets/icons/like-active.svg';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,8 @@ export interface CommunityPostEngagementBarProps {
   isLikePending: boolean;
   isCommentPending: boolean;
   onLikeClick: () => void;
+  commentValue: string;
+  onCommentChange: (value: string) => void;
   onCommentSubmit: (content: string) => void;
   onCommentFocus?: () => void;
   className?: string;
@@ -27,12 +29,12 @@ export const CommunityPostEngagementBar = ({
   isLikePending,
   isCommentPending,
   onLikeClick,
+  commentValue,
+  onCommentChange,
   onCommentSubmit,
   onCommentFocus,
   className = '',
 }: CommunityPostEngagementBarProps) => {
-  const [commentValue, setCommentValue] = useState('');
-
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmed = commentValue.trim();
@@ -42,7 +44,6 @@ export const CommunityPostEngagementBar = ({
     }
 
     onCommentSubmit(trimmed);
-    setCommentValue('');
   };
 
   const handleCommentKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -100,7 +101,7 @@ export const CommunityPostEngagementBar = ({
           id="community-comment-input"
           type="text"
           value={commentValue}
-          onChange={(event) => setCommentValue(event.target.value)}
+          onChange={(event) => onCommentChange(event.target.value)}
           onFocus={onCommentFocus}
           onKeyDown={handleCommentKeyDown}
           placeholder="댓글을 입력해 주세요."

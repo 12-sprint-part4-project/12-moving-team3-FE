@@ -6,7 +6,6 @@ import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 import CloseIcon from '@/assets/icons/close.svg';
 import { Modal } from '@/components/ui/Modal/Modal';
-import { cn } from '@/lib/utils';
 
 interface CommunityPostImagePreviewModalProps {
   imageUrls: string[];
