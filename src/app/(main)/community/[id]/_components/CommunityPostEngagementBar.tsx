@@ -15,6 +15,7 @@ import {
 export interface CommunityPostEngagementBarProps {
   isLiked: boolean;
   isLikePending: boolean;
+  isLikeDisabled?: boolean;
   isCommentPending: boolean;
   onLikeClick: () => void;
   commentValue: string;
@@ -28,6 +29,7 @@ export interface CommunityPostEngagementBarProps {
 export const CommunityPostEngagementBar = ({
   isLiked,
   isLikePending,
+  isLikeDisabled = false,
   isCommentPending,
   onLikeClick,
   commentValue,
@@ -80,18 +82,17 @@ export const CommunityPostEngagementBar = ({
           aria-label={likeLabel}
           aria-pressed={isLiked}
           aria-busy={isLikePending}
-          disabled={isLikePending}
+          disabled={isLikePending || isLikeDisabled}
           className={cn(
             COMMUNITY_ENGAGEMENT_BUTTON_CLASS,
             'border border-line-200 bg-white',
-            isLikePending && 'opacity-60',
-            isLiked && 'border-blue-300'
+            (isLikePending || isLikeDisabled) && 'cursor-not-allowed opacity-60'
           )}
         >
           <LikeActiveIcon
             className={cn(
               COMMUNITY_ENGAGEMENT_ICON_CLASS,
-              isLiked ? 'text-blue-400' : 'text-gray-200'
+              isLiked ? 'text-blue-300' : 'text-gray-200'
             )}
             aria-hidden
           />

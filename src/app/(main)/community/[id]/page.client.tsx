@@ -115,7 +115,8 @@ export const CommunityPostDetailPageClient = ({
     refetch: refetchComments,
   } = useCommentList(postId);
 
-  const { togglePostLike, isPending: isLikePending } = useTogglePostLike();
+  const { mutate: togglePostLikeMutate, isPending: isLikePending } =
+    useTogglePostLike();
   const { mutate: createComment, isPending: isCommentPending } =
     useCreateComment(postId);
   const { mutate: deleteCommentMutate, isPending: isDeleteCommentPending } =
@@ -163,12 +164,40 @@ export const CommunityPostDetailPageClient = ({
       return;
     }
 
-    if (!post || post.isLiked === null) {
+    if (!post) {
       return;
     }
 
-    togglePostLike(postId, !post.isLiked);
-  }, [user, post, postId, togglePostLike, openLoginModal]);
+    if (post.isLiked === null) {
+      showToast({ content: '좋아요 정보를 불러오지 못했습니다.' });
+      return;
+    }
+
+    if (isLikePending) {
+      return;
+    }
+
+    togglePostLikeMutate(
+      { postId, nextLiked: !post.isLiked },
+      {
+        onError: (error: unknown) => {
+          const message =
+            error instanceof ApiError
+              ? error.message
+              : '좋아요 처리에 실패했습니다.';
+          showToast({ content: message });
+        },
+      }
+    );
+  }, [
+    user,
+    post,
+    postId,
+    isLikePending,
+    togglePostLikeMutate,
+    openLoginModal,
+    showToast,
+  ]);
 
   const handleCommentSubmit = useCallback(
     (content: string) => {
@@ -366,6 +395,7 @@ export const CommunityPostDetailPageClient = ({
       : (commentsError?.message ?? '댓글을 불러오지 못했습니다.');
 
   const isLiked = post.isLiked === true;
+  const isLikeDisabled = user !== undefined && post.isLiked === null;
   const isPostOwner = user?.id === post.author.id;
 
   return (
@@ -499,6 +529,7 @@ export const CommunityPostDetailPageClient = ({
           <CommunityPostEngagementBar
             isLiked={isLiked}
             isLikePending={isLikePending}
+            isLikeDisabled={isLikeDisabled}
             isCommentPending={isCommentPending}
             onLikeClick={handleLikeClick}
             commentValue={commentDraft}

@@ -23,7 +23,7 @@ const CommunityPostDetailPage = async ({
         </div>
       }
     >
-      <CommunityPostDetailPageClient postId={postId} />
+      <CommunityPostDetailPageClient key={postId} postId={postId} />
     </Suspense>
   );
 };

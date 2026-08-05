@@ -133,15 +133,20 @@ export const CommunityPostDetailImages = ({
 
             return (
               <button
-                key={url}
+                key={`${index}-${url}`}
                 type="button"
                 aria-label={`게시글 이미지 ${index + 1} 원본 보기`}
                 onClick={() => {
                   if (!hasError) {
-                    const urls = visibleUrls.filter((url) => !failedUrls.has(url));
+                    const validIndices = visibleUrls.flatMap((itemUrl, itemIndex) =>
+                      failedUrls.has(itemUrl) ? [] : [itemIndex]
+                    );
+                    const urls = validIndices.map(
+                      (itemIndex) => visibleUrls[itemIndex]
+                    );
                     setPreview({
                       urls,
-                      initialIndex: Math.max(0, urls.indexOf(url)),
+                      initialIndex: Math.max(0, validIndices.indexOf(index)),
                     });
                   }
                 }}
