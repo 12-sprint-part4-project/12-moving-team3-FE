@@ -58,7 +58,7 @@ export interface MoverPublicReviewItem {
   createdAt: string;
   customer: {
     id: string;
-    name: string;
+    nickname: string;
   };
 }
 
