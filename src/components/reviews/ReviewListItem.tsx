@@ -1,7 +1,7 @@
 'use client';
 
 import StarIcon from '@/assets/icons/star.svg';
-import { formatReviewCreatedDate, maskReviewerName } from '@/lib/reviewDisplay';
+import { formatReviewCreatedDate } from '@/lib/reviewDisplay';
 import { cn } from '@/lib/utils';
 import { ReportAction } from '@/components/reports';
 
@@ -38,7 +38,7 @@ export const ReviewListItem = ({
         <div className="flex flex-col items-start gap-2">
           <div className="flex items-center gap-3">
             <p className="text-md-regular text-black-400">
-              {maskReviewerName(customerName)}
+              {customerName}
             </p>
             <span aria-hidden className="h-3 w-px bg-line-200" />
             <p className="text-md-regular text-gray-300">

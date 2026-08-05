@@ -1,19 +1,5 @@
 import type { ReviewRatingStatistics } from '@/types/review';
 
-/** 리뷰 작성자 이름 마스킹 (예: kim****, 김***) */
-export const maskReviewerName = (name: string): string => {
-  const trimmed = name.trim();
-  if (!trimmed) {
-    return '';
-  }
-
-  if (/^[a-zA-Z0-9]/.test(trimmed)) {
-    return `${trimmed.slice(0, 3)}****`;
-  }
-
-  return `${trimmed.slice(0, 1)}***`;
-};
-
 /** ISO datetime → YYYY-MM-DD (로컬) */
 export const formatReviewCreatedDate = (value: string): string => {
   const date = new Date(value);
