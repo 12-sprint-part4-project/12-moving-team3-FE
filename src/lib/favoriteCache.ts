@@ -9,6 +9,7 @@ import type {
   CustomerQuoteDetailResponse,
   CustomerQuoteMover,
 } from '@/types/customerQuote';
+import type { ApiMoveType } from '@/types/estimateRequest';
 import type {
   FavoriteMoverListItem,
   FavoriteMoversResponse,
@@ -73,6 +74,10 @@ export const snapshotFavoriteQueries = (
 ): Array<[QueryKey, unknown]> => [
   ...queryClient.getQueriesData({ queryKey: moverQueryKeys.all }),
   ...queryClient.getQueriesData({ queryKey: customerQuoteQueryKeys.all }),
+  ...queryClient.getQueriesData({ queryKey: favoriteQueryKeys.lists() }),
+  ...queryClient.getQueriesData({
+    queryKey: [...favoriteQueryKeys.all, 'preview'],
+  }),
 ];
 
 /** 스냅샷 복원 */
@@ -159,16 +164,30 @@ const buildOptimisticFavoriteItem = (
   }
 
   // 견적 캐시 — 최소 정보로 preview용 아이템 구성
-  const pending = queryClient.getQueryData<CustomerPendingQuotesResponse>(
-    customerQuoteQueryKeys.pending()
-  );
-  const pendingMover = pending?.data?.quotes.find(
-    (quote) => quote.mover.moverId === moverId
-  )?.mover;
+  // CustomerQuoteMover에는 service가 없으므로 요청/상세의 serviceType을 사용
+  type QuoteMoverSource = {
+    mover: CustomerQuoteMover;
+    service: ApiMoveType[] | null;
+  };
 
-  const quoteMover =
-    pendingMover ??
-    (() => {
+  const quoteSource =
+    ((): QuoteMoverSource | null => {
+      const pending = queryClient.getQueryData<CustomerPendingQuotesResponse>(
+        customerQuoteQueryKeys.pending()
+      );
+      const pendingMover = pending?.data?.quotes.find(
+        (quote) => quote.mover.moverId === moverId
+      )?.mover;
+      if (!pendingMover) {
+        return null;
+      }
+      const serviceType = pending.data?.serviceType ?? null;
+      return {
+        mover: pendingMover,
+        service: serviceType ? [serviceType] : null,
+      };
+    })() ??
+    ((): QuoteMoverSource | null => {
       const pastQueries = queryClient.getQueriesData<
         InfiniteData<CustomerPastQuotesResponse>
       >({ queryKey: [...customerQuoteQueryKeys.all, 'past'] });
@@ -178,26 +197,41 @@ const buildOptimisticFavoriteItem = (
           for (const group of page.data.items) {
             const found = group.quotes.find((q) => q.mover.moverId === moverId);
             if (found) {
-              return found.mover;
+              return {
+                mover: found.mover,
+                service: group.serviceType ? [group.serviceType] : null,
+              };
             }
           }
         }
       }
       return null;
     })() ??
-    (() => {
-      const detailQueries = queryClient.getQueriesData<CustomerQuoteDetailResponse>(
-        { queryKey: customerQuoteQueryKeys.details() }
-      );
+    ((): QuoteMoverSource | null => {
+      const detailQueries =
+        queryClient.getQueriesData<CustomerQuoteDetailResponse>({
+          queryKey: customerQuoteQueryKeys.details(),
+        });
       for (const [, quoteDetail] of detailQueries) {
         if (quoteDetail?.data.mover.moverId === moverId) {
-          return quoteDetail.data.mover;
+          const serviceType = quoteDetail.data.serviceType;
+          return {
+            mover: quoteDetail.data.mover,
+            service: serviceType ? [serviceType] : null,
+          };
         }
       }
       return null;
     })();
 
-  if (!quoteMover) {
+  if (!quoteSource) {
+    return null;
+  }
+
+  const { mover: quoteMover, service } = quoteSource;
+
+  // 견적 경로에서 서비스 유형을 알 수 없으면 빈 서비스 카드 대신 낙관적 아이템 생략
+  if (!service || service.length === 0) {
     return null;
   }
 
@@ -219,10 +253,12 @@ const buildOptimisticFavoriteItem = (
       moverProfile: {
         career: quoteMover.career,
         serviceRegions: [],
+        service,
       },
     },
     reviewStats,
     favoritedCount,
+    service,
     confirmedCount: quoteMover.confirmedQuoteCount,
   };
 };
@@ -277,11 +313,7 @@ export const applyOptimisticFavorite = (
               return {
                 ...item,
                 isFavorited: nextFavorited,
-                ...(favoritedCount !== undefined
-                  ? { favoritedCount }
-                  : item.favoritedCount === undefined
-                    ? {}
-                    : { favoritedCount: item.favoritedCount }),
+                ...(favoritedCount !== undefined ? { favoritedCount } : {}),
               };
             }),
           },
