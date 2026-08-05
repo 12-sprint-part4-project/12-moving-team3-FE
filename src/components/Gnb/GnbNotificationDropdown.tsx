@@ -1,6 +1,7 @@
 import CloseIcon from '@/assets/icons/close.svg';
 
 import { GnbNotificationItem } from '@/components/Gnb/GnbNotificationItem';
+import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { cn } from '@/lib/utils';
 import type { NotificationItem } from '@/types/notification';
 
@@ -50,9 +51,7 @@ export const GnbNotificationDropdown = ({
 
       <div className="flex w-full flex-col items-stretch">
         {isLoading ? (
-          <p className="px-4 py-8 text-center text-md-medium text-gray-300 md:px-6">
-            {LOADING_MESSAGE}
-          </p>
+          <Spinner message={LOADING_MESSAGE} className="gap-3 py-8" />
         ) : null}
 
         {isEmpty ? (
