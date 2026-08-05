@@ -191,7 +191,6 @@ export const ReceivedQuotesFilter = ({
                   tabIndex={isActive ? 0 : -1}
                   aria-selected={isSelected}
                   onClick={() => handleSelect(option.value)}
-                  onKeyDown={handleListKeyDown}
                   className={cn(
                     'flex w-full cursor-pointer items-center px-3.5 py-1.5 text-md-medium whitespace-nowrap text-black-400 outline-none focus-visible:bg-background-300',
                     isSelected ? 'bg-background-300' : 'hover:bg-background-300'

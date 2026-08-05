@@ -165,10 +165,10 @@ const buildOptimisticFavoriteItem = (
 
   // 견적 캐시 — 최소 정보로 preview용 아이템 구성
   // CustomerQuoteMover에는 service가 없으므로 요청/상세의 serviceType을 사용
-  type QuoteMoverSource = {
+  interface QuoteMoverSource {
     mover: CustomerQuoteMover;
     service: ApiMoveType[] | null;
-  };
+  }
 
   const quoteSource =
     ((): QuoteMoverSource | null => {
