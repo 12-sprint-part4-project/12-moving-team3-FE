@@ -46,11 +46,11 @@ const MoverMyPageClient = () => {
 
   const handleEditBasicInfo = () => {
     // 기본 정보 수정 화면 미구현 — 프로필 수정과 동일 경로로 이동
-    router.push('/profile/mover');
+    router.push('/profile/mover/edit');
   };
 
   const handleEditProfile = () => {
-    router.push('/profile/mover');
+    router.push('/profile/mover/edit');
   };
 
   const handleRetry = () => {
