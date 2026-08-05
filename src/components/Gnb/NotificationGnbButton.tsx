@@ -114,12 +114,12 @@ export const NotificationGnbButton = ({
       </button>
 
       {isOpen ? (
-        // mobile: viewport 고정(top 48 / right 20). tablet+: 벨 아이콘 기준
+        // mobile: viewport 고정(top 48 / right 20). sm+: 벨 아이콘 기준
         <div
           className={cn(
             'z-50',
             'fixed top-12 right-5',
-            'min-[46.5rem]:absolute min-[46.5rem]:top-full min-[46.5rem]:right-0 min-[46.5rem]:mt-2'
+            'sm:absolute sm:top-full sm:right-0 sm:mt-2'
           )}
         >
           <GnbNotificationDropdown
