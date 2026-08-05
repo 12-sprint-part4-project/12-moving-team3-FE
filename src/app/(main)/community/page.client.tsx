@@ -22,6 +22,9 @@ import { usePostList } from '@/hooks/useCommunity';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { ApiError } from '@/lib/apiClient';
 import {
+  type PostListContext,
+} from '@/lib/communityListContext';
+import {
   COMMUNITY_SEARCH_DEBOUNCE_MS,
   getCommunitySearchKeyword,
 } from '@/lib/communitySearch';
@@ -91,6 +94,17 @@ export const CommunityPageClient = () => {
     }
     return regionFilter;
   }, [regionFilter]);
+
+  const listContext = useMemo(
+    (): PostListContext => ({
+      tab: activeTab,
+      sort: sortValue,
+      categoryFilter,
+      regionFilter,
+      keyword: listKeyword,
+    }),
+    [activeTab, sortValue, categoryFilter, regionFilter, listKeyword]
+  );
 
   const {
     posts,
@@ -307,6 +321,7 @@ export const CommunityPageClient = () => {
 
           <CommunityPostList
             posts={posts}
+            listContext={listContext}
             isPending={isPending}
             isError={isError}
             isEmpty={isEmpty}
