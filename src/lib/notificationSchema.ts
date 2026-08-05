@@ -32,3 +32,8 @@ export const notificationListResponseSchema = z.object({
 export const notificationMarkReadResponseSchema = z.object({
   data: notificationItemSchema,
 });
+
+/** SSE unread-count 이벤트 payload */
+export const notificationSseUnreadCountSchema = z.object({
+  unreadCount: z.number().int().nonnegative(),
+});
