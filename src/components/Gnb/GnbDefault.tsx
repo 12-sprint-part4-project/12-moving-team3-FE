@@ -159,22 +159,26 @@ const GnbHeader = ({
 }: GnbHeaderProps) => {
   const isDesktop = size === 'lg';
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  // 프로필 열릴 때 채팅·알림 드롭다운을 함께 닫기
-  const [dropdownCloseSignal, setDropdownCloseSignal] = useState(0);
+  // 채팅·알림·프로필 상호 배타 — 각각 별도 closeSignal
+  const [chatCloseSignal, setChatCloseSignal] = useState(0);
+  const [notificationCloseSignal, setNotificationCloseSignal] = useState(0);
   const profileRef = useRef<HTMLDivElement>(null);
 
   useOutsideClick(profileRef, isProfileOpen, setIsProfileOpen);
 
   const handleChatOpen = () => {
     setIsProfileOpen(false);
+    setNotificationCloseSignal((prev) => prev + 1);
   };
 
   const handleNotificationOpen = () => {
     setIsProfileOpen(false);
+    setChatCloseSignal((prev) => prev + 1);
   };
 
   const handleProfileToggle = () => {
-    setDropdownCloseSignal((prev) => prev + 1);
+    setChatCloseSignal((prev) => prev + 1);
+    setNotificationCloseSignal((prev) => prev + 1);
     setIsProfileOpen((prev) => !prev);
     onProfileClick?.();
   };
@@ -226,14 +230,14 @@ const GnbHeader = ({
           <ChatGnbButton
             size={iconSize}
             onOpen={handleChatOpen}
-            closeSignal={dropdownCloseSignal}
+            closeSignal={chatCloseSignal}
           />
 
           <NotificationGnbButton
             role={notificationRole}
             size={iconSize}
             onOpen={handleNotificationOpen}
-            closeSignal={dropdownCloseSignal}
+            closeSignal={notificationCloseSignal}
             onAlarmClick={onAlarmClick}
           />
 

@@ -25,6 +25,7 @@ const meta: Meta<typeof Gnb2Depth> = {
   args: {
     size: 'sm',
     activeTab: 'tab-2',
+    notificationRole: 'customer',
     onTabChange: fn(),
     onAlarmClick: fn(),
     onProfileClick: fn(),
