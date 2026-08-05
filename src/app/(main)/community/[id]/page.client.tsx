@@ -386,8 +386,8 @@ export const CommunityPostDetailPageClient = ({
           <div className="mt-4 min-[46.5rem]:mt-5 xl:mt-6">
             <h1
               className={cn(
-                'font-bold text-[#1a1a1a]',
-                'text-[1.125rem] min-[46.5rem]:text-[1.25rem] xl:text-[1.75rem]'
+                'text-2lg-bold text-black-400',
+                'min-[46.5rem]:text-xl-bold xl:text-2xl-bold'
               )}
             >
               {post.title}

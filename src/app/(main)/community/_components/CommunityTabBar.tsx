@@ -50,7 +50,7 @@ export const CommunityTabBar = ({
           aria-current={isActive ? 'page' : undefined}
           onClick={() => onTabChange(tab.id)}
           className={cn(
-            'relative flex h-11 shrink-0 items-start justify-center pt-2.5 xl:h-12',
+            'relative flex h-11 shrink-0 cursor-pointer items-start justify-center pt-2.5 xl:h-12',
             TAB_WIDTH_MOBILE[tab.id],
             TAB_WIDTH_DESKTOP[tab.id]
           )}

@@ -3,6 +3,7 @@
 import { type FormEvent, type KeyboardEvent } from 'react';
 
 import LikeActiveIcon from '@/assets/icons/like-active.svg';
+import SendIcon from '@/assets/icons/send.svg';
 import { cn } from '@/lib/utils';
 
 import {
@@ -54,6 +55,8 @@ export const CommunityPostEngagementBar = ({
   };
 
   const likeLabel = isLiked ? '좋아요 취소' : '좋아요';
+  const isCommentSubmitDisabled =
+    commentValue.trim().length === 0 || isCommentPending;
 
   return (
     <div
@@ -111,6 +114,18 @@ export const CommunityPostEngagementBar = ({
             isCommentPending && 'opacity-60'
           )}
         />
+        <button
+          type="submit"
+          aria-label="댓글 등록"
+          disabled={isCommentSubmitDisabled}
+          className={cn(
+            COMMUNITY_ENGAGEMENT_BUTTON_CLASS,
+            'border border-line-200 bg-white text-blue-300',
+            isCommentSubmitDisabled && 'cursor-not-allowed opacity-60'
+          )}
+        >
+          <SendIcon className={COMMUNITY_ENGAGEMENT_ICON_CLASS} aria-hidden />
+        </button>
       </form>
     </div>
   );

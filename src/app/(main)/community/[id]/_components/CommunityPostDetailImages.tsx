@@ -24,7 +24,7 @@ const THUMB_BUTTON_CLASS =
   'size-[6.25rem] shrink-0 overflow-hidden rounded-lg bg-background-200 min-[46.5rem]:size-[12.5rem] min-[46.5rem]:rounded-xl xl:size-[18.75rem]';
 
 const BROKEN_IMAGE_ICON_CLASS =
-  'size-[1.5625rem] text-[#bbbbbb] min-[46.5rem]:size-[3.125rem] xl:size-[4.6875rem]';
+  'size-[1.5625rem] text-gray-200 min-[46.5rem]:size-[3.125rem] xl:size-[4.6875rem]';
 
 interface CommunityPostDetailImagesProps {
   imageUrls: string[];

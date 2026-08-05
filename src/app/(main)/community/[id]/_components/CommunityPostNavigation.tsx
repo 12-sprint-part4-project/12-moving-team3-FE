@@ -21,10 +21,10 @@ interface CommunityPostNavigationProps {
 }
 
 const NAV_LABEL_CLASS =
-  'text-[0.6875rem] font-medium text-gray-400 min-[46.5rem]:text-xs-medium xl:text-sm-medium';
+  'text-xs-medium text-gray-400 min-[46.5rem]:text-xs-medium xl:text-sm-medium';
 
 const NAV_TITLE_CLASS =
-  'mt-1 line-clamp-1 text-[0.8125rem] font-semibold text-[#1a1a1a] min-[46.5rem]:text-sm-semibold xl:text-md-semibold';
+  'mt-1 line-clamp-1 text-sm-semibold text-black-400 min-[46.5rem]:text-sm-semibold xl:text-md-semibold';
 
 interface NavItemProps {
   direction: 'prev' | 'next';
@@ -94,7 +94,7 @@ export const CommunityPostNavigation = ({
         )}
       >
         {prev ? (
-          <div className="px-[5px]">
+          <div className="px-1.5">
             <NavItem direction="prev" neighbor={prev} listContext={listContext} />
           </div>
         ) : null}
@@ -108,7 +108,7 @@ export const CommunityPostNavigation = ({
           />
         ) : null}
         {next ? (
-          <div className="px-[5px]">
+          <div className="px-1.5">
             <NavItem direction="next" neighbor={next} listContext={listContext} />
           </div>
         ) : null}

@@ -71,11 +71,11 @@ const CommunityCommentRow = ({
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 flex-wrap items-center gap-x-1 min-[46.5rem]:gap-x-1.5">
-            <span className="text-[0.6875rem] font-semibold text-[#1a1a1a] min-[46.5rem]:text-[0.8125rem] xl:text-[1rem] xl:font-semibold">
+            <span className="text-xs-semibold text-black-400 min-[46.5rem]:text-sm-semibold xl:text-lg-semibold">
               {item.author.nickname}
             </span>
             {isPostAuthor ? <CommunityPostAuthorBadge /> : null}
-            <span className="text-[0.625rem] text-[#8c8c8c] min-[46.5rem]:text-xs-regular xl:text-sm-regular">
+            <span className="text-xs-regular text-gray-400 xl:text-sm-regular">
               {relativeTime}
             </span>
           </div>
@@ -86,15 +86,15 @@ const CommunityCommentRow = ({
               disabled={isDeleting}
               onClick={() => onDeleteRequest(item.id)}
               className={cn(
-                'shrink-0 cursor-pointer text-[0.625rem] text-[#8c8c8c] min-[46.5rem]:text-xs-regular xl:text-sm-regular',
-                'hover:text-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-60'
+                'shrink-0 cursor-pointer text-xs-regular text-gray-400 xl:text-sm-regular',
+                'hover:text-black-400 disabled:cursor-not-allowed disabled:opacity-60'
               )}
             >
               삭제
             </button>
           ) : null}
         </div>
-        <p className="mt-0.5 text-[0.6875rem] whitespace-pre-wrap text-[#1a1a1a] min-[46.5rem]:mt-1 min-[46.5rem]:text-[0.8125rem] xl:text-[1rem]">
+        <p className="mt-0.5 text-xs-regular whitespace-pre-wrap text-black-400 min-[46.5rem]:mt-1 min-[46.5rem]:text-sm-medium xl:text-lg-regular">
           {item.content}
         </p>
       </div>

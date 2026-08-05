@@ -59,7 +59,7 @@ export const CommunityCommentList = ({
   return (
     <section className={className} aria-label="댓글">
       <div className="flex items-end justify-between gap-3">
-        <h2 className="text-[0.8125rem] font-bold text-[#1a1a1a] min-[46.5rem]:text-[0.9375rem] xl:text-lg-bold">
+        <h2 className="text-sm-semibold text-black-400 min-[46.5rem]:text-md-regular xl:text-lg-bold">
           댓글 {commentCount}
         </h2>
         {headerAction ? (
