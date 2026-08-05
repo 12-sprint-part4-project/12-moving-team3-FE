@@ -19,6 +19,7 @@ import { logout } from '@/services/authApi';
 
 const LANDING_MENU_ITEMS: GnbNavItem[] = [
   { label: '기사님 찾기', href: '/movers' },
+  { label: '커뮤니티', href: '/community' },
   { label: '로그인', href: '/login' },
 ];
 
