@@ -2,13 +2,18 @@
 
 import SymbolFacebookIcon from '@/assets/icons/symbol-facebook.svg';
 import SymbolKakaoIcon from '@/assets/icons/symbol-kakao.svg';
-import { IconButton } from '@/components/ui/IconButton/IconButton';
 import { useToast } from '@/hooks/useToast';
 import {
   isKakaoShareConfigured,
   shareQuoteToKakao,
 } from '@/lib/kakaoShare';
 import { cn } from '@/lib/utils';
+
+import {
+  COMMUNITY_POST_ICON_GROUP_GAP_CLASS,
+  COMMUNITY_SHARE_BUTTON_CLASS,
+  COMMUNITY_SHARE_ICON_CLASS,
+} from './communityDetailStyles';
 
 export interface CommunityPostShareButtonsProps {
   title: string;
@@ -17,7 +22,7 @@ export interface CommunityPostShareButtonsProps {
   className?: string;
 }
 
-/** Tablet / Desktop 게시글 공유 — 54×54 카카오·페이스북 (Figma 15167:41690) */
+/** Mobile / Tablet / Desktop 게시글 공유 */
 export const CommunityPostShareButtons = ({
   title,
   description = null,
@@ -61,24 +66,36 @@ export const CommunityPostShareButtons = ({
   return (
     <div
       className={cn(
-        'hidden shrink-0 items-center gap-2 min-[46.5rem]:flex',
+        'flex shrink-0 items-center',
+        COMMUNITY_POST_ICON_GROUP_GAP_CLASS,
         className
       )}
     >
-      <IconButton
-        icon={SymbolKakaoIcon}
+      <button
+        type="button"
         aria-label="카카오톡 공유"
-        size="sm"
-        variant="kakao"
         onClick={handleShareKakao}
-      />
-      <IconButton
-        icon={SymbolFacebookIcon}
+        className={cn(
+          COMMUNITY_SHARE_BUTTON_CLASS,
+          'bg-kakao-100 text-black-500'
+        )}
+      >
+        <SymbolKakaoIcon className={COMMUNITY_SHARE_ICON_CLASS} aria-hidden />
+      </button>
+      <button
+        type="button"
         aria-label="페이스북 공유"
-        size="sm"
-        variant="facebook"
         onClick={handleShareFacebook}
-      />
+        className={cn(
+          COMMUNITY_SHARE_BUTTON_CLASS,
+          'bg-facebook-100 text-white'
+        )}
+      >
+        <SymbolFacebookIcon
+          className={COMMUNITY_SHARE_ICON_CLASS}
+          aria-hidden
+        />
+      </button>
     </div>
   );
 };
