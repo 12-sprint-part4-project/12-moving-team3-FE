@@ -5,9 +5,10 @@ import { useEffect, useRef, useState } from 'react';
 
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 
-import { ChatAvatar } from '@/components/chat/ChatAvatar';
 import { ChatComposer } from '@/components/chat/ChatComposer';
 import { ChatMessageList } from '@/components/chat/ChatMessageList';
+import { ChatRoomHeader } from '@/components/chat/ChatRoomHeader';
+import { ChatRoomHeaderPlaceholder } from '@/components/chat/ChatRoomHeaderPlaceholder';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useChatMessages,
@@ -18,6 +19,7 @@ import {
 import { useChatSocketRoom } from '@/hooks/useChatSocketRoom';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { uploadChatImage } from '@/lib/uploadChatImage';
 import { cn } from '@/lib/utils';
 
 export interface ChatRoomPageProps {
@@ -26,8 +28,8 @@ export interface ChatRoomPageProps {
 }
 
 /**
- * Phase 2 채팅방 상세 — 메시지 이력·전송·실시간 수신·읽음.
- * 이미지 첨부·나가기·발송 제한 UI는 Phase 3~4.
+ * Phase 3 채팅방 상세 — 텍스트·이미지 전송, 나가기.
+ * 발송 제한 UI(`isMessagingAllowed`)는 Phase 4.
  */
 export const ChatRoomPage = ({
   roomId: roomIdParam,
@@ -62,8 +64,10 @@ export const ChatRoomPage = ({
   const lastMarkedMessageIdRef = useRef<number | null>(null);
   const [isNearBottom, setIsNearBottom] = useState(true);
   const [trackedRoomId, setTrackedRoomId] = useState(roomId);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [scrollToBottomSignal, setScrollToBottomSignal] = useState(0);
+  const [focusInputSignal, setFocusInputSignal] = useState(0);
 
-  // 방 전환 시 하단 고정 상태 초기화 (props 변경에 맞춘 state 조정)
   if (trackedRoomId !== roomId) {
     setTrackedRoomId(roomId);
     setIsNearBottom(true);
@@ -75,7 +79,6 @@ export const ChatRoomPage = ({
     lastMarkedMessageIdRef.current = null;
   }, [roomId]);
 
-  // 상대 최신 메시지를 실제로 보고 있을 때만 읽음 처리
   useEffect(() => {
     if (!enabled) {
       lastMarkedMessageIdRef.current = null;
@@ -115,6 +118,8 @@ export const ChatRoomPage = ({
         messageType: 'TEXT',
         content,
       });
+      setScrollToBottomSignal((current) => current + 1);
+      setFocusInputSignal((current) => current + 1);
     } catch (error) {
       const message =
         error instanceof ApiError
@@ -124,6 +129,34 @@ export const ChatRoomPage = ({
       throw error;
     }
   };
+
+  const handleSendImages = async (files: File[]) => {
+    if (files.length === 0) {
+      return;
+    }
+
+    setIsUploadingImages(true);
+    try {
+      const attachments = await Promise.all(files.map(uploadChatImage));
+      await sendMutation.mutateAsync({
+        messageType: 'IMAGE',
+        attachments,
+      });
+      setScrollToBottomSignal((current) => current + 1);
+      setFocusInputSignal((current) => current + 1);
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : '이미지 전송에 실패했습니다.';
+      showToast({ content: message });
+      throw error;
+    } finally {
+      setIsUploadingImages(false);
+    }
+  };
+
+  const isSending = sendMutation.isPending || isUploadingImages;
 
   if (!isReady) {
     return null;
@@ -158,37 +191,33 @@ export const ChatRoomPage = ({
   }
 
   return (
-    <div className={cn('chat-room-content', className)}>
-      <header className="flex w-full shrink-0 items-center gap-3 border-b border-line-100 bg-white px-4 py-3 md:px-6">
-        <Link
-          href="/chat"
-          aria-label="채팅 목록으로"
-          className="inline-flex size-6 shrink-0 items-center justify-center text-black-400"
-        >
-          <ChevronLeftIcon className="size-6" aria-hidden />
-        </Link>
+    <div
+      className={cn(
+        'chat-room-content h-[calc(100dvh-var(--height-gnb))] max-h-[calc(100dvh-var(--height-gnb))] lg:h-[calc(100dvh-var(--height-gnb-lg))] lg:max-h-[calc(100dvh-var(--height-gnb-lg))]',
+        className
+      )}
+    >
+      {isRoomPending ? (
+        <ChatRoomHeaderPlaceholder
+          title="불러오는 중…"
+          titleClassName="text-gray-300"
+        />
+      ) : null}
 
-        {isRoomPending ? (
-          <p className="text-2lg-semibold text-gray-300">불러오는 중…</p>
-        ) : null}
+      {!isRoomPending && room ? (
+        <ChatRoomHeader
+          partner={room.partner}
+          roomId={roomId}
+          className="shrink-0"
+        />
+      ) : null}
 
-        {!isRoomPending && room ? (
-          <>
-            <ChatAvatar
-              src={room.partner.profileImageUrl}
-              alt=""
-              className="size-9"
-            />
-            <p className="min-w-0 flex-1 truncate text-2lg-semibold text-black-400">
-              {room.partner.nickname}
-            </p>
-          </>
-        ) : null}
-
-        {!isRoomPending && (isRoomError || !room) ? (
-          <p className="text-2lg-semibold text-black-400">채팅방</p>
-        ) : null}
-      </header>
+      {!isRoomPending && (isRoomError || !room) ? (
+        <ChatRoomHeaderPlaceholder
+          title="채팅방"
+          titleClassName="text-black-400"
+        />
+      ) : null}
 
       {isRoomError && !room ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-16">
@@ -219,10 +248,14 @@ export const ChatRoomPage = ({
               void fetchNextPage();
             }}
             onNearBottomChange={setIsNearBottom}
+            scrollToBottomSignal={scrollToBottomSignal}
           />
           <ChatComposer
-            isSending={sendMutation.isPending}
+            isSending={isSending}
             onSend={handleSend}
+            onSendImages={handleSendImages}
+            focusInputSignal={focusInputSignal}
+            className="shrink-0"
           />
         </>
       )}

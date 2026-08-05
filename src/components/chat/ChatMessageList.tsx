@@ -13,6 +13,7 @@ import { ChatMessageItem } from '@/components/chat/ChatMessageItem';
 import {
   formatChatDateSeparator,
   isSameLocalCalendarDay,
+  isSameLocalMinute,
 } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
 import type { ChatMessage } from '@/types/chat';
@@ -32,11 +33,30 @@ export interface ChatMessageListProps {
   onLoadOlder: () => void;
   /** 최신 메시지 가시 영역(하단 근처) 여부 — 읽음 처리 등에 사용 */
   onNearBottomChange?: (isNearBottom: boolean) => void;
+  /** 부모가 전송 직후 강제로 하단 이동을 요청할 때 증가하는 값 */
+  scrollToBottomSignal?: number;
   className?: string;
 }
 
 const NEAR_TOP_PX = 80;
 const NEAR_BOTTOM_PX = 120;
+
+/**
+ * 같은 보낸이가 같은 분(분 단위)에 연속 메시지를 보내면
+ * 시간은 묶음의 마지막 메시지에만 표시한다 (카톡식).
+ */
+const shouldShowMessageTime = (
+  current: ChatMessage,
+  next: ChatMessage | undefined
+): boolean => {
+  if (!next) {
+    return true;
+  }
+  if (next.senderId !== current.senderId) {
+    return true;
+  }
+  return !isSameLocalMinute(current.createdAt, next.createdAt);
+};
 
 /** 메시지 스크롤 영역 — 상단 도달 시 이전 이력 로드 */
 export const ChatMessageList = ({
@@ -51,9 +71,12 @@ export const ChatMessageList = ({
   isFetchingNextPage,
   onLoadOlder,
   onNearBottomChange,
+  scrollToBottomSignal = 0,
   className,
 }: ChatMessageListProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  /** 이전 이력 prepend 전 스크롤 스냅샷 — 로드 중에는 덮어쓰지 않음 */
   const scrollAnchorRef = useRef<{
     height: number;
     top: number;
@@ -64,6 +87,9 @@ export const ChatMessageList = ({
   const prevMessageCountRef = useRef(0);
   const oldestMessageIdRef = useRef<number | null>(null);
   const wasFetchingNextPageRef = useRef(false);
+  /** 방 진입 후 첫 하단 정렬이 끝났는지 */
+  const didInitialScrollRef = useRef(false);
+  const isProgrammaticScrollRef = useRef(false);
 
   const isInitialError = isError && messages.length === 0;
   const canRenderMessages = !isPending && !isInitialError;
@@ -80,20 +106,21 @@ export const ChatMessageList = ({
     [onNearBottomChange]
   );
 
-  const scrollToBottom = useCallback(
-    (behavior: ScrollBehavior = 'auto') => {
-      const el = scrollRef.current;
-      if (!el) {
-        return;
-      }
-      el.scrollTo({ top: el.scrollHeight, behavior });
-      reportNearBottom(true);
-    },
-    [reportNearBottom]
-  );
+  const scrollToBottom = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) {
+      return;
+    }
 
-  // 이전 메시지 prepend 시에만 스크롤 복원.
-  // 대기 중 oldest가 같으면(소켓 append·스크롤) 앵커 geometry만 갱신.
+    isProgrammaticScrollRef.current = true;
+    el.scrollTop = el.scrollHeight;
+    reportNearBottom(true);
+    requestAnimationFrame(() => {
+      isProgrammaticScrollRef.current = false;
+    });
+  }, [reportNearBottom]);
+
+  // 이전 메시지 prepend 시에만 스크롤 복원 (앵커 스냅샷은 로드 중 유지)
   useLayoutEffect(() => {
     const el = scrollRef.current;
     const anchor = scrollAnchorRef.current;
@@ -107,17 +134,18 @@ export const ChatMessageList = ({
     }
 
     if (currentOldestId === anchor.oldestMessageId) {
-      scrollAnchorRef.current = {
-        ...anchor,
-        height: el.scrollHeight,
-        top: el.scrollTop,
-      };
       return;
     }
 
+    isProgrammaticScrollRef.current = true;
     el.scrollTop = anchor.top + (el.scrollHeight - anchor.height);
     scrollAnchorRef.current = null;
-  }, [messages]);
+    // prepend 복원 중 ResizeObserver가 최하단으로 끌어가지 않도록 하단 고정 해제
+    reportNearBottom(false);
+    requestAnimationFrame(() => {
+      isProgrammaticScrollRef.current = false;
+    });
+  }, [messages, reportNearBottom]);
 
   // 이전 페이지 요청이 끝나도 oldest가 그대로면(실패·빈 페이지) 앵커 해제 → 재시도 가능
   useEffect(() => {
@@ -139,8 +167,24 @@ export const ChatMessageList = ({
     }
   }, [isFetchingNextPage, messages]);
 
-  // 최초 로드·하단 고정 시 스크롤 / 새 메시지 도착
+  // 최초 로드: 페인트 직후 무조건 최하단
+  useLayoutEffect(() => {
+    if (isPending || didInitialScrollRef.current || messages.length === 0) {
+      return;
+    }
+
+    scrollToBottom();
+    didInitialScrollRef.current = true;
+    prevMessageCountRef.current = messages.length;
+    oldestMessageIdRef.current = messages[0]?.messageId ?? null;
+  }, [isPending, messages, scrollToBottom]);
+
+  // 이후 새 메시지 append 시 하단 고정
   useEffect(() => {
+    if (!didInitialScrollRef.current || isPending) {
+      return;
+    }
+
     const prevCount = prevMessageCountRef.current;
     const nextCount = messages.length;
     const oldestId = messages[0]?.messageId ?? null;
@@ -158,28 +202,55 @@ export const ChatMessageList = ({
       return;
     }
 
-    if (isPending) {
+    if (nextCount > prevCount && shouldStickToBottomRef.current) {
+      scrollToBottom();
+    }
+  }, [messages, isPending, scrollToBottom]);
+
+  // 전송 직후 강제 하단 이동
+  useLayoutEffect(() => {
+    if (scrollToBottomSignal === 0) {
       return;
     }
 
-    if (shouldStickToBottomRef.current) {
-      scrollToBottom(prevCount === 0 ? 'auto' : 'smooth');
+    shouldStickToBottomRef.current = true;
+    scrollToBottom();
+  }, [scrollToBottomSignal, scrollToBottom]);
+
+  // 이미지 등으로 콘텐츠 높이가 늘어나도 하단 고정 중이면 따라감
+  useEffect(() => {
+    const scrollEl = scrollRef.current;
+    const contentEl = contentRef.current;
+    if (!scrollEl || !contentEl || typeof ResizeObserver === 'undefined') {
+      return;
     }
-  }, [messages, isPending, scrollToBottom]);
+
+    const observer = new ResizeObserver(() => {
+      if (!didInitialScrollRef.current || !shouldStickToBottomRef.current) {
+        return;
+      }
+      if (scrollAnchorRef.current != null) {
+        return;
+      }
+      isProgrammaticScrollRef.current = true;
+      scrollEl.scrollTop = scrollEl.scrollHeight;
+      requestAnimationFrame(() => {
+        isProgrammaticScrollRef.current = false;
+      });
+    });
+
+    observer.observe(contentEl);
+    return () => observer.disconnect();
+  }, []);
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     const el = event.currentTarget;
     const distanceFromBottom =
       el.scrollHeight - el.scrollTop - el.clientHeight;
-    reportNearBottom(distanceFromBottom <= NEAR_BOTTOM_PX);
+    const isNearBottom = distanceFromBottom <= NEAR_BOTTOM_PX;
 
-    const pendingAnchor = scrollAnchorRef.current;
-    if (pendingAnchor != null) {
-      scrollAnchorRef.current = {
-        ...pendingAnchor,
-        height: el.scrollHeight,
-        top: el.scrollTop,
-      };
+    if (didInitialScrollRef.current && !isProgrammaticScrollRef.current) {
+      reportNearBottom(isNearBottom);
     }
 
     const oldestMessageId = messages[0]?.messageId;
@@ -205,79 +276,85 @@ export const ChatMessageList = ({
       ref={scrollRef}
       onScroll={handleScroll}
       className={cn(
-        'flex min-h-0 flex-1 flex-col gap-3.5 overflow-y-auto bg-background-100 px-4 py-5 md:px-6',
+        'min-h-0 flex-1 overflow-y-auto bg-background-100 px-4 py-5 md:px-6',
         className
       )}
     >
-      <div aria-live="polite" aria-atomic="true">
-        {isFetchingNextPage ? (
-          <p className="py-1 text-center text-sm-medium text-gray-300">
-            이전 대화 불러오는 중…
-          </p>
-        ) : null}
-
-        {!isFetchingNextPage && isFetchNextPageError ? (
-          <div className="flex flex-col items-center gap-1 py-1">
-            <p className="text-center text-sm-medium text-gray-300">
-              이전 대화를 불러오지 못했어요
+      <div ref={contentRef} className="flex flex-col gap-3.5">
+        <div aria-live="polite" aria-atomic="true">
+          {isFetchingNextPage ? (
+            <p className="py-1 text-center text-sm-medium text-gray-300">
+              이전 대화 불러오는 중…
             </p>
-            <button
-              type="button"
-              onClick={onLoadOlder}
-              className="cursor-pointer text-sm-medium text-blue-300 underline-offset-2 hover:underline"
-            >
-              다시 시도
-            </button>
-          </div>
-        ) : null}
+          ) : null}
 
-        {isPending ? (
-          <p className="m-auto text-center text-lg-medium text-gray-300">
-            불러오는 중…
-          </p>
-        ) : null}
+          {!isFetchingNextPage && isFetchNextPageError ? (
+            <div className="flex flex-col items-center gap-1 py-1">
+              <p className="text-center text-sm-medium text-gray-300">
+                이전 대화를 불러오지 못했어요
+              </p>
+              <button
+                type="button"
+                onClick={onLoadOlder}
+                className="cursor-pointer text-sm-medium text-blue-300 underline-offset-2 hover:underline"
+              >
+                다시 시도
+              </button>
+            </div>
+          ) : null}
 
-        {isInitialError ? (
-          <p className="m-auto text-center text-lg-medium text-gray-300">
-            메시지를 불러오지 못했어요
-          </p>
-        ) : null}
+          {isPending ? (
+            <p className="py-16 text-center text-lg-medium text-gray-300">
+              불러오는 중…
+            </p>
+          ) : null}
 
-        {canRenderMessages && isEmpty ? (
-          <p className="m-auto text-center text-lg-medium text-gray-300">
-            대화를 시작해 보세요
-          </p>
-        ) : null}
+          {isInitialError ? (
+            <p className="py-16 text-center text-lg-medium text-gray-300">
+              메시지를 불러오지 못했어요
+            </p>
+          ) : null}
+
+          {canRenderMessages && isEmpty ? (
+            <p className="py-16 text-center text-lg-medium text-gray-300">
+              대화를 시작해 보세요
+            </p>
+          ) : null}
+        </div>
+
+        {canRenderMessages &&
+          messages.map((message, index) => {
+            const previous = messages[index - 1];
+            const next = messages[index + 1];
+            const showDateSeparator =
+              !previous ||
+              !isSameLocalCalendarDay(previous.createdAt, message.createdAt);
+            const dateLabel = showDateSeparator
+              ? formatChatDateSeparator(message.createdAt)
+              : '';
+            const showTime = shouldShowMessageTime(message, next);
+
+            return (
+              <Fragment key={message.messageId}>
+                {showDateSeparator && dateLabel ? (
+                  <p
+                    role="separator"
+                    aria-label={dateLabel}
+                    className="py-1 text-center text-xs-medium text-gray-300"
+                  >
+                    {dateLabel}
+                  </p>
+                ) : null}
+                <ChatMessageItem
+                  message={message}
+                  isMine={message.senderId === currentUserId}
+                  showTime={showTime}
+                  className={showTime ? undefined : '-mb-2'}
+                />
+              </Fragment>
+            );
+          })}
       </div>
-
-      {canRenderMessages &&
-        messages.map((message, index) => {
-          const previous = messages[index - 1];
-          const showDateSeparator =
-            !previous ||
-            !isSameLocalCalendarDay(previous.createdAt, message.createdAt);
-          const dateLabel = showDateSeparator
-            ? formatChatDateSeparator(message.createdAt)
-            : '';
-
-          return (
-            <Fragment key={message.messageId}>
-              {showDateSeparator && dateLabel ? (
-                <p
-                  role="separator"
-                  aria-label={dateLabel}
-                  className="py-1 text-center text-xs-medium text-gray-300"
-                >
-                  {dateLabel}
-                </p>
-              ) : null}
-              <ChatMessageItem
-                message={message}
-                isMine={message.senderId === currentUserId}
-              />
-            </Fragment>
-          );
-        })}
     </div>
   );
 };

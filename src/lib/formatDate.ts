@@ -168,6 +168,23 @@ export const isSameLocalCalendarDay = (a: string, b: string): boolean => {
   );
 };
 
+/** 로컬 시각의 연·월·일·시·분이 같은지 비교 (초는 무시) */
+export const isSameLocalMinute = (a: string, b: string): boolean => {
+  const dateA = new Date(a);
+  const dateB = new Date(b);
+  if (Number.isNaN(dateA.getTime()) || Number.isNaN(dateB.getTime())) {
+    return false;
+  }
+
+  return (
+    dateA.getFullYear() === dateB.getFullYear() &&
+    dateA.getMonth() === dateB.getMonth() &&
+    dateA.getDate() === dateB.getDate() &&
+    dateA.getHours() === dateB.getHours() &&
+    dateA.getMinutes() === dateB.getMinutes()
+  );
+};
+
 /**
  * 채팅 날짜 구분선 라벨 (로컬 캘린더 기준)
  * 오늘 / 어제 / 그저께 / M월 D일 / YYYY년 M월 D일
