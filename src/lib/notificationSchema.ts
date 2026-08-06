@@ -18,7 +18,7 @@ export const notificationItemSchema = z.object({
   estimateRequestId: z.number().nullable(),
 });
 
-/** GET /api/notifications/{role} 응답 */
+/** GET /api/notifications 응답 */
 export const notificationListResponseSchema = z.object({
   data: z.object({
     items: z.array(notificationItemSchema),

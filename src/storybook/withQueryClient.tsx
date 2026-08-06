@@ -37,15 +37,8 @@ export const withQueryClient: Decorator = (Story) => {
 
   queryClient.setQueryData(chatQueryKeys.unread(), STORY_UNREAD);
   queryClient.setQueryData(chatQueryKeys.rooms(), STORY_ROOMS);
-  // GnbDefault 알림 벨 — customer/mover 모두 seed
-  queryClient.setQueryData(
-    notificationQueryKeys.list('customer'),
-    STORY_NOTIFICATIONS
-  );
-  queryClient.setQueryData(
-    notificationQueryKeys.list('mover'),
-    STORY_NOTIFICATIONS
-  );
+  // GnbDefault 알림 벨 — 단일 목록 키 seed
+  queryClient.setQueryData(notificationQueryKeys.list(), STORY_NOTIFICATIONS);
 
   return (
     <QueryClientProvider client={queryClient}>
