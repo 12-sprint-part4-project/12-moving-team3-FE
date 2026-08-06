@@ -22,6 +22,7 @@
 
 # misc
 .DS_Store
+scripts/.seed-posts-manifest.json
 *.pem
 
 # debug

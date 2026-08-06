@@ -1,8 +1,15 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type TouchEvent,
+} from 'react';
 
+import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
+import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 import CloseIcon from '@/assets/icons/close.svg';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { Modal } from '@/components/ui/Modal/Modal';
@@ -21,8 +28,16 @@ export interface ChatMessageItemProps {
 interface ChatImageAttachmentsProps {
   attachments: string[];
   isMine: boolean;
-  onSelectImage: (imageUrl: string) => void;
+  onSelectImage: (index: number) => void;
 }
+
+interface ChatImageLightboxProps {
+  attachments: string[];
+  initialIndex: number;
+  onClose: () => void;
+}
+
+const SWIPE_THRESHOLD_PX = 48;
 
 const getTextMessageBody = (message: ChatMessage): string => {
   const content = message.content.trim();
@@ -65,7 +80,7 @@ const ChatImageAttachments = ({
             type="button"
             key={`${url}-${index}`}
             className="relative aspect-square cursor-pointer overflow-hidden bg-background-200 transition-opacity hover:opacity-95"
-            onClick={() => onSelectImage(url)}
+            onClick={() => onSelectImage(index)}
             aria-label={`${index + 1}번째 이미지 크게 보기`}
           >
             <Image
@@ -82,6 +97,157 @@ const ChatImageAttachments = ({
   );
 };
 
+/** 채팅 이미지 확대 — 2장 이상이면 좌우 이동 */
+const ChatImageLightbox = ({
+  attachments,
+  initialIndex,
+  onClose,
+}: ChatImageLightboxProps) => {
+  const count = attachments.length;
+  const [index, setIndex] = useState(() =>
+    Math.min(Math.max(initialIndex, 0), Math.max(count - 1, 0))
+  );
+  const touchStartXRef = useRef<number | null>(null);
+
+  const canGoPrev = count > 1 && index > 0;
+  const canGoNext = count > 1 && index < count - 1;
+  const currentUrl = attachments[index] ?? attachments[0] ?? '';
+
+  const goPrev = () => {
+    setIndex((current) => Math.max(0, current - 1));
+  };
+
+  const goNext = () => {
+    setIndex((current) => Math.min(count - 1, current + 1));
+  };
+
+  useEffect(() => {
+    if (count <= 1) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        setIndex((current) => Math.max(0, current - 1));
+        return;
+      }
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        setIndex((current) => Math.min(count - 1, current + 1));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [count]);
+
+  const handleTouchStart = (event: TouchEvent<HTMLDivElement>) => {
+    touchStartXRef.current = event.changedTouches[0]?.clientX ?? null;
+  };
+
+  const handleTouchEnd = (event: TouchEvent<HTMLDivElement>) => {
+    const startX = touchStartXRef.current;
+    touchStartXRef.current = null;
+    if (startX == null || count <= 1) {
+      return;
+    }
+
+    const endX = event.changedTouches[0]?.clientX;
+    if (endX == null) {
+      return;
+    }
+
+    const deltaX = endX - startX;
+    if (deltaX > SWIPE_THRESHOLD_PX) {
+      goPrev();
+    } else if (deltaX < -SWIPE_THRESHOLD_PX) {
+      goNext();
+    }
+  };
+
+  return (
+    <Modal
+      onClose={onClose}
+      panelClassName="max-w-[90vw] overflow-visible bg-transparent sm:max-w-[90vw]"
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-label="원본 이미지 보기"
+        className="mx-auto flex w-full flex-col items-center gap-3 bg-transparent p-0 outline-none"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className="relative inline-flex max-h-[85vh] max-w-full items-center justify-center">
+          <button
+            type="button"
+            aria-label="이미지 닫기"
+            onClick={onClose}
+            className="absolute -top-1 -right-1 z-20 inline-flex size-12 items-center justify-center border-0 bg-transparent text-white outline-none focus:outline-none focus-visible:outline-none"
+          >
+            <CloseIcon
+              className="size-7 drop-shadow-icon-on-media"
+              aria-hidden
+            />
+          </button>
+
+          {count > 1 ? (
+            <button
+              type="button"
+              aria-label="이전 이미지"
+              disabled={!canGoPrev}
+              onClick={goPrev}
+              className={cn(
+                'absolute top-1/2 left-1 z-10 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-black-400/50 text-white outline-none focus:outline-none focus-visible:outline-none sm:size-11',
+                canGoPrev
+                  ? 'cursor-pointer hover:bg-black-400/70'
+                  : 'cursor-not-allowed opacity-30'
+              )}
+            >
+              <ChevronLeftIcon className="size-6 sm:size-7" aria-hidden />
+            </button>
+          ) : null}
+
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={currentUrl}
+            alt={`확대된 이미지 ${index + 1}`}
+            className="max-h-[85vh] w-auto max-w-full rounded-[1.5rem] object-contain select-none"
+            draggable={false}
+          />
+
+          {count > 1 ? (
+            <button
+              type="button"
+              aria-label="다음 이미지"
+              disabled={!canGoNext}
+              onClick={goNext}
+              className={cn(
+                'absolute top-1/2 right-1 z-10 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-black-400/50 text-white outline-none focus:outline-none focus-visible:outline-none sm:size-11',
+                canGoNext
+                  ? 'cursor-pointer hover:bg-black-400/70'
+                  : 'cursor-not-allowed opacity-30'
+              )}
+            >
+              <ChevronRightIcon className="size-6 sm:size-7" aria-hidden />
+            </button>
+          ) : null}
+        </div>
+
+        {count > 1 ? (
+          <p
+            className="text-md-medium text-white drop-shadow-icon-on-media"
+            aria-live="polite"
+          >
+            {index + 1} / {count}
+          </p>
+        ) : null}
+      </section>
+    </Modal>
+  );
+};
+
 /** 대화 말풍선 1건 — 나(오른쪽)·상대(왼쪽) */
 export const ChatMessageItem = ({
   message,
@@ -91,13 +257,13 @@ export const ChatMessageItem = ({
 }: ChatMessageItemProps) => {
   const isImageMessage =
     message.messageType === 'IMAGE' && message.attachments.length > 0;
-  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const bubble = isImageMessage ? (
     <ChatImageAttachments
       attachments={message.attachments}
       isMine={isMine}
-      onSelectImage={setSelectedImageUrl}
+      onSelectImage={setLightboxIndex}
     />
   ) : (
     <TextFieldChat
@@ -134,38 +300,12 @@ export const ChatMessageItem = ({
         {!isMine ? timeLabel : null}
       </div>
 
-      {selectedImageUrl ? (
-        <Modal
-          onClose={() => setSelectedImageUrl(null)}
-          panelClassName="max-w-[90vw] bg-transparent sm:max-w-[90vw]"
-        >
-          <section
-            role="dialog"
-            aria-modal="true"
-            aria-label="원본 이미지 보기"
-            className="mx-auto flex w-full items-center justify-center bg-transparent p-0 outline-none"
-          >
-            <div className="relative inline-flex max-h-[85vh] max-w-full">
-              <button
-                type="button"
-                aria-label="이미지 닫기"
-                onClick={() => setSelectedImageUrl(null)}
-                className="absolute -top-1 -right-1 z-10 inline-flex size-12 items-center justify-center text-white"
-              >
-                <CloseIcon
-                  className="size-7 drop-shadow-icon-on-media"
-                  aria-hidden
-                />
-              </button>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={selectedImageUrl}
-                alt="확대된 이미지"
-                className="max-h-[85vh] w-auto max-w-full rounded-[1.5rem] object-contain"
-              />
-            </div>
-          </section>
-        </Modal>
+      {lightboxIndex != null && isImageMessage ? (
+        <ChatImageLightbox
+          attachments={message.attachments}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
       ) : null}
     </>
   );

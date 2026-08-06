@@ -18,7 +18,7 @@ import type {
 } from '@/types/notification';
 
 export interface NotificationGnbButtonProps {
-  /** 알림 목록 API role (customer | mover) */
+  /** 딥링크용 역할 (customer | mover) — 목록 API는 역할 분기 없음 */
   role: NotificationRole;
   /** 데스크톱 size-9 / 모바일 size-6 */
   size?: 'sm' | 'lg';
@@ -45,7 +45,7 @@ export const NotificationGnbButton = ({
   const [prevCloseSignal, setPrevCloseSignal] = useState(closeSignal);
   const containerRef = useRef<HTMLDivElement>(null);
   // 드롭다운 닫혀 있어도 배지를 위해 마운트 시 목록 조회
-  const { items, unreadCount, isLoading } = useNotifications(role);
+  const { items, unreadCount, isLoading } = useNotifications();
   const markAsRead = useMarkNotificationAsRead();
   const iconSizeClass = size === 'lg' ? 'size-9' : 'size-6';
 

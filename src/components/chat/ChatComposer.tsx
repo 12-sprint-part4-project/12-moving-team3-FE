@@ -28,6 +28,8 @@ interface PendingChatImage {
 
 export interface ChatComposerProps {
   disabled?: boolean;
+  /** disabled일 때 입력 영역 위에 표시할 안내 문구 */
+  disabledReason?: string;
   isSending?: boolean;
   onSend: (content: string) => Promise<void> | void;
   onSendImages?: (files: File[]) => Promise<void> | void;
@@ -48,6 +50,7 @@ const revokePendingImages = (items: PendingChatImage[]) => {
 /** 채팅방 하단 텍스트·이미지 입력·전송 */
 export const ChatComposer = ({
   disabled = false,
+  disabledReason,
   isSending = false,
   onSend,
   onSendImages,
@@ -214,6 +217,12 @@ export const ChatComposer = ({
         className
       )}
     >
+      {disabled && disabledReason ? (
+        <p className="text-sm-medium text-gray-300" role="status">
+          {disabledReason}
+        </p>
+      ) : null}
+
       {hasPendingImages ? (
         <div className="flex flex-col gap-1.5">
           <p className="text-xs-medium text-gray-400">
@@ -287,7 +296,11 @@ export const ChatComposer = ({
           onChange={(event) => setValue(event.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isBusy}
-          placeholder="메시지를 입력하세요"
+          placeholder={
+            disabled && disabledReason
+              ? '메시지를 보낼 수 없습니다'
+              : '메시지를 입력하세요'
+          }
           aria-label="메시지 입력"
           className={cn(
             'min-w-0 flex-1 rounded-full border border-line-200 bg-background-100 px-3.5 py-2.5 text-md-medium text-black-400 outline-none',

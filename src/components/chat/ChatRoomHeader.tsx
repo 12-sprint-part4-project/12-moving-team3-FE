@@ -55,10 +55,18 @@ export const ChatRoomHeader = ({
   }, [isMenuOpen]);
 
   const handleLeaveConfirm = async () => {
+    if (leaveMutation.isPending) {
+      return;
+    }
+
     try {
-      await leaveMutation.mutateAsync(roomId);
+      const result = await leaveMutation.mutateAsync(roomId);
       setIsLeaveModalOpen(false);
-      showToast({ content: '채팅방에서 나갔습니다.' });
+      showToast({
+        content: result
+          ? '채팅방에서 나갔습니다.'
+          : '이미 나간 채팅방입니다.',
+      });
       router.replace('/chat');
     } catch (error) {
       const message =
@@ -133,6 +141,7 @@ export const ChatRoomHeader = ({
           <ModalBasic
             title="채팅방 나가기"
             onClose={() => setIsLeaveModalOpen(false)}
+            titleAlign="center"
             footer={
               <div className="flex w-full flex-col gap-2 sm:flex-row sm:gap-3">
                 <Button
@@ -157,8 +166,8 @@ export const ChatRoomHeader = ({
               </div>
             }
           >
-            <p className="px-6 pb-6 text-2lg-medium text-black-300">
-              채팅방에서 나가면 대화 목록에서 삭제됩니다. 나가시겠어요?
+            <p className="px-6 pb-6 text-center text-2lg-medium text-black-300">
+              채팅방에서 나가면 대화 목록에서 삭제됩니다.
             </p>
           </ModalBasic>
         </Modal>

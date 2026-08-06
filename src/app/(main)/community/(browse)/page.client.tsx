@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
-import { CommunitySelectDropdown } from './_components/CommunitySelectDropdown';
+import { CommunitySelectDropdown } from '../_components/CommunitySelectDropdown';
 import { Sort } from '@/components/ui/Sort/Sort';
 import {
   BOARD_CATEGORY_FILTER_OPTIONS,
@@ -14,7 +14,6 @@ import {
   isRegionFilterValue,
   POST_SORT_OPTIONS,
   REGION_FILTER_OPTIONS,
-  type CommunityTabId,
 } from '@/constants/communityOptions';
 import { usePostList } from '@/hooks/useCommunity';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
@@ -34,14 +33,11 @@ import type { PostCategory, Region } from '@/types/community';
 import {
   COMMUNITY_DESKTOP_MAIN_GAP,
   COMMUNITY_DESKTOP_X,
-  COMMUNITY_HEADER_X,
-  COMMUNITY_PAGE_SHELL,
   COMMUNITY_SECTION_X,
-} from './_components/communityLayout';
-import { CommunityPostList } from './_components/CommunityPostList';
-import { CommunitySearchField } from './_components/CommunitySearchField';
-import { CommunitySidebarFilter } from './_components/CommunitySidebarFilter';
-import { CommunityTabBar } from './_components/CommunityTabBar';
+} from '../_components/communityLayout';
+import { CommunityPostList } from '../_components/CommunityPostList';
+import { CommunitySearchField } from '../_components/CommunitySearchField';
+import { CommunitySidebarFilter } from '../_components/CommunitySidebarFilter';
 
 const SORT_CLASS =
   'w-[7.125rem] [&_button]:w-full [&_button]:justify-center [&_button]:!shadow-none';
@@ -168,25 +164,6 @@ export const CommunityPageClient = () => {
     fetchNextPage,
   ]);
 
-  const handleTabChange = useCallback(
-    (tabId: CommunityTabId) => {
-      replaceListContextUrl({
-        tab: tabId,
-        sort: sortValue,
-        categoryFilter,
-        regionFilter,
-        keyword: listKeyword,
-      });
-    },
-    [
-      replaceListContextUrl,
-      sortValue,
-      categoryFilter,
-      regionFilter,
-      listKeyword,
-    ]
-  );
-
   const handleSortChange = (value: string) => {
     if (!isPostSort(value)) {
       return;
@@ -280,28 +257,7 @@ export const CommunityPageClient = () => {
     : '등록된 게시글이 없습니다.';
 
   return (
-    <div className={COMMUNITY_PAGE_SHELL}>
-      <header
-        className={cn(
-          'flex h-12 items-center bg-white min-[46.5rem]:h-14 min-[46.5rem]:shadow-page-title',
-          'xl:h-[4.5rem] xl:shadow-page-title',
-          COMMUNITY_HEADER_X,
-          COMMUNITY_DESKTOP_X
-        )}
-      >
-        <h1
-          className={cn(
-            'text-2lg-bold text-black-400',
-            'min-[46.5rem]:text-xl-semibold min-[46.5rem]:text-black-300',
-            'xl:text-2xl-semibold xl:text-black-300'
-          )}
-        >
-          커뮤니티
-        </h1>
-      </header>
-
-      <CommunityTabBar activeTab={activeTab} onTabChange={handleTabChange} />
-
+    <>
       {/* Mobile / Tablet toolbar */}
       <div
         className={cn(
@@ -402,6 +358,6 @@ export const CommunityPageClient = () => {
           />
         </div>
       </div>
-    </div>
+    </>
   );
 };

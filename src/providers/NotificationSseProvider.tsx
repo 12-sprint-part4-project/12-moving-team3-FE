@@ -14,7 +14,6 @@ import {
   connectNotificationStream,
   disconnectNotificationStream,
 } from '@/lib/notificationSseClient';
-import { toNotificationRole } from '@/types/notification';
 
 interface NotificationSseProviderProps {
   children: ReactNode;
@@ -41,18 +40,16 @@ export const NotificationSseProvider = ({
       return;
     }
 
-    const role = toNotificationRole(user.userType);
-
     const disconnect = connectNotificationStream({
       onNotification: (item) => {
-        applyNotificationToCache(queryClient, role, item);
+        applyNotificationToCache(queryClient, item);
         showToast({
           content: item.content,
           icon: AlarmIcon,
         });
       },
       onUnreadCount: () => {
-        invalidateNotificationList(queryClient, role);
+        invalidateNotificationList(queryClient);
       },
     });
 

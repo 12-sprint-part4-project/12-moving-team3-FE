@@ -20,3 +20,10 @@ export const COMMUNITY_DETAIL_MAX_W = 'mx-auto w-full max-w-[56.25rem]';
 /** Mobile: fixed EngagementBar 높이 + safe 여유 / Tablet·Desktop: 푸터 대체 하단 여백 */
 export const COMMUNITY_DETAIL_MOBILE_BOTTOM_PAD =
   'pb-24 min-[46.5rem]:pb-8 xl:pb-10';
+
+/** 페이지 타이틀 헤더 — 목록 page.client.tsx 와 동일 */
+export const COMMUNITY_PAGE_TITLE_HEADER_CLASS =
+  'flex h-12 items-center bg-white tablet:h-14 tablet:shadow-page-title xl:h-[4.5rem] xl:shadow-page-title';
+
+export const COMMUNITY_PAGE_TITLE_CLASS =
+  'text-2lg-bold text-black-400 tablet:text-xl-semibold tablet:text-black-300 xl:text-2xl-semibold xl:text-black-300';

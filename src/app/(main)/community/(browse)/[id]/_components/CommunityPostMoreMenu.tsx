@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import {
   COMMUNITY_POST_META_ACTION_BUTTON_CLASS,
   COMMUNITY_POST_META_ACTION_ICON_CLASS,
+  COMMUNITY_POST_MORE_MENU_PANEL_CLASS,
 } from './communityDetailStyles';
 
 const MENU_ITEM_CLASS =
@@ -60,7 +61,6 @@ export const CommunityPostMoreMenu = ({
       <button
         type="button"
         aria-label="게시글 메뉴"
-        aria-haspopup="menu"
         aria-expanded={isOpen}
         onClick={() => setIsOpen((prev) => !prev)}
         className={COMMUNITY_POST_META_ACTION_BUTTON_CLASS}
@@ -72,13 +72,9 @@ export const CommunityPostMoreMenu = ({
       </button>
 
       {isOpen ? (
-        <div
-          role="menu"
-          className="absolute top-full right-0 z-50 mt-2 min-w-[8.75rem] overflow-hidden rounded-2xl border border-line-200 bg-white py-1.5 shadow-[0.125rem_0.125rem_0.25rem] shadow-shadow-gray-200/20"
-        >
+        <div className={COMMUNITY_POST_MORE_MENU_PANEL_CLASS}>
           <button
             type="button"
-            role="menuitem"
             onClick={() => closeAndRun(onCopyLink)}
             className={MENU_ITEM_CLASS}
           >
@@ -88,7 +84,6 @@ export const CommunityPostMoreMenu = ({
             <>
               <button
                 type="button"
-                role="menuitem"
                 onClick={() => closeAndRun(onEdit)}
                 className={MENU_ITEM_CLASS}
               >
@@ -96,7 +91,6 @@ export const CommunityPostMoreMenu = ({
               </button>
               <button
                 type="button"
-                role="menuitem"
                 onClick={() => closeAndRun(onDelete)}
                 className={cn(MENU_ITEM_CLASS, 'text-red-200')}
               >

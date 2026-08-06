@@ -30,6 +30,8 @@ export interface ModalProps {
   className?: string;
   /** 패널(콘텐츠) 래퍼 className — 기본 sm:max-w-[38rem] 등을 덮어쓸 때 사용 */
   panelClassName?: string;
+  /** 스크린 리더용 대화상자 이름 */
+  ariaLabel?: string;
 }
 
 /** 클라이언트 전용 구독 — SSR/CSR 스냅샷만 다르면 되어 빈 subscribe로 충분하다. */
@@ -77,6 +79,7 @@ export const Modal = ({
   closeOnDimmedClick = true,
   className = '',
   panelClassName = '',
+  ariaLabel,
 }: ModalProps) => {
   // SSR에서는 false, 클라이언트 하이드레이션 후 true로 맞춰져 포탈이 한 번 더 렌더된다.
   // (`typeof document` 가드만 쓰면 서버 null이 클라이언트에 고정되어 모달이 안 뜨는 경우가 있다.)
@@ -185,6 +188,9 @@ export const Modal = ({
       <div
         ref={panelRef}
         tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-label={ariaLabel}
         className={cn(
           'max-h-[90vh] w-full overflow-hidden overflow-y-auto outline-none sm:max-w-[38rem]',
           isBottomSheet
