@@ -63,5 +63,25 @@ export interface MoverProfileMe {
   updatedAt: string;
 }
 
+/** PATCH /api/users/movers/basic-info 요청 */
+export interface UpdateMoverBasicInfoRequest {
+  /** 2~20자 */
+  name: string;
+  /** 숫자 11자리 */
+  phoneNumber: string;
+  currentPassword?: string;
+  newPassword?: string;
+  newPasswordConfirm?: string;
+}
+
+/** PATCH /api/users/movers/basic-info 응답 data */
+export interface MoverBasicInfo {
+  name: string;
+  email: string;
+  phoneNumber: string | null;
+  updatedAt: string;
+}
+
 export type MoverProfileResponse = ApiSuccessResponse<MoverProfile>;
 export type MoverProfileMeResponse = ApiSuccessResponse<MoverProfileMe>;
+export type MoverBasicInfoResponse = ApiSuccessResponse<MoverBasicInfo>;

@@ -6,13 +6,16 @@ import {
 } from '@/lib/apiClient';
 import { authFetch } from '@/lib/authFetch';
 import type {
+  MoverBasicInfoResponse,
   MoverProfileMe,
   MoverProfileMeResponse,
   MoverProfileResponse,
+  UpdateMoverBasicInfoRequest,
   UpsertMoverProfileRequest,
 } from '@/types/moverProfile';
 
 const PROFILE_PATH = '/api/users/movers/profile';
+const BASIC_INFO_PATH = '/api/users/movers/basic-info';
 
 /** GET /api/users/movers/profile */
 export const getMoverProfile = async (): Promise<MoverProfileMeResponse> => {
@@ -62,4 +65,24 @@ export const upsertMoverProfile = async (
   }
 
   return (await response.json()) as MoverProfileResponse;
+};
+
+/** PATCH /api/users/movers/basic-info */
+export const updateMoverBasicInfo = async (
+  body: UpdateMoverBasicInfoRequest
+): Promise<MoverBasicInfoResponse> => {
+  const response = await authFetch(`${API_BASE_URL}${BASIC_INFO_PATH}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+    signal: createApiTimeoutSignal(),
+  });
+
+  if (!response.ok) {
+    return throwApiError(response);
+  }
+
+  return (await response.json()) as MoverBasicInfoResponse;
 };
