@@ -306,10 +306,22 @@ export const useMarkChatRoomAsRead = (roomId: number) => {
   });
 };
 
-const isAlreadyLeftError = (error: unknown): boolean =>
-  error instanceof ApiError &&
-  (error.code === 'ALREADY_LEFT' || error.status === 409);
+const isAlreadyLeftError = (error: unknown): boolean => {
+  if (!(error instanceof ApiError)) {
+    return false;
+  }
+  // code가 있으면 ALREADY_LEFT만 인정. 다른 409(CONFLICT 등)는 성공으로 취급하지 않는다.
+  if (error.code) {
+    return error.code === 'ALREADY_LEFT';
+  }
+  return error.status === 409;
+};
 
+/**
+ * 나가기 성공 시 목록에서만 즉시 제거한다.
+ * room/messages는 ChatRoomPage observer가 아직 살아 있어 removeQueries 시
+ * 나간 방을 재조회하므로, 목록 정리만 하고 상세·메시지 캐시는 라우트 이탈 후 GC에 맡긴다.
+ */
 const removeLeftRoomFromCache = (
   queryClient: QueryClient,
   roomId: number
@@ -318,8 +330,8 @@ const removeLeftRoomFromCache = (
     rooms.filter((room) => room.roomId !== roomId)
   );
 
-  queryClient.removeQueries({ queryKey: chatQueryKeys.room(roomId) });
-  queryClient.removeQueries({ queryKey: chatQueryKeys.messages(roomId) });
+  void queryClient.cancelQueries({ queryKey: chatQueryKeys.room(roomId) });
+  void queryClient.cancelQueries({ queryKey: chatQueryKeys.messages(roomId) });
 };
 
 /** POST /api/chat/rooms/:roomId/leave — 나가기 (409 ALREADY_LEFT는 성공으로 취급) */

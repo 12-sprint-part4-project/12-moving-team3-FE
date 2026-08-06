@@ -11,6 +11,12 @@ import type {
   ChatUnreadCountResponse,
 } from '@/types/chat';
 
+/** 재참여 직후 message/unread가 연달아 올 때 rooms 중복 refetch 방지 */
+const ROOMS_REFETCH_COOLDOWN_MS = 1500;
+
+let roomsRefetchInFlight: Promise<unknown> | null = null;
+let lastRoomsRefetchAt = 0;
+
 /** 방 목록 캐시 공통 갱신 (null 가드 + rooms transform) */
 const updateRoomsListCache = (
   queryClient: QueryClient,
@@ -43,6 +49,23 @@ const hasRoomInRoomsCache = (
   );
 };
 
+const refetchRoomsList = (queryClient: QueryClient): void => {
+  const now = Date.now();
+  if (roomsRefetchInFlight) {
+    return;
+  }
+  if (now - lastRoomsRefetchAt < ROOMS_REFETCH_COOLDOWN_MS) {
+    return;
+  }
+
+  lastRoomsRefetchAt = now;
+  roomsRefetchInFlight = queryClient
+    .refetchQueries({ queryKey: chatQueryKeys.rooms() })
+    .finally(() => {
+      roomsRefetchInFlight = null;
+    });
+};
+
 /**
  * 목록에 없는 방(나가기 후 재참여 등)이면 rooms를 즉시 재조회한다.
  * invalidate만 하면 observer/타이밍에 따라 첫 이벤트가 목록에 안 잡힐 수 있다.
@@ -55,7 +78,7 @@ const syncRoomsListIfMissing = (
     return true;
   }
 
-  void queryClient.refetchQueries({ queryKey: chatQueryKeys.rooms() });
+  refetchRoomsList(queryClient);
   return false;
 };
 
@@ -100,8 +123,8 @@ const prependMessageToInfiniteCache = (
 };
 
 /**
- * 메시지 캐시가 없을 때(나가기 후 removeQueries) 소켓 첫 메시지로 seed한다.
- * 방 진입 전·직후에도 대화가 비어 보이지 않게 한다.
+ * 메시지 캐시가 없을 때(나가기 후) 소켓 첫 메시지로 임시 seed한다.
+ * hasNext는 소진으로 표시하지 않고, 곧바로 invalidate해 서버 이력·페이지네이션을 맞춘다.
  */
 const seedMessagesCacheIfEmpty = (
   queryClient: QueryClient,
@@ -122,12 +145,17 @@ const seedMessagesCacheIfEmpty = (
       pages: [
         {
           data: { messages: [message] },
-          meta: { hasNext: false, nextCursor: null },
+          // before 커서 = 이 messageId → 이전 이력 로드 가능
+          meta: { hasNext: true, nextCursor: message.messageId },
         },
       ],
       pageParams: [undefined],
     }
   );
+
+  void queryClient.invalidateQueries({
+    queryKey: chatQueryKeys.messages(roomId),
+  });
 };
 
 /**
@@ -201,7 +229,7 @@ export const applySocketUnreadToCaches = (
     const { roomId, roomUnreadCount } = payload;
 
     if (!hasRoomInRoomsCache(queryClient, roomId)) {
-      void queryClient.refetchQueries({ queryKey: chatQueryKeys.rooms() });
+      refetchRoomsList(queryClient);
       return;
     }
 
