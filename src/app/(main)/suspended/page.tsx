@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/Button/Button';
 
-/** 정지(기능 제한) 계정 안내 — 비로그인과 동일한 범위로 이용 가능 */
+/** 정지(기능 제한) 계정 안내 */
 const SuspendedPage = () => {
   const router = useRouter();
 
@@ -39,7 +39,7 @@ const SuspendedPage = () => {
                 <br className="md:hidden" /> 일부 기능 이용이 제한되었습니다.
               </p>
               <p className="text-center text-md-regular text-gray-300 md:text-lg-regular">
-                공개 기능은 계속 이용할 수 있어요.
+                프로필·알림·둘러보기 등은 계속 이용할 수 있어요.
               </p>
             </div>
           </div>

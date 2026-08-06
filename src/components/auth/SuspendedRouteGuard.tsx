@@ -4,14 +4,15 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, type ReactNode } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
-import { isMemberOnlyPath } from '@/lib/memberOnlyPaths';
+import { isSuspendedRestrictedPath } from '@/lib/memberOnlyPaths';
 
 interface SuspendedRouteGuardProps {
   children: ReactNode;
 }
 
 /**
- * 회원 전용 경로에서 SUSPENDED 계정이면 페이지를 그리지 않고 /suspended 로 보낸다.
+ * 정지 계정이 제한 기능 경로에 들어오면 페이지를 그리지 않고 /suspended 로 보낸다.
+ * (프로필·알림·채팅 목록·공개 둘러보기는 허용)
  */
 export const SuspendedRouteGuard = ({ children }: SuspendedRouteGuardProps) => {
   const router = useRouter();
@@ -21,7 +22,7 @@ export const SuspendedRouteGuard = ({ children }: SuspendedRouteGuardProps) => {
   const shouldRedirect =
     isReady &&
     user?.status === 'SUSPENDED' &&
-    isMemberOnlyPath(pathname) &&
+    isSuspendedRestrictedPath(pathname) &&
     pathname !== '/suspended';
 
   useEffect(() => {

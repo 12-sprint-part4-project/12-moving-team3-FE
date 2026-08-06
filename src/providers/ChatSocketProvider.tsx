@@ -51,6 +51,7 @@ interface ChatSocketProviderProps {
  * 로그인 세션이 있을 때 채팅 소켓을 연결하고,
  * 서버 이벤트를 TanStack Query 캐시에 반영한다.
  * 전송·읽음·나가기는 REST 훅을 유지한다.
+ * SUSPENDED는 Socket.IO가 거부되므로 연결하지 않는다.
  *
  * `chat:read`는 현재 FE 캐시에 읽음 커서가 없어 구독하지 않는다.
  * 읽음 UI가 추가되면 핸들러를 등록한다.
@@ -75,14 +76,12 @@ export const ChatSocketProvider = ({ children }: ChatSocketProviderProps) => {
     getChatSocketConnectedServerSnapshot
   );
 
-  // 연결 수명은 userId 기준으로만 관리한다.
-  // queryClient/showToast가 바뀌어도 소켓을 끊지 않아 실시간 수신이 끊기지 않게 한다.
   useEffect(() => {
     if (!isReady) {
       return;
     }
 
-    if (!userId) {
+    if (!userId || user?.status === 'SUSPENDED') {
       disconnectChatSocket();
       return;
     }
@@ -116,7 +115,7 @@ export const ChatSocketProvider = ({ children }: ChatSocketProviderProps) => {
       socket.off(CHAT_SOCKET_SERVER_EVENTS.ERROR, handleError);
       disconnectChatSocket();
     };
-  }, [isReady, userId]);
+  }, [isReady, userId, user?.status]);
 
   const joinRoom = useCallback((roomId: number) => {
     if (!getChatSocket()?.connected) {
