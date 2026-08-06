@@ -37,9 +37,8 @@ export const CommunityWriteTitleField = ({
         <p
           id="community-write-title-limit-hint"
           className={COMMUNITY_WRITE_TITLE_HINT_CLASS}
-          role="status"
         >
-          제목은 {MAX_POST_TITLE_LENGTH}자 이내로 작성해 주세요.
+          제목은 최대 {MAX_POST_TITLE_LENGTH}자까지 입력할 수 있어요.
         </p>
       ) : null}
     </div>

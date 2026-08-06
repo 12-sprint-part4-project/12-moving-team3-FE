@@ -13,7 +13,7 @@ export const COMMUNITY_WRITE_MAIN_CLASS =
 
 /** 페이지 제목 — 상세 게시글 제목과 동일 계열 */
 export const COMMUNITY_WRITE_PAGE_TITLE_CLASS =
-  'text-2xl-bold text-black-400 min-[46.5rem]:text-2xl-bold xl:text-3xl-bold';
+  'text-2xl-bold text-black-400 xl:text-3xl-bold';
 
 /** 섹션 라벨 — 목록·상세 메타와 동일 계열 */
 export const COMMUNITY_WRITE_LABEL_CLASS =
@@ -112,11 +112,11 @@ export const COMMUNITY_WRITE_IMAGE_THUMB_CLASS =
 
 /** 취소 버튼 — Mobile·Tablet flex-1 / Desktop 120px */
 export const COMMUNITY_WRITE_CANCEL_BUTTON_CLASS =
-  'inline-flex h-12 flex-1 cursor-pointer items-center justify-center rounded-lg border border-shadow-gray-200 bg-background-200 text-lg-semibold text-gray-400 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-300 min-[46.5rem]:text-lg-semibold xl:h-12 xl:w-[7.5rem] xl:flex-none xl:text-2lg-semibold';
+  'inline-flex h-12 flex-1 cursor-pointer items-center justify-center rounded-lg border border-shadow-gray-200 bg-background-200 text-lg-semibold text-gray-400 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-300 xl:h-12 xl:w-[7.5rem] xl:flex-none xl:text-2lg-semibold';
 
 /** 등록 버튼 — Mobile·Tablet flex-1 / Desktop 120px */
 export const COMMUNITY_WRITE_SUBMIT_BUTTON_CLASS =
-  'inline-flex h-12 flex-1 cursor-pointer items-center justify-center rounded-lg bg-blue-300 text-lg-semibold text-white disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-300 min-[46.5rem]:text-lg-semibold xl:h-12 xl:w-[7.5rem] xl:flex-none xl:text-2lg-semibold';
+  'inline-flex h-12 flex-1 cursor-pointer items-center justify-center rounded-lg bg-blue-300 text-lg-semibold text-white disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-300 xl:h-12 xl:w-[7.5rem] xl:flex-none xl:text-2lg-semibold';
 
 /** 액션 버튼 영역 — Desktop 우측 정렬 */
 export const COMMUNITY_WRITE_ACTIONS_CLASS =
