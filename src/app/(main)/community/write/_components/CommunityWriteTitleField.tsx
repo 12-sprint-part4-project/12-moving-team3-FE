@@ -5,15 +5,18 @@ import { cn } from '@/lib/utils';
 
 import {
   COMMUNITY_WRITE_LABEL_CLASS,
+  COMMUNITY_WRITE_LABEL_ROW_CLASS,
   COMMUNITY_WRITE_TITLE_COUNTER_CLASS,
-  COMMUNITY_WRITE_TITLE_ERROR_CLASS,
   COMMUNITY_WRITE_TITLE_FIELD_WRAPPER_CLASS,
+  COMMUNITY_WRITE_TITLE_HINT_CLASS,
   COMMUNITY_WRITE_TITLE_INPUT_CLASS,
+  COMMUNITY_WRITE_TITLE_INPUT_READONLY_CLASS,
 } from './communityWriteStyles';
 
 interface CommunityWriteTitleFieldProps {
   value: string;
   onChange: (value: string) => void;
+  readOnly?: boolean;
   className?: string;
 }
 
@@ -21,54 +24,65 @@ interface CommunityWriteTitleFieldProps {
 export const CommunityWriteTitleField = ({
   value,
   onChange,
+  readOnly = false,
   className = '',
 }: CommunityWriteTitleFieldProps) => {
-  const isOverLimit = value.length > MAX_POST_TITLE_LENGTH;
+  const isAtTitleLimit = !readOnly && value.length >= MAX_POST_TITLE_LENGTH;
 
   return (
-    <section className={className}>
+  <section className={className}>
+    <div className={COMMUNITY_WRITE_LABEL_ROW_CLASS}>
       <h2 className={COMMUNITY_WRITE_LABEL_CLASS}>제목</h2>
-      <div className={COMMUNITY_WRITE_TITLE_FIELD_WRAPPER_CLASS}>
-        <label className="sr-only" htmlFor="community-write-title">
-          게시글 제목
-        </label>
-        <input
-          id="community-write-title"
-          type="text"
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          placeholder="제목을 입력해 주세요."
-          aria-invalid={isOverLimit}
-          aria-describedby={
-            isOverLimit
-              ? 'community-write-title-counter community-write-title-error'
+      {isAtTitleLimit ? (
+        <p
+          id="community-write-title-limit-hint"
+          className={COMMUNITY_WRITE_TITLE_HINT_CLASS}
+          role="status"
+        >
+          제목은 {MAX_POST_TITLE_LENGTH}자 이내로 작성해 주세요.
+        </p>
+      ) : null}
+    </div>
+    <div className={COMMUNITY_WRITE_TITLE_FIELD_WRAPPER_CLASS}>
+      <label className="sr-only" htmlFor="community-write-title">
+        게시글 제목
+      </label>
+      <input
+        id="community-write-title"
+        type="text"
+        value={value}
+        readOnly={readOnly}
+        maxLength={readOnly ? undefined : MAX_POST_TITLE_LENGTH}
+        onChange={
+          readOnly
+            ? undefined
+            : (event) =>
+                onChange(event.target.value.slice(0, MAX_POST_TITLE_LENGTH))
+        }
+        placeholder={readOnly ? undefined : '제목을 입력해 주세요.'}
+        aria-readonly={readOnly}
+        aria-describedby={
+          readOnly
+            ? undefined
+            : isAtTitleLimit
+              ? 'community-write-title-counter community-write-title-limit-hint'
               : 'community-write-title-counter'
-          }
-          className={cn(
-            COMMUNITY_WRITE_TITLE_INPUT_CLASS,
-            isOverLimit && 'border-red-200'
-          )}
-        />
+        }
+        className={cn(
+          COMMUNITY_WRITE_TITLE_INPUT_CLASS,
+          readOnly && COMMUNITY_WRITE_TITLE_INPUT_READONLY_CLASS
+        )}
+      />
+      {readOnly ? null : (
         <p
           id="community-write-title-counter"
-          className={cn(
-            COMMUNITY_WRITE_TITLE_COUNTER_CLASS,
-            isOverLimit && 'text-red-200'
-          )}
+          className={COMMUNITY_WRITE_TITLE_COUNTER_CLASS}
           aria-live="polite"
         >
           {value.length}/{MAX_POST_TITLE_LENGTH}
         </p>
-        {isOverLimit ? (
-          <p
-            id="community-write-title-error"
-            role="alert"
-            className={COMMUNITY_WRITE_TITLE_ERROR_CLASS}
-          >
-            제목은 {MAX_POST_TITLE_LENGTH}자 이내로 입력해 주세요.
-          </p>
-        ) : null}
-      </div>
-    </section>
+      )}
+    </div>
+  </section>
   );
 };

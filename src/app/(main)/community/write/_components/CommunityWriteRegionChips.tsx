@@ -19,6 +19,7 @@ import {
 interface CommunityWriteRegionChipsProps {
   value: Region | null;
   onChange: (region: Region) => void;
+  readOnly?: boolean;
   className?: string;
 }
 
@@ -26,6 +27,7 @@ interface CommunityWriteRegionChipsProps {
 export const CommunityWriteRegionChips = ({
   value,
   onChange,
+  readOnly = false,
   className = '',
 }: CommunityWriteRegionChipsProps) => (
   <section className={className}>
@@ -47,8 +49,19 @@ export const CommunityWriteRegionChips = ({
             key={option.value}
             type="button"
             aria-pressed={isSelected}
-            onClick={() => onChange(option.value)}
-            className={cn(COMMUNITY_WRITE_CHIP_BASE_CLASS, chipClassName)}
+            disabled={readOnly}
+            onClick={() => {
+              if (readOnly) {
+                return;
+              }
+
+              onChange(option.value);
+            }}
+            className={cn(
+              COMMUNITY_WRITE_CHIP_BASE_CLASS,
+              readOnly ? 'cursor-default' : 'cursor-pointer',
+              chipClassName
+            )}
           >
             {option.label}
           </button>

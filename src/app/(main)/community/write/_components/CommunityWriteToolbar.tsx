@@ -19,14 +19,10 @@ import {
 
 interface CommunityWriteToolbarProps {
   editor: Editor;
-  onLinkError?: (message: string) => void;
 }
 
 /** 게시글 작성 본문 서식 툴바 */
-export const CommunityWriteToolbar = ({
-  editor,
-  onLinkError,
-}: CommunityWriteToolbarProps) => {
+export const CommunityWriteToolbar = ({ editor }: CommunityWriteToolbarProps) => {
   const [, setToolbarRevision] = useState(0);
 
   useEffect(() => {
@@ -44,7 +40,7 @@ export const CommunityWriteToolbar = ({
   }, [editor]);
 
   const handleToolbarClick = (itemId: CommunityWriteToolbarItemId) => {
-    runCommunityWriteToolbarCommand(editor, itemId, { onLinkError });
+    runCommunityWriteToolbarCommand(editor, itemId);
   };
 
   return (

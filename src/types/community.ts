@@ -35,11 +35,12 @@ export interface PostDetail {
   region: Region | null;
   title: string;
   content: string;
-  images: { imageUrl: string | null }[];
+  images: { imageKey?: string | null; imageUrl: string | null }[];
   author: PostAuthor;
   likeCount: number;
   commentCount: number;
   isLiked: boolean | null;
+  isMine: boolean | null;
   isCompleted: boolean | null;
   createdAt: string;
   updatedAt: string;
