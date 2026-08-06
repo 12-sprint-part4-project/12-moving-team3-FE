@@ -74,6 +74,9 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
   const hasReceivedQuoteFromMover = pendingQuotesQuery.quotes.some(
     (quote) => quote.mover.moverId === moverId
   );
+  /** 대기 견적 조회 실패 — 견적 수신 여부를 알 수 없으므로 요청 차단(fail-closed) */
+  const isQuoteStatusError =
+    canQueryExistence && pendingQuotesQuery.isError;
   const isStatusLoading =
     canQueryExistence &&
     (existenceQuery.isPending || pendingQuotesQuery.isPending);
@@ -142,8 +145,18 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
     },
   });
 
+  const refetchPendingQuotes = pendingQuotesQuery.refetch;
+
   const requestDesignatedEstimate = useCallback(() => {
     if (!moverId || mutation.isPending || isAlreadyDesignated || isStatusLoading) {
+      return;
+    }
+
+    if (isQuoteStatusError) {
+      showToast({
+        content: '견적 정보를 확인하지 못했어요. 다시 시도해 주세요.',
+      });
+      void refetchPendingQuotes();
       return;
     }
 
@@ -158,7 +171,9 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
     mutation,
     isAlreadyDesignated,
     isStatusLoading,
+    isQuoteStatusError,
     hasReceivedQuoteFromMover,
+    refetchPendingQuotes,
     showToast,
   ]);
 
@@ -166,6 +181,7 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
     isPending: mutation.isPending,
     isAlreadyDesignated,
     hasReceivedQuoteFromMover,
+    isQuoteStatusError,
     isStatusLoading,
     needGeneralOpen,
     alreadyDesignatedOpen,

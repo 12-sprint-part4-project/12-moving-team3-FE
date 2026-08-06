@@ -16,6 +16,7 @@ export interface MoverDetailBottomBarProps {
   isDesignatedPending?: boolean;
   isAlreadyDesignated?: boolean;
   hasReceivedQuoteFromMover?: boolean;
+  isQuoteStatusError?: boolean;
   isDesignatedStatusLoading?: boolean;
   className?: string;
 }
@@ -30,13 +31,14 @@ export const MoverDetailBottomBar = ({
   isDesignatedPending = false,
   isAlreadyDesignated = false,
   hasReceivedQuoteFromMover = false,
+  isQuoteStatusError = false,
   isDesignatedStatusLoading = false,
   className = '',
 }: MoverDetailBottomBarProps) => {
   const isHardDisabled =
     isDesignatedPending || isAlreadyDesignated || isDesignatedStatusLoading;
-  const isQuoteReceivedBlocked =
-    hasReceivedQuoteFromMover && !isHardDisabled;
+  const isSoftBlocked =
+    (hasReceivedQuoteFromMover || isQuoteStatusError) && !isHardDisabled;
 
   return (
     <div
@@ -60,11 +62,11 @@ export const MoverDetailBottomBar = ({
               size="sm"
               onClick={onDesignatedQuoteClick}
               disabled={isHardDisabled}
-              aria-disabled={isHardDisabled || isQuoteReceivedBlocked}
+              aria-disabled={isHardDisabled || isSoftBlocked}
               aria-busy={isDesignatedPending || isDesignatedStatusLoading}
               className={cn(
                 'flex-1',
-                isQuoteReceivedBlocked &&
+                isSoftBlocked &&
                   'cursor-not-allowed bg-gray-100 hover:bg-gray-100'
               )}
             >
@@ -72,7 +74,8 @@ export const MoverDetailBottomBar = ({
                 isAlreadyDesignated,
                 hasReceivedQuoteFromMover,
                 isDesignatedPending,
-                isDesignatedStatusLoading
+                isDesignatedStatusLoading,
+                isQuoteStatusError
               )}
             </Button>
           </>

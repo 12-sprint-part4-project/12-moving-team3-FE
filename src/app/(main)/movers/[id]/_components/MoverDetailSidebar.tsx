@@ -18,6 +18,7 @@ export interface MoverDetailSidebarProps {
   isDesignatedPending?: boolean;
   isAlreadyDesignated?: boolean;
   hasReceivedQuoteFromMover?: boolean;
+  isQuoteStatusError?: boolean;
   isDesignatedStatusLoading?: boolean;
   description?: string | null;
   profileImageUrl?: string | null;
@@ -35,6 +36,7 @@ export const MoverDetailSidebar = ({
   isDesignatedPending = false,
   isAlreadyDesignated = false,
   hasReceivedQuoteFromMover = false,
+  isQuoteStatusError = false,
   isDesignatedStatusLoading = false,
   description = null,
   profileImageUrl = null,
@@ -42,8 +44,8 @@ export const MoverDetailSidebar = ({
 }: MoverDetailSidebarProps) => {
   const isHardDisabled =
     isDesignatedPending || isAlreadyDesignated || isDesignatedStatusLoading;
-  const isQuoteReceivedBlocked =
-    hasReceivedQuoteFromMover && !isHardDisabled;
+  const isSoftBlocked =
+    (hasReceivedQuoteFromMover || isQuoteStatusError) && !isHardDisabled;
 
   return (
     <aside
@@ -71,10 +73,10 @@ export const MoverDetailSidebar = ({
             size="md"
             onClick={onDesignatedQuoteClick}
             disabled={isHardDisabled}
-            aria-disabled={isHardDisabled || isQuoteReceivedBlocked}
+            aria-disabled={isHardDisabled || isSoftBlocked}
             aria-busy={isDesignatedPending || isDesignatedStatusLoading}
             className={cn(
-              isQuoteReceivedBlocked &&
+              isSoftBlocked &&
                 'cursor-not-allowed bg-gray-100 hover:bg-gray-100'
             )}
           >
@@ -82,7 +84,8 @@ export const MoverDetailSidebar = ({
               isAlreadyDesignated,
               hasReceivedQuoteFromMover,
               isDesignatedPending,
-              isDesignatedStatusLoading
+              isDesignatedStatusLoading,
+              isQuoteStatusError
             )}
           </Button>
         ) : null}
