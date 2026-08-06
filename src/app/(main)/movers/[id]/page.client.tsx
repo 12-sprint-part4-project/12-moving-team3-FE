@@ -36,6 +36,8 @@ export const MoverDetailPageClient = () => {
   const {
     isPending: isDesignatedPending,
     isAlreadyDesignated,
+    hasReceivedQuoteFromMover,
+    isQuoteStatusError,
     isStatusLoading: isDesignatedStatusLoading,
     needGeneralOpen,
     alreadyDesignatedOpen,
@@ -148,6 +150,8 @@ export const MoverDetailPageClient = () => {
           onDesignatedQuoteClick={handleDesignatedQuoteClick}
           isDesignatedPending={isDesignatedPending}
           isAlreadyDesignated={isAlreadyDesignated}
+          hasReceivedQuoteFromMover={hasReceivedQuoteFromMover}
+          isQuoteStatusError={isQuoteStatusError}
           isDesignatedStatusLoading={isDesignatedStatusLoading}
         />
       </div>
@@ -162,6 +166,8 @@ export const MoverDetailPageClient = () => {
         onDesignatedQuoteClick={handleDesignatedQuoteClick}
         isDesignatedPending={isDesignatedPending}
         isAlreadyDesignated={isAlreadyDesignated}
+        hasReceivedQuoteFromMover={hasReceivedQuoteFromMover}
+        isQuoteStatusError={isQuoteStatusError}
         isDesignatedStatusLoading={isDesignatedStatusLoading}
       />
 

@@ -68,6 +68,7 @@ export const MoversToolbar = ({
           value={sortValue}
           onValueChange={handleSortChange}
           size="sm"
+          className="z-20"
         />
       </div>
 
@@ -78,6 +79,7 @@ export const MoversToolbar = ({
           value={sortValue}
           onValueChange={handleSortChange}
           size="md"
+          className="z-20"
         />
       </div>
 
