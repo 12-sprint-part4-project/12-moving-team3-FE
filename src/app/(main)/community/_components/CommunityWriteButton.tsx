@@ -5,6 +5,10 @@ import { useCallback, useState } from 'react';
 
 import EditIcon from '@/assets/icons/edit.svg';
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
+import {
+  FLOATING_ACTION_RIGHT_CLASS,
+  MOBILE_WRITE_FAB_BOTTOM_CLASS,
+} from '@/constants/floatingActionLayout';
 import type { CommunityTabId } from '@/constants/communityOptions';
 import { useAuth } from '@/hooks/useAuth';
 import { buildCommunityWriteHref } from '@/lib/communityListContext';
@@ -57,7 +61,9 @@ export const CommunityWriteButton = ({
           aria-label="글쓰기"
           onClick={handleWriteClick}
           className={cn(
-            'fixed right-4 bottom-6 z-40 flex size-[4.125rem] cursor-pointer items-center justify-center rounded-3xl bg-blue-300 shadow-[0_4px_12px_rgba(0,0,0,0.18)] min-[46.5rem]:hidden',
+            'fixed z-40 flex size-[4.125rem] cursor-pointer items-center justify-center rounded-3xl bg-blue-300 shadow-[0_4px_12px_rgba(0,0,0,0.18)] min-[46.5rem]:hidden',
+            FLOATING_ACTION_RIGHT_CLASS,
+            MOBILE_WRITE_FAB_BOTTOM_CLASS,
             className
           )}
         >
