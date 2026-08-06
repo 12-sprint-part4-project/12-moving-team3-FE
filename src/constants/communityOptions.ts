@@ -36,6 +36,21 @@ export const BOARD_CATEGORY_FILTER_OPTIONS: {
   })),
 ];
 
+/** 게시글 작성 — 게시판 탭 카테고리 (전체 제외) */
+export const BOARD_WRITE_CATEGORY_OPTIONS = BOARD_CATEGORY_VALUES.map(
+  (value) => ({
+    label: POST_CATEGORY_LABEL[value],
+    value,
+  })
+);
+
+export const FURNITURE_WRITE_CATEGORY = 'FURNITURE_SHARE' as const;
+
+export const getDefaultWriteCategory = (
+  tab: CommunityTabId
+): PostCategory =>
+  tab === 'furniture' ? FURNITURE_WRITE_CATEGORY : 'MOVING_TIP';
+
 /** 커뮤니티 지역 필터 — commonOptions 칩 + 전체 */
 export const REGION_FILTER_OPTIONS: {
   label: string;
