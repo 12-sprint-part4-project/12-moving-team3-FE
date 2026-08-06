@@ -375,7 +375,6 @@ export const CommunityPageClient = () => {
         </div>
       </div>
 
-      <CommunityWriteButton variant="fab" activeTab={activeTab} />
     </>
   );
 };
