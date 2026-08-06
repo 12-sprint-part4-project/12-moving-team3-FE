@@ -106,9 +106,15 @@ export const ReceivedRequestCard = ({
       {/* 고객·이사일·출발·도착 정보 렌더 */}
       <div className="flex w-full flex-col gap-3.5 lg:gap-4.5 lg:rounded-md lg:px-4.5 lg:py-4 lg:shadow-request-card-body">
         <div className="flex flex-col gap-3.5 lg:gap-4.5">
-          <h3 className="text-lg-semibold text-black-300 lg:text-xl-semibold">
-            {request.customerName}
-            <span className="ml-1 lg:ml-2">고객님</span>
+          <h3 className="flex flex-wrap items-baseline gap-x-1.5 text-lg-semibold text-black-300 lg:gap-x-2 lg:text-xl-semibold">
+            <span>
+              {request.customerName}
+              <span className="ml-1 lg:ml-2">고객님</span>
+            </span>
+            <span className="text-md-medium text-gray-500 lg:text-lg-medium">
+              (지정: {request.quoteCount.designated} / 일반:{' '}
+              {request.quoteCount.general})
+            </span>
           </h3>
 
           {/* 모바일·태블릿 이사일 렌더 */}

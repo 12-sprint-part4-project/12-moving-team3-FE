@@ -60,6 +60,10 @@ export const toReceivedRequestCardModel = (
   moveDate: formatMoveDateLabel(item.moveDate),
   departure: formatLocationLabel(item.departure),
   arrival: formatLocationLabel(item.arrival),
+  quoteCount: {
+    designated: item.quoteCount?.designated ?? 0,
+    general: item.quoteCount?.general ?? 0,
+  },
 });
 
 /** UI 필터 건수 변환 */
