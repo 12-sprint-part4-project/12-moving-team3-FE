@@ -9,6 +9,7 @@ interface CommunityFurnitureShareDetailActionsProps {
   onChatClick?: () => void;
   onCompleteClick?: () => void;
   isChatPending?: boolean;
+  className?: string;
 }
 
 /** 가구나눔 상세 — beforeHeader 슬롯용 CTA 분기 */
@@ -17,6 +18,7 @@ export const CommunityFurnitureShareDetailActions = ({
   onChatClick,
   onCompleteClick,
   isChatPending = false,
+  className = '',
 }: CommunityFurnitureShareDetailActionsProps) => {
   if (action === null) {
     return null;
@@ -28,6 +30,7 @@ export const CommunityFurnitureShareDetailActions = ({
         variant="chat"
         onClick={onChatClick}
         isPending={isChatPending}
+        className={className}
       />
     );
   }
@@ -37,9 +40,16 @@ export const CommunityFurnitureShareDetailActions = ({
       <CommunityFurnitureShareCtaAction
         variant="complete"
         onClick={onCompleteClick}
+        className={className}
       />
     );
   }
 
-  return <CommunityFurnitureShareCtaAction variant="complete" asStatus />;
+  return (
+    <CommunityFurnitureShareCtaAction
+      variant="complete"
+      asStatus
+      className={className}
+    />
+  );
 };

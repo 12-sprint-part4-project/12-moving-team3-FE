@@ -43,11 +43,11 @@ import { CommunitySidebarFilter } from '../_components/CommunitySidebarFilter';
 import { CommunityWriteButton } from '../_components/CommunityWriteButton';
 
 const SORT_CLASS =
-  'w-[8.5rem] [&_button]:h-11 [&_button]:w-full [&_button]:justify-center [&_button]:!shadow-none [&_button]:!text-2lg-medium [&_button]:!leading-normal [&_span]:!text-2lg-medium';
+  'w-[8.5rem] [&_button]:h-11 [&_button]:w-full [&_button]:justify-center [&_button]:shadow-none! [&_button]:text-2lg-medium! [&_span]:text-2lg-medium!';
 
 /** Mobile/Tablet — Desktop 대비 2단계 축소 (2lg→md, h-11→h-9) */
 const SORT_CLASS_MOBILE =
-  'w-[7.25rem] [&_button]:h-9 [&_button]:w-full [&_button]:justify-center [&_button]:!shadow-none [&_button]:!text-md-medium [&_button]:!leading-normal [&_span]:!text-md-medium';
+  'w-[7.25rem] [&_button]:h-9 [&_button]:w-full [&_button]:justify-center [&_button]:shadow-none! [&_button]:text-md-medium! [&_span]:text-md-medium!';
 
 /** 커뮤니티 게시글 목록 — Figma Mobile / Tablet / Desktop */
 export const CommunityPageClient = () => {
