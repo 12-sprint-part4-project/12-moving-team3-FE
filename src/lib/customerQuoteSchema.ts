@@ -62,6 +62,7 @@ export const customerPastQuotesResponseSchema = z.object({
         estimateRequestId: z.number(),
         status: estimateRequestStatusSchema,
         submittedAt: z.string().nullable(),
+        confirmedAt: z.string().nullable(),
         serviceType: moveTypeSchema.nullable(),
         moveDate: z.string().nullable(),
         fromAddress: z.string().nullable(),
