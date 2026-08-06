@@ -1,6 +1,6 @@
 import type { NotificationItem } from '@/types/notification';
 
-const emptyRefs = {
+const EMPTY_REFS = {
   commentId: null,
   reviewId: null,
   userReportId: null,
@@ -20,7 +20,7 @@ export const NOTIFICATION_FIXTURES: NotificationItem[] = [
     createdAt: '2026-08-05T01:00:00.000Z',
     quoteId: null,
     estimateRequestId: 101,
-    ...emptyRefs,
+    ...EMPTY_REFS,
   },
   {
     id: 2,
@@ -31,7 +31,7 @@ export const NOTIFICATION_FIXTURES: NotificationItem[] = [
     createdAt: '2026-08-05T00:55:00.000Z',
     quoteId: null,
     estimateRequestId: 102,
-    ...emptyRefs,
+    ...EMPTY_REFS,
   },
   {
     id: 3,
@@ -42,7 +42,7 @@ export const NOTIFICATION_FIXTURES: NotificationItem[] = [
     createdAt: '2026-08-05T00:50:00.000Z',
     quoteId: 201,
     estimateRequestId: 103,
-    ...emptyRefs,
+    ...EMPTY_REFS,
   },
   {
     id: 4,
@@ -53,7 +53,7 @@ export const NOTIFICATION_FIXTURES: NotificationItem[] = [
     createdAt: '2026-08-05T00:45:00.000Z',
     quoteId: 202,
     estimateRequestId: 104,
-    ...emptyRefs,
+    ...EMPTY_REFS,
   },
   {
     id: 5,
@@ -64,7 +64,7 @@ export const NOTIFICATION_FIXTURES: NotificationItem[] = [
     createdAt: '2026-08-05T00:40:00.000Z',
     quoteId: 203,
     estimateRequestId: 105,
-    ...emptyRefs,
+    ...EMPTY_REFS,
   },
   {
     id: 6,
@@ -75,7 +75,7 @@ export const NOTIFICATION_FIXTURES: NotificationItem[] = [
     createdAt: '2026-08-05T00:35:00.000Z',
     quoteId: 204,
     estimateRequestId: 106,
-    ...emptyRefs,
+    ...EMPTY_REFS,
   },
   {
     id: 7,
@@ -89,7 +89,7 @@ export const NOTIFICATION_FIXTURES: NotificationItem[] = [
     createdAt: '2026-08-04T15:00:00.000Z',
     quoteId: null,
     estimateRequestId: 107,
-    ...emptyRefs,
+    ...EMPTY_REFS,
   },
   {
     id: 8,
@@ -103,7 +103,7 @@ export const NOTIFICATION_FIXTURES: NotificationItem[] = [
     createdAt: '2026-08-04T14:55:00.000Z',
     quoteId: null,
     estimateRequestId: 108,
-    ...emptyRefs,
+    ...EMPTY_REFS,
   },
   {
     id: 9,
@@ -114,7 +114,7 @@ export const NOTIFICATION_FIXTURES: NotificationItem[] = [
     createdAt: '2026-08-04T12:00:00.000Z',
     quoteId: 205,
     estimateRequestId: 109,
-    ...emptyRefs,
+    ...EMPTY_REFS,
   },
   {
     id: 10,
@@ -177,7 +177,7 @@ export const NOTIFICATION_FIXTURES: NotificationItem[] = [
     createdAt: '2026-08-04T09:10:00.000Z',
     quoteId: null,
     estimateRequestId: null,
-    ...emptyRefs,
+    ...EMPTY_REFS,
   },
   {
     id: 15,
@@ -188,7 +188,7 @@ export const NOTIFICATION_FIXTURES: NotificationItem[] = [
     createdAt: '2026-08-04T09:00:00.000Z',
     quoteId: null,
     estimateRequestId: null,
-    ...emptyRefs,
+    ...EMPTY_REFS,
   },
 ];
 
