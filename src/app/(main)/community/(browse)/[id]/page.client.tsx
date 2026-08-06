@@ -9,9 +9,6 @@ import { Button } from '@/components/Button/Button';
 import { ReportAction } from '@/components/reports';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
-import {
-  type CommunityTabId,
-} from '@/constants/communityOptions';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useCommentList,
@@ -26,7 +23,6 @@ import {
 import { useToast } from '@/hooks/useToast';
 import { ApiError, resolveApiErrorMessage } from '@/lib/apiClient';
 import {
-  buildCommunityListHref,
   getTabFromPostCategory,
   parsePostListContextFromSearchParams,
   postListContextToParams,
@@ -34,15 +30,14 @@ import {
 import { formatDotDateLabel } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
 
-import { CommunityCategoryBadge } from '../_components/CommunityCategoryBadge';
+import { CommunityCategoryBadge } from '../../_components/CommunityCategoryBadge';
+import { useCommunityTabBarOverride } from '../../_components/CommunityLayoutClient';
 import {
   COMMUNITY_DESKTOP_X,
   COMMUNITY_DETAIL_MAX_W,
   COMMUNITY_DETAIL_MOBILE_BOTTOM_PAD,
-  COMMUNITY_PAGE_SHELL,
   COMMUNITY_SECTION_X,
-} from '../_components/communityLayout';
-import { CommunityTabBar } from '../_components/CommunityTabBar';
+} from '../../_components/communityLayout';
 import { CommunityCommentList } from './_components/CommunityCommentList';
 import { ConfirmDeleteModal } from './_components/ConfirmDeleteModal';
 import {
@@ -89,6 +84,8 @@ export const CommunityPostDetailPageClient = ({
     refetch: refetchPost,
   } = usePost(postId);
 
+  const { setActiveTabOverride } = useCommunityTabBarOverride();
+
   const listContext = useMemo(
     () => parsePostListContextFromSearchParams(searchParams),
     [searchParams]
@@ -126,11 +123,6 @@ export const CommunityPostDetailPageClient = ({
   const { ref: commentsLoadMoreRef, inView: isCommentsLoadMoreInView } =
     useInView({ rootMargin: '200px' });
 
-  const activeTab = useMemo(
-    () => (post ? getTabFromPostCategory(post.category) : listContext.tab),
-    [post, listContext.tab]
-  );
-
   const showMutationError = useCallback(
     (error: unknown, fallback: string) => {
       showToast({ content: resolveApiErrorMessage(error, fallback) });
@@ -149,12 +141,15 @@ export const CommunityPostDetailPageClient = ({
   const shareImageUrl = imageUrls[0] ?? null;
   const shareDescription = post?.content.slice(0, 100) ?? null;
 
-  const handleTabChange = useCallback(
-    (tabId: CommunityTabId) => {
-      router.push(buildCommunityListHref({ ...listContext, tab: tabId }));
-    },
-    [router, listContext]
-  );
+  useEffect(() => {
+    if (post) {
+      setActiveTabOverride(getTabFromPostCategory(post.category));
+    }
+
+    return () => {
+      setActiveTabOverride(null);
+    };
+  }, [post, setActiveTabOverride]);
 
   const openLoginModal = useCallback(() => {
     setIsLoginModalOpen(true);
@@ -315,14 +310,8 @@ export const CommunityPostDetailPageClient = ({
 
   if (isPostPending) {
     return (
-      <div className={COMMUNITY_PAGE_SHELL}>
-        <CommunityTabBar
-          activeTab={listContext.tab}
-          onTabChange={handleTabChange}
-        />
-        <div className="flex justify-center py-24">
-          <Spinner message="게시글 불러오는 중..." />
-        </div>
+      <div className="flex justify-center py-24">
+        <Spinner message="게시글 불러오는 중..." />
       </div>
     );
   }
@@ -332,16 +321,10 @@ export const CommunityPostDetailPageClient = ({
 
   if (isNotFound) {
     return (
-      <div className={COMMUNITY_PAGE_SHELL}>
-        <CommunityTabBar
-          activeTab={listContext.tab}
-          onTabChange={handleTabChange}
-        />
-        <div className={DETAIL_STATE_MESSAGE_CLASS}>
-          <p className="text-lg-medium text-gray-400">
-            게시글을 찾을 수 없어요.
-          </p>
-        </div>
+      <div className={DETAIL_STATE_MESSAGE_CLASS}>
+        <p className="text-lg-medium text-gray-400">
+          게시글을 찾을 수 없어요.
+        </p>
       </div>
     );
   }
@@ -353,23 +336,17 @@ export const CommunityPostDetailPageClient = ({
     );
 
     return (
-      <div className={COMMUNITY_PAGE_SHELL}>
-        <CommunityTabBar
-          activeTab={listContext.tab}
-          onTabChange={handleTabChange}
-        />
-        <div className="flex w-full flex-col items-center gap-4 py-24">
-          <p className="text-lg-medium text-gray-400">{errorMessage}</p>
-          <Button
-            variant="outlined"
-            size="md"
-            onClick={() => {
-              void refetchPost();
-            }}
-          >
-            다시 시도
-          </Button>
-        </div>
+      <div className="flex w-full flex-col items-center gap-4 py-24">
+        <p className="text-lg-medium text-gray-400">{errorMessage}</p>
+        <Button
+          variant="outlined"
+          size="md"
+          onClick={() => {
+            void refetchPost();
+          }}
+        >
+          다시 시도
+        </Button>
       </div>
     );
   }
@@ -386,9 +363,7 @@ export const CommunityPostDetailPageClient = ({
   const isPostOwner = user?.id === post.author.id;
 
   return (
-    <div className={COMMUNITY_PAGE_SHELL}>
-      <CommunityTabBar activeTab={activeTab} onTabChange={handleTabChange} />
-
+    <>
       <article
         className={cn(
           COMMUNITY_SECTION_X,
@@ -568,6 +543,6 @@ export const CommunityPostDetailPageClient = ({
           />
         </Modal>
       ) : null}
-    </div>
+    </>
   );
 };
