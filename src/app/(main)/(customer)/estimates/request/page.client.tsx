@@ -28,7 +28,7 @@ export const EstimateRequestPageClient = () => {
   if (bootstrap.status === 'loading' || bootstrap.status === 'error') {
     return (
       <div className="mx-auto max-w-[1400px] px-6 py-8 sm:px-18">
-        <p className="text-gray-400 text-lg-medium" role="status">
+        <p className="text-lg-medium text-gray-400" role="status">
           견적 요청을 준비하는 중…
         </p>
       </div>
@@ -49,6 +49,8 @@ export const EstimateRequestPageClient = () => {
 
   // 제출 직후·활성 요청 재진입 공통
   if (bootstrap.status === 'blocked') {
+    const isConfirmed = bootstrap.blockedRequest?.status === 'CONFIRMED';
+
     return (
       <EstimateRequestBlocked
         message={
@@ -58,8 +60,8 @@ export const EstimateRequestPageClient = () => {
             진행 중인 이사 완료 후 새로운 견적을 받아보세요.
           </>
         }
-        actionLabel="받은 견적 보러가기"
-        actionHref="/quotes"
+        actionLabel={isConfirmed ? '이용 내역 보기' : '받은 견적 보러가기'}
+        actionHref={isConfirmed ? '/quotes/history' : '/quotes'}
       />
     );
   }
@@ -70,10 +72,7 @@ export const EstimateRequestPageClient = () => {
     visualStep === 3 ? step3ProgressFill : visualStep;
 
   return (
-    <EstimateRequestShell
-      currentStep={visualStep}
-      progressFill={progressFill}
-    >
+    <EstimateRequestShell currentStep={visualStep} progressFill={progressFill}>
       {visualStep === 1 ? <MoveTypeStep /> : null}
       {visualStep === 2 ? <MoveDateStep /> : null}
       {visualStep === 3 ? (

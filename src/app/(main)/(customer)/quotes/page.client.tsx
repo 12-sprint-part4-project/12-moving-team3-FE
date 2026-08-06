@@ -97,9 +97,9 @@ const CustomerQuotesPageClient = () => {
     }
   }, [activeTab, inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  /** 받았던 견적 탭으로 이동 */
-  const goToReceivedTab = useCallback(() => {
-    router.replace('/quotes?tab=received', { scroll: false });
+  /** 견적 확정 후 이용 내역으로 이동 */
+  const goToHistory = useCallback(() => {
+    router.replace('/quotes/history');
   }, [router]);
 
   const {
@@ -109,7 +109,7 @@ const CustomerQuotesPageClient = () => {
     openConfirmModal,
     closeConfirmModal,
     submitConfirm,
-  } = useConfirmQuoteModal(goToReceivedTab);
+  } = useConfirmQuoteModal(goToHistory);
 
   /** 에러 메시지 추출 */
   const errorMessage =
@@ -308,10 +308,7 @@ const CustomerQuotesPageClient = () => {
         onConfirm={submitConfirm}
       />
 
-      <LoginRequiredModal
-        open={isLoginModalOpen}
-        onClose={closeLoginModal}
-      />
+      <LoginRequiredModal open={isLoginModalOpen} onClose={closeLoginModal} />
     </div>
   );
 };

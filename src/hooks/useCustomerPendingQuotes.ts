@@ -8,7 +8,7 @@ import {
 export const customerQuoteQueryKeys = {
   all: ['customer-quotes'] as const,
   pending: () => [...customerQuoteQueryKeys.all, 'pending'] as const,
-  past: (params: { limit: number }) =>
+  past: (params: { limit: number; filter?: string }) =>
     [...customerQuoteQueryKeys.all, 'past', params] as const,
   details: () => [...customerQuoteQueryKeys.all, 'detail'] as const,
   detail: (quoteId: number) =>

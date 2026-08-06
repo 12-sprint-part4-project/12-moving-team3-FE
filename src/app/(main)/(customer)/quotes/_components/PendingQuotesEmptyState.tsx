@@ -5,7 +5,10 @@ import { getButtonClassName } from '@/components/Button/Button';
 import { cn } from '@/lib/utils';
 
 export type PendingQuotesEmptyVariant =
-  'waiting' | 'noRequest' | 'receivedEmpty';
+  | 'waiting'
+  | 'noRequest'
+  | 'receivedEmpty'
+  | 'historyEmpty';
 
 export interface PendingQuotesEmptyStateProps {
   variant: PendingQuotesEmptyVariant;
@@ -26,6 +29,11 @@ const EMPTY_COPY: Record<
   },
   receivedEmpty: {
     lines: ['아직 받았던 견적이 없어요!'],
+  },
+  historyEmpty: {
+    lines: ['아직 이용 내역이 없어요!', '견적을 확정하면 여기에 표시돼요.'],
+    actionHref: '/quotes',
+    actionLabel: '대기 중인 견적 보기',
   },
 };
 

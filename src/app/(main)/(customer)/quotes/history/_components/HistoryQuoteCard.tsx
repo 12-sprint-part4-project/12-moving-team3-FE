@@ -2,26 +2,26 @@
 
 import { QuoteListCard } from '@/components/quotes/QuoteListCard';
 import { getClosedQuoteOverlayMessage } from '@/components/quotes/closedQuoteOverlay';
-import type { SentQuoteCardModel } from '@/types/quote';
+import type { HistoryQuoteCardModel } from '@/types/customerQuote';
 
-export interface SentQuoteCardProps {
-  quote: SentQuoteCardModel;
+export interface HistoryQuoteCardProps {
+  quote: HistoryQuoteCardModel;
   className?: string;
 }
 
-/** 보낸 견적 카드 */
-export const SentQuoteCard = ({
+/** 고객 이용 내역 카드 */
+export const HistoryQuoteCard = ({
   quote,
   className = '',
-}: SentQuoteCardProps) => {
-  const detailHref = `/mover/quotes/${quote.id}`;
+}: HistoryQuoteCardProps) => {
+  const detailHref = `/quotes/${quote.quoteId}`;
   const isClosedCard = quote.isMoveCompleted;
 
   return (
     <QuoteListCard
       className={className}
-      displayName={quote.customerName}
-      nameSuffix="고객님"
+      displayName={quote.moverName}
+      nameSuffix="기사님"
       moveType={quote.moveType}
       isConfirmed={quote.isConfirmed}
       isDesignated={quote.isDesignated}
@@ -31,7 +31,7 @@ export const SentQuoteCard = ({
       priceLabel={quote.priceLabel}
       relativeTimeLabel={quote.relativeTimeLabel}
       detailHref={detailHref}
-      detailAriaLabel={`${quote.customerName} 고객님 견적 상세보기`}
+      detailAriaLabel={`${quote.moverName} 기사님 견적 상세보기`}
       isClosed={isClosedCard}
       overlayMessage={
         isClosedCard

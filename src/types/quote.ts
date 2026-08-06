@@ -101,6 +101,7 @@ export interface SentQuoteCardModel {
   departure: string;
   arrival: string;
   priceLabel: string;
+  relativeTimeLabel: string;
   estimateRequestStatus: EstimateRequestStatus;
   isMoveCompleted: boolean;
 }
