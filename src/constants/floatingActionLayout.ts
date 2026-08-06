@@ -1,35 +1,34 @@
-/** Mobile 글쓰기 FAB / Top 버튼 — 66px */
-export const FLOATING_ACTION_BUTTON_SIZE_CLASS = 'size-[4.125rem]';
+/** Top·작성 FAB 공통 우측 inset */
+export const FLOATING_ACTION_INSET_X_CLASS =
+  'right-4 min-[46.5rem]:right-16 xl:right-24';
 
-/** Mobile Top·작성 FAB 아이콘 */
-export const FLOATING_ACTION_ICON_CLASS = 'size-9';
-
-/** Mobile Top·작성 FAB 우측 inset */
-export const FLOATING_ACTION_RIGHT_CLASS = 'right-4';
-
-/** Mobile Top 버튼 하단 inset */
+/** Mobile Top·작성 FAB 하단 inset */
 export const FLOATING_ACTION_BOTTOM_CLASS = 'bottom-6';
 
-/** Mobile Top·작성 FAB 우하단 기준 위치 */
-export const FLOATING_ACTION_BASE_POSITION_CLASS =
-  `${FLOATING_ACTION_RIGHT_CLASS} ${FLOATING_ACTION_BOTTOM_CLASS}`;
+/** Mobile Top 버튼 위치 (우측 + 하단) */
+export const FLOATING_ACTION_BASE_POSITION_CLASS = `${FLOATING_ACTION_INSET_X_CLASS} ${FLOATING_ACTION_BOTTOM_CLASS}`;
 
-/** Top 버튼 — Mobile 66px / Tablet·Desktop 0.8×(1.5×Mobile) ≈ 79px */
-export const SCROLL_TO_TOP_BUTTON_SIZE_CLASS =
+/** Top·작성 FAB 공통 크기 — Mobile 66px / Tablet·Desktop 79px */
+export const FLOATING_ACTION_BUTTON_SIZE_CLASS =
   'size-[4.125rem] min-[46.5rem]:size-[4.95rem]';
 
-/** Top 아이콘 — chevron viewBox 여백 보정, 버튼 대비 크게 */
+/** Top·작성 FAB 공통 fixed 스타일 */
+export const FLOATING_ACTION_FIXED_CLASS =
+  'fixed z-40 flex shrink-0 cursor-pointer items-center justify-center rounded-3xl shadow-[0_4px_12px_rgba(0,0,0,0.18)]';
+
+/** Top chevron — viewBox 여백 보정 */
 export const SCROLL_TO_TOP_ICON_CLASS =
   'size-11 min-[46.5rem]:size-[3.25rem]';
 
-/** Tablet Top 버튼 — inset ×2 */
-export const SCROLL_TO_TOP_TABLET_POSITION_CLASS =
-  'min-[46.5rem]:right-16 min-[46.5rem]:bottom-20';
+/** 작성 FAB 아이콘 — 버튼 크기에 맞춤 */
+export const WRITE_FAB_ICON_CLASS = 'size-9 min-[46.5rem]:size-11';
 
-/** Desktop Top 버튼 — inset ×2 */
-export const SCROLL_TO_TOP_DESKTOP_POSITION_CLASS = 'xl:right-24 xl:bottom-32';
+/** Tablet Top 버튼 하단 inset */
+export const SCROLL_TO_TOP_TABLET_BOTTOM_CLASS = 'min-[46.5rem]:bottom-20';
 
-/**
- * Mobile 글쓰기 FAB — Top 버튼(bottom-6 + 4.125rem + gap-3) 위
- */
-export const MOBILE_WRITE_FAB_BOTTOM_CLASS = 'bottom-[6.375rem]';
+/** Desktop Top 버튼 하단 inset */
+export const SCROLL_TO_TOP_DESKTOP_BOTTOM_CLASS = 'xl:bottom-32';
+
+/** 글쓰기 FAB — Top 버튼 위 (bottom + FLOATING_ACTION_BUTTON_SIZE + gap-3) */
+export const WRITE_FAB_BOTTOM_CLASS =
+  'bottom-[6.375rem] min-[46.5rem]:bottom-[10.7rem] xl:bottom-[13.7rem]';

@@ -7,10 +7,5 @@ const SCROLL_TO_TOP_EXCLUDED_PATHS = new Set([
   '/auth/kakao/callback',
 ]);
 
-export interface ScrollToTopConfig {
-  visible: boolean;
-}
-
-export const getScrollToTopConfig = (pathname: string): ScrollToTopConfig => ({
-  visible: !SCROLL_TO_TOP_EXCLUDED_PATHS.has(pathname),
-});
+export const isScrollToTopVisible = (pathname: string): boolean =>
+  !SCROLL_TO_TOP_EXCLUDED_PATHS.has(pathname);
