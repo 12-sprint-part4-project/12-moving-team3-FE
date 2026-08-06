@@ -24,13 +24,11 @@ import {
   getMoverBasicInfoUpdateError,
 } from '../_lib/moverBasicInfoUpdate';
 
-/** Figma Mobile·Tablet: input sm / Desktop(lg+): md 높이·텍스트 */
 const FIELD_CLASSNAME =
   'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
 
 const READONLY_FIELD_CLASSNAME = `${FIELD_CLASSNAME} [&_input]:!text-gray-300`;
 
-/** Figma Mobile·Tablet: lg-semibold / Desktop(lg+): xl-semibold */
 const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
 
 interface MoverBasicInfoEditFieldsProps {
@@ -38,11 +36,7 @@ interface MoverBasicInfoEditFieldsProps {
   className?: string;
 }
 
-/**
- * 쿼리 데이터로 초기화된 기본정보 수정 폼.
- * Figma: Mobile(1:11307)·Tablet(1:11241) → lg 미만 단일 컬럼,
- * Desktop(1:11171) → lg+ 2열.
- */
+/** 기본정보 수정 폼 (프로필 조회로 초기화) */
 const MoverBasicInfoEditFields = ({
   profile,
   className,
@@ -140,7 +134,6 @@ const MoverBasicInfoEditFields = ({
       )}
     >
       <div className="flex w-full flex-col items-stretch gap-5 lg:gap-10">
-        {/* Mobile·Tablet: title→divider 16px / Desktop: 40px */}
         <header className="flex w-full flex-col items-start gap-4 lg:gap-10">
           <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
             기본정보 수정
@@ -148,11 +141,6 @@ const MoverBasicInfoEditFields = ({
           <div className="h-px w-full bg-line-100" aria-hidden />
         </header>
 
-        {/*
-          Mobile(1:11307)·Tablet(1:11241): 단일 컬럼
-          — 이름→이메일→전화→비밀번호 3필드
-          Desktop(1:11171): 2열 — 좌(이름·이메일·전화) / 우(비밀번호)
-        */}
         <div className="flex w-full flex-col items-stretch gap-5 lg:flex-row lg:items-start lg:justify-between lg:gap-10">
           <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
             <section className="flex w-full flex-col items-start gap-4">
@@ -235,7 +223,7 @@ const MoverBasicInfoEditFields = ({
                   />
                 </section>
 
-                {/* Mobile·Tablet: 현재↔새 비밀번호 사이 구분선 없음 / Desktop: 유지 */}
+                {/* lg 미만: 현재↔새 비밀번호 구분선 없음 */}
                 <div
                   className="hidden h-px w-full bg-line-100 lg:block"
                   aria-hidden
@@ -289,7 +277,6 @@ const MoverBasicInfoEditFields = ({
         </div>
       </div>
 
-      {/* Mobile·Tablet: 세로 스택(수정하기→취소, gray) / Desktop: 가로(취소|수정하기, blue) */}
       <div className="flex w-full flex-col gap-2 lg:flex-row lg:justify-between lg:gap-4">
         <Button
           type="submit"
@@ -319,7 +306,7 @@ interface MoverBasicInfoEditFormProps {
   className?: string;
 }
 
-/** 기사님 기본정보 수정. useMoverProfile로 조회 후 폼에 전달 */
+/** 기사님 기본정보 수정 */
 export const MoverBasicInfoEditForm = ({
   className,
 }: MoverBasicInfoEditFormProps) => {

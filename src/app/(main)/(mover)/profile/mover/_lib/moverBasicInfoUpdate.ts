@@ -19,7 +19,7 @@ interface BuildMoverBasicInfoUpdateParams {
   confirmPassword: string;
 }
 
-/** PATCH body 구성. name·phoneNumber는 필수라 항상 포함한다. */
+/** PATCH body. 변경 없으면 null */
 export const buildMoverBasicInfoUpdateBody = ({
   profile,
   name,
@@ -58,7 +58,7 @@ export const buildMoverBasicInfoUpdateBody = ({
   return body;
 };
 
-/** 수정 요청 전 클라이언트 검증. 통과 시 null */
+/** 클라이언트 검증. 통과 시 null */
 export const getMoverBasicInfoUpdateError = ({
   profile,
   name,
