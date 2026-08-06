@@ -18,6 +18,8 @@ export interface ChatPartner {
 
 /** 목록용 마지막 메시지 요약 */
 export interface ChatLastMessage {
+  messageId: number;
+  senderId: string;
   content: string;
   messageType: ChatMessageType;
   createdAt: string;
@@ -29,6 +31,8 @@ export interface ChatRoomListItem {
   roomType: ChatRoomType;
   partner: ChatPartner;
   lastMessage: ChatLastMessage | null;
+  partnerLastReadMessageId: number | null;
+  partnerLastReadAt: string | null;
   unreadCount: number;
 }
 
@@ -53,6 +57,10 @@ export interface ChatRoomDetailData {
   requestSummary: ChatRequestSummary | null;
   quoteId: number | null;
   isMessagingAllowed: boolean;
+  /** 상대방이 마지막으로 읽은 메시지 ID. 읽음 기록 없으면 null */
+  partnerLastReadMessageId: number | null;
+  /** 상대방이 마지막으로 읽은 시각(ISO). 읽음 기록 없으면 null */
+  partnerLastReadAt: string | null;
   updatedAt: string;
 }
 
@@ -204,6 +212,7 @@ export interface ChatSocketReadPayload {
   roomId: number;
   readerId: string;
   lastReadMessageId: number;
+  readAt: string;
 }
 
 export interface ChatSocketUnreadPayload {

@@ -22,6 +22,10 @@ export interface ChatMessageItemProps {
   isMine: boolean;
   /** false면 시각 숨김 — 같은 보낸이·같은 분 연속 묶음의 중간 메시지 */
   showTime?: boolean;
+  /** 상대 미읽음 — 시간 위에 `1` */
+  showUnreadCount?: boolean;
+  /** 상대가 내 마지막까지 읽음 — 마지막 메시지에만 `읽음` */
+  showReadLabel?: boolean;
   className?: string;
 }
 
@@ -253,6 +257,8 @@ export const ChatMessageItem = ({
   message,
   isMine,
   showTime = true,
+  showUnreadCount = false,
+  showReadLabel = false,
   className,
 }: ChatMessageItemProps) => {
   const isImageMessage =
@@ -279,10 +285,29 @@ export const ChatMessageItem = ({
   const timeLabel = showTime ? (
     <time
       dateTime={message.createdAt}
-      className="shrink-0 self-end whitespace-nowrap text-xs-medium text-gray-300"
+      className="whitespace-nowrap text-xs-medium text-gray-300"
     >
       {formatChatMessageTime(message.createdAt)}
     </time>
+  ) : null;
+
+  const mineMeta =
+    isMine && (showUnreadCount || showReadLabel || showTime) ? (
+      <div className="flex shrink-0 flex-col items-end justify-end gap-0.5 self-end">
+        {showUnreadCount ? (
+          <span className="text-xs-medium text-blue-300" aria-label="안 읽음">
+            1
+          </span>
+        ) : null}
+        {showReadLabel ? (
+          <span className="text-xs-medium text-gray-300">읽음</span>
+        ) : null}
+        {timeLabel}
+      </div>
+    ) : null;
+
+  const partnerTime = !isMine && timeLabel ? (
+    <div className="shrink-0 self-end">{timeLabel}</div>
   ) : null;
 
   return (
@@ -294,10 +319,10 @@ export const ChatMessageItem = ({
           className
         )}
       >
-        {/* 내 메시지: 시간 | 말풍선 (왼쪽 하단). 상대: 말풍선 | 시간 */}
-        {isMine ? timeLabel : null}
+        {/* 내 메시지: (1|읽음·시간) | 말풍선. 상대: 말풍선 | 시간 */}
+        {mineMeta}
         <div className="min-w-0">{bubble}</div>
-        {!isMine ? timeLabel : null}
+        {partnerTime}
       </div>
 
       {lightboxIndex != null && isImageMessage ? (

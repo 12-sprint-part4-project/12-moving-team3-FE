@@ -242,6 +242,9 @@ export const ChatRoomPage = ({
             key={roomId}
             messages={messages}
             currentUserId={user.id}
+            partnerLastReadMessageId={
+              room ? room.partnerLastReadMessageId : undefined
+            }
             isPending={isMessagesPending}
             isError={isMessagesError}
             isFetchNextPageError={isFetchNextPageError}

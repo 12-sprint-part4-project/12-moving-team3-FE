@@ -21,6 +21,11 @@ import type { ChatMessage } from '@/types/chat';
 export interface ChatMessageListProps {
   messages: ChatMessage[];
   currentUserId: string;
+  /**
+   * 상대 읽음 커서. `undefined`면 방 상세 미로드 → 읽음 UI 숨김.
+   * `null`이면 상대 읽음 기록 없음 → 내 메시지 전부 `1`.
+   */
+  partnerLastReadMessageId?: number | null;
   isPending: boolean;
   /** 초기 조회 실패(메시지 없음) */
   isError: boolean;
@@ -58,10 +63,48 @@ const shouldShowMessageTime = (
   return !isSameLocalMinute(current.createdAt, next.createdAt);
 };
 
+/**
+ * 내 메시지 읽음 UI.
+ * - 상대가 내 마지막까지 읽음 → 마지막에만 `읽음`
+ * - 아니면 messageId > 커서(또는 커서 null)인 내 메시지마다 `1`
+ */
+const getMineReadReceiptFlags = (
+  message: ChatMessage,
+  currentUserId: string,
+  partnerLastReadMessageId: number | null | undefined,
+  myLastMessageId: number | null
+): { showUnreadCount: boolean; showReadLabel: boolean } => {
+  if (
+    message.senderId !== currentUserId ||
+    partnerLastReadMessageId === undefined
+  ) {
+    return { showUnreadCount: false, showReadLabel: false };
+  }
+
+  const isFullyRead =
+    myLastMessageId != null &&
+    partnerLastReadMessageId != null &&
+    partnerLastReadMessageId >= myLastMessageId;
+
+  if (isFullyRead) {
+    return {
+      showUnreadCount: false,
+      showReadLabel: message.messageId === myLastMessageId,
+    };
+  }
+
+  const isUnread =
+    partnerLastReadMessageId == null ||
+    message.messageId > partnerLastReadMessageId;
+
+  return { showUnreadCount: isUnread, showReadLabel: false };
+};
+
 /** 메시지 스크롤 영역 — 상단 도달 시 이전 이력 로드 */
 export const ChatMessageList = ({
   messages,
   currentUserId,
+  partnerLastReadMessageId,
   isPending,
   isError,
   isFetchNextPageError = false,
@@ -93,6 +136,15 @@ export const ChatMessageList = ({
 
   const isInitialError = isError && messages.length === 0;
   const canRenderMessages = !isPending && !isInitialError;
+
+  const myLastMessageId = (() => {
+    for (let index = messages.length - 1; index >= 0; index -= 1) {
+      if (messages[index]?.senderId === currentUserId) {
+        return messages[index].messageId;
+      }
+    }
+    return null;
+  })();
 
   const reportNearBottom = useCallback(
     (isNearBottom: boolean) => {
@@ -276,7 +328,7 @@ export const ChatMessageList = ({
       ref={scrollRef}
       onScroll={handleScroll}
       className={cn(
-        'min-h-0 flex-1 overflow-y-auto bg-background-100 px-4 py-5 md:px-6',
+        'min-h-0 flex-1 overflow-y-auto bg-background-200 px-4 py-5 md:px-6',
         className
       )}
     >
@@ -333,6 +385,12 @@ export const ChatMessageList = ({
               ? formatChatDateSeparator(message.createdAt)
               : '';
             const showTime = shouldShowMessageTime(message, next);
+            const { showUnreadCount, showReadLabel } = getMineReadReceiptFlags(
+              message,
+              currentUserId,
+              partnerLastReadMessageId,
+              myLastMessageId
+            );
 
             return (
               <Fragment key={message.messageId}>
@@ -349,7 +407,13 @@ export const ChatMessageList = ({
                   message={message}
                   isMine={message.senderId === currentUserId}
                   showTime={showTime}
-                  className={showTime ? undefined : '-mb-2'}
+                  showUnreadCount={showUnreadCount}
+                  showReadLabel={showReadLabel}
+                  className={
+                    showTime || showUnreadCount || showReadLabel
+                      ? undefined
+                      : '-mb-2'
+                  }
                 />
               </Fragment>
             );
