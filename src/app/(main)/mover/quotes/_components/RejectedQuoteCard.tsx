@@ -1,10 +1,11 @@
+'use client';
+
 import Link from 'next/link';
 
+import { QuoteCardInfo } from '@/components/quotes/QuoteCardInfo';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { cn } from '@/lib/utils';
 import type { RejectedQuoteCardModel } from '@/types/quote';
-
-import { QuoteCardInfo } from './QuoteCardInfo';
 
 export interface RejectedQuoteCardProps {
   quote: RejectedQuoteCardModel;
@@ -26,7 +27,6 @@ export const RejectedQuoteCard = ({
       )}
     >
       <div className="flex w-full flex-col gap-3.5 lg:gap-4">
-        {/* 이사 유형·지정 칩 렌더 */}
         <div className="flex w-full items-center gap-2 lg:gap-3">
           {quote.moveType ? (
             <MoveTypeChip type={quote.moveType} size="sm" />
@@ -37,14 +37,13 @@ export const RejectedQuoteCard = ({
         </div>
 
         <QuoteCardInfo
-          customerName={quote.customerName}
+          displayName={quote.customerName}
           moveDate={quote.moveDate}
           departure={quote.departure}
           arrival={quote.arrival}
         />
       </div>
 
-      {/* 반려 오버레이 렌더 */}
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl border border-gray-300 bg-black-500/65">
         <p className="text-lg-semibold text-white lg:text-2lg-semibold">
           반려된 요청이에요

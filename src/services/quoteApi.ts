@@ -5,7 +5,7 @@ import {
   throwApiError,
 } from '@/lib/apiClient';
 import { authFetch } from '@/lib/authFetch';
-import { formatMoveDateLabel, formatShortDateLabel } from '@/lib/formatDate';
+import { formatMoveDateLabel, formatRelativeTime, formatShortDateLabel } from '@/lib/formatDate';
 import {
   quoteListResponseSchema,
   quoteSubmitResponseSchema,
@@ -57,6 +57,7 @@ export const toSentQuoteCardModel = (
   departure: item.fromRegionLabel ?? '-',
   arrival: item.toRegionLabel ?? '-',
   priceLabel: formatQuotePriceLabel(item.price),
+  relativeTimeLabel: formatRelativeTime(item.createdAt),
   estimateRequestStatus: item.estimateRequestStatus,
   isMoveCompleted: item.isMoveCompleted,
 });
