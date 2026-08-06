@@ -1,11 +1,28 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { useId, useState, type FormEvent } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/Button/Button';
 import { TextFieldOutlined } from '@/components/ui/Input';
+import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { useAuth } from '@/hooks/useAuth';
+import {
+  moverProfileQueryKeys,
+  useMoverProfile,
+} from '@/hooks/useMoverProfile';
+import { useToast } from '@/hooks/useToast';
+import { ApiError } from '@/lib/apiClient';
+import { getAuthSession } from '@/lib/authSession';
 import { cn } from '@/lib/utils';
+import { updateMoverBasicInfo } from '@/services/moverProfileApi';
+import type { MoverProfileMe } from '@/types/moverProfile';
+
+import {
+  buildMoverBasicInfoUpdateBody,
+  getMoverBasicInfoUpdateError,
+} from '../_lib/moverBasicInfoUpdate';
 
 /** Figma Mobile·Tablet: input sm / Desktop(lg+): md 높이·텍스트 */
 const FIELD_CLASSNAME =
@@ -16,29 +33,24 @@ const READONLY_FIELD_CLASSNAME = `${FIELD_CLASSNAME} [&_input]:!text-gray-300`;
 /** Figma Mobile·Tablet: lg-semibold / Desktop(lg+): xl-semibold */
 const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
 
-/**
- * UI 목업용 초기값.
- * Figma Desktop(1:11171) · Tablet(1:11241) · Mobile(1:11307) 기준.
- */
-const MOCK_BASIC_INFO = {
-  name: '김코드',
-  email: 'kcode@email.com',
-  phoneNumber: '01012345678',
-} as const;
-
-interface MoverBasicInfoEditFormProps {
+interface MoverBasicInfoEditFieldsProps {
+  profile: MoverProfileMe;
   className?: string;
 }
 
 /**
- * 기사님 기본정보 수정 폼 (UI only).
+ * 쿼리 데이터로 초기화된 기본정보 수정 폼.
  * Figma: Mobile(1:11307)·Tablet(1:11241) → lg 미만 단일 컬럼,
  * Desktop(1:11171) → lg+ 2열.
  */
-export const MoverBasicInfoEditForm = ({
+const MoverBasicInfoEditFields = ({
+  profile,
   className,
-}: MoverBasicInfoEditFormProps) => {
+}: MoverBasicInfoEditFieldsProps) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { setSession } = useAuth();
+  const { showToast } = useToast();
   const nameInputId = useId();
   const emailInputId = useId();
   const phoneInputId = useId();
@@ -46,24 +58,82 @@ export const MoverBasicInfoEditForm = ({
   const newPasswordId = useId();
   const confirmPasswordId = useId();
 
-  const [name, setName] = useState(MOCK_BASIC_INFO.name);
-  const [email] = useState(MOCK_BASIC_INFO.email);
-  const [phoneNumber, setPhoneNumber] = useState(MOCK_BASIC_INFO.phoneNumber);
+  const [name, setName] = useState(profile.name);
+  const [email] = useState(profile.email);
+  const [phoneNumber, setPhoneNumber] = useState(profile.phoneNumber ?? '');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCancel = () => {
     router.back();
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (isSubmitting) return;
+
+    const updateParams = {
+      profile,
+      name,
+      phoneNumber,
+      currentPassword,
+      newPassword,
+      confirmPassword,
+    };
+
+    const validationError = getMoverBasicInfoUpdateError(updateParams);
+    if (validationError) {
+      showToast({ content: validationError });
+      return;
+    }
+
+    const body = buildMoverBasicInfoUpdateBody(updateParams);
+    if (!body) {
+      showToast({ content: '변경된 내용이 없습니다.' });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await updateMoverBasicInfo(body);
+
+      await queryClient.invalidateQueries({
+        queryKey: moverProfileQueryKeys.all,
+      });
+
+      const session = getAuthSession();
+      if (session) {
+        setSession({
+          ...session,
+          user: {
+            ...session.user,
+            phoneNumber:
+              response.data.phoneNumber ?? session.user.phoneNumber,
+          },
+        });
+      }
+
+      showToast({ content: '기본정보가 수정되었습니다.' });
+      router.back();
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : '기본정보 수정에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+      showToast({ content: message });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={(event) => {
+        void handleSubmit(event);
+      }}
       className={cn(
         'flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 bg-white lg:max-w-[87.5rem] lg:gap-16 lg:rounded-[2rem] lg:px-6 lg:pt-8 lg:pb-10',
         className
@@ -137,68 +207,85 @@ export const MoverBasicInfoEditForm = ({
             </section>
           </div>
 
-          <div className="h-px w-full bg-line-100 lg:hidden" aria-hidden />
+          {profile.hasPassword ? (
+            <>
+              <div className="h-px w-full bg-line-100 lg:hidden" aria-hidden />
 
-          <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
-            <section className="flex w-full flex-col items-start gap-4">
-              <label htmlFor={currentPasswordId} className={LABEL_CLASSNAME}>
-                현재 비밀번호
-              </label>
-              <TextFieldOutlined
-                id={currentPasswordId}
-                size="sm"
-                type="password"
-                name="currentPassword"
-                autoComplete="current-password"
-                placeholder="현재 비밀번호를 입력해주세요"
-                showVisibilityToggle
-                value={currentPassword}
-                onChange={(event) => setCurrentPassword(event.target.value)}
-                className={FIELD_CLASSNAME}
-              />
-            </section>
+              <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
+                <section className="flex w-full flex-col items-start gap-4">
+                  <label
+                    htmlFor={currentPasswordId}
+                    className={LABEL_CLASSNAME}
+                  >
+                    현재 비밀번호
+                  </label>
+                  <TextFieldOutlined
+                    id={currentPasswordId}
+                    size="sm"
+                    type="password"
+                    name="currentPassword"
+                    autoComplete="current-password"
+                    placeholder="현재 비밀번호를 입력해주세요"
+                    showVisibilityToggle
+                    value={currentPassword}
+                    onChange={(event) =>
+                      setCurrentPassword(event.target.value)
+                    }
+                    className={FIELD_CLASSNAME}
+                  />
+                </section>
 
-            {/* Mobile·Tablet: 현재↔새 비밀번호 사이 구분선 없음 / Desktop: 유지 */}
-            <div className="hidden h-px w-full bg-line-100 lg:block" aria-hidden />
+                {/* Mobile·Tablet: 현재↔새 비밀번호 사이 구분선 없음 / Desktop: 유지 */}
+                <div
+                  className="hidden h-px w-full bg-line-100 lg:block"
+                  aria-hidden
+                />
 
-            <section className="flex w-full flex-col items-start gap-4">
-              <label htmlFor={newPasswordId} className={LABEL_CLASSNAME}>
-                새 비밀번호
-              </label>
-              <TextFieldOutlined
-                id={newPasswordId}
-                size="sm"
-                type="password"
-                name="newPassword"
-                autoComplete="new-password"
-                placeholder="새 비밀번호를 입력해주세요"
-                showVisibilityToggle
-                value={newPassword}
-                onChange={(event) => setNewPassword(event.target.value)}
-                className={FIELD_CLASSNAME}
-              />
-            </section>
+                <section className="flex w-full flex-col items-start gap-4">
+                  <label htmlFor={newPasswordId} className={LABEL_CLASSNAME}>
+                    새 비밀번호
+                  </label>
+                  <TextFieldOutlined
+                    id={newPasswordId}
+                    size="sm"
+                    type="password"
+                    name="newPassword"
+                    autoComplete="new-password"
+                    placeholder="새 비밀번호를 입력해주세요"
+                    showVisibilityToggle
+                    value={newPassword}
+                    onChange={(event) => setNewPassword(event.target.value)}
+                    className={FIELD_CLASSNAME}
+                  />
+                </section>
 
-            <div className="h-px w-full bg-line-100" aria-hidden />
+                <div className="h-px w-full bg-line-100" aria-hidden />
 
-            <section className="flex w-full flex-col items-start gap-4">
-              <label htmlFor={confirmPasswordId} className={LABEL_CLASSNAME}>
-                새 비밀번호 확인
-              </label>
-              <TextFieldOutlined
-                id={confirmPasswordId}
-                size="sm"
-                type="password"
-                name="confirmPassword"
-                autoComplete="new-password"
-                placeholder="새 비밀번호를 다시 한번 입력해주세요"
-                showVisibilityToggle
-                value={confirmPassword}
-                onChange={(event) => setConfirmPassword(event.target.value)}
-                className={FIELD_CLASSNAME}
-              />
-            </section>
-          </div>
+                <section className="flex w-full flex-col items-start gap-4">
+                  <label
+                    htmlFor={confirmPasswordId}
+                    className={LABEL_CLASSNAME}
+                  >
+                    새 비밀번호 확인
+                  </label>
+                  <TextFieldOutlined
+                    id={confirmPasswordId}
+                    size="sm"
+                    type="password"
+                    name="confirmPassword"
+                    autoComplete="new-password"
+                    placeholder="새 비밀번호를 다시 한번 입력해주세요"
+                    showVisibilityToggle
+                    value={confirmPassword}
+                    onChange={(event) =>
+                      setConfirmPassword(event.target.value)
+                    }
+                    className={FIELD_CLASSNAME}
+                  />
+                </section>
+              </div>
+            </>
+          ) : null}
         </div>
       </div>
 
@@ -208,20 +295,79 @@ export const MoverBasicInfoEditForm = ({
           type="submit"
           variant="solid"
           size="sm"
+          disabled={isSubmitting}
           className="order-1 lg:order-2 lg:h-16 lg:max-w-[41.25rem] lg:text-xl-semibold"
         >
-          수정하기
+          {isSubmitting ? '수정 중...' : '수정하기'}
         </Button>
         <Button
           type="button"
           variant="outlined"
           size="sm"
           onClick={handleCancel}
+          disabled={isSubmitting}
           className="order-2 border-gray-200 text-gray-300 shadow-cta hover:border-gray-200 hover:bg-transparent hover:text-gray-300 hover:shadow-cta lg:order-1 lg:h-16 lg:max-w-[41.25rem] lg:border-blue-300 lg:text-blue-300 lg:text-xl-semibold lg:hover:border-blue-300 lg:hover:bg-blue-50 lg:hover:text-blue-300"
         >
           취소
         </Button>
       </div>
     </form>
+  );
+};
+
+interface MoverBasicInfoEditFormProps {
+  className?: string;
+}
+
+/** 기사님 기본정보 수정. useMoverProfile로 조회 후 폼에 전달 */
+export const MoverBasicInfoEditForm = ({
+  className,
+}: MoverBasicInfoEditFormProps) => {
+  const {
+    data: profile,
+    isPending,
+    isError,
+    error,
+    refetch,
+  } = useMoverProfile();
+
+  if (isPending) {
+    return <Spinner message="기본정보 불러오는 중..." />;
+  }
+
+  if (isError) {
+    const message =
+      error instanceof ApiError
+        ? error.message
+        : '기본정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
+
+    return (
+      <div className="flex w-full max-w-[87.5rem] flex-col items-center gap-6 py-16">
+        <p className="text-center text-lg-medium text-gray-400">{message}</p>
+        <Button
+          type="button"
+          variant="outlined"
+          size="sm"
+          onClick={() => {
+            void refetch();
+          }}
+          className="max-w-[12rem]"
+        >
+          다시 시도
+        </Button>
+      </div>
+    );
+  }
+
+  if (profile === null) {
+    redirect('/profile/mover');
+  }
+
+  return (
+    <MoverBasicInfoEditFields
+      key={profile.updatedAt}
+      profile={profile}
+      className={className}
+    />
   );
 };
