@@ -8,7 +8,7 @@ import {
   COMMUNITY_WRITE_TOOLBAR_CLASS,
 } from './communityWriteStyles';
 
-const TOOLBAR_ITEMS = ['B', 'I', 'H1', 'H2', '≡', '🔗', '🖼'] as const;
+const TOOLBAR_ITEMS = ['B', 'I', 'H1', 'H2', '≡', '🔗'] as const;
 
 interface CommunityWriteContentFieldProps {
   value: string;
@@ -16,7 +16,7 @@ interface CommunityWriteContentFieldProps {
   className?: string;
 }
 
-/** 게시글 본문 — 툴바 + textarea (Figma 15211:41894–41903) */
+/** 게시글 본문 — 툴바 + textarea (Figma 15211:41641) */
 export const CommunityWriteContentField = ({
   value,
   onChange,

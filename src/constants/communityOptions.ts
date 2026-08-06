@@ -46,10 +46,26 @@ export const BOARD_WRITE_CATEGORY_OPTIONS = BOARD_CATEGORY_VALUES.map(
 
 export const FURNITURE_WRITE_CATEGORY = 'FURNITURE_SHARE' as const;
 
-export const getDefaultWriteCategory = (
-  tab: CommunityTabId
-): PostCategory =>
-  tab === 'furniture' ? FURNITURE_WRITE_CATEGORY : 'MOVING_TIP';
+/** 게시글 작성 — 전체 카테고리 (탭 분기 없음) */
+export const WRITE_CATEGORY_OPTIONS: {
+  label: string;
+  value: PostCategory;
+}[] = [
+  ...BOARD_WRITE_CATEGORY_OPTIONS,
+  {
+    label: POST_CATEGORY_LABEL.FURNITURE_SHARE,
+    value: FURNITURE_WRITE_CATEGORY,
+  },
+];
+
+/** 게시글 작성 — 가구나눔 지역 선택 (전체 제외) */
+export const WRITE_REGION_OPTIONS: { label: string; value: Region }[] =
+  REGION_CHIP_OPTIONS.map((option) => ({
+    label: option.label,
+    value: option.value,
+  }));
+
+export const DEFAULT_WRITE_CATEGORY: PostCategory = 'MOVING_TIP';
 
 /** 커뮤니티 지역 필터 — commonOptions 칩 + 전체 */
 export const REGION_FILTER_OPTIONS: {

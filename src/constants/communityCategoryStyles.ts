@@ -26,3 +26,19 @@ export const POST_CATEGORY_STYLE: Record<
     labelClassName: 'text-yellow-100',
   },
 };
+
+/** 작성 페이지 칩 — 카테고리·지역 공통 미선택 (흰색 + 테두리) */
+export const COMMUNITY_WRITE_CHIP_UNSELECTED_CLASS =
+  'bg-white border border-line-200 text-gray-400';
+
+export const getPostCategoryChipClassName = (
+  category: PostCategory,
+  isSelected: boolean
+): string => {
+  if (!isSelected) {
+    return COMMUNITY_WRITE_CHIP_UNSELECTED_CLASS;
+  }
+
+  const { badgeClassName, labelClassName } = POST_CATEGORY_STYLE[category];
+  return `${badgeClassName} ${labelClassName}`;
+};

@@ -1,49 +1,61 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import {
-  getDefaultWriteCategory,
-  parseCommunityTabId,
-  type CommunityTabId,
-} from '@/constants/communityOptions';
-import type { PostCategory } from '@/types/community';
+import { DEFAULT_WRITE_CATEGORY } from '@/constants/communityOptions';
+import { cn } from '@/lib/utils';
+import type { PostCategory, Region } from '@/types/community';
 
-import { COMMUNITY_DETAIL_DIVIDER } from '../[id]/_components/communityDetailStyles';
-import { COMMUNITY_PAGE_SHELL } from '../_components/communityLayout';
-import { CommunityTabBar } from '../_components/CommunityTabBar';
+import { COMMUNITY_DETAIL_DIVIDER } from '../(browse)/[id]/_components/communityDetailStyles';
+import {
+  COMMUNITY_DESKTOP_X,
+  COMMUNITY_DETAIL_MAX_W,
+  COMMUNITY_HEADER_X,
+} from '../_components/communityLayout';
 import { CommunityWriteCategoryChips } from './_components/CommunityWriteCategoryChips';
 import { CommunityWriteContentField } from './_components/CommunityWriteContentField';
 import { CommunityWriteImageField } from './_components/CommunityWriteImageField';
+import { CommunityWriteRegionChips } from './_components/CommunityWriteRegionChips';
 import {
+  COMMUNITY_WRITE_ACTIONS_CLASS,
   COMMUNITY_WRITE_CANCEL_BUTTON_CLASS,
+  COMMUNITY_WRITE_FORM_GAP_CLASS,
+  COMMUNITY_WRITE_HEADER_DIVIDER_MT_CLASS,
   COMMUNITY_WRITE_LABEL_CLASS,
-  COMMUNITY_WRITE_SECTION_X,
+  COMMUNITY_WRITE_MAIN_CLASS,
+  COMMUNITY_WRITE_PAGE_TITLE_CLASS,
   COMMUNITY_WRITE_SUBMIT_BUTTON_CLASS,
   COMMUNITY_WRITE_TITLE_INPUT_CLASS,
 } from './_components/communityWriteStyles';
 
-/** 커뮤니티 게시글 작성 — Figma Mobile 15211:41821 */
+/** 커뮤니티 게시글 작성 — Figma Mobile / Tablet / Desktop 15211:41641 */
 export const CommunityWritePageClient = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialTab = parseCommunityTabId(searchParams.get('tab'));
 
-  const [activeTab, setActiveTab] = useState<CommunityTabId>(initialTab);
-  const [category, setCategory] = useState<PostCategory>(() =>
-    getDefaultWriteCategory(initialTab)
-  );
+  const [category, setCategory] = useState<PostCategory>(DEFAULT_WRITE_CATEGORY);
+  const [region, setRegion] = useState<Region | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const imagePreviewsRef = useRef<string[]>([]);
   imagePreviewsRef.current = imagePreviews;
 
-  const isSubmitDisabled = useMemo(
-    () => title.trim().length === 0 || content.trim().length === 0,
-    [content, title]
-  );
+  const isFurnitureShare = category === 'FURNITURE_SHARE';
+
+  const isSubmitDisabled = useMemo(() => {
+    if (title.trim().length === 0 || content.trim().length === 0) {
+      return true;
+    }
+
+    if (isFurnitureShare) {
+      if (region === null || imagePreviews.length === 0) {
+        return true;
+      }
+    }
+
+    return false;
+  }, [content, imagePreviews.length, isFurnitureShare, region, title]);
 
   useEffect(
     () => () => {
@@ -54,9 +66,12 @@ export const CommunityWritePageClient = () => {
     []
   );
 
-  const handleTabChange = useCallback((tabId: CommunityTabId) => {
-    setActiveTab(tabId);
-    setCategory(getDefaultWriteCategory(tabId));
+  const handleCategoryChange = useCallback((nextCategory: PostCategory) => {
+    setCategory(nextCategory);
+
+    if (nextCategory !== 'FURNITURE_SHARE') {
+      setRegion(null);
+    }
   }, []);
 
   const handleAddFiles = useCallback((files: File[]) => {
@@ -87,30 +102,40 @@ export const CommunityWritePageClient = () => {
   }, [isSubmitDisabled]);
 
   return (
-    <div className={COMMUNITY_PAGE_SHELL}>
-      <CommunityTabBar activeTab={activeTab} onTabChange={handleTabChange} />
-
-      <div className={`${COMMUNITY_WRITE_SECTION_X} pb-10 pt-6`}>
+    <div
+      className={cn(
+        COMMUNITY_HEADER_X,
+        COMMUNITY_DESKTOP_X,
+        COMMUNITY_WRITE_MAIN_CLASS
+      )}
+    >
+      <div className={COMMUNITY_DETAIL_MAX_W}>
         <header>
-          <h1 className="text-lg-bold text-black-400">게시글 작성</h1>
+          <h1 className={COMMUNITY_WRITE_PAGE_TITLE_CLASS}>게시글 작성</h1>
           <div
-            className={`${COMMUNITY_DETAIL_DIVIDER} mt-4`}
+            className={cn(
+              COMMUNITY_DETAIL_DIVIDER,
+              COMMUNITY_WRITE_HEADER_DIVIDER_MT_CLASS
+            )}
             aria-hidden
           />
         </header>
 
         <form
-          className="mt-6 flex flex-col gap-6"
+          className={COMMUNITY_WRITE_FORM_GAP_CLASS}
           onSubmit={(event) => {
             event.preventDefault();
             handleSubmit();
           }}
         >
           <CommunityWriteCategoryChips
-            activeTab={activeTab}
             value={category}
-            onChange={setCategory}
+            onChange={handleCategoryChange}
           />
+
+          {isFurnitureShare ? (
+            <CommunityWriteRegionChips value={region} onChange={setRegion} />
+          ) : null}
 
           <section>
             <h2 className={COMMUNITY_WRITE_LABEL_CLASS}>제목</h2>
@@ -123,7 +148,7 @@ export const CommunityWritePageClient = () => {
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="제목을 입력해 주세요."
-              className={`${COMMUNITY_WRITE_TITLE_INPUT_CLASS} mt-2.5`}
+              className={cn(COMMUNITY_WRITE_TITLE_INPUT_CLASS, 'mt-2.5')}
             />
           </section>
 
@@ -133,11 +158,12 @@ export const CommunityWritePageClient = () => {
             previews={imagePreviews}
             onAddFiles={handleAddFiles}
             onRemoveAt={handleRemoveImageAt}
+            requireAtLeastOne={isFurnitureShare}
           />
 
           <div className={COMMUNITY_DETAIL_DIVIDER} aria-hidden />
 
-          <div className="flex gap-2">
+          <div className={COMMUNITY_WRITE_ACTIONS_CLASS}>
             <button
               type="button"
               onClick={handleCancel}

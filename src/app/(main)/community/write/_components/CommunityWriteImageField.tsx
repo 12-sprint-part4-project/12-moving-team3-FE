@@ -6,7 +6,9 @@ import { type ChangeEvent, useRef } from 'react';
 import CloseIcon from '@/assets/icons/close.svg';
 
 import {
+  COMMUNITY_WRITE_HINT_CLASS,
   COMMUNITY_WRITE_IMAGE_ADD_BUTTON_CLASS,
+  COMMUNITY_WRITE_IMAGE_THUMB_CLASS,
   COMMUNITY_WRITE_LABEL_CLASS,
 } from './communityWriteStyles';
 
@@ -16,14 +18,16 @@ interface CommunityWriteImageFieldProps {
   previews: string[];
   onAddFiles: (files: File[]) => void;
   onRemoveAt: (index: number) => void;
+  requireAtLeastOne?: boolean;
   className?: string;
 }
 
-/** 게시글 이미지 업로드 — Mobile 80×80 썸네일 (Figma 15211:41904–41906) */
+/** 게시글 이미지 업로드 — 80×80 썸네일 (Figma 15211:41641) */
 export const CommunityWriteImageField = ({
   previews,
   onAddFiles,
   onRemoveAt,
+  requireAtLeastOne = false,
   className = '',
 }: CommunityWriteImageFieldProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -43,14 +47,18 @@ export const CommunityWriteImageField = ({
 
   return (
     <section className={className}>
-      <h2 className={COMMUNITY_WRITE_LABEL_CLASS}>이미지</h2>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+        <h2 className={COMMUNITY_WRITE_LABEL_CLASS}>이미지</h2>
+        {requireAtLeastOne ? (
+          <p className={COMMUNITY_WRITE_HINT_CLASS}>
+            가구나눔 작성 시 이미지를 1장 이상 첨부해 주세요.
+          </p>
+        ) : null}
+      </div>
 
       <div className="mt-2.5 flex flex-wrap gap-2">
         {previews.map((preview, index) => (
-          <div
-            key={preview}
-            className="relative size-20 shrink-0 overflow-hidden rounded-lg border border-shadow-gray-200"
-          >
+          <div key={preview} className={COMMUNITY_WRITE_IMAGE_THUMB_CLASS}>
             <Image
               src={preview}
               alt={`업로드 이미지 ${index + 1}`}
