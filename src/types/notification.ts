@@ -1,6 +1,6 @@
 import type { ApiUserType } from '@/types/auth';
 
-/** BE NotificationType 12종 — 타입·zod 공통 소스 */
+/** BE NotificationType — 타입·zod 공통 소스 */
 export const NOTIFICATION_TYPES = [
   'NEW_QUOTE_REQUEST_ARRIVED',
   'NEW_DESIGNATED_QUOTE_REQUEST_ARRIVED',
@@ -13,6 +13,9 @@ export const NOTIFICATION_TYPES = [
   'REVIEW_REQUESTED',
   'REVIEW_WRITTEN',
   'COMMUNITY_COMMENT',
+  'COMMUNITY_REPLY',
+  'POST_REMOVED_BY_REPORT',
+  'CHAT_ROOM_OPENED',
   'SANCTION_NOTIFIED',
 ] as const;
 
@@ -31,6 +34,9 @@ export interface NotificationItem {
   createdAt: string;
   quoteId: number | null;
   estimateRequestId: number | null;
+  commentId: number | null;
+  reviewId: number | null;
+  userReportId: number | null;
 }
 
 /** GET /api/notifications 응답 */

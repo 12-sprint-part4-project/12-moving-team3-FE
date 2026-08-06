@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { NOTIFICATION_TYPES } from '@/types/notification';
 
-/** BE NotificationType 12종 — NOTIFICATION_TYPES 단일 소스 */
+/** BE NotificationType — NOTIFICATION_TYPES 단일 소스 */
 export const notificationTypeSchema = z.enum(NOTIFICATION_TYPES);
 
 /** 알림 목록/읽음 공통 아이템 */
@@ -16,6 +16,9 @@ export const notificationItemSchema = z.object({
   createdAt: z.string(),
   quoteId: z.number().nullable(),
   estimateRequestId: z.number().nullable(),
+  commentId: z.number().nullable(),
+  reviewId: z.number().nullable(),
+  userReportId: z.number().nullable(),
 });
 
 /** GET /api/notifications 응답 */
