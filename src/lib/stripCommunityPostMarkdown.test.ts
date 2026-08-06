@@ -31,4 +31,10 @@ describe('normalizeCommunityPostContentForRender', () => {
       normalizeCommunityPostContentForRender('[](https://example.com)')
     ).toBe('[https://example.com](https://example.com)');
   });
+
+  it('각괄호 자동 링크를 markdown 링크로 변환한다', () => {
+    expect(
+      normalizeCommunityPostContentForRender('<https://example.com>')
+    ).toBe('[https://example.com](https://example.com)');
+  });
 });

@@ -44,8 +44,8 @@ export const normalizeCommunityPostContentForRender = (
 ): string => {
   let markdown = decodeHtmlEntities(content);
   markdown = convertHtmlAnchorsToMarkdown(markdown);
-  markdown = stripRemainingHtml(markdown);
   markdown = normalizeAutolinkAngles(markdown);
+  markdown = stripRemainingHtml(markdown);
   markdown = fixEmptyMarkdownLinks(markdown);
 
   return markdown.replace(/\n{3,}/g, '\n\n').trim();
