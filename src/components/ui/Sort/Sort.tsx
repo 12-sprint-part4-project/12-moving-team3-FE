@@ -45,7 +45,7 @@ const SIZE_STYLES = {
   },
   md: {
     trigger:
-      'h-10 gap-2.5 rounded-lg bg-white px-2.5 text-md-medium leading-none text-black-400 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-gray-300/20',
+      'h-10 gap-2.5 rounded-lg bg-white px-2.5 text-md-medium leading-none text-black-400',
     option:
       'h-10 rounded-none bg-white px-2.5 text-md-medium leading-none text-black-400',
     icon: 'size-5',
