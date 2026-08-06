@@ -2,7 +2,10 @@
 
 import { useState } from 'react';
 
-import { ReportButton } from '@/components/reports/ReportButton';
+import {
+  ReportButton,
+  type ReportButtonVariant,
+} from '@/components/reports/ReportButton';
 import { ReportCategoryModal } from '@/components/reports/ReportCategoryModal';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,6 +17,7 @@ import type { ReportCategory, ReportTarget } from '@/types/report';
 export interface ReportActionProps {
   target: ReportTarget;
   targetId: string;
+  buttonVariant?: ReportButtonVariant;
   className?: string;
 }
 
@@ -24,6 +28,7 @@ export interface ReportActionProps {
 export const ReportAction = ({
   target,
   targetId,
+  buttonVariant = 'default',
   className = '',
 }: ReportActionProps) => {
   const { user } = useAuth();
@@ -57,7 +62,11 @@ export const ReportAction = ({
 
   return (
     <div className={cn(className)}>
-      <ReportButton onClick={handleOpen} disabled={isPending} />
+      <ReportButton
+        onClick={handleOpen}
+        disabled={isPending}
+        variant={buttonVariant}
+      />
 
       {isModalOpen ? (
         <Modal placement="bottom" onClose={handleClose}>

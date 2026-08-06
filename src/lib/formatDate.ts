@@ -49,6 +49,16 @@ export const formatShortDateLabel = (value: string | null): string => {
   return `${year}.${pad2(date.getMonth() + 1)}.${pad2(date.getDate())}`;
 };
 
+/** 커뮤니티 게시글 메타 날짜 — 예: 2025.01.15 */
+export const formatDotDateLabel = (value: string): string => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  return `${date.getFullYear()}.${pad2(date.getMonth() + 1)}.${pad2(date.getDate())}`;
+};
+
 /**
  * 견적 신청일 등 한국어 긴 날짜 라벨 (Asia/Seoul 캘린더 일자)
  * 예: 2024-06-24T00:00:00.000Z → 2024년 6월 24일

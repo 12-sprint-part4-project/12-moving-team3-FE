@@ -3,8 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { getNotifications } from '@/services/notificationApi';
 import type { NotificationRole } from '@/types/notification';
 
-/** SSE 연동 전 임시 신선도 (10초) */
-const NOTIFICATION_STALE_TIME_MS = 10_000;
+/** SSE 푸시가 주 갱신 경로이므로 REST 재조회는 덜 자주 한다 */
+const NOTIFICATION_STALE_TIME_MS = 30_000;
 
 export const notificationQueryKeys = {
   all: ['notifications'] as const,

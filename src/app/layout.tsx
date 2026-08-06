@@ -4,6 +4,7 @@ import './globals.css';
 import { Header } from '@/components/layout/Header';
 import { AuthProvider } from '@/providers/AuthProvider';
 import { ChatSocketProvider } from '@/providers/ChatSocketProvider';
+import { NotificationSseProvider } from '@/providers/NotificationSseProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { ToastProvider } from '@/providers/ToastProvider';
 
@@ -31,8 +32,10 @@ export default function RootLayout({
           <AuthProvider>
             <ToastProvider>
               <ChatSocketProvider>
-                <Header />
-                <main className="flex flex-1 flex-col">{children}</main>
+                <NotificationSseProvider>
+                  <Header />
+                  <main className="flex flex-1 flex-col">{children}</main>
+                </NotificationSseProvider>
               </ChatSocketProvider>
             </ToastProvider>
           </AuthProvider>

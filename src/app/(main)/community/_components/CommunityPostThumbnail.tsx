@@ -3,9 +3,8 @@
 import Image from 'next/image';
 import { useState, type SyntheticEvent } from 'react';
 
+import NoImageIcon from '@/assets/icons/no-image.svg';
 import { cn } from '@/lib/utils';
-
-const MOVING_LOGO_SRC = '/symbol.svg';
 
 interface CommunityPostThumbnailProps {
   thumbnailUrl: string;
@@ -15,7 +14,7 @@ interface CommunityPostThumbnailProps {
 const isBrokenImage = (image: HTMLImageElement): boolean =>
   image.naturalWidth === 0 || image.naturalHeight === 0;
 
-/** presigned URL 로드 실패·손상 시 무빙 로고 fallback */
+/** presigned URL 로드 실패·손상 시 no-image fallback */
 export const CommunityPostThumbnail = ({
   thumbnailUrl,
   className = '',
@@ -38,20 +37,17 @@ export const CommunityPostThumbnail = ({
   return (
     <div
       className={cn(
-        'size-[4.5rem] shrink-0 overflow-hidden rounded-lg',
+        'size-[4.5rem] shrink-0 overflow-hidden rounded-lg bg-background-200',
         'min-[46.5rem]:h-[5.5rem] min-[46.5rem]:w-[5.25rem]',
         'xl:h-[6.25rem] xl:w-[6.75rem]',
-        hasError && 'flex items-center justify-center border border-line-200',
+        hasError && 'flex items-center justify-center',
         className
       )}
     >
       {hasError ? (
-        <Image
-          src={MOVING_LOGO_SRC}
-          alt=""
-          width={32}
-          height={32}
-          className="size-8 object-contain opacity-40 min-[46.5rem]:size-10 xl:size-12"
+        <NoImageIcon
+          className="size-6 text-gray-200 min-[46.5rem]:size-7 xl:size-8"
+          aria-hidden
         />
       ) : (
         <Image

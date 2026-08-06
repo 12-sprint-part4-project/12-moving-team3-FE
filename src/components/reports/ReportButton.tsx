@@ -1,32 +1,47 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import ReportIcon from '@/assets/icons/report.svg';
+import { cn } from '@/lib/utils';
+
+export type ReportButtonVariant = 'default' | 'icon-only';
 
 export interface ReportButtonProps {
   onClick: () => void;
   disabled?: boolean;
+  variant?: ReportButtonVariant;
   className?: string;
 }
 
 /**
- * 신고 트리거 버튼 (신고 아이콘 + 「신고」).
+ * 신고 트리거 버튼 — default: 아이콘+「신고」, icon-only: 아이콘만
  */
 export const ReportButton = ({
   onClick,
   disabled = false,
+  variant = 'default',
   className = '',
 }: ReportButtonProps) => (
   <button
     type="button"
+    aria-label="신고"
     disabled={disabled}
     onClick={onClick}
     className={cn(
-      'inline-flex cursor-pointer items-center gap-1 text-md-medium text-gray-400 transition-colors hover:text-black-300 disabled:cursor-not-allowed disabled:opacity-50',
+      'inline-flex cursor-pointer items-center transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+      variant === 'default' &&
+        'gap-1 text-md-medium text-gray-400 hover:text-black-300',
+      variant === 'icon-only' &&
+        'size-5 shrink-0 justify-center text-gray-400 hover:text-black-300 min-[46.5rem]:size-6 xl:size-7',
       className
     )}
   >
-    <ReportIcon className="size-4" />
-    <span>신고</span>
+    <ReportIcon
+      className={cn(
+        variant === 'icon-only'
+          ? 'size-5 min-[46.5rem]:size-6 xl:size-7'
+          : 'size-4'
+      )}
+    />
+    {variant === 'default' ? <span>신고</span> : null}
   </button>
 );
