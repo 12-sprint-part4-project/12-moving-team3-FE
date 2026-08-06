@@ -65,7 +65,33 @@ export const WRITE_REGION_OPTIONS: { label: string; value: Region }[] =
     value: option.value,
   }));
 
+export const REGION_LABEL: Record<Region, string> = Object.fromEntries(
+  REGION_CHIP_OPTIONS.map((option) => [option.value, option.label])
+) as Record<Region, string>;
+
 export const DEFAULT_WRITE_CATEGORY: PostCategory = 'MOVING_TIP';
+
+export const isPostCategory = (value: string): value is PostCategory =>
+  WRITE_CATEGORY_OPTIONS.some((option) => option.value === value);
+
+/** 작성 페이지 URL category 쿼리 → 초기 카테고리 */
+export const getInitialWriteCategory = (
+  searchParams: Pick<URLSearchParams, 'get'>
+): PostCategory => {
+  const tab = parseCommunityTabId(searchParams.get('tab'));
+
+  if (tab === 'furniture') {
+    return FURNITURE_WRITE_CATEGORY;
+  }
+
+  const category = searchParams.get('category');
+
+  if (category && isPostCategory(category)) {
+    return category;
+  }
+
+  return DEFAULT_WRITE_CATEGORY;
+};
 
 /** 게시글 이미지 최대 첨부 수 — 작성·상세 공통 */
 export const MAX_POST_IMAGE_COUNT = 5;

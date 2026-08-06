@@ -18,8 +18,8 @@ export const POST_CATEGORY_STYLE: Record<
     labelClassName: 'text-green-300',
   },
   ETC: {
-    badgeClassName: 'bg-gray-300/12',
-    labelClassName: 'text-gray-400',
+    badgeClassName: 'bg-gray-500/12',
+    labelClassName: 'text-gray-500',
   },
   FURNITURE_SHARE: {
     badgeClassName: 'bg-yellow-100/12',
@@ -30,6 +30,21 @@ export const POST_CATEGORY_STYLE: Record<
 /** 목록 뱃지·작성 카테고리 칩 공통 레이아웃 — Figma post-card 40×20 / 52×22 / 56×24 */
 export const POST_CATEGORY_CHIP_LAYOUT_CLASS =
   'inline-flex h-5 w-fit min-w-10 shrink-0 items-center justify-center overflow-hidden rounded px-1.5 whitespace-nowrap text-xs-semibold min-[46.5rem]:h-[1.375rem] min-[46.5rem]:min-w-[3.25rem] min-[46.5rem]:rounded-md min-[46.5rem]:px-2 xl:h-6 xl:min-w-14 xl:rounded-md xl:px-2';
+
+/** 목록·상세 지역 뱃지 — 기존 ETC(기타) 색상 */
+export const POST_REGION_BADGE_CLASS = 'bg-gray-300/12 text-gray-400';
+
+/** 목록·상세 카테고리·지역 뱃지 공통 타이포 */
+export const COMMUNITY_POST_BADGE_FONT_CLASS =
+  'text-md-semibold min-[46.5rem]:text-lg-semibold xl:text-2lg-semibold';
+
+/** 목록 카드 뱃지 — COMMUNITY_POST_BADGE_FONT_CLASS보다 한 단계 작게 */
+export const COMMUNITY_POST_LIST_BADGE_FONT_CLASS =
+  'text-sm-semibold min-[46.5rem]:text-md-semibold xl:text-lg-semibold';
+
+/** 목록·상세 카테고리·지역 뱃지 행 레이아웃 */
+export const COMMUNITY_POST_BADGE_ROW_CLASS =
+  'flex flex-wrap items-center gap-1.5 min-[46.5rem]:gap-2';
 
 /** 목록 카테고리 뱃지 색상 */
 export const getPostCategoryBadgeClassName = (

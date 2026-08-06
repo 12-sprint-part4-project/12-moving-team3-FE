@@ -1,5 +1,9 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 
+import ChatIcon from '@/assets/icons/chat.svg';
+import HeartIcon from '@/assets/icons/heart.svg';
+import { COMMUNITY_POST_LIST_BADGE_FONT_CLASS } from '@/constants/communityCategoryStyles';
 import { formatRelativeTime } from '@/lib/formatDate';
 import { stripCommunityPostMarkdown } from '@/lib/stripCommunityPostMarkdown';
 import {
@@ -9,7 +13,7 @@ import {
 import { cn } from '@/lib/utils';
 import type { PostListItem } from '@/types/community';
 
-import { CommunityCategoryBadge } from './CommunityCategoryBadge';
+import { CommunityPostBadges } from './CommunityPostBadges';
 import { CommunityPostThumbnail } from './CommunityPostThumbnail';
 
 interface CommunityPostCardProps {
@@ -18,16 +22,39 @@ interface CommunityPostCardProps {
   className?: string;
 }
 
-const formatPostMeta = (post: PostListItem): string => {
-  const relativeTime = formatRelativeTime(post.createdAt);
+const META_COMMENT_ICON_CLASS =
+  'size-4 shrink-0 text-gray-300 min-[46.5rem]:size-[1.125rem] xl:size-[1.3125rem]';
 
-  return [
-    post.author.nickname,
-    `좋아요 ${post.likeCount}`,
-    `댓글 ${post.commentCount}`,
-    relativeTime,
-  ].join(' · ');
-};
+const META_LIKE_ICON_CLASS =
+  'size-[0.91875rem] shrink-0 text-gray-300 min-[46.5rem]:size-[1.05rem] xl:size-[1.18125rem]';
+
+const META_TEXT_CLASS =
+  'mt-auto shrink-0 pt-1 text-md-regular text-gray-300 min-[46.5rem]:pt-1.5 min-[46.5rem]:text-lg-regular min-[46.5rem]:text-gray-400 xl:pt-2 xl:text-2lg-regular';
+
+interface PostCardMetaStatProps {
+  label: string;
+  value: number;
+  icon: ReactNode;
+  className?: string;
+}
+
+const PostCardMetaStat = ({
+  label,
+  value,
+  icon,
+  className = '',
+}: PostCardMetaStatProps) => (
+  <span
+    className={cn(
+      'inline-flex shrink-0 items-center gap-1.5 min-[46.5rem]:gap-2',
+      className
+    )}
+    aria-label={`${label} ${value}`}
+  >
+    {icon}
+    <span aria-hidden>{value}</span>
+  </span>
+);
 
 /** Figma post-card — Mobile 343×116 / Tablet 600×120 / Desktop 955×140 */
 export const CommunityPostCard = ({
@@ -42,9 +69,9 @@ export const CommunityPostCard = ({
     <Link
       href={buildCommunityPostDetailHref(post.id, listContext)}
       className={cn(
-        'relative flex h-[7.25rem] w-full overflow-hidden rounded-2xl bg-white p-3.5 shadow-request-card',
-        'min-[46.5rem]:h-[7.5rem] min-[46.5rem]:px-5 min-[46.5rem]:py-4',
-        'xl:h-[8.75rem] xl:p-6',
+        'relative flex min-h-[8.25rem] w-full overflow-hidden rounded-2xl bg-white p-3.5 shadow-request-card',
+        'min-[46.5rem]:min-h-[8.75rem] min-[46.5rem]:px-5 min-[46.5rem]:py-4',
+        'xl:min-h-[10rem] xl:p-6',
         className
       )}
     >
@@ -54,13 +81,17 @@ export const CommunityPostCard = ({
           hasThumbnail && 'pr-3 min-[46.5rem]:pr-4 xl:pr-6'
         )}
       >
-        <CommunityCategoryBadge category={post.category} />
+        <CommunityPostBadges
+          category={post.category}
+          region={post.region}
+          fontClassName={COMMUNITY_POST_LIST_BADGE_FONT_CLASS}
+        />
 
         <h2
           className={cn(
-            'mt-1.5 line-clamp-1 text-sm-semibold text-black-400',
-            'min-[46.5rem]:mt-2 min-[46.5rem]:text-lg-semibold',
-            'xl:mt-2 xl:text-2lg-semibold'
+            'mt-1 shrink-0 truncate text-lg-semibold text-black-400',
+            'min-[46.5rem]:mt-1.5 min-[46.5rem]:text-xl-semibold',
+            'xl:mt-2 xl:text-2xl-semibold'
           )}
         >
           {post.title}
@@ -68,25 +99,39 @@ export const CommunityPostCard = ({
 
         <p
           className={cn(
-            'mt-1 line-clamp-1 text-xs-regular text-gray-400',
-            'min-[46.5rem]:text-sm-medium min-[46.5rem]:text-gray-500',
-            'xl:mt-2 xl:text-md-regular xl:text-gray-500'
+            'mt-0.5 shrink-0 truncate text-md-regular text-gray-400',
+            'min-[46.5rem]:mt-1 min-[46.5rem]:text-lg-medium min-[46.5rem]:text-gray-500',
+            'xl:mt-1.5 xl:text-2lg-regular xl:text-gray-500'
           )}
         >
           {stripCommunityPostMarkdown(post.contentPreview)}
         </p>
 
-        <p
+        <div
           className={cn(
-            'mt-auto line-clamp-1 text-xs-regular text-gray-300',
-            'min-[46.5rem]:text-gray-400'
+            META_TEXT_CLASS,
+            'flex min-w-0 items-center gap-x-3 min-[46.5rem]:gap-x-[1.125rem]'
           )}
         >
-          {formatPostMeta(post)}
-        </p>
+          <span className="min-w-0 truncate">{post.author.nickname}</span>
+          <PostCardMetaStat
+            label="좋아요"
+            value={post.likeCount}
+            icon={<HeartIcon className={META_LIKE_ICON_CLASS} aria-hidden />}
+          />
+          <PostCardMetaStat
+            label="댓글"
+            value={post.commentCount}
+            className="gap-0.5 min-[46.5rem]:gap-1"
+            icon={<ChatIcon className={META_COMMENT_ICON_CLASS} aria-hidden />}
+          />
+          <time className="shrink-0" dateTime={post.createdAt}>
+            {formatRelativeTime(post.createdAt)}
+          </time>
+        </div>
 
         {post.isCompleted ? (
-          <span className="mt-1 inline-flex w-fit rounded bg-background-300 px-1.5 py-0.5 text-xs-medium text-gray-400">
+          <span className="mt-1 inline-flex w-fit rounded bg-background-300 px-1.5 py-0.5 text-md-medium text-gray-400">
             나눔 완료
           </span>
         ) : null}
