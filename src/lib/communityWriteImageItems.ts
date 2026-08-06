@@ -1,7 +1,7 @@
-import { uploadPostImage } from '@/lib/uploadPostImage';
-import type { PostDetail } from '@/types/community';
+import { POST_IMAGE_S3_KEY_PREFIX, uploadPostImage } from '@/lib/uploadPostImage';
+import type { PostImage } from '@/types/community';
 
-const POST_IMAGE_PREFIX = 'posts/';
+const POST_IMAGE_PREFIX = POST_IMAGE_S3_KEY_PREFIX;
 
 export type WriteImageItem =
   | { kind: 'pending'; file: File; previewUrl: string }
@@ -52,9 +52,7 @@ export const extractPostImageS3KeyFromUrl = (
   return null;
 };
 
-const resolveExistingImageS3Key = (
-  image: PostDetail['images'][number]
-): string | null => {
+const resolveExistingImageS3Key = (image: PostImage): string | null => {
   const fromKey = normalizePostImageKey(image.imageKey ?? undefined);
 
   if (fromKey !== null) {
@@ -78,7 +76,7 @@ export const createPendingWriteImageItems = (
   }));
 
 export const createExistingWriteImageItems = (
-  images: PostDetail['images']
+  images: PostImage[]
 ): WriteImageItem[] => {
   const items: WriteImageItem[] = [];
 

@@ -21,7 +21,13 @@ import {
 } from '@/lib/communityWriteImageItems';
 import { normalizeCommunityPostContentForRender } from '@/lib/stripCommunityPostMarkdown';
 import { cn } from '@/lib/utils';
-import type { CreatePostBody, PostCategory, Region, UpdatePostBody } from '@/types/community';
+import type {
+  CreatePostBody,
+  PostCategory,
+  PostDetail,
+  Region,
+  UpdatePostBody,
+} from '@/types/community';
 
 import { COMMUNITY_DETAIL_DIVIDER } from '../_components/communitySharedStyles';
 import {
@@ -44,59 +50,57 @@ import {
   COMMUNITY_WRITE_SUBMIT_BUTTON_CLASS,
 } from './_components/communityWriteStyles';
 
-/** 커뮤니티 게시글 작성 — Figma Mobile / Tablet / Desktop 15211:41641 */
-export const CommunityWritePageClient = () => {
+interface CommunityWriteFormProps {
+  isEditMode: boolean;
+  editPost: PostDetail | null;
+  initialCategory: PostCategory;
+  editPostId: number | null;
+}
+
+/** 작성·수정 폼 — editPost 기준 state 초기화 (effect hydration 없음) */
+const CommunityWriteForm = ({
+  isEditMode,
+  editPost,
+  initialCategory,
+  editPostId,
+}: CommunityWriteFormProps) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { showToast } = useToast();
-
-  const initialCategory = useMemo(
-    () => getInitialWriteCategory(searchParams),
-    [searchParams]
-  );
-
-  const editPostId = useMemo(() => {
-    const parsed = Number(searchParams.get('postId'));
-
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
-  }, [searchParams]);
-
   const { mutateAsync: createPost } = useCreatePost();
   const { mutateAsync: updatePost } = useUpdatePost(editPostId ?? 0);
   const { mutateAsync: uploadPostImage } = useUploadPostImage();
 
-  const isEditMode = editPostId !== null;
-
-  const {
-    data: editPost,
-    isPending: isEditPostPending,
-    isFetched: isEditPostFetched,
-    isError: isEditPostError,
-    error: editPostError,
-  } = usePost(editPostId ?? 0);
-
   const editInitialContent = useMemo(
     () =>
-      editPost
-        ? normalizeCommunityPostContentForRender(editPost.content)
-        : '',
+      editPost ? normalizeCommunityPostContentForRender(editPost.content) : '',
     [editPost]
   );
 
-  const [category, setCategory] = useState<PostCategory>(initialCategory);
-  const [region, setRegion] = useState<Region | null>(null);
-  const [title, setTitle] = useState('');
+  const [category, setCategory] = useState<PostCategory>(
+    () => editPost?.category ?? initialCategory
+  );
+  const [region, setRegion] = useState<Region | null>(
+    () => editPost?.region ?? null
+  );
+  const [title, setTitle] = useState(() => editPost?.title ?? '');
   const [isContentEmpty, setIsContentEmpty] = useState(true);
-  const [imageItems, setImageItems] = useState<WriteImageItem[]>([]);
+  const [imageItems, setImageItems] = useState<WriteImageItem[]>(() =>
+    editPost ? createExistingWriteImageItems(editPost.images) : []
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasHydratedEditImages, setHasHydratedEditImages] = useState(false);
   const contentEditorRef = useRef<Editor | null>(null);
-  const imageItemsRef = useRef<WriteImageItem[]>([]);
-  const hasForbiddenRedirectRef = useRef(false);
+  const imageItemsRef = useRef<WriteImageItem[]>(imageItems);
 
   useEffect(() => {
     imageItemsRef.current = imageItems;
   }, [imageItems]);
+
+  useEffect(
+    () => () => {
+      revokePendingWriteImageItems(imageItemsRef.current);
+    },
+    []
+  );
 
   const imagePreviews = useMemo(
     () => getWriteImagePreviewUrls(imageItems),
@@ -124,48 +128,6 @@ export const CommunityWritePageClient = () => {
 
     return false;
   }, [imageItems, isContentEmpty, isEditMode, isFurnitureShare, region, title]);
-
-  useEffect(
-    () => () => {
-      revokePendingWriteImageItems(imageItemsRef.current);
-    },
-    []
-  );
-
-  useEffect(() => {
-    if (
-      !isEditMode ||
-      !isEditPostFetched ||
-      !editPost ||
-      editPost.isMine !== false ||
-      hasForbiddenRedirectRef.current
-    ) {
-      return;
-    }
-
-    hasForbiddenRedirectRef.current = true;
-    showToast({ content: '본인 게시글만 수정할 수 있어요.' });
-    scheduleAppRouterReplace(router, `/community/${editPost.id}`);
-  }, [editPost, isEditMode, isEditPostFetched, router, showToast]);
-
-  useEffect(() => {
-    if (!isEditMode || !editPost) {
-      return;
-    }
-
-    setTitle(editPost.title);
-    setCategory(editPost.category);
-    setRegion(editPost.region);
-  }, [editPost, isEditMode]);
-
-  useEffect(() => {
-    if (!isEditMode || !editPost || hasHydratedEditImages) {
-      return;
-    }
-
-    setImageItems(createExistingWriteImageItems(editPost.images));
-    setHasHydratedEditImages(true);
-  }, [editPost, hasHydratedEditImages, isEditMode]);
 
   const handleCategoryChange = useCallback((nextCategory: PostCategory) => {
     setCategory(nextCategory);
@@ -301,7 +263,127 @@ export const CommunityWritePageClient = () => {
     uploadPostImage,
   ]);
 
-  if (isEditMode && isEditPostFetched && editPost && editPost.isMine === false) {
+  return (
+    <form
+      className={COMMUNITY_WRITE_FORM_GAP_CLASS}
+      onSubmit={(event) => {
+        event.preventDefault();
+        void handleSubmit();
+      }}
+    >
+      <CommunityWriteCategoryChips
+        value={category}
+        onChange={handleCategoryChange}
+        readOnly={isEditMode}
+      />
+
+      {isFurnitureShare ? (
+        <CommunityWriteRegionChips
+          value={region}
+          onChange={setRegion}
+          readOnly={isEditMode}
+        />
+      ) : null}
+
+      <CommunityWriteTitleField
+        value={title}
+        onChange={setTitle}
+        readOnly={isEditMode}
+      />
+
+      <CommunityWriteContentField
+        initialContent={isEditMode ? editInitialContent : ''}
+        onEditorReady={handleEditorReady}
+        onEditorUpdate={handleEditorUpdate}
+      />
+
+      <CommunityWriteImageField
+        previews={imagePreviews}
+        onAddFiles={handleAddFiles}
+        onRemoveAt={handleRemoveImageAt}
+        onImageError={handleImageError}
+        requireAtLeastOne={isFurnitureShare && !isEditMode}
+      />
+
+      <div className={COMMUNITY_DETAIL_DIVIDER} aria-hidden />
+
+      <div className={COMMUNITY_WRITE_ACTIONS_CLASS}>
+        <button
+          type="button"
+          onClick={handleCancel}
+          disabled={isSubmitting}
+          className={COMMUNITY_WRITE_CANCEL_BUTTON_CLASS}
+        >
+          취소
+        </button>
+        <button
+          type="submit"
+          disabled={isSubmitDisabled || isSubmitting}
+          className={COMMUNITY_WRITE_SUBMIT_BUTTON_CLASS}
+        >
+          {isSubmitting
+            ? isEditMode
+              ? '수정 중…'
+              : '등록 중…'
+            : isEditMode
+              ? '수정'
+              : '등록'}
+        </button>
+      </div>
+    </form>
+  );
+};
+
+/** 커뮤니티 게시글 작성 — Figma Mobile / Tablet / Desktop 15211:41641 */
+export const CommunityWritePageClient = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { showToast } = useToast();
+  const hasForbiddenRedirectRef = useRef(false);
+
+  const initialCategory = useMemo(
+    () => getInitialWriteCategory(searchParams),
+    [searchParams]
+  );
+
+  const editPostId = useMemo(() => {
+    const parsed = Number(searchParams.get('postId'));
+
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+  }, [searchParams]);
+
+  const isEditMode = editPostId !== null;
+
+  const {
+    data: editPost,
+    isPending: isEditPostPending,
+    isFetched: isEditPostFetched,
+    isError: isEditPostError,
+    error: editPostError,
+  } = usePost(editPostId ?? 0);
+
+  useEffect(() => {
+    if (
+      !isEditMode ||
+      !isEditPostFetched ||
+      !editPost ||
+      editPost.isMine === true ||
+      hasForbiddenRedirectRef.current
+    ) {
+      return;
+    }
+
+    hasForbiddenRedirectRef.current = true;
+    showToast({ content: '본인 게시글만 수정할 수 있어요.' });
+    scheduleAppRouterReplace(router, `/community/${editPost.id}`);
+  }, [editPost, isEditMode, isEditPostFetched, router, showToast]);
+
+  if (
+    isEditMode &&
+    isEditPostFetched &&
+    editPost &&
+    editPost.isMine !== true
+  ) {
     return (
       <div className="flex justify-center py-24">
         <Spinner message="게시글로 이동 중..." />
@@ -330,6 +412,11 @@ export const CommunityWritePageClient = () => {
     );
   }
 
+  const formKey =
+    isEditMode && editPost
+      ? `edit-${editPost.id}`
+      : `create-${initialCategory}`;
+
   return (
     <div
       className={cn(
@@ -352,73 +439,13 @@ export const CommunityWritePageClient = () => {
           />
         </header>
 
-        <form
-          className={COMMUNITY_WRITE_FORM_GAP_CLASS}
-          onSubmit={(event) => {
-            event.preventDefault();
-            void handleSubmit();
-          }}
-        >
-          <CommunityWriteCategoryChips
-            value={category}
-            onChange={handleCategoryChange}
-            readOnly={isEditMode}
-          />
-
-          {isFurnitureShare ? (
-            <CommunityWriteRegionChips
-              value={region}
-              onChange={setRegion}
-              readOnly={isEditMode}
-            />
-          ) : null}
-
-          <CommunityWriteTitleField
-            value={title}
-            onChange={setTitle}
-            readOnly={isEditMode}
-          />
-
-          <CommunityWriteContentField
-            initialContent={isEditMode ? editInitialContent : ''}
-            onEditorReady={handleEditorReady}
-            onEditorUpdate={handleEditorUpdate}
-          />
-
-          <CommunityWriteImageField
-            previews={imagePreviews}
-            onAddFiles={handleAddFiles}
-            onRemoveAt={handleRemoveImageAt}
-            onImageError={handleImageError}
-            requireAtLeastOne={isFurnitureShare && !isEditMode}
-          />
-
-          <div className={COMMUNITY_DETAIL_DIVIDER} aria-hidden />
-
-          <div className={COMMUNITY_WRITE_ACTIONS_CLASS}>
-            <button
-              type="button"
-              onClick={handleCancel}
-              disabled={isSubmitting}
-              className={COMMUNITY_WRITE_CANCEL_BUTTON_CLASS}
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitDisabled || isSubmitting}
-              className={COMMUNITY_WRITE_SUBMIT_BUTTON_CLASS}
-            >
-              {isSubmitting
-                ? isEditMode
-                  ? '수정 중…'
-                  : '등록 중…'
-                : isEditMode
-                  ? '수정'
-                  : '등록'}
-            </button>
-          </div>
-        </form>
+        <CommunityWriteForm
+          key={formKey}
+          isEditMode={isEditMode}
+          editPost={editPost ?? null}
+          initialCategory={initialCategory}
+          editPostId={editPostId}
+        />
       </div>
     </div>
   );
