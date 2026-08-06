@@ -9,11 +9,11 @@ export { COMMUNITY_DETAIL_DIVIDER };
 
 /** 댓글 입력 */
 export const COMMUNITY_DETAIL_COMMENT_INPUT =
-  'h-11 min-w-0 flex-1 rounded-lg border border-shadow-gray-200 bg-background-200 px-4 text-sm-medium text-black-400 placeholder:text-gray-400 min-[46.5rem]:text-sm-medium xl:h-[3.625rem] xl:rounded-lg xl:px-5 xl:text-md-regular';
+  'h-11 min-w-0 flex-1 rounded-lg border border-shadow-gray-200 bg-background-200 px-4 text-lg-medium text-black-400 placeholder:text-gray-400 min-[46.5rem]:text-lg-medium xl:h-[3.625rem] xl:rounded-lg xl:px-5 xl:text-2lg-regular';
 
 /** 메타 텍스트 공통 */
 const COMMUNITY_DETAIL_META_BASE =
-  'text-xs-regular text-gray-400 min-[46.5rem]:text-sm-medium xl:text-md-regular';
+  'text-md-regular text-gray-400 min-[46.5rem]:text-lg-medium xl:text-2lg-regular';
 
 /** 메타 닉네임 */
 export const COMMUNITY_DETAIL_META_NICKNAME = `${COMMUNITY_DETAIL_META_BASE} font-bold`;
@@ -47,8 +47,9 @@ export const COMMUNITY_SHARE_BUTTON_CLASS =
 
 /** 본문 — 마크다운 (작성 에디터 prose와 동일 계열) */
 export const COMMUNITY_DETAIL_BODY_MARKDOWN_CLASS = [
-  'px-1.5 text-sm-medium text-black-400 min-[46.5rem]:text-md-regular xl:text-2lg-regular',
+  'px-1.5 text-lg-medium text-black-400 min-[46.5rem]:text-2lg-regular xl:text-2xl-regular',
   COMMUNITY_RICH_TEXT_PROSE_CLASS,
+  '[&_h1]:text-2xl-bold [&_h2]:text-lg-bold',
   '[&_p+p]:mt-2',
 ].join(' ');
 
@@ -61,7 +62,7 @@ export const COMMUNITY_COMMENT_REPLY_INDENT_CLASS =
 
 /** 작성자 뱃지 */
 export const COMMUNITY_POST_AUTHOR_BADGE_CLASS =
-  'inline-flex h-4 shrink-0 items-center justify-center rounded px-1 text-xs-semibold whitespace-nowrap bg-blue-300/12 text-blue-300 tablet:h-[1.125rem] tablet:rounded-md tablet:px-1.5 tablet:text-xs-semibold';
+  'inline-flex h-4 shrink-0 items-center justify-center rounded px-1 text-md-semibold whitespace-nowrap bg-blue-300/12 text-blue-300 tablet:h-[1.125rem] tablet:rounded-md tablet:px-1.5 tablet:text-md-semibold';
 
 /** engagement 입력 바 간격 */
 export const COMMUNITY_ENGAGEMENT_FORM_GAP_CLASS =

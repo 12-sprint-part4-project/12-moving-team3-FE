@@ -75,11 +75,11 @@ const CommunityCommentRow = ({
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 flex-wrap items-center gap-x-1 min-[46.5rem]:gap-x-1.5">
-            <span className="text-xs-semibold text-black-400 min-[46.5rem]:text-sm-semibold xl:text-lg-semibold">
+            <span className="text-md-semibold text-black-400 min-[46.5rem]:text-lg-semibold xl:text-2lg-semibold">
               {item.author.nickname}
             </span>
             {isPostAuthor ? <CommunityPostAuthorBadge /> : null}
-            <span className="text-xs-regular text-gray-400 xl:text-sm-regular">
+            <span className="text-md-regular text-gray-400 xl:text-2lg-regular">
               {relativeTime}
             </span>
           </div>
@@ -90,7 +90,7 @@ const CommunityCommentRow = ({
               disabled={isDeleting}
               onClick={() => onDeleteRequest(item.id)}
               className={cn(
-                'shrink-0 cursor-pointer text-xs-regular text-gray-400 xl:text-sm-regular',
+                'shrink-0 cursor-pointer text-md-regular text-gray-400 xl:text-2lg-regular',
                 'hover:text-black-400 disabled:cursor-not-allowed disabled:opacity-60'
               )}
             >
@@ -98,7 +98,7 @@ const CommunityCommentRow = ({
             </button>
           ) : null}
         </div>
-        <p className="mt-0.5 text-xs-regular whitespace-pre-wrap text-black-400 min-[46.5rem]:mt-1 min-[46.5rem]:text-sm-medium xl:text-lg-regular">
+        <p className="mt-0.5 text-md-regular whitespace-pre-wrap text-black-400 min-[46.5rem]:mt-1 min-[46.5rem]:text-lg-medium xl:text-2lg-regular">
           {item.content}
         </p>
       </div>

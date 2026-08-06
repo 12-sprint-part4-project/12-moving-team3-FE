@@ -31,7 +31,7 @@ import { formatDotDateLabel } from '@/lib/formatDate';
 import { stripCommunityPostMarkdown } from '@/lib/stripCommunityPostMarkdown';
 import { cn } from '@/lib/utils';
 
-import { CommunityCategoryBadge } from '../../_components/CommunityCategoryBadge';
+import { CommunityPostBadges } from '../../_components/CommunityPostBadges';
 import { useCommunityTabBarOverride } from '../../_components/CommunityLayoutClient';
 import {
   COMMUNITY_DESKTOP_X,
@@ -383,13 +383,13 @@ export const CommunityPostDetailPageClient = ({
         )}
       >
         <div className={COMMUNITY_DETAIL_MAX_W}>
-          <CommunityCategoryBadge category={post.category} />
+          <CommunityPostBadges category={post.category} region={post.region} />
 
           <div className="mt-4 min-[46.5rem]:mt-5 xl:mt-6">
             <h1
               className={cn(
-                'text-2lg-bold text-black-400',
-                'min-[46.5rem]:text-xl-bold xl:text-2xl-bold'
+                'text-2xl-bold text-black-400',
+                'min-[46.5rem]:text-2xl-bold xl:text-3xl-bold'
               )}
             >
               {post.title}
