@@ -260,7 +260,9 @@ export const CommunityPageClient = () => {
 
   const emptyMessage = listKeyword
     ? '검색 결과가 없습니다.'
-    : '등록된 게시글이 없습니다.';
+    : activeTab === 'furniture'
+      ? '등록된 나눔 글이 없습니다.'
+      : '등록된 게시글이 없습니다.';
 
   return (
     <>
@@ -358,6 +360,7 @@ export const CommunityPageClient = () => {
           <CommunityPostList
             posts={posts}
             listContext={listContext}
+            variant={activeTab === 'furniture' ? 'furniture-grid' : 'list'}
             isPending={isPending}
             isError={isError}
             isEmpty={isEmpty}

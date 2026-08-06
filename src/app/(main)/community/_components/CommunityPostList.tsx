@@ -6,11 +6,16 @@ import { cn } from '@/lib/utils';
 import type { PostListContext } from '@/lib/communityListContext';
 import type { PostListItem } from '@/types/community';
 
+import { CommunityFurnitureGridCard } from './CommunityFurnitureGridCard';
 import { CommunityPostCard } from './CommunityPostCard';
+import { COMMUNITY_FURNITURE_GRID_CLASS } from './communityLayout';
+
+type CommunityPostListVariant = 'list' | 'furniture-grid';
 
 interface CommunityPostListProps {
   posts: PostListItem[];
   listContext?: PostListContext;
+  variant?: CommunityPostListVariant;
   isPending: boolean;
   isError: boolean;
   isEmpty: boolean;
@@ -29,6 +34,7 @@ interface CommunityPostListProps {
 export const CommunityPostList = ({
   posts,
   listContext,
+  variant = 'list',
   isPending,
   isError,
   isEmpty,
@@ -42,6 +48,11 @@ export const CommunityPostList = ({
   className = '',
   listClassName = 'flex flex-col gap-2 min-[46.5rem]:gap-8 xl:gap-12',
 }: CommunityPostListProps) => {
+  const isFurnitureGrid = variant === 'furniture-grid';
+  const resolvedListClassName = isFurnitureGrid
+    ? COMMUNITY_FURNITURE_GRID_CLASS
+    : listClassName;
+
   const isInitialError = isError && posts.length === 0;
   const showEmpty = !isPending && !isInitialError && isEmpty;
   const showPosts = !isPending && !isInitialError && posts.length > 0;
@@ -72,10 +83,17 @@ export const CommunityPostList = ({
       ) : null}
 
       {showPosts ? (
-        <ul className={cn(listClassName)}>
+        <ul className={cn('list-none p-0 m-0', resolvedListClassName)}>
           {posts.map((post) => (
-            <li key={post.id}>
-              <CommunityPostCard post={post} listContext={listContext} />
+            <li key={post.id} className={isFurnitureGrid ? 'min-w-0' : undefined}>
+              {isFurnitureGrid ? (
+                <CommunityFurnitureGridCard
+                  post={post}
+                  listContext={listContext}
+                />
+              ) : (
+                <CommunityPostCard post={post} listContext={listContext} />
+              )}
             </li>
           ))}
         </ul>
