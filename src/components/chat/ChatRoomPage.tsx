@@ -27,10 +27,8 @@ export interface ChatRoomPageProps {
   className?: string;
 }
 
-/**
- * Phase 3 채팅방 상세 — 텍스트·이미지 전송, 나가기.
- * 발송 제한 UI(`isMessagingAllowed`)는 Phase 4.
- */
+/** 채팅방 상세 — 텍스트·이미지 전송, 나가기, 발송 제한 */
+
 export const ChatRoomPage = ({
   roomId: roomIdParam,
   className,
@@ -112,7 +110,13 @@ export const ChatRoomPage = ({
     );
   }, [enabled, roomId, messages, markAsRead, user?.id, isNearBottom]);
 
+  const isMessagingAllowed = room?.isMessagingAllowed !== false;
+
   const handleSend = async (content: string) => {
+    if (!isMessagingAllowed) {
+      return;
+    }
+
     try {
       await sendMutation.mutateAsync({
         messageType: 'TEXT',
@@ -131,7 +135,7 @@ export const ChatRoomPage = ({
   };
 
   const handleSendImages = async (files: File[]) => {
-    if (files.length === 0) {
+    if (!isMessagingAllowed || files.length === 0) {
       return;
     }
 
@@ -157,6 +161,7 @@ export const ChatRoomPage = ({
   };
 
   const isSending = sendMutation.isPending || isUploadingImages;
+  const composerDisabled = !isMessagingAllowed;
 
   if (!isReady) {
     return null;
@@ -251,9 +256,15 @@ export const ChatRoomPage = ({
             scrollToBottomSignal={scrollToBottomSignal}
           />
           <ChatComposer
+            disabled={composerDisabled}
+            disabledReason={
+              composerDisabled
+                ? '현재 이 채팅방에서는 메시지를 보낼 수 없습니다.'
+                : undefined
+            }
             isSending={isSending}
             onSend={handleSend}
-            onSendImages={handleSendImages}
+            onSendImages={isMessagingAllowed ? handleSendImages : undefined}
             focusInputSignal={focusInputSignal}
             className="shrink-0"
           />

@@ -7,6 +7,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useSyncExternalStore,
   type ReactNode,
 } from 'react';
@@ -58,6 +59,15 @@ export const ChatSocketProvider = ({ children }: ChatSocketProviderProps) => {
   const { user, isReady } = useAuth();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const userId = user?.id ?? null;
+
+  const queryClientRef = useRef(queryClient);
+  const showToastRef = useRef(showToast);
+
+  useEffect(() => {
+    queryClientRef.current = queryClient;
+    showToastRef.current = showToast;
+  }, [queryClient, showToast]);
 
   const isConnected = useSyncExternalStore(
     subscribeChatSocketConnection,
@@ -65,12 +75,14 @@ export const ChatSocketProvider = ({ children }: ChatSocketProviderProps) => {
     getChatSocketConnectedServerSnapshot
   );
 
+  // 연결 수명은 userId 기준으로만 관리한다.
+  // queryClient/showToast가 바뀌어도 소켓을 끊지 않아 실시간 수신이 끊기지 않게 한다.
   useEffect(() => {
     if (!isReady) {
       return;
     }
 
-    if (!user) {
+    if (!userId) {
       disconnectChatSocket();
       return;
     }
@@ -81,15 +93,15 @@ export const ChatSocketProvider = ({ children }: ChatSocketProviderProps) => {
     }
 
     const handleMessage = (payload: ChatSocketMessagePayload) => {
-      applySocketMessageToCaches(queryClient, payload);
+      applySocketMessageToCaches(queryClientRef.current, payload);
     };
 
     const handleUnread = (payload: ChatSocketUnreadPayload) => {
-      applySocketUnreadToCaches(queryClient, payload);
+      applySocketUnreadToCaches(queryClientRef.current, payload);
     };
 
     const handleError = (payload: ChatSocketErrorPayload) => {
-      showToast({
+      showToastRef.current({
         content: payload.message || '채팅 연결 오류가 발생했습니다.',
       });
     };
@@ -104,7 +116,7 @@ export const ChatSocketProvider = ({ children }: ChatSocketProviderProps) => {
       socket.off(CHAT_SOCKET_SERVER_EVENTS.ERROR, handleError);
       disconnectChatSocket();
     };
-  }, [isReady, user, queryClient, showToast]);
+  }, [isReady, userId]);
 
   const joinRoom = useCallback((roomId: number) => {
     if (!getChatSocket()?.connected) {

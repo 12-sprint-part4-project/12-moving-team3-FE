@@ -10,6 +10,7 @@ import {
 } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
+import { ApiError } from '@/lib/apiClient';
 import {
   createChatRoom,
   getChatMessages,
@@ -26,6 +27,7 @@ import type {
   ChatRoomListItem,
   ChatRoomListResponse,
   CreateChatRoomRequest,
+  LeaveChatRoomResponse,
   MarkChatRoomAsReadRequest,
   SendChatMessageRequest,
 } from '@/types/chat';
@@ -77,6 +79,7 @@ export const useChatRooms = (options?: { enabled?: boolean }) => {
     queryKey: chatQueryKeys.rooms(),
     queryFn: getChatRooms,
     enabled: options?.enabled ?? true,
+    staleTime: 60 * 1000,
   });
 
   const rooms = query.data?.data.rooms ?? [];
@@ -99,6 +102,7 @@ export const useChatRoom = (
     queryKey: chatQueryKeys.room(roomId),
     queryFn: () => getChatRoom(roomId),
     enabled,
+    staleTime: 60 * 1000,
   });
 
   return {
@@ -113,6 +117,7 @@ export const useChatUnreadCount = (options?: { enabled?: boolean }) => {
     queryKey: chatQueryKeys.unread(),
     queryFn: getChatUnreadCount,
     enabled: options?.enabled ?? true,
+    staleTime: 30 * 1000,
   });
 
   return {
@@ -301,20 +306,39 @@ export const useMarkChatRoomAsRead = (roomId: number) => {
   });
 };
 
-/** POST /api/chat/rooms/:roomId/leave — 나가기 */
+const isAlreadyLeftError = (error: unknown): boolean =>
+  error instanceof ApiError &&
+  (error.code === 'ALREADY_LEFT' || error.status === 409);
+
+const removeLeftRoomFromCache = (
+  queryClient: QueryClient,
+  roomId: number
+): void => {
+  updateRoomsListCache(queryClient, (rooms) =>
+    rooms.filter((room) => room.roomId !== roomId)
+  );
+
+  queryClient.removeQueries({ queryKey: chatQueryKeys.room(roomId) });
+  queryClient.removeQueries({ queryKey: chatQueryKeys.messages(roomId) });
+};
+
+/** POST /api/chat/rooms/:roomId/leave — 나가기 (409 ALREADY_LEFT는 성공으로 취급) */
 export const useLeaveChatRoom = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (roomId: number) => leaveChatRoom(roomId),
+    mutationFn: async (roomId: number): Promise<LeaveChatRoomResponse | null> => {
+      try {
+        return await leaveChatRoom(roomId);
+      } catch (error) {
+        if (isAlreadyLeftError(error)) {
+          return null;
+        }
+        throw error;
+      }
+    },
     onSuccess: async (_data, roomId) => {
-      updateRoomsListCache(queryClient, (rooms) =>
-        rooms.filter((room) => room.roomId !== roomId)
-      );
-
-      queryClient.removeQueries({ queryKey: chatQueryKeys.room(roomId) });
-      queryClient.removeQueries({ queryKey: chatQueryKeys.messages(roomId) });
-
+      removeLeftRoomFromCache(queryClient, roomId);
       await queryClient.invalidateQueries({ queryKey: chatQueryKeys.unread() });
     },
   });
