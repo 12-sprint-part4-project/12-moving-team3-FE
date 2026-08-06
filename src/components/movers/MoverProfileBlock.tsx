@@ -3,10 +3,9 @@
 import Link from 'next/link';
 import type { MouseEvent } from 'react';
 
-import LikeActiveIcon from '@/assets/icons/like-active.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
 import StarIcon from '@/assets/icons/star.svg';
-
+import { FavoriteButton } from '@/components/Favorite';
 import { cn } from '@/lib/utils';
 import type { MoverCardModel } from '@/types/mover';
 
@@ -79,30 +78,16 @@ export const MoverProfileBlock = ({
             </Link>
           )}
 
-          <button
-            type="button"
+          <FavoriteButton
+            variant="count"
+            isFavorited={mover.isFavorited}
+            favoritedCount={mover.favoritedCount}
+            isPending={isFavoritePending}
             onClick={handleFavoriteClick}
-            aria-label={mover.isFavorited ? '찜 취소' : '찜하기'}
-            aria-pressed={mover.isFavorited}
-            aria-busy={isFavoritePending}
-            className={cn(
-              'relative z-10 flex shrink-0 cursor-pointer items-center gap-1 text-lg-medium text-blue-400 lg:text-2lg-medium',
-              isFavoritePending && 'opacity-60'
-            )}
-          >
-            <LikeActiveIcon
-              className={cn(
-                'size-5 lg:size-6',
-                mover.isFavorited ? 'text-blue-400' : 'text-gray-200'
-              )}
-              aria-hidden
-            />
-            {mover.favoritedCount !== null ? (
-              <span className="text-blue-400">
-                {mover.favoritedCount.toLocaleString('ko-KR')}
-              </span>
-            ) : null}
-          </button>
+            className="text-lg-medium lg:text-2lg-medium"
+            iconClassName="size-5 lg:size-6"
+            countClassName="text-blue-400"
+          />
         </div>
 
         <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-md-medium lg:gap-x-4 lg:text-lg-medium">

@@ -1,11 +1,11 @@
 'use client';
 
-import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { RegionChip } from '@/components/ui/Chip/RegionChip';
+import { ServiceChip } from '@/components/ui/Chip/ServiceChip';
 import { cn } from '@/lib/utils';
-import { API_MOVE_TYPE_TO_UI } from '@/types/estimateRequest';
 import {
   REGION_LABELS,
+  SERVICE_LABELS,
   type ApiMoveType,
   type ApiRegion,
   type MoverCardModel,
@@ -42,11 +42,9 @@ export const MoverDetailSections = ({
         {mover.services.length > 0 ? (
           <div className="flex flex-wrap gap-2 lg:gap-3">
             {mover.services.map((service: ApiMoveType) => (
-              <MoveTypeChip
-                key={service}
-                type={API_MOVE_TYPE_TO_UI[service]}
-                size="md"
-              />
+              <ServiceChip key={service} variant="textOnly">
+                {SERVICE_LABELS[service]}
+              </ServiceChip>
             ))}
           </div>
         ) : (

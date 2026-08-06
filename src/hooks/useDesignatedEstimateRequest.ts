@@ -4,14 +4,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
+import { useCustomerPendingQuotes } from '@/hooks/useCustomerPendingQuotes';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import type { DesignatedEstimateExistence } from '@/lib/designatedEstimateRequestSchema';
 import { getActiveEstimateRequest } from '@/services/customerEstimateRequestApi';
 import {
   createDesignatedEstimateRequest,
   getDesignatedEstimateExistence,
 } from '@/services/designatedEstimateRequestApi';
-import type { DesignatedEstimateExistence } from '@/lib/designatedEstimateRequestSchema';
 
 export const designatedEstimateQueryKeys = {
   all: ['designated-estimate'] as const,
@@ -65,8 +66,20 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
     enabled: canQueryExistence,
   });
 
+  const pendingQuotesQuery = useCustomerPendingQuotes({
+    enabled: canQueryExistence,
+  });
+
   const isAlreadyDesignated = existenceQuery.data?.exists === true;
-  const isStatusLoading = canQueryExistence && existenceQuery.isPending;
+  const hasReceivedQuoteFromMover = pendingQuotesQuery.quotes.some(
+    (quote) => quote.mover.moverId === moverId
+  );
+  /** 대기 견적 조회 실패 — 견적 수신 여부를 알 수 없으므로 요청 차단(fail-closed) */
+  const isQuoteStatusError =
+    canQueryExistence && pendingQuotesQuery.isError;
+  const isStatusLoading =
+    canQueryExistence &&
+    (existenceQuery.isPending || pendingQuotesQuery.isPending);
 
   const closeNeedGeneralModal = useCallback(() => {
     setNeedGeneralOpen(false);
@@ -132,17 +145,43 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
     },
   });
 
+  const refetchPendingQuotes = pendingQuotesQuery.refetch;
+
   const requestDesignatedEstimate = useCallback(() => {
     if (!moverId || mutation.isPending || isAlreadyDesignated || isStatusLoading) {
       return;
     }
 
+    if (isQuoteStatusError) {
+      showToast({
+        content: '견적 정보를 확인하지 못했어요. 다시 시도해 주세요.',
+      });
+      void refetchPendingQuotes();
+      return;
+    }
+
+    if (hasReceivedQuoteFromMover) {
+      showToast({ content: '이미 견적을 받은 기사님입니다' });
+      return;
+    }
+
     mutation.mutate(moverId);
-  }, [moverId, mutation, isAlreadyDesignated, isStatusLoading]);
+  }, [
+    moverId,
+    mutation,
+    isAlreadyDesignated,
+    isStatusLoading,
+    isQuoteStatusError,
+    hasReceivedQuoteFromMover,
+    refetchPendingQuotes,
+    showToast,
+  ]);
 
   return {
     isPending: mutation.isPending,
     isAlreadyDesignated,
+    hasReceivedQuoteFromMover,
+    isQuoteStatusError,
     isStatusLoading,
     needGeneralOpen,
     alreadyDesignatedOpen,

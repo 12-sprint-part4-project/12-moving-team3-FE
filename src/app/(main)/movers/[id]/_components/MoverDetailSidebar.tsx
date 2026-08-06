@@ -1,7 +1,7 @@
 'use client';
 
-import LikeActiveIcon from '@/assets/icons/like-active.svg';
 import { Button } from '@/components/Button/Button';
+import { FavoriteButton } from '@/components/Favorite';
 import { MoverShareButtons } from '@/components/movers/MoverShareButtons';
 import { cn } from '@/lib/utils';
 
@@ -17,6 +17,8 @@ export interface MoverDetailSidebarProps {
   onDesignatedQuoteClick: () => void;
   isDesignatedPending?: boolean;
   isAlreadyDesignated?: boolean;
+  hasReceivedQuoteFromMover?: boolean;
+  isQuoteStatusError?: boolean;
   isDesignatedStatusLoading?: boolean;
   description?: string | null;
   profileImageUrl?: string | null;
@@ -33,13 +35,17 @@ export const MoverDetailSidebar = ({
   onDesignatedQuoteClick,
   isDesignatedPending = false,
   isAlreadyDesignated = false,
+  hasReceivedQuoteFromMover = false,
+  isQuoteStatusError = false,
   isDesignatedStatusLoading = false,
   description = null,
   profileImageUrl = null,
   className = '',
 }: MoverDetailSidebarProps) => {
-  const isDesignatedDisabled =
+  const isHardDisabled =
     isDesignatedPending || isAlreadyDesignated || isDesignatedStatusLoading;
+  const isSoftBlocked =
+    (hasReceivedQuoteFromMover || isQuoteStatusError) && !isHardDisabled;
 
   return (
     <aside
@@ -54,39 +60,32 @@ export const MoverDetailSidebar = ({
             {name} 기사님에게 지정 견적을 요청해보세요!
           </p>
         ) : null}
-        <button
-          type="button"
+        <FavoriteButton
+          variant="labeled"
+          isFavorited={isFavorited}
+          isPending={isFavoritePending}
           onClick={onFavoriteClick}
-          aria-pressed={isFavorited}
-          aria-busy={isFavoritePending}
-          className={cn(
-            'inline-flex h-[3.375rem] w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-line-200 bg-white text-xl-semibold text-black-400 transition-colors hover:border-blue-200',
-            isFavoritePending && 'opacity-60',
-            isFavorited && 'border-blue-300 text-blue-400'
-          )}
-        >
-          <LikeActiveIcon
-            className={cn(
-              'size-6 shrink-0',
-              isFavorited ? 'text-blue-400' : 'text-gray-200'
-            )}
-            aria-hidden
-          />
-          {isFavorited ? '기사님 찜 취소' : '기사님 찜하기'}
-        </button>
+        />
         {showDesignatedCta ? (
           <Button
             type="button"
             variant="solid"
             size="md"
             onClick={onDesignatedQuoteClick}
-            disabled={isDesignatedDisabled}
+            disabled={isHardDisabled}
+            aria-disabled={isHardDisabled || isSoftBlocked}
             aria-busy={isDesignatedPending || isDesignatedStatusLoading}
+            className={cn(
+              isSoftBlocked &&
+                'cursor-not-allowed bg-gray-100 hover:bg-gray-100'
+            )}
           >
             {getDesignatedButtonLabel(
               isAlreadyDesignated,
+              hasReceivedQuoteFromMover,
               isDesignatedPending,
-              isDesignatedStatusLoading
+              isDesignatedStatusLoading,
+              isQuoteStatusError
             )}
           </Button>
         ) : null}
