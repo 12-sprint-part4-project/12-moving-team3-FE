@@ -36,6 +36,43 @@ export const BOARD_CATEGORY_FILTER_OPTIONS: {
   })),
 ];
 
+/** 게시글 작성 — 게시판 탭 카테고리 (전체 제외) */
+export const BOARD_WRITE_CATEGORY_OPTIONS = BOARD_CATEGORY_VALUES.map(
+  (value) => ({
+    label: POST_CATEGORY_LABEL[value],
+    value,
+  })
+);
+
+export const FURNITURE_WRITE_CATEGORY = 'FURNITURE_SHARE' as const;
+
+/** 게시글 작성 — 전체 카테고리 (탭 분기 없음) */
+export const WRITE_CATEGORY_OPTIONS: {
+  label: string;
+  value: PostCategory;
+}[] = [
+  ...BOARD_WRITE_CATEGORY_OPTIONS,
+  {
+    label: POST_CATEGORY_LABEL.FURNITURE_SHARE,
+    value: FURNITURE_WRITE_CATEGORY,
+  },
+];
+
+/** 게시글 작성 — 가구나눔 지역 선택 (전체 제외) */
+export const WRITE_REGION_OPTIONS: { label: string; value: Region }[] =
+  REGION_CHIP_OPTIONS.map((option) => ({
+    label: option.label,
+    value: option.value,
+  }));
+
+export const DEFAULT_WRITE_CATEGORY: PostCategory = 'MOVING_TIP';
+
+/** 게시글 이미지 최대 첨부 수 — 작성·상세 공통 */
+export const MAX_POST_IMAGE_COUNT = 5;
+
+/** 게시글 제목 최대 길이 — 목록 한 줄 UX (BE max 100) */
+export const MAX_POST_TITLE_LENGTH = 30;
+
 /** 커뮤니티 지역 필터 — commonOptions 칩 + 전체 */
 export const REGION_FILTER_OPTIONS: {
   label: string;

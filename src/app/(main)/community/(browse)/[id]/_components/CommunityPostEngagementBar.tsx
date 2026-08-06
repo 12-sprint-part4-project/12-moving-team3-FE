@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import {
   COMMUNITY_DETAIL_COMMENT_INPUT,
   COMMUNITY_ENGAGEMENT_BUTTON_CLASS,
+  COMMUNITY_ENGAGEMENT_FORM_GAP_CLASS,
   COMMUNITY_ENGAGEMENT_ICON_CLASS,
 } from './communityDetailStyles';
 
@@ -72,8 +73,9 @@ export const CommunityPostEngagementBar = ({
       <form
         onSubmit={handleSubmit}
         className={cn(
-          'mx-auto flex w-full max-w-page items-center gap-[0.6875rem]',
-          'min-[46.5rem]:max-w-none min-[46.5rem]:gap-3 xl:gap-[1.0625rem]'
+          'mx-auto flex w-full max-w-page items-center',
+          COMMUNITY_ENGAGEMENT_FORM_GAP_CLASS,
+          'tablet:max-w-none'
         )}
       >
         <button
