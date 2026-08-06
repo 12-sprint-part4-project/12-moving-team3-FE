@@ -5,16 +5,18 @@ import { getPostCategoryChipClassName } from '@/constants/communityCategoryStyle
 import { cn } from '@/lib/utils';
 import type { PostCategory } from '@/types/community';
 
-import { COMMUNITY_WRITE_LABEL_CLASS } from './communityWriteStyles';
+import {
+  COMMUNITY_WRITE_CHIP_BASE_CLASS,
+  COMMUNITY_WRITE_CHIP_SELECTED_FONT_CLASS,
+  COMMUNITY_WRITE_CHIP_UNSELECTED_FONT_CLASS,
+  COMMUNITY_WRITE_LABEL_CLASS,
+} from './communityWriteStyles';
 
 interface CommunityWriteCategoryChipsProps {
   value: PostCategory;
   onChange: (category: PostCategory) => void;
   className?: string;
 }
-
-const CHIP_BASE_CLASS =
-  'inline-flex cursor-pointer items-center justify-center rounded px-1.5 py-0.5 text-sm-semibold shadow-sm';
 
 /** 게시글 작성 카테고리 칩 — 이사팁·질문·후기·기타·가구나눔 */
 export const CommunityWriteCategoryChips = ({
@@ -35,7 +37,10 @@ export const CommunityWriteCategoryChips = ({
             aria-pressed={isSelected}
             onClick={() => onChange(option.value)}
             className={cn(
-              CHIP_BASE_CLASS,
+              COMMUNITY_WRITE_CHIP_BASE_CLASS,
+              isSelected
+                ? COMMUNITY_WRITE_CHIP_SELECTED_FONT_CLASS
+                : COMMUNITY_WRITE_CHIP_UNSELECTED_FONT_CLASS,
               getPostCategoryChipClassName(option.value, isSelected)
             )}
           >

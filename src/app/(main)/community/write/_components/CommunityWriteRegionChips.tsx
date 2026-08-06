@@ -5,16 +5,19 @@ import { COMMUNITY_WRITE_CHIP_UNSELECTED_CLASS } from '@/constants/communityCate
 import { cn } from '@/lib/utils';
 import type { Region } from '@/types/community';
 
-import { COMMUNITY_WRITE_HINT_CLASS, COMMUNITY_WRITE_LABEL_CLASS } from './communityWriteStyles';
+import {
+  COMMUNITY_WRITE_CHIP_BASE_CLASS,
+  COMMUNITY_WRITE_CHIP_SELECTED_FONT_CLASS,
+  COMMUNITY_WRITE_CHIP_UNSELECTED_FONT_CLASS,
+  COMMUNITY_WRITE_HINT_CLASS,
+  COMMUNITY_WRITE_LABEL_CLASS,
+} from './communityWriteStyles';
 
 interface CommunityWriteRegionChipsProps {
   value: Region | null;
   onChange: (region: Region) => void;
   className?: string;
 }
-
-const CHIP_BASE_CLASS =
-  'inline-flex cursor-pointer items-center justify-center rounded px-1.5 py-0.5 text-sm-semibold shadow-sm';
 
 /** 게시글 작성 지역 칩 — 가구나눔 선택 시 필수 */
 export const CommunityWriteRegionChips = ({
@@ -40,7 +43,10 @@ export const CommunityWriteRegionChips = ({
             aria-pressed={isSelected}
             onClick={() => onChange(option.value)}
             className={cn(
-              CHIP_BASE_CLASS,
+              COMMUNITY_WRITE_CHIP_BASE_CLASS,
+              isSelected
+                ? COMMUNITY_WRITE_CHIP_SELECTED_FONT_CLASS
+                : COMMUNITY_WRITE_CHIP_UNSELECTED_FONT_CLASS,
               isSelected
                 ? 'bg-blue-100 text-blue-300'
                 : COMMUNITY_WRITE_CHIP_UNSELECTED_CLASS

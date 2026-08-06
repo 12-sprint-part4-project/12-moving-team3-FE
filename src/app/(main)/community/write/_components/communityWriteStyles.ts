@@ -16,9 +16,17 @@ export const COMMUNITY_WRITE_LABEL_CLASS =
 export const COMMUNITY_WRITE_HINT_CLASS =
   'text-xs-regular text-gray-400 min-[46.5rem]:text-sm-regular';
 
+/** 카테고리·지역 칩 공통 */
+export const COMMUNITY_WRITE_CHIP_BASE_CLASS =
+  'inline-flex cursor-pointer items-center justify-center rounded px-1.5 py-0.5 shadow-[0_0.0625rem_0.125rem] shadow-shadow-gray-200/10';
+
+/** text-sm — medium(500) / semibold(600) */
+export const COMMUNITY_WRITE_CHIP_UNSELECTED_FONT_CLASS = 'text-sm-medium';
+export const COMMUNITY_WRITE_CHIP_SELECTED_FONT_CLASS = 'text-sm-semibold';
+
 /** 제목 입력 — h-48 */
 export const COMMUNITY_WRITE_TITLE_INPUT_CLASS =
-  'h-12 w-full rounded-lg border border-shadow-gray-200 bg-background-200 px-4 text-xs-medium text-black-400 outline-none placeholder:text-gray-400 min-[46.5rem]:text-sm-medium xl:text-md-regular';
+  'h-12 w-full rounded-lg border border-line-200 bg-white px-4 text-xs-medium text-black-400 outline-none placeholder:text-gray-400 min-[46.5rem]:text-sm-medium xl:text-md-regular';
 
 /** 본문 툴바 — h-44 */
 export const COMMUNITY_WRITE_TOOLBAR_CLASS =
