@@ -44,7 +44,7 @@ export interface EstimateRequestListItem {
   };
   isDesignated: boolean;
   submittedAt: string | null;
-  quoteCount: {
+  quoteCount?: {
     designated: number;
     general: number;
   };
