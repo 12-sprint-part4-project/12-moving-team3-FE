@@ -1,62 +1,62 @@
 'use client';
 
-import { cn } from '@/lib/utils';
+import { EditorContent, useEditor, type Editor } from '@tiptap/react';
+import { useEffect, useRef } from 'react';
 
 import {
-  COMMUNITY_WRITE_CONTENT_TEXTAREA_CLASS,
-  COMMUNITY_WRITE_LABEL_CLASS,
-  COMMUNITY_WRITE_TOOLBAR_CLASS,
-} from './communityWriteStyles';
-
-const TOOLBAR_ITEMS = ['B', 'I', 'H1', 'H2', '≡', '🔗'] as const;
+  getCommunityWriteEditorExtensions,
+  getCommunityWriteEditorProps,
+} from './communityWriteEditor';
+import { CommunityWriteToolbar } from './CommunityWriteToolbar';
+import { COMMUNITY_WRITE_LABEL_CLASS } from './communityWriteStyles';
 
 interface CommunityWriteContentFieldProps {
-  value: string;
-  onChange: (value: string) => void;
+  onEditorReady: (editor: Editor | null) => void;
+  onEditorUpdate: (editor: Editor) => void;
+  onLinkError?: (message: string) => void;
   className?: string;
 }
 
-/** 게시글 본문 — 툴바 + textarea (Figma 15211:41641) */
+/** 게시글 본문 — Tiptap 툴바 + EditorContent (Figma 15211:41641) */
 export const CommunityWriteContentField = ({
-  value,
-  onChange,
+  onEditorReady,
+  onEditorUpdate,
+  onLinkError,
   className = '',
-}: CommunityWriteContentFieldProps) => (
-  <section className={className}>
-    <h2 className={COMMUNITY_WRITE_LABEL_CLASS}>내용</h2>
+}: CommunityWriteContentFieldProps) => {
+  const onEditorUpdateRef = useRef(onEditorUpdate);
 
-    <div className="mt-2.5">
-      <div
-        className={COMMUNITY_WRITE_TOOLBAR_CLASS}
-        role="toolbar"
-        aria-label="본문 서식"
-      >
-        {TOOLBAR_ITEMS.map((item) => (
-          <button
-            key={item}
-            type="button"
-            aria-label={`서식 ${item}`}
-            className={cn(
-              'cursor-pointer text-sm-semibold text-gray-400',
-              item === 'B' && 'font-bold',
-              item === 'I' && 'italic'
-            )}
-          >
-            {item}
-          </button>
-        ))}
+  useEffect(() => {
+    onEditorUpdateRef.current = onEditorUpdate;
+  }, [onEditorUpdate]);
+
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions: getCommunityWriteEditorExtensions(),
+    editorProps: getCommunityWriteEditorProps(),
+    onUpdate: ({ editor: nextEditor }) => {
+      onEditorUpdateRef.current(nextEditor);
+    },
+  });
+
+  useEffect(() => {
+    onEditorReady(editor);
+
+    return () => {
+      onEditorReady(null);
+    };
+  }, [editor, onEditorReady]);
+
+  return (
+    <section className={className}>
+      <h2 className={COMMUNITY_WRITE_LABEL_CLASS}>내용</h2>
+
+      <div className="mt-2.5">
+        {editor !== null ? (
+          <CommunityWriteToolbar editor={editor} onLinkError={onLinkError} />
+        ) : null}
+        <EditorContent editor={editor} />
       </div>
-
-      <label className="sr-only" htmlFor="community-write-content">
-        게시글 내용
-      </label>
-      <textarea
-        id="community-write-content"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder="내용을 입력해 주세요."
-        className={COMMUNITY_WRITE_CONTENT_TEXTAREA_CLASS}
-      />
-    </div>
-  </section>
-);
+    </section>
+  );
+};

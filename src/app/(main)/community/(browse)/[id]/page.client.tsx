@@ -28,6 +28,7 @@ import {
   postListContextToParams,
 } from '@/lib/communityListContext';
 import { formatDotDateLabel } from '@/lib/formatDate';
+import { stripCommunityPostMarkdown } from '@/lib/stripCommunityPostMarkdown';
 import { cn } from '@/lib/utils';
 
 import { CommunityCategoryBadge } from '../../_components/CommunityCategoryBadge';
@@ -39,9 +40,9 @@ import {
   COMMUNITY_SECTION_X,
 } from '../../_components/communityLayout';
 import { CommunityCommentList } from './_components/CommunityCommentList';
+import { CommunityPostDetailContent } from './_components/CommunityPostDetailContent';
 import { ConfirmDeleteModal } from './_components/ConfirmDeleteModal';
 import {
-  COMMUNITY_DETAIL_BODY_TEXT,
   COMMUNITY_DETAIL_DIVIDER,
   COMMUNITY_DETAIL_META_DATE,
   COMMUNITY_DETAIL_META_NICKNAME,
@@ -139,7 +140,16 @@ export const CommunityPostDetailPageClient = ({
   );
 
   const shareImageUrl = imageUrls[0] ?? null;
-  const shareDescription = post?.content.slice(0, 100) ?? null;
+  const postContent = post?.content;
+  const shareDescription = useMemo(() => {
+    if (postContent === undefined) {
+      return null;
+    }
+
+    const plainText = stripCommunityPostMarkdown(postContent);
+
+    return plainText.length > 0 ? plainText.slice(0, 100) : null;
+  }, [postContent]);
 
   useEffect(() => {
     if (post) {
@@ -446,16 +456,14 @@ export const CommunityPostDetailPageClient = ({
             />
           ) : null}
 
-          <p
-            className={cn(
-              COMMUNITY_DETAIL_BODY_TEXT,
+          <CommunityPostDetailContent
+            content={post.content}
+            className={
               imageUrls.length > 0
                 ? 'mt-[1.5625rem] min-[46.5rem]:mt-[2.375rem] xl:mt-16'
                 : 'mt-[2.375rem] min-[46.5rem]:mt-[3.2rem] xl:mt-20'
-            )}
-          >
-            {post.content}
-          </p>
+            }
+          />
 
           <CommunityCommentList
             comments={comments}

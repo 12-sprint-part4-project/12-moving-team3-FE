@@ -1,6 +1,11 @@
 /** Figma 15167:41689 — 게시글 상세 공통 스타일 */
 
-export { COMMUNITY_DETAIL_DIVIDER } from '../../../_components/communitySharedStyles';
+import {
+  COMMUNITY_DETAIL_DIVIDER,
+  COMMUNITY_RICH_TEXT_PROSE_CLASS,
+} from '../../../_components/communitySharedStyles';
+
+export { COMMUNITY_DETAIL_DIVIDER };
 
 /** 댓글 입력 */
 export const COMMUNITY_DETAIL_COMMENT_INPUT =
@@ -40,9 +45,12 @@ export const COMMUNITY_SHARE_ICON_CLASS = 'size-[1.125rem] shrink-0';
 export const COMMUNITY_SHARE_BUTTON_CLASS =
   'inline-flex size-[2.0625rem] shrink-0 cursor-pointer items-center justify-center rounded-xl p-1.5 xl:size-[2.53125rem] xl:rounded-2xl';
 
-/** 본문 */
-export const COMMUNITY_DETAIL_BODY_TEXT =
-  'px-1.5 whitespace-pre-wrap text-sm-medium text-black-400 min-[46.5rem]:text-md-regular xl:text-2lg-regular';
+/** 본문 — 마크다운 (작성 에디터 prose와 동일 계열) */
+export const COMMUNITY_DETAIL_BODY_MARKDOWN_CLASS = [
+  'px-1.5 text-sm-medium text-black-400 min-[46.5rem]:text-md-regular xl:text-2lg-regular',
+  COMMUNITY_RICH_TEXT_PROSE_CLASS,
+  '[&_p+p]:mt-2',
+].join(' ');
 
 /** 댓글 행 간격 */
 export const COMMUNITY_COMMENT_ROW_GAP_CLASS = 'gap-2 tablet:gap-3';

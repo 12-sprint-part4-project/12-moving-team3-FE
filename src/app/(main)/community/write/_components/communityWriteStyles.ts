@@ -1,6 +1,8 @@
 import { getPostCategoryBadgeClassName } from '@/constants/communityCategoryStyles';
 import type { PostCategory } from '@/types/community';
 
+import { COMMUNITY_RICH_TEXT_PROSE_CLASS } from '../../_components/communitySharedStyles';
+
 /** Figma 15211:41641 — 게시글 작성 Mobile / Tablet / Desktop 공통 스타일 */
 
 /** 페이지 본문 영역 — 좌우는 layout 헤더와 동일(COMMUNITY_HEADER_X + COMMUNITY_DESKTOP_X) */
@@ -58,21 +60,37 @@ export const getPostCategoryWriteChipClassName = (
 export const COMMUNITY_WRITE_TITLE_INPUT_CLASS =
   'h-12 w-full rounded-lg border border-line-200 bg-white px-4 text-xs-medium text-black-400 outline-none placeholder:text-gray-400 min-[46.5rem]:text-sm-medium xl:text-md-regular';
 
-/** 제목 글자 수 카운터 */
+/** 제목 입력 래퍼 — 라벨과 입력 간격은 다른 필드와 동일(mt-2.5) */
+export const COMMUNITY_WRITE_TITLE_FIELD_WRAPPER_CLASS = 'relative mt-2.5';
+
+/** 제목 글자 수 카운터 — 섹션 높이에 포함되지 않도록 입력 아래 absolute */
 export const COMMUNITY_WRITE_TITLE_COUNTER_CLASS =
-  'm-0 mt-1 text-right text-xs-regular leading-5 text-gray-400 min-[46.5rem]:text-sm-regular min-[46.5rem]:leading-[1.375rem]';
+  'pointer-events-none absolute right-0 top-full m-0 mt-1 text-right text-xs-regular leading-5 text-gray-400 min-[46.5rem]:text-sm-regular min-[46.5rem]:leading-[1.375rem]';
 
-/** 제목 글자 수 초과 경고 */
+/** 제목 글자 수 초과 경고 — 카운터 아래 absolute (초과 시에만 노출) */
 export const COMMUNITY_WRITE_TITLE_ERROR_CLASS =
-  'm-0 mt-1 text-right text-xs-medium leading-5 text-red-200 min-[46.5rem]:text-sm-medium min-[46.5rem]:leading-[1.375rem]';
+  'absolute right-0 top-full m-0 mt-6 text-right text-xs-medium leading-5 text-red-200 min-[46.5rem]:mt-7 min-[46.5rem]:text-sm-medium min-[46.5rem]:leading-[1.375rem]';
 
-/** 본문 툴바 — textarea 상단, 라운드 없이 연결 */
+/** 본문 툴바 — 에디터 상단, 라운드 없이 연결 */
 export const COMMUNITY_WRITE_TOOLBAR_CLASS =
   'flex h-11 items-center gap-4 border border-b-0 border-shadow-gray-200 bg-background-200 px-3 min-[46.5rem]:gap-5 xl:px-4';
 
-/** 본문 textarea — h-280 */
-export const COMMUNITY_WRITE_CONTENT_TEXTAREA_CLASS =
-  'min-h-[17.5rem] w-full resize-none border border-shadow-gray-200 bg-white px-4 py-4 text-xs-medium text-black-400 outline-none placeholder:text-gray-400 min-[46.5rem]:text-sm-medium xl:text-md-regular';
+/** 본문 툴바 버튼 — 시각 간격 유지, padding + negative margin으로 클릭 영역만 확장 */
+export const COMMUNITY_WRITE_TOOLBAR_BUTTON_CLASS =
+  'relative -mx-2 -my-1 cursor-pointer px-2 py-1 text-sm-semibold text-gray-400';
+
+/** 본문 Tiptap ProseMirror — h-280 */
+const COMMUNITY_WRITE_CONTENT_EDITOR_BASE_CLASS =
+  'min-h-[17.5rem] w-full border border-shadow-gray-200 bg-white px-4 py-4 text-xs-medium text-black-400 outline-none min-[46.5rem]:text-sm-medium xl:text-md-regular';
+
+const COMMUNITY_WRITE_CONTENT_EDITOR_PLACEHOLDER_CLASS =
+  '[&_p.is-editor-empty:first-child]:before:pointer-events-none [&_p.is-editor-empty:first-child]:before:float-left [&_p.is-editor-empty:first-child]:before:h-0 [&_p.is-editor-empty:first-child]:before:text-gray-400 [&_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]';
+
+export const COMMUNITY_WRITE_CONTENT_EDITOR_CLASS = [
+  COMMUNITY_WRITE_CONTENT_EDITOR_BASE_CLASS,
+  COMMUNITY_RICH_TEXT_PROSE_CLASS,
+  COMMUNITY_WRITE_CONTENT_EDITOR_PLACEHOLDER_CLASS,
+].join(' ');
 
 /** 이미지 추가 버튼 — 80×80 */
 export const COMMUNITY_WRITE_IMAGE_ADD_BUTTON_CLASS =
@@ -84,7 +102,7 @@ export const COMMUNITY_WRITE_IMAGE_THUMB_CLASS =
 
 /** 취소 버튼 — Mobile·Tablet flex-1 / Desktop 120px */
 export const COMMUNITY_WRITE_CANCEL_BUTTON_CLASS =
-  'inline-flex h-12 flex-1 cursor-pointer items-center justify-center rounded-lg border border-shadow-gray-200 bg-background-200 text-sm-semibold text-gray-400 min-[46.5rem]:text-sm-semibold xl:h-12 xl:w-[7.5rem] xl:flex-none xl:text-md-semibold';
+  'inline-flex h-12 flex-1 cursor-pointer items-center justify-center rounded-lg border border-shadow-gray-200 bg-background-200 text-sm-semibold text-gray-400 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-300 min-[46.5rem]:text-sm-semibold xl:h-12 xl:w-[7.5rem] xl:flex-none xl:text-md-semibold';
 
 /** 등록 버튼 — Mobile·Tablet flex-1 / Desktop 120px */
 export const COMMUNITY_WRITE_SUBMIT_BUTTON_CLASS =
