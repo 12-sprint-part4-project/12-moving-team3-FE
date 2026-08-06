@@ -5,7 +5,10 @@ import { type ChangeEvent, useRef } from 'react';
 
 import CloseIcon from '@/assets/icons/close.svg';
 import { MAX_POST_IMAGE_COUNT } from '@/constants/communityOptions';
+import { validateChatImageFile } from '@/lib/uploadChatImage';
 import { cn } from '@/lib/utils';
+
+const POST_IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
 
 import {
   COMMUNITY_WRITE_FIELD_ROW_CLASS,
@@ -20,6 +23,7 @@ interface CommunityWriteImageFieldProps {
   previews: string[];
   onAddFiles: (files: File[]) => void;
   onRemoveAt: (index: number) => void;
+  onImageError?: (message: string) => void;
   requireAtLeastOne?: boolean;
   className?: string;
 }
@@ -29,6 +33,7 @@ export const CommunityWriteImageField = ({
   previews,
   onAddFiles,
   onRemoveAt,
+  onImageError,
   requireAtLeastOne = false,
   className = '',
 }: CommunityWriteImageFieldProps) => {
@@ -44,7 +49,32 @@ export const CommunityWriteImageField = ({
     }
 
     const remainingSlots = MAX_POST_IMAGE_COUNT - previews.length;
-    onAddFiles(files.slice(0, remainingSlots));
+    const validFiles: File[] = [];
+    let firstError: string | null = null;
+
+    for (const file of files.slice(0, remainingSlots)) {
+      const errorMessage = validateChatImageFile(file);
+
+      if (errorMessage) {
+        firstError ??= errorMessage;
+        continue;
+      }
+
+      validFiles.push(file);
+    }
+
+    if (validFiles.length === 0) {
+      if (firstError) {
+        onImageError?.(firstError);
+      }
+      return;
+    }
+
+    if (firstError) {
+      onImageError?.(firstError);
+    }
+
+    onAddFiles(validFiles);
   };
 
   return (
@@ -84,7 +114,7 @@ export const CommunityWriteImageField = ({
             <input
               ref={inputRef}
               type="file"
-              accept="image/*"
+              accept={POST_IMAGE_ACCEPT}
               multiple
               aria-label="이미지 파일 선택"
               className="sr-only"

@@ -1,14 +1,25 @@
 'use client';
 
+import type { Editor } from '@tiptap/react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   DEFAULT_WRITE_CATEGORY,
+  MAX_POST_IMAGE_COUNT,
   MAX_POST_TITLE_LENGTH,
 } from '@/constants/communityOptions';
+import { useCreatePost, useUploadPostImage } from '@/hooks/useCommunity';
+import { useToast } from '@/hooks/useToast';
+import { resolveApiErrorMessage } from '@/lib/apiClient';
+import {
+  createPendingImageFiles,
+  revokePendingImageFile,
+  revokePendingImageFiles,
+  type PendingImageFile,
+} from '@/lib/pendingImagePreviews';
 import { cn } from '@/lib/utils';
-import type { PostCategory, Region } from '@/types/community';
+import type { CreatePostBody, PostCategory, Region } from '@/types/community';
 
 import { COMMUNITY_DETAIL_DIVIDER } from '../_components/communitySharedStyles';
 import {
@@ -34,17 +45,27 @@ import {
 /** 커뮤니티 게시글 작성 — Figma Mobile / Tablet / Desktop 15211:41641 */
 export const CommunityWritePageClient = () => {
   const router = useRouter();
+  const { showToast } = useToast();
+  const { mutateAsync: createPost } = useCreatePost();
+  const { mutateAsync: uploadPostImage } = useUploadPostImage();
 
   const [category, setCategory] = useState<PostCategory>(DEFAULT_WRITE_CATEGORY);
   const [region, setRegion] = useState<Region | null>(null);
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const imagePreviewsRef = useRef<string[]>([]);
+  const [isContentEmpty, setIsContentEmpty] = useState(true);
+  const [imageItems, setImageItems] = useState<PendingImageFile[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const contentEditorRef = useRef<Editor | null>(null);
+  const imageItemsRef = useRef<PendingImageFile[]>([]);
 
   useEffect(() => {
-    imagePreviewsRef.current = imagePreviews;
-  }, [imagePreviews]);
+    imageItemsRef.current = imageItems;
+  }, [imageItems]);
+
+  const imagePreviews = useMemo(
+    () => imageItems.map((item) => item.previewUrl),
+    [imageItems]
+  );
 
   const isFurnitureShare = category === 'FURNITURE_SHARE';
 
@@ -54,25 +75,23 @@ export const CommunityWritePageClient = () => {
     if (
       trimmedTitleLength === 0 ||
       trimmedTitleLength > MAX_POST_TITLE_LENGTH ||
-      content.trim().length === 0
+      isContentEmpty
     ) {
       return true;
     }
 
     if (isFurnitureShare) {
-      if (region === null || imagePreviews.length === 0) {
+      if (region === null || imageItems.length === 0) {
         return true;
       }
     }
 
     return false;
-  }, [content, imagePreviews.length, isFurnitureShare, region, title]);
+  }, [imageItems.length, isContentEmpty, isFurnitureShare, region, title]);
 
   useEffect(
     () => () => {
-      imagePreviewsRef.current.forEach((preview) =>
-        URL.revokeObjectURL(preview)
-      );
+      revokePendingImageFiles(imageItemsRef.current);
     },
     []
   );
@@ -86,16 +105,26 @@ export const CommunityWritePageClient = () => {
   }, []);
 
   const handleAddFiles = useCallback((files: File[]) => {
-    const nextPreviews = files.map((file) => URL.createObjectURL(file));
-    setImagePreviews((previous) => [...previous, ...nextPreviews]);
+    setImageItems((previous) => {
+      const remainingSlots = MAX_POST_IMAGE_COUNT - previous.length;
+
+      if (remainingSlots <= 0) {
+        return previous;
+      }
+
+      return [
+        ...previous,
+        ...createPendingImageFiles(files.slice(0, remainingSlots)),
+      ];
+    });
   }, []);
 
   const handleRemoveImageAt = useCallback((index: number) => {
-    setImagePreviews((previous) => {
+    setImageItems((previous) => {
       const target = previous[index];
 
       if (target) {
-        URL.revokeObjectURL(target);
+        revokePendingImageFile(target);
       }
 
       return previous.filter((_, currentIndex) => currentIndex !== index);
@@ -106,13 +135,80 @@ export const CommunityWritePageClient = () => {
     router.push('/community');
   }, [router]);
 
-  const handleSubmit = useCallback(() => {
-    if (isSubmitDisabled) {
+  const handleEditorReady = useCallback((editor: Editor | null) => {
+    contentEditorRef.current = editor;
+    setIsContentEmpty(editor?.isEmpty ?? true);
+  }, []);
+
+  const handleEditorUpdate = useCallback((editor: Editor) => {
+    setIsContentEmpty(editor.isEmpty);
+  }, []);
+
+  const handleLinkError = useCallback(
+    (message: string) => {
+      showToast({ content: message });
+    },
+    [showToast]
+  );
+
+  const handleImageError = useCallback(
+    (message: string) => {
+      showToast({ content: message });
+    },
+    [showToast]
+  );
+
+  const handleSubmit = useCallback(async () => {
+    if (isSubmitDisabled || isSubmitting) {
       return;
     }
 
-    // TODO: useCreatePost API 연동 및 이미지 presigned 업로드 (후속 PR)
-  }, [isSubmitDisabled]);
+    const editor = contentEditorRef.current;
+
+    if (editor === null || editor.isEmpty) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const imageKeys = await Promise.all(
+        imageItems.map((item) => uploadPostImage(item.file))
+      );
+
+      const body: CreatePostBody = {
+        category,
+        title: title.trim(),
+        content: editor.getHTML(),
+        ...(imageKeys.length > 0 ? { imageKeys } : {}),
+        ...(category === 'FURNITURE_SHARE' && region !== null
+          ? { region }
+          : {}),
+      };
+
+      const response = await createPost(body);
+
+      showToast({ content: '게시글이 등록되었습니다.' });
+      router.push(`/community/${response.data.id}`);
+    } catch (error) {
+      showToast({
+        content: resolveApiErrorMessage(error, '게시글 등록에 실패했습니다.'),
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [
+    category,
+    createPost,
+    imageItems,
+    isSubmitDisabled,
+    isSubmitting,
+    region,
+    router,
+    showToast,
+    title,
+    uploadPostImage,
+  ]);
 
   return (
     <div
@@ -138,7 +234,7 @@ export const CommunityWritePageClient = () => {
           className={COMMUNITY_WRITE_FORM_GAP_CLASS}
           onSubmit={(event) => {
             event.preventDefault();
-            handleSubmit();
+            void handleSubmit();
           }}
         >
           <CommunityWriteCategoryChips
@@ -152,12 +248,17 @@ export const CommunityWritePageClient = () => {
 
           <CommunityWriteTitleField value={title} onChange={setTitle} />
 
-          <CommunityWriteContentField value={content} onChange={setContent} />
+          <CommunityWriteContentField
+            onEditorReady={handleEditorReady}
+            onEditorUpdate={handleEditorUpdate}
+            onLinkError={handleLinkError}
+          />
 
           <CommunityWriteImageField
             previews={imagePreviews}
             onAddFiles={handleAddFiles}
             onRemoveAt={handleRemoveImageAt}
+            onImageError={handleImageError}
             requireAtLeastOne={isFurnitureShare}
           />
 
@@ -167,16 +268,17 @@ export const CommunityWritePageClient = () => {
             <button
               type="button"
               onClick={handleCancel}
+              disabled={isSubmitting}
               className={COMMUNITY_WRITE_CANCEL_BUTTON_CLASS}
             >
               취소
             </button>
             <button
               type="submit"
-              disabled={isSubmitDisabled}
+              disabled={isSubmitDisabled || isSubmitting}
               className={COMMUNITY_WRITE_SUBMIT_BUTTON_CLASS}
             >
-              등록
+              {isSubmitting ? '등록 중…' : '등록'}
             </button>
           </div>
         </form>
