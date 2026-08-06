@@ -18,7 +18,7 @@ const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
 
 /**
  * UI 목업용 초기값.
- * Figma Desktop(1:11171) 기본정보 수정_기사님 화면 기준.
+ * Figma Desktop(1:11171) · Tablet(1:11241) · Mobile(1:11307) 기준.
  */
 const MOCK_BASIC_INFO = {
   name: '김코드',
@@ -32,7 +32,8 @@ interface MoverBasicInfoEditFormProps {
 
 /**
  * 기사님 기본정보 수정 폼 (UI only).
- * Figma: Desktop(1:11171) — 좌(이름·이메일·전화) / 우(비밀번호 3필드).
+ * Figma: Mobile(1:11307)·Tablet(1:11241) → lg 미만 단일 컬럼,
+ * Desktop(1:11171) → lg+ 2열.
  */
 export const MoverBasicInfoEditForm = ({
   className,
@@ -69,13 +70,19 @@ export const MoverBasicInfoEditForm = ({
       )}
     >
       <div className="flex w-full flex-col items-stretch gap-5 lg:gap-10">
-        <header className="flex w-full flex-col items-start gap-8 lg:gap-10">
+        {/* Mobile·Tablet: title→divider 16px / Desktop: 40px */}
+        <header className="flex w-full flex-col items-start gap-4 lg:gap-10">
           <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
             기본정보 수정
           </h1>
           <div className="h-px w-full bg-line-100" aria-hidden />
         </header>
 
+        {/*
+          Mobile(1:11307)·Tablet(1:11241): 단일 컬럼
+          — 이름→이메일→전화→비밀번호 3필드
+          Desktop(1:11171): 2열 — 좌(이름·이메일·전화) / 우(비밀번호)
+        */}
         <div className="flex w-full flex-col items-stretch gap-5 lg:flex-row lg:items-start lg:justify-between lg:gap-10">
           <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
             <section className="flex w-full flex-col items-start gap-4">
@@ -151,7 +158,8 @@ export const MoverBasicInfoEditForm = ({
               />
             </section>
 
-            <div className="h-px w-full bg-line-100" aria-hidden />
+            {/* Mobile·Tablet: 현재↔새 비밀번호 사이 구분선 없음 / Desktop: 유지 */}
+            <div className="hidden h-px w-full bg-line-100 lg:block" aria-hidden />
 
             <section className="flex w-full flex-col items-start gap-4">
               <label htmlFor={newPasswordId} className={LABEL_CLASSNAME}>
@@ -194,6 +202,7 @@ export const MoverBasicInfoEditForm = ({
         </div>
       </div>
 
+      {/* Mobile·Tablet: 세로 스택(수정하기→취소, gray) / Desktop: 가로(취소|수정하기, blue) */}
       <div className="flex w-full flex-col gap-2 lg:flex-row lg:justify-between lg:gap-4">
         <Button
           type="submit"
@@ -208,7 +217,7 @@ export const MoverBasicInfoEditForm = ({
           variant="outlined"
           size="sm"
           onClick={handleCancel}
-          className="order-2 lg:order-1 lg:h-16 lg:max-w-[41.25rem] lg:text-xl-semibold"
+          className="order-2 border-gray-200 text-gray-300 shadow-cta hover:border-gray-200 hover:bg-transparent hover:text-gray-300 hover:shadow-cta lg:order-1 lg:h-16 lg:max-w-[41.25rem] lg:border-blue-300 lg:text-blue-300 lg:text-xl-semibold lg:hover:border-blue-300 lg:hover:bg-blue-50 lg:hover:text-blue-300"
         >
           취소
         </Button>

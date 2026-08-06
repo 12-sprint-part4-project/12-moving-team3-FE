@@ -2,7 +2,7 @@ import { MoverBasicInfoEditForm } from '../_components/MoverBasicInfoEditForm';
 
 /**
  * 기사님 기본정보 수정.
- * Figma: Desktop(1:11171) → lg+.
+ * Figma: Mobile(1:11307)·Tablet(1:11241) → lg 미만, Desktop(1:11171) → lg+.
  */
 const MoverBasicInfoEditPage = () => {
   return (
