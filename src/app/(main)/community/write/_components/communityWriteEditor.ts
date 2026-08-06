@@ -12,10 +12,9 @@ export type CommunityWriteToolbarItemId =
   | 'heading1'
   | 'heading2'
   | 'bulletList'
-  | 'orderedList'
-  | 'link';
+  | 'orderedList';
 
-type CommunityWriteToolbarItemKind = 'toggle' | 'action';
+type CommunityWriteToolbarItemKind = 'toggle';
 
 export interface CommunityWriteToolbarItem {
   id: CommunityWriteToolbarItemId;
@@ -36,12 +35,12 @@ export const COMMUNITY_WRITE_TOOLBAR_ITEMS: CommunityWriteToolbarItem[] = [
     ariaLabel: '글머리 기호 목록',
   },
   { id: 'orderedList', kind: 'toggle', label: '1.', ariaLabel: '번호 목록' },
-  { id: 'link', kind: 'action', label: '🔗', ariaLabel: '링크' },
 ];
 
 const COMMUNITY_WRITE_CONTENT_PLACEHOLDER = '내용을 입력해 주세요.';
 
-export const getCommunityWriteEditorExtensions = (): Extensions => [
+/** extensions 인스턴스 재생성·linkify 중복 등록 방지 */
+const COMMUNITY_WRITE_EDITOR_EXTENSIONS: Extensions = [
   StarterKit.configure({
     heading: { levels: [1, 2] },
     link: false,
@@ -50,7 +49,6 @@ export const getCommunityWriteEditorExtensions = (): Extensions => [
     autolink: true,
     defaultProtocol: 'https',
     openOnClick: false,
-    protocols: ['http', 'https', 'mailto'],
   }),
   Placeholder.configure({
     placeholder: COMMUNITY_WRITE_CONTENT_PLACEHOLDER,
@@ -58,82 +56,21 @@ export const getCommunityWriteEditorExtensions = (): Extensions => [
   Markdown,
 ];
 
-export const getCommunityWriteEditorProps = () => ({
+const COMMUNITY_WRITE_EDITOR_PROPS = {
   attributes: {
     'aria-label': '게시글 내용',
     class: COMMUNITY_WRITE_CONTENT_EDITOR_CLASS,
   },
-});
-
-const ALLOWED_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);
-
-/** http(s)/mailto만 허용 — 실패 시 error 메시지 */
-export const parseCommunityWriteLinkHref = (
-  input: string
-): { href: string } | { error: string } => {
-  const trimmed = input.trim();
-
-  if (trimmed === '') {
-    return { error: '링크 URL을 입력해 주세요.' };
-  }
-
-  const hasProtocol = /^[a-z][a-z0-9+.-]*:/i.test(trimmed);
-
-  try {
-    const url = new URL(hasProtocol ? trimmed : `https://${trimmed}`);
-
-    if (!ALLOWED_LINK_PROTOCOLS.has(url.protocol)) {
-      return { error: 'http, https, mailto 링크만 등록할 수 있습니다.' };
-    }
-
-    return { href: url.href };
-  } catch {
-    return { error: '올바른 URL 형식이 아닙니다.' };
-  }
 };
 
-interface CommunityWriteToolbarCommandOptions {
-  onLinkError?: (message: string) => void;
-}
+export const getCommunityWriteEditorExtensions = (): Extensions =>
+  COMMUNITY_WRITE_EDITOR_EXTENSIONS;
 
-const applyLinkFromPrompt = (
-  editor: Editor,
-  options: CommunityWriteToolbarCommandOptions
-) => {
-  const previousUrl = editor.getAttributes('link').href;
-  const url = window.prompt(
-    '링크 URL을 입력해 주세요.',
-    typeof previousUrl === 'string' ? previousUrl : ''
-  );
-
-  if (url === null) {
-    return;
-  }
-
-  if (url.trim() === '') {
-    editor.chain().focus().extendMarkRange('link').unsetLink().run();
-    return;
-  }
-
-  const parsed = parseCommunityWriteLinkHref(url);
-
-  if ('error' in parsed) {
-    options.onLinkError?.(parsed.error);
-    return;
-  }
-
-  editor
-    .chain()
-    .focus()
-    .extendMarkRange('link')
-    .setLink({ href: parsed.href })
-    .run();
-};
+export const getCommunityWriteEditorProps = () => COMMUNITY_WRITE_EDITOR_PROPS;
 
 export const runCommunityWriteToolbarCommand = (
   editor: Editor,
-  itemId: CommunityWriteToolbarItemId,
-  options: CommunityWriteToolbarCommandOptions = {}
+  itemId: CommunityWriteToolbarItemId
 ) => {
   switch (itemId) {
     case 'bold':
@@ -153,9 +90,6 @@ export const runCommunityWriteToolbarCommand = (
       return;
     case 'orderedList':
       editor.chain().focus().toggleOrderedList().run();
-      return;
-    case 'link':
-      applyLinkFromPrompt(editor, options);
   }
 };
 
@@ -176,8 +110,6 @@ export const isCommunityWriteToolbarItemActive = (
       return editor.isActive('bulletList');
     case 'orderedList':
       return editor.isActive('orderedList');
-    case 'link':
-      return editor.isActive('link');
   }
 };
 

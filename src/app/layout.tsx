@@ -3,6 +3,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import { SuspendedRouteGuard } from '@/components/auth/SuspendedRouteGuard';
 import { Header } from '@/components/layout/Header';
+import { ScrollToTopButton } from '@/components/ui/ScrollToTopButton/ScrollToTopButton';
 import { AuthProvider } from '@/providers/AuthProvider';
 import { ChatSocketProvider } from '@/providers/ChatSocketProvider';
 import { NotificationSseProvider } from '@/providers/NotificationSseProvider';
@@ -38,6 +39,7 @@ export default function RootLayout({
                   <main className="flex flex-1 flex-col">
                     <SuspendedRouteGuard>{children}</SuspendedRouteGuard>
                   </main>
+                  <ScrollToTopButton />
                 </NotificationSseProvider>
               </ChatSocketProvider>
             </ToastProvider>

@@ -29,17 +29,23 @@ export interface PostListItem {
   createdAt: string;
 }
 
+export interface PostImage {
+  imageKey: string | null;
+  imageUrl: string | null;
+}
+
 export interface PostDetail {
   id: number;
   category: PostCategory;
   region: Region | null;
   title: string;
   content: string;
-  images: { imageUrl: string | null }[];
+  images: PostImage[];
   author: PostAuthor;
   likeCount: number;
   commentCount: number;
   isLiked: boolean | null;
+  isMine: boolean | null;
   isCompleted: boolean | null;
   createdAt: string;
   updatedAt: string;
