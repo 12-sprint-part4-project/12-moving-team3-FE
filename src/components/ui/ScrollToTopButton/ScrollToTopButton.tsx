@@ -16,8 +16,14 @@ import { useFloatingActionScrollVisibility } from '@/hooks/useFloatingActionScro
 import { isScrollToTopVisible } from '@/lib/scrollToTopConfig';
 import { cn } from '@/lib/utils';
 
+interface ScrollToTopButtonProps {
+  className?: string;
+}
+
 /** 전역 맨 위로 플로팅 버튼 — Mobile 항상 / Tablet·Desktop 스크롤 시 */
-export const ScrollToTopButton = () => {
+export const ScrollToTopButton = ({
+  className = '',
+}: ScrollToTopButtonProps) => {
   const pathname = usePathname();
   const visible = isScrollToTopVisible(pathname);
   const visibilityClass = useFloatingActionScrollVisibility(visible);
@@ -42,7 +48,8 @@ export const ScrollToTopButton = () => {
         FLOATING_ACTION_BASE_POSITION_CLASS,
         SCROLL_TO_TOP_TABLET_BOTTOM_CLASS,
         SCROLL_TO_TOP_DESKTOP_BOTTOM_CLASS,
-        visibilityClass
+        visibilityClass,
+        className
       )}
     >
       <ChevronUpIcon

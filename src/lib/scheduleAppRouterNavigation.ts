@@ -1,8 +1,8 @@
 'use client';
 
-type AppRouterNavigateOptions = {
+interface AppRouterNavigateOptions {
   scroll?: boolean;
-};
+}
 
 interface AppRouterLike {
   replace: (href: string, options?: AppRouterNavigateOptions) => void;
