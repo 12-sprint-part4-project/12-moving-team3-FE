@@ -31,8 +31,8 @@ export const ChatUnreadBadge = ({
       className={cn(
         'inline-flex items-center justify-center rounded-full bg-red-200 text-xs-semibold text-white',
         isIcon
-          ? 'absolute -top-1 -right-0.5 size-[1.2rem] p-0 leading-none'
-          : 'min-w-5 px-1.5 py-0.5',
+          ? 'absolute -top-1 -right-0.5 size-5 p-0 leading-none'
+          : 'min-w-8 shrink-0 px-2.5 py-0.5 text-sm-semibold',
         className
       )}
       aria-hidden={isIcon ? true : undefined}

@@ -77,10 +77,7 @@ export const ChatRoomListItem = ({
         ) : null}
       </div>
 
-      <ChatUnreadBadge
-        count={room.unreadCount}
-        className="min-w-[1.875rem] shrink-0 px-[0.5625rem] py-[0.1875rem] text-sm-semibold"
-      />
+      <ChatUnreadBadge count={room.unreadCount} />
     </Link>
   );
 };
