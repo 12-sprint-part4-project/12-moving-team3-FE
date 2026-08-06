@@ -1,5 +1,6 @@
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
+import { Markdown } from '@tiptap/markdown';
 import type { Editor, Extensions } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
@@ -53,6 +54,7 @@ export const getCommunityWriteEditorExtensions = (): Extensions => [
   Placeholder.configure({
     placeholder: COMMUNITY_WRITE_CONTENT_PLACEHOLDER,
   }),
+  Markdown,
 ];
 
 export const getCommunityWriteEditorProps = () => ({

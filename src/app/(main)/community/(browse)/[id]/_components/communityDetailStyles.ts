@@ -45,8 +45,8 @@ export const COMMUNITY_SHARE_ICON_CLASS = 'size-[1.125rem] shrink-0';
 export const COMMUNITY_SHARE_BUTTON_CLASS =
   'inline-flex size-[2.0625rem] shrink-0 cursor-pointer items-center justify-center rounded-xl p-1.5 xl:size-[2.53125rem] xl:rounded-2xl';
 
-/** 본문 — Tiptap HTML (작성 에디터 prose와 동일 계열) */
-export const COMMUNITY_DETAIL_BODY_HTML_CLASS = [
+/** 본문 — 마크다운 (작성 에디터 prose와 동일 계열) */
+export const COMMUNITY_DETAIL_BODY_MARKDOWN_CLASS = [
   'px-1.5 text-sm-medium text-black-400 min-[46.5rem]:text-md-regular xl:text-2lg-regular',
   COMMUNITY_RICH_TEXT_PROSE_CLASS,
   '[&_p+p]:mt-2',

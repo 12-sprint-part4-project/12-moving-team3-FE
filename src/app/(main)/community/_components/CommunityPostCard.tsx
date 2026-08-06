@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { formatRelativeTime } from '@/lib/formatDate';
+import { stripCommunityPostMarkdown } from '@/lib/stripCommunityPostMarkdown';
 import {
   buildCommunityPostDetailHref,
   type PostListContext,
@@ -72,7 +73,7 @@ export const CommunityPostCard = ({
             'xl:mt-2 xl:text-md-regular xl:text-gray-500'
           )}
         >
-          {post.contentPreview}
+          {stripCommunityPostMarkdown(post.contentPreview)}
         </p>
 
         <p

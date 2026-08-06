@@ -179,7 +179,7 @@ export const CommunityWritePageClient = () => {
       const body: CreatePostBody = {
         category,
         title: title.trim(),
-        content: editor.getHTML(),
+        content: editor.getMarkdown(),
         ...(imageKeys.length > 0 ? { imageKeys } : {}),
         ...(category === 'FURNITURE_SHARE' && region !== null
           ? { region }

@@ -28,7 +28,7 @@ import {
   postListContextToParams,
 } from '@/lib/communityListContext';
 import { formatDotDateLabel } from '@/lib/formatDate';
-import { stripCommunityPostHtml } from '@/lib/sanitizeCommunityPostHtml';
+import { stripCommunityPostMarkdown } from '@/lib/stripCommunityPostMarkdown';
 import { cn } from '@/lib/utils';
 
 import { CommunityCategoryBadge } from '../../_components/CommunityCategoryBadge';
@@ -146,7 +146,7 @@ export const CommunityPostDetailPageClient = ({
       return null;
     }
 
-    const plainText = stripCommunityPostHtml(postContent);
+    const plainText = stripCommunityPostMarkdown(postContent);
 
     return plainText.length > 0 ? plainText.slice(0, 100) : null;
   }, [postContent]);
