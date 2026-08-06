@@ -9,6 +9,8 @@ import { cn } from '@/lib/utils';
 interface CommunityPostThumbnailProps {
   thumbnailUrl: string;
   className?: string;
+  /** above-the-fold LCP — Next.js priority(preload + eager) */
+  priority?: boolean;
 }
 
 const isBrokenImage = (image: HTMLImageElement): boolean =>
@@ -18,6 +20,7 @@ const isBrokenImage = (image: HTMLImageElement): boolean =>
 export const CommunityPostThumbnail = ({
   thumbnailUrl,
   className = '',
+  priority = false,
 }: CommunityPostThumbnailProps) => {
   const [failedThumbnailUrl, setFailedThumbnailUrl] = useState<string | null>(
     null
@@ -56,6 +59,7 @@ export const CommunityPostThumbnail = ({
           width={108}
           height={100}
           unoptimized
+          priority={priority}
           onError={handleError}
           onLoad={handleLoad}
           className="size-full object-cover"

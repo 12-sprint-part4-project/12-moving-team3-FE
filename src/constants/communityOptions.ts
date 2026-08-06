@@ -126,6 +126,10 @@ export const POST_SORT_OPTIONS: { label: string; value: PostSort }[] = [
   { label: '댓글순', value: 'MOST_COMMENTED' },
 ];
 
+export const isFurnitureSharePost = (
+  category: PostCategory
+): category is 'FURNITURE_SHARE' => category === 'FURNITURE_SHARE';
+
 export const isCommunityTabId = (value: string): value is CommunityTabId =>
   value === 'board' || value === 'furniture';
 

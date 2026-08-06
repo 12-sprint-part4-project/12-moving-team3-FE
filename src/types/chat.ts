@@ -2,8 +2,8 @@ import type { ApiSuccessResponse } from '@/types/api';
 import type { ApiUserType } from '@/types/auth';
 import type { ApiMoveType } from '@/types/estimateRequest';
 
-/** 1:1 채팅방 유형 (COMMUNITY 제외) */
-export type ChatRoomType = 'GENERAL' | 'DESIGNATED';
+/** 1:1 채팅방 유형 */
+export type ChatRoomType = 'GENERAL' | 'DESIGNATED' | 'COMMUNITY';
 
 /** 메시지 유형 */
 export type ChatMessageType = 'TEXT' | 'IMAGE';
@@ -58,14 +58,27 @@ export interface ChatRoomDetailData {
 
 export type ChatRoomDetailResponse = ApiSuccessResponse<ChatRoomDetailData>;
 
-/** POST /api/chat/rooms — 생성 요청 */
-export interface CreateChatRoomRequest {
+/** POST /api/chat/rooms — 견적 채팅방 생성 요청 */
+export interface CreateEstimateChatRoomRequest {
   moverId: string;
-  roomType: ChatRoomType;
+  roomType: 'GENERAL' | 'DESIGNATED';
   estimateRequestId?: number;
   designatedMoverId?: number;
   quoteId?: number;
 }
+
+/** POST /api/chat/rooms — 가구나눔(커뮤니티) 채팅방 생성 요청 */
+export interface CreateCommunityChatRoomRequest {
+  /** 상대방 users.id (게시글 작성자) */
+  moverId: string;
+  roomType: 'COMMUNITY';
+  communityPostId: number;
+}
+
+/** POST /api/chat/rooms — 생성 요청 */
+export type CreateChatRoomRequest =
+  | CreateEstimateChatRoomRequest
+  | CreateCommunityChatRoomRequest;
 
 /** POST /api/chat/rooms — 생성/기존 방 반환 */
 export interface CreateChatRoomData {

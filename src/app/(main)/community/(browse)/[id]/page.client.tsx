@@ -40,6 +40,7 @@ import {
   COMMUNITY_SECTION_X,
 } from '../../_components/communityLayout';
 import { CommunityCommentList } from './_components/CommunityCommentList';
+import { CommunityFurnitureShareDetailActions } from './_components/CommunityFurnitureShareDetailActions';
 import { CommunityPostDetailContent } from './_components/CommunityPostDetailContent';
 import { ConfirmDeleteModal } from './_components/ConfirmDeleteModal';
 import {
@@ -53,6 +54,7 @@ import { CommunityPostEngagementBar } from './_components/CommunityPostEngagemen
 import { CommunityPostMoreMenu } from './_components/CommunityPostMoreMenu';
 import { CommunityPostNavigation } from './_components/CommunityPostNavigation';
 import { CommunityPostShareButtons } from './_components/CommunityPostShareButtons';
+import { useCommunityFurnitureShareDetail } from './_lib/useCommunityFurnitureShareDetail';
 
 interface CommunityPostDetailPageClientProps {
   postId: number;
@@ -168,6 +170,21 @@ export const CommunityPostDetailPageClient = ({
   const closeLoginModal = useCallback(() => {
     setIsLoginModalOpen(false);
   }, []);
+
+  const {
+    detailAction,
+    isCompleteModalOpen,
+    handleFurnitureShareChatClick,
+    handleCompleteModalOpen,
+    handleCompleteModalClose,
+    handleCompleteConfirm,
+    isChatRoomPending,
+  } = useCommunityFurnitureShareDetail({
+    post,
+    postId,
+    user,
+    openLoginModal,
+  });
 
   const handleLikeClick = useCallback(() => {
     if (!user) {
@@ -489,6 +506,14 @@ export const CommunityPostDetailPageClient = ({
               void fetchCommentsNextPage();
             }}
             loadMoreRef={commentsLoadMoreRef}
+            beforeHeader={
+              <CommunityFurnitureShareDetailActions
+                action={detailAction}
+                onChatClick={handleFurnitureShareChatClick}
+                onCompleteClick={handleCompleteModalOpen}
+                isChatPending={isChatRoomPending}
+              />
+            }
             headerAction={
               <CommunityPostShareButtons
                 title={post.title}
@@ -548,6 +573,24 @@ export const CommunityPostDetailPageClient = ({
             onClose={handlePostDeleteModalClose}
             onConfirm={handlePostDeleteConfirm}
             isDeleting={isDeletePostPending}
+          />
+        </Modal>
+      ) : null}
+
+      {isCompleteModalOpen ? (
+        <Modal placement="bottom" onClose={handleCompleteModalClose}>
+          <ConfirmDeleteModal
+            title="나눔 완료"
+            message={
+              <>
+                나눔을 완료 처리하시겠습니까?
+                <br />
+                완료 후에는 더 이상 나눔 받기 요청을 받을 수 없습니다.
+              </>
+            }
+            confirmLabel="완료하기"
+            onClose={handleCompleteModalClose}
+            onConfirm={handleCompleteConfirm}
           />
         </Modal>
       ) : null}

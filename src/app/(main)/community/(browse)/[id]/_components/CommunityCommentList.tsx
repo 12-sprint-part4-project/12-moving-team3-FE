@@ -25,6 +25,8 @@ interface CommunityCommentListProps {
   onRetry: () => void;
   onRetryNextPage?: () => void;
   loadMoreRef: (node?: Element | null) => void;
+  /** 본문과 댓글 헤더 사이 슬롯 (가구나눔 채팅 CTA 등) */
+  beforeHeader?: ReactNode;
   headerAction?: ReactNode;
   className?: string;
 }
@@ -45,6 +47,7 @@ export const CommunityCommentList = ({
   onRetry,
   onRetryNextPage,
   loadMoreRef,
+  beforeHeader,
   headerAction,
   className = '',
 }: CommunityCommentListProps) => {
@@ -58,6 +61,8 @@ export const CommunityCommentList = ({
 
   return (
     <section className={className} aria-label="댓글">
+      {beforeHeader ? <div className="mb-10 min-[46.5rem]:mb-12 xl:mb-16">{beforeHeader}</div> : null}
+
       <div className="flex items-end justify-between gap-3">
         <h2 className="text-lg-semibold text-black-400 min-[46.5rem]:text-2lg-regular xl:text-xl-bold">
           댓글 {commentCount}

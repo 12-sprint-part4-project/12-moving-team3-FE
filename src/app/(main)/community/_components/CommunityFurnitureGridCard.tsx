@@ -1,7 +1,6 @@
 import Link from 'next/link';
 
 import NoImageIcon from '@/assets/icons/no-image.svg';
-import { COMMUNITY_POST_LIST_BADGE_FONT_CLASS } from '@/constants/communityCategoryStyles';
 import { isCommunityRegion } from '@/constants/communityOptions';
 import {
   buildCommunityPostDetailHref,
@@ -12,11 +11,17 @@ import type { PostListItem } from '@/types/community';
 
 import { CommunityPostThumbnail } from './CommunityPostThumbnail';
 import { CommunityRegionBadge } from './CommunityRegionBadge';
+import {
+  COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_CLASS,
+  COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_TEXT_CLASS,
+  FURNITURE_SHARE_COMPLETE_LABEL,
+} from './communityFurnitureShareStyles';
 
 interface CommunityFurnitureGridCardProps {
   post: PostListItem;
   listContext?: PostListContext;
   className?: string;
+  priority?: boolean;
 }
 
 const GRID_THUMBNAIL_CLASS =
@@ -27,6 +32,7 @@ export const CommunityFurnitureGridCard = ({
   post,
   listContext,
   className = '',
+  priority = false,
 }: CommunityFurnitureGridCardProps) => {
   const thumbnailUrl = post.thumbnailUrl;
   const hasThumbnail = thumbnailUrl !== null;
@@ -46,6 +52,7 @@ export const CommunityFurnitureGridCard = ({
           <CommunityPostThumbnail
             thumbnailUrl={thumbnailUrl}
             className={GRID_THUMBNAIL_CLASS}
+            priority={priority}
           />
         ) : (
           <div className="flex size-full items-center justify-center">
@@ -58,17 +65,14 @@ export const CommunityFurnitureGridCard = ({
 
         {region ? (
           <div className="absolute top-2 left-2 min-[46.5rem]:top-2.5 min-[46.5rem]:left-2.5 xl:top-3 xl:left-3">
-            <CommunityRegionBadge
-              region={region}
-              className={COMMUNITY_POST_LIST_BADGE_FONT_CLASS}
-            />
+            <CommunityRegionBadge region={region} variant="overlay" />
           </div>
         ) : null}
 
         {post.isCompleted ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-black-400/40">
-            <span className="rounded-lg bg-white/90 px-2.5 py-1 text-sm-semibold text-gray-500 min-[46.5rem]:px-3 min-[46.5rem]:py-1.5 min-[46.5rem]:text-md-semibold">
-              나눔 완료
+          <div className={COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_CLASS}>
+            <span className={COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_TEXT_CLASS}>
+              {FURNITURE_SHARE_COMPLETE_LABEL}
             </span>
           </div>
         ) : null}

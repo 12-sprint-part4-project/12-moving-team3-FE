@@ -34,6 +34,13 @@ export const POST_CATEGORY_CHIP_LAYOUT_CLASS =
 /** 목록·상세 지역 뱃지 — 기존 ETC(기타) 색상 */
 export const POST_REGION_BADGE_CLASS = 'bg-gray-300/12 text-gray-400';
 
+/** 사진 위 지역 뱃지 — 가구나눔 그리드 등 overlay (브랜드색, 불투명) */
+export const POST_REGION_OVERLAY_BADGE_CLASS = 'bg-blue-300 text-white shadow-sm';
+
+/** 사진 위 지역 칩 레이아웃 — 글자 크기에 맞춘 높이·패딩 */
+export const POST_REGION_OVERLAY_CHIP_LAYOUT_CLASS =
+  'inline-flex h-6 w-fit min-w-11 shrink-0 items-center justify-center rounded-md px-2.5 whitespace-nowrap text-sm-semibold min-[46.5rem]:h-7 min-[46.5rem]:min-w-[3.75rem] min-[46.5rem]:rounded-lg min-[46.5rem]:px-3 min-[46.5rem]:text-md-semibold xl:h-8 xl:min-w-16 xl:px-3.5 xl:text-lg-semibold';
+
 /** 목록·상세 카테고리·지역 뱃지 공통 타이포 */
 export const COMMUNITY_POST_BADGE_FONT_CLASS =
   'text-md-semibold min-[46.5rem]:text-lg-semibold xl:text-2lg-semibold';
