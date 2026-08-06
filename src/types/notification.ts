@@ -18,7 +18,7 @@ export const NOTIFICATION_TYPES = [
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 
-/** 알림 목록 API path segment */
+/** 딥링크용 역할 (목록 API path와 무관) */
 export type NotificationRole = 'customer' | 'mover';
 
 /** 알림 목록 아이템 (BE NotificationListItem) */
@@ -33,7 +33,7 @@ export interface NotificationItem {
   estimateRequestId: number | null;
 }
 
-/** GET /api/notifications/{role} 응답 */
+/** GET /api/notifications 응답 */
 export interface NotificationListResponse {
   data: {
     items: NotificationItem[];
@@ -43,7 +43,7 @@ export interface NotificationListResponse {
   };
 }
 
-/** Auth userType → 알림 API role 변환 (Header navRole과 동일) */
+/** Auth userType → 딥링크용 NotificationRole (Header navRole과 동일) */
 export const toNotificationRole = (
   userType: ApiUserType
 ): NotificationRole => (userType === 'MOVER' ? 'mover' : 'customer');
