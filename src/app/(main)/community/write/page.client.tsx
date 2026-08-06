@@ -9,6 +9,7 @@ import { getInitialWriteCategory, MAX_POST_IMAGE_COUNT } from '@/constants/commu
 import { useCreatePost, usePost, useUpdatePost, useUploadPostImage } from '@/hooks/useCommunity';
 import { useToast } from '@/hooks/useToast';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
+import { scheduleAppRouterReplace } from '@/lib/scheduleAppRouterNavigation';
 import {
   createExistingWriteImageItems,
   createPendingWriteImageItems,
@@ -69,6 +70,7 @@ export const CommunityWritePageClient = () => {
   const {
     data: editPost,
     isPending: isEditPostPending,
+    isFetched: isEditPostFetched,
     isError: isEditPostError,
     error: editPostError,
   } = usePost(editPostId ?? 0);
@@ -90,6 +92,7 @@ export const CommunityWritePageClient = () => {
   const [hasHydratedEditImages, setHasHydratedEditImages] = useState(false);
   const contentEditorRef = useRef<Editor | null>(null);
   const imageItemsRef = useRef<WriteImageItem[]>([]);
+  const hasForbiddenRedirectRef = useRef(false);
 
   useEffect(() => {
     imageItemsRef.current = imageItems;
@@ -130,13 +133,20 @@ export const CommunityWritePageClient = () => {
   );
 
   useEffect(() => {
-    if (!isEditMode || !editPost || editPost.isMine !== false) {
+    if (
+      !isEditMode ||
+      !isEditPostFetched ||
+      !editPost ||
+      editPost.isMine !== false ||
+      hasForbiddenRedirectRef.current
+    ) {
       return;
     }
 
+    hasForbiddenRedirectRef.current = true;
     showToast({ content: '본인 게시글만 수정할 수 있어요.' });
-    router.replace(`/community/${editPost.id}`);
-  }, [editPost, isEditMode, router, showToast]);
+    scheduleAppRouterReplace(router, `/community/${editPost.id}`);
+  }, [editPost, isEditMode, isEditPostFetched, router, showToast]);
 
   useEffect(() => {
     if (!isEditMode || !editPost) {
@@ -291,7 +301,7 @@ export const CommunityWritePageClient = () => {
     uploadPostImage,
   ]);
 
-  if (isEditMode && editPost && editPost.isMine === false) {
+  if (isEditMode && isEditPostFetched && editPost && editPost.isMine === false) {
     return (
       <div className="flex justify-center py-24">
         <Spinner message="게시글로 이동 중..." />
