@@ -1,7 +1,7 @@
 'use client';
 
-import LikeActiveIcon from '@/assets/icons/like-active.svg';
 import { Button } from '@/components/Button/Button';
+import { FavoriteButton } from '@/components/Favorite';
 import { cn } from '@/lib/utils';
 
 import { getDesignatedButtonLabel } from './getDesignatedButtonLabel';
@@ -48,25 +48,12 @@ export const MoverDetailBottomBar = ({
       <div className="mx-auto flex w-full max-w-[37.5rem] items-center gap-2">
         {showDesignatedCta ? (
           <>
-            <button
-              type="button"
+            <FavoriteButton
+              variant="icon-only"
+              isFavorited={isFavorited}
+              isPending={isFavoritePending}
               onClick={onFavoriteClick}
-              aria-label={isFavorited ? '기사님 찜 취소' : '기사님 찜하기'}
-              aria-pressed={isFavorited}
-              aria-busy={isFavoritePending}
-              className={cn(
-                'inline-flex size-[3.375rem] shrink-0 cursor-pointer items-center justify-center rounded-2xl border border-line-200 bg-white',
-                isFavoritePending && 'opacity-60'
-              )}
-            >
-              <LikeActiveIcon
-                className={cn(
-                  'size-6',
-                  isFavorited ? 'text-blue-400' : 'text-gray-200'
-                )}
-                aria-hidden
-              />
-            </button>
+            />
             <Button
               type="button"
               variant="solid"
@@ -90,26 +77,13 @@ export const MoverDetailBottomBar = ({
             </Button>
           </>
         ) : (
-          <button
-            type="button"
+          <FavoriteButton
+            variant="labeled"
+            isFavorited={isFavorited}
+            isPending={isFavoritePending}
             onClick={onFavoriteClick}
-            aria-pressed={isFavorited}
-            aria-busy={isFavoritePending}
-            className={cn(
-              'inline-flex h-[3.375rem] w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-line-200 bg-white text-lg-semibold text-black-400',
-              isFavoritePending && 'opacity-60',
-              isFavorited && 'border-blue-300 text-blue-400'
-            )}
-          >
-            <LikeActiveIcon
-              className={cn(
-                'size-6 shrink-0',
-                isFavorited ? 'text-blue-400' : 'text-gray-200'
-              )}
-              aria-hidden
-            />
-            {isFavorited ? '기사님 찜 취소' : '기사님 찜하기'}
-          </button>
+            className="text-lg-semibold"
+          />
         )}
       </div>
     </div>

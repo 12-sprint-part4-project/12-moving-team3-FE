@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import type { MouseEvent } from 'react';
 
-import LikeActiveIcon from '@/assets/icons/like-active.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
 import StarIcon from '@/assets/icons/star.svg';
-import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
+import { FavoriteButton } from '@/components/Favorite';
 import { ReportAction } from '@/components/reports';
+import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 
 import { cn } from '@/lib/utils';
 import { API_MOVE_TYPE_TO_UI } from '@/types/estimateRequest';
@@ -138,10 +138,7 @@ export const MoverCard = ({
           {disableNavigation ? (
             <p className={nameClassName}>{mover.name} 기사님</p>
           ) : (
-            <Link
-              href={`/movers/${mover.moverId}`}
-              className={nameClassName}
-            >
+            <Link href={`/movers/${mover.moverId}`} className={nameClassName}>
               <span className="absolute inset-0 z-0" aria-hidden />
               {mover.name} 기사님
             </Link>
@@ -188,28 +185,13 @@ export const MoverCard = ({
           </div>
         </div>
 
-        <button
-          type="button"
+        <FavoriteButton
+          variant="count"
+          isFavorited={mover.isFavorited}
+          favoritedCount={mover.favoritedCount}
+          isPending={isFavoritePending}
           onClick={handleFavoriteClick}
-          aria-label={mover.isFavorited ? '찜 취소' : '찜하기'}
-          aria-pressed={mover.isFavorited}
-          aria-busy={isFavoritePending}
-          className={cn(
-            'relative z-10 flex shrink-0 cursor-pointer items-center gap-1 text-2lg-medium text-blue-400',
-            isFavoritePending && 'opacity-60'
-          )}
-        >
-          <LikeActiveIcon
-            className={cn(
-              'size-6',
-              mover.isFavorited ? 'text-blue-400' : 'text-gray-200'
-            )}
-            aria-hidden
-          />
-          {mover.favoritedCount !== null ? (
-            <span className="text-black-400">{mover.favoritedCount}</span>
-          ) : null}
-        </button>
+        />
       </div>
     </div>
   );
