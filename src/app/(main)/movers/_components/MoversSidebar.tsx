@@ -5,10 +5,7 @@ import Link from 'next/link';
 import { MoverCard } from '@/components/movers/MoverCard';
 import { cn } from '@/lib/utils';
 import type { MoverCardModel } from '@/types/mover';
-import {
-  REGION_FILTER_OPTIONS,
-  SERVICE_FILTER_OPTIONS,
-} from '@/types/mover';
+import { REGION_FILTER_OPTIONS, SERVICE_FILTER_OPTIONS } from '@/types/mover';
 
 import { MoversSelectDropdown } from './MoversSelectDropdown';
 
@@ -39,8 +36,10 @@ export const MoversSidebar = ({
   className = '',
 }: MoversSidebarProps) => {
   return (
-    <aside className={cn('flex w-full max-w-[20.5rem] flex-col gap-10', className)}>
-      <section className="flex w-full flex-col gap-6">
+    <aside
+      className={cn('flex w-full max-w-[20.5rem] flex-col gap-10', className)}
+    >
+      <section className="flex w-full flex-col">
         <div className="flex items-center justify-between px-3.5 py-4">
           <h2 className="text-2xl-semibold text-black-400">필터</h2>
           <button
@@ -52,7 +51,7 @@ export const MoversSidebar = ({
           </button>
         </div>
 
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-8 border-t border-line-100 pt-8">
           <div className="flex flex-col gap-4">
             <p className="text-2lg-semibold text-black-400">
               지역을 선택해주세요
