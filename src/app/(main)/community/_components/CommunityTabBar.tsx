@@ -6,7 +6,12 @@ import {
 } from '@/constants/communityOptions';
 import { cn } from '@/lib/utils';
 
-import { COMMUNITY_DESKTOP_X, COMMUNITY_HEADER_X } from './communityLayout';
+import {
+  COMMUNITY_DESKTOP_X,
+  COMMUNITY_HEADER_X,
+  COMMUNITY_TAB_LABEL_ACTIVE_CLASS,
+  COMMUNITY_TAB_LABEL_INACTIVE_CLASS,
+} from './communityLayout';
 
 interface CommunityTabBarProps {
   activeTab: CommunityTabId;
@@ -14,14 +19,9 @@ interface CommunityTabBarProps {
   className?: string;
 }
 
-const TAB_WIDTH_MOBILE: Record<CommunityTabId, string> = {
-  board: 'w-[3.75rem]',
-  furniture: 'w-[4.5rem]',
-};
-
-const TAB_WIDTH_DESKTOP: Record<CommunityTabId, string> = {
-  board: 'w-16',
-  furniture: 'w-[4.75rem]',
+const TAB_WIDTH_TABLET: Record<CommunityTabId, string> = {
+  board: 'min-[46.5rem]:w-[5.5rem]',
+  furniture: 'min-[46.5rem]:w-[6.75rem]',
 };
 
 /** Figma tab-bar — Mobile / Tablet / Desktop (15122:41073) */
@@ -32,8 +32,8 @@ export const CommunityTabBar = ({
 }: CommunityTabBarProps) => (
   <nav
     className={cn(
-      'relative flex h-11 gap-2 border-b border-line-200 bg-white',
-      'min-[46.5rem]:gap-2 xl:h-12 xl:gap-2',
+      'relative flex h-12 border-b border-line-200 bg-white',
+      'min-[46.5rem]:gap-2 xl:h-14 xl:gap-2',
       COMMUNITY_HEADER_X,
       COMMUNITY_DESKTOP_X,
       className
@@ -50,16 +50,17 @@ export const CommunityTabBar = ({
           aria-current={isActive ? 'page' : undefined}
           onClick={() => onTabChange(tab.id)}
           className={cn(
-            'relative flex h-11 shrink-0 cursor-pointer items-start justify-center pt-2.5 xl:h-12',
-            TAB_WIDTH_MOBILE[tab.id],
-            TAB_WIDTH_DESKTOP[tab.id]
+            'relative flex h-12 min-w-0 flex-1 basis-0 cursor-pointer items-start justify-center pt-3',
+            'min-[46.5rem]:flex-none min-[46.5rem]:shrink-0',
+            TAB_WIDTH_TABLET[tab.id],
+            'xl:h-14 xl:pt-3.5'
           )}
         >
           <span
             className={cn(
               isActive
-                ? 'text-md-bold text-blue-300 min-[46.5rem]:text-lg-semibold xl:text-lg-bold'
-                : 'text-md-regular text-gray-400 min-[46.5rem]:text-lg-regular xl:text-lg-regular'
+                ? COMMUNITY_TAB_LABEL_ACTIVE_CLASS
+                : COMMUNITY_TAB_LABEL_INACTIVE_CLASS
             )}
           >
             {tab.label}
