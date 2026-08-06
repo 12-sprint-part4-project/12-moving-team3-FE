@@ -4,14 +4,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
+import { useCustomerPendingQuotes } from '@/hooks/useCustomerPendingQuotes';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import type { DesignatedEstimateExistence } from '@/lib/designatedEstimateRequestSchema';
 import { getActiveEstimateRequest } from '@/services/customerEstimateRequestApi';
 import {
   createDesignatedEstimateRequest,
   getDesignatedEstimateExistence,
 } from '@/services/designatedEstimateRequestApi';
-import type { DesignatedEstimateExistence } from '@/lib/designatedEstimateRequestSchema';
 
 export const designatedEstimateQueryKeys = {
   all: ['designated-estimate'] as const,
@@ -65,8 +66,17 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
     enabled: canQueryExistence,
   });
 
+  const pendingQuotesQuery = useCustomerPendingQuotes({
+    enabled: canQueryExistence,
+  });
+
   const isAlreadyDesignated = existenceQuery.data?.exists === true;
-  const isStatusLoading = canQueryExistence && existenceQuery.isPending;
+  const hasReceivedQuoteFromMover = pendingQuotesQuery.quotes.some(
+    (quote) => quote.mover.moverId === moverId
+  );
+  const isStatusLoading =
+    canQueryExistence &&
+    (existenceQuery.isPending || pendingQuotesQuery.isPending);
 
   const closeNeedGeneralModal = useCallback(() => {
     setNeedGeneralOpen(false);
@@ -137,12 +147,25 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
       return;
     }
 
+    if (hasReceivedQuoteFromMover) {
+      showToast({ content: '이미 견적을 받은 기사님입니다' });
+      return;
+    }
+
     mutation.mutate(moverId);
-  }, [moverId, mutation, isAlreadyDesignated, isStatusLoading]);
+  }, [
+    moverId,
+    mutation,
+    isAlreadyDesignated,
+    isStatusLoading,
+    hasReceivedQuoteFromMover,
+    showToast,
+  ]);
 
   return {
     isPending: mutation.isPending,
     isAlreadyDesignated,
+    hasReceivedQuoteFromMover,
     isStatusLoading,
     needGeneralOpen,
     alreadyDesignatedOpen,
