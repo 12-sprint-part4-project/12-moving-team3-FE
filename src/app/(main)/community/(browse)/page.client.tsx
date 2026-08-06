@@ -35,12 +35,18 @@ import {
   COMMUNITY_DESKTOP_X,
   COMMUNITY_SECTION_X,
 } from '../_components/communityLayout';
+import { CommunityFilterResetButton } from '../_components/CommunityFilterResetButton';
 import { CommunityPostList } from '../_components/CommunityPostList';
 import { CommunitySearchField } from '../_components/CommunitySearchField';
 import { CommunitySidebarFilter } from '../_components/CommunitySidebarFilter';
+import { CommunityWriteButton } from '../_components/CommunityWriteButton';
 
 const SORT_CLASS =
-  'w-[7.125rem] [&_button]:w-full [&_button]:justify-center [&_button]:!shadow-none';
+  'w-[8.5rem] [&_button]:h-11 [&_button]:w-full [&_button]:justify-center [&_button]:!shadow-none [&_button]:!text-2lg-medium [&_button]:!leading-normal [&_span]:!text-2lg-medium';
+
+/** Mobile/Tablet — Desktop 대비 2단계 축소 (2lg→md, h-11→h-9) */
+const SORT_CLASS_MOBILE =
+  'w-[7.25rem] [&_button]:h-9 [&_button]:w-full [&_button]:justify-center [&_button]:!shadow-none [&_button]:!text-md-medium [&_button]:!leading-normal [&_span]:!text-md-medium';
 
 /** 커뮤니티 게시글 목록 — Figma Mobile / Tablet / Desktop */
 export const CommunityPageClient = () => {
@@ -266,32 +272,38 @@ export const CommunityPageClient = () => {
           COMMUNITY_SECTION_X
         )}
       >
-        {activeTab === 'board' ? (
+        <div className="flex min-w-0 items-center gap-2">
+          {activeTab === 'board' ? (
+            <CommunitySelectDropdown
+              label="카테고리"
+              placeholder="카테고리"
+              options={BOARD_CATEGORY_FILTER_OPTIONS}
+              value={categoryFilter}
+              onValueChange={handleCategoryFilterChange}
+              className="w-[6.25rem] shrink-0"
+            />
+          ) : null}
           <CommunitySelectDropdown
-            label="카테고리"
-            placeholder="카테고리"
-            options={BOARD_CATEGORY_FILTER_OPTIONS}
-            value={categoryFilter}
-            onValueChange={handleCategoryFilterChange}
-            className="w-[6.25rem] shrink-0"
+            label="지역"
+            placeholder="지역"
+            options={REGION_FILTER_OPTIONS}
+            value={regionFilter}
+            onValueChange={handleRegionFilterChange}
+            listColumns={2}
+            className="shrink-0"
           />
-        ) : null}
-        <CommunitySelectDropdown
-          label="지역"
-          placeholder="지역"
-          options={REGION_FILTER_OPTIONS}
-          value={regionFilter}
-          onValueChange={handleRegionFilterChange}
-          listColumns={2}
-          className="shrink-0"
-        />
-        <Sort
-          options={POST_SORT_OPTIONS}
-          value={sortValue}
-          onValueChange={handleSortChange}
-          size="md"
-          className={cn(SORT_CLASS, 'ml-auto')}
-        />
+          <CommunityFilterResetButton onClick={handleFilterReset} />
+        </div>
+        <div className="ml-auto flex shrink-0 items-center gap-2">
+          <Sort
+            options={POST_SORT_OPTIONS}
+            value={sortValue}
+            onValueChange={handleSortChange}
+            size="md"
+            className={SORT_CLASS_MOBILE}
+          />
+          <CommunityWriteButton variant="toolbar" activeTab={activeTab} />
+        </div>
       </div>
 
       <div
@@ -311,7 +323,7 @@ export const CommunityPageClient = () => {
 
       <div
         className={cn(
-          'flex bg-white pt-1.5 pb-6 min-[46.5rem]:pt-2 min-[46.5rem]:pb-8',
+          'flex bg-white pt-1.5 pb-24 min-[46.5rem]:pt-2 min-[46.5rem]:pb-8',
           'xl:pt-[2.75rem] xl:pb-8',
           COMMUNITY_SECTION_X,
           COMMUNITY_DESKTOP_X,
@@ -332,7 +344,7 @@ export const CommunityPageClient = () => {
         />
 
         <div className="min-w-0 flex-1">
-          <div className="mb-8 hidden justify-end xl:flex">
+          <div className="mb-8 hidden items-center justify-between xl:flex">
             <Sort
               options={POST_SORT_OPTIONS}
               value={sortValue}
@@ -340,6 +352,7 @@ export const CommunityPageClient = () => {
               size="md"
               className={SORT_CLASS}
             />
+            <CommunityWriteButton variant="desktop" activeTab={activeTab} />
           </div>
 
           <CommunityPostList
@@ -358,6 +371,8 @@ export const CommunityPageClient = () => {
           />
         </div>
       </div>
+
+      <CommunityWriteButton variant="fab" activeTab={activeTab} />
     </>
   );
 };
