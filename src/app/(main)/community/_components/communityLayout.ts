@@ -16,7 +16,7 @@ export const COMMUNITY_DESKTOP_MAIN_GAP = 'xl:gap-[7.3125rem]';
 
 /** 가구나눔 사진첩 그리드 — Mobile 2열 / Tablet·Desktop 3열 */
 export const COMMUNITY_FURNITURE_GRID_CLASS =
-  'mx-auto grid w-full list-none grid-cols-2 gap-3 p-0 m-0 min-[46.5rem]:grid-cols-3 min-[46.5rem]:gap-4 xl:gap-5';
+  'mx-auto grid w-full grid-cols-2 gap-3 min-[46.5rem]:grid-cols-3 min-[46.5rem]:gap-4 xl:gap-5';
 
 /** 상세 본문 최대 너비 900px — Figma 15167:41690 */
 export const COMMUNITY_DETAIL_MAX_W = 'mx-auto w-full max-w-[56.25rem]';

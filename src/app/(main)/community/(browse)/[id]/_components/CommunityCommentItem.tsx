@@ -9,6 +9,7 @@ import { CommunityPostAuthorBadge } from './CommunityPostAuthorBadge';
 import {
   COMMUNITY_COMMENT_REPLY_INDENT_CLASS,
   COMMUNITY_COMMENT_ROW_GAP_CLASS,
+  COMMUNITY_DETAIL_READING_TEXT_CLASS,
 } from './communityDetailStyles';
 
 interface CommunityCommentInteractionProps {
@@ -98,7 +99,12 @@ const CommunityCommentRow = ({
             </button>
           ) : null}
         </div>
-        <p className="mt-0.5 text-md-regular whitespace-pre-wrap text-black-400 min-[46.5rem]:mt-1 min-[46.5rem]:text-lg-medium xl:text-2lg-regular">
+        <p
+          className={cn(
+            'mt-0.5 whitespace-pre-wrap min-[46.5rem]:mt-1',
+            COMMUNITY_DETAIL_READING_TEXT_CLASS
+          )}
+        >
           {item.content}
         </p>
       </div>

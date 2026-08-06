@@ -166,6 +166,7 @@ export const CommunityPostDetailImages = ({
                     width={300}
                     height={300}
                     unoptimized
+                    priority={index === 0}
                     onError={() => markFailed(url)}
                     onLoad={(event: SyntheticEvent<HTMLImageElement>) => {
                       if (isBrokenImage(event.currentTarget)) {

@@ -116,6 +116,7 @@ export const usePostList = ({
     ...query,
     posts,
     isEmpty: !query.isPending && !query.isError && posts.length === 0,
+    isPlaceholderData: query.isPlaceholderData,
   };
 };
 

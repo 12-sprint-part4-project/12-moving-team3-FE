@@ -8,6 +8,7 @@ import type { PostListItem } from '@/types/community';
 
 import { CommunityFurnitureGridCard } from './CommunityFurnitureGridCard';
 import { CommunityPostCard } from './CommunityPostCard';
+import { CommunityPostListSkeleton } from './CommunityPostListSkeleton';
 import { COMMUNITY_FURNITURE_GRID_CLASS } from './communityLayout';
 
 type CommunityPostListVariant = 'list' | 'furniture-grid';
@@ -16,7 +17,7 @@ interface CommunityPostListProps {
   posts: PostListItem[];
   listContext?: PostListContext;
   variant?: CommunityPostListVariant;
-  isPending: boolean;
+  showSkeleton?: boolean;
   isError: boolean;
   isEmpty: boolean;
   isFetchingNextPage: boolean;
@@ -35,7 +36,7 @@ export const CommunityPostList = ({
   posts,
   listContext,
   variant = 'list',
-  isPending,
+  showSkeleton = false,
   isError,
   isEmpty,
   isFetchingNextPage,
@@ -54,15 +55,13 @@ export const CommunityPostList = ({
     : listClassName;
 
   const isInitialError = isError && posts.length === 0;
-  const showEmpty = !isPending && !isInitialError && isEmpty;
-  const showPosts = !isPending && !isInitialError && posts.length > 0;
+  const showEmpty = !showSkeleton && !isInitialError && isEmpty;
+  const showPosts = !showSkeleton && !isInitialError && posts.length > 0;
 
   return (
     <div className={className}>
-      {isPending ? (
-        <div className="flex justify-center py-16">
-          <Spinner message="게시글 불러오는 중..." />
-        </div>
+      {showSkeleton ? (
+        <CommunityPostListSkeleton variant={variant} listClassName={listClassName} />
       ) : null}
 
       {isInitialError ? (
@@ -84,12 +83,13 @@ export const CommunityPostList = ({
 
       {showPosts ? (
         <ul className={cn('list-none p-0 m-0', resolvedListClassName)}>
-          {posts.map((post) => (
+          {posts.map((post, index) => (
             <li key={post.id} className={isFurnitureGrid ? 'min-w-0' : undefined}>
               {isFurnitureGrid ? (
                 <CommunityFurnitureGridCard
                   post={post}
                   listContext={listContext}
+                  priority={index < 3}
                 />
               ) : (
                 <CommunityPostCard post={post} listContext={listContext} />

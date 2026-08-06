@@ -2,7 +2,6 @@
 
 import {
   COMMUNITY_DETAIL_DIVIDER,
-  COMMUNITY_RICH_TEXT_PROSE_CLASS,
 } from '../../../_components/communitySharedStyles';
 
 export { COMMUNITY_DETAIL_DIVIDER };
@@ -45,11 +44,19 @@ export const COMMUNITY_SHARE_ICON_CLASS = 'size-[1.125rem] shrink-0';
 export const COMMUNITY_SHARE_BUTTON_CLASS =
   'inline-flex size-[2.0625rem] shrink-0 cursor-pointer items-center justify-center rounded-xl p-1.5 xl:size-[2.53125rem] xl:rounded-2xl';
 
-/** 본문 — 마크다운 (작성 에디터 prose와 동일 계열) */
+/** 본문·댓글 본문 공통 읽기 텍스트 — Mobile md / Tablet lg / Desktop 2lg (regular) */
+export const COMMUNITY_DETAIL_READING_TEXT_CLASS =
+  'text-md-regular text-black-400 min-[46.5rem]:text-lg-regular xl:text-2lg-regular';
+
+/** 상세 본문 prose — 링크·목록만, 제목·굵게는 본문과 동일 굵기 */
+export const COMMUNITY_DETAIL_BODY_PROSE_CLASS =
+  '[&_a]:text-blue-300 [&_a]:underline [&_b]:font-normal [&_strong]:font-normal [&_h1]:font-normal [&_h2]:font-normal [&_h3]:font-normal [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5';
+
+/** 본문 — 마크다운 (읽기 텍스트와 댓글 본문 크기·굵기 통일) */
 export const COMMUNITY_DETAIL_BODY_MARKDOWN_CLASS = [
-  'px-1.5 text-lg-medium text-black-400 min-[46.5rem]:text-2lg-regular xl:text-2xl-regular',
-  COMMUNITY_RICH_TEXT_PROSE_CLASS,
-  '[&_h1]:text-2xl-bold [&_h2]:text-lg-bold',
+  'px-1.5',
+  COMMUNITY_DETAIL_READING_TEXT_CLASS,
+  COMMUNITY_DETAIL_BODY_PROSE_CLASS,
   '[&_p+p]:mt-2',
 ].join(' ');
 

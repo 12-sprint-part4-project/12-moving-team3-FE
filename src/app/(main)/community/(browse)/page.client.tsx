@@ -27,6 +27,7 @@ import {
   COMMUNITY_SEARCH_DEBOUNCE_MS,
   getCommunitySearchKeyword,
 } from '@/lib/communitySearch';
+import { hasStaleCommunityListPosts } from '@/lib/communityListStalePosts';
 import { cn } from '@/lib/utils';
 import type { PostCategory, Region } from '@/types/community';
 
@@ -134,6 +135,7 @@ export const CommunityPageClient = () => {
   const {
     posts,
     isPending,
+    isFetching,
     isFetchingNextPage,
     isFetchNextPageError,
     isError,
@@ -142,12 +144,25 @@ export const CommunityPageClient = () => {
     fetchNextPage,
     refetch,
     isEmpty,
+    isPlaceholderData,
   } = usePostList({
     category: listCategory,
     region: listRegion,
     sort: sortValue,
     keyword: listKeyword,
   });
+
+  const hasStalePosts = useMemo(
+    () => hasStaleCommunityListPosts(posts, activeTab, listCategory),
+    [posts, activeTab, listCategory]
+  );
+
+  const isRefetchingList = isFetching && !isFetchingNextPage;
+
+  const showListSkeleton =
+    isPending ||
+    isPlaceholderData ||
+    (isRefetchingList && hasStalePosts);
 
   const { ref: loadMoreRef, inView } = useInView({
     rootMargin: '200px',
@@ -361,7 +376,7 @@ export const CommunityPageClient = () => {
             posts={posts}
             listContext={listContext}
             variant={activeTab === 'furniture' ? 'furniture-grid' : 'list'}
-            isPending={isPending}
+            showSkeleton={showListSkeleton}
             isError={isError}
             isEmpty={isEmpty}
             isFetchingNextPage={isFetchingNextPage}
