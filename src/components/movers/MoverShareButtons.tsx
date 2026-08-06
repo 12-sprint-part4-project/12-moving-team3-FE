@@ -5,10 +5,7 @@ import SymbolFacebookIcon from '@/assets/icons/symbol-facebook.svg';
 import SymbolKakaoIcon from '@/assets/icons/symbol-kakao.svg';
 import { IconButton } from '@/components/ui/IconButton/IconButton';
 import { useToast } from '@/hooks/useToast';
-import {
-  isKakaoShareConfigured,
-  shareMoverToKakao,
-} from '@/lib/kakaoShare';
+import { isKakaoShareConfigured, shareMoverToKakao } from '@/lib/kakaoShare';
 import { cn } from '@/lib/utils';
 
 export interface MoverShareButtonsProps {
@@ -82,6 +79,7 @@ export const MoverShareButtons = ({
         onClick={() => {
           void handleCopyLink();
         }}
+        className="text-gray-300"
       />
       <IconButton
         icon={SymbolKakaoIcon}
