@@ -54,6 +54,14 @@ export const getPostCategoryWriteChipClassName = (
 export const COMMUNITY_WRITE_TITLE_INPUT_CLASS =
   'h-12 w-full rounded-lg border border-line-200 bg-white px-4 text-xs-medium text-black-400 outline-none placeholder:text-gray-400 min-[46.5rem]:text-sm-medium xl:text-md-regular';
 
+/** 제목 글자 수 카운터 */
+export const COMMUNITY_WRITE_TITLE_COUNTER_CLASS =
+  'm-0 mt-1 text-right text-xs-regular leading-5 text-gray-400 min-[46.5rem]:text-sm-regular min-[46.5rem]:leading-[1.375rem]';
+
+/** 제목 글자 수 초과 경고 */
+export const COMMUNITY_WRITE_TITLE_ERROR_CLASS =
+  'm-0 mt-1 text-right text-xs-medium leading-5 text-red-200 min-[46.5rem]:text-sm-medium min-[46.5rem]:leading-[1.375rem]';
+
 /** 본문 툴바 — textarea 상단, 라운드 없이 연결 */
 export const COMMUNITY_WRITE_TOOLBAR_CLASS =
   'flex h-11 items-center gap-4 border border-b-0 border-shadow-gray-200 bg-background-200 px-3 min-[46.5rem]:gap-5 xl:px-4';

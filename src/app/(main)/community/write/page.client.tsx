@@ -3,7 +3,10 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { DEFAULT_WRITE_CATEGORY } from '@/constants/communityOptions';
+import {
+  DEFAULT_WRITE_CATEGORY,
+  MAX_POST_TITLE_LENGTH,
+} from '@/constants/communityOptions';
 import { cn } from '@/lib/utils';
 import type { PostCategory, Region } from '@/types/community';
 
@@ -43,7 +46,13 @@ export const CommunityWritePageClient = () => {
   const isFurnitureShare = category === 'FURNITURE_SHARE';
 
   const isSubmitDisabled = useMemo(() => {
-    if (title.trim().length === 0 || content.trim().length === 0) {
+    const trimmedTitleLength = title.trim().length;
+
+    if (
+      trimmedTitleLength === 0 ||
+      trimmedTitleLength > MAX_POST_TITLE_LENGTH ||
+      content.trim().length === 0
+    ) {
       return true;
     }
 
