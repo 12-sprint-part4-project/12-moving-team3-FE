@@ -21,18 +21,18 @@ interface CommunityFurnitureGridCardProps {
   post: PostListItem;
   listContext?: PostListContext;
   className?: string;
-  priority?: boolean;
+  preload?: boolean;
 }
 
 const GRID_THUMBNAIL_CLASS =
-  '!size-auto aspect-square w-full shrink rounded-none bg-background-200 min-[46.5rem]:!size-auto xl:!size-auto';
+  'size-auto! aspect-square w-full shrink rounded-none bg-background-200 min-[46.5rem]:size-auto! xl:size-auto!';
 
 /** 가구나눔 사진첩 그리드 카드 */
 export const CommunityFurnitureGridCard = ({
   post,
   listContext,
   className = '',
-  priority = false,
+  preload = false,
 }: CommunityFurnitureGridCardProps) => {
   const thumbnailUrl = post.thumbnailUrl;
   const hasThumbnail = thumbnailUrl !== null;
@@ -52,7 +52,7 @@ export const CommunityFurnitureGridCard = ({
           <CommunityPostThumbnail
             thumbnailUrl={thumbnailUrl}
             className={GRID_THUMBNAIL_CLASS}
-            priority={priority}
+            preload={preload}
           />
         ) : (
           <div className="flex size-full items-center justify-center">

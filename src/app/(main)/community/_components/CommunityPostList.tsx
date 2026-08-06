@@ -89,7 +89,7 @@ export const CommunityPostList = ({
                 <CommunityFurnitureGridCard
                   post={post}
                   listContext={listContext}
-                  priority={index < 3}
+                  preload={index < 3}
                 />
               ) : (
                 <CommunityPostCard post={post} listContext={listContext} />
