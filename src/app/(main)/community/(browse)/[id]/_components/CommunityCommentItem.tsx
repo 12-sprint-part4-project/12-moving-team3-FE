@@ -80,7 +80,7 @@ const CommunityCommentRow = ({
               {item.author.nickname}
             </span>
             {isPostAuthor ? <CommunityPostAuthorBadge /> : null}
-            <span className="text-md-regular text-gray-400 xl:text-2lg-regular">
+            <span className="text-md-regular text-gray-400 min-[46.5rem]:text-lg-regular xl:text-2lg-regular">
               {relativeTime}
             </span>
           </div>
