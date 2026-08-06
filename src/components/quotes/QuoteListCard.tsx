@@ -124,7 +124,7 @@ export const QuoteListCard = ({
           <Link
             href={detailHref}
             aria-label={`${detailAriaLabel} — ${overlayMessage}`}
-            className="inline-flex items-center justify-center rounded-2xl border border-blue-200 bg-blue-100 px-4 py-2 text-md-semibold text-blue-300 transition-colors hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:outline-none lg:px-[1.125rem] lg:py-2.5 lg:text-lg-semibold"
+            className="inline-flex items-center justify-center rounded-2xl border border-blue-200 bg-blue-100 px-4 py-2 text-md-semibold text-blue-300 transition-colors hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:outline-none lg:px-4.5 lg:py-2.5 lg:text-lg-semibold"
           >
             견적 상세보기
           </Link>
