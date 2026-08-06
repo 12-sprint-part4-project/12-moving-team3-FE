@@ -45,8 +45,7 @@ const MoverMyPageClient = () => {
     'px-6 md:px-[4.5rem] lg:px-10 xl:px-16 min-[90rem]:px-[16.25rem]';
 
   const handleEditBasicInfo = () => {
-    // 기본 정보 수정 화면 미구현 — 프로필 수정과 동일 경로로 이동
-    router.push('/profile/mover/edit');
+    router.push('/profile/mover/basic');
   };
 
   const handleEditProfile = () => {
