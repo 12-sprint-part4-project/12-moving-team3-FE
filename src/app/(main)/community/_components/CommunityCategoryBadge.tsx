@@ -1,5 +1,8 @@
 import { POST_CATEGORY_LABEL } from '@/constants/communityOptions';
-import { POST_CATEGORY_STYLE } from '@/constants/communityCategoryStyles';
+import {
+  getPostCategoryBadgeClassName,
+  POST_CATEGORY_CHIP_LAYOUT_CLASS,
+} from '@/constants/communityCategoryStyles';
 import { cn } from '@/lib/utils';
 import type { PostCategory } from '@/types/community';
 
@@ -12,21 +15,14 @@ interface CommunityCategoryBadgeProps {
 export const CommunityCategoryBadge = ({
   category,
   className = '',
-}: CommunityCategoryBadgeProps) => {
-  const style = POST_CATEGORY_STYLE[category];
-
-  return (
-    <span
-      className={cn(
-        'inline-flex h-5 w-fit min-w-10 shrink-0 items-center justify-center overflow-hidden rounded px-1.5 text-xs-semibold whitespace-nowrap',
-        'min-[46.5rem]:h-[1.375rem] min-[46.5rem]:min-w-[3.25rem] min-[46.5rem]:rounded-md min-[46.5rem]:px-2',
-        'xl:h-6 xl:min-w-14 xl:rounded-md xl:px-2',
-        style.badgeClassName,
-        style.labelClassName,
-        className
-      )}
-    >
-      {POST_CATEGORY_LABEL[category]}
-    </span>
-  );
-};
+}: CommunityCategoryBadgeProps) => (
+  <span
+    className={cn(
+      POST_CATEGORY_CHIP_LAYOUT_CLASS,
+      getPostCategoryBadgeClassName(category),
+      className
+    )}
+  >
+    {POST_CATEGORY_LABEL[category]}
+  </span>
+);

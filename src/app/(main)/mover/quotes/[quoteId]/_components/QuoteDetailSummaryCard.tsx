@@ -1,8 +1,7 @@
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
+import { QuoteCardInfo } from '@/components/quotes/QuoteCardInfo';
 import { cn } from '@/lib/utils';
 import type { QuoteDetailViewModel } from '@/types/quote';
-
-import { QuoteCardInfo } from '../../_components/QuoteCardInfo';
 
 export interface QuoteDetailSummaryCardProps {
   detail: QuoteDetailViewModel;
@@ -40,7 +39,7 @@ export const QuoteDetailSummaryCard = ({
     </div>
 
     <QuoteCardInfo
-      customerName={detail.customerName}
+      displayName={detail.customerName}
       moveDate={detail.moveDateLabel}
       departure={detail.summaryDeparture}
       arrival={detail.summaryArrival}

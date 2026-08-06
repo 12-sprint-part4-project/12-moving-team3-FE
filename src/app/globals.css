@@ -109,6 +109,9 @@
   --height-gnb: 3.375rem;
   --height-gnb-lg: 5.5rem;
 
+  /** Breakpoint — Tablet 744px (Figma community) */
+  --breakpoint-tablet: 46.5rem;
+
   /* Dimmer — Figma Component/dimmer (#141414, opacity 50%) */
   --color-dimmer: #141414;
 

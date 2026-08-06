@@ -13,18 +13,16 @@ import {
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 import NoImageIcon from '@/assets/icons/no-image.svg';
+import { MAX_POST_IMAGE_COUNT } from '@/constants/communityOptions';
 import { cn } from '@/lib/utils';
 
 import { CommunityPostImagePreviewModal } from './CommunityPostImagePreviewModal';
+import {
+  COMMUNITY_POST_DETAIL_BROKEN_ICON_CLASS,
+  COMMUNITY_POST_DETAIL_THUMB_BUTTON_CLASS,
+} from './communityDetailStyles';
 
-const MAX_POST_IMAGES = 5;
 const THUMB_GAP_PX = 8;
-
-const THUMB_BUTTON_CLASS =
-  'size-[6.25rem] shrink-0 overflow-hidden rounded-lg bg-background-200 min-[46.5rem]:size-[12.5rem] min-[46.5rem]:rounded-xl xl:size-[18.75rem]';
-
-const BROKEN_IMAGE_ICON_CLASS =
-  'size-[1.5625rem] text-gray-200 min-[46.5rem]:size-[3.125rem] xl:size-[4.6875rem]';
 
 interface CommunityPostDetailImagesProps {
   imageUrls: string[];
@@ -40,7 +38,7 @@ export const CommunityPostDetailImages = ({
   className = '',
 }: CommunityPostDetailImagesProps) => {
   const visibleUrls = useMemo(
-    () => imageUrls.slice(0, MAX_POST_IMAGES),
+    () => imageUrls.slice(0, MAX_POST_IMAGE_COUNT),
     [imageUrls]
   );
 
@@ -152,13 +150,13 @@ export const CommunityPostDetailImages = ({
                 }}
                 disabled={hasError}
                 className={cn(
-                  THUMB_BUTTON_CLASS,
+                  COMMUNITY_POST_DETAIL_THUMB_BUTTON_CLASS,
                   hasError && 'flex items-center justify-center'
                 )}
               >
                 {hasError ? (
                   <NoImageIcon
-                    className={BROKEN_IMAGE_ICON_CLASS}
+                    className={COMMUNITY_POST_DETAIL_BROKEN_ICON_CLASS}
                     aria-hidden
                   />
                 ) : (

@@ -1,11 +1,12 @@
 import { Suspense } from 'react';
 
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import CustomerQuoteHistoryPageClient from './page.client';
 
-import { CommunityPageClient } from './page.client';
-
-/** 커뮤니티 게시글 목록 페이지 */
-const CommunityPage = () => {
+/**
+ * 고객 이용 내역 페이지 (확정한 견적)
+ */
+const CustomerQuoteHistoryPage = () => {
   return (
     <Suspense
       fallback={
@@ -14,9 +15,9 @@ const CommunityPage = () => {
         </div>
       }
     >
-      <CommunityPageClient />
+      <CustomerQuoteHistoryPageClient />
     </Suspense>
   );
 };
 
-export default CommunityPage;
+export default CustomerQuoteHistoryPage;

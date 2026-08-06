@@ -37,11 +37,10 @@ const BASE_CLASS =
   'inline-flex items-center justify-center rounded-full border border-solid px-5 py-2.5 text-2lg-medium';
 
 /** 활성(선택/Service textOnly): 파란 테두리·배경 */
-const SELECTED_CLASS = 'border-blue-300 bg-blue-50 text-blue-300 shadow-sm';
+const SELECTED_CLASS = 'border-blue-300 bg-blue-50 text-blue-300 ';
 
 /** 비활성(미선택/Region textOnly): 회색 테두리·배경 */
-const UNSELECTED_CLASS =
-  'border-gray-100 bg-background-100 text-blue-400 shadow-sm';
+const UNSELECTED_CLASS = 'border-gray-100 bg-background-100 text-blue-400 ';
 
 export const BaseChip = ({
   variant = 'button',

@@ -15,8 +15,10 @@ import {
   formatKoreanDateLabel,
   formatKoreanMoveDateLabel,
   formatMoveDateLabel,
+  formatRelativeTime,
   formatShortDateLabel,
 } from '@/lib/formatDate';
+import { formatDistrictLabel } from '@/services/estimateRequestApi';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
 import type {
   ConfirmCustomerQuoteResponse,
@@ -31,6 +33,7 @@ import type {
   CustomerQuoteItem,
   CustomerQuoteMover,
   CustomerQuoteMoverViewModel,
+  HistoryQuoteCardModel,
   PendingQuoteCardModel,
   PendingQuotesPageModel,
   PendingRequestSummaryModel,
@@ -38,6 +41,7 @@ import type {
   ReceivedQuoteCardModel,
   ReceivedQuoteGroupModel,
 } from '@/types/customerQuote';
+import type { EstimateRequestStatus } from '@/types/customerEstimateRequest';
 import type { ApiMoveType } from '@/types/estimateRequest';
 import { API_MOVE_TYPE_TO_UI, MOVE_TYPE_LABELS } from '@/types/estimateRequest';
 import type { MoverCardModel } from '@/types/mover';
@@ -178,6 +182,44 @@ export const toReceivedQuoteGroupModel = (
     toReceivedQuoteCardModel(item, group.serviceType)
   ),
 });
+
+/** 이용 내역 카드 종료 오버레이 대상 (이사 완료·만료·취소) */
+const isClosedHistoryCard = (status: EstimateRequestStatus): boolean =>
+  status === 'COMPLETED' || status === 'EXPIRED' || status === 'CANCELED';
+
+/** 과거 견적 그룹 → 이용 내역(확정) 카드 UI 모델 목록 */
+export const toHistoryQuoteCardModels = (
+  group: CustomerPastQuoteGroup
+): HistoryQuoteCardModel[] => {
+  const isMoveCompleted = isClosedHistoryCard(group.status);
+  const moveType = group.serviceType
+    ? API_MOVE_TYPE_TO_UI[group.serviceType]
+    : null;
+  const departure =
+    formatDistrictLabel(group.fromAddress) ?? group.fromAddress ?? '-';
+  const arrival =
+    formatDistrictLabel(group.toAddress) ?? group.toAddress ?? '-';
+  const moveDate = formatMoveDateLabel(group.moveDate);
+
+  return group.quotes
+    .filter((item) => item.status === 'CONFIRMED')
+    .map((item) => ({
+      quoteId: item.quoteId,
+      moverName: item.mover.nickname,
+      moveType,
+      isConfirmed: true,
+      isDesignated: item.isDesignated,
+      moveDate,
+      departure,
+      arrival,
+      priceLabel: formatQuotePriceLabel(item.price),
+      relativeTimeLabel: group.confirmedAt
+        ? formatRelativeTime(group.confirmedAt)
+        : '',
+      estimateRequestStatus: group.status,
+      isMoveCompleted,
+    }));
+};
 
 /** 대기 중 요청 요약 UI 모델 */
 const toPendingRequestSummaryModel = (

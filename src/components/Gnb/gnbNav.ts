@@ -20,7 +20,7 @@ export const GNB_NAV_BY_ROLE = {
 
 /**
  * 프로필 드롭다운 메뉴.
- * customer: 프로필 수정 · 찜한 기사님 · 이사 리뷰 (Figma 1:5648)
+ * customer: 프로필 수정 · 찜한 기사님 · 이사 리뷰 · 이용 내역
  * mover: 마이페이지 · 받은 견적 (Figma dropdown 1:5636)
  */
 export const GNB_PROFILE_MENU_BY_ROLE = {
@@ -32,6 +32,7 @@ export const GNB_PROFILE_MENU_BY_ROLE = {
     { label: '프로필 수정', href: '/profile/customer/edit' },
     { label: '찜한 기사님', href: '/favorites' },
     { label: '이사 리뷰', href: '/reviews' },
+    { label: '이용 내역', href: '/quotes/history' },
   ],
 } as const satisfies Record<string, GnbNavItem[]>;
 

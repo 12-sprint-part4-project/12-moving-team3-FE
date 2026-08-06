@@ -8,7 +8,9 @@ const PRIMARY_PAYLOAD_KEYS = [
   'moveTypeLabel',
   'customerName',
   'moverName',
-  'authorName',
+  'counterpartName',
+  'customerNickname',
+  'authorNickname',
 ] as const;
 
 const HIGHLIGHT_CLASS = 'text-blue-300';

@@ -55,6 +55,8 @@ export interface CustomerPastQuoteGroup {
   estimateRequestId: number;
   status: EstimateRequestStatus;
   submittedAt: string | null;
+  /** 견적 확정 시각 ISO */
+  confirmedAt: string | null;
   serviceType: ApiMoveType | null;
   moveDate: string | null;
   fromAddress: string | null;
@@ -177,6 +179,22 @@ export interface ReceivedQuoteGroupModel {
   estimateRequestId: number;
   info: QuoteInfoViewModel;
   quotes: ReceivedQuoteCardModel[];
+}
+
+/** 이용 내역(확정 견적) 카드 UI 모델 */
+export interface HistoryQuoteCardModel {
+  quoteId: number;
+  moverName: string;
+  moveType: MoveTypeOption | null;
+  isConfirmed: boolean;
+  isDesignated: boolean;
+  moveDate: string;
+  departure: string;
+  arrival: string;
+  priceLabel: string;
+  relativeTimeLabel: string;
+  estimateRequestStatus: EstimateRequestStatus;
+  isMoveCompleted: boolean;
 }
 
 /** 고객 견적 상세 UI 모델 */

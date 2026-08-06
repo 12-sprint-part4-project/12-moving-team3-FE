@@ -17,14 +17,15 @@ import {
   CHAT_IMAGE_MAX_COUNT,
   validateChatImageFile,
 } from '@/lib/uploadChatImage';
+import {
+  createPendingImageFiles,
+  revokePendingImageFile,
+  revokePendingImageFiles,
+  type PendingImageFile,
+} from '@/lib/pendingImagePreviews';
 import { cn } from '@/lib/utils';
 
 const CHAT_IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
-
-interface PendingChatImage {
-  file: File;
-  previewUrl: string;
-}
 
 export interface ChatComposerProps {
   disabled?: boolean;
@@ -36,16 +37,6 @@ export interface ChatComposerProps {
   focusInputSignal?: number;
   className?: string;
 }
-
-const createPendingImages = (files: File[]): PendingChatImage[] =>
-  files.map((file) => ({
-    file,
-    previewUrl: URL.createObjectURL(file),
-  }));
-
-const revokePendingImages = (items: PendingChatImage[]) => {
-  items.forEach((item) => URL.revokeObjectURL(item.previewUrl));
-};
 
 /** 채팅방 하단 텍스트·이미지 입력·전송 */
 export const ChatComposer = ({
@@ -60,7 +51,7 @@ export const ChatComposer = ({
   const composerRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState('');
-  const [pendingImages, setPendingImages] = useState<PendingChatImage[]>([]);
+  const [pendingImages, setPendingImages] = useState<PendingImageFile[]>([]);
   const [imageError, setImageError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingImagesRef = useRef(pendingImages);
@@ -76,7 +67,7 @@ export const ChatComposer = ({
   }, [pendingImages]);
 
   const clearPendingImages = () => {
-    revokePendingImages(pendingImages);
+    revokePendingImageFiles(pendingImages);
     setPendingImages([]);
     setImageError(null);
   };
@@ -92,7 +83,7 @@ export const ChatComposer = ({
       try {
         await onSendImages(files);
       } catch {
-        setPendingImages(createPendingImages(files));
+        setPendingImages(createPendingImageFiles(files));
         return;
       }
     }
@@ -153,12 +144,12 @@ export const ChatComposer = ({
       return;
     }
 
-    const newItems = createPendingImages(validFiles);
+    const newItems = createPendingImageFiles(validFiles);
     const combined = [...pendingImages, ...newItems];
     const isOverLimit = combined.length > CHAT_IMAGE_MAX_COUNT;
     if (isOverLimit) {
       const kept = combined.slice(0, CHAT_IMAGE_MAX_COUNT);
-      revokePendingImages(combined.slice(CHAT_IMAGE_MAX_COUNT));
+      revokePendingImageFiles(combined.slice(CHAT_IMAGE_MAX_COUNT));
       setPendingImages(kept);
       setImageError(
         `이미지는 최대 ${CHAT_IMAGE_MAX_COUNT}장까지 첨부할 수 있습니다.`
@@ -176,7 +167,7 @@ export const ChatComposer = ({
   const handleRemoveImage = (index: number) => {
     const removed = pendingImages[index];
     if (removed) {
-      URL.revokeObjectURL(removed.previewUrl);
+      revokePendingImageFile(removed);
     }
     setPendingImages((current) => current.filter((_, i) => i !== index));
     setImageError(null);
@@ -184,7 +175,7 @@ export const ChatComposer = ({
 
   useEffect(
     () => () => {
-      revokePendingImages(pendingImagesRef.current);
+      revokePendingImageFiles(pendingImagesRef.current);
     },
     []
   );

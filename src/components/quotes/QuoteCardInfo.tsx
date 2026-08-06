@@ -2,10 +2,12 @@ import { InfoField } from '@/components/ui/InfoField/InfoField';
 import { cn } from '@/lib/utils';
 
 export interface QuoteCardInfoProps {
-  customerName: string;
+  displayName: string;
   moveDate: string;
   departure: string;
   arrival: string;
+  /** 이름 뒤 호칭 — 기사 쪽 고객님 / 고객 쪽 기사님 */
+  nameSuffix?: string;
   className?: string;
 }
 
@@ -13,12 +15,13 @@ const FIELD_LABEL_CLASS =
   'px-1.5 py-0.5 text-md-medium text-gray-400 lg:py-1 lg:text-2lg-regular lg:text-gray-500';
 const FIELD_VALUE_CLASS = 'text-md-medium text-black-300 lg:text-2lg-medium';
 
-/** 견적 카드 공통 — 고객명·이사일·출발·도착 정보 */
+/** 견적 카드 공통 — 이름·이사일·출발·도착 정보 */
 export const QuoteCardInfo = ({
-  customerName,
+  displayName,
   moveDate,
   departure,
   arrival,
+  nameSuffix = '고객님',
   className = '',
 }: QuoteCardInfoProps) => (
   <div
@@ -29,8 +32,8 @@ export const QuoteCardInfo = ({
   >
     <div className="flex flex-col gap-3.5 lg:gap-4.5">
       <h3 className="text-lg-semibold text-black-300 lg:text-xl-semibold">
-        {customerName}
-        <span className="ml-1 lg:ml-2">고객님</span>
+        {displayName}
+        <span className="ml-1 lg:ml-2">{nameSuffix}</span>
       </h3>
 
       {/* 모바일·태블릿 이사일 렌더 */}

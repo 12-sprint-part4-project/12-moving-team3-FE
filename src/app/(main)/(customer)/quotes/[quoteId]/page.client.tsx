@@ -55,7 +55,7 @@ const CustomerQuoteDetailPageClient = ({
     closeConfirmModal,
     submitConfirm,
   } = useConfirmQuoteModal(() => {
-    router.replace('/quotes?tab=received');
+    router.replace('/quotes/history');
   });
 
   if (!Number.isInteger(numericQuoteId)) {
@@ -237,10 +237,7 @@ const CustomerQuoteDetailPageClient = ({
         onConfirm={submitConfirm}
       />
 
-      <LoginRequiredModal
-        open={isLoginModalOpen}
-        onClose={closeLoginModal}
-      />
+      <LoginRequiredModal open={isLoginModalOpen} onClose={closeLoginModal} />
     </div>
   );
 };
