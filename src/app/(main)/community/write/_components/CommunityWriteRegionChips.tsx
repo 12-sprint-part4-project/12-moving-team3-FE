@@ -13,6 +13,7 @@ import {
   COMMUNITY_WRITE_HINT_CLASS,
   COMMUNITY_WRITE_LABEL_CLASS,
   COMMUNITY_WRITE_LABEL_ROW_CLASS,
+  COMMUNITY_WRITE_REGION_CHIP_SELECTED_CLASS,
 } from './communityWriteStyles';
 
 interface CommunityWriteRegionChipsProps {
@@ -37,6 +38,9 @@ export const CommunityWriteRegionChips = ({
     <div className={COMMUNITY_WRITE_FIELD_ROW_CLASS}>
       {WRITE_REGION_OPTIONS.map((option) => {
         const isSelected = value === option.value;
+        const chipClassName = isSelected
+          ? `${COMMUNITY_WRITE_REGION_CHIP_SELECTED_CLASS} ${COMMUNITY_WRITE_CHIP_SELECTED_FONT_CLASS}`
+          : `${COMMUNITY_WRITE_CHIP_UNSELECTED_CLASS} ${COMMUNITY_WRITE_CHIP_UNSELECTED_FONT_CLASS}`;
 
         return (
           <button
@@ -44,15 +48,7 @@ export const CommunityWriteRegionChips = ({
             type="button"
             aria-pressed={isSelected}
             onClick={() => onChange(option.value)}
-            className={cn(
-              COMMUNITY_WRITE_CHIP_BASE_CLASS,
-              isSelected
-                ? COMMUNITY_WRITE_CHIP_SELECTED_FONT_CLASS
-                : COMMUNITY_WRITE_CHIP_UNSELECTED_FONT_CLASS,
-              isSelected
-                ? 'bg-blue-100 text-blue-300'
-                : COMMUNITY_WRITE_CHIP_UNSELECTED_CLASS
-            )}
+            className={cn(COMMUNITY_WRITE_CHIP_BASE_CLASS, chipClassName)}
           >
             {option.label}
           </button>

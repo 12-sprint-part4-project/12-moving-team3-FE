@@ -41,7 +41,10 @@ export const CommunityWritePageClient = () => {
   const [content, setContent] = useState('');
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const imagePreviewsRef = useRef<string[]>([]);
-  imagePreviewsRef.current = imagePreviews;
+
+  useEffect(() => {
+    imagePreviewsRef.current = imagePreviews;
+  }, [imagePreviews]);
 
   const isFurnitureShare = category === 'FURNITURE_SHARE';
 
@@ -107,6 +110,8 @@ export const CommunityWritePageClient = () => {
     if (isSubmitDisabled) {
       return;
     }
+
+    // TODO: useCreatePost API 연동 및 이미지 presigned 업로드 (후속 PR)
   }, [isSubmitDisabled]);
 
   return (
@@ -119,7 +124,7 @@ export const CommunityWritePageClient = () => {
     >
       <div className={COMMUNITY_DETAIL_MAX_W}>
         <header>
-          <h1 className={COMMUNITY_WRITE_PAGE_TITLE_CLASS}>게시글 작성</h1>
+          <h2 className={COMMUNITY_WRITE_PAGE_TITLE_CLASS}>게시글 작성</h2>
           <div
             className={cn(
               COMMUNITY_DETAIL_DIVIDER,

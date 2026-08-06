@@ -86,6 +86,7 @@ export const CommunityWriteImageField = ({
               type="file"
               accept="image/*"
               multiple
+              aria-label="이미지 파일 선택"
               className="sr-only"
               onChange={handleFileChange}
             />

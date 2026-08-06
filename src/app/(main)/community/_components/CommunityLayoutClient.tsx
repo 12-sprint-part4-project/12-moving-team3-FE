@@ -1,14 +1,7 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
 import { type CommunityTabId } from '@/constants/communityOptions';
 import {
@@ -17,6 +10,11 @@ import {
 } from '@/lib/communityListContext';
 
 import { CommunityTabBar } from './CommunityTabBar';
+
+interface TabOverrideState {
+  tab: CommunityTabId;
+  pathname: string;
+}
 
 interface CommunityTabBarContextValue {
   setActiveTabOverride: (tab: CommunityTabId | null) => void;
@@ -50,19 +48,27 @@ export const CommunityLayoutClient = ({
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [activeTabOverride, setActiveTabOverride] =
-    useState<CommunityTabId | null>(null);
+  const [activeTabOverride, setActiveTabOverrideState] =
+    useState<TabOverrideState | null>(null);
 
   const listContext = useMemo(
     () => parsePostListContextFromSearchParams(searchParams),
     [searchParams]
   );
 
-  const activeTab = activeTabOverride ?? listContext.tab;
+  const activeTab =
+    activeTabOverride?.pathname === pathname
+      ? activeTabOverride.tab
+      : listContext.tab;
 
-  useEffect(() => {
-    setActiveTabOverride(null);
-  }, [pathname]);
+  const setActiveTabOverride = useCallback(
+    (tab: CommunityTabId | null) => {
+      setActiveTabOverrideState(
+        tab === null ? null : { tab, pathname }
+      );
+    },
+    [pathname]
+  );
 
   const handleTabChange = useCallback(
     (tabId: CommunityTabId) => {

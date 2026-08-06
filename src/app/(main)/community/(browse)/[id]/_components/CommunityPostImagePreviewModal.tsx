@@ -7,11 +7,15 @@ import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 import CloseIcon from '@/assets/icons/close.svg';
 import { Modal } from '@/components/ui/Modal/Modal';
+import { cn } from '@/lib/utils';
+
+import { COMMUNITY_POST_IMAGE_PREVIEW_PANEL_CLASS } from './communityDetailStyles';
 
 interface CommunityPostImagePreviewModalProps {
   imageUrls: string[];
   initialIndex: number;
   onClose: () => void;
+  className?: string;
 }
 
 /** 게시글 이미지 원본 미리보기 */
@@ -19,6 +23,7 @@ export const CommunityPostImagePreviewModal = ({
   imageUrls,
   initialIndex,
   onClose,
+  className = '',
 }: CommunityPostImagePreviewModalProps) => {
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   const activeUrl = imageUrls[activeIndex];
@@ -57,8 +62,9 @@ export const CommunityPostImagePreviewModal = ({
   return (
     <Modal
       onClose={onClose}
-      className="bg-black/80"
-      panelClassName="relative max-w-[min(92vw,56.25rem)] bg-transparent shadow-none sm:max-w-[min(92vw,56.25rem)]"
+      ariaLabel="게시글 이미지 미리보기"
+      className={cn('bg-black/80', className)}
+      panelClassName={COMMUNITY_POST_IMAGE_PREVIEW_PANEL_CLASS}
     >
       <button
         type="button"

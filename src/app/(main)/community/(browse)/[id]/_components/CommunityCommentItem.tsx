@@ -6,6 +6,10 @@ import { cn } from '@/lib/utils';
 import type { CommentItem, CommentWithReplies } from '@/types/community';
 
 import { CommunityPostAuthorBadge } from './CommunityPostAuthorBadge';
+import {
+  COMMUNITY_COMMENT_REPLY_INDENT_CLASS,
+  COMMUNITY_COMMENT_ROW_GAP_CLASS,
+} from './communityDetailStyles';
 
 interface CommunityCommentInteractionProps {
   postAuthorId?: string;
@@ -58,8 +62,9 @@ const CommunityCommentRow = ({
   return (
     <div
       className={cn(
-        'flex gap-2 min-[46.5rem]:gap-3',
-        isReply && 'pl-9 min-[46.5rem]:pl-12 xl:pl-[3.75rem]'
+        'flex',
+        COMMUNITY_COMMENT_ROW_GAP_CLASS,
+        isReply && COMMUNITY_COMMENT_REPLY_INDENT_CLASS
       )}
     >
       <ChatAvatar

@@ -30,6 +30,10 @@ export const COMMUNITY_WRITE_FIELD_ROW_CLASS = 'mt-2.5 flex flex-wrap gap-2';
 export const COMMUNITY_WRITE_CHIP_UNSELECTED_CLASS =
   'bg-white border border-line-200 text-gray-400';
 
+/** 작성 페이지 지역 칩 — 선택 상태 */
+export const COMMUNITY_WRITE_REGION_CHIP_SELECTED_CLASS =
+  'bg-blue-100 text-blue-300';
+
 /** 카테고리·지역 칩 공통 (지역 전용 레이아웃) */
 export const COMMUNITY_WRITE_CHIP_BASE_CLASS =
   'inline-flex cursor-pointer items-center justify-center rounded px-1.5 py-0.5 shadow-[0_0.0625rem_0.125rem] shadow-shadow-gray-200/10';

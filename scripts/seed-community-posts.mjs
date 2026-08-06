@@ -1,21 +1,48 @@
 /**
  * 커뮤니티 게시글·댓글·대댓글 시드
- * Usage: node scripts/seed-community-posts.mjs
+ *
+ * Usage:
+ *   SEED_USER_PASSWORD='...' SEED_IMAGE_DIR='/path/to/images' node scripts/seed-community-posts.mjs
+ *
+ * ACCOUNTS(move10@email.com ~ move19@email.com)는 로컬 전용 폐기 가능 테스트 계정입니다.
  */
-import { readFileSync } from 'node:fs';
-import { basename, join } from 'node:path';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const API_BASE_URL = process.env.API_BASE_URL ?? 'http://localhost:8000';
-const PASSWORD = 'Password123@@';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const MANIFEST_PATH = join(__dirname, '.seed-posts-manifest.json');
+const DEFAULT_IMAGE_DIR = join(__dirname, 'fixtures', 'seed-images');
+
+const API_BASE_URL =
+  process.env.API_BASE_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  'http://localhost:8000';
+
+const PASSWORD = process.env.SEED_USER_PASSWORD;
+
+if (!PASSWORD) {
+  console.error(
+    'SEED_USER_PASSWORD 환경 변수가 필요합니다. (로컬 전용 테스트 계정 비밀번호)'
+  );
+  process.exit(1);
+}
+
 const USER_TYPE = 'CUSTOMER';
 
 const ACCOUNTS = Array.from({ length: 10 }, (_, index) => ({
   email: `move${index + 10}@email.com`,
 }));
 
-const IMAGE_DIR =
-  process.env.SEED_IMAGE_DIR ??
-  '/Users/apple/.cursor/projects/Users-apple-Desktop-Part4-12-moving-team3-FE/assets';
+const IMAGE_DIR = process.env.SEED_IMAGE_DIR ?? DEFAULT_IMAGE_DIR;
+
+if (!existsSync(IMAGE_DIR)) {
+  console.error(`이미지 디렉터리를 찾을 수 없습니다: ${IMAGE_DIR}`);
+  console.error('SEED_IMAGE_DIR을 설정하거나 scripts/fixtures/seed-images에 이미지를 추가하세요.');
+  process.exit(1);
+}
+
+const FETCH_TIMEOUT_MS = 30_000;
 
 const IMAGE_FILES = [
   'image-a776258e-2a9b-444a-a086-5c70d2a90416.png',
@@ -202,9 +229,25 @@ const COMMENT_POOL = [
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/** 게시글별 0~5장 */
-const pickImages = (postIndex) => {
-  const count = postIndex % 6;
+const fetchWithTimeout = async (url, options = {}) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
+
+/** 게시글별 0~5장 — 가구나눔은 최소 1장 */
+const pickImages = (postIndex, category) => {
+  let count = postIndex % 6;
+
+  if (category === 'FURNITURE_SHARE' && count === 0) {
+    count = 1;
+  }
+
   const selected = [];
 
   for (let index = 0; index < count; index += 1) {
@@ -265,7 +308,7 @@ const apiFetch = async (path, { method = 'GET', token, body } = {}) => {
     headers['Content-Type'] = 'application/json';
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}${path}`, {
     method,
     headers,
     body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -316,7 +359,7 @@ const uploadImage = async (token, filePath) => {
     { token }
   );
 
-  const uploadResponse = await fetch(presigned.data.uploadUrl, {
+  const uploadResponse = await fetchWithTimeout(presigned.data.uploadUrl, {
     method: 'PUT',
     headers: { 'Content-Type': contentType },
     body: buffer,
@@ -379,26 +422,45 @@ const deletePost = async (token, postId) => {
   });
 };
 
-/** 이전 시드 게시글 삭제 (authorIndex → ACCOUNTS) */
-const PREVIOUS_SEED_POSTS = [
-  ...Array.from({ length: 14 }, (_, index) => ({
-    id: 8 + index,
-    authorIndex: index,
-  })),
-  ...Array.from({ length: 6 }, (_, index) => ({
-    id: 23 + index,
-    authorIndex: 14 + index,
-  })),
-];
+/** 시드 manifest — 생성된 게시글 ID·작성자 기록 */
+const loadManifest = () => {
+  if (!existsSync(MANIFEST_PATH)) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(readFileSync(MANIFEST_PATH, 'utf8'));
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    console.warn('시드 manifest를 읽을 수 없어 삭제를 건너뜁니다.');
+    return [];
+  }
+};
+
+const saveManifest = (entries) => {
+  writeFileSync(MANIFEST_PATH, `${JSON.stringify(entries, null, 2)}\n`);
+};
 
 const deletePreviousSeedPosts = async (tokens) => {
-  console.log('Deleting previous seed posts...');
+  const manifest = loadManifest();
 
-  for (const entry of PREVIOUS_SEED_POSTS) {
-    const author = ACCOUNTS[entry.authorIndex % ACCOUNTS.length];
+  if (manifest.length === 0) {
+    console.warn('삭제할 시드 manifest가 없습니다.');
+    return;
+  }
+
+  console.log('Deleting previous seed posts from manifest...');
+
+  for (const entry of manifest) {
+    const token = tokens[entry.authorEmail];
+
+    if (!token) {
+      console.warn(`  skip #${entry.id}: token missing for ${entry.authorEmail}`);
+      continue;
+    }
 
     try {
-      await deletePost(tokens[author.email], entry.id);
+      await deletePost(token, entry.id);
       console.log(`  deleted #${entry.id}`);
     } catch (error) {
       console.warn(`  skip #${entry.id}: ${error.message}`);
@@ -409,6 +471,17 @@ const deletePreviousSeedPosts = async (tokens) => {
 };
 
 const START_INDEX = Number(process.env.SEED_START_INDEX ?? 0);
+
+if (
+  !Number.isInteger(START_INDEX) ||
+  START_INDEX < 0 ||
+  START_INDEX > POSTS.length
+) {
+  console.error(
+    `Invalid SEED_START_INDEX: ${process.env.SEED_START_INDEX ?? 0} (0 ~ ${POSTS.length})`
+  );
+  process.exit(1);
+}
 const DELETE_PREVIOUS = process.env.SEED_DELETE_PREVIOUS === '1';
 
 const main = async () => {
@@ -427,12 +500,13 @@ const main = async () => {
   }
 
   const createdPostIds = [];
+  const manifest = DELETE_PREVIOUS ? [] : loadManifest();
 
   for (let index = START_INDEX; index < POSTS.length; index += 1) {
     const post = POSTS[index];
     const author = ACCOUNTS[index % ACCOUNTS.length];
     const token = tokens[author.email];
-    const imageNames = pickImages(index);
+    const imageNames = pickImages(index, post.category);
     const imageKeys = [];
 
     for (const imageName of imageNames) {
@@ -444,6 +518,8 @@ const main = async () => {
 
     const postId = await createPost(token, post, imageKeys);
     createdPostIds.push(postId);
+    manifest.push({ id: postId, authorEmail: author.email });
+    saveManifest(manifest);
 
     const commentTotal = await seedComments(tokens, postId, index);
 
