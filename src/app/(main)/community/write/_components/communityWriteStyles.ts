@@ -69,7 +69,7 @@ export const COMMUNITY_WRITE_TITLE_COUNTER_CLASS =
 
 /** 제목 글자 수 초과 경고 — 카운터 아래 absolute (초과 시에만 노출) */
 export const COMMUNITY_WRITE_TITLE_ERROR_CLASS =
-  'absolute right-0 top-full m-0 mt-6 text-right text-xs-medium leading-5 text-red-200 min-[46.5rem]:text-sm-medium min-[46.5rem]:leading-[1.375rem]';
+  'absolute right-0 top-full m-0 mt-6 text-right text-xs-medium leading-5 text-red-200 min-[46.5rem]:mt-7 min-[46.5rem]:text-sm-medium min-[46.5rem]:leading-[1.375rem]';
 
 /** 본문 툴바 — 에디터 상단, 라운드 없이 연결 */
 export const COMMUNITY_WRITE_TOOLBAR_CLASS =
@@ -102,7 +102,7 @@ export const COMMUNITY_WRITE_IMAGE_THUMB_CLASS =
 
 /** 취소 버튼 — Mobile·Tablet flex-1 / Desktop 120px */
 export const COMMUNITY_WRITE_CANCEL_BUTTON_CLASS =
-  'inline-flex h-12 flex-1 cursor-pointer items-center justify-center rounded-lg border border-shadow-gray-200 bg-background-200 text-sm-semibold text-gray-400 min-[46.5rem]:text-sm-semibold xl:h-12 xl:w-[7.5rem] xl:flex-none xl:text-md-semibold';
+  'inline-flex h-12 flex-1 cursor-pointer items-center justify-center rounded-lg border border-shadow-gray-200 bg-background-200 text-sm-semibold text-gray-400 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-300 min-[46.5rem]:text-sm-semibold xl:h-12 xl:w-[7.5rem] xl:flex-none xl:text-md-semibold';
 
 /** 등록 버튼 — Mobile·Tablet flex-1 / Desktop 120px */
 export const COMMUNITY_WRITE_SUBMIT_BUTTON_CLASS =

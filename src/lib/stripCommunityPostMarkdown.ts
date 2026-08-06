@@ -11,6 +11,6 @@ export const stripCommunityPostMarkdown = (markdown: string): string =>
     .replace(/~~(.*?)~~/g, '$1')
     .replace(/^\s*[-*+]\s+/gm, '')
     .replace(/^\s*\d+\.\s+/gm, '')
-    .replace(/>\s?/gm, '')
+    .replace(/^\s{0,3}>\s?/gm, '')
     .replace(/\s+/g, ' ')
     .trim();

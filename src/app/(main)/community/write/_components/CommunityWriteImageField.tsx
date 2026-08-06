@@ -52,6 +52,10 @@ export const CommunityWriteImageField = ({
     const validFiles: File[] = [];
     let firstError: string | null = null;
 
+    if (files.length > remainingSlots) {
+      firstError = `이미지는 최대 ${MAX_POST_IMAGE_COUNT}장까지 첨부할 수 있어요.`;
+    }
+
     for (const file of files.slice(0, remainingSlots)) {
       const errorMessage = validateChatImageFile(file);
 
@@ -63,18 +67,13 @@ export const CommunityWriteImageField = ({
       validFiles.push(file);
     }
 
-    if (validFiles.length === 0) {
-      if (firstError) {
-        onImageError?.(firstError);
-      }
-      return;
-    }
-
     if (firstError) {
       onImageError?.(firstError);
     }
 
-    onAddFiles(validFiles);
+    if (validFiles.length > 0) {
+      onAddFiles(validFiles);
+    }
   };
 
   return (

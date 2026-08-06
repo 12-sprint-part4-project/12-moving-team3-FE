@@ -44,6 +44,7 @@ const COMMUNITY_WRITE_CONTENT_PLACEHOLDER = '내용을 입력해 주세요.';
 export const getCommunityWriteEditorExtensions = (): Extensions => [
   StarterKit.configure({
     heading: { levels: [1, 2] },
+    link: false,
   }),
   Link.configure({
     autolink: true,
@@ -181,16 +182,6 @@ export const isCommunityWriteToolbarItemActive = (
 };
 
 export const shouldShowToolbarItemPressed = (
-  item: CommunityWriteToolbarItem,
+  _item: CommunityWriteToolbarItem,
   isActive: boolean
-): boolean | undefined => {
-  if (item.kind === 'toggle') {
-    return isActive;
-  }
-
-  if (item.id === 'link') {
-    return isActive;
-  }
-
-  return undefined;
-};
+): boolean => isActive;

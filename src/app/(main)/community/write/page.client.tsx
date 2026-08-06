@@ -105,30 +105,27 @@ export const CommunityWritePageClient = () => {
   }, []);
 
   const handleAddFiles = useCallback((files: File[]) => {
-    setImageItems((previous) => {
-      const remainingSlots = MAX_POST_IMAGE_COUNT - previous.length;
+    const remainingSlots = MAX_POST_IMAGE_COUNT - imageItemsRef.current.length;
 
-      if (remainingSlots <= 0) {
-        return previous;
-      }
+    if (remainingSlots <= 0) {
+      return;
+    }
 
-      return [
-        ...previous,
-        ...createPendingImageFiles(files.slice(0, remainingSlots)),
-      ];
-    });
+    const nextItems = createPendingImageFiles(files.slice(0, remainingSlots));
+
+    setImageItems((previous) => [...previous, ...nextItems]);
   }, []);
 
   const handleRemoveImageAt = useCallback((index: number) => {
-    setImageItems((previous) => {
-      const target = previous[index];
+    const target = imageItemsRef.current[index];
 
-      if (target) {
-        revokePendingImageFile(target);
-      }
+    if (target) {
+      revokePendingImageFile(target);
+    }
 
-      return previous.filter((_, currentIndex) => currentIndex !== index);
-    });
+    setImageItems((previous) =>
+      previous.filter((_, currentIndex) => currentIndex !== index)
+    );
   }, []);
 
   const handleCancel = useCallback(() => {

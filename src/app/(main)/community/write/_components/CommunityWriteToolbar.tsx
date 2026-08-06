@@ -50,7 +50,7 @@ export const CommunityWriteToolbar = ({
   return (
     <div
       className={COMMUNITY_WRITE_TOOLBAR_CLASS}
-      role="toolbar"
+      role="group"
       aria-label="본문 서식"
     >
       {COMMUNITY_WRITE_TOOLBAR_ITEMS.map((item) => {
