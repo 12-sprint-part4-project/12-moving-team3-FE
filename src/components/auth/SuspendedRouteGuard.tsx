@@ -22,8 +22,7 @@ export const SuspendedRouteGuard = ({ children }: SuspendedRouteGuardProps) => {
   const shouldRedirect =
     isReady &&
     user?.status === 'SUSPENDED' &&
-    isSuspendedRestrictedPath(pathname) &&
-    pathname !== '/suspended';
+    isSuspendedRestrictedPath(pathname);
 
   useEffect(() => {
     if (!shouldRedirect) return;
