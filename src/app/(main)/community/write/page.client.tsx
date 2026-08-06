@@ -7,7 +7,7 @@ import { DEFAULT_WRITE_CATEGORY } from '@/constants/communityOptions';
 import { cn } from '@/lib/utils';
 import type { PostCategory, Region } from '@/types/community';
 
-import { COMMUNITY_DETAIL_DIVIDER } from '../(browse)/[id]/_components/communityDetailStyles';
+import { COMMUNITY_DETAIL_DIVIDER } from '../_components/communitySharedStyles';
 import {
   COMMUNITY_DESKTOP_X,
   COMMUNITY_DETAIL_MAX_W,
@@ -17,16 +17,15 @@ import { CommunityWriteCategoryChips } from './_components/CommunityWriteCategor
 import { CommunityWriteContentField } from './_components/CommunityWriteContentField';
 import { CommunityWriteImageField } from './_components/CommunityWriteImageField';
 import { CommunityWriteRegionChips } from './_components/CommunityWriteRegionChips';
+import { CommunityWriteTitleField } from './_components/CommunityWriteTitleField';
 import {
   COMMUNITY_WRITE_ACTIONS_CLASS,
   COMMUNITY_WRITE_CANCEL_BUTTON_CLASS,
   COMMUNITY_WRITE_FORM_GAP_CLASS,
   COMMUNITY_WRITE_HEADER_DIVIDER_MT_CLASS,
-  COMMUNITY_WRITE_LABEL_CLASS,
   COMMUNITY_WRITE_MAIN_CLASS,
   COMMUNITY_WRITE_PAGE_TITLE_CLASS,
   COMMUNITY_WRITE_SUBMIT_BUTTON_CLASS,
-  COMMUNITY_WRITE_TITLE_INPUT_CLASS,
 } from './_components/communityWriteStyles';
 
 /** 커뮤니티 게시글 작성 — Figma Mobile / Tablet / Desktop 15211:41641 */
@@ -137,20 +136,7 @@ export const CommunityWritePageClient = () => {
             <CommunityWriteRegionChips value={region} onChange={setRegion} />
           ) : null}
 
-          <section>
-            <h2 className={COMMUNITY_WRITE_LABEL_CLASS}>제목</h2>
-            <label className="sr-only" htmlFor="community-write-title">
-              게시글 제목
-            </label>
-            <input
-              id="community-write-title"
-              type="text"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder="제목을 입력해 주세요."
-              className={cn(COMMUNITY_WRITE_TITLE_INPUT_CLASS, 'mt-2.5')}
-            />
-          </section>
+          <CommunityWriteTitleField value={title} onChange={setTitle} />
 
           <CommunityWriteContentField value={content} onChange={setContent} />
 

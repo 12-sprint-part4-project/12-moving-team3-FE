@@ -67,6 +67,9 @@ export const WRITE_REGION_OPTIONS: { label: string; value: Region }[] =
 
 export const DEFAULT_WRITE_CATEGORY: PostCategory = 'MOVING_TIP';
 
+/** 게시글 이미지 최대 첨부 수 — 작성·상세 공통 */
+export const MAX_POST_IMAGE_COUNT = 5;
+
 /** 커뮤니티 지역 필터 — commonOptions 칩 + 전체 */
 export const REGION_FILTER_OPTIONS: {
   label: string;

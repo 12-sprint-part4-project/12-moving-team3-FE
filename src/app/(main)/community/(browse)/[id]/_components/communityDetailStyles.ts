@@ -1,7 +1,6 @@
 /** Figma 15167:41689 — 게시글 상세 공통 스타일 */
 
-/** 구분선 #e0e0e0 */
-export const COMMUNITY_DETAIL_DIVIDER = 'h-px w-full bg-shadow-gray-200';
+export { COMMUNITY_DETAIL_DIVIDER } from '../../../_components/communitySharedStyles';
 
 /** 댓글 입력 */
 export const COMMUNITY_DETAIL_COMMENT_INPUT =

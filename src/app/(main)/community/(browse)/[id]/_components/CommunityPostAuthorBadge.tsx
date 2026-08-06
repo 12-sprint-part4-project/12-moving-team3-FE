@@ -4,7 +4,7 @@ interface CommunityPostAuthorBadgeProps {
   className?: string;
 }
 
-/** 게시글 작성자 댓글 표시 — blue-300 (카테고리 뱃지와 색 분리) */
+/** 게시글 작성자 댓글 표시 */
 export const CommunityPostAuthorBadge = ({
   className = '',
 }: CommunityPostAuthorBadgeProps) => (

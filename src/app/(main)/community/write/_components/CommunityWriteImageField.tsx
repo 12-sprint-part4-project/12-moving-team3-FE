@@ -4,15 +4,17 @@ import Image from 'next/image';
 import { type ChangeEvent, useRef } from 'react';
 
 import CloseIcon from '@/assets/icons/close.svg';
+import { MAX_POST_IMAGE_COUNT } from '@/constants/communityOptions';
+import { cn } from '@/lib/utils';
 
 import {
+  COMMUNITY_WRITE_FIELD_ROW_CLASS,
   COMMUNITY_WRITE_HINT_CLASS,
   COMMUNITY_WRITE_IMAGE_ADD_BUTTON_CLASS,
   COMMUNITY_WRITE_IMAGE_THUMB_CLASS,
   COMMUNITY_WRITE_LABEL_CLASS,
+  COMMUNITY_WRITE_LABEL_ROW_CLASS,
 } from './communityWriteStyles';
-
-const MAX_IMAGES = 5;
 
 interface CommunityWriteImageFieldProps {
   previews: string[];
@@ -31,7 +33,7 @@ export const CommunityWriteImageField = ({
   className = '',
 }: CommunityWriteImageFieldProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const canAddMore = previews.length < MAX_IMAGES;
+  const canAddMore = previews.length < MAX_POST_IMAGE_COUNT;
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
@@ -41,13 +43,13 @@ export const CommunityWriteImageField = ({
       return;
     }
 
-    const remainingSlots = MAX_IMAGES - previews.length;
+    const remainingSlots = MAX_POST_IMAGE_COUNT - previews.length;
     onAddFiles(files.slice(0, remainingSlots));
   };
 
   return (
     <section className={className}>
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+      <div className={COMMUNITY_WRITE_LABEL_ROW_CLASS}>
         <h2 className={COMMUNITY_WRITE_LABEL_CLASS}>이미지</h2>
         {requireAtLeastOne ? (
           <p className={COMMUNITY_WRITE_HINT_CLASS}>
@@ -56,7 +58,7 @@ export const CommunityWriteImageField = ({
         ) : null}
       </div>
 
-      <div className="mt-2.5 flex flex-wrap gap-2">
+      <div className={COMMUNITY_WRITE_FIELD_ROW_CLASS}>
         {previews.map((preview, index) => (
           <div key={preview} className={COMMUNITY_WRITE_IMAGE_THUMB_CLASS}>
             <Image
@@ -98,6 +100,10 @@ export const CommunityWriteImageField = ({
           </>
         ) : null}
       </div>
+
+      <p className={cn(COMMUNITY_WRITE_HINT_CLASS, 'mt-2')}>
+        이미지는 최대 {MAX_POST_IMAGE_COUNT}장까지 첨부할 수 있어요.
+      </p>
     </section>
   );
 };

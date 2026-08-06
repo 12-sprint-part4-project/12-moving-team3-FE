@@ -1,15 +1,14 @@
 'use client';
 
 import { WRITE_CATEGORY_OPTIONS } from '@/constants/communityOptions';
-import { getPostCategoryChipClassName } from '@/constants/communityCategoryStyles';
+import { POST_CATEGORY_CHIP_LAYOUT_CLASS } from '@/constants/communityCategoryStyles';
 import { cn } from '@/lib/utils';
 import type { PostCategory } from '@/types/community';
 
 import {
-  COMMUNITY_WRITE_CHIP_BASE_CLASS,
-  COMMUNITY_WRITE_CHIP_SELECTED_FONT_CLASS,
-  COMMUNITY_WRITE_CHIP_UNSELECTED_FONT_CLASS,
+  COMMUNITY_WRITE_FIELD_ROW_CLASS,
   COMMUNITY_WRITE_LABEL_CLASS,
+  getPostCategoryWriteChipClassName,
 } from './communityWriteStyles';
 
 interface CommunityWriteCategoryChipsProps {
@@ -26,7 +25,7 @@ export const CommunityWriteCategoryChips = ({
 }: CommunityWriteCategoryChipsProps) => (
   <section className={className}>
     <h2 className={COMMUNITY_WRITE_LABEL_CLASS}>카테고리</h2>
-    <div className="mt-2.5 flex flex-wrap gap-2">
+    <div className={COMMUNITY_WRITE_FIELD_ROW_CLASS}>
       {WRITE_CATEGORY_OPTIONS.map((option) => {
         const isSelected = value === option.value;
 
@@ -37,11 +36,9 @@ export const CommunityWriteCategoryChips = ({
             aria-pressed={isSelected}
             onClick={() => onChange(option.value)}
             className={cn(
-              COMMUNITY_WRITE_CHIP_BASE_CLASS,
-              isSelected
-                ? COMMUNITY_WRITE_CHIP_SELECTED_FONT_CLASS
-                : COMMUNITY_WRITE_CHIP_UNSELECTED_FONT_CLASS,
-              getPostCategoryChipClassName(option.value, isSelected)
+              POST_CATEGORY_CHIP_LAYOUT_CLASS,
+              'cursor-pointer',
+              getPostCategoryWriteChipClassName(option.value, isSelected)
             )}
           >
             {option.label}
