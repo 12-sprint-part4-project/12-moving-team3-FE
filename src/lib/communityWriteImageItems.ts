@@ -22,7 +22,7 @@ const normalizePostImageKey = (value: string | null | undefined): string | null 
   return null;
 };
 
-/** view URL → S3 key (presigned GET pathname 기준) */
+/** view URL → S3 key (공개/CDN URL pathname 기준) */
 export const extractPostImageS3KeyFromUrl = (
   imageUrl: string
 ): string | null => {
