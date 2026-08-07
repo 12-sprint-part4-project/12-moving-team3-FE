@@ -9,18 +9,22 @@ import {
 import { refreshAccessToken } from '@/lib/authRefresh';
 import {
   notificationItemSchema,
+  notificationSseRefreshSchema,
   notificationSseUnreadCountSchema,
 } from '@/lib/notificationSchema';
 import type { NotificationItem } from '@/types/notification';
 
 const NOTIFICATION_EVENT = 'notification';
 const UNREAD_COUNT_EVENT = 'unread-count';
+const NOTIFICATION_REFRESH_EVENT = 'notification-refresh';
 const SSE_RECONNECT_BASE_DELAY_MS = 1_000;
 const SSE_RECONNECT_MAX_DELAY_MS = 15_000;
 
 interface NotificationStreamHandlers {
   onNotification: (notification: NotificationItem) => void;
   onUnreadCount: (unreadCount: number) => void;
+  /** Outbox fan-out 후 목록·배지 재조회용 (payload 본문 없음) */
+  onNotificationRefresh: () => void;
   onError?: (error: ApiError) => void;
 }
 
@@ -140,6 +144,19 @@ const parseEventBlock = (
       return;
     }
     handlers.onUnreadCount(parsed.data.unreadCount);
+    return;
+  }
+
+  // 대량 fan-out: item이 없어 invalidate만 트리거한다.
+  if (eventName === NOTIFICATION_REFRESH_EVENT) {
+    const parsed = notificationSseRefreshSchema.safeParse(payload);
+    if (!parsed.success) {
+      handlers.onError?.(
+        new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_SSE_EVENT')
+      );
+      return;
+    }
+    handlers.onNotificationRefresh();
   }
 };
 
