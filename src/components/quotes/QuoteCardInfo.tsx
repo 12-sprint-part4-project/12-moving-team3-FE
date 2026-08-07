@@ -73,14 +73,14 @@ export const QuoteCardInfo = ({
     </div>
 
     {/* 데스크톱 이사일·출발·도착 렌더 */}
-    <div className="hidden min-w-0 flex-wrap items-center gap-x-4 gap-y-2 lg:flex">
+    <div className="hidden min-w-0 items-center gap-x-4 lg:flex lg:flex-nowrap">
       <InfoField
         label="이사일"
         value={moveDate}
         color="neutral"
-        className="min-w-0 gap-3"
+        className="shrink-0 gap-3"
         labelClassName={FIELD_LABEL_CLASS}
-        valueClassName={cn(FIELD_VALUE_CLASS, 'min-w-0 break-keep')}
+        valueClassName={cn(FIELD_VALUE_CLASS, 'whitespace-nowrap')}
       />
       <span
         aria-hidden
@@ -88,11 +88,15 @@ export const QuoteCardInfo = ({
       />
       <InfoField
         label="출발"
-        value={departure}
+        value={
+          <span className="block truncate" title={departure}>
+            {departure}
+          </span>
+        }
         color="neutral"
-        className="min-w-0 gap-3"
+        className="min-w-0 gap-3 overflow-hidden"
         labelClassName={FIELD_LABEL_CLASS}
-        valueClassName={cn(FIELD_VALUE_CLASS, 'min-w-0 break-keep')}
+        valueClassName={FIELD_VALUE_CLASS}
       />
       <span
         aria-hidden
@@ -100,11 +104,15 @@ export const QuoteCardInfo = ({
       />
       <InfoField
         label="도착"
-        value={arrival}
+        value={
+          <span className="block truncate" title={arrival}>
+            {arrival}
+          </span>
+        }
         color="neutral"
-        className="min-w-0 gap-3"
+        className="min-w-0 gap-3 overflow-hidden"
         labelClassName={FIELD_LABEL_CLASS}
-        valueClassName={cn(FIELD_VALUE_CLASS, 'min-w-0 break-keep')}
+        valueClassName={FIELD_VALUE_CLASS}
       />
     </div>
   </div>

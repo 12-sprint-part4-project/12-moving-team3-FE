@@ -100,16 +100,18 @@ export const QuoteListCard = ({
   return (
     <article
       className={cn(
-        'relative flex w-full flex-col gap-6.5 overflow-hidden rounded-2xl border border-line-100 bg-white px-3.5 py-4 shadow-request-card lg:gap-4 lg:px-6 lg:pt-5 lg:pb-3',
+        'relative flex h-full w-full flex-col gap-6.5 overflow-hidden rounded-2xl border border-line-100 bg-white px-3.5 py-4 shadow-request-card lg:gap-4 lg:px-6 lg:pt-5 lg:pb-3',
         className
       )}
     >
       {isClosed ? (
-        <div className="flex w-full flex-col gap-6.5 lg:gap-4">{cardBody}</div>
+        <div className="flex w-full flex-1 flex-col gap-6.5 lg:gap-4">
+          {cardBody}
+        </div>
       ) : (
         <Link
           href={detailHref}
-          className="flex w-full flex-col gap-6.5 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 lg:gap-4"
+          className="flex w-full flex-1 flex-col gap-6.5 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 lg:gap-4"
           aria-label={detailAriaLabel}
         >
           {cardBody}
