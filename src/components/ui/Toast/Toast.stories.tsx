@@ -29,6 +29,15 @@ export const WithIcon: Story = {
   },
 };
 
+/** 닫기 버튼이 노출된 상태. 클릭 시 onClose가 호출된다. */
+export const WithCloseButton: Story = {
+  args: {
+    content: '확정하지 않은 견적이에요!',
+    icon: AlarmIcon,
+    onClose: () => {},
+  },
+};
+
 /**
  * iconClassName으로 기본값(24x24 + currentColor)을 대체해 아이콘만 다르게 커스텀한 예시.
  * fill="currentColor"로 그려진 star.svg를 사용해 색 커스텀이 실제로 반영되는 것을 보여준다.
