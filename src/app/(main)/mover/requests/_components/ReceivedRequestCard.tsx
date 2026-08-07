@@ -39,28 +39,32 @@ export const ReceivedRequestCard = ({
   };
 
   /** 지정 견적만 반려 가능 — 일반 요청은 견적 보내기만 표시 */
-  const CARD_ACTIONS: {
+  type CardAction = {
     label: string;
     variant: ButtonVariant;
     showIcon: boolean;
     onClick: () => void;
-  }[] = [
+  };
+
+  const rejectActions: CardAction[] = request.isDesignated
+    ? [
+        {
+          label: '반려',
+          variant: 'outlined',
+          showIcon: false,
+          onClick: handleReject,
+        },
+      ]
+    : [];
+
+  const CARD_ACTIONS: CardAction[] = [
     {
       label: '견적 보내기',
       variant: 'solid',
       showIcon: true,
       onClick: handleSendQuote,
     },
-    ...(request.isDesignated
-      ? [
-          {
-            label: '반려',
-            variant: 'outlined' as ButtonVariant,
-            showIcon: false,
-            onClick: handleReject,
-          },
-        ]
-      : []),
+    ...rejectActions,
   ];
 
   /** size별 액션 버튼 공통 렌더 */
