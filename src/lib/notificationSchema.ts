@@ -42,4 +42,4 @@ export const notificationSseUnreadCountSchema = z.object({
 });
 
 /** SSE notification-refresh 이벤트 payload — BE Outbox fan-out는 `{}`만 보낸다 */
-export const notificationSseRefreshSchema = z.object({});
+export const notificationSseRefreshSchema = z.strictObject({});
