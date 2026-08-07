@@ -31,6 +31,7 @@ const ROOT_STYLE: Record<GnbLandingSize, string> = {
 /**
  * 랜딩 페이지 GNB.
  * Figma "gnb/landing" — size=sm | md | lg.
+ * - 브랜드: 모든 size에서 로고(iconText)
  * - sm/md: 로고 + 햄버거 메뉴
  * - lg: 로고 + 기사님 찾기 + 로그인 CTA
  */
@@ -49,7 +50,11 @@ export const GnbLanding = ({
     <header
       className={`flex w-full items-center border-b border-line-100 bg-white ${ROOT_STYLE[size]} ${className}`}
     >
-      <Logo size={isDesktop ? 'md' : 'sm'} href={homeHref} />
+      <Logo
+        size={isDesktop ? 'md' : 'sm'}
+        variant="iconText"
+        href={homeHref}
+      />
 
       {isDesktop ? (
         <>

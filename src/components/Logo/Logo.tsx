@@ -7,8 +7,10 @@ export interface LogoProps {
   /** 로고 크기. sm / md (Figma logo-text · logo-icon) */
   size?: LogoSize;
   /**
-   * iconText=아이콘+워드마크, icon=아이콘만.
-   * Figma gnb/default sm은 icon, md/lg는 iconText를 사용한다.
+   * iconText=로고(아이콘+무빙), icon=심볼(아이콘만).
+   * Figma 기준:
+   * - gnb/landing: 모든 size → iconText
+   * - gnb/default · gnb/2-depth: sm → icon, md/lg → iconText
    */
   variant?: LogoVariant;
   /** 클릭 시 이동할 경로 */
@@ -28,7 +30,7 @@ const SIZE_STYLE: Record<LogoVariant, Record<LogoSize, string>> = {
 };
 
 const LOGO_SRC: Record<LogoVariant, string> = {
-  iconText: '/symbol.svg',
+  iconText: '/logo.svg',
   icon: '/symbol.svg',
 };
 
