@@ -38,6 +38,7 @@ export const ReceivedRequestCard = ({
     onReject?.(request);
   };
 
+  /** 지정 견적만 반려 가능 — 일반 요청은 견적 보내기만 표시 */
   const CARD_ACTIONS: {
     label: string;
     variant: ButtonVariant;
@@ -50,12 +51,16 @@ export const ReceivedRequestCard = ({
       showIcon: true,
       onClick: handleSendQuote,
     },
-    {
-      label: '반려',
-      variant: 'outlined',
-      showIcon: false,
-      onClick: handleReject,
-    },
+    ...(request.isDesignated
+      ? [
+          {
+            label: '반려',
+            variant: 'outlined' as ButtonVariant,
+            showIcon: false,
+            onClick: handleReject,
+          },
+        ]
+      : []),
   ];
 
   /** size별 액션 버튼 공통 렌더 */
@@ -154,14 +159,14 @@ export const ReceivedRequestCard = ({
         </div>
 
         {/* 데스크톱 이사일·출발·도착 렌더 */}
-        <div className="hidden min-w-0 flex-wrap items-center gap-x-4 gap-y-2 lg:flex">
+        <div className="hidden min-w-0 items-center gap-x-4 lg:flex lg:flex-nowrap">
           <InfoField
             label="이사일"
             value={request.moveDate}
             color="neutral"
-            className="min-w-0 gap-3"
+            className="shrink-0 gap-3"
             labelClassName={FIELD_LABEL_CLASS}
-            valueClassName={cn(FIELD_VALUE_CLASS, 'min-w-0 break-keep')}
+            valueClassName={cn(FIELD_VALUE_CLASS, 'whitespace-nowrap')}
           />
           <span
             aria-hidden
@@ -169,11 +174,15 @@ export const ReceivedRequestCard = ({
           />
           <InfoField
             label="출발"
-            value={request.departure}
+            value={
+              <span className="block truncate" title={request.departure}>
+                {request.departure}
+              </span>
+            }
             color="neutral"
-            className="min-w-0 gap-3"
+            className="min-w-0 gap-3 overflow-hidden"
             labelClassName={FIELD_LABEL_CLASS}
-            valueClassName={cn(FIELD_VALUE_CLASS, 'min-w-0 break-keep')}
+            valueClassName={FIELD_VALUE_CLASS}
           />
           <span
             aria-hidden
@@ -181,11 +190,15 @@ export const ReceivedRequestCard = ({
           />
           <InfoField
             label="도착"
-            value={request.arrival}
+            value={
+              <span className="block truncate" title={request.arrival}>
+                {request.arrival}
+              </span>
+            }
             color="neutral"
-            className="min-w-0 gap-3"
+            className="min-w-0 gap-3 overflow-hidden"
             labelClassName={FIELD_LABEL_CLASS}
-            valueClassName={cn(FIELD_VALUE_CLASS, 'min-w-0 break-keep')}
+            valueClassName={FIELD_VALUE_CLASS}
           />
         </div>
       </div>
