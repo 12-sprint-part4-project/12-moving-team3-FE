@@ -13,6 +13,7 @@ export interface ChatPartner {
   id: string;
   userType: ApiUserType;
   nickname: string;
+  /** 공개/CDN URL. 이미지 없으면 null */
   profileImageUrl: string | null;
 }
 

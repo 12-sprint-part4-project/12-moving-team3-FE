@@ -27,7 +27,7 @@ export interface CustomerProfile {
   nickname: string;
   email: string;
   phoneNumber: string | null;
-  /** Presigned GET URL (1시간), 없으면 null */
+  /** 공개/CDN URL. 이미지 없으면 null */
   profileImageUrl: string | null;
   service: CustomerServiceType[];
   region: CustomerRegion | null;

@@ -36,7 +36,7 @@ export interface MoverProfile {
   description: string;
   service: MoverServiceType[];
   serviceRegions: MoverRegion[];
-  /** Presigned GET URL (1시간), 없으면 null */
+  /** 공개/CDN URL. 이미지 없으면 null */
   profileImageUrl: string | null;
   updatedAt: string;
 }
@@ -49,6 +49,7 @@ export interface MoverProfileMe {
   nickname: string;
   email: string;
   phoneNumber: string | null;
+  /** 공개/CDN URL. 이미지 없으면 null */
   profileImageUrl: string | null;
   career: number | null;
   shortDescription: string | null;

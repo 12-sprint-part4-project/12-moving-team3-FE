@@ -12,6 +12,7 @@ export type CustomerPastQuoteFilter = 'ALL' | 'CONFIRMED';
 export interface CustomerQuoteMover {
   moverId: string;
   nickname: string;
+  /** 공개/CDN URL. 이미지 없으면 null */
   profileImage: string | null;
   shortDescription: string | null;
   rating: number;
