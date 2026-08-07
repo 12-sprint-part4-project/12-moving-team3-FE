@@ -364,7 +364,7 @@ const CustomerProfileEditFields = ({
                   )}
                 >
                   {displayImageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element -- Presigned URL / blob preview
+                    // eslint-disable-next-line @next/next/no-img-element -- 공개/CDN URL / blob preview
                     <img
                       src={displayImageUrl}
                       alt="프로필 이미지"

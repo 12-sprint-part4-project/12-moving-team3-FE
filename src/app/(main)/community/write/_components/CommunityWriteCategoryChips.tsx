@@ -1,11 +1,11 @@
 'use client';
 
 import { WRITE_CATEGORY_OPTIONS } from '@/constants/communityOptions';
-import { POST_CATEGORY_CHIP_LAYOUT_CLASS } from '@/constants/communityCategoryStyles';
 import { cn } from '@/lib/utils';
 import type { PostCategory } from '@/types/community';
 
 import {
+  COMMUNITY_WRITE_CATEGORY_CHIP_LAYOUT_CLASS,
   COMMUNITY_WRITE_FIELD_ROW_CLASS,
   COMMUNITY_WRITE_LABEL_CLASS,
   getPostCategoryWriteChipClassName,
@@ -14,6 +14,7 @@ import {
 interface CommunityWriteCategoryChipsProps {
   value: PostCategory;
   onChange: (category: PostCategory) => void;
+  readOnly?: boolean;
   className?: string;
 }
 
@@ -21,6 +22,7 @@ interface CommunityWriteCategoryChipsProps {
 export const CommunityWriteCategoryChips = ({
   value,
   onChange,
+  readOnly = false,
   className = '',
 }: CommunityWriteCategoryChipsProps) => (
   <section className={className}>
@@ -34,10 +36,17 @@ export const CommunityWriteCategoryChips = ({
             key={option.value}
             type="button"
             aria-pressed={isSelected}
-            onClick={() => onChange(option.value)}
+            disabled={readOnly}
+            onClick={() => {
+              if (readOnly) {
+                return;
+              }
+
+              onChange(option.value);
+            }}
             className={cn(
-              POST_CATEGORY_CHIP_LAYOUT_CLASS,
-              'cursor-pointer',
+              COMMUNITY_WRITE_CATEGORY_CHIP_LAYOUT_CLASS,
+              readOnly ? 'cursor-default' : 'cursor-pointer',
               getPostCategoryWriteChipClassName(option.value, isSelected)
             )}
           >

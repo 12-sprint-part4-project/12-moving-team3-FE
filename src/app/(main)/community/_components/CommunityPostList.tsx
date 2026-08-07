@@ -6,12 +6,18 @@ import { cn } from '@/lib/utils';
 import type { PostListContext } from '@/lib/communityListContext';
 import type { PostListItem } from '@/types/community';
 
+import { CommunityFurnitureGridCard } from './CommunityFurnitureGridCard';
 import { CommunityPostCard } from './CommunityPostCard';
+import { CommunityPostListSkeleton } from './CommunityPostListSkeleton';
+import { COMMUNITY_FURNITURE_GRID_CLASS } from './communityLayout';
+
+type CommunityPostListVariant = 'list' | 'furniture-grid';
 
 interface CommunityPostListProps {
   posts: PostListItem[];
   listContext?: PostListContext;
-  isPending: boolean;
+  variant?: CommunityPostListVariant;
+  showSkeleton?: boolean;
   isError: boolean;
   isEmpty: boolean;
   isFetchingNextPage: boolean;
@@ -29,7 +35,8 @@ interface CommunityPostListProps {
 export const CommunityPostList = ({
   posts,
   listContext,
-  isPending,
+  variant = 'list',
+  showSkeleton = false,
   isError,
   isEmpty,
   isFetchingNextPage,
@@ -42,16 +49,19 @@ export const CommunityPostList = ({
   className = '',
   listClassName = 'flex flex-col gap-2 min-[46.5rem]:gap-8 xl:gap-12',
 }: CommunityPostListProps) => {
+  const isFurnitureGrid = variant === 'furniture-grid';
+  const resolvedListClassName = isFurnitureGrid
+    ? COMMUNITY_FURNITURE_GRID_CLASS
+    : listClassName;
+
   const isInitialError = isError && posts.length === 0;
-  const showEmpty = !isPending && !isInitialError && isEmpty;
-  const showPosts = !isPending && !isInitialError && posts.length > 0;
+  const showEmpty = !showSkeleton && !isInitialError && isEmpty;
+  const showPosts = !showSkeleton && !isInitialError && posts.length > 0;
 
   return (
     <div className={className}>
-      {isPending ? (
-        <div className="flex justify-center py-16">
-          <Spinner message="게시글 불러오는 중..." />
-        </div>
+      {showSkeleton ? (
+        <CommunityPostListSkeleton variant={variant} listClassName={listClassName} />
       ) : null}
 
       {isInitialError ? (
@@ -72,10 +82,18 @@ export const CommunityPostList = ({
       ) : null}
 
       {showPosts ? (
-        <ul className={cn(listClassName)}>
-          {posts.map((post) => (
-            <li key={post.id}>
-              <CommunityPostCard post={post} listContext={listContext} />
+        <ul className={cn('list-none p-0 m-0', resolvedListClassName)}>
+          {posts.map((post, index) => (
+            <li key={post.id} className={isFurnitureGrid ? 'min-w-0' : undefined}>
+              {isFurnitureGrid ? (
+                <CommunityFurnitureGridCard
+                  post={post}
+                  listContext={listContext}
+                  preload={index < 3}
+                />
+              ) : (
+                <CommunityPostCard post={post} listContext={listContext} />
+              )}
             </li>
           ))}
         </ul>

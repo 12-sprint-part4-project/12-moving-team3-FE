@@ -28,9 +28,10 @@ import {
   postListContextToParams,
 } from '@/lib/communityListContext';
 import { formatDotDateLabel } from '@/lib/formatDate';
+import { stripCommunityPostMarkdown } from '@/lib/stripCommunityPostMarkdown';
 import { cn } from '@/lib/utils';
 
-import { CommunityCategoryBadge } from '../../_components/CommunityCategoryBadge';
+import { CommunityPostBadges } from '../../_components/CommunityPostBadges';
 import { useCommunityTabBarOverride } from '../../_components/CommunityLayoutClient';
 import {
   COMMUNITY_DESKTOP_X,
@@ -39,9 +40,10 @@ import {
   COMMUNITY_SECTION_X,
 } from '../../_components/communityLayout';
 import { CommunityCommentList } from './_components/CommunityCommentList';
+import { CommunityFurnitureShareDetailActions } from './_components/CommunityFurnitureShareDetailActions';
+import { CommunityPostDetailContent } from './_components/CommunityPostDetailContent';
 import { ConfirmDeleteModal } from './_components/ConfirmDeleteModal';
 import {
-  COMMUNITY_DETAIL_BODY_TEXT,
   COMMUNITY_DETAIL_DIVIDER,
   COMMUNITY_DETAIL_META_DATE,
   COMMUNITY_DETAIL_META_NICKNAME,
@@ -52,6 +54,7 @@ import { CommunityPostEngagementBar } from './_components/CommunityPostEngagemen
 import { CommunityPostMoreMenu } from './_components/CommunityPostMoreMenu';
 import { CommunityPostNavigation } from './_components/CommunityPostNavigation';
 import { CommunityPostShareButtons } from './_components/CommunityPostShareButtons';
+import { useCommunityFurnitureShareDetail } from './_lib/useCommunityFurnitureShareDetail';
 
 interface CommunityPostDetailPageClientProps {
   postId: number;
@@ -139,7 +142,16 @@ export const CommunityPostDetailPageClient = ({
   );
 
   const shareImageUrl = imageUrls[0] ?? null;
-  const shareDescription = post?.content.slice(0, 100) ?? null;
+  const postContent = post?.content;
+  const shareDescription = useMemo(() => {
+    if (postContent === undefined) {
+      return null;
+    }
+
+    const plainText = stripCommunityPostMarkdown(postContent);
+
+    return plainText.length > 0 ? plainText.slice(0, 100) : null;
+  }, [postContent]);
 
   useEffect(() => {
     if (post) {
@@ -158,6 +170,21 @@ export const CommunityPostDetailPageClient = ({
   const closeLoginModal = useCallback(() => {
     setIsLoginModalOpen(false);
   }, []);
+
+  const {
+    detailAction,
+    isCompleteModalOpen,
+    handleFurnitureShareChatClick,
+    handleCompleteModalOpen,
+    handleCompleteModalClose,
+    handleCompleteConfirm,
+    isChatRoomPending,
+  } = useCommunityFurnitureShareDetail({
+    post,
+    postId,
+    user,
+    openLoginModal,
+  });
 
   const handleLikeClick = useCallback(() => {
     if (!user) {
@@ -373,13 +400,13 @@ export const CommunityPostDetailPageClient = ({
         )}
       >
         <div className={COMMUNITY_DETAIL_MAX_W}>
-          <CommunityCategoryBadge category={post.category} />
+          <CommunityPostBadges category={post.category} region={post.region} />
 
           <div className="mt-4 min-[46.5rem]:mt-5 xl:mt-6">
             <h1
               className={cn(
-                'text-2lg-bold text-black-400',
-                'min-[46.5rem]:text-xl-bold xl:text-2xl-bold'
+                'text-2xl-bold text-black-400',
+                'min-[46.5rem]:text-2xl-bold xl:text-3xl-bold'
               )}
             >
               {post.title}
@@ -446,16 +473,14 @@ export const CommunityPostDetailPageClient = ({
             />
           ) : null}
 
-          <p
-            className={cn(
-              COMMUNITY_DETAIL_BODY_TEXT,
+          <CommunityPostDetailContent
+            content={post.content}
+            className={
               imageUrls.length > 0
                 ? 'mt-[1.5625rem] min-[46.5rem]:mt-[2.375rem] xl:mt-16'
                 : 'mt-[2.375rem] min-[46.5rem]:mt-[3.2rem] xl:mt-20'
-            )}
-          >
-            {post.content}
-          </p>
+            }
+          />
 
           <CommunityCommentList
             comments={comments}
@@ -481,6 +506,14 @@ export const CommunityPostDetailPageClient = ({
               void fetchCommentsNextPage();
             }}
             loadMoreRef={commentsLoadMoreRef}
+            beforeHeader={
+              <CommunityFurnitureShareDetailActions
+                action={detailAction}
+                onChatClick={handleFurnitureShareChatClick}
+                onCompleteClick={handleCompleteModalOpen}
+                isChatPending={isChatRoomPending}
+              />
+            }
             headerAction={
               <CommunityPostShareButtons
                 title={post.title}
@@ -540,6 +573,24 @@ export const CommunityPostDetailPageClient = ({
             onClose={handlePostDeleteModalClose}
             onConfirm={handlePostDeleteConfirm}
             isDeleting={isDeletePostPending}
+          />
+        </Modal>
+      ) : null}
+
+      {isCompleteModalOpen ? (
+        <Modal placement="bottom" onClose={handleCompleteModalClose}>
+          <ConfirmDeleteModal
+            title="나눔 완료"
+            message={
+              <>
+                나눔을 완료 처리하시겠습니까?
+                <br />
+                완료 후에는 더 이상 나눔 받기 요청을 받을 수 없습니다.
+              </>
+            }
+            confirmLabel="완료하기"
+            onClose={handleCompleteModalClose}
+            onConfirm={handleCompleteConfirm}
           />
         </Modal>
       ) : null}

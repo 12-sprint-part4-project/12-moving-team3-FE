@@ -13,7 +13,7 @@ import {
 } from './communityDetailStyles';
 
 const MENU_ITEM_CLASS =
-  'flex w-full cursor-pointer px-4 py-3 text-left text-md-medium text-black-400';
+  'flex w-full cursor-pointer px-4 py-3 text-left text-2lg-medium text-black-400';
 
 interface CommunityPostMoreMenuProps {
   isPostOwner: boolean;
@@ -23,7 +23,7 @@ interface CommunityPostMoreMenuProps {
   className?: string;
 }
 
-/** 게시글 더보기 — 링크 복사(공통) · 수정·삭제(본인) */
+/** 게시글 더보기 — 수정·삭제(본인) · 링크 복사(공통) */
 export const CommunityPostMoreMenu = ({
   isPostOwner,
   onCopyLink,
@@ -73,13 +73,6 @@ export const CommunityPostMoreMenu = ({
 
       {isOpen ? (
         <div className={COMMUNITY_POST_MORE_MENU_PANEL_CLASS}>
-          <button
-            type="button"
-            onClick={() => closeAndRun(onCopyLink)}
-            className={MENU_ITEM_CLASS}
-          >
-            링크 복사
-          </button>
           {isPostOwner ? (
             <>
               <button
@@ -98,6 +91,13 @@ export const CommunityPostMoreMenu = ({
               </button>
             </>
           ) : null}
+          <button
+            type="button"
+            onClick={() => closeAndRun(onCopyLink)}
+            className={MENU_ITEM_CLASS}
+          >
+            링크 복사
+          </button>
         </div>
       ) : null}
     </div>

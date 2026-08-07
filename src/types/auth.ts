@@ -1,5 +1,8 @@
 export type ApiUserType = 'CUSTOMER' | 'MOVER';
 
+/** 계정 상태. UserStatusInfo 없으면 ACTIVE로 취급 */
+export type UserStatus = 'ACTIVE' | 'SUSPENDED';
+
 export interface LoginRequest {
   userType: ApiUserType;
   email: string;
@@ -23,6 +26,8 @@ export interface AuthUser {
   /** 프로필 등록 전에는 빈 문자열 */
   phoneNumber: string;
   isProfileCompleted: boolean;
+  /** 계정 상태. 로그인·카카오 응답에 포함 */
+  status: UserStatus;
 }
 
 export interface LoginResponse {

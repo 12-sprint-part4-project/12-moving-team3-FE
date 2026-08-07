@@ -9,15 +9,18 @@ import { cn } from '@/lib/utils';
 interface CommunityPostThumbnailProps {
   thumbnailUrl: string;
   className?: string;
+  /** above-the-fold LCP — Next.js preload */
+  preload?: boolean;
 }
 
 const isBrokenImage = (image: HTMLImageElement): boolean =>
   image.naturalWidth === 0 || image.naturalHeight === 0;
 
-/** presigned URL 로드 실패·손상 시 no-image fallback */
+/** 썸네일 로드 실패·손상 시 no-image fallback */
 export const CommunityPostThumbnail = ({
   thumbnailUrl,
   className = '',
+  preload = false,
 }: CommunityPostThumbnailProps) => {
   const [failedThumbnailUrl, setFailedThumbnailUrl] = useState<string | null>(
     null
@@ -56,6 +59,7 @@ export const CommunityPostThumbnail = ({
           width={108}
           height={100}
           unoptimized
+          preload={preload}
           onError={handleError}
           onLoad={handleLoad}
           className="size-full object-cover"

@@ -22,7 +22,7 @@ export const ChatAvatar = ({
           className
         )}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element -- Presigned URL */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- 공개/CDN 프로필 URL */}
         <img
           src={src}
           alt={alt}

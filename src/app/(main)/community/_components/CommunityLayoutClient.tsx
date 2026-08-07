@@ -10,6 +10,7 @@ import {
 } from '@/lib/communityListContext';
 
 import { CommunityTabBar } from './CommunityTabBar';
+import { CommunityWriteButton } from './CommunityWriteButton';
 
 interface TabOverrideState {
   tab: CommunityTabId;
@@ -93,6 +94,7 @@ export const CommunityLayoutClient = ({
     <CommunityTabBarContext.Provider value={tabBarContextValue}>
       <CommunityTabBar activeTab={activeTab} onTabChange={handleTabChange} />
       {children}
+      <CommunityWriteButton variant="fab" activeTab={activeTab} />
     </CommunityTabBarContext.Provider>
   );
 };

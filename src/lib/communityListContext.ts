@@ -94,6 +94,12 @@ export const buildCommunityPostDetailHref = (
   return qs ? `/community/${postId}?${qs}` : `/community/${postId}`;
 };
 
+/** 글쓰기 진입 URL — 가구나눔 탭에서는 카테고리 사전 선택 */
+export const buildCommunityWriteHref = (
+  tab: CommunityTabId = 'board'
+): string =>
+  tab === 'furniture' ? '/community/write?tab=furniture' : '/community/write';
+
 export const parsePostListContextFromSearchParams = (
   searchParams: Pick<URLSearchParams, 'get'>
 ): PostListContext => {

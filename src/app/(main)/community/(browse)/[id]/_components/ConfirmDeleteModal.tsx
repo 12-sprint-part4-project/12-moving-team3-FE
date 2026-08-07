@@ -13,6 +13,7 @@ export interface ConfirmDeleteModalProps {
   onClose: () => void;
   onConfirm: () => void;
   isDeleting?: boolean;
+  confirmLabel?: string;
   className?: string;
 }
 
@@ -23,6 +24,7 @@ export const ConfirmDeleteModal = ({
   onClose,
   onConfirm,
   isDeleting = false,
+  confirmLabel = '삭제하기',
   className = '',
 }: ConfirmDeleteModalProps) => {
   const handleClose = () => {
@@ -56,7 +58,7 @@ export const ConfirmDeleteModal = ({
             disabled={isDeleting}
             onClick={onConfirm}
           >
-            삭제하기
+            {confirmLabel}
           </Button>
         </div>
       }

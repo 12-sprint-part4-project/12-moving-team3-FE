@@ -1,4 +1,7 @@
+'use client';
+
 import type { FC, ReactNode, SVGProps } from 'react';
+import CloseIcon from '@/assets/icons/close.svg';
 
 /** SVGR로 import한 svg 아이콘 컴포넌트 타입 (`src/types/svg.d.ts` 선언과 동일한 형태) */
 export type ToastIconComponent = FC<SVGProps<SVGSVGElement>>;
@@ -24,13 +27,15 @@ export interface ToastProps {
   iconClassName?: string;
   /** 토스트에 표시할 내용 (필수) */
   content: ReactNode;
+  /** 닫기 버튼 클릭 시 호출. 넘기면 우측 닫기 버튼이 노출된다. */
+  onClose?: () => void;
   className?: string;
 }
 
 /**
  * 전역 어디서든 띄울 수 있는 토스트 UI(프레젠테이션 컴포넌트).
  * 실제 화면에 등장/사라짐을 제어하는 큐잉·타이머 로직은 `ToastProvider`가 담당하고,
- * 이 컴포넌트는 "아이콘 + 내용 한 줄"을 보여주는 순수 UI만 책임진다.
+ * 이 컴포넌트는 "아이콘 + 내용 + (선택) 닫기 버튼"을 보여주는 순수 UI만 책임진다.
  *
  * Figma 시안은 sm/md/lg 3개 크기 배리언트로 나뉘어 있지만, 콘텐츠 구조와 색상은 동일하고
  * 크기(폰트/패딩/모서리 곡률)만 다르므로, 별도의 size prop 없이 모바일 퍼스트 반응형
@@ -40,6 +45,7 @@ export const Toast = ({
   icon: Icon,
   iconClassName = DEFAULT_ICON_CLASSNAME,
   content,
+  onClose,
   className = '',
 }: ToastProps) => (
   <div
@@ -49,6 +55,16 @@ export const Toast = ({
   >
     {Icon && <Icon className={iconClassName} />}
     {/* content는 ReactNode라 블록 요소도 들어올 수 있어, <p>로 감싸면 중첩이 깨질 수 있으므로 <div>를 사용한다. */}
-    <div className="min-w-0">{content}</div>
+    <div className="min-w-0 flex-1">{content}</div>
+    {onClose && (
+      <button
+        type="button"
+        aria-label="닫기"
+        onClick={onClose}
+        className="inline-flex size-4 shrink-0 cursor-pointer items-center justify-center text-blue-300 sm:size-6"
+      >
+        <CloseIcon className="size-full" aria-hidden />
+      </button>
+    )}
   </div>
 );

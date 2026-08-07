@@ -176,8 +176,11 @@ const MoverRequestsPageClient = () => {
     setSendQuoteTarget(request);
   };
 
-  /** 반려 모달 열기 */
+  /** 반려 모달 열기 — 지정 견적 요청만 허용 */
   const handleOpenRejectModal = (request: ReceivedRequestCardModel) => {
+    if (!request.isDesignated) {
+      return;
+    }
     clearSubmitError();
     setRejectTarget(request);
   };
