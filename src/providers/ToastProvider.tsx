@@ -43,7 +43,8 @@ export const ToastContext = createContext<ToastContextValue | null>(null);
 /**
  * 앱 전역에서 `useToast()`로 토스트를 띄울 수 있게 해주는 Provider.
  * - 토스트를 배열(큐)로 쌓아두어 여러 개가 동시에 호출되면 순서대로 스택되어 보인다.
- * - 각 토스트는 자신의 duration이 지나면 개별 타이머로 자동 제거된다(닫기 버튼 없음).
+ * - 각 토스트는 자신의 duration이 지나면 개별 타이머로 자동 제거되며,
+ *   닫기 버튼으로도 즉시 닫을 수 있다.
  * - 실제 UI는 `document.body`에 Portal로 렌더링해 어떤 페이지의 레이아웃/overflow에도
  *   영향받지 않고 항상 최상단에 고정 노출되도록 한다.
  */
@@ -70,8 +71,12 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
   }, []);
 
   const removeToast = useCallback((id: number) => {
+    const timeoutId = timeoutsRef.current.get(id);
+    if (timeoutId !== undefined) {
+      window.clearTimeout(timeoutId);
+      timeoutsRef.current.delete(id);
+    }
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
-    timeoutsRef.current.delete(id);
   }, []);
 
   const showToast = useCallback(
@@ -106,6 +111,7 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
                   content={content}
                   icon={icon}
                   iconClassName={iconClassName}
+                  onClose={() => removeToast(id)}
                   className="pointer-events-auto w-full max-w-[59.6875rem]"
                 />
               ))}
