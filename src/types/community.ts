@@ -11,6 +11,7 @@ export type Region = RegionChipValue;
 export interface PostAuthor {
   id: string;
   nickname: string;
+  /** 공개/CDN URL. 이미지 없으면 null */
   profileImageUrl: string | null;
 }
 

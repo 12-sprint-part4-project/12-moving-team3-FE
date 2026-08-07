@@ -16,7 +16,7 @@ interface CommunityPostThumbnailProps {
 const isBrokenImage = (image: HTMLImageElement): boolean =>
   image.naturalWidth === 0 || image.naturalHeight === 0;
 
-/** presigned URL 로드 실패·손상 시 no-image fallback */
+/** 썸네일 로드 실패·손상 시 no-image fallback */
 export const CommunityPostThumbnail = ({
   thumbnailUrl,
   className = '',

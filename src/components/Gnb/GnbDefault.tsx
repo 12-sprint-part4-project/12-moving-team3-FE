@@ -113,7 +113,7 @@ const GnbProfileAvatar = ({ src, className }: GnbProfileAvatarProps) => {
       <span
         className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full ${className}`}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element -- Presigned URL */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- 공개/CDN 프로필 URL */}
         <img
           src={src}
           alt=""
