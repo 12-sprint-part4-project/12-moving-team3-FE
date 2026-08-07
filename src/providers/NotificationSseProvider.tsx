@@ -21,7 +21,7 @@ interface NotificationSseProviderProps {
 
 /**
  * 로그인 세션이 있을 때 알림 SSE를 연결하고,
- * 새 알림을 목록 캐시·토스트에 반영한다.
+ * 단건 알림은 캐시·토스트에, fan-out refresh는 목록 invalidate로 반영한다.
  */
 export const NotificationSseProvider = ({
   children,
@@ -49,6 +49,10 @@ export const NotificationSseProvider = ({
         });
       },
       onUnreadCount: () => {
+        invalidateNotificationList(queryClient);
+      },
+      // Outbox 대량 발송 — 본문 없음, 목록·배지만 재조회
+      onNotificationRefresh: () => {
         invalidateNotificationList(queryClient);
       },
     });
