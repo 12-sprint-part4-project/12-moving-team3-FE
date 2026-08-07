@@ -94,7 +94,8 @@ const openStream = async (signal: AbortSignal): Promise<Response> => {
   return response;
 };
 
-const parseEventBlock = (
+/** SSE 이벤트 블록 단위 파서 — 단위 테스트에서 notification-refresh 분기를 직접 검증한다. */
+export const parseEventBlock = (
   block: string,
   handlers: NotificationStreamHandlers
 ): void => {
