@@ -37,3 +37,21 @@ export const GNB_PROFILE_MENU_BY_ROLE = {
 } as const satisfies Record<string, GnbNavItem[]>;
 
 export type GnbNavRole = keyof typeof GNB_NAV_BY_ROLE;
+
+/** 프로필 미완료 고객은 '프로필 등록' → /profile/customer */
+export const getGnbProfileMenuItems = (
+  role: GnbNavRole,
+  isProfileCompleted: boolean
+): GnbNavItem[] => {
+  const items: GnbNavItem[] = [...GNB_PROFILE_MENU_BY_ROLE[role]];
+
+  if (role !== 'customer' || isProfileCompleted) {
+    return items;
+  }
+
+  return items.map((item) =>
+    item.href === '/profile/customer/edit'
+      ? { label: '프로필 등록', href: '/profile/customer' }
+      : item
+  );
+};
