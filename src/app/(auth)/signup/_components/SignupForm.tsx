@@ -65,6 +65,11 @@ const INITIAL_VALUES: SignupFormValues = {
   passwordConfirm: '',
 };
 
+const NICKNAME_MIN_LENGTH = 2;
+const NICKNAME_MAX_LENGTH = 20;
+const NAME_MIN_LENGTH = 2;
+const NAME_MAX_LENGTH = 20;
+
 /** Mobile·Tablet(sm) 기본 + Desktop(md)는 lg: 오버라이드 */
 const FIELD_CLASSNAME =
   'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
@@ -112,6 +117,28 @@ export const SignupForm = ({ role }: SignupFormProps) => {
     event.preventDefault();
     if (!isSubmittable) return;
 
+    const trimmedName = values.name.trim();
+    if (
+      trimmedName.length < NAME_MIN_LENGTH ||
+      trimmedName.length > NAME_MAX_LENGTH
+    ) {
+      showToast({
+        content: `이름은 ${NAME_MIN_LENGTH}~${NAME_MAX_LENGTH}자로 입력해 주세요.`,
+      });
+      return;
+    }
+
+    const trimmedNickname = values.nickname.trim();
+    if (
+      trimmedNickname.length < NICKNAME_MIN_LENGTH ||
+      trimmedNickname.length > NICKNAME_MAX_LENGTH
+    ) {
+      showToast({
+        content: `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`,
+      });
+      return;
+    }
+
     if (values.password !== values.passwordConfirm) {
       showToast({ content: '비밀번호가 일치하지 않습니다.' });
       return;
@@ -122,8 +149,8 @@ export const SignupForm = ({ role }: SignupFormProps) => {
     try {
       await signup({
         userType: USER_TYPE_BY_ROLE[role],
-        name: values.name.trim(),
-        nickname: values.nickname.trim(),
+        name: trimmedName,
+        nickname: trimmedNickname,
         email: values.email.trim(),
         password: values.password,
         passwordConfirmation: values.passwordConfirm,

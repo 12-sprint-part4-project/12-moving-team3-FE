@@ -36,6 +36,8 @@ import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
 import { ProfileImageCropModal } from './ProfileImageCropModal';
 
 const PHONE_NUMBER_LENGTH = 11;
+const NICKNAME_MIN_LENGTH = 2;
+const NICKNAME_MAX_LENGTH = 20;
 
 const FIELD_CLASSNAME =
   'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
@@ -106,6 +108,17 @@ export const CustomerProfileForm = () => {
       return;
     }
 
+    const nickname = user?.nickname?.trim() ?? '';
+    if (
+      nickname.length < NICKNAME_MIN_LENGTH ||
+      nickname.length > NICKNAME_MAX_LENGTH
+    ) {
+      showToast({
+        content: `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`,
+      });
+      return;
+    }
+
     setIsPending(true);
 
     try {
@@ -116,7 +129,7 @@ export const CustomerProfileForm = () => {
       }
 
       await upsertCustomerProfile({
-        nickname: user?.nickname ?? '',
+        nickname,
         phoneNumber,
         region: selectedRegion,
         service: selectedServices,
