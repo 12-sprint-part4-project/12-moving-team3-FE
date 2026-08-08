@@ -11,6 +11,7 @@ import {
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 import CloseIcon from '@/assets/icons/close.svg';
+import { ChatMessageMenu } from '@/components/chat/ChatMessageMenu';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { formatChatMessageTime } from '@/lib/formatDate';
@@ -26,6 +27,8 @@ export interface ChatMessageItemProps {
   showUnreadCount?: boolean;
   /** 상대가 내 마지막까지 읽음 — 마지막 메시지에만 `읽음` */
   showReadLabel?: boolean;
+  /** 상대 메시지 신고 — 있으면 ⋯ 메뉴 노출 (내 메시지에는 전달하지 않음) */
+  onReport?: () => void;
   className?: string;
 }
 
@@ -252,13 +255,14 @@ const ChatImageLightbox = ({
   );
 };
 
-/** 대화 말풍선 1건 — 나(오른쪽)·상대(왼쪽) */
+/** 대화 말풍선 1건 — 나(오른쪽)·상대(왼쪽). 상대만 ⋯ 신고 메뉴 */
 export const ChatMessageItem = ({
   message,
   isMine,
   showTime = true,
   showUnreadCount = false,
   showReadLabel = false,
+  onReport,
   className,
 }: ChatMessageItemProps) => {
   const isImageMessage =
@@ -306,23 +310,41 @@ export const ChatMessageItem = ({
       </div>
     ) : null;
 
-  const partnerTime = !isMine && timeLabel ? (
-    <div className="shrink-0 self-end">{timeLabel}</div>
-  ) : null;
+  const partnerMeta =
+    !isMine && (onReport || timeLabel) ? (
+      <div className="flex shrink-0 flex-col items-start justify-end gap-0 self-end ml-0.5">
+        {onReport ? (
+          <ChatMessageMenu
+            onReport={onReport}
+            className="-mb-0.5 -translate-x-0.5"
+          />
+        ) : null}
+        {/* 시간 없는 묶음 중간 메시지도 메뉴를 시간 위(상단) 슬롯에 맞춤 */}
+        {timeLabel ??
+          (onReport ? (
+            <span
+              className="invisible whitespace-nowrap text-xs-medium"
+              aria-hidden
+            >
+              00:00
+            </span>
+          ) : null)}
+      </div>
+    ) : null;
 
   return (
     <>
       <div
         className={cn(
-          'flex max-w-[75%] items-end gap-1.5',
-          isMine ? 'flex-row self-end' : 'flex-row self-start',
+          'flex max-w-chat-bubble items-end gap-1.5',
+          isMine ? 'flex-row self-end' : 'group/msg flex-row self-start',
           className
         )}
       >
-        {/* 내 메시지: (1|읽음·시간) | 말풍선. 상대: 말풍선 | 시간 */}
+        {/* 내 메시지: (1|읽음·시간) | 말풍선. 상대: 말풍선 | (⋯ / 시간) */}
         {mineMeta}
         <div className="min-w-0">{bubble}</div>
-        {partnerTime}
+        {partnerMeta}
       </div>
 
       {lightboxIndex != null && isImageMessage ? (

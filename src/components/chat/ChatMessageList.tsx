@@ -6,10 +6,16 @@ import {
   useEffect,
   useLayoutEffect,
   useRef,
+  useState,
   type UIEvent,
 } from 'react';
 
 import { ChatMessageItem } from '@/components/chat/ChatMessageItem';
+import { ReportCategoryModal } from '@/components/reports/ReportCategoryModal';
+import { Modal } from '@/components/ui/Modal/Modal';
+import { useAuth } from '@/hooks/useAuth';
+import { useCreateReport } from '@/hooks/useCreateReport';
+import { useToast } from '@/hooks/useToast';
 import {
   formatChatDateSeparator,
   isSameLocalCalendarDay,
@@ -17,6 +23,7 @@ import {
 } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
 import type { ChatMessage } from '@/types/chat';
+import type { ReportCategory } from '@/types/report';
 
 export interface ChatMessageListProps {
   messages: ChatMessage[];
@@ -117,6 +124,11 @@ export const ChatMessageList = ({
   scrollToBottomSignal = 0,
   className,
 }: ChatMessageListProps) => {
+  const { user } = useAuth();
+  const { showToast } = useToast();
+  const { submitReport, isPending: isReportPending } = useCreateReport();
+  const [reportMessageId, setReportMessageId] = useState<number | null>(null);
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   /** 이전 이력 prepend 전 스크롤 스냅샷 — 로드 중에는 덮어쓰지 않음 */
@@ -323,102 +335,150 @@ export const ChatMessageList = ({
     }
   };
 
+  const handleOpenReport = (messageId: number) => {
+    if (!user) {
+      showToast({ content: '로그인이 필요한 기능입니다' });
+      return;
+    }
+    setReportMessageId(messageId);
+  };
+
+  const handleCloseReport = () => {
+    if (isReportPending) return;
+    setReportMessageId(null);
+  };
+
+  const handleSubmitReport = async (category: ReportCategory) => {
+    if (isReportPending || reportMessageId == null) return;
+
+    try {
+      await submitReport({
+        target: 'MESSAGE',
+        targetId: String(reportMessageId),
+        category,
+      });
+      setReportMessageId(null);
+    } catch {
+      // 성공/실패 토스트는 useCreateReport에서 처리
+    }
+  };
+
   return (
-    <div
-      ref={scrollRef}
-      onScroll={handleScroll}
-      className={cn(
-        'min-h-0 flex-1 overflow-y-auto bg-background-200 px-4 py-5 md:px-6',
-        className
-      )}
-    >
-      <div ref={contentRef} className="flex flex-col gap-3.5">
-        <div aria-live="polite" aria-atomic="true">
-          {isFetchingNextPage ? (
-            <p className="py-1 text-center text-sm-medium text-gray-300">
-              이전 대화 불러오는 중…
-            </p>
-          ) : null}
-
-          {!isFetchingNextPage && isFetchNextPageError ? (
-            <div className="flex flex-col items-center gap-1 py-1">
-              <p className="text-center text-sm-medium text-gray-300">
-                이전 대화를 불러오지 못했어요
+    <>
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className={cn(
+          'min-h-0 flex-1 overflow-y-auto bg-background-200 px-4 py-5 md:px-6',
+          className
+        )}
+      >
+        <div ref={contentRef} className="flex flex-col gap-3.5">
+          <div aria-live="polite" aria-atomic="true">
+            {isFetchingNextPage ? (
+              <p className="py-1 text-center text-sm-medium text-gray-300">
+                이전 대화 불러오는 중…
               </p>
-              <button
-                type="button"
-                onClick={onLoadOlder}
-                className="cursor-pointer text-sm-medium text-blue-300 underline-offset-2 hover:underline"
-              >
-                다시 시도
-              </button>
-            </div>
-          ) : null}
+            ) : null}
 
-          {isPending ? (
-            <p className="py-16 text-center text-lg-medium text-gray-300">
-              불러오는 중…
-            </p>
-          ) : null}
+            {!isFetchingNextPage && isFetchNextPageError ? (
+              <div className="flex flex-col items-center gap-1 py-1">
+                <p className="text-center text-sm-medium text-gray-300">
+                  이전 대화를 불러오지 못했어요
+                </p>
+                <button
+                  type="button"
+                  onClick={onLoadOlder}
+                  className="cursor-pointer text-sm-medium text-blue-300 underline-offset-2 hover:underline"
+                >
+                  다시 시도
+                </button>
+              </div>
+            ) : null}
 
-          {isInitialError ? (
-            <p className="py-16 text-center text-lg-medium text-gray-300">
-              메시지를 불러오지 못했어요
-            </p>
-          ) : null}
+            {isPending ? (
+              <p className="py-16 text-center text-lg-medium text-gray-300">
+                불러오는 중…
+              </p>
+            ) : null}
 
-          {canRenderMessages && isEmpty ? (
-            <p className="py-16 text-center text-lg-medium text-gray-300">
-              대화를 시작해 보세요
-            </p>
-          ) : null}
+            {isInitialError ? (
+              <p className="py-16 text-center text-lg-medium text-gray-300">
+                메시지를 불러오지 못했어요
+              </p>
+            ) : null}
+
+            {canRenderMessages && isEmpty ? (
+              <p className="py-16 text-center text-lg-medium text-gray-300">
+                대화를 시작해 보세요
+              </p>
+            ) : null}
+          </div>
+
+          {canRenderMessages &&
+            messages.map((message, index) => {
+              const previous = messages[index - 1];
+              const next = messages[index + 1];
+              const showDateSeparator =
+                !previous ||
+                !isSameLocalCalendarDay(previous.createdAt, message.createdAt);
+              const dateLabel = showDateSeparator
+                ? formatChatDateSeparator(message.createdAt)
+                : '';
+              const isMine = message.senderId === currentUserId;
+              const showTime = shouldShowMessageTime(message, next);
+              const { showUnreadCount, showReadLabel } = getMineReadReceiptFlags(
+                message,
+                currentUserId,
+                partnerLastReadMessageId,
+                myLastMessageId
+              );
+
+              return (
+                <Fragment key={message.messageId}>
+                  {showDateSeparator && dateLabel ? (
+                    <p
+                      role="separator"
+                      aria-label={dateLabel}
+                      className="py-1 text-center text-xs-medium text-gray-300"
+                    >
+                      {dateLabel}
+                    </p>
+                  ) : null}
+                  <ChatMessageItem
+                    message={message}
+                    isMine={isMine}
+                    showTime={showTime}
+                    showUnreadCount={showUnreadCount}
+                    showReadLabel={showReadLabel}
+                    onReport={
+                      isMine
+                        ? undefined
+                        : () => handleOpenReport(message.messageId)
+                    }
+                    className={
+                      showTime || showUnreadCount || showReadLabel
+                        ? undefined
+                        : '-mb-2'
+                    }
+                  />
+                </Fragment>
+              );
+            })}
         </div>
-
-        {canRenderMessages &&
-          messages.map((message, index) => {
-            const previous = messages[index - 1];
-            const next = messages[index + 1];
-            const showDateSeparator =
-              !previous ||
-              !isSameLocalCalendarDay(previous.createdAt, message.createdAt);
-            const dateLabel = showDateSeparator
-              ? formatChatDateSeparator(message.createdAt)
-              : '';
-            const showTime = shouldShowMessageTime(message, next);
-            const { showUnreadCount, showReadLabel } = getMineReadReceiptFlags(
-              message,
-              currentUserId,
-              partnerLastReadMessageId,
-              myLastMessageId
-            );
-
-            return (
-              <Fragment key={message.messageId}>
-                {showDateSeparator && dateLabel ? (
-                  <p
-                    role="separator"
-                    aria-label={dateLabel}
-                    className="py-1 text-center text-xs-medium text-gray-300"
-                  >
-                    {dateLabel}
-                  </p>
-                ) : null}
-                <ChatMessageItem
-                  message={message}
-                  isMine={message.senderId === currentUserId}
-                  showTime={showTime}
-                  showUnreadCount={showUnreadCount}
-                  showReadLabel={showReadLabel}
-                  className={
-                    showTime || showUnreadCount || showReadLabel
-                      ? undefined
-                      : '-mb-2'
-                  }
-                />
-              </Fragment>
-            );
-          })}
       </div>
-    </div>
+
+      {reportMessageId != null ? (
+        <Modal placement="bottom" onClose={handleCloseReport}>
+          <ReportCategoryModal
+            onClose={handleCloseReport}
+            onSubmit={(category) => {
+              void handleSubmitReport(category);
+            }}
+            isSubmitting={isReportPending}
+          />
+        </Modal>
+      ) : null}
+    </>
   );
 };
