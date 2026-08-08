@@ -101,6 +101,8 @@
 
   /* Layout — 채팅 목록/상세 */
   --max-width-chat: 43rem;
+  /* 말풍선 행 최대 폭 */
+  --max-width-chat-bubble: 75%;
 
   /* Layout — GNB 채팅 미리보기 드롭다운 */
   --width-chat-preview: 22.4375rem;

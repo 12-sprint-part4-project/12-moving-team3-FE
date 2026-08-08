@@ -13,8 +13,8 @@ export interface ChatMessageMenuProps {
 
 /**
  * 상대 메시지 ⋯ 메뉴 — 「신고」.
- * 데스크톱(fine pointer): 부모 `group/msg` 호버·포커스 시 노출.
- * 터치/호버 불가: 연한 ⋯ 상시 노출.
+ * 넓은 뷰포트 + fine pointer: 부모 `group/msg` 호버·포커스 시 노출.
+ * 좁은 뷰포트·터치: 연한 ⋯ 상시 노출.
  * ChatRoomHeader 나가기 메뉴와 동일하게 outside click · Escape · role="menu".
  */
 export const ChatMessageMenu = ({
@@ -55,19 +55,19 @@ export const ChatMessageMenu = ({
             ? 'opacity-100'
             : [
                 'opacity-40',
-                '[@media(hover:hover)_and_(pointer:fine)]:opacity-0',
-                '[@media(hover:hover)_and_(pointer:fine)]:group-hover/msg:opacity-100',
-                '[@media(hover:hover)_and_(pointer:fine)]:group-focus-within/msg:opacity-100',
+                'md:[@media(hover:hover)_and_(pointer:fine)]:opacity-0',
+                'md:[@media(hover:hover)_and_(pointer:fine)]:group-hover/msg:opacity-100',
+                'md:[@media(hover:hover)_and_(pointer:fine)]:group-focus-within/msg:opacity-100',
               ]
         )}
       >
-        <MoreVerticalIcon className="size-4" aria-hidden />
+        <MoreVerticalIcon className="size-4 rotate-90" aria-hidden />
       </button>
 
       {isMenuOpen ? (
         <div
           role="menu"
-          className="absolute top-full left-0 z-50 mt-1 min-w-[7.5rem] rounded-2xl border border-line-200 bg-white py-1.5 shadow-[0.125rem_0.125rem_0.25rem] shadow-shadow-gray-200/20"
+          className="absolute top-full left-0 z-50 mt-1 min-w-32 rounded-2xl border border-line-200 bg-white py-1.5 shadow-chat-panel"
         >
           <button
             type="button"

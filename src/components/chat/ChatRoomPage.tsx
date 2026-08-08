@@ -11,8 +11,8 @@ import { ChatRoomHeader } from '@/components/chat/ChatRoomHeader';
 import { ChatRoomHeaderPlaceholder } from '@/components/chat/ChatRoomHeaderPlaceholder';
 import {
   CHAT_MESSAGE_REPORT_HINT_DELAY_MS,
-  CHAT_MESSAGE_REPORT_HINT_MESSAGE,
   CHAT_MESSAGE_REPORT_HINT_STORAGE_KEY,
+  getChatMessageReportHintMessage,
 } from '@/constants/chatUi';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -65,6 +65,7 @@ export const ChatRoomPage = ({
   const sendMutation = useSendChatMessage(roomId);
   const { mutate: markAsRead } = useMarkChatRoomAsRead(roomId);
   const lastMarkedMessageIdRef = useRef<number | null>(null);
+  const reportHintShownRef = useRef(false);
   const [isNearBottom, setIsNearBottom] = useState(true);
   const [trackedRoomId, setTrackedRoomId] = useState(roomId);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
@@ -115,30 +116,40 @@ export const ChatRoomPage = ({
     );
   }, [enabled, roomId, messages, markAsRead, user?.id, isNearBottom]);
 
-  /** 채팅 기능 최초 1회 — 메시지 신고 호버 안내 (방마다 아님) */
+  /** 채팅 기능 최초 1회 — 메시지 신고 안내 (방마다 아님) */
   useEffect(() => {
     if (!enabled || !room || isMessagesPending) {
       return;
     }
 
+    let alreadySeen = false;
     try {
-      if (localStorage.getItem(CHAT_MESSAGE_REPORT_HINT_STORAGE_KEY)) {
-        return;
-      }
+      alreadySeen = Boolean(
+        localStorage.getItem(CHAT_MESSAGE_REPORT_HINT_STORAGE_KEY)
+      );
     } catch {
+      // storage 읽기 실패 → 미표시로 간주하고 안내 진행
+    }
+    if (alreadySeen) {
       return;
     }
 
     const timer = window.setTimeout(() => {
+      if (reportHintShownRef.current) {
+        return;
+      }
+
       try {
         if (localStorage.getItem(CHAT_MESSAGE_REPORT_HINT_STORAGE_KEY)) {
           return;
         }
         localStorage.setItem(CHAT_MESSAGE_REPORT_HINT_STORAGE_KEY, '1');
       } catch {
-        // storage 실패 시에도 아래 토스트는 이번 진입에서만 (타이머 cleanup)
+        // storage 실패 시 ref로 이번 마운트에서 1회만 표시
       }
-      showToast({ content: CHAT_MESSAGE_REPORT_HINT_MESSAGE });
+
+      reportHintShownRef.current = true;
+      showToast({ content: getChatMessageReportHintMessage() });
     }, CHAT_MESSAGE_REPORT_HINT_DELAY_MS);
 
     return () => window.clearTimeout(timer);

@@ -6,7 +6,7 @@ import { fn } from 'storybook/test';
 import { ChatMessageItem } from '@/components/chat/ChatMessageItem';
 import type { ChatMessage } from '@/types/chat';
 
-const textPartnerMessage: ChatMessage = {
+const TEXT_PARTNER_MESSAGE: ChatMessage = {
   messageId: 101,
   senderId: 'partner-user-id',
   senderUserType: 'MOVER',
@@ -17,7 +17,7 @@ const textPartnerMessage: ChatMessage = {
   createdAt: '2026-08-08T10:00:00.000Z',
 };
 
-const imagePartnerMessage: ChatMessage = {
+const IMAGE_PARTNER_MESSAGE: ChatMessage = {
   messageId: 102,
   senderId: 'partner-user-id',
   senderUserType: 'MOVER',
@@ -31,7 +31,7 @@ const imagePartnerMessage: ChatMessage = {
   createdAt: '2026-08-08T10:01:00.000Z',
 };
 
-const mineMessage: ChatMessage = {
+const MINE_MESSAGE: ChatMessage = {
   messageId: 103,
   senderId: 'me-user-id',
   senderUserType: 'CUSTOMER',
@@ -64,7 +64,7 @@ type Story = StoryObj<typeof ChatMessageItem>;
 /** 상대 텍스트 — 호버(또는 터치에서 연한 ⋯) → 신고 */
 export const PartnerText: Story = {
   args: {
-    message: textPartnerMessage,
+    message: TEXT_PARTNER_MESSAGE,
     isMine: false,
     showTime: true,
     onReport: fn(),
@@ -74,19 +74,20 @@ export const PartnerText: Story = {
 /** 상대 이미지 — 동일 신고 메뉴 */
 export const PartnerImage: Story = {
   args: {
-    message: imagePartnerMessage,
+    message: IMAGE_PARTNER_MESSAGE,
     isMine: false,
     showTime: true,
     onReport: fn(),
   },
 };
 
-/** 내 메시지 — ⋯ 메뉴 없음 */
+/** 내 메시지 — onReport가 있어도 ⋯ 메뉴 없음 */
 export const MineText: Story = {
   args: {
-    message: mineMessage,
+    message: MINE_MESSAGE,
     isMine: true,
     showTime: true,
     showUnreadCount: true,
+    onReport: fn(),
   },
 };

@@ -314,9 +314,21 @@ export const ChatMessageItem = ({
     !isMine && (onReport || timeLabel) ? (
       <div className="flex shrink-0 flex-col items-start justify-end gap-0 self-end ml-0.5">
         {onReport ? (
-          <ChatMessageMenu onReport={onReport} className="-mb-0.5 -translate-x-0.5" />
+          <ChatMessageMenu
+            onReport={onReport}
+            className="-mb-0.5 -translate-x-0.5"
+          />
         ) : null}
-        {timeLabel}
+        {/* 시간 없는 묶음 중간 메시지도 메뉴를 시간 위(상단) 슬롯에 맞춤 */}
+        {timeLabel ??
+          (onReport ? (
+            <span
+              className="invisible whitespace-nowrap text-xs-medium"
+              aria-hidden
+            >
+              00:00
+            </span>
+          ) : null)}
       </div>
     ) : null;
 
@@ -324,7 +336,7 @@ export const ChatMessageItem = ({
     <>
       <div
         className={cn(
-          'flex max-w-[75%] items-end gap-1.5',
+          'flex max-w-chat-bubble items-end gap-1.5',
           isMine ? 'flex-row self-end' : 'group/msg flex-row self-start',
           className
         )}
