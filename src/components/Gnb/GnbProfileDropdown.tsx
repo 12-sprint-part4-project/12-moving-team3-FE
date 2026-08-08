@@ -14,6 +14,8 @@ export interface GnbProfileDropdownProps {
   userName?: string;
   nameSuffix?: string;
   menuItems?: GnbNavItem[];
+  /** 메뉴 링크 클릭 시 (드롭다운 닫기용) */
+  onClose?: () => void;
   onLogout?: () => void;
   className?: string;
 }
@@ -45,6 +47,7 @@ export const GnbProfileDropdown = ({
   userName = '',
   nameSuffix = '',
   menuItems = DEFAULT_MENU_ITEMS,
+  onClose,
   onLogout,
   className,
 }: GnbProfileDropdownProps) => {
@@ -78,6 +81,7 @@ export const GnbProfileDropdown = ({
               key={item.href + item.label}
               href={item.href}
               role="menuitem"
+              onClick={onClose}
               className={cn(
                 'flex w-full items-center whitespace-nowrap',
                 isLast ? styles.lastItem : styles.item
