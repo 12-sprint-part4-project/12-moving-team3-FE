@@ -298,7 +298,12 @@ const GnbHeader = ({
   );
 };
 
-/** 로그인 상태 기본 GNB */
+/**
+ * 로그인 상태 기본 GNB.
+ * Figma "gnb/default"
+ * - 브랜드: sm=심볼(icon), md/lg=로고(iconText)
+ * - sort=tab: 브랜드 없음(탭만)
+ */
 export const GnbDefault = ({
   size = 'sm',
   sort = 'gnb',

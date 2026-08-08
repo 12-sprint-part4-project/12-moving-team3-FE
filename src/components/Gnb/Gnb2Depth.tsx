@@ -175,7 +175,8 @@ const Gnb2DepthTabBar = ({
 /**
  * 2Depth GNB.
  * Figma "gnb/2-depth" — size=sm|md|lg, Property 2=tab-1|tab-2.
- * - sm/md: 헤더(로고·알림·프로필·메뉴) + 타이틀바
+ * - 브랜드: sm=심볼, md=로고, lg=없음(탭바만)
+ * - sm/md: 헤더(브랜드·알림·프로필·메뉴) + 타이틀바
  * - lg: 2Depth 탭바만 표시
  */
 export const Gnb2Depth = ({
