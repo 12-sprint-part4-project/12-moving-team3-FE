@@ -17,6 +17,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import {
   applySocketMessageToCaches,
+  applySocketReadToCaches,
   applySocketUnreadToCaches,
 } from '@/lib/chatSocketCache';
 import {
@@ -32,6 +33,7 @@ import {
 import type {
   ChatSocketErrorPayload,
   ChatSocketMessagePayload,
+  ChatSocketReadPayload,
   ChatSocketUnreadPayload,
 } from '@/types/chat';
 
@@ -52,9 +54,7 @@ interface ChatSocketProviderProps {
  * 서버 이벤트를 TanStack Query 캐시에 반영한다.
  * 전송·읽음·나가기는 REST 훅을 유지한다.
  * SUSPENDED는 Socket.IO가 거부되므로 연결하지 않는다.
- *
- * `chat:read`는 현재 FE 캐시에 읽음 커서가 없어 구독하지 않는다.
- * 읽음 UI가 추가되면 핸들러를 등록한다.
+ * `chat:read` 수신 시 방 상세·목록 캐시의 partner 읽음 커서를 전진 반영한다.
  */
 export const ChatSocketProvider = ({ children }: ChatSocketProviderProps) => {
   const { user, isReady } = useAuth();
@@ -64,11 +64,13 @@ export const ChatSocketProvider = ({ children }: ChatSocketProviderProps) => {
 
   const queryClientRef = useRef(queryClient);
   const showToastRef = useRef(showToast);
+  const userIdRef = useRef(userId);
 
   useEffect(() => {
     queryClientRef.current = queryClient;
     showToastRef.current = showToast;
-  }, [queryClient, showToast]);
+    userIdRef.current = userId;
+  }, [queryClient, showToast, userId]);
 
   const isConnected = useSyncExternalStore(
     subscribeChatSocketConnection,
@@ -95,6 +97,14 @@ export const ChatSocketProvider = ({ children }: ChatSocketProviderProps) => {
       applySocketMessageToCaches(queryClientRef.current, payload);
     };
 
+    const handleRead = (payload: ChatSocketReadPayload) => {
+      const currentUserId = userIdRef.current;
+      if (!currentUserId) {
+        return;
+      }
+      applySocketReadToCaches(queryClientRef.current, payload, currentUserId);
+    };
+
     const handleUnread = (payload: ChatSocketUnreadPayload) => {
       applySocketUnreadToCaches(queryClientRef.current, payload);
     };
@@ -106,11 +116,13 @@ export const ChatSocketProvider = ({ children }: ChatSocketProviderProps) => {
     };
 
     socket.on(CHAT_SOCKET_SERVER_EVENTS.MESSAGE, handleMessage);
+    socket.on(CHAT_SOCKET_SERVER_EVENTS.READ, handleRead);
     socket.on(CHAT_SOCKET_SERVER_EVENTS.UNREAD, handleUnread);
     socket.on(CHAT_SOCKET_SERVER_EVENTS.ERROR, handleError);
 
     return () => {
       socket.off(CHAT_SOCKET_SERVER_EVENTS.MESSAGE, handleMessage);
+      socket.off(CHAT_SOCKET_SERVER_EVENTS.READ, handleRead);
       socket.off(CHAT_SOCKET_SERVER_EVENTS.UNREAD, handleUnread);
       socket.off(CHAT_SOCKET_SERVER_EVENTS.ERROR, handleError);
       disconnectChatSocket();

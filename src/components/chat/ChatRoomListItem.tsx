@@ -1,11 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 import { ChatAvatar } from '@/components/chat/ChatAvatar';
 import { ChatUnreadBadge } from '@/components/chat/ChatUnreadBadge';
+import { useAuth } from '@/hooks/useAuth';
+import { getChatListStatusLabel } from '@/lib/chatListStatusLabel';
 import { getChatLastMessagePreview } from '@/lib/chatMessagePreview';
-import { formatRelativeTime } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
 import type { ChatRoomListItem as ChatRoomListItemData } from '@/types/chat';
 
@@ -22,18 +24,32 @@ export const ChatRoomListItem = ({
   onNavigate,
   className,
 }: ChatRoomListItemProps) => {
+  const { user } = useAuth();
+  const [, setStatusTick] = useState(0);
   const preview = getChatLastMessagePreview(room.lastMessage);
-  const relativeTime = room.lastMessage
-    ? formatRelativeTime(room.lastMessage.createdAt)
-    : '';
   const hasUnread = room.unreadCount > 0;
+
+  const statusLabel =
+    user != null ? getChatListStatusLabel(room, user.id) : '';
+
+  useEffect(() => {
+    if (!room.lastMessage) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setStatusTick((current) => current + 1);
+    }, 60_000);
+
+    return () => window.clearInterval(intervalId);
+  }, [room.lastMessage]);
 
   return (
     <Link
       href={`/chat/${room.roomId}`}
       onClick={onNavigate}
       className={cn(
-        'flex w-full items-start gap-3 border-b border-line-200 bg-white px-6 py-4 last:border-b-0',
+        'flex w-full items-center gap-3 border-b border-line-200 bg-white px-6 py-4 last:border-b-0',
         'hover:bg-background-100 focus-visible:bg-background-100 focus-visible:outline-none',
         className
       )}
@@ -41,28 +57,27 @@ export const ChatRoomListItem = ({
       <ChatAvatar
         src={room.partner.profileImageUrl}
         alt=""
-        className="size-10"
+        className="size-10 shrink-0"
       />
 
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <div className="flex items-center gap-2">
-          <p
-            className={cn(
-              'min-w-0 flex-1 truncate text-black-400',
-              hasUnread ? 'text-lg-semibold' : 'text-lg-medium'
-            )}
-          >
-            {room.partner.nickname}
-          </p>
-          <ChatUnreadBadge count={room.unreadCount} />
-        </div>
+        <p
+          className={cn(
+            'truncate text-black-400',
+            hasUnread ? 'text-lg-semibold' : 'text-lg-medium'
+          )}
+        >
+          {room.partner.nickname}
+        </p>
 
         <p className="truncate text-md-medium text-black-400">{preview}</p>
 
-        {relativeTime ? (
-          <p className="text-md-medium text-gray-300">{relativeTime}</p>
+        {statusLabel ? (
+          <p className="text-md-medium text-gray-300">{statusLabel}</p>
         ) : null}
       </div>
+
+      <ChatUnreadBadge count={room.unreadCount} />
     </Link>
   );
 };

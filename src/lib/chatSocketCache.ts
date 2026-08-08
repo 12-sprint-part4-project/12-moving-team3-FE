@@ -4,9 +4,11 @@ import { chatQueryKeys } from '@/hooks/useChat';
 import type {
   ChatMessage,
   ChatMessagesResponse,
+  ChatRoomDetailResponse,
   ChatRoomListItem,
   ChatRoomListResponse,
   ChatSocketMessagePayload,
+  ChatSocketReadPayload,
   ChatSocketUnreadPayload,
   ChatUnreadCountResponse,
 } from '@/types/chat';
@@ -179,6 +181,8 @@ export const applySocketMessageToCaches = (
   }
 
   const lastMessage = {
+    messageId: message.messageId,
+    senderId: message.senderId,
     content: message.content,
     messageType: message.messageType,
     createdAt: message.createdAt,
@@ -193,6 +197,66 @@ export const applySocketMessageToCaches = (
     const others = rooms.filter((room) => room.roomId !== roomId);
     return [{ ...target, lastMessage }, ...others];
   });
+};
+
+/**
+ * `chat:read` — 상대 읽음 커서를 방 상세 캐시에 전진만 반영한다.
+ * 본인(readerId === currentUserId) 이벤트는 무시한다.
+ */
+export const applySocketReadToCaches = (
+  queryClient: QueryClient,
+  payload: ChatSocketReadPayload,
+  currentUserId: string
+): void => {
+  if (payload.readerId === currentUserId) {
+    return;
+  }
+
+  const { roomId, lastReadMessageId } = payload;
+
+  queryClient.setQueryData<ChatRoomDetailResponse>(
+    chatQueryKeys.room(roomId),
+    (current) => {
+      if (!current) {
+        return current;
+      }
+
+      const previous = current.data.partnerLastReadMessageId;
+
+      // 읽은 커서는 앞으로만 이동
+      if (previous != null && lastReadMessageId <= previous) {
+        return current;
+      }
+
+      return {
+        ...current,
+        data: {
+          ...current.data,
+          partnerLastReadMessageId: lastReadMessageId,
+          partnerLastReadAt: payload.readAt,
+        },
+      };
+    }
+  );
+
+  updateRoomsListCache(queryClient, (rooms) =>
+    rooms.map((room) => {
+      if (room.roomId !== roomId) {
+        return room;
+      }
+
+      const previous = room.partnerLastReadMessageId;
+      if (previous != null && lastReadMessageId <= previous) {
+        return room;
+      }
+
+      return {
+        ...room,
+        partnerLastReadMessageId: lastReadMessageId,
+        partnerLastReadAt: payload.readAt,
+      };
+    })
+  );
 };
 
 /**

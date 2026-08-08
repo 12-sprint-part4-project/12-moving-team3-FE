@@ -280,3 +280,101 @@ export const formatRelativeTime = (value: string): string => {
   // 7일 이상은 로컬 타임존 기준 절대 날짜로 표시
   return formatLocalDateLabel(value);
 };
+
+type RelativeReceiptKind = 'read' | 'sent';
+
+const RELATIVE_RECEIPT_TEXT: Record<
+  RelativeReceiptKind,
+  {
+    justNow: string;
+    minutes: (n: number) => string;
+    hours: (n: number) => string;
+    days: (n: number) => string;
+    weeks: (n: number) => string;
+    fallback: string;
+  }
+> = {
+  read: {
+    justNow: '방금 읽음',
+    minutes: (n) => `${n}분 전 읽음`,
+    hours: (n) => `${n}시간 전 읽음`,
+    days: (n) => `${n}일 전 읽음`,
+    weeks: (n) => `${n}주 전 읽음`,
+    fallback: '읽음',
+  },
+  sent: {
+    justNow: '방금 보냄',
+    minutes: (n) => `${n}분 전 보냄`,
+    hours: (n) => `${n}시간 전 보냄`,
+    days: (n) => `${n}일 전 보냄`,
+    weeks: (n) => `${n}주 전 보냄`,
+    fallback: '전송됨',
+  },
+};
+
+const formatRelativeReceiptLabel = (
+  value: string | null | undefined,
+  kind: RelativeReceiptKind
+): string => {
+  const labels = RELATIVE_RECEIPT_TEXT[kind];
+
+  if (!value) {
+    return labels.fallback;
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return labels.fallback;
+  }
+
+  const diffMs = Date.now() - date.getTime();
+  const diffMinutes = Math.max(0, Math.floor(diffMs / (1000 * 60)));
+
+  if (diffMinutes < 1) {
+    return labels.justNow;
+  }
+  if (diffMinutes < 60) {
+    return labels.minutes(diffMinutes);
+  }
+
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) {
+    return labels.hours(diffHours);
+  }
+
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) {
+    return labels.days(diffDays);
+  }
+
+  if (diffDays < 30) {
+    return labels.weeks(Math.floor(diffDays / 7));
+  }
+
+  return labels.fallback;
+};
+
+/**
+ * 상대가 내 메시지를 읽은 시각 라벨.
+ * - 1분 미만: 방금 읽음
+ * - 1시간 미만: N분 전 읽음
+ * - 24시간 미만: N시간 전 읽음
+ * - 7일 미만: N일 전 읽음
+ * - 30일 미만: N주 전 읽음
+ * - 그 외: 읽음
+ */
+export const formatPartnerReadReceiptLabel = (
+  readAt: string | null | undefined
+): string => formatRelativeReceiptLabel(readAt, 'read');
+
+/**
+ * 내 메시지 전송 시각 라벨.
+ * - 1분 미만: 방금 보냄
+ * - 1시간 미만: N분 전 보냄
+ * - 24시간 미만: N시간 전 보냄
+ * - 7일 미만: N일 전 보냄
+ * - 30일 미만: N주 전 보냄
+ * - 그 외: 전송됨
+ */
+export const formatMyMessageSentLabel = (createdAt: string): string =>
+  formatRelativeReceiptLabel(createdAt, 'sent');

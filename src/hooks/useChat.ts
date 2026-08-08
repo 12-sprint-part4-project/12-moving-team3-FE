@@ -256,6 +256,8 @@ const applySentMessageToCaches = (
   }
 
   const lastMessage = {
+    messageId: message.messageId,
+    senderId: message.senderId,
     content: message.content,
     messageType: message.messageType,
     createdAt: message.createdAt,
