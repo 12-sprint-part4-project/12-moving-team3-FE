@@ -49,8 +49,8 @@ const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
 const CHIP_CLASSNAME =
   'px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium';
 
-const NICKNAME_MIN = 2;
-const NICKNAME_MAX = 20;
+const NICKNAME_MIN_LENGTH = 2;
+const NICKNAME_MAX_LENGTH = 20;
 const PHONE_NUMBER_LENGTH = 11;
 const CAREER_MAX = 50;
 const SHORT_DESCRIPTION_MAX = 10;
@@ -110,9 +110,6 @@ const MoverProfileEditFields = ({
 
   const phoneNumber = toDigits(profile.phoneNumber ?? '');
   const careerValue = career === '' ? null : Number(career);
-  const isNicknameValid =
-    nickname.trim().length >= NICKNAME_MIN &&
-    nickname.trim().length <= NICKNAME_MAX;
   const isCareerValid =
     careerValue !== null &&
     Number.isInteger(careerValue) &&
@@ -123,7 +120,6 @@ const MoverProfileEditFields = ({
     shortIntro.trim().length <= SHORT_DESCRIPTION_MAX;
   const isDescriptionValid = description.trim().length >= DESCRIPTION_MIN;
   const isSubmitEnabled =
-    isNicknameValid &&
     isCareerValid &&
     isShortIntroValid &&
     isDescriptionValid &&
@@ -138,7 +134,7 @@ const MoverProfileEditFields = ({
   };
 
   const handleNicknameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setNickname(event.target.value.slice(0, NICKNAME_MAX));
+    setNickname(event.target.value);
   };
 
   const handleCareerChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -163,15 +159,26 @@ const MoverProfileEditFields = ({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (isPending) return;
+
+    const trimmedNickname = nickname.trim();
     if (
-      !isNicknameValid ||
+      trimmedNickname.length < NICKNAME_MIN_LENGTH ||
+      trimmedNickname.length > NICKNAME_MAX_LENGTH
+    ) {
+      showToast({
+        content: `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`,
+      });
+      return;
+    }
+
+    if (
       !isCareerValid ||
       careerValue === null ||
       !isShortIntroValid ||
       !isDescriptionValid ||
       selectedServices.length === 0 ||
-      selectedRegions.length === 0 ||
-      isPending
+      selectedRegions.length === 0
     ) {
       return;
     }
@@ -193,7 +200,7 @@ const MoverProfileEditFields = ({
       }
 
       const response = await upsertMoverProfile({
-        nickname: nickname.trim(),
+        nickname: trimmedNickname,
         phoneNumber,
         career: careerValue,
         shortDescription: shortIntro.trim(),
@@ -253,20 +260,20 @@ const MoverProfileEditFields = ({
 
           {/*
             Mobile(1:11040)·Tablet(1:10785): 단일 컬럼
-            — 별명→이미지→경력→한줄소개→서비스→지역→상세설명
-            Desktop(1:10909): 2열 — 좌(별명~상세설명) / 우(서비스·지역)
+            — 닉네임→이미지→경력→한줄소개→서비스→지역→상세설명
+            Desktop(1:10909): 2열 — 좌(닉네임~상세설명) / 우(서비스·지역)
           */}
           <div className="grid w-full grid-cols-1 gap-5 lg:grid-cols-2 lg:items-start lg:gap-x-10 lg:gap-y-8">
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
               <label htmlFor={nicknameInputId} className={LABEL_CLASSNAME}>
-                별명
+                닉네임
               </label>
               <TextFieldOutlined
                 id={nicknameInputId}
                 size="sm"
                 name="nickname"
                 autoComplete="nickname"
-                placeholder="별명을 입력해 주세요"
+                placeholder="닉네임을 입력해 주세요"
                 value={nickname}
                 onChange={handleNicknameChange}
                 className={FIELD_CLASSNAME}

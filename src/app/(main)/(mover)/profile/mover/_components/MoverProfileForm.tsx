@@ -45,6 +45,8 @@ const CHIP_CLASSNAME =
   'px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium';
 
 const PHONE_NUMBER_LENGTH = 11;
+const NICKNAME_MIN_LENGTH = 2;
+const NICKNAME_MAX_LENGTH = 20;
 const CAREER_MAX = 50;
 const SHORT_DESCRIPTION_MAX = 10;
 const DESCRIPTION_MIN = 8;
@@ -193,9 +195,12 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
     }
 
     const nickname = user?.nickname?.trim() ?? '';
-    if (nickname.length < 2) {
+    if (
+      nickname.length < NICKNAME_MIN_LENGTH ||
+      nickname.length > NICKNAME_MAX_LENGTH
+    ) {
       showToast({
-        content: '회원가입 시 등록한 별명 정보가 필요합니다.',
+        content: `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`,
       });
       return;
     }

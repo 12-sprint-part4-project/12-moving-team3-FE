@@ -9,7 +9,7 @@ export type MoverRegion = RegionChipValue;
 
 /** PATCH /api/users/movers/profile 요청 본문 */
 export interface UpsertMoverProfileRequest {
-  /** 사이트 노출 별명 (2~20자) */
+  /** 사이트 노출 닉네임 (2~20자) */
   nickname: string;
   /** 숫자 11자리 */
   phoneNumber: string;
