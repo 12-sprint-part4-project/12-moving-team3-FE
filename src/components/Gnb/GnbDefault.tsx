@@ -183,6 +183,10 @@ const GnbHeader = ({
     onProfileClick?.();
   };
 
+  const handleProfileClose = () => {
+    setIsProfileOpen(false);
+  };
+
   const handleLogout = () => {
     setIsProfileOpen(false);
     onLogout?.();
@@ -276,6 +280,7 @@ const GnbHeader = ({
                   userName={userName}
                   nameSuffix={nameSuffix}
                   menuItems={profileMenuItems}
+                  onClose={handleProfileClose}
                   onLogout={handleLogout}
                 />
               </div>

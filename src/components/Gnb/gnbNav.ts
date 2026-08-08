@@ -38,20 +38,32 @@ export const GNB_PROFILE_MENU_BY_ROLE = {
 
 export type GnbNavRole = keyof typeof GNB_NAV_BY_ROLE;
 
-/** 프로필 미완료 고객은 '프로필 등록' → /profile/customer */
+/**
+ * 프로필 미완료 시 첫 메뉴를 '프로필 등록'으로 교체한다.
+ * - customer: 프로필 수정 → /profile/customer
+ * - mover: 마이페이지 → /profile/mover
+ */
 export const getGnbProfileMenuItems = (
   role: GnbNavRole,
   isProfileCompleted: boolean
 ): GnbNavItem[] => {
   const items: GnbNavItem[] = [...GNB_PROFILE_MENU_BY_ROLE[role]];
 
-  if (role !== 'customer' || isProfileCompleted) {
+  if (isProfileCompleted) {
     return items;
   }
 
+  if (role === 'customer') {
+    return items.map((item) =>
+      item.href === '/profile/customer/edit'
+        ? { label: '프로필 등록', href: '/profile/customer' }
+        : item
+    );
+  }
+
   return items.map((item) =>
-    item.href === '/profile/customer/edit'
-      ? { label: '프로필 등록', href: '/profile/customer' }
+    item.href === '/mover/mypage'
+      ? { label: '프로필 등록', href: '/profile/mover' }
       : item
   );
 };
