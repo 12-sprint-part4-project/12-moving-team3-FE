@@ -1,6 +1,7 @@
 import type { ApiSuccessResponse } from '@/types/api';
 import type { ApiUserType } from '@/types/auth';
 import type { ApiMoveType } from '@/types/estimateRequest';
+import type { QuoteStatus } from '@/types/quote';
 
 /** 1:1 채팅방 유형 */
 export type ChatRoomType = 'GENERAL' | 'DESIGNATED' | 'COMMUNITY';
@@ -30,6 +31,8 @@ export interface ChatLastMessage {
 export interface ChatRoomListItem {
   roomId: number;
   roomType: ChatRoomType;
+  /** 연결된 견적 상태. 견적 없거나 커뮤니티 방이면 null */
+  quoteStatus: QuoteStatus | null;
   partner: ChatPartner;
   lastMessage: ChatLastMessage | null;
   partnerLastReadMessageId: number | null;
@@ -54,9 +57,12 @@ export interface ChatRequestSummary {
 
 /** GET /api/chat/rooms/:roomId — 방 상세 */
 export interface ChatRoomDetailData {
+  roomType: ChatRoomType;
   partner: ChatPartner;
   requestSummary: ChatRequestSummary | null;
   quoteId: number | null;
+  /** 연결된 견적 상태. 견적 없거나 커뮤니티 방이면 null */
+  quoteStatus: QuoteStatus | null;
   isMessagingAllowed: boolean;
   /** 상대방이 마지막으로 읽은 메시지 ID. 읽음 기록 없으면 null */
   partnerLastReadMessageId: number | null;

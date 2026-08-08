@@ -9,6 +9,7 @@ import MenuIcon from '@/assets/icons/menu.svg';
 
 import { Button } from '@/components/Button/Button';
 import { ChatAvatar } from '@/components/chat/ChatAvatar';
+import { ChatRoomStatusChip } from '@/components/chat/ChatRoomStatusChip';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { ModalBasic } from '@/components/ui/Modal/ModalBasic';
 import { useLeaveChatRoom } from '@/hooks/useChat';
@@ -16,18 +17,23 @@ import { useOutsideClick } from '@/hooks/useOutsideClick';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
-import type { ChatPartner } from '@/types/chat';
+import type { ChatPartner, ChatRoomType } from '@/types/chat';
+import type { QuoteStatus } from '@/types/quote';
 
 export interface ChatRoomHeaderProps {
   partner: ChatPartner;
   roomId: number;
+  roomType: ChatRoomType;
+  quoteStatus: QuoteStatus | null;
   className?: string;
 }
 
-/** 채팅방 상단 — 뒤로가기 / 상대 정보 / 나가기 메뉴 */
+/** 채팅방 상단 — 뒤로가기 / 중앙 상대·상태 / 나가기 메뉴 */
 export const ChatRoomHeader = ({
   partner,
   roomId,
+  roomType,
+  quoteStatus,
   className,
 }: ChatRoomHeaderProps) => {
   const router = useRouter();
@@ -81,29 +87,31 @@ export const ChatRoomHeader = ({
     <>
       <header
         className={cn(
-          'flex w-full items-center gap-3 border-b border-line-100 bg-white px-4 py-3 md:px-6',
+          'relative flex w-full items-center justify-between border-b border-line-100 bg-white px-4 py-3 md:px-6',
           className
         )}
       >
         <Link
           href="/chat"
           aria-label="채팅 목록으로"
-          className="inline-flex size-6 shrink-0 items-center justify-center text-black-400"
+          className="z-10 inline-flex size-6 shrink-0 items-center justify-center text-black-400"
         >
           <ChevronLeftIcon className="size-6" aria-hidden />
         </Link>
 
-        <ChatAvatar
-          src={partner.profileImageUrl}
-          alt=""
-          className="size-9"
-        />
+        <div className="pointer-events-none absolute inset-x-0 flex items-center justify-center gap-1.5 px-14">
+          <ChatAvatar
+            src={partner.profileImageUrl}
+            alt=""
+            className="size-9 shrink-0"
+          />
+          <p className="max-w-[9rem] truncate text-2lg-semibold text-black-400 sm:max-w-[12rem]">
+            {partner.nickname}
+          </p>
+          <ChatRoomStatusChip roomType={roomType} quoteStatus={quoteStatus} />
+        </div>
 
-        <p className="min-w-0 flex-1 truncate text-2lg-semibold text-black-400">
-          {partner.nickname}
-        </p>
-
-        <div ref={menuRef} className="relative shrink-0">
+        <div ref={menuRef} className="relative z-10 shrink-0">
           <button
             type="button"
             aria-label="채팅방 메뉴"
