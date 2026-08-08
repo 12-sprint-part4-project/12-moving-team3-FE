@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { Button } from '@/components/Button/Button';
@@ -12,8 +13,11 @@ export interface LoginRequiredModalProps {
   className?: string;
 }
 
-/** 비회원 찜 등 — 로그인 필요 안내 모달 */
-export const LoginRequiredModal = ({
+/**
+ * useSearchParams는 Suspense 경계 필요 — prerender(/movers 등) 빌드 실패 방지
+ * @see https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+ */
+const LoginRequiredModalInner = ({
   open,
   onClose,
   className,
@@ -67,5 +71,14 @@ export const LoginRequiredModal = ({
         </p>
       </ModalBasic>
     </Modal>
+  );
+};
+
+/** 비회원 찜 등 — 로그인 필요 안내 모달 */
+export const LoginRequiredModal = (props: LoginRequiredModalProps) => {
+  return (
+    <Suspense fallback={null}>
+      <LoginRequiredModalInner {...props} />
+    </Suspense>
   );
 };
