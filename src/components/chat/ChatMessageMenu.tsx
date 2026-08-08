@@ -1,0 +1,87 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+
+import MoreVerticalIcon from '@/assets/icons/more-vertical.svg';
+import { useOutsideClick } from '@/hooks/useOutsideClick';
+import { cn } from '@/lib/utils';
+
+export interface ChatMessageMenuProps {
+  onReport: () => void;
+  className?: string;
+}
+
+/**
+ * 상대 메시지 ⋯ 메뉴 — 「신고」.
+ * 데스크톱(fine pointer): 부모 `group/msg` 호버·포커스 시 노출.
+ * 터치/호버 불가: 연한 ⋯ 상시 노출.
+ * ChatRoomHeader 나가기 메뉴와 동일하게 outside click · Escape · role="menu".
+ */
+export const ChatMessageMenu = ({
+  onReport,
+  className,
+}: ChatMessageMenuProps) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useOutsideClick(menuRef, isMenuOpen, setIsMenuOpen);
+
+  useEffect(() => {
+    if (!isMenuOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMenuOpen]);
+
+  return (
+    <div ref={menuRef} className={cn('relative shrink-0', className)}>
+      <button
+        type="button"
+        aria-label="메시지 메뉴"
+        aria-haspopup="menu"
+        aria-expanded={isMenuOpen}
+        onClick={() => setIsMenuOpen((prev) => !prev)}
+        className={cn(
+          'inline-flex size-4 cursor-pointer items-center justify-center text-gray-300 transition-opacity hover:text-gray-400',
+          isMenuOpen
+            ? 'opacity-100'
+            : [
+                'opacity-40',
+                '[@media(hover:hover)_and_(pointer:fine)]:opacity-0',
+                '[@media(hover:hover)_and_(pointer:fine)]:group-hover/msg:opacity-100',
+                '[@media(hover:hover)_and_(pointer:fine)]:group-focus-within/msg:opacity-100',
+              ]
+        )}
+      >
+        <MoreVerticalIcon className="size-4" aria-hidden />
+      </button>
+
+      {isMenuOpen ? (
+        <div
+          role="menu"
+          className="absolute top-full left-0 z-50 mt-1 min-w-[7.5rem] rounded-2xl border border-line-200 bg-white py-1.5 shadow-[0.125rem_0.125rem_0.25rem] shadow-shadow-gray-200/20"
+        >
+          <button
+            type="button"
+            role="menuitem"
+            className="flex w-full cursor-pointer px-4 py-3 text-left text-md-medium text-red-200"
+            onClick={() => {
+              setIsMenuOpen(false);
+              onReport();
+            }}
+          >
+            신고
+          </button>
+        </div>
+      ) : null}
+    </div>
+  );
+};

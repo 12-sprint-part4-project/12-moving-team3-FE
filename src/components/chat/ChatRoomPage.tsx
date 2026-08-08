@@ -9,6 +9,11 @@ import { ChatComposer } from '@/components/chat/ChatComposer';
 import { ChatMessageList } from '@/components/chat/ChatMessageList';
 import { ChatRoomHeader } from '@/components/chat/ChatRoomHeader';
 import { ChatRoomHeaderPlaceholder } from '@/components/chat/ChatRoomHeaderPlaceholder';
+import {
+  CHAT_MESSAGE_REPORT_HINT_DELAY_MS,
+  CHAT_MESSAGE_REPORT_HINT_MESSAGE,
+  CHAT_MESSAGE_REPORT_HINT_STORAGE_KEY,
+} from '@/constants/chatUi';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useChatMessages,
@@ -109,6 +114,35 @@ export const ChatRoomPage = ({
       }
     );
   }, [enabled, roomId, messages, markAsRead, user?.id, isNearBottom]);
+
+  /** 채팅 기능 최초 1회 — 메시지 신고 호버 안내 (방마다 아님) */
+  useEffect(() => {
+    if (!enabled || !room || isMessagesPending) {
+      return;
+    }
+
+    try {
+      if (localStorage.getItem(CHAT_MESSAGE_REPORT_HINT_STORAGE_KEY)) {
+        return;
+      }
+    } catch {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      try {
+        if (localStorage.getItem(CHAT_MESSAGE_REPORT_HINT_STORAGE_KEY)) {
+          return;
+        }
+        localStorage.setItem(CHAT_MESSAGE_REPORT_HINT_STORAGE_KEY, '1');
+      } catch {
+        // storage 실패 시에도 아래 토스트는 이번 진입에서만 (타이머 cleanup)
+      }
+      showToast({ content: CHAT_MESSAGE_REPORT_HINT_MESSAGE });
+    }, CHAT_MESSAGE_REPORT_HINT_DELAY_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [enabled, room, isMessagesPending, showToast]);
 
   const isMessagingAllowed = room?.isMessagingAllowed !== false;
 
