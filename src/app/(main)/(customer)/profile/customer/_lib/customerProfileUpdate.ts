@@ -119,9 +119,8 @@ export const getCustomerProfileUpdateError = ({
 }: BuildCustomerProfileUpdateBodyParams): string | null => {
   const trimmedName = name.trim();
   if (
-    trimmedName !== profile.name &&
-    (trimmedName.length < NAME_MIN_LENGTH ||
-      trimmedName.length > NAME_MAX_LENGTH)
+    trimmedName.length < NAME_MIN_LENGTH ||
+    trimmedName.length > NAME_MAX_LENGTH
   ) {
     return `이름은 ${NAME_MIN_LENGTH}~${NAME_MAX_LENGTH}자로 입력해 주세요.`;
   }
