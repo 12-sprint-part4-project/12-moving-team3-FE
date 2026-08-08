@@ -105,7 +105,7 @@ export const ChatRoomHeader = ({
             alt=""
             className="size-9 shrink-0"
           />
-          <p className="max-w-[9rem] truncate text-2lg-semibold text-black-400 sm:max-w-[12rem]">
+          <p className="max-w-36 truncate text-2lg-semibold text-black-400 sm:max-w-48">
             {partner.nickname}
           </p>
           <ChatRoomStatusChip roomType={roomType} quoteStatus={quoteStatus} />
