@@ -3,9 +3,8 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 
-import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
+import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
 import { useAuth } from '@/hooks/useAuth';
-import { getPostAuthRedirectPath } from '@/lib/getPostAuthRedirectPath';
 import { isSuspendedRestrictedPath } from '@/lib/memberOnlyPaths';
 
 interface ProfileIncompleteRouteGuardProps {
@@ -46,17 +45,7 @@ export const ProfileIncompleteRouteGuard = ({
   return (
     <>
       {shouldBlock ? null : children}
-      {user != null ? (
-        <LoginRequiredModal
-          open={isModalOpen}
-          onClose={handleClose}
-          title="등록된 프로필이 없어요!"
-          message="해당 기능을 사용하기 위해선 프로필 등록이 필요합니다"
-          confirmLabel="등록하기"
-          confirmHref={getPostAuthRedirectPath(user)}
-          showEmptyImage
-        />
-      ) : null}
+      <ProfileRequiredModal open={isModalOpen} onClose={handleClose} />
     </>
   );
 };
