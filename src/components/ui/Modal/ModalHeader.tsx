@@ -42,7 +42,7 @@ export const ModalHeader = ({
     <div
       className={cn(
         'relative flex w-full items-center',
-        isCentered ? 'justify-center' : 'justify-between',
+        isCentered ? 'min-h-6 justify-center sm:min-h-9' : 'justify-between',
         className
       )}
     >
@@ -64,7 +64,7 @@ export const ModalHeader = ({
         onClick={onClose}
         className={cn(
           'flex size-6 shrink-0 items-center justify-center text-gray-400 sm:size-9',
-          isCentered && 'absolute right-0 top-1/2 -translate-y-1/2',
+          isCentered && 'absolute top-1/2 right-0 -translate-y-1/2',
           closeDisabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
         )}
       >
