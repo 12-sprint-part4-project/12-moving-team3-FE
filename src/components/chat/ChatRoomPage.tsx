@@ -258,6 +258,8 @@ export const ChatRoomPage = ({
         <ChatRoomHeader
           partner={room.partner}
           roomId={roomId}
+          roomType={room.roomType}
+          quoteStatus={room.quoteStatus}
           className="shrink-0"
         />
       ) : null}

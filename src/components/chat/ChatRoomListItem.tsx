@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import { ChatAvatar } from '@/components/chat/ChatAvatar';
+import { ChatRoomStatusChip } from '@/components/chat/ChatRoomStatusChip';
 import { ChatUnreadBadge } from '@/components/chat/ChatUnreadBadge';
 import { useAuth } from '@/hooks/useAuth';
 import { getChatListStatusLabel } from '@/lib/chatListStatusLabel';
@@ -61,14 +62,20 @@ export const ChatRoomListItem = ({
       />
 
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <p
-          className={cn(
-            'truncate text-black-400',
-            hasUnread ? 'text-lg-semibold' : 'text-lg-medium'
-          )}
-        >
-          {room.partner.nickname}
-        </p>
+        <div className="flex min-w-0 items-center gap-1.5">
+          <p
+            className={cn(
+              'min-w-0 truncate text-black-400',
+              hasUnread ? 'text-lg-semibold' : 'text-lg-medium'
+            )}
+          >
+            {room.partner.nickname}
+          </p>
+          <ChatRoomStatusChip
+            roomType={room.roomType}
+            quoteStatus={room.quoteStatus}
+          />
+        </div>
 
         <p className="truncate text-md-medium text-black-400">{preview}</p>
 
