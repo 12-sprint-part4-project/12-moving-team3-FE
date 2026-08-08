@@ -15,7 +15,7 @@ export interface UpsertMoverProfileRequest {
   phoneNumber: string;
   /** 경력(년), 0~50 */
   career: number;
-  /** 한 줄 소개 (최대 10자) */
+  /** 한 줄 소개 (최대 20자) */
   shortDescription: string;
   /** 상세 소개 (최소 8자) */
   description: string;

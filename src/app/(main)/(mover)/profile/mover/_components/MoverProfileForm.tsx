@@ -48,7 +48,7 @@ const PHONE_NUMBER_LENGTH = 11;
 const NICKNAME_MIN_LENGTH = 2;
 const NICKNAME_MAX_LENGTH = 20;
 const CAREER_MAX = 50;
-const SHORT_DESCRIPTION_MAX = 10;
+const SHORT_DESCRIPTION_MAX = 20;
 const DESCRIPTION_MIN = 8;
 
 const toDigits = (value: string): string => value.replace(/\D/g, '');
@@ -142,14 +142,10 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
     careerValue >= 0 &&
     careerValue <= CAREER_MAX;
   const isPhoneValid = phoneNumber.length === PHONE_NUMBER_LENGTH;
-  const isShortIntroValid =
-    shortIntro.trim().length > 0 &&
-    shortIntro.trim().length <= SHORT_DESCRIPTION_MAX;
   const isDescriptionValid = description.trim().length >= DESCRIPTION_MIN;
   const isSubmitEnabled =
     isPhoneValid &&
     isCareerValid &&
-    isShortIntroValid &&
     isDescriptionValid &&
     selectedServices.length > 0 &&
     selectedRegions.length > 0 &&
@@ -172,7 +168,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
   };
 
   const handleShortIntroChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setShortIntro(event.target.value.slice(0, SHORT_DESCRIPTION_MAX));
+    setShortIntro(event.target.value);
   };
 
   const handleDescriptionChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -185,7 +181,6 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
       !isPhoneValid ||
       !isCareerValid ||
       careerValue === null ||
-      !isShortIntroValid ||
       !isDescriptionValid ||
       selectedServices.length === 0 ||
       selectedRegions.length === 0 ||
@@ -205,6 +200,17 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
       return;
     }
 
+    const trimmedShortIntro = shortIntro.trim();
+    if (
+      trimmedShortIntro.length === 0 ||
+      trimmedShortIntro.length > SHORT_DESCRIPTION_MAX
+    ) {
+      showToast({
+        content: `한 줄 소개는 1~${SHORT_DESCRIPTION_MAX}자로 입력해 주세요.`,
+      });
+      return;
+    }
+
     setIsPending(true);
 
     try {
@@ -218,7 +224,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
         nickname,
         phoneNumber,
         career: careerValue,
-        shortDescription: shortIntro.trim(),
+        shortDescription: trimmedShortIntro,
         description: description.trim(),
         service: selectedServices,
         serviceRegions: selectedRegions,
@@ -356,7 +362,6 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
                 id={shortIntroInputId}
                 size="sm"
                 name="shortIntro"
-                maxLength={SHORT_DESCRIPTION_MAX}
                 placeholder="한 줄 소개를 입력해 주세요"
                 value={shortIntro}
                 onChange={handleShortIntroChange}

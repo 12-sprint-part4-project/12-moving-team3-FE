@@ -53,7 +53,7 @@ const NICKNAME_MIN_LENGTH = 2;
 const NICKNAME_MAX_LENGTH = 20;
 const PHONE_NUMBER_LENGTH = 11;
 const CAREER_MAX = 50;
-const SHORT_DESCRIPTION_MAX = 10;
+const SHORT_DESCRIPTION_MAX = 20;
 const DESCRIPTION_MIN = 8;
 
 const toDigits = (value: string): string => value.replace(/\D/g, '');
@@ -115,13 +115,9 @@ const MoverProfileEditFields = ({
     Number.isInteger(careerValue) &&
     careerValue >= 0 &&
     careerValue <= CAREER_MAX;
-  const isShortIntroValid =
-    shortIntro.trim().length > 0 &&
-    shortIntro.trim().length <= SHORT_DESCRIPTION_MAX;
   const isDescriptionValid = description.trim().length >= DESCRIPTION_MIN;
   const isSubmitEnabled =
     isCareerValid &&
-    isShortIntroValid &&
     isDescriptionValid &&
     selectedServices.length > 0 &&
     selectedRegions.length > 0 &&
@@ -150,7 +146,7 @@ const MoverProfileEditFields = ({
   };
 
   const handleShortIntroChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setShortIntro(event.target.value.slice(0, SHORT_DESCRIPTION_MAX));
+    setShortIntro(event.target.value);
   };
 
   const handleDescriptionChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -172,10 +168,20 @@ const MoverProfileEditFields = ({
       return;
     }
 
+    const trimmedShortIntro = shortIntro.trim();
+    if (
+      trimmedShortIntro.length === 0 ||
+      trimmedShortIntro.length > SHORT_DESCRIPTION_MAX
+    ) {
+      showToast({
+        content: `한 줄 소개는 1~${SHORT_DESCRIPTION_MAX}자로 입력해 주세요.`,
+      });
+      return;
+    }
+
     if (
       !isCareerValid ||
       careerValue === null ||
-      !isShortIntroValid ||
       !isDescriptionValid ||
       selectedServices.length === 0 ||
       selectedRegions.length === 0
@@ -203,7 +209,7 @@ const MoverProfileEditFields = ({
         nickname: trimmedNickname,
         phoneNumber,
         career: careerValue,
-        shortDescription: shortIntro.trim(),
+        shortDescription: trimmedShortIntro,
         description: description.trim(),
         service: selectedServices,
         serviceRegions: selectedRegions,
@@ -342,7 +348,6 @@ const MoverProfileEditFields = ({
                 id={shortIntroInputId}
                 size="sm"
                 name="shortIntro"
-                maxLength={SHORT_DESCRIPTION_MAX}
                 placeholder="한 줄 소개를 입력해 주세요"
                 value={shortIntro}
                 onChange={handleShortIntroChange}
