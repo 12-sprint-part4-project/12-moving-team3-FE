@@ -20,6 +20,7 @@ interface UseCommunityFurnitureShareDetailParams {
   postId: number;
   user: AuthUser | null;
   openLoginModal: () => void;
+  openProfileModal: () => void;
 }
 
 interface UseCommunityFurnitureShareDetailResult {
@@ -38,6 +39,7 @@ export const useCommunityFurnitureShareDetail = ({
   postId,
   user,
   openLoginModal,
+  openProfileModal,
 }: UseCommunityFurnitureShareDetailParams): UseCommunityFurnitureShareDetailResult => {
   const router = useRouter();
   const { showToast } = useToast();
@@ -65,6 +67,11 @@ export const useCommunityFurnitureShareDetail = ({
   const handleFurnitureShareChatClick = useCallback(() => {
     if (!user) {
       openLoginModal();
+      return;
+    }
+
+    if (!user.isProfileCompleted) {
+      openProfileModal();
       return;
     }
 
@@ -101,6 +108,7 @@ export const useCommunityFurnitureShareDetail = ({
     createChatRoom,
     postId,
     openLoginModal,
+    openProfileModal,
     router,
     showToast,
   ]);

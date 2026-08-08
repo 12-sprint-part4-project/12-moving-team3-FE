@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
+import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
 import { MoverCard } from '@/components/movers/MoverCard';
 import { MoverReviews } from '@/components/movers/MoverReviews';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
@@ -29,8 +30,10 @@ export const MoverDetailPageClient = () => {
     handleFavoriteClick,
     isMoverPending,
     isLoginModalOpen,
+    isProfileModalOpen,
     openLoginModal,
-    closeLoginModal,
+    openProfileModal,
+    closeAuthModal,
   } = useFavoriteAction();
 
   const {
@@ -55,6 +58,11 @@ export const MoverDetailPageClient = () => {
   const handleDesignatedQuoteClick = () => {
     if (!user) {
       openLoginModal();
+      return;
+    }
+
+    if (!user.isProfileCompleted) {
+      openProfileModal();
       return;
     }
 
@@ -171,7 +179,11 @@ export const MoverDetailPageClient = () => {
         isDesignatedStatusLoading={isDesignatedStatusLoading}
       />
 
-      <LoginRequiredModal open={isLoginModalOpen} onClose={closeLoginModal} />
+      <LoginRequiredModal open={isLoginModalOpen} onClose={closeAuthModal} />
+      <ProfileRequiredModal
+        open={isProfileModalOpen}
+        onClose={closeAuthModal}
+      />
       <NeedGeneralEstimateModal
         open={needGeneralOpen}
         onClose={closeNeedGeneralModal}

@@ -44,13 +44,13 @@ const LoginRequiredModalInner = ({
         onClose={onClose}
         className={className}
         footer={
-          <div className="flex w-full flex-col gap-2 sm:flex-row sm:gap-3">
+          <div className="flex w-full gap-2 sm:gap-3">
             <Button
               type="button"
               variant="outlined"
               size="sm"
+              className="sm:h-16 sm:text-xl-semibold"
               onClick={onClose}
-              className="sm:flex-1"
             >
               취소
             </Button>
@@ -58,15 +58,15 @@ const LoginRequiredModalInner = ({
               type="button"
               variant="solid"
               size="sm"
+              className="sm:h-16 sm:text-xl-semibold"
               onClick={handleLogin}
-              className="sm:flex-1"
             >
               로그인 하기
             </Button>
           </div>
         }
       >
-        <p className="px-6 pb-6 text-2lg-medium text-black-300">
+        <p className="text-lg-medium text-black-300 sm:text-2lg-medium">
           로그인 후 이용할 수 있습니다.
         </p>
       </ModalBasic>
@@ -74,7 +74,7 @@ const LoginRequiredModalInner = ({
   );
 };
 
-/** 비회원 찜 등 — 로그인 필요 안내 모달 */
+/** 비회원 액션 — 로그인 필요 안내 모달 */
 export const LoginRequiredModal = (props: LoginRequiredModalProps) => {
   return (
     <Suspense fallback={null}>

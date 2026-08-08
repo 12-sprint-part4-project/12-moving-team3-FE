@@ -6,6 +6,7 @@ import { useInView } from 'react-intersection-observer';
 import { MoverCard } from '@/components/movers/MoverCard';
 import { Button } from '@/components/Button/Button';
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
+import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
@@ -31,11 +32,13 @@ const SEARCH_DEBOUNCE_MS = 300;
 export const MoversPageClient = () => {
   const { user } = useAuth();
   const isLoggedIn = Boolean(user);
+  const canUseFavorites = Boolean(user?.isProfileCompleted);
   const {
     handleFavoriteClick,
     isMoverPending,
     isLoginModalOpen,
-    closeLoginModal,
+    isProfileModalOpen,
+    closeAuthModal,
   } = useFavoriteAction();
 
   const [searchValue, setSearchValue] = useState('');
@@ -77,7 +80,7 @@ export const MoversPageClient = () => {
     sort: sortValue,
   });
 
-  const { favorites } = useFavoriteMoversPreview(isLoggedIn);
+  const { favorites } = useFavoriteMoversPreview(canUseFavorites);
 
   const { ref: loadMoreRef, inView } = useInView({
     rootMargin: '200px',
@@ -204,7 +207,11 @@ export const MoversPageClient = () => {
         </div>
       </div>
 
-      <LoginRequiredModal open={isLoginModalOpen} onClose={closeLoginModal} />
+      <LoginRequiredModal open={isLoginModalOpen} onClose={closeAuthModal} />
+      <ProfileRequiredModal
+        open={isProfileModalOpen}
+        onClose={closeAuthModal}
+      />
     </div>
   );
 };

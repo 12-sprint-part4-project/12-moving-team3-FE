@@ -7,10 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { GnbDefault } from '@/components/Gnb/GnbDefault';
 import { GnbLanding } from '@/components/Gnb/GnbLanding';
 import { GnbMenu } from '@/components/Gnb/GnbMenu';
-import {
-  GNB_PROFILE_MENU_BY_ROLE,
-  type GnbNavItem,
-} from '@/components/Gnb/gnbNav';
+import { getGnbProfileMenuItems, type GnbNavItem } from '@/components/Gnb/gnbNav';
 import { useAuth } from '@/hooks/useAuth';
 import { useCustomerProfile } from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
@@ -95,7 +92,10 @@ export const Header = () => {
   const desktopMenu = navRole === 'mover' ? 'twoMenu' : 'threeMenu';
   const nameSuffix = navRole === 'mover' ? '기사님' : '고객님';
   const avatarSrc = customerProfile?.profileImageUrl ?? null;
-  const profileMenuItems = [...GNB_PROFILE_MENU_BY_ROLE[navRole]];
+  const profileMenuItems = getGnbProfileMenuItems(
+    navRole,
+    user.isProfileCompleted
+  );
 
   return (
     <>

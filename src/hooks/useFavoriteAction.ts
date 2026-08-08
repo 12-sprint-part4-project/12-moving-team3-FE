@@ -5,10 +5,11 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToggleFavorite } from '@/hooks/useToggleFavorite';
 
+type AuthModalKind = 'login' | 'profile';
+
 /**
- * 로그인 가드가 포함된 찜 토글.
- * 비회원이면 로그인 모달을 열고, 회원이면 useToggleFavorite를 호출한다.
- * 지정 견적 등 동일 모달이 필요하면 openLoginModal을 사용한다.
+ * 로그인·프로필 가드가 포함된 찜 토글.
+ * 비회원 → 로그인 모달, 프로필 미완료 → 등록 모달, 그 외 → toggle.
  */
 export const useFavoriteAction = () => {
   const { user } = useAuth();
@@ -18,11 +19,18 @@ export const useFavoriteAction = () => {
     pendingMoverId: favoritePendingMoverId,
     isMoverPending,
   } = useToggleFavorite();
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [authModalKind, setAuthModalKind] = useState<AuthModalKind | null>(
+    null
+  );
 
   const handleFavoriteClick = (moverId: string, nextFavorited: boolean) => {
     if (!user) {
-      setIsLoginModalOpen(true);
+      setAuthModalKind('login');
+      return;
+    }
+
+    if (!user.isProfileCompleted) {
+      setAuthModalKind('profile');
       return;
     }
 
@@ -30,11 +38,15 @@ export const useFavoriteAction = () => {
   };
 
   const openLoginModal = () => {
-    setIsLoginModalOpen(true);
+    setAuthModalKind('login');
   };
 
-  const closeLoginModal = () => {
-    setIsLoginModalOpen(false);
+  const openProfileModal = () => {
+    setAuthModalKind('profile');
+  };
+
+  const closeAuthModal = () => {
+    setAuthModalKind(null);
   };
 
   return {
@@ -43,8 +55,10 @@ export const useFavoriteAction = () => {
     isFavoritePending,
     favoritePendingMoverId,
     isMoverPending,
-    isLoginModalOpen,
     openLoginModal,
-    closeLoginModal,
+    openProfileModal,
+    closeAuthModal,
+    isLoginModalOpen: authModalKind === 'login',
+    isProfileModalOpen: authModalKind === 'profile',
   };
 };

@@ -6,6 +6,7 @@ import { useInView } from 'react-intersection-observer';
 
 import { Button } from '@/components/Button/Button';
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
+import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { Tab } from '@/components/ui/Tab/Tab';
 import { useConfirmQuoteModal } from '@/hooks/useConfirmQuoteModal';
@@ -51,7 +52,8 @@ const CustomerQuotesPageClient = () => {
     handleFavoriteClick,
     isMoverPending,
     isLoginModalOpen,
-    closeLoginModal,
+    isProfileModalOpen,
+    closeAuthModal,
   } = useFavoriteAction();
 
   const {
@@ -308,7 +310,11 @@ const CustomerQuotesPageClient = () => {
         onConfirm={submitConfirm}
       />
 
-      <LoginRequiredModal open={isLoginModalOpen} onClose={closeLoginModal} />
+      <LoginRequiredModal open={isLoginModalOpen} onClose={closeAuthModal} />
+      <ProfileRequiredModal
+        open={isProfileModalOpen}
+        onClose={closeAuthModal}
+      />
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
+import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
 import { Button } from '@/components/Button/Button';
 import { ReportAction } from '@/components/reports';
 import { Modal } from '@/components/ui/Modal/Modal';
@@ -56,6 +57,8 @@ import { CommunityPostNavigation } from './_components/CommunityPostNavigation';
 import { CommunityPostShareButtons } from './_components/CommunityPostShareButtons';
 import { useCommunityFurnitureShareDetail } from './_lib/useCommunityFurnitureShareDetail';
 
+type AuthModalKind = 'login' | 'profile';
+
 interface CommunityPostDetailPageClientProps {
   postId: number;
 }
@@ -71,7 +74,9 @@ export const CommunityPostDetailPageClient = ({
   const searchParams = useSearchParams();
   const { user } = useAuth();
   const { showToast } = useToast();
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [authModalKind, setAuthModalKind] = useState<AuthModalKind | null>(
+    null
+  );
   const [commentIdToDelete, setCommentIdToDelete] = useState<number | null>(
     null
   );
@@ -164,12 +169,29 @@ export const CommunityPostDetailPageClient = ({
   }, [post, setActiveTabOverride]);
 
   const openLoginModal = useCallback(() => {
-    setIsLoginModalOpen(true);
+    setAuthModalKind('login');
   }, []);
 
-  const closeLoginModal = useCallback(() => {
-    setIsLoginModalOpen(false);
+  const openProfileModal = useCallback(() => {
+    setAuthModalKind('profile');
   }, []);
+
+  const closeAuthModal = useCallback(() => {
+    setAuthModalKind(null);
+  }, []);
+
+  /** 로그인·프로필 완료 필요. false면 이후 액션 중단 */
+  const ensureProfileReady = useCallback((): boolean => {
+    if (!user) {
+      openLoginModal();
+      return false;
+    }
+    if (!user.isProfileCompleted) {
+      openProfileModal();
+      return false;
+    }
+    return true;
+  }, [user, openLoginModal, openProfileModal]);
 
   const {
     detailAction,
@@ -184,11 +206,11 @@ export const CommunityPostDetailPageClient = ({
     postId,
     user,
     openLoginModal,
+    openProfileModal,
   });
 
   const handleLikeClick = useCallback(() => {
-    if (!user) {
-      openLoginModal();
+    if (!ensureProfileReady()) {
       return;
     }
 
@@ -206,12 +228,11 @@ export const CommunityPostDetailPageClient = ({
         showMutationError(error, '좋아요 처리에 실패했습니다.');
       },
     });
-  }, [user, post, postId, togglePostLike, openLoginModal, showToast, showMutationError]);
+  }, [ensureProfileReady, post, postId, togglePostLike, showToast, showMutationError]);
 
   const handleCommentSubmit = useCallback(
     (content: string) => {
-      if (!user) {
-        openLoginModal();
+      if (!ensureProfileReady()) {
         return;
       }
 
@@ -227,10 +248,12 @@ export const CommunityPostDetailPageClient = ({
         }
       );
     },
-    [user, createComment, openLoginModal, showMutationError]
+    [ensureProfileReady, createComment, showMutationError]
   );
 
   const handleCommentInputFocus = useCallback(() => {
+    // 비회원만 포커스 시 로그인 유도. 프로필 미완료는 제출 시에만 모달
+    // (취소 후 포커스 복원으로 모달이 다시 열리는 것 방지)
     if (!user) {
       openLoginModal();
     }
@@ -545,7 +568,11 @@ export const CommunityPostDetailPageClient = ({
         </div>
       </article>
 
-      <LoginRequiredModal open={isLoginModalOpen} onClose={closeLoginModal} />
+      <LoginRequiredModal open={authModalKind === 'login'} onClose={closeAuthModal} />
+      <ProfileRequiredModal
+        open={authModalKind === 'profile'}
+        onClose={closeAuthModal}
+      />
 
       {commentIdToDelete !== null ? (
         <Modal placement="bottom" onClose={handleDeleteCommentModalClose}>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import InfoIcon from '@/assets/icons/info.svg';
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
+import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
 import { Button } from '@/components/Button/Button';
 import { QuoteShareButtons } from '@/components/QuoteShareButtons/QuoteShareButtons';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
@@ -42,7 +43,8 @@ const CustomerQuoteDetailPageClient = ({
     handleFavoriteClick,
     isMoverPending,
     isLoginModalOpen,
-    closeLoginModal,
+    isProfileModalOpen,
+    closeAuthModal,
   } = useFavoriteAction();
 
   const { detail, isPending, isError, error, refetch } =
@@ -237,7 +239,11 @@ const CustomerQuoteDetailPageClient = ({
         onConfirm={submitConfirm}
       />
 
-      <LoginRequiredModal open={isLoginModalOpen} onClose={closeLoginModal} />
+      <LoginRequiredModal open={isLoginModalOpen} onClose={closeAuthModal} />
+      <ProfileRequiredModal
+        open={isProfileModalOpen}
+        onClose={closeAuthModal}
+      />
     </div>
   );
 };
