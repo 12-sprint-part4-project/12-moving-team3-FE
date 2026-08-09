@@ -26,7 +26,7 @@ export const GNB_NAV_BY_ROLE = {
 export const GNB_PROFILE_MENU_BY_ROLE = {
   mover: [
     { label: '마이페이지', href: '/mover/mypage' },
-    { label: '받은 견적', href: '/mover/quotes' },
+    { label: '보낸 견적', href: '/mover/quotes' },
   ],
   customer: [
     { label: '프로필 수정', href: '/profile/customer/edit' },
