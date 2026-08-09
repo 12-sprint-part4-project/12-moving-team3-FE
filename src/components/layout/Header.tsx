@@ -10,6 +10,7 @@ import { GnbMenu } from '@/components/Gnb/GnbMenu';
 import { getGnbProfileMenuItems, type GnbNavItem } from '@/components/Gnb/gnbNav';
 import { useAuth } from '@/hooks/useAuth';
 import { useCustomerProfile } from '@/hooks/useCustomerProfile';
+import { useMoverProfile } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { logout } from '@/services/authApi';
@@ -27,10 +28,15 @@ export const Header = () => {
   const { showToast } = useToast();
   const { user, isReady, clearSession } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // 프로필 미등록(404) 고객은 조회를 건너뛴다 — Header 아바타용
-  const { data: customerProfile } = useCustomerProfile(
-    Boolean(isReady && user?.userType === 'CUSTOMER' && user.isProfileCompleted)
+  const isCustomerProfileReady = Boolean(
+    isReady && user?.userType === 'CUSTOMER' && user.isProfileCompleted
   );
+  const isMoverProfileReady = Boolean(
+    isReady && user?.userType === 'MOVER' && user.isProfileCompleted
+  );
+  // 프로필 미등록(404)은 조회를 건너뛴다 — Header 아바타용
+  const { data: customerProfile } = useCustomerProfile(isCustomerProfileReady);
+  const { data: moverProfile } = useMoverProfile(isMoverProfileReady);
 
   const handleMenuOpen = () => setIsMenuOpen(true);
   const handleMenuClose = () => setIsMenuOpen(false);
@@ -91,7 +97,10 @@ export const Header = () => {
   const navRole = user.userType === 'MOVER' ? 'mover' : 'customer';
   const desktopMenu = navRole === 'mover' ? 'twoMenu' : 'threeMenu';
   const nameSuffix = navRole === 'mover' ? '기사님' : '고객님';
-  const avatarSrc = customerProfile?.profileImageUrl ?? null;
+  const avatarSrc =
+    navRole === 'mover'
+      ? (moverProfile?.profileImageUrl ?? null)
+      : (customerProfile?.profileImageUrl ?? null);
   const profileMenuItems = getGnbProfileMenuItems(
     navRole,
     user.isProfileCompleted
