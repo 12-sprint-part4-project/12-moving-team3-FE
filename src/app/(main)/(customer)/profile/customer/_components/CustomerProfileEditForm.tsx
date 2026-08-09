@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { redirect, useRouter } from 'next/navigation';
 import { useId, useState, type FormEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -366,17 +367,28 @@ const CustomerProfileEditFields = ({
                   onClick={handleImageButtonClick}
                   aria-label="프로필 이미지 업로드"
                   className={cn(
-                    'flex size-[6.25rem] cursor-pointer items-center justify-center overflow-hidden rounded-md bg-background-200 lg:size-40',
+                    'relative flex size-[6.25rem] cursor-pointer items-center justify-center overflow-hidden rounded-md bg-background-200 lg:size-40',
                     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300'
                   )}
                 >
                   {displayImageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element -- 공개/CDN URL / blob preview
-                    <img
-                      src={displayImageUrl}
-                      alt="프로필 이미지"
-                      className="size-full object-cover"
-                    />
+                    displayImageUrl.startsWith('blob:') ||
+                    displayImageUrl.startsWith('data:') ? (
+                      // eslint-disable-next-line @next/next/no-img-element -- blob/data 미리보기는 next/image 미지원
+                      <img
+                        src={displayImageUrl}
+                        alt="프로필 이미지"
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <Image
+                        src={displayImageUrl}
+                        alt="프로필 이미지"
+                        fill
+                        sizes="(min-width: 64rem) 160px, 100px"
+                        className="object-cover"
+                      />
+                    )
                   ) : (
                     <NoImageIcon
                       className="size-8 text-gray-300 lg:size-10"

@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 import ProfileIcon from '@/assets/icons/profile.svg';
 import { Button } from '@/components/Button/Button';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
@@ -75,13 +77,14 @@ export const WritableReviewCard = ({
             'xl:gap-6 xl:border xl:border-line-100 xl:px-[1.125rem] xl:py-4 xl:shadow-[0.25rem_0.25rem_0.5rem] xl:shadow-shadow-gray-100/10'
           )}
         >
-          <div className="size-[2.875rem] shrink-0 overflow-hidden rounded-full xl:size-24">
+          <div className="relative size-[2.875rem] shrink-0 overflow-hidden rounded-full xl:size-24">
             {avatarSrc ? (
-              // eslint-disable-next-line @next/next/no-img-element -- 프로필 CDN 도메인 미확정
-              <img
+              <Image
                 src={avatarSrc}
                 alt=""
-                className="size-full object-cover"
+                fill
+                sizes="(min-width: 80rem) 96px, 46px"
+                className="object-cover"
               />
             ) : (
               <ProfileIcon className="size-full" aria-hidden />

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 
@@ -111,13 +112,14 @@ const GnbProfileAvatar = ({ src, className }: GnbProfileAvatarProps) => {
   if (src) {
     return (
       <span
-        className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full ${className}`}
+        className={`relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full ${className}`}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element -- 공개/CDN 프로필 URL */}
-        <img
+        <Image
           src={src}
           alt=""
-          className="size-full object-cover object-center"
+          fill
+          sizes="48px"
+          className="object-cover object-center"
         />
       </span>
     );

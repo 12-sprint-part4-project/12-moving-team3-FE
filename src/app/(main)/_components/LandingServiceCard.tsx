@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 import { cn } from '@/lib/utils';
 
 export type LandingServiceCardVariant = 'tall' | 'wide';
@@ -46,9 +48,13 @@ export const LandingServiceCard = ({
         {description}
       </p>
     </div>
-    <img
+    {/* LCP 후보 — 정적 public PNG, CSS로 위치·크기 유지 */}
+    <Image
       src={imageSrc}
       alt={imageAlt}
+      width={474}
+      height={304}
+      priority
       className={cn(
         'pointer-events-none absolute max-w-none object-contain',
         imageClassName

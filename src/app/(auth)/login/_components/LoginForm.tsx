@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState, type ChangeEvent, type FormEvent } from 'react';
@@ -151,9 +152,12 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
           href="/"
           className="flex w-full max-w-[20.4375rem] flex-col items-center justify-center p-2.5 lg:max-w-[40rem]"
         >
-          <img
+          <Image
             src="/text-logo.svg"
             alt="무빙"
+            width={140}
+            height={80}
+            priority
             className="h-16 w-[7rem] lg:h-20 lg:w-[8.75rem]"
           />
         </Link>
@@ -240,7 +244,7 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
             onClick={handleKakaoLogin}
             className="inline-flex size-[3.375rem] shrink-0 cursor-pointer items-center justify-center overflow-clip rounded-full lg:size-[4.5rem]"
           >
-            <img
+            <Image
               src={KAKAO_LOGIN.src}
               alt=""
               width={72}

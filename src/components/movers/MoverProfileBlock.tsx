@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import type { MouseEvent } from 'react';
 
@@ -50,11 +51,12 @@ export const MoverProfileBlock = ({
     >
       <div className="relative size-12 shrink-0 overflow-hidden rounded-full lg:size-14">
         {mover.profileImageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- CDN 도메인 미확정
-          <img
+          <Image
             src={mover.profileImageUrl}
             alt={profileAlt}
-            className="size-full object-cover"
+            fill
+            sizes="(min-width: 64rem) 56px, 48px"
+            className="object-cover"
           />
         ) : (
           <ProfileIcon className="size-full text-gray-200" aria-hidden />

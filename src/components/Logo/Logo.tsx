@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 export type LogoSize = 'sm' | 'md';
@@ -49,10 +50,14 @@ export const Logo = ({
     href={href}
     className={`inline-flex shrink-0 items-center justify-center ${className}`}
   >
-    <img
-      src={LOGO_SRC[variant]}
-      alt="무빙"
-      className={SIZE_STYLE[variant][size]}
-    />
+    <span className={`relative block ${SIZE_STYLE[variant][size]}`}>
+      <Image
+        src={LOGO_SRC[variant]}
+        alt="무빙"
+        fill
+        sizes="116px"
+        className="object-contain"
+      />
+    </span>
   </Link>
 );
