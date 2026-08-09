@@ -50,7 +50,8 @@ const HomePage = () => {
 
       {/* Mobile · Tablet: 세로 스택 (Figma 1:9767 · 1:9734) */}
       <div className="mt-11 flex w-full max-w-[20.4375rem] flex-col gap-9 lg:hidden">
-        <LandingServiceCard {...smallMove} />
+        {/* 첫 카드만 LCP preload — 데스크톱 트리와 동일 src라 한쪽에만 */}
+        <LandingServiceCard {...smallMove} preload />
         <LandingServiceCard {...homeMove} />
         <LandingServiceCard {...officeMove} />
       </div>
