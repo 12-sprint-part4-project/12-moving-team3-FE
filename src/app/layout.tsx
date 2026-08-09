@@ -33,7 +33,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={`${pretendard.variable} h-full antialiased`}>
+    <html
+      lang="ko"
+      className={`${pretendard.variable} h-full min-w-[320px] antialiased`}
+    >
       <body className="flex min-h-full flex-col">
         <QueryProvider>
           <AuthProvider>
