@@ -221,7 +221,6 @@ const MoverProfileEditFields = ({
 
       const response = await upsertMoverProfile({
         nickname: trimmedNickname,
-        phoneNumber,
         career: careerValue,
         shortDescription: trimmedShortIntro,
         description: trimmedDescription,
@@ -241,7 +240,6 @@ const MoverProfileEditFields = ({
           user: {
             ...session.user,
             nickname: response.data.nickname,
-            phoneNumber: response.data.phoneNumber || session.user.phoneNumber,
           },
         });
       }

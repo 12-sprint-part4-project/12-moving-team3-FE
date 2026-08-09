@@ -29,7 +29,11 @@ import { ApiError } from '@/lib/apiClient';
 import { getAuthSession } from '@/lib/authSession';
 import { uploadProfileImage } from '@/lib/uploadProfileImage';
 import { cn } from '@/lib/utils';
-import { upsertMoverProfile } from '@/services/moverProfileApi';
+import {
+  getMoverProfileMe,
+  updateMoverBasicInfo,
+  upsertMoverProfile,
+} from '@/services/moverProfileApi';
 
 const FIELD_CLASSNAME =
   'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
@@ -178,13 +182,14 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
       return;
     }
 
-    const nickname = user?.nickname?.trim() ?? '';
-    if (
-      nickname.length < NICKNAME_MIN_LENGTH ||
-      nickname.length > NICKNAME_MAX_LENGTH
-    ) {
+    // 카카오 가입 닉네임은 최대 50자일 수 있어, 프로필 API(2~20자)에 맞게 자른다.
+    const nickname = (user?.nickname?.trim() ?? '').slice(
+      0,
+      NICKNAME_MAX_LENGTH
+    );
+    if (nickname.length < NICKNAME_MIN_LENGTH) {
       showToast({
-        content: `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`,
+        content: '로그인 정보가 올바르지 않습니다. 다시 로그인해 주세요.',
       });
       return;
     }
@@ -239,9 +244,9 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
         s3Key = await uploadProfileImage(profileImageFile);
       }
 
+      // 프로필 PATCH에는 phoneNumber가 없다. 전화번호는 basic-info로 저장한다.
       await upsertMoverProfile({
         nickname,
-        phoneNumber,
         career: careerValue,
         shortDescription: trimmedShortIntro,
         description: trimmedDescription,
@@ -249,6 +254,14 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
         serviceRegions: selectedRegions,
         ...(s3Key ? { s3Key } : {}),
       });
+
+      const savedProfile = await getMoverProfileMe();
+      if (savedProfile) {
+        await updateMoverBasicInfo({
+          name: savedProfile.name,
+          phoneNumber,
+        });
+      }
 
       await queryClient.invalidateQueries({
         queryKey: moverProfileQueryKeys.all,
@@ -260,6 +273,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
           ...session,
           user: {
             ...session.user,
+            nickname,
             phoneNumber,
             isProfileCompleted: true,
           },
