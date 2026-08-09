@@ -11,8 +11,6 @@ export type MoverRegion = RegionChipValue;
 export interface UpsertMoverProfileRequest {
   /** 사이트 노출 닉네임 (2~20자) */
   nickname: string;
-  /** 숫자 11자리 */
-  phoneNumber: string;
   /** 경력(년), 0~50 */
   career: number;
   /** 한 줄 소개 (1~20자) */
@@ -30,7 +28,6 @@ export interface UpsertMoverProfileRequest {
 /** PATCH 응답 data */
 export interface MoverProfile {
   nickname: string;
-  phoneNumber: string;
   career: number;
   shortDescription: string;
   description: string;

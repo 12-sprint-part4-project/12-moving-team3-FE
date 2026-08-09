@@ -78,9 +78,8 @@ export const CustomerProfileForm = () => {
   );
   const [isPending, setIsPending] = useState(false);
 
-  const isPhoneValid = phoneNumber.length === PHONE_NUMBER_LENGTH;
   const isSubmitEnabled =
-    isPhoneValid &&
+    phoneNumber.length > 0 &&
     selectedServices.length > 0 &&
     selectedRegion !== null &&
     !isPending;
@@ -99,12 +98,26 @@ export const CustomerProfileForm = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (
-      !isPhoneValid ||
-      !selectedRegion ||
-      selectedServices.length === 0 ||
-      isPending
-    ) {
+    if (isPending) return;
+
+    if (phoneNumber.length === 0) {
+      return;
+    }
+
+    if (phoneNumber.length !== PHONE_NUMBER_LENGTH) {
+      showToast({
+        content: `전화번호는 ${PHONE_NUMBER_LENGTH}자리로 입력해 주세요.`,
+      });
+      return;
+    }
+
+    if (selectedServices.length === 0) {
+      showToast({ content: '이용 서비스를 한 개 이상 선택해 주세요.' });
+      return;
+    }
+
+    if (!selectedRegion) {
+      showToast({ content: '내가 사는 지역을 선택해 주세요.' });
       return;
     }
 

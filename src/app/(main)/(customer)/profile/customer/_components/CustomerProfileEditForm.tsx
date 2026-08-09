@@ -98,6 +98,13 @@ const CustomerProfileEditFields = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const displayImageUrl = previewUrl ?? profile.profileImageUrl;
+  const isSubmitEnabled =
+    name.trim().length > 0 &&
+    nickname.trim().length > 0 &&
+    phoneNumber.trim().length > 0 &&
+    selectedServices.length > 0 &&
+    selectedRegion !== null &&
+    !isSubmitting;
 
   const handleCancel = () => {
     router.back();
@@ -443,7 +450,7 @@ const CustomerProfileEditFields = ({
             type="submit"
             variant="solid"
             size="sm"
-            disabled={isSubmitting}
+            disabled={!isSubmitEnabled}
             className="order-1 lg:order-2 lg:h-16 lg:max-w-[41.25rem] lg:text-xl-semibold"
           >
             {isSubmitting ? '수정 중...' : '수정하기'}
