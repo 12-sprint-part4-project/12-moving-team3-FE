@@ -11,16 +11,16 @@ export interface LoginRequiredModalProps {
   open: boolean;
   onClose: () => void;
   className?: string;
+  loginHref?: string;
+  onBeforeLogin?: () => void;
 }
 
-/**
- * useSearchParams는 Suspense 경계 필요 — prerender(/movers 등) 빌드 실패 방지
- * @see https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
- */
 const LoginRequiredModalInner = ({
   open,
   onClose,
   className,
+  loginHref = '/login',
+  onBeforeLogin,
 }: LoginRequiredModalProps) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -31,10 +31,13 @@ const LoginRequiredModalInner = ({
   }
 
   const handleLogin = () => {
-    onClose();
+    (onBeforeLogin ?? onClose)();
     const search = searchParams.toString();
     const redirectTo = search ? `${pathname}?${search}` : pathname;
-    router.push(`/login?redirect=${encodeURIComponent(redirectTo)}`);
+    const separator = loginHref.includes('?') ? '&' : '?';
+    router.push(
+      `${loginHref}${separator}redirect=${encodeURIComponent(redirectTo)}`
+    );
   };
 
   return (

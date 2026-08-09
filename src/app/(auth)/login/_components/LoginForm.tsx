@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState, type ChangeEvent, type FormEvent } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { Button } from '@/components/Button/Button';
 import { TextFieldOutlined } from '@/components/ui/Input';
@@ -84,8 +84,9 @@ const HELPER_LINK_CLASSNAME =
  * role → API userType(CUSTOMER|MOVER)으로 매핑한다.
  * 소셜 로그인은 카카오만 제공한다.
  */
-export const LoginForm = ({ role }: LoginFormProps) => {
+const LoginFormInner = ({ role }: LoginFormProps) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { showToast } = useToast();
   const { setSession } = useAuth();
   const [values, setValues] = useState<LoginFormValues>(INITIAL_VALUES);
@@ -119,7 +120,11 @@ export const LoginForm = ({ role }: LoginFormProps) => {
         user: response.data.user,
       });
       showToast({ content: '로그인되었습니다.' });
-      router.replace(getPostAuthRedirectPath(response.data.user));
+      router.replace(
+        getPostAuthRedirectPath(response.data.user, {
+          redirectTo: searchParams.get('redirect'),
+        })
+      );
     } catch (error) {
       const message =
         error instanceof ApiError
@@ -246,5 +251,14 @@ export const LoginForm = ({ role }: LoginFormProps) => {
         </div>
       </div>
     </div>
+  );
+};
+
+/** useSearchParams용 Suspense 경계 */
+export const LoginForm = ({ role }: LoginFormProps) => {
+  return (
+    <Suspense fallback={null}>
+      <LoginFormInner role={role} />
+    </Suspense>
   );
 };

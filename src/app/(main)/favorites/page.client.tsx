@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 
@@ -15,7 +14,6 @@ import { cn } from '@/lib/utils';
 
 /** 찜한 기사님 목록 페이지 클라이언트 */
 export const FavoritesPageClient = () => {
-  const router = useRouter();
   const { user, isReady } = useAuth();
   const isLoggedIn = Boolean(user);
   const { toggleFavorite, isMoverPending } = useToggleFavorite();
@@ -35,12 +33,6 @@ export const FavoritesPageClient = () => {
   const { ref: loadMoreRef, inView } = useInView({
     rootMargin: '200px',
   });
-
-  useEffect(() => {
-    if (isReady && !user) {
-      router.replace('/login');
-    }
-  }, [isReady, user, router]);
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {

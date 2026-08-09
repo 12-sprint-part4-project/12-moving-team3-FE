@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
+import { AuthRouteGuard } from '@/components/auth/AuthRouteGuard';
 import { ProfileIncompleteRouteGuard } from '@/components/auth/ProfileIncompleteRouteGuard';
 import { SuspendedRouteGuard } from '@/components/auth/SuspendedRouteGuard';
 import { Header } from '@/components/layout/Header';
@@ -38,11 +39,13 @@ export default function RootLayout({
                 <NotificationSseProvider>
                   <Header />
                   <main className="flex flex-1 flex-col">
-                    <SuspendedRouteGuard>
-                      <ProfileIncompleteRouteGuard>
-                        {children}
-                      </ProfileIncompleteRouteGuard>
-                    </SuspendedRouteGuard>
+                    <AuthRouteGuard>
+                      <SuspendedRouteGuard>
+                        <ProfileIncompleteRouteGuard>
+                          {children}
+                        </ProfileIncompleteRouteGuard>
+                      </SuspendedRouteGuard>
+                    </AuthRouteGuard>
                   </main>
                   <ScrollToTopButton />
                 </NotificationSseProvider>

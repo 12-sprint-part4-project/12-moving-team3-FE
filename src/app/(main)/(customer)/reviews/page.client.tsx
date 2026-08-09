@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import { DeleteReviewConfirmModal } from '@/components/reviews/DeleteReviewConfirmModal';
 import { EditReviewModal } from '@/components/reviews/EditReviewModal';
@@ -33,7 +32,6 @@ const PAGE_X_PADDING = 'px-6 md:px-[4.5rem] xl:px-[16.25rem]';
 
 /** 이사 리뷰 — 작성 가능 / 내가 작성한 리뷰 + 모달 */
 export const ReviewsPageClient = () => {
-  const router = useRouter();
   const { user, isReady } = useAuth();
   const [activeTab, setActiveTab] = useState<ReviewsPageTab>('writable');
   const [selectedQuote, setSelectedQuote] = useState<WritableQuoteItem | null>(
@@ -58,12 +56,6 @@ export const ReviewsPageClient = () => {
   const { submitReview, isPending: isSubmitting } = useCreateReview();
   const { submitUpdate, isPending: isUpdating } = useUpdateReview();
   const { submitDelete, isPending: isDeleting } = useDeleteReview();
-
-  useEffect(() => {
-    if (isReady && !user) {
-      router.replace('/login');
-    }
-  }, [isReady, user, router]);
 
   const handleWriteClick = (item: WritableQuoteItem) => {
     setSelectedQuote(item);

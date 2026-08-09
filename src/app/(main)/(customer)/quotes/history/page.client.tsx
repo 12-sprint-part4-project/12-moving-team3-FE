@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 
@@ -24,7 +23,6 @@ const CONTENT_CLASS = `mx-auto w-full max-w-[1920px] py-6 md:py-8 lg:py-10 ${PAG
 
 /** 고객 이용 내역 */
 const CustomerQuoteHistoryPageClient = () => {
-  const router = useRouter();
   const { user, isReady } = useAuth();
   const isLoggedIn = Boolean(user);
 
@@ -47,12 +45,6 @@ const CustomerQuoteHistoryPageClient = () => {
   const { ref: loadMoreRef, inView } = useInView({
     rootMargin: '200px',
   });
-
-  useEffect(() => {
-    if (isReady && !user) {
-      router.replace('/login');
-    }
-  }, [isReady, user, router]);
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
