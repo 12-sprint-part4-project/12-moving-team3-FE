@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import LogoIconText from '@/assets/icons/logo.svg';
 import LogoSymbol from '@/assets/icons/symbol.svg';
+import { cn } from '@/lib/utils';
 
 export type LogoSize = 'sm' | 'md';
 export type LogoVariant = 'iconText' | 'icon';
@@ -57,7 +58,10 @@ export const Logo = ({
     <Link
       href={href}
       aria-label="무빙"
-      className={`inline-flex shrink-0 items-center justify-center ${className}`}
+      className={cn(
+        'inline-flex shrink-0 items-center justify-center',
+        className
+      )}
     >
       <LogoSvg
         className={SIZE_STYLE[variant][size]}

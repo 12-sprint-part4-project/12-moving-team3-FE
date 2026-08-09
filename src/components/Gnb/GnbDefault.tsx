@@ -14,6 +14,7 @@ import { NotificationGnbButton } from '@/components/Gnb/NotificationGnbButton';
 import { Logo } from '@/components/Logo/Logo';
 import { Tab } from '@/components/ui/Tab/Tab';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
+import { cn } from '@/lib/utils';
 import type { NotificationRole } from '@/types/notification';
 
 export type GnbDefaultSize = 'sm' | 'md' | 'lg';
@@ -112,7 +113,10 @@ const GnbProfileAvatar = ({ src, className }: GnbProfileAvatarProps) => {
   if (src) {
     return (
       <span
-        className={`relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full ${className}`}
+        className={cn(
+          'relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full',
+          className
+        )}
       >
         <Image
           src={src}
@@ -125,7 +129,9 @@ const GnbProfileAvatar = ({ src, className }: GnbProfileAvatarProps) => {
     );
   }
 
-  return <ProfileIcon className={`block shrink-0 ${className}`} aria-hidden />;
+  return (
+    <ProfileIcon className={cn('block shrink-0', className)} aria-hidden />
+  );
 };
 
 interface GnbHeaderProps {
