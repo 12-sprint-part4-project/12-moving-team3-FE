@@ -1,5 +1,11 @@
 import { LoginForm } from '@/app/(auth)/login/_components/LoginForm';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '기사님 로그인',
+};
+
 /**
  * 기사님 로그인 페이지.
  * 일반유저와 동일 폼이며 role만 mover로 전달한다.

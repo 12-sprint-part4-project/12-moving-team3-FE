@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 import { cn } from '@/lib/utils';
 
 export type LandingServiceCardVariant = 'tall' | 'wide';
@@ -11,6 +13,8 @@ export interface LandingServiceCardProps {
   /** 일러스트 위치·크기 (반응형 클래스 포함 가능) */
   imageClassName?: string;
   className?: string;
+  /** above-the-fold LCP — Next.js preload (+ fetchPriority high) */
+  preload?: boolean;
 }
 
 const VARIANT_STYLE: Record<LandingServiceCardVariant, string> = {
@@ -30,6 +34,7 @@ export const LandingServiceCard = ({
   variant,
   imageClassName,
   className,
+  preload = false,
 }: LandingServiceCardProps) => (
   <article
     className={cn(
@@ -46,9 +51,14 @@ export const LandingServiceCard = ({
         {description}
       </p>
     </div>
-    <img
+    {/* 정적 public PNG — LCP는 호출부에서 preload만 켠다 */}
+    <Image
       src={imageSrc}
       alt={imageAlt}
+      width={474}
+      height={304}
+      preload={preload}
+      fetchPriority={preload ? 'high' : undefined}
       className={cn(
         'pointer-events-none absolute max-w-none object-contain',
         imageClassName

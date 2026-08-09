@@ -1,7 +1,12 @@
 import { Suspense } from 'react';
-
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import CustomerQuoteHistoryPageClient from './page.client';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '이용 내역',
+};
 
 /**
  * 고객 이용 내역 페이지 (확정한 견적)

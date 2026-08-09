@@ -1,5 +1,11 @@
 import { SignupForm } from '@/app/(auth)/signup/_components/SignupForm';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '회원가입',
+};
+
 /**
  * 일반유저 회원가입 페이지.
  * Figma: Mobile(1:2900) · Tablet(1:2608) · Desktop(1:2756).

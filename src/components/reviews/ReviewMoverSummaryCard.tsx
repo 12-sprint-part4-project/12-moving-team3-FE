@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 import ProfileIcon from '@/assets/icons/profile.svg';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
 import { cn } from '@/lib/utils';
@@ -30,10 +32,15 @@ export const ReviewMoverSummaryCard = ({
       className
     )}
   >
-    <div className="size-[2.875rem] shrink-0 overflow-hidden rounded-full sm:size-14">
+    <div className="relative size-[2.875rem] shrink-0 overflow-hidden rounded-full sm:size-14">
       {avatarSrc ? (
-        // eslint-disable-next-line @next/next/no-img-element -- 프로필 CDN 도메인 미확정
-        <img src={avatarSrc} alt="" className="size-full object-cover" />
+        <Image
+          src={avatarSrc}
+          alt=""
+          fill
+          sizes="(min-width: 40rem) 56px, 46px"
+          className="object-cover"
+        />
       ) : (
         <ProfileIcon className="size-full" aria-hidden />
       )}

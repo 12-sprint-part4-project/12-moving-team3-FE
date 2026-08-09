@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import type { MouseEvent } from 'react';
 
@@ -118,16 +119,17 @@ export const MoverCard = ({
       >
         <div
           className={cn(
-            'shrink-0 overflow-hidden rounded-full',
+            'relative shrink-0 overflow-hidden rounded-full',
             isCompact ? 'size-10' : 'size-14'
           )}
         >
           {mover.profileImageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- CDN 도메인 미확정
-            <img
+            <Image
               src={mover.profileImageUrl}
               alt={profileAlt}
-              className="size-full object-cover"
+              fill
+              sizes={isCompact ? '40px' : '56px'}
+              className="object-cover"
             />
           ) : (
             <ProfileIcon className="size-full" aria-hidden />

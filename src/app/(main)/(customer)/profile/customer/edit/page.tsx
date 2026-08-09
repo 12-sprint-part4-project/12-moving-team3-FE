@@ -1,5 +1,11 @@
 import { CustomerProfileEditForm } from '../_components/CustomerProfileEditForm';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '프로필 수정',
+};
+
 /**
  * 일반유저 프로필 수정.
  * Figma: Mobile·Tablet(1:8073) → lg 미만, Desktop(1:8146) → lg+.

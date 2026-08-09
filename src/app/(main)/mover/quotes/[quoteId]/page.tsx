@@ -1,5 +1,11 @@
 import MoverQuoteDetailPageClient from './page.client';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '견적 상세',
+};
+
 interface MoverQuoteDetailPageProps {
   params: Promise<{ quoteId: string }>;
 }

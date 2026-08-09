@@ -1,5 +1,11 @@
 import { LoginForm } from '@/app/(auth)/login/_components/LoginForm';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '로그인',
+};
+
 /**
  * 일반유저 로그인 페이지.
  * Figma: Mobile(1:2155) · Tablet(1:2329) · Desktop(1:2051).

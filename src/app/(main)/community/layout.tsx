@@ -1,5 +1,4 @@
 import { cn } from '@/lib/utils';
-
 import {
   COMMUNITY_DESKTOP_X,
   COMMUNITY_HEADER_X,
@@ -7,6 +6,12 @@ import {
   COMMUNITY_PAGE_TITLE_CLASS,
   COMMUNITY_PAGE_TITLE_HEADER_CLASS,
 } from './_components/communityLayout';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '커뮤니티',
+};
 
 interface CommunityLayoutProps {
   children: React.ReactNode;

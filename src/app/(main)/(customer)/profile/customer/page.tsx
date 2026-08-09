@@ -1,5 +1,11 @@
 import { CustomerProfileForm } from './_components/CustomerProfileForm';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '프로필 등록',
+};
+
 /**
  * 일반유저 프로필 등록.
  * Figma: Mobile(1:10000)·Tablet(1:9798) → lg 미만, Desktop(1:9898) → lg+.

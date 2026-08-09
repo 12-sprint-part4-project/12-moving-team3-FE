@@ -1,5 +1,9 @@
 import Link from 'next/link';
 
+import LogoIconText from '@/assets/icons/logo.svg';
+import LogoSymbol from '@/assets/icons/symbol.svg';
+import { cn } from '@/lib/utils';
+
 export type LogoSize = 'sm' | 'md';
 export type LogoVariant = 'iconText' | 'icon';
 
@@ -29,30 +33,41 @@ const SIZE_STYLE: Record<LogoVariant, Record<LogoSize, string>> = {
   },
 };
 
-const LOGO_SRC: Record<LogoVariant, string> = {
-  iconText: '/logo.svg',
-  icon: '/symbol.svg',
+const LOGO_COMPONENT: Record<
+  LogoVariant,
+  typeof LogoIconText | typeof LogoSymbol
+> = {
+  iconText: LogoIconText,
+  icon: LogoSymbol,
 };
 
 /**
  * 무빙 로고.
  * Figma "img/logo/icon-text" · "img/logo/icon" — Property 2=sm | md.
- * 로고는 Static SVG를 사용한다.
+ * 브랜드 SVG는 SVGR 컴포넌트로 인라인한다.
  */
 export const Logo = ({
   size = 'sm',
   variant = 'iconText',
   href = '/',
   className = '',
-}: LogoProps) => (
-  <Link
-    href={href}
-    className={`inline-flex shrink-0 items-center justify-center ${className}`}
-  >
-    <img
-      src={LOGO_SRC[variant]}
-      alt="무빙"
-      className={SIZE_STYLE[variant][size]}
-    />
-  </Link>
-);
+}: LogoProps) => {
+  const LogoSvg = LOGO_COMPONENT[variant];
+
+  return (
+    <Link
+      href={href}
+      aria-label="무빙"
+      className={cn(
+        'inline-flex shrink-0 items-center justify-center',
+        className
+      )}
+    >
+      <LogoSvg
+        className={SIZE_STYLE[variant][size]}
+        aria-hidden
+        focusable="false"
+      />
+    </Link>
+  );
+};

@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 import ProfileIcon from '@/assets/icons/profile.svg';
 import StarIcon from '@/assets/icons/star.svg';
 import { Button } from '@/components/Button/Button';
@@ -31,13 +33,14 @@ const ProfileAvatar = ({
   profileImageUrl,
   className = '',
 }: ProfileAvatarProps) => (
-  <div className={cn('shrink-0 overflow-hidden rounded-full', className)}>
+  <div className={cn('relative shrink-0 overflow-hidden rounded-full', className)}>
     {profileImageUrl ? (
-      // eslint-disable-next-line @next/next/no-img-element -- CDN 도메인 미확정
-      <img
+      <Image
         src={profileImageUrl}
         alt=""
-        className="size-full object-cover"
+        fill
+        sizes="96px"
+        className="object-cover"
       />
     ) : (
       <ProfileIcon className="size-full" aria-hidden />

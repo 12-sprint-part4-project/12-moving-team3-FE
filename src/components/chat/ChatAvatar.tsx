@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 import ProfileIcon from '@/assets/icons/profile.svg';
 
 import { cn } from '@/lib/utils';
@@ -18,15 +20,16 @@ export const ChatAvatar = ({
     return (
       <span
         className={cn(
-          'inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-background-200',
+          'relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-background-200',
           className
         )}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element -- 공개/CDN 프로필 URL */}
-        <img
+        <Image
           src={src}
           alt={alt}
-          className="size-full object-cover object-center"
+          fill
+          sizes="56px"
+          className="object-cover object-center"
         />
       </span>
     );

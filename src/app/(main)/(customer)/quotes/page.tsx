@@ -1,8 +1,12 @@
 import { Suspense } from 'react';
-
 import { Spinner } from '@/components/ui/Spinner/Spinner';
-
 import CustomerQuotesPageClient from './page.client';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '내 견적 관리',
+};
 
 /**
  * 고객 내 견적 관리 페이지 (대기 중인 견적)

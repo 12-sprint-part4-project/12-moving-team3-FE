@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState, type ChangeEvent, type FormEvent } from 'react';
 
+import KakaoIcon from '@/assets/icons/kakao.svg';
+import TextLogoIcon from '@/assets/icons/text-logo.svg';
 import { Button } from '@/components/Button/Button';
 import { TextFieldOutlined } from '@/components/ui/Input';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,10 +22,7 @@ interface LoginFormProps {
   role: LoginRole;
 }
 
-const KAKAO_LOGIN = {
-  label: '카카오로 로그인',
-  src: '/images/kakao.svg',
-} as const;
+const KAKAO_LOGIN_LABEL = '카카오로 로그인';
 
 const ROLE_SWITCH_COPY: Record<
   LoginRole,
@@ -149,12 +148,13 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
       <div className="flex flex-col items-center lg:gap-2">
         <Link
           href="/"
+          aria-label="무빙"
           className="flex w-full max-w-[20.4375rem] flex-col items-center justify-center p-2.5 lg:max-w-[40rem]"
         >
-          <img
-            src="/text-logo.svg"
-            alt="무빙"
+          <TextLogoIcon
             className="h-16 w-[7rem] lg:h-20 lg:w-[8.75rem]"
+            aria-hidden
+            focusable="false"
           />
         </Link>
         <p className={HELPER_TEXT_CLASSNAME}>
@@ -236,17 +236,11 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
           </p>
           <button
             type="button"
-            aria-label={KAKAO_LOGIN.label}
+            aria-label={KAKAO_LOGIN_LABEL}
             onClick={handleKakaoLogin}
             className="inline-flex size-[3.375rem] shrink-0 cursor-pointer items-center justify-center overflow-clip rounded-full lg:size-[4.5rem]"
           >
-            <img
-              src={KAKAO_LOGIN.src}
-              alt=""
-              width={72}
-              height={72}
-              className="size-full"
-            />
+            <KakaoIcon className="size-full" aria-hidden focusable="false" />
           </button>
         </div>
       </div>

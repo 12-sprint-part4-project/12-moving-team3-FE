@@ -1,5 +1,11 @@
 import { SignupForm } from '@/app/(auth)/signup/_components/SignupForm';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '기사님 회원가입',
+};
+
 /**
  * 기사님 회원가입 페이지.
  * 일반유저와 동일 폼이며 role만 mover로 전달한다.
