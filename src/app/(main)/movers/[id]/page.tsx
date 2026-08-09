@@ -8,7 +8,7 @@ interface MoverDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-/** 기사님 이름 기반 탭 타이틀 — `{name} 기사님 - 무빙` */
+/** 기사님 이름 기반 탭 타이틀 — 루트 template으로 `{name} 기사님 | 무빙` */
 export async function generateMetadata({
   params,
 }: MoverDetailPageProps): Promise<Metadata> {
@@ -17,12 +17,12 @@ export async function generateMetadata({
     const res = await getMoverDetail(id);
     const name = res.data.moverDetail.user.name?.trim();
     if (name) {
-      return { title: { absolute: `${name} 기사님 - 무빙` } };
+      return { title: `${name} 기사님` };
     }
   } catch {
     // 404·네트워크 등 → fallback
   }
-  return { title: { absolute: '기사님 상세 - 무빙' } };
+  return { title: '기사님 상세' };
 }
 
 /** 기사님 상세 페이지 */
