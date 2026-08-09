@@ -6,6 +6,7 @@ import { useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { LOGIN_HREF_BY_USER_TYPE } from '@/lib/authRoutePaths';
 import { getPostAuthRedirectPath } from '@/lib/getPostAuthRedirectPath';
 import {
   consumeKakaoOAuthState,
@@ -13,12 +14,6 @@ import {
   resolveKakaoLoginErrorMessage,
 } from '@/lib/kakaoAuth';
 import { kakaoLogin } from '@/services/authApi';
-import type { ApiUserType } from '@/types/auth';
-
-const LOGIN_HREF_BY_USER_TYPE: Record<ApiUserType, string> = {
-  CUSTOMER: '/login',
-  MOVER: '/login/mover',
-};
 
 /**
  * 카카오 OAuth 콜백:
