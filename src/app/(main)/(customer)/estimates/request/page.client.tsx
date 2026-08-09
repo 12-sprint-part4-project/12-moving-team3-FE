@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { EstimateRequestBlocked } from './_components/EstimateRequestBlocked';
 import { EstimateRequestGate } from './_components/EstimateRequestGate';
@@ -10,6 +10,15 @@ import { MoveDateStep } from './_components/steps/MoveDateStep';
 import { MoveTypeStep } from './_components/steps/MoveTypeStep';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 import type { EstimateRequestVisualStep } from '@/types/customerEstimateRequest';
+
+/** step별 탭 타이틀 — 절대 문자열(| 무빙 포함, 루트 template 이중 적용 방지) */
+const ESTIMATE_REQUEST_TITLE_BY_STEP: Record<1 | 2 | 3, string> = {
+  1: '견적 요청 Step 1 이사유형 선택 | 무빙',
+  2: '견적 요청 Step 2 이사일자 선택 | 무빙',
+  3: '견적 요청 Step 3 출발/도착지 선택 | 무빙',
+};
+
+const ESTIMATE_REQUEST_FALLBACK_TITLE = '견적요청 | 무빙';
 
 /**
  * 견적요청 페이지 클라이언트 — bootstrap 분기 + 스텝 렌더.
@@ -23,6 +32,35 @@ export const EstimateRequestPageClient = () => {
   // Step3 로컬 draft 기준 — 미선택 2/4 → 출발 3/4 → 도착 full
   const [step3ProgressFill, setStep3ProgressFill] =
     useState<EstimateRequestVisualStep>(2);
+
+  // bootstrap·visualStep에 맞춰 브라우저 탭 타이틀 동기화
+  useEffect(() => {
+    if (
+      bootstrap.status === 'loading' ||
+      bootstrap.status === 'error' ||
+      bootstrap.status === 'blocked'
+    ) {
+      document.title = ESTIMATE_REQUEST_FALLBACK_TITLE;
+      return;
+    }
+
+    if (
+      bootstrap.status === 'unauthorized' ||
+      bootstrap.status === 'profileIncomplete'
+    ) {
+      document.title = ESTIMATE_REQUEST_TITLE_BY_STEP[1];
+      return;
+    }
+
+    if (bootstrap.status === 'ready') {
+      const step = bootstrap.visualStep;
+      // UI는 1~3만 — 타입상 4가 와도 Step3 타이틀로 처리
+      document.title =
+        step === 1 || step === 2 || step === 3
+          ? ESTIMATE_REQUEST_TITLE_BY_STEP[step]
+          : ESTIMATE_REQUEST_TITLE_BY_STEP[3];
+    }
+  }, [bootstrap]);
 
   // loading · 일반 에러(자동 재시도 중) 공통 — 풀페이지 에러 화면 없음
   if (bootstrap.status === 'loading' || bootstrap.status === 'error') {

@@ -1,5 +1,11 @@
 import CustomerQuoteDetailPageClient from './page.client';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '견적 상세',
+};
+
 export interface CustomerQuoteDetailPageProps {
   params: Promise<{ quoteId: string }>;
 }

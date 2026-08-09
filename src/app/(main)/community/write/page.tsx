@@ -1,8 +1,12 @@
 import { Suspense } from 'react';
-
 import { Spinner } from '@/components/ui/Spinner/Spinner';
-
 import { CommunityWritePageClient } from './page.client';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '게시글 작성',
+};
 
 /** 커뮤니티 게시글 작성 페이지 */
 const CommunityWritePage = () => (

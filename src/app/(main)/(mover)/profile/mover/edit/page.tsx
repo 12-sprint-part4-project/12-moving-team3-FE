@@ -1,5 +1,11 @@
 import { MoverProfileEditForm } from '../_components/MoverProfileEditForm';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '프로필 수정',
+};
+
 /**
  * 기사님 프로필 수정.
  * Figma: Mobile(1:11040)·Tablet(1:10785) → lg 미만, Desktop(1:10909) → lg+.
