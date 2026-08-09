@@ -1,7 +1,7 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
-import { useState, type ReactNode } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
@@ -61,9 +61,10 @@ const resolveAuthGate = (
 /**
  * 보호 경로에 비로그인·역할 불일치로 직접 진입 시 모달로 안내
  */
-export const AuthRouteGuard = ({ children }: AuthRouteGuardProps) => {
+const AuthRouteGuardInner = ({ children }: AuthRouteGuardProps) => {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const { user, isReady, clearSession } = useAuth();
@@ -108,6 +109,11 @@ export const AuthRouteGuard = ({ children }: AuthRouteGuardProps) => {
         ? LOGIN_HREF_BY_USER_TYPE[gate.requiredUserType]
         : LOGIN_HREF_BY_USER_TYPE.CUSTOMER;
 
+    const search = searchParams.toString();
+    const redirectTo = search ? `${pathname}?${search}` : pathname;
+    const separator = loginHref.includes('?') ? '&' : '?';
+    const loginUrl = `${loginHref}${separator}redirect=${encodeURIComponent(redirectTo)}`;
+
     try {
       await logout();
     } catch (error) {
@@ -123,7 +129,7 @@ export const AuthRouteGuard = ({ children }: AuthRouteGuardProps) => {
     clearSession();
     setDismissedPath(pathname);
     showToast({ content: '로그아웃되었습니다.' });
-    router.replace(loginHref);
+    router.replace(loginUrl);
   };
 
   return (
@@ -146,5 +152,14 @@ export const AuthRouteGuard = ({ children }: AuthRouteGuardProps) => {
         }}
       />
     </>
+  );
+};
+
+/** useSearchParams용 Suspense 경계 */
+export const AuthRouteGuard = (props: AuthRouteGuardProps) => {
+  return (
+    <Suspense fallback={props.children}>
+      <AuthRouteGuardInner {...props} />
+    </Suspense>
   );
 };
