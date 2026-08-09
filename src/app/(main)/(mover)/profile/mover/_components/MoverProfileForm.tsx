@@ -136,17 +136,11 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
 
   const phoneNumber = phoneDraft ?? toDigits(user?.phoneNumber ?? '');
   const careerValue = career === '' ? null : Number(career);
-  const isCareerValid =
-    careerValue !== null &&
-    Number.isInteger(careerValue) &&
-    careerValue >= 0 &&
-    careerValue <= CAREER_MAX;
-  const isPhoneValid = phoneNumber.length === PHONE_NUMBER_LENGTH;
-  const isDescriptionValid = description.trim().length >= DESCRIPTION_MIN;
   const isSubmitEnabled =
-    isPhoneValid &&
-    isCareerValid &&
-    isDescriptionValid &&
+    phoneNumber.length > 0 &&
+    career !== '' &&
+    shortIntro.trim().length > 0 &&
+    description.trim().length > 0 &&
     selectedServices.length > 0 &&
     selectedRegions.length > 0 &&
     !isPending;
@@ -162,9 +156,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
       return;
     }
 
-    const nextValue = Number(digits);
-    if (nextValue > CAREER_MAX) return;
-    setCareer(String(nextValue));
+    setCareer(String(Number(digits)));
   };
 
   const handleShortIntroChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -177,15 +169,12 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (
-      !isPhoneValid ||
-      !isCareerValid ||
-      careerValue === null ||
-      !isDescriptionValid ||
-      selectedServices.length === 0 ||
-      selectedRegions.length === 0 ||
-      isPending
-    ) {
+    if (isPending) return;
+
+    if (phoneNumber.length !== PHONE_NUMBER_LENGTH) {
+      showToast({
+        content: `전화번호는 ${PHONE_NUMBER_LENGTH}자리로 입력해 주세요.`,
+      });
       return;
     }
 
@@ -200,6 +189,18 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
       return;
     }
 
+    const isCareerValid =
+      careerValue !== null &&
+      Number.isInteger(careerValue) &&
+      careerValue >= 0 &&
+      careerValue <= CAREER_MAX;
+    if (!isCareerValid || careerValue === null) {
+      showToast({
+        content: `경력은 0~${CAREER_MAX}년으로 입력해 주세요.`,
+      });
+      return;
+    }
+
     const trimmedShortIntro = shortIntro.trim();
     if (
       trimmedShortIntro.length === 0 ||
@@ -208,6 +209,24 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
       showToast({
         content: `한 줄 소개는 1~${SHORT_DESCRIPTION_MAX}자로 입력해 주세요.`,
       });
+      return;
+    }
+
+    const trimmedDescription = description.trim();
+    if (trimmedDescription.length < DESCRIPTION_MIN) {
+      showToast({
+        content: `상세 설명은 ${DESCRIPTION_MIN}자 이상 입력해 주세요.`,
+      });
+      return;
+    }
+
+    if (selectedServices.length === 0) {
+      showToast({ content: '제공 서비스를 선택해 주세요.' });
+      return;
+    }
+
+    if (selectedRegions.length === 0) {
+      showToast({ content: '서비스 가능 지역을 선택해 주세요.' });
       return;
     }
 
@@ -225,7 +244,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
         phoneNumber,
         career: careerValue,
         shortDescription: trimmedShortIntro,
-        description: description.trim(),
+        description: trimmedDescription,
         service: selectedServices,
         serviceRegions: selectedRegions,
         ...(s3Key ? { s3Key } : {}),

@@ -110,15 +110,11 @@ const MoverProfileEditFields = ({
 
   const phoneNumber = toDigits(profile.phoneNumber ?? '');
   const careerValue = career === '' ? null : Number(career);
-  const isCareerValid =
-    careerValue !== null &&
-    Number.isInteger(careerValue) &&
-    careerValue >= 0 &&
-    careerValue <= CAREER_MAX;
-  const isDescriptionValid = description.trim().length >= DESCRIPTION_MIN;
   const isSubmitEnabled =
-    isCareerValid &&
-    isDescriptionValid &&
+    nickname.trim().length > 0 &&
+    career !== '' &&
+    shortIntro.trim().length > 0 &&
+    description.trim().length > 0 &&
     selectedServices.length > 0 &&
     selectedRegions.length > 0 &&
     !isPending;
@@ -140,9 +136,7 @@ const MoverProfileEditFields = ({
       return;
     }
 
-    const nextValue = Number(digits);
-    if (nextValue > CAREER_MAX) return;
-    setCareer(String(nextValue));
+    setCareer(String(Number(digits)));
   };
 
   const handleShortIntroChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -168,6 +162,18 @@ const MoverProfileEditFields = ({
       return;
     }
 
+    const isCareerValid =
+      careerValue !== null &&
+      Number.isInteger(careerValue) &&
+      careerValue >= 0 &&
+      careerValue <= CAREER_MAX;
+    if (!isCareerValid || careerValue === null) {
+      showToast({
+        content: `경력은 0~${CAREER_MAX}년으로 입력해 주세요.`,
+      });
+      return;
+    }
+
     const trimmedShortIntro = shortIntro.trim();
     if (
       trimmedShortIntro.length === 0 ||
@@ -179,13 +185,21 @@ const MoverProfileEditFields = ({
       return;
     }
 
-    if (
-      !isCareerValid ||
-      careerValue === null ||
-      !isDescriptionValid ||
-      selectedServices.length === 0 ||
-      selectedRegions.length === 0
-    ) {
+    const trimmedDescription = description.trim();
+    if (trimmedDescription.length < DESCRIPTION_MIN) {
+      showToast({
+        content: `상세 설명은 ${DESCRIPTION_MIN}자 이상 입력해 주세요.`,
+      });
+      return;
+    }
+
+    if (selectedServices.length === 0) {
+      showToast({ content: '제공 서비스를 선택해 주세요.' });
+      return;
+    }
+
+    if (selectedRegions.length === 0) {
+      showToast({ content: '서비스 가능 지역을 선택해 주세요.' });
       return;
     }
 
@@ -210,7 +224,7 @@ const MoverProfileEditFields = ({
         phoneNumber,
         career: careerValue,
         shortDescription: trimmedShortIntro,
-        description: description.trim(),
+        description: trimmedDescription,
         service: selectedServices,
         serviceRegions: selectedRegions,
         ...(s3Key ? { s3Key } : {}),

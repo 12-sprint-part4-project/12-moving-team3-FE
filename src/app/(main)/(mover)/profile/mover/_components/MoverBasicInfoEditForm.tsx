@@ -1,7 +1,7 @@
 'use client';
 
 import { redirect, useRouter } from 'next/navigation';
-import { useId, useState, type FormEvent } from 'react';
+import { useEffect, useId, useState, type FormEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/Button/Button';
@@ -43,7 +43,7 @@ const MoverBasicInfoEditFields = ({
 }: MoverBasicInfoEditFieldsProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { setSession } = useAuth();
+  const { user, setSession } = useAuth();
   const { showToast } = useToast();
   const nameInputId = useId();
   const emailInputId = useId();
@@ -54,11 +54,21 @@ const MoverBasicInfoEditFields = ({
 
   const [name, setName] = useState(profile.name);
   const [email] = useState(profile.email);
-  const [phoneNumber, setPhoneNumber] = useState(profile.phoneNumber ?? '');
+  const [phoneNumber, setPhoneNumber] = useState(
+    profile.phoneNumber || user?.phoneNumber || ''
+  );
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 프로필 API에 번호가 없으면 세션(프로필 등록 시 저장분)으로 채운다.
+  useEffect(() => {
+    const sessionPhone = user?.phoneNumber?.trim() ?? '';
+    if (!sessionPhone) return;
+
+    setPhoneNumber((prev) => (prev ? prev : sessionPhone));
+  }, [user?.phoneNumber]);
 
   const handleCancel = () => {
     router.back();
