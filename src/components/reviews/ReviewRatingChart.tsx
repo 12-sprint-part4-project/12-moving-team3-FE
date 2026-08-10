@@ -35,7 +35,7 @@ export const ReviewRatingChart = ({
   return (
     <div
       className={cn(
-        'flex w-full flex-col items-center gap-10',
+        'flex w-full min-w-0 flex-col items-center gap-10',
         'md:flex-row md:items-center md:justify-center md:gap-14',
         'xl:gap-[5.1875rem] xl:rounded-[2rem] xl:bg-background-200 xl:px-16 xl:py-10',
         className
@@ -80,12 +80,13 @@ export const ReviewRatingChart = ({
         <span className="sr-only">평균 {averageLabel}점</span>
       </div>
 
-      {/* 점수 분포 — mobile/tablet만 별도 회색 카드, desktop은 바깥 카드에 포함 */}
+      {/* 점수 분포 — mobile/tablet만 별도 회색 카드, desktop은 바깥 카드에 포함
+          좁은 폭에서는 고정 너비 대신 max-w만 써서 바가 줄어들도록 함 */}
       <div
         className={cn(
-          'flex w-full max-w-[20.4375rem] flex-col items-stretch justify-center gap-1.5 rounded-3xl bg-background-200 px-[1.125rem] py-4',
-          'md:w-[20.4375rem] md:shrink-0',
-          'xl:w-auto xl:max-w-[30.625rem] xl:flex-1 xl:gap-3.5 xl:rounded-none xl:bg-transparent xl:p-0'
+          'flex w-full min-w-0 max-w-[20.4375rem] flex-col items-stretch justify-center gap-1.5 rounded-3xl bg-background-200 px-[1.125rem] py-4',
+          'md:min-w-0 md:flex-1',
+          'xl:max-w-[30.625rem] xl:gap-3.5 xl:rounded-none xl:bg-transparent xl:p-0'
         )}
       >
         {breakdown.map(({ score, count, isMajority }) => {
@@ -97,14 +98,16 @@ export const ReviewRatingChart = ({
             <div
               key={score}
               className={cn(
-                'flex w-full items-center gap-4',
+                'flex w-full min-w-0 items-center gap-4',
                 'xl:gap-[1.875rem]'
               )}
             >
               <p
                 className={cn(
                   'w-9 shrink-0 text-black-300',
-                  isMajority ? 'text-md-bold xl:text-xl-bold' : 'text-md-medium xl:text-xl-medium'
+                  isMajority
+                    ? 'text-md-bold xl:text-xl-bold'
+                    : 'text-md-medium xl:text-xl-medium'
                 )}
               >
                 {score}점
@@ -118,7 +121,9 @@ export const ReviewRatingChart = ({
               <p
                 className={cn(
                   'w-9 shrink-0 text-gray-300 xl:w-11',
-                  isMajority ? 'text-md-bold xl:text-xl-bold' : 'text-md-medium xl:text-xl-medium'
+                  isMajority
+                    ? 'text-md-bold xl:text-xl-bold'
+                    : 'text-md-medium xl:text-xl-medium'
                 )}
               >
                 {count}
