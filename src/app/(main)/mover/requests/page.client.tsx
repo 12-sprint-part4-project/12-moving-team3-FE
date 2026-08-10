@@ -1,6 +1,13 @@
 'use client';
 
-import { useEffect, useState, type ChangeEvent } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+} from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import { Button } from '@/components/Button/Button';
@@ -27,8 +34,17 @@ import {
 
 import { ReceivedRequestCard } from './_components/ReceivedRequestCard';
 import { RequestsEmptyState } from './_components/RequestsEmptyState';
+import { RequestsFilterResetButton } from './_components/RequestsFilterResetButton';
 import { RequestsMobileFilterModal } from './_components/RequestsMobileFilterModal';
 import { RequestsSidebarFilter } from './_components/RequestsSidebarFilter';
+import {
+  buildRequestsListHref,
+  DEFAULT_REQUESTS_LIST_URL_STATE,
+  isDefaultRequestsListUrlState,
+  isRequestsSortValue,
+  parseRequestsListSearchParams,
+  type RequestsListUrlState,
+} from './_lib/requestsListSearchParams';
 
 /** 정렬 옵션 정의 */
 const SORT_OPTIONS: { label: string; value: RequestsSortValue }[] = [
@@ -40,26 +56,52 @@ const SORT_OPTIONS: { label: string; value: RequestsSortValue }[] = [
 const SEARCH_DEBOUNCE_MS = 300;
 /** 데스크톱 필터 변경 API 조회 디바운스 지연(ms) */
 const FILTER_DEBOUNCE_MS = 200;
-/** 정렬 값 유효성 판별 */
-const isRequestsSortValue = (value: string): value is RequestsSortValue =>
-  value === 'moveDateAsc' || value === 'requestDateAsc';
 
 /** 받은 요청 페이지 클라이언트 — 검색·정렬·필터·목록 조회 */
 const MoverRequestsPageClient = () => {
-  const [searchValue, setSearchValue] = useState('');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const listFilters = useMemo(
+    () => parseRequestsListSearchParams(searchParams),
+    [searchParams]
+  );
+
+  const [searchDraft, setSearchDraft] = useState('');
+  const [isSearchDirty, setIsSearchDirty] = useState(false);
   const [isSearchFlushed, setIsSearchFlushed] = useState(false);
-  const [sortValue, setSortValue] = useState<RequestsSortValue>('moveDateAsc');
-  const [selectedMoveTypes, setSelectedMoveTypes] = useState<MoveTypeOption[]>(
-    () => [...ALL_MOVE_TYPES]
-  );
-  const [selectedScopes, setSelectedScopes] = useState<RequestScopeOption[]>(
-    () => [...ALL_SCOPES]
-  );
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [sendQuoteTarget, setSendQuoteTarget] =
     useState<ReceivedRequestCardModel | null>(null);
   const [rejectTarget, setRejectTarget] =
     useState<ReceivedRequestCardModel | null>(null);
+
+  const selectedMoveTypes = listFilters.moveTypes;
+  const selectedScopes = listFilters.scopes;
+  const sortValue = listFilters.sort;
+  const searchInputValue = isSearchDirty
+    ? searchDraft
+    : listFilters.keyword;
+
+  const replaceListFilters = useCallback(
+    (next: RequestsListUrlState) => {
+      router.replace(buildRequestsListHref(next), { scroll: false });
+    },
+    [router]
+  );
+
+  const handleMoveTypesChange = useCallback(
+    (moveTypes: MoveTypeOption[]) => {
+      replaceListFilters({ ...listFilters, moveTypes });
+    },
+    [listFilters, replaceListFilters]
+  );
+
+  const handleScopesChange = useCallback(
+    (scopes: RequestScopeOption[]) => {
+      replaceListFilters({ ...listFilters, scopes });
+    },
+    [listFilters, replaceListFilters]
+  );
 
   const {
     submitErrorMessage,
@@ -72,19 +114,47 @@ const MoverRequestsPageClient = () => {
   });
 
   /** 검색어, 이사 유형, 요청 범위 필터 디바운스 적용 */
-  const debouncedSearch = useDebouncedValue(searchValue, SEARCH_DEBOUNCE_MS);
+  const debouncedSearch = useDebouncedValue(
+    searchInputValue,
+    SEARCH_DEBOUNCE_MS
+  );
   const debouncedMoveTypes = useDebouncedValue(
     selectedMoveTypes,
     FILTER_DEBOUNCE_MS
   );
   const debouncedScopes = useDebouncedValue(selectedScopes, FILTER_DEBOUNCE_MS);
 
+  /** 입력 중인 검색어를 디바운스 후 URL에 반영 (새로고침 유지) */
+  useEffect(() => {
+    if (!isSearchDirty) {
+      return;
+    }
+
+    // 디바운스가 현재 입력값을 따라잡기 전에는 URL을 갱신하지 않음
+    if (debouncedSearch !== searchInputValue) {
+      return;
+    }
+
+    const nextKeyword = debouncedSearch.trim();
+    if (nextKeyword === listFilters.keyword) {
+      return;
+    }
+
+    replaceListFilters({ ...listFilters, keyword: nextKeyword });
+  }, [
+    debouncedSearch,
+    searchInputValue,
+    isSearchDirty,
+    listFilters,
+    replaceListFilters,
+  ]);
+
   /** API에 전달할 검색어 결정 */
   const queryKeyword =
-    searchValue.trim() === ''
+    searchInputValue.trim() === ''
       ? ''
       : isSearchFlushed
-        ? searchValue.trim()
+        ? searchInputValue.trim()
         : debouncedSearch.trim();
 
   /** 받은 요청 목록·필터 건수 조회 */
@@ -127,6 +197,12 @@ const MoverRequestsPageClient = () => {
     selectedMoveTypes.length !== ALL_MOVE_TYPES.length ||
     selectedScopes.length !== ALL_SCOPES.length;
 
+  /** 검색·필터·정렬 중 하나라도 기본값과 다르면 초기화 가능 */
+  const canResetFilters = !isDefaultRequestsListUrlState({
+    ...listFilters,
+    keyword: searchInputValue.trim(),
+  });
+
   /** 에러 메시지 결정 */
   const errorMessage =
     error instanceof ApiError
@@ -136,32 +212,49 @@ const MoverRequestsPageClient = () => {
   /** 검색 입력 반영 */
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setIsSearchFlushed(false);
-    setSearchValue(event.target.value);
+    setIsSearchDirty(true);
+    setSearchDraft(event.target.value);
   };
 
-  /** 검색 즉시 조회 */
+  /** 검색 즉시 조회 · URL 반영 */
   const handleSearch = () => {
-    setSearchValue(searchValue.trim());
+    const trimmed = searchInputValue.trim();
+    setSearchDraft(trimmed);
+    setIsSearchDirty(false);
     setIsSearchFlushed(true);
+    replaceListFilters({ ...listFilters, keyword: trimmed });
   };
 
   /** 검색어 초기화 */
   const handleSearchClear = () => {
-    setSearchValue('');
+    setSearchDraft('');
+    setIsSearchDirty(false);
     setIsSearchFlushed(false);
+    replaceListFilters({ ...listFilters, keyword: '' });
+  };
+
+  /** 검색·이사유형·필터·정렬 전체 초기화 */
+  const handleResetAll = () => {
+    setSearchDraft('');
+    setIsSearchDirty(false);
+    setIsSearchFlushed(false);
+    replaceListFilters({ ...DEFAULT_REQUESTS_LIST_URL_STATE });
   };
 
   /** 정렬 값 변경 */
   const handleSortChange = (value: string) => {
     if (isRequestsSortValue(value)) {
-      setSortValue(value);
+      replaceListFilters({ ...listFilters, sort: value });
     }
   };
 
   /** 모바일 필터 적용 */
   const handleFilterSubmit = (next: RequestsFilterState) => {
-    setSelectedMoveTypes(next.moveTypes);
-    setSelectedScopes(next.scopes);
+    replaceListFilters({
+      ...listFilters,
+      moveTypes: next.moveTypes,
+      scopes: next.scopes,
+    });
     setIsFilterModalOpen(false);
   };
 
@@ -261,8 +354,8 @@ const MoverRequestsPageClient = () => {
           selectedScopes={selectedScopes}
           moveTypeCounts={moveTypeCounts}
           scopeCounts={scopeCounts}
-          onMoveTypesChange={setSelectedMoveTypes}
-          onScopesChange={setSelectedScopes}
+          onMoveTypesChange={handleMoveTypesChange}
+          onScopesChange={handleScopesChange}
         />
 
         <div className="flex min-w-0 flex-1 flex-col gap-6 lg:gap-8">
@@ -271,12 +364,12 @@ const MoverRequestsPageClient = () => {
             <TextFieldSearch
               size="sm"
               className="w-full max-w-none lg:h-16 lg:gap-2 lg:px-6 lg:py-3.5 lg:[&_button]:size-9 lg:[&_input]:text-xl-regular lg:[&_svg]:size-9"
-              placeholder="어떤 고객님을 찾고 계세요?"
-              value={searchValue}
+              placeholder="고객명 또는 출발지·도착지로 검색해 보세요"
+              value={searchInputValue}
               onChange={handleSearchChange}
               onSearch={handleSearch}
               onClear={handleSearchClear}
-              aria-label="고객 검색"
+              aria-label="고객명·출발지·도착지 검색"
             />
 
             <div className="flex items-center justify-between gap-3">
@@ -290,6 +383,10 @@ const MoverRequestsPageClient = () => {
               </p>
 
               <div className="flex min-w-0 items-center gap-2">
+                <RequestsFilterResetButton
+                  onClick={handleResetAll}
+                  disabled={!canResetFilters}
+                />
                 {/* 모바일 정렬 렌더 */}
                 <div className="flex items-center md:hidden">
                   <Sort
