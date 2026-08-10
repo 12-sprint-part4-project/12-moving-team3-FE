@@ -1,11 +1,9 @@
 'use client';
 
-import Image from 'next/image';
 import { redirect, useRouter } from 'next/navigation';
 import { useId, useState, type FormEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
-import NoImageIcon from '@/assets/icons/no-image.svg';
 import { Button } from '@/components/Button/Button';
 import { RegionChip, ServiceChip } from '@/components/ui/Chip';
 import { TextFieldOutlined } from '@/components/ui/Input';
@@ -25,7 +23,6 @@ import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { getAuthSession } from '@/lib/authSession';
 import { uploadProfileImage } from '@/lib/uploadProfileImage';
-import { cn } from '@/lib/utils';
 import { upsertCustomerProfile } from '@/services/customerProfileApi';
 import type { CustomerProfileMe } from '@/types/customerProfile';
 
@@ -36,6 +33,7 @@ import {
 import { toggleService } from '../_lib/toggleService';
 import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
 import { ProfileImageCropModal } from './ProfileImageCropModal';
+import { ProfileImageField } from './ProfileImageField';
 
 /** Figma Mobile·Tablet: input sm / Desktop(lg+): md 높이·텍스트 */
 const FIELD_CLASSNAME =
@@ -74,14 +72,17 @@ const CustomerProfileEditFields = ({
   const confirmPasswordId = useId();
   const {
     imageInputRef,
-    previewUrl,
+    displayImageUrl,
     cropImageSrc,
     profileImageFile,
+    hasImageChange,
+    isImageCleared,
     handleImageChange,
     handleImageButtonClick,
+    handleImageClear,
     handleCropClose,
     handleCropComplete,
-  } = useProfileImageCrop();
+  } = useProfileImageCrop({ initialImageUrl: profile.profileImageUrl });
 
   const [name, setName] = useState(profile.name);
   const [nickname, setNickname] = useState(profile.nickname);
@@ -98,7 +99,6 @@ const CustomerProfileEditFields = ({
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const displayImageUrl = previewUrl ?? profile.profileImageUrl;
   const isSubmitEnabled =
     name.trim().length > 0 &&
     nickname.trim().length > 0 &&
@@ -125,7 +125,7 @@ const CustomerProfileEditFields = ({
       currentPassword,
       newPassword,
       confirmPassword,
-      hasImageChange: Boolean(profileImageFile),
+      hasImageChange,
     };
 
     const validationError = getCustomerProfileUpdateError(updateParams);
@@ -137,10 +137,12 @@ const CustomerProfileEditFields = ({
     setIsSubmitting(true);
 
     try {
-      let s3Key: string | undefined;
+      let s3Key: string | null | undefined;
 
       if (profileImageFile) {
         s3Key = await uploadProfileImage(profileImageFile);
+      } else if (isImageCleared) {
+        s3Key = null;
       }
 
       const body = buildCustomerProfileUpdateBody({
@@ -352,51 +354,15 @@ const CustomerProfileEditFields = ({
             />
 
             <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
-              <section className="flex flex-col items-start gap-4 lg:gap-6">
-                <h2 className={LABEL_CLASSNAME}>프로필 이미지</h2>
-                <input
-                  ref={imageInputRef}
-                  id={imageInputId}
-                  type="file"
-                  accept="image/*"
-                  className="sr-only"
-                  onChange={handleImageChange}
-                />
-                <button
-                  type="button"
-                  onClick={handleImageButtonClick}
-                  aria-label="프로필 이미지 업로드"
-                  className={cn(
-                    'relative flex size-[6.25rem] cursor-pointer items-center justify-center overflow-hidden rounded-md bg-background-200 lg:size-40',
-                    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300'
-                  )}
-                >
-                  {displayImageUrl ? (
-                    displayImageUrl.startsWith('blob:') ||
-                    displayImageUrl.startsWith('data:') ? (
-                      // eslint-disable-next-line @next/next/no-img-element -- blob/data 미리보기는 next/image 미지원
-                      <img
-                        src={displayImageUrl}
-                        alt="프로필 이미지"
-                        className="size-full object-cover"
-                      />
-                    ) : (
-                      <Image
-                        src={displayImageUrl}
-                        alt="프로필 이미지"
-                        fill
-                        sizes="(min-width: 64rem) 160px, 100px"
-                        className="object-cover"
-                      />
-                    )
-                  ) : (
-                    <NoImageIcon
-                      className="size-8 text-gray-300 lg:size-10"
-                      aria-hidden
-                    />
-                  )}
-                </button>
-              </section>
+              <ProfileImageField
+                imageInputId={imageInputId}
+                imageInputRef={imageInputRef}
+                displayImageUrl={displayImageUrl}
+                labelClassName={LABEL_CLASSNAME}
+                onImageChange={handleImageChange}
+                onImageButtonClick={handleImageButtonClick}
+                onImageClear={handleImageClear}
+              />
 
               <div className="h-px w-full bg-line-100" aria-hidden />
 
