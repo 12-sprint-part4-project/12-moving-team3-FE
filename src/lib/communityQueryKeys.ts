@@ -10,6 +10,8 @@ export const communityQueryKeys = {
     [...communityQueryKeys.details(), postId] as const,
   comments: () => [...communityQueryKeys.all, 'comments'] as const,
   commentLists: () => [...communityQueryKeys.comments(), 'list'] as const,
+  commentListsByPost: (postId: number) =>
+    [...communityQueryKeys.commentLists(), postId] as const,
   commentList: (postId: number, query: CommentListParams) =>
     [...communityQueryKeys.commentLists(), postId, query] as const,
   neighborLists: () => [...communityQueryKeys.all, 'neighbors'] as const,

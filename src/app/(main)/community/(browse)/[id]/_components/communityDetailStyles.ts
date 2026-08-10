@@ -48,9 +48,9 @@ export const COMMUNITY_SHARE_BUTTON_CLASS =
 export const COMMUNITY_DETAIL_READING_TEXT_CLASS =
   'text-md-regular text-black-400 min-[46.5rem]:text-lg-regular xl:text-2lg-regular';
 
-/** 상세 본문 prose — 링크·목록만, 제목·굵게는 본문과 동일 굵기 */
+/** 상세 본문 prose — 링크·목록 스타일 */
 export const COMMUNITY_DETAIL_BODY_PROSE_CLASS =
-  '[&_a]:text-blue-300 [&_a]:underline [&_b]:font-normal [&_strong]:font-normal [&_h1]:font-normal [&_h2]:font-normal [&_h3]:font-normal [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5';
+  '[&_a]:text-blue-300 [&_a]:underline [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5';
 
 /** 본문 — 마크다운 (읽기 텍스트와 댓글 본문 크기·굵기 통일) */
 export const COMMUNITY_DETAIL_BODY_MARKDOWN_CLASS = [
