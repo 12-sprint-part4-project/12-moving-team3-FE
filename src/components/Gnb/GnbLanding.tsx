@@ -72,7 +72,7 @@ export const GnbLanding = ({
               aria-current={isFindDriverActive ? 'page' : undefined}
               className={cn(
                 'text-2lg-bold',
-                isFindDriverActive ? 'text-gray-400' : 'text-black-400'
+                isFindDriverActive ? 'text-black-400' : 'text-gray-400'
               )}
             >
               기사님 찾기
@@ -82,7 +82,7 @@ export const GnbLanding = ({
               aria-current={isCommunityActive ? 'page' : undefined}
               className={cn(
                 'text-2lg-bold',
-                isCommunityActive ? 'text-gray-400' : 'text-black-400'
+                isCommunityActive ? 'text-black-400' : 'text-gray-400'
               )}
             >
               커뮤니티

@@ -23,6 +23,7 @@ export interface ReviewListSectionProps<T> {
 /**
  * 이사 리뷰 탭 목록 공통 레이아웃.
  * 스피너·에러·empty·그리드·반응형 페이지네이션을 한곳에서 렌더한다.
+ * 목록이 짧을 때도 페이지네이션은 패널 하단에 붙는다 (mt-auto).
  */
 export const ReviewListSection = <T,>({
   items,
@@ -38,7 +39,7 @@ export const ReviewListSection = <T,>({
   totalPages,
   onPageChange,
 }: ReviewListSectionProps<T>) => (
-  <>
+  <div className="flex min-h-0 flex-1 flex-col">
     {isPending && items.length === 0 ? (
       <Spinner message={pendingMessage} />
     ) : null}
@@ -64,23 +65,25 @@ export const ReviewListSection = <T,>({
           {items.map((item) => renderItem(item))}
         </div>
 
-        <div className="flex justify-center pt-2">
-          <Pagination
-            size="sm"
-            page={page}
-            totalPages={Math.max(1, totalPages)}
-            onPageChange={onPageChange}
-            className="xl:hidden"
-          />
-          <Pagination
-            size="lg"
-            page={page}
-            totalPages={Math.max(1, totalPages)}
-            onPageChange={onPageChange}
-            className="hidden xl:flex"
-          />
+        <div className="mt-auto flex justify-center pt-6">
+          <div className="contents xl:hidden">
+            <Pagination
+              size="sm"
+              page={page}
+              totalPages={Math.max(1, totalPages)}
+              onPageChange={onPageChange}
+            />
+          </div>
+          <div className="hidden xl:contents">
+            <Pagination
+              size="lg"
+              page={page}
+              totalPages={Math.max(1, totalPages)}
+              onPageChange={onPageChange}
+            />
+          </div>
         </div>
       </>
     ) : null}
-  </>
+  </div>
 );

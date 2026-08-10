@@ -22,5 +22,5 @@ export { ReviewsEmptyState } from './ReviewsEmptyState';
 export type { ReviewsEmptyStateProps } from './ReviewsEmptyState';
 export { ReviewListSection } from './ReviewListSection';
 export type { ReviewListSectionProps } from './ReviewListSection';
-export { ReviewsTabs } from './ReviewsTabs';
+export { ReviewsTabs, REVIEWS_PAGE_X_PADDING } from './ReviewsTabs';
 export type { ReviewsPageTab, ReviewsTabsProps } from './ReviewsTabs';
