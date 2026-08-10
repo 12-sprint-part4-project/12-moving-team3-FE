@@ -145,18 +145,23 @@ export interface QuotesPageContentSkeletonProps {
   className?: string;
   tabsClassName?: string;
   contentClassName?: string;
+  /** false면 탭 스켈레톤 없이 목록만 */
+  withTabs?: boolean;
 }
 
 /**
- * 탭 + 목록 본문 스켈레톤 — Suspense fallback용
+ * 목록 본문 스켈레톤 — Suspense fallback용
  */
 export const QuotesPageContentSkeleton = ({
   className,
   tabsClassName,
   contentClassName,
+  withTabs = true,
 }: QuotesPageContentSkeletonProps) => (
   <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden">
-    <QuotesTabsSkeleton className={cn(className, tabsClassName)} />
+    {withTabs ? (
+      <QuotesTabsSkeleton className={cn(className, tabsClassName)} />
+    ) : null}
     <div className="min-h-0 w-full flex-1 bg-background-200">
       <div
         className={cn(
