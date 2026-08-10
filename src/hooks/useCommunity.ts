@@ -10,6 +10,8 @@ import {
 } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 
+import { useAuth } from '@/hooks/useAuth';
+
 import { findPostNeighborsInListCache } from '@/lib/communityPostNeighbors';
 import { communityQueryKeys } from '@/lib/communityQueryKeys';
 
@@ -35,8 +37,11 @@ import {
   updatePost,
 } from '@/services/communityApi';
 import type {
+  CommentItem,
   CommentListMeta,
   CommentListParams,
+  CommentListResponse,
+  CommentWithReplies,
   CreateCommentBody,
   CreatePostBody,
   CreateReplyBody,
@@ -363,7 +368,41 @@ export const useTogglePostLike = () => {
       }
       return unlikePost(postId);
     },
-    onSuccess: async (_data, { postId }) => {
+    onMutate: async ({ postId, nextLiked }) => {
+      await queryClient.cancelQueries({
+        queryKey: communityQueryKeys.detail(postId),
+      });
+
+      const previousDetail = queryClient.getQueryData<PostDetailResponse>(
+        communityQueryKeys.detail(postId)
+      );
+
+      queryClient.setQueryData<PostDetailResponse>(
+        communityQueryKeys.detail(postId),
+        (prev) => {
+          if (!prev?.data) return prev;
+          return {
+            ...prev,
+            data: {
+              ...prev.data,
+              isLiked: nextLiked,
+              likeCount: prev.data.likeCount + (nextLiked ? 1 : -1),
+            },
+          };
+        }
+      );
+
+      return { previousDetail };
+    },
+    onError: (_err, { postId }, context) => {
+      if (context?.previousDetail !== undefined) {
+        queryClient.setQueryData(
+          communityQueryKeys.detail(postId),
+          context.previousDetail
+        );
+      }
+    },
+    onSettled: async (_data, _err, { postId }) => {
       await invalidatePostSummary(queryClient, postId);
     },
   });
@@ -388,10 +427,60 @@ export const useTogglePostLike = () => {
 /** 댓글 작성 */
 export const useCreateComment = (postId: number) => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: (body: CreateCommentBody) => createComment(postId, body),
-    onSuccess: async () => {
+    onMutate: async ({ content }) => {
+      const commentListKey = [...communityQueryKeys.commentLists(), postId];
+      await queryClient.cancelQueries({ queryKey: commentListKey });
+
+      const previousComments = queryClient.getQueriesData<
+        InfiniteData<CommentListResponse>
+      >({ queryKey: commentListKey });
+
+      if (user) {
+        const tempComment: CommentWithReplies = {
+          id: -Date.now(),
+          content,
+          author: {
+            id: user.id,
+            nickname: user.nickname,
+            profileImageUrl: null,
+          },
+          isMine: true,
+          createdAt: new Date().toISOString(),
+          replies: [],
+        };
+
+        queryClient.setQueriesData<InfiniteData<CommentListResponse>>(
+          { queryKey: commentListKey },
+          (prev) => {
+            if (!prev?.pages.length) return prev;
+            const pages = [...prev.pages];
+            const lastPage = pages[pages.length - 1];
+            pages[pages.length - 1] = {
+              ...lastPage,
+              data: {
+                ...lastPage.data,
+                items: [...lastPage.data.items, tempComment],
+              },
+            };
+            return { ...prev, pages };
+          }
+        );
+      }
+
+      return { previousComments };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousComments) {
+        for (const [key, data] of context.previousComments) {
+          queryClient.setQueryData(key, data);
+        }
+      }
+    },
+    onSettled: async () => {
       await invalidatePostEngagement(queryClient, postId);
     },
   });
@@ -400,11 +489,67 @@ export const useCreateComment = (postId: number) => {
 /** 대댓글 작성 */
 export const useCreateReply = (postId: number) => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: ({ commentId, content }: CreateReplyBody) =>
       createReply(postId, commentId, { content }),
-    onSuccess: async () => {
+    onMutate: async ({ commentId, content }) => {
+      const commentListKey = [...communityQueryKeys.commentLists(), postId];
+      await queryClient.cancelQueries({ queryKey: commentListKey });
+
+      const previousComments = queryClient.getQueriesData<
+        InfiniteData<CommentListResponse>
+      >({ queryKey: commentListKey });
+
+      if (user) {
+        const tempReply: CommentItem = {
+          id: -Date.now(),
+          content,
+          author: {
+            id: user.id,
+            nickname: user.nickname,
+            profileImageUrl: null,
+          },
+          isMine: true,
+          createdAt: new Date().toISOString(),
+        };
+
+        queryClient.setQueriesData<InfiniteData<CommentListResponse>>(
+          { queryKey: commentListKey },
+          (prev) => {
+            if (!prev?.pages.length) return prev;
+            return {
+              ...prev,
+              pages: prev.pages.map((page) => ({
+                ...page,
+                data: {
+                  ...page.data,
+                  items: page.data.items.map((comment) =>
+                    comment.id === commentId
+                      ? {
+                          ...comment,
+                          replies: [...comment.replies, tempReply],
+                        }
+                      : comment
+                  ),
+                },
+              })),
+            };
+          }
+        );
+      }
+
+      return { previousComments };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousComments) {
+        for (const [key, data] of context.previousComments) {
+          queryClient.setQueryData(key, data);
+        }
+      }
+    },
+    onSettled: async () => {
       await invalidatePostEngagement(queryClient, postId);
     },
   });
@@ -416,7 +561,48 @@ export const useDeleteComment = (postId: number) => {
 
   return useMutation({
     mutationFn: (commentId: number) => deleteComment(postId, commentId),
-    onSuccess: async () => {
+    onMutate: async (commentId) => {
+      const commentListKey = [...communityQueryKeys.commentLists(), postId];
+      await queryClient.cancelQueries({ queryKey: commentListKey });
+
+      const previousComments = queryClient.getQueriesData<
+        InfiniteData<CommentListResponse>
+      >({ queryKey: commentListKey });
+
+      queryClient.setQueriesData<InfiniteData<CommentListResponse>>(
+        { queryKey: commentListKey },
+        (prev) => {
+          if (!prev?.pages.length) return prev;
+          return {
+            ...prev,
+            pages: prev.pages.map((page) => ({
+              ...page,
+              data: {
+                ...page.data,
+                items: page.data.items
+                  .filter((comment) => comment.id !== commentId)
+                  .map((comment) => ({
+                    ...comment,
+                    replies: comment.replies.filter(
+                      (reply) => reply.id !== commentId
+                    ),
+                  })),
+              },
+            })),
+          };
+        }
+      );
+
+      return { previousComments };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousComments) {
+        for (const [key, data] of context.previousComments) {
+          queryClient.setQueryData(key, data);
+        }
+      }
+    },
+    onSettled: async () => {
       await invalidatePostEngagement(queryClient, postId);
     },
   });
