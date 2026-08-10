@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-import { Button, getButtonClassName } from '@/components/Button/Button';
+import { Button } from '@/components/Button/Button';
 import { MoverProfileBlock } from '@/components/movers/MoverProfileBlock';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
@@ -38,11 +38,11 @@ const FIELD_LABEL_CLASS =
 const FIELD_VALUE_CLASS = 'text-md-medium text-black-300 lg:text-2lg-medium';
 
 const CTA_CLASS =
-  'h-12 w-full rounded-lg text-lg-semibold md:flex-1 lg:h-16 lg:rounded-2xl lg:text-xl-semibold';
+  'h-12 min-w-0 flex-1 rounded-lg text-lg-semibold lg:h-16 lg:rounded-2xl lg:text-xl-semibold';
 
 /**
  * `/quotes` 대기 중인 견적 카드.
- * 하단 CTA: [견적 확정하기][상세보기][채팅하기] — 금액 옆이 아님.
+ * 하단 CTA: 1줄 [견적 확정하기 solid][채팅하기 outlined] / 2줄 [상세보기 텍스트].
  * 지정 견적인데 designatedMoverId 없으면 채팅 CTA 숨김.
  */
 export const PendingQuoteCard = ({
@@ -164,44 +164,39 @@ export const PendingQuoteCard = ({
         </p>
       </div>
 
-      {/* CTA — Mobile 세로 / Tablet·Desktop 가로 */}
-      <div className="flex w-full flex-col gap-2 md:flex-row lg:gap-[0.6875rem]">
-        <Button
-          size="md"
-          variant="solid"
-          className={CTA_CLASS}
-          disabled={isConfirming}
-          onClick={handleConfirm}
-          aria-label={`${quote.mover.name} 기사님 견적 확정하기`}
-        >
-          {isConfirmingThis ? '확정 중...' : '견적 확정하기'}
-        </Button>
+      {/* CTA — 1줄 확정·채팅 / 2줄 상세보기(텍스트) */}
+      <div className="flex w-full flex-col gap-2 lg:gap-3">
+        <div className="flex w-full gap-2 lg:gap-[0.6875rem]">
+          <Button
+            size="md"
+            variant="solid"
+            className={CTA_CLASS}
+            disabled={isConfirming}
+            onClick={handleConfirm}
+            aria-label={`${quote.mover.name} 기사님 견적 확정하기`}
+          >
+            {isConfirmingThis ? '확정 중...' : '견적 확정하기'}
+          </Button>
+          {canStartChat ? (
+            <Button
+              size="md"
+              variant="outlined"
+              className={CTA_CLASS}
+              disabled={isConfirming || isChatPending}
+              onClick={handleChatClick}
+              aria-label={`${quote.mover.nickname} 기사님과 채팅하기`}
+            >
+              {isChatPending ? '연결 중...' : '채팅하기'}
+            </Button>
+          ) : null}
+        </div>
         <Link
           href={detailHref}
-          className={getButtonClassName({
-            size: 'md',
-            variant: 'outlined',
-            className: cn(
-              CTA_CLASS,
-              'focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:outline-none'
-            ),
-          })}
+          className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center py-2 text-center text-md-medium text-blue-300 hover:underline focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:outline-none active:text-blue-200 lg:text-lg-medium"
           aria-label={`${quote.mover.name} 기사님 견적 상세보기`}
         >
           상세보기
         </Link>
-        {canStartChat ? (
-          <Button
-            size="md"
-            variant="outlined"
-            className={CTA_CLASS}
-            disabled={isConfirming || isChatPending}
-            onClick={handleChatClick}
-            aria-label={`${quote.mover.nickname} 기사님과 채팅하기`}
-          >
-            {isChatPending ? '연결 중...' : '채팅하기'}
-          </Button>
-        ) : null}
       </div>
     </article>
   );
