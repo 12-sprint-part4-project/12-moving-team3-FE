@@ -28,8 +28,8 @@ import { formatReviewMoveDate } from '@/lib/reviewDisplay';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
 import type { CustomerReviewItem, WritableQuoteItem } from '@/types/review';
 
-/** 내 견적 관리와 동일한 본문 컨테이너 */
-const CONTENT_CLASS = `mx-auto w-full max-w-[1920px] py-6 md:py-8 lg:py-10 ${REVIEWS_PAGE_X_PADDING}`;
+/** 내 견적 관리와 동일한 본문 컨테이너 — 패널 높이 채움(페이지네이션 mt-auto용) */
+const CONTENT_CLASS = `mx-auto flex min-h-0 w-full max-w-[1920px] flex-1 flex-col py-6 md:py-8 lg:py-10 ${REVIEWS_PAGE_X_PADDING}`;
 
 /** 이사 리뷰 — 작성 가능 / 내가 작성한 리뷰 + 모달 */
 export const ReviewsPageClient = () => {
@@ -195,12 +195,13 @@ export const ReviewsPageClient = () => {
     <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden">
       <ReviewsTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <div className="min-h-0 w-full flex-1 bg-background-200">
+      <div className="flex min-h-0 w-full flex-1 flex-col bg-background-200">
         <div
           role="tabpanel"
           id="reviews-panel-writable"
           aria-labelledby="reviews-tab-writable"
           hidden={activeTab !== 'writable'}
+          className="flex min-h-0 flex-1 flex-col"
         >
           <div className={CONTENT_CLASS}>
             <ReviewListSection
@@ -233,6 +234,7 @@ export const ReviewsPageClient = () => {
           id="reviews-panel-written"
           aria-labelledby="reviews-tab-written"
           hidden={activeTab !== 'written'}
+          className="flex min-h-0 flex-1 flex-col"
         >
           <div className={CONTENT_CLASS}>
             <ReviewListSection
