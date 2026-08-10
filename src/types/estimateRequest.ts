@@ -43,6 +43,8 @@ export interface EstimateRequestListItem {
     regionLabel: string | null;
   };
   isDesignated: boolean;
+  /** EstimateDesignatedMover.id — 지정 채팅방 생성용. 비지정이면 null */
+  designatedMoverId: number | null;
   submittedAt: string | null;
   quoteCount?: {
     designated: number;
@@ -79,6 +81,7 @@ export interface ReceivedRequestCardModel {
   customerName: string;
   moveType: MoveTypeOption | null;
   isDesignated: boolean;
+  designatedMoverId: number | null;
   requestedAgo: string;
   moveDate: string;
   departure: string;

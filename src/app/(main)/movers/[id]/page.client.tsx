@@ -10,6 +10,7 @@ import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useDesignatedEstimateRequest } from '@/hooks/useDesignatedEstimateRequest';
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useMoverDetail } from '@/hooks/useMoverDetail';
+import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 
@@ -39,6 +40,8 @@ export const MoverDetailPageClient = () => {
   const {
     isPending: isDesignatedPending,
     isAlreadyDesignated,
+    designatedMoverId,
+    estimateRequestId,
     hasReceivedQuoteFromMover,
     isQuoteStatusError,
     isStatusLoading: isDesignatedStatusLoading,
@@ -49,11 +52,22 @@ export const MoverDetailPageClient = () => {
     requestDesignatedEstimate,
   } = useDesignatedEstimateRequest(moverId);
 
+  const { startEstimateChat, isChatPending } = useStartEstimateChat();
+
   const { mover, isPending, isError, error, isNotFound, refetch } =
     useMoverDetail(moverId);
 
   /** 기사 계정은 지정 견적 CTA 숨김. 게스트·고객은 표시 */
   const showDesignatedCta = user?.userType !== 'MOVER';
+  /**
+   * `/movers/[id]` — SUBMITTED 후 지정만 한 기사와 DESIGNATED 채팅.
+   * 지정 완료 + designatedMoverId 있을 때만 CTA 노출 (지정 전 숨김).
+   */
+  const showChatCta =
+    showDesignatedCta &&
+    isAlreadyDesignated &&
+    designatedMoverId != null &&
+    estimateRequestId != null;
 
   const handleDesignatedQuoteClick = () => {
     if (!user) {
@@ -67,6 +81,30 @@ export const MoverDetailPageClient = () => {
     }
 
     requestDesignatedEstimate();
+  };
+
+  /** 지정 행 id로 DESIGNATED 방 생성·재진입 후 `/chat/{roomId}` */
+  const handleChatClick = () => {
+    if (!user) {
+      openLoginModal();
+      return;
+    }
+
+    if (!user.isProfileCompleted) {
+      openProfileModal();
+      return;
+    }
+
+    if (designatedMoverId == null || estimateRequestId == null) {
+      return;
+    }
+
+    startEstimateChat({
+      moverId,
+      isDesignated: true,
+      estimateRequestId,
+      designatedMoverId,
+    });
   };
 
   const handleRetry = () => {
@@ -161,6 +199,9 @@ export const MoverDetailPageClient = () => {
           hasReceivedQuoteFromMover={hasReceivedQuoteFromMover}
           isQuoteStatusError={isQuoteStatusError}
           isDesignatedStatusLoading={isDesignatedStatusLoading}
+          showChatCta={showChatCta}
+          onChatClick={handleChatClick}
+          isChatPending={isChatPending}
         />
       </div>
 
@@ -177,6 +218,9 @@ export const MoverDetailPageClient = () => {
         hasReceivedQuoteFromMover={hasReceivedQuoteFromMover}
         isQuoteStatusError={isQuoteStatusError}
         isDesignatedStatusLoading={isDesignatedStatusLoading}
+        showChatCta={showChatCta}
+        onChatClick={handleChatClick}
+        isChatPending={isChatPending}
       />
 
       <LoginRequiredModal open={isLoginModalOpen} onClose={closeAuthModal} />

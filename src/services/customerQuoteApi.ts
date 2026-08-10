@@ -18,6 +18,7 @@ import {
   formatRelativeTime,
   formatShortDateLabel,
 } from '@/lib/formatDate';
+import { isEstimateRequestClosedForChat } from '@/lib/startEstimateChat';
 import { formatDistrictLabel } from '@/services/estimateRequestApi';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
 import type {
@@ -76,6 +77,7 @@ const requestCustomerQuoteJson = async <T>(
 };
 
 interface PendingRequestContext {
+  estimateRequestId: number;
   serviceType: ApiMoveType | null;
   moveDate: string | null;
   fromAddress: string | null;
@@ -147,10 +149,12 @@ export const toPendingQuoteCardModel = (
   request: PendingRequestContext
 ): PendingQuoteCardModel => ({
   quoteId: item.quoteId,
+  estimateRequestId: request.estimateRequestId,
   moveType: request.serviceType
     ? API_MOVE_TYPE_TO_UI[request.serviceType]
     : null,
   isDesignated: item.isDesignated,
+  designatedMoverId: item.designatedMoverId ?? null,
   moveDate: formatMoveDateLabel(request.moveDate),
   departure: request.fromAddress ?? '-',
   arrival: request.toAddress ?? '-',
@@ -205,10 +209,13 @@ export const toHistoryQuoteCardModels = (
     .filter((item) => item.status === 'CONFIRMED')
     .map((item) => ({
       quoteId: item.quoteId,
+      estimateRequestId: group.estimateRequestId,
+      moverId: item.mover.moverId,
       moverName: item.mover.nickname,
       moveType,
       isConfirmed: true,
       isDesignated: item.isDesignated,
+      designatedMoverId: item.designatedMoverId ?? null,
       moveDate,
       departure,
       arrival,
@@ -252,6 +259,7 @@ export const toPendingQuotesPageModel = (
   }
 
   const requestContext: PendingRequestContext = {
+    estimateRequestId: data.estimateRequestId,
     serviceType: data.serviceType,
     moveDate: data.moveDate,
     fromAddress: data.fromAddress,
@@ -277,15 +285,22 @@ export const toCustomerQuoteDetailViewModel = (
   const isPending = detail.status === 'PENDING';
   const isConfirmed = detail.status === 'CONFIRMED';
   const canConfirm = isPending && detail.estimateRequestStatus === 'SUBMITTED';
+  /** `/quotes/[quoteId]` 채팅 CTA — 닫힌 요청·지정인데 id 없으면 숨김 */
+  const canStartChat =
+    !isEstimateRequestClosedForChat(detail.estimateRequestStatus) &&
+    (!detail.isDesignated || detail.designatedMoverId != null);
 
   return {
     quoteId: detail.quoteId,
     estimateRequestId: detail.estimateRequestId,
     moveType,
     isDesignated: detail.isDesignated,
+    designatedMoverId: detail.designatedMoverId ?? null,
+    estimateRequestStatus: detail.estimateRequestStatus,
     isPending,
     isConfirmed,
     canConfirm,
+    canStartChat,
     showUnconfirmedBanner: isPending && !canConfirm,
     priceLabel: formatQuotePriceLabel(detail.price),
     comment: detail.comment,

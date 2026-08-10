@@ -20,6 +20,10 @@ export interface MoverDetailSidebarProps {
   hasReceivedQuoteFromMover?: boolean;
   isQuoteStatusError?: boolean;
   isDesignatedStatusLoading?: boolean;
+  /** `/movers/[id]` 데스크톱: 지정 CTA 아래 `채팅하기` (지정 완료 후에만) */
+  showChatCta?: boolean;
+  onChatClick?: () => void;
+  isChatPending?: boolean;
   description?: string | null;
   profileImageUrl?: string | null;
   className?: string;
@@ -38,6 +42,9 @@ export const MoverDetailSidebar = ({
   hasReceivedQuoteFromMover = false,
   isQuoteStatusError = false,
   isDesignatedStatusLoading = false,
+  showChatCta = false,
+  onChatClick,
+  isChatPending = false,
   description = null,
   profileImageUrl = null,
   className = '',
@@ -87,6 +94,18 @@ export const MoverDetailSidebar = ({
               isDesignatedStatusLoading,
               isQuoteStatusError
             )}
+          </Button>
+        ) : null}
+        {showChatCta ? (
+          <Button
+            type="button"
+            variant="outlined"
+            size="md"
+            onClick={onChatClick}
+            disabled={isChatPending}
+            aria-busy={isChatPending}
+          >
+            {isChatPending ? '연결 중...' : '채팅하기'}
           </Button>
         ) : null}
       </div>

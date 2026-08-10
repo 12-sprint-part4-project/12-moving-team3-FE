@@ -7,23 +7,33 @@ import { cn } from '@/lib/utils';
 export interface CustomerQuoteDetailActionsProps {
   /** 확정 CTA 노출 (활성 SUBMITTED + PENDING) */
   canConfirm: boolean;
+  /**
+   * `/quotes/[quoteId]` 모바일 하단바 `채팅하기`.
+   * 데스크톱 채팅 CTA는 페이지에서 공유 버튼 아래에 별도 배치.
+   */
+  canStartChat?: boolean;
   isConfirming: boolean;
+  isChatPending?: boolean;
   isFavorited: boolean;
   isFavoritePending?: boolean;
   onConfirm: () => void;
+  onChatClick?: () => void;
   onToggleFavorite: () => void;
-  /** desktop=사이드바 CTA / mobile=하단 고정바 */
+  /** desktop=사이드바 확정 CTA / mobile=하단 고정바 */
   variant: 'desktop' | 'mobile';
   className?: string;
 }
 
-/** 견적 상세 확정·찜 액션 */
+/** 견적 상세 확정·찜·채팅 액션 */
 export const CustomerQuoteDetailActions = ({
   canConfirm,
+  canStartChat = false,
   isConfirming,
+  isChatPending = false,
   isFavorited,
   isFavoritePending = false,
   onConfirm,
+  onChatClick,
   onToggleFavorite,
   variant,
   className = '',
@@ -47,8 +57,8 @@ export const CustomerQuoteDetailActions = ({
     );
   }
 
-  // 확정 불가면 하단 고정바를 숨김
-  if (!canConfirm) {
+  // 확정·채팅 모두 없으면 하단 고정바 숨김
+  if (!canConfirm && !canStartChat) {
     return null;
   }
 
@@ -60,21 +70,46 @@ export const CustomerQuoteDetailActions = ({
       )}
     >
       <div className="mx-auto flex w-full max-w-[37.5rem] items-center gap-2">
-        <FavoriteButton
-          variant="icon-only"
-          isFavorited={isFavorited}
-          isPending={isFavoritePending}
-          onClick={onToggleFavorite}
-        />
-        <Button
-          size="sm"
-          variant="solid"
-          className="flex-1"
-          disabled={isConfirming}
-          onClick={onConfirm}
-        >
-          {isConfirming ? '확정 중...' : '견적 확정하기'}
-        </Button>
+        {canConfirm ? (
+          <>
+            <FavoriteButton
+              variant="icon-only"
+              isFavorited={isFavorited}
+              isPending={isFavoritePending}
+              onClick={onToggleFavorite}
+            />
+            <Button
+              size="sm"
+              variant="solid"
+              className="flex-1"
+              disabled={isConfirming}
+              onClick={onConfirm}
+            >
+              {isConfirming ? '확정 중...' : '견적 확정하기'}
+            </Button>
+            {canStartChat ? (
+              <Button
+                size="sm"
+                variant="outlined"
+                className="flex-1"
+                disabled={isChatPending}
+                onClick={onChatClick}
+              >
+                {isChatPending ? '연결 중...' : '채팅하기'}
+              </Button>
+            ) : null}
+          </>
+        ) : (
+          <Button
+            size="sm"
+            variant="solid"
+            className="w-full"
+            disabled={isChatPending}
+            onClick={onChatClick}
+          >
+            {isChatPending ? '연결 중...' : '채팅하기'}
+          </Button>
+        )}
       </div>
     </div>
   );

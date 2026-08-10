@@ -16,7 +16,9 @@ import {
 } from '@/hooks/useCustomerPastQuotes';
 import { useCustomerPendingQuotes } from '@/hooks/useCustomerPendingQuotes';
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';
+import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 import { ApiError } from '@/lib/apiClient';
+import type { PendingQuoteCardModel } from '@/types/customerQuote';
 
 import { ConfirmQuoteModal } from './_components/ConfirmQuoteModal';
 import { PendingQuoteCard } from './_components/PendingQuoteCard';
@@ -113,6 +115,19 @@ const CustomerQuotesPageClient = () => {
     submitConfirm,
   } = useConfirmQuoteModal(goToHistory);
 
+  /** `/quotes` 대기 카드 → 해당 기사와 GENERAL/DESIGNATED 방 열고 채팅 화면 이동 */
+  const { startEstimateChat, isChatPending } = useStartEstimateChat();
+
+  const handlePendingChatClick = (quote: PendingQuoteCardModel) => {
+    startEstimateChat({
+      moverId: quote.mover.moverId,
+      isDesignated: quote.isDesignated,
+      estimateRequestId: quote.estimateRequestId,
+      designatedMoverId: quote.designatedMoverId,
+      quoteId: quote.quoteId,
+    });
+  };
+
   /** 에러 메시지 추출 */
   const errorMessage =
     error instanceof ApiError
@@ -195,7 +210,9 @@ const CustomerQuotesPageClient = () => {
                     quote={quote}
                     isConfirming={isConfirming}
                     isConfirmingThis={confirmingQuoteId === quote.quoteId}
+                    isChatPending={isChatPending}
                     onConfirm={openConfirmModal}
+                    onChatClick={handlePendingChatClick}
                     onFavoriteClick={handleFavoriteClick}
                     isFavoritePending={isMoverPending(quote.mover.moverId)}
                   />

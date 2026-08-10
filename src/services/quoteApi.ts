@@ -10,6 +10,7 @@ import {
   quoteListResponseSchema,
   quoteSubmitResponseSchema,
 } from '@/lib/quoteSchema';
+import { isEstimateRequestClosedForChat } from '@/lib/startEstimateChat';
 import { formatDistrictLabel } from '@/services/estimateRequestApi';
 import { API_MOVE_TYPE_TO_UI, MOVE_TYPE_LABELS } from '@/types/estimateRequest';
 import type {
@@ -82,16 +83,25 @@ export const toQuoteDetailViewModel = (
   const moveType = detail.moveType
     ? API_MOVE_TYPE_TO_UI[detail.moveType]
     : null;
+  const isRejected = detail.status === 'REJECTED';
+  /** `/mover/quotes/[quoteId]` 채팅 CTA — 반려·닫힌 요청·지정 id 없으면 숨김 */
+  const canStartChat =
+    !isRejected &&
+    !isEstimateRequestClosedForChat(detail.estimateRequestStatus) &&
+    (!detail.isDesignated || detail.designatedMoverId != null);
 
   return {
     id: detail.id,
+    estimateRequestId: detail.estimateRequestId,
     customerName: detail.customer.name,
     moveType,
     isConfirmed: detail.status === 'CONFIRMED',
-    isRejected: detail.status === 'REJECTED',
+    isRejected,
     isDesignated: detail.isDesignated,
+    designatedMoverId: detail.designatedMoverId ?? null,
     estimateRequestStatus: detail.estimateRequestStatus,
     isMoveCompleted: detail.isMoveCompleted,
+    canStartChat,
     priceLabel: formatQuotePriceLabel(detail.price),
     rejectReason: detail.rejectReason,
     requestedAtLabel: formatShortDateLabel(detail.requestedAt),
@@ -236,6 +246,9 @@ const isQuoteDetailResponse = (body: unknown): body is QuoteDetailResponse => {
     typeof detail.status === 'string' &&
     typeof detail.estimateRequestStatus === 'string' &&
     typeof detail.isMoveCompleted === 'boolean' &&
+    typeof detail.isDesignated === 'boolean' &&
+    (detail.designatedMoverId === null ||
+      typeof detail.designatedMoverId === 'number') &&
     !!detail.customer &&
     typeof detail.customer.name === 'string'
   );

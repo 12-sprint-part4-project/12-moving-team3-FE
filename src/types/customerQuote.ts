@@ -29,6 +29,8 @@ export interface CustomerQuoteItem {
   price: number | null;
   status: CustomerQuoteStatus;
   isDesignated: boolean;
+  /** EstimateDesignatedMover.id — 지정 채팅방 생성용. 비지정이면 null */
+  designatedMoverId: number | null;
   mover: CustomerQuoteMover;
 }
 
@@ -95,6 +97,8 @@ export interface CustomerQuoteDetail {
   comment: string | null;
   status: CustomerQuoteStatus;
   isDesignated: boolean;
+  /** EstimateDesignatedMover.id — 지정 채팅방 생성용. 비지정이면 null */
+  designatedMoverId: number | null;
   estimateRequestStatus: EstimateRequestStatus;
   serviceType: ApiMoveType | null;
   moveDate: string | null;
@@ -138,8 +142,10 @@ export interface QuoteInfoViewModel {
 /** 대기 중 견적 카드 UI 모델 */
 export interface PendingQuoteCardModel {
   quoteId: number;
+  estimateRequestId: number;
   moveType: MoveTypeOption | null;
   isDesignated: boolean;
+  designatedMoverId: number | null;
   moveDate: string;
   departure: string;
   arrival: string;
@@ -185,10 +191,13 @@ export interface ReceivedQuoteGroupModel {
 /** 이용 내역(확정 견적) 카드 UI 모델 */
 export interface HistoryQuoteCardModel {
   quoteId: number;
+  estimateRequestId: number;
+  moverId: string;
   moverName: string;
   moveType: MoveTypeOption | null;
   isConfirmed: boolean;
   isDesignated: boolean;
+  designatedMoverId: number | null;
   moveDate: string;
   departure: string;
   arrival: string;
@@ -204,10 +213,14 @@ export interface CustomerQuoteDetailViewModel {
   estimateRequestId: number;
   moveType: MoveTypeOption | null;
   isDesignated: boolean;
+  designatedMoverId: number | null;
+  estimateRequestStatus: EstimateRequestStatus;
   isPending: boolean;
   isConfirmed: boolean;
   /** 활성 SUBMITTED 요청의 PENDING 견적만 확정 가능 */
   canConfirm: boolean;
+  /** 채팅하기 CTA — 닫힌 견적요청(EXPIRED/CANCELED/COMPLETED)이면 false */
+  canStartChat: boolean;
   /** 과거 미확정 견적 안내 배너 */
   showUnconfirmedBanner: boolean;
   priceLabel: string;

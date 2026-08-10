@@ -17,7 +17,10 @@ export interface PendingQuoteCardProps {
   isConfirming?: boolean;
   /** 이 카드의 확정 요청 진행 중 */
   isConfirmingThis?: boolean;
+  /** 채팅방 생성 진행 중 */
+  isChatPending?: boolean;
   onConfirm?: (quoteId: number) => void;
+  onChatClick?: (quote: PendingQuoteCardModel) => void;
   onFavoriteClick?: (moverId: string, nextFavorited: boolean) => void;
   isFavoritePending?: boolean;
   className?: string;
@@ -37,21 +40,34 @@ const FIELD_VALUE_CLASS = 'text-md-medium text-black-300 lg:text-2lg-medium';
 const CTA_CLASS =
   'h-12 w-full rounded-lg text-lg-semibold md:flex-1 lg:h-16 lg:rounded-2xl lg:text-xl-semibold';
 
-/** 고객 대기 중 견적 카드 */
+/**
+ * `/quotes` 대기 중인 견적 카드.
+ * 하단 CTA: [견적 확정하기][상세보기][채팅하기] — 금액 옆이 아님.
+ * 지정 견적인데 designatedMoverId 없으면 채팅 CTA 숨김.
+ */
 export const PendingQuoteCard = ({
   quote,
   isConfirming = false,
   isConfirmingThis = false,
+  isChatPending = false,
   onConfirm,
+  onChatClick,
   onFavoriteClick,
   isFavoritePending = false,
   className = '',
 }: PendingQuoteCardProps) => {
   const detailHref = `/quotes/${quote.quoteId}`;
+  const canStartChat =
+    !quote.isDesignated || quote.designatedMoverId != null;
 
   /** 견적 확정 */
   const handleConfirm = () => {
     onConfirm?.(quote.quoteId);
+  };
+
+  /** 채팅하기 */
+  const handleChatClick = () => {
+    onChatClick?.(quote);
   };
 
   return (
@@ -174,6 +190,18 @@ export const PendingQuoteCard = ({
         >
           상세보기
         </Link>
+        {canStartChat ? (
+          <Button
+            size="md"
+            variant="outlined"
+            className={CTA_CLASS}
+            disabled={isConfirming || isChatPending}
+            onClick={handleChatClick}
+            aria-label={`${quote.mover.nickname} 기사님과 채팅하기`}
+          >
+            {isChatPending ? '연결 중...' : '채팅하기'}
+          </Button>
+        ) : null}
       </div>
     </article>
   );

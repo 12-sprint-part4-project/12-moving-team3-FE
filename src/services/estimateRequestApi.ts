@@ -56,6 +56,7 @@ export const toReceivedRequestCardModel = (
   customerName: item.customer.name,
   moveType: item.moveType ? API_MOVE_TYPE_TO_UI[item.moveType] : null,
   isDesignated: item.isDesignated,
+  designatedMoverId: item.designatedMoverId ?? null,
   requestedAgo: item.submittedAt ? formatRelativeTime(item.submittedAt) : '',
   moveDate: formatMoveDateLabel(item.moveDate),
   departure: formatLocationLabel(item.departure),

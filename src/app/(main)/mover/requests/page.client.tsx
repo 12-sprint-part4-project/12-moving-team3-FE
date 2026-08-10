@@ -12,8 +12,10 @@ import { SendQuoteModal } from '@/components/ui/Modal/SendQuoteModal';
 import { Sort } from '@/components/ui/Sort/Sort';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { useAuth } from '@/hooks/useAuth';
 import { useQuoteSubmission } from '@/hooks/useQuoteSubmission';
 import { useReceivedEstimateRequests } from '@/hooks/useReceivedEstimateRequests';
+import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 import { ApiError } from '@/lib/apiClient';
 import {
   ALL_MOVE_TYPES,
@@ -46,6 +48,8 @@ const isRequestsSortValue = (value: string): value is RequestsSortValue =>
 
 /** 받은 요청 페이지 클라이언트 — 검색·정렬·필터·목록 조회 */
 const MoverRequestsPageClient = () => {
+  const { user } = useAuth();
+  const { startEstimateChat, isChatPending } = useStartEstimateChat();
   const [searchValue, setSearchValue] = useState('');
   const [isSearchFlushed, setIsSearchFlushed] = useState(false);
   const [sortValue, setSortValue] = useState<RequestsSortValue>('moveDateAsc');
@@ -183,6 +187,20 @@ const MoverRequestsPageClient = () => {
     }
     clearSubmitError();
     setRejectTarget(request);
+  };
+
+  /** `/mover/requests` — 로그인 기사 id로 고객과 1:1 방 생성 후 채팅 이동 */
+  const handleChatClick = (request: ReceivedRequestCardModel) => {
+    if (!user?.id) {
+      return;
+    }
+
+    startEstimateChat({
+      moverId: user.id,
+      isDesignated: request.isDesignated,
+      estimateRequestId: request.id,
+      designatedMoverId: request.designatedMoverId,
+    });
   };
 
   /** 견적 보내기 모달 닫기 */
@@ -351,6 +369,8 @@ const MoverRequestsPageClient = () => {
                       request={request}
                       onSendQuote={handleOpenSendQuoteModal}
                       onReject={handleOpenRejectModal}
+                      onChatClick={handleChatClick}
+                      isChatPending={isChatPending}
                     />
                   </li>
                 ))}
