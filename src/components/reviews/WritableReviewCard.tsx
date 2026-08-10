@@ -46,22 +46,22 @@ export const WritableReviewCard = ({
           <div className="flex flex-wrap items-center gap-2 xl:gap-3">
             {moveTypeUi ? (
               <>
-                <span className="contents xl:hidden">
+                <div className="contents xl:hidden">
                   <MoveTypeChip type={moveTypeUi} size="sm" />
-                </span>
-                <span className="hidden xl:contents">
+                </div>
+                <div className="hidden xl:contents">
                   <MoveTypeChip type={moveTypeUi} size="md" />
-                </span>
+                </div>
               </>
             ) : null}
             {item.isDesignated ? (
               <>
-                <span className="contents xl:hidden">
+                <div className="contents xl:hidden">
                   <MoveTypeChip type="designated" size="sm" />
-                </span>
-                <span className="hidden xl:contents">
+                </div>
+                <div className="hidden xl:contents">
                   <MoveTypeChip type="designated" size="md" />
-                </span>
+                </div>
               </>
             ) : null}
           </div>
