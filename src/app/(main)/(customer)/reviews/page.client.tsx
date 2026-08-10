@@ -9,6 +9,7 @@ import { ReviewsEmptyState } from '@/components/reviews/ReviewsEmptyState';
 import { ReviewDetailModal } from '@/components/reviews/ReviewDetailModal';
 import {
   ReviewsTabs,
+  REVIEWS_PAGE_X_PADDING,
   type ReviewsPageTab,
 } from '@/components/reviews/ReviewsTabs';
 import { WritableReviewCard } from '@/components/reviews/WritableReviewCard';
@@ -24,11 +25,11 @@ import { useDeleteReview } from '@/hooks/useDeleteReview';
 import { useUpdateReview } from '@/hooks/useUpdateReview';
 import { ApiError } from '@/lib/apiClient';
 import { formatReviewMoveDate } from '@/lib/reviewDisplay';
-import { cn } from '@/lib/utils';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
 import type { CustomerReviewItem, WritableQuoteItem } from '@/types/review';
 
-const PAGE_X_PADDING = 'px-6 md:px-[4.5rem] xl:px-[16.25rem]';
+/** 내 견적 관리와 동일한 본문 컨테이너 — 패널 높이 채움(페이지네이션 mt-auto용) */
+const CONTENT_CLASS = `mx-auto flex min-h-0 w-full max-w-[1920px] flex-1 flex-col py-6 md:py-8 lg:py-10 ${REVIEWS_PAGE_X_PADDING}`;
 
 /** 이사 리뷰 — 작성 가능 / 내가 작성한 리뷰 + 모달 */
 export const ReviewsPageClient = () => {
@@ -172,7 +173,7 @@ export const ReviewsPageClient = () => {
 
   if (!isReady || !user) {
     return (
-      <div className="flex w-full justify-center bg-background-200 py-16">
+      <div className="flex min-h-0 w-full flex-1 items-center justify-center bg-background-200">
         <Spinner message="로딩 중..." />
       </div>
     );
@@ -191,64 +192,77 @@ export const ReviewsPageClient = () => {
     (written.isEmpty || writtenTotal === 0);
 
   return (
-    <div className="flex w-full flex-col overflow-x-hidden bg-background-200">
+    <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden">
       <ReviewsTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <div
-        className={cn(
-          'mx-auto flex w-full max-w-[1920px] flex-col gap-8 py-6 md:py-10 xl:py-10',
-          PAGE_X_PADDING
-        )}
-      >
-        {activeTab === 'writable' ? (
-          <ReviewListSection
-            items={writable.writableQuotes}
-            isPending={writable.isPending}
-            isError={writable.isError}
-            showEmpty={showWritableEmpty}
-            pendingMessage="작성 가능한 리뷰를 불러오는 중..."
-            errorMessage={writableErrorMessage}
-            onRetry={() => {
-              void writable.refetch();
-            }}
-            emptyState={<ReviewsEmptyState />}
-            renderItem={(item) => (
-              <WritableReviewCard
-                key={item.quoteId}
-                item={item}
-                onWriteClick={handleWriteClick}
-              />
-            )}
-            page={writable.page}
-            totalPages={writable.totalPages}
-            onPageChange={writable.setPage}
-          />
-        ) : (
-          <ReviewListSection
-            items={written.reviews}
-            isPending={written.isPending}
-            isError={written.isError}
-            showEmpty={showWrittenEmpty}
-            pendingMessage="작성한 리뷰를 불러오는 중..."
-            errorMessage={writtenErrorMessage}
-            onRetry={() => {
-              void written.refetch();
-            }}
-            emptyState={
-              <ReviewsEmptyState message="아직 작성한 리뷰가 없어요" />
-            }
-            renderItem={(item) => (
-              <WrittenReviewCard
-                key={item.id}
-                item={item}
-                onClick={handleReviewClick}
-              />
-            )}
-            page={written.page}
-            totalPages={written.totalPages}
-            onPageChange={written.setPage}
-          />
-        )}
+      <div className="flex min-h-0 w-full flex-1 flex-col bg-background-200">
+        <div
+          role="tabpanel"
+          id="reviews-panel-writable"
+          aria-labelledby="reviews-tab-writable"
+          hidden={activeTab !== 'writable'}
+          className="flex min-h-0 flex-1 flex-col"
+        >
+          <div className={CONTENT_CLASS}>
+            <ReviewListSection
+              items={writable.writableQuotes}
+              isPending={writable.isPending}
+              isError={writable.isError}
+              showEmpty={showWritableEmpty}
+              pendingMessage="작성 가능한 리뷰를 불러오는 중..."
+              errorMessage={writableErrorMessage}
+              onRetry={() => {
+                void writable.refetch();
+              }}
+              emptyState={<ReviewsEmptyState />}
+              renderItem={(item) => (
+                <WritableReviewCard
+                  key={item.quoteId}
+                  item={item}
+                  onWriteClick={handleWriteClick}
+                />
+              )}
+              page={writable.page}
+              totalPages={writable.totalPages}
+              onPageChange={writable.setPage}
+            />
+          </div>
+        </div>
+
+        <div
+          role="tabpanel"
+          id="reviews-panel-written"
+          aria-labelledby="reviews-tab-written"
+          hidden={activeTab !== 'written'}
+          className="flex min-h-0 flex-1 flex-col"
+        >
+          <div className={CONTENT_CLASS}>
+            <ReviewListSection
+              items={written.reviews}
+              isPending={written.isPending}
+              isError={written.isError}
+              showEmpty={showWrittenEmpty}
+              pendingMessage="작성한 리뷰를 불러오는 중..."
+              errorMessage={writtenErrorMessage}
+              onRetry={() => {
+                void written.refetch();
+              }}
+              emptyState={
+                <ReviewsEmptyState message="아직 작성한 리뷰가 없어요" />
+              }
+              renderItem={(item) => (
+                <WrittenReviewCard
+                  key={item.id}
+                  item={item}
+                  onClick={handleReviewClick}
+                />
+              )}
+              page={written.page}
+              totalPages={written.totalPages}
+              onPageChange={written.setPage}
+            />
+          </div>
+        </div>
       </div>
 
       {selectedQuote ? (

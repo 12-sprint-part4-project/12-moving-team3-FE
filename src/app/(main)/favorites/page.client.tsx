@@ -58,17 +58,17 @@ export const FavoritesPageClient = () => {
 
   if (!isReady || !user) {
     return (
-      <div className="flex w-full justify-center bg-background-200 py-16">
+      <div className="flex min-h-0 w-full flex-1 items-center justify-center bg-background-200">
         <Spinner message="로딩 중..." />
       </div>
     );
   }
 
   return (
-    <div className="flex w-full flex-col overflow-x-hidden bg-background-200">
+    <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden">
       <div
         className={cn(
-          'border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8',
+          'shrink-0 border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8',
           pageXPadding
         )}
       >
@@ -77,61 +77,65 @@ export const FavoritesPageClient = () => {
         </h1>
       </div>
 
-      <div
-        className={cn(
-          'mx-auto flex w-full max-w-[1920px] flex-col py-6 md:py-8',
-          pageXPadding
-        )}
-      >
-        {isPending ? <Spinner message="찜한 기사님을 불러오는 중..." /> : null}
-
-        {isError ? (
-          <div className="flex flex-col items-center gap-4 py-16">
-            <p className="text-lg-medium text-gray-400">{errorMessage}</p>
-            <button
-              type="button"
-              onClick={handleRetry}
-              className="cursor-pointer rounded-lg bg-blue-300 px-4 py-2 text-lg-semibold text-white"
-            >
-              다시 시도
-            </button>
-          </div>
-        ) : null}
-
-        {isEmpty ? (
-          <div className="flex flex-col items-center justify-center gap-4 py-16">
-            <p className="text-xl-regular text-gray-400">
-              찜한 기사님이 없어요
-            </p>
-            <Link
-              href="/movers"
-              className="cursor-pointer text-lg-semibold text-blue-300 hover:underline"
-            >
-              기사님 찾아보기
-            </Link>
-          </div>
-        ) : null}
-
-        {!isError && movers.length > 0 ? (
-          <ul className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-2 lg:gap-x-6 lg:gap-y-12">
-            {movers.map((mover) => (
-              <li key={mover.moverId}>
-                <MoverCard
-                  mover={mover}
-                  size="lg"
-                  variant="favorite"
-                  onFavoriteClick={handleFavoriteClick}
-                  isFavoritePending={isMoverPending(mover.moverId)}
-                />
-              </li>
-            ))}
-          </ul>
-        ) : null}
-
-        <div ref={loadMoreRef} className="h-8 w-full">
-          {isFetchingNextPage ? (
-            <Spinner message="더 불러오는 중..." className="py-6" />
+      <div className="min-h-0 w-full flex-1 bg-background-200">
+        <div
+          className={cn(
+            'mx-auto flex w-full max-w-[1920px] flex-col py-6 md:py-8',
+            pageXPadding
+          )}
+        >
+          {isPending ? (
+            <Spinner message="찜한 기사님을 불러오는 중..." />
           ) : null}
+
+          {isError ? (
+            <div className="flex flex-col items-center gap-4 py-16">
+              <p className="text-lg-medium text-gray-400">{errorMessage}</p>
+              <button
+                type="button"
+                onClick={handleRetry}
+                className="cursor-pointer rounded-lg bg-blue-300 px-4 py-2 text-lg-semibold text-white"
+              >
+                다시 시도
+              </button>
+            </div>
+          ) : null}
+
+          {isEmpty ? (
+            <div className="flex flex-col items-center justify-center gap-4 py-16">
+              <p className="text-xl-regular text-gray-400">
+                찜한 기사님이 없어요
+              </p>
+              <Link
+                href="/movers"
+                className="cursor-pointer text-lg-semibold text-blue-300 hover:underline"
+              >
+                기사님 찾아보기
+              </Link>
+            </div>
+          ) : null}
+
+          {!isError && movers.length > 0 ? (
+            <ul className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-2 lg:gap-x-6 lg:gap-y-12">
+              {movers.map((mover) => (
+                <li key={mover.moverId}>
+                  <MoverCard
+                    mover={mover}
+                    size="lg"
+                    variant="favorite"
+                    onFavoriteClick={handleFavoriteClick}
+                    isFavoritePending={isMoverPending(mover.moverId)}
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : null}
+
+          <div ref={loadMoreRef} className="h-8 w-full">
+            {isFetchingNextPage ? (
+              <Spinner message="더 불러오는 중..." className="py-6" />
+            ) : null}
+          </div>
         </div>
       </div>
     </div>
