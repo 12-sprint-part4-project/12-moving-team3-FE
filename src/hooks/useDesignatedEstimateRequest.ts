@@ -81,6 +81,8 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
     canQueryExistence &&
     (existenceQuery.isPending || pendingQuotesQuery.isPending);
 
+  const refetchPendingQuotes = pendingQuotesQuery.refetch;
+
   const closeNeedGeneralModal = useCallback(() => {
     setNeedGeneralOpen(false);
   }, []);
@@ -137,6 +139,12 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
           return;
         }
 
+        if (error.code === 'QUOTE_ALREADY_RECEIVED_FROM_MOVER') {
+          showToast({ content: '이미 견적을 받은 기사님입니다' });
+          void refetchPendingQuotes();
+          return;
+        }
+
         showToast({ content: error.message });
         return;
       }
@@ -144,8 +152,6 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
       showToast({ content: '지정 견적 요청 중 오류가 발생했습니다.' });
     },
   });
-
-  const refetchPendingQuotes = pendingQuotesQuery.refetch;
 
   const requestDesignatedEstimate = useCallback(() => {
     if (!moverId || mutation.isPending || isAlreadyDesignated || isStatusLoading) {
