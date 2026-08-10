@@ -43,7 +43,7 @@ export const ProfileImageCropModal = ({
   };
 
   return (
-    <Modal onClose={onClose} closeOnDimmedClick={!isPending}>
+    <Modal onClose={onClose} closeOnDimmedClick={false}>
       <ModalBasic
         title="프로필 이미지 편집"
         onClose={onClose}
