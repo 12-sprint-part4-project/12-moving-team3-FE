@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { AddressSelectCard } from '../AddressSelectCard';
@@ -62,6 +63,7 @@ const toDraftFromDetail = (
  * Progress: 한쪽 draft=3/4, 둘 다=full. 이사종류/일자 수정은 useMoveInfoRevise.
  */
 export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
+  const router = useRouter();
   const [activeSide, setActiveSide] = useState<AddressSide | null>(null);
 
   const {
@@ -80,7 +82,6 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
     setErrorMessage,
     saveStep,
     submit,
-    refetch,
     isSavingStep,
     isRevisingField,
     isSubmittingRequest,
@@ -173,19 +174,20 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
     setErrorMessage(null);
 
     try {
-      // step3 저장 후 바로 제출 — 성공 시 submit onSuccess → refetch → blocked
+      // step3 저장 후 바로 제출 — 성공 시 대기 견적(/quotes)으로 이동 (재진입 blocked는 유지)
       await saveStep({
         estimateRequestId: detail.id,
         body: parsed.data,
       });
       await submit(detail.id);
+      router.push('/quotes');
     } catch (error) {
-      // 이미 제출된 요청이면 재조회로 blocked(진행 중 안내)로 수렴
+      // 이미 제출된 요청이면 대기 견적으로 보내 UX를 맞춤
       if (
         error instanceof ApiError &&
         error.code === 'REQUEST_ALREADY_SUBMITTED'
       ) {
-        await refetch();
+        router.push('/quotes');
         return;
       }
 

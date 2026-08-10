@@ -237,7 +237,7 @@ const GnbHeader = ({
                     aria-current={isActive ? 'page' : undefined}
                     className={cn(
                       'flex h-[5.5rem] shrink-0 items-center py-4 text-2lg-bold whitespace-nowrap',
-                      isActive ? 'text-gray-400' : 'text-black-400'
+                      isActive ? 'text-black-400' : 'text-gray-400'
                     )}
                   >
                     {item.label}
