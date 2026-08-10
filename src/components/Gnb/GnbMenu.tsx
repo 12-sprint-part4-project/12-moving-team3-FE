@@ -1,12 +1,17 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import CloseIcon from '@/assets/icons/close.svg';
 
 import {
   GNB_NAV_BY_ROLE,
+  isGnbNavActive,
   type GnbNavItem,
   type GnbNavRole,
 } from '@/components/Gnb/gnbNav';
+import { cn } from '@/lib/utils';
 
 export type GnbMenuType = GnbNavRole;
 
@@ -31,6 +36,7 @@ export const GnbMenu = ({
   onLogout,
   className = '',
 }: GnbMenuProps) => {
+  const pathname = usePathname();
   const items: GnbNavItem[] = navItems ?? [...GNB_NAV_BY_ROLE[type]];
 
   const handleLogout = () => {
@@ -55,16 +61,24 @@ export const GnbMenu = ({
       </div>
 
       <nav className="flex flex-col items-stretch">
-        {items.map((item) => (
-          <Link
-            key={item.href + item.label}
-            href={item.href}
-            onClick={onClose}
-            className="flex w-full items-center overflow-hidden bg-white px-5 py-6 text-lg-medium whitespace-nowrap text-black-400"
-          >
-            {item.label}
-          </Link>
-        ))}
+        {items.map((item) => {
+          const isActive = isGnbNavActive(pathname, item.href);
+
+          return (
+            <Link
+              key={item.href + item.label}
+              href={item.href}
+              onClick={onClose}
+              aria-current={isActive ? 'page' : undefined}
+              className={cn(
+                'flex w-full items-center overflow-hidden bg-white px-5 py-6 text-lg-medium whitespace-nowrap',
+                isActive ? 'text-gray-400' : 'text-black-400'
+              )}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
         {onLogout ? (
           <button
             type="button"
