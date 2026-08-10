@@ -14,7 +14,7 @@ export const customerPastQuoteFilterSchema = z.enum(['ALL', 'CONFIRMED']);
 /** 고객 견적 기사님 카드 */
 export const customerQuoteMoverSchema = z.object({
   moverId: z.string(),
-  nickname: z.string(),
+  name: z.string(),
   profileImage: z.string().nullable(),
   shortDescription: z.string().nullable(),
   rating: z.number(),

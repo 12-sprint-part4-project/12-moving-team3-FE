@@ -89,7 +89,7 @@ export const toCustomerQuoteMoverViewModel = (
   mover: CustomerQuoteMover
 ): CustomerQuoteMoverViewModel => ({
   moverId: mover.moverId,
-  nickname: mover.nickname,
+  name: mover.name,
   profileImageUrl: mover.profileImage,
   shortDescription: mover.shortDescription,
   averageRating: mover.rating,
@@ -105,7 +105,7 @@ export const toMoverCardModelFromCustomerQuoteMover = (
   mover: CustomerQuoteMoverViewModel
 ): MoverCardModel => ({
   moverId: mover.moverId,
-  name: mover.nickname,
+  name: mover.name,
   profileImageUrl: mover.profileImageUrl,
   services: [],
   regions: [],
@@ -205,7 +205,7 @@ export const toHistoryQuoteCardModels = (
     .filter((item) => item.status === 'CONFIRMED')
     .map((item) => ({
       quoteId: item.quoteId,
-      moverName: item.mover.nickname,
+      moverName: item.mover.name,
       moveType,
       isConfirmed: true,
       isDesignated: item.isDesignated,

@@ -33,8 +33,6 @@ export const useConfirmCustomerQuote = () => {
           queryKey: customerEstimateRequestQueryKeys.active(),
         }),
       ]);
-
-      showToast({ content: '견적이 확정되었습니다.' });
     },
     onError: (error: unknown) => {
       const message =

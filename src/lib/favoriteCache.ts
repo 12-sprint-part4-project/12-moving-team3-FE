@@ -248,7 +248,7 @@ const buildOptimisticFavoriteItem = (
     createdAt: new Date().toISOString(),
     mover: {
       id: moverId,
-      name: quoteMover.nickname,
+      name: quoteMover.name,
       profileImageUrl: quoteMover.profileImage,
       moverProfile: {
         career: quoteMover.career,
