@@ -195,14 +195,14 @@ export const ReviewsPageClient = () => {
     <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden">
       <ReviewsTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <div
-        className="min-h-0 w-full flex-1 bg-background-200"
-        role="tabpanel"
-        id={`reviews-panel-${activeTab}`}
-        aria-labelledby={`reviews-tab-${activeTab}`}
-      >
-        <div className={CONTENT_CLASS}>
-          {activeTab === 'writable' ? (
+      <div className="min-h-0 w-full flex-1 bg-background-200">
+        <div
+          role="tabpanel"
+          id="reviews-panel-writable"
+          aria-labelledby="reviews-tab-writable"
+          hidden={activeTab !== 'writable'}
+        >
+          <div className={CONTENT_CLASS}>
             <ReviewListSection
               items={writable.writableQuotes}
               isPending={writable.isPending}
@@ -225,7 +225,16 @@ export const ReviewsPageClient = () => {
               totalPages={writable.totalPages}
               onPageChange={writable.setPage}
             />
-          ) : (
+          </div>
+        </div>
+
+        <div
+          role="tabpanel"
+          id="reviews-panel-written"
+          aria-labelledby="reviews-tab-written"
+          hidden={activeTab !== 'written'}
+        >
+          <div className={CONTENT_CLASS}>
             <ReviewListSection
               items={written.reviews}
               isPending={written.isPending}
@@ -250,7 +259,7 @@ export const ReviewsPageClient = () => {
               totalPages={written.totalPages}
               onPageChange={written.setPage}
             />
-          )}
+          </div>
         </div>
       </div>
 
