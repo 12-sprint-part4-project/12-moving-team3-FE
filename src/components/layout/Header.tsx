@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -13,6 +13,7 @@ import { useCustomerProfile } from '@/hooks/useCustomerProfile';
 import { useMoverProfile } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { getAuthRouteRequirement } from '@/lib/authRoutePaths';
 import { logout } from '@/services/authApi';
 
 const LANDING_MENU_ITEMS: GnbNavItem[] = [
@@ -24,6 +25,7 @@ const LANDING_MENU_ITEMS: GnbNavItem[] = [
 /** 비로그인: GnbLanding / 로그인: GnbDefault */
 export const Header = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const { user, isReady, clearSession } = useAuth();
@@ -56,7 +58,11 @@ export const Header = () => {
     queryClient.clear();
     clearSession();
     showToast({ content: '로그아웃되었습니다.' });
-    router.replace('/');
+
+    // 공개 경로는 유지, 로그인 필요 경로(/favorites, /chat 등)는 랜딩으로
+    if (getAuthRouteRequirement(pathname).kind !== 'public') {
+      router.replace('/');
+    }
   };
 
   if (!isReady) return null;
