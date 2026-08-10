@@ -13,6 +13,11 @@ import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { getPostAuthRedirectPath } from '@/lib/getPostAuthRedirectPath';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
+import {
+  EMAIL_FORMAT_ERROR_MESSAGE,
+  EMAIL_MAX_LENGTH,
+  validateEmail,
+} from '@/lib/validateEmail';
 import { login } from '@/services/authApi';
 import type { ApiUserType } from '@/types/auth';
 
@@ -105,12 +110,18 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
     event.preventDefault();
     if (!isSubmittable) return;
 
+    const trimmedEmail = values.email.trim();
+    if (validateEmail(trimmedEmail)) {
+      showToast({ content: EMAIL_FORMAT_ERROR_MESSAGE });
+      return;
+    }
+
     setIsPending(true);
 
     try {
       const response = await login({
         userType: USER_TYPE_BY_ROLE[role],
-        email: values.email.trim(),
+        email: trimmedEmail,
         password: values.password,
       });
 
@@ -170,6 +181,7 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
       {/* Mobile: 폼↔SNS 48px / Tablet: 40px / Desktop: 외곽 gap으로 합류 */}
       <div className="flex w-full flex-col items-center gap-12 md:gap-10 lg:contents">
         <form
+          noValidate
           onSubmit={handleSubmit}
           className="flex w-full max-w-[20.4375rem] flex-col items-center gap-4 lg:max-w-[40rem] lg:gap-6"
         >
@@ -185,6 +197,7 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
                   type="email"
                   name="email"
                   autoComplete="email"
+                  maxLength={EMAIL_MAX_LENGTH}
                   placeholder="이메일을 입력해 주세요"
                   value={values.email}
                   onChange={handleChange('email')}

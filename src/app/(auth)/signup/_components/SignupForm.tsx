@@ -11,6 +11,11 @@ import { TextFieldOutlined } from '@/components/ui/Input';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
+import {
+  EMAIL_FORMAT_ERROR_MESSAGE,
+  EMAIL_MAX_LENGTH,
+  validateEmail,
+} from '@/lib/validateEmail';
 import { signup } from '@/services/authApi';
 import type { ApiUserType } from '@/types/auth';
 
@@ -143,6 +148,12 @@ export const SignupForm = ({ role }: SignupFormProps) => {
       return;
     }
 
+    const trimmedEmail = values.email.trim();
+    if (validateEmail(trimmedEmail)) {
+      showToast({ content: EMAIL_FORMAT_ERROR_MESSAGE });
+      return;
+    }
+
     setIsPending(true);
 
     try {
@@ -150,7 +161,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
         userType: USER_TYPE_BY_ROLE[role],
         name: trimmedName,
         nickname: trimmedNickname,
-        email: values.email.trim(),
+        email: trimmedEmail,
         password: values.password,
         passwordConfirmation: values.passwordConfirm,
       });
@@ -203,6 +214,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
 
       <div className="flex w-full flex-col items-center gap-12 lg:gap-[4.5rem]">
         <form
+          noValidate
           onSubmit={handleSubmit}
           className="flex w-full max-w-[20.4375rem] flex-col items-center gap-4 lg:max-w-[40rem] lg:gap-6"
         >
@@ -235,6 +247,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
                   type="email"
                   name="email"
                   autoComplete="email"
+                  maxLength={EMAIL_MAX_LENGTH}
                   placeholder="이메일을 입력해 주세요"
                   value={values.email}
                   onChange={handleChange('email')}
