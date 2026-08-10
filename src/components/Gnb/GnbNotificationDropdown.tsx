@@ -1,3 +1,8 @@
+'use client';
+
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import CloseIcon from '@/assets/icons/close.svg';
 
 import { GnbNotificationItem } from '@/components/Gnb/GnbNotificationItem';
@@ -15,8 +20,10 @@ export interface GnbNotificationDropdownProps {
 
 const EMPTY_MESSAGE = '새로운 알림이 없어요';
 const LOADING_MESSAGE = '불러오는 중…';
+/** scrollHeight 비교 오차 허용 (서브픽셀) */
+const SCROLL_BOTTOM_THRESHOLD_PX = 2;
 
-/** GNB 알림 드롭다운 — 헤더·목록·empty/loading (실 API 연동은 상위 Sprint 2) */
+/** GNB 알림 드롭다운 — 헤더·목록·empty/loading */
 export const GnbNotificationDropdown = ({
   items,
   isLoading = false,
@@ -25,6 +32,46 @@ export const GnbNotificationDropdown = ({
   className,
 }: GnbNotificationDropdownProps) => {
   const isEmpty = !isLoading && items.length === 0;
+  const listRef = useRef<HTMLDivElement>(null);
+  const listContentRef = useRef<HTMLDivElement>(null);
+  // 목록이 max-height를 넘고 아직 맨 아래가 아닐 때만 하단 힌트 표시
+  const [canScrollDown, setCanScrollDown] = useState(false);
+
+  const updateScrollHint = useCallback(() => {
+    const element = listRef.current;
+    if (!element) {
+      setCanScrollDown(false);
+      return;
+    }
+
+    const hasOverflow = element.scrollHeight > element.clientHeight + 1;
+    const remaining =
+      element.scrollHeight - element.scrollTop - element.clientHeight;
+    setCanScrollDown(hasOverflow && remaining > SCROLL_BOTTOM_THRESHOLD_PX);
+  }, []);
+
+  useEffect(() => {
+    updateScrollHint();
+
+    const listElement = listRef.current;
+    const contentElement = listContentRef.current;
+    if (!listElement) {
+      return;
+    }
+
+    // 패널 크기·아이템 높이 변화 모두 감지해 overflow 여부 갱신
+    const resizeObserver = new ResizeObserver(updateScrollHint);
+    resizeObserver.observe(listElement);
+    if (contentElement) {
+      resizeObserver.observe(contentElement);
+    }
+    listElement.addEventListener('scroll', updateScrollHint, { passive: true });
+
+    return () => {
+      resizeObserver.disconnect();
+      listElement.removeEventListener('scroll', updateScrollHint);
+    };
+  }, [items, isLoading, updateScrollHint]);
 
   return (
     <div
@@ -49,26 +96,44 @@ export const GnbNotificationDropdown = ({
         </button>
       </div>
 
-      <div className="flex w-full flex-col items-stretch">
-        {isLoading ? (
-          <Spinner message={LOADING_MESSAGE} className="gap-3 py-8" />
-        ) : null}
+      {/* 알림 많을 때 패널이 뷰포트를 넘지 않도록 목록만 스크롤 (헤더는 shrink-0) */}
+      <div className="relative flex min-h-0 w-full flex-col">
+        <div ref={listRef} className="max-h-[24rem] w-full overflow-y-auto">
+          <div
+            ref={listContentRef}
+            className="flex w-full flex-col items-stretch"
+          >
+            {isLoading ? (
+              <Spinner message={LOADING_MESSAGE} className="gap-3 py-8" />
+            ) : null}
 
-        {isEmpty ? (
-          <p className="px-4 py-8 text-center text-md-medium text-gray-300 md:px-6">
-            {EMPTY_MESSAGE}
-          </p>
-        ) : null}
+            {isEmpty ? (
+              <p className="px-4 py-8 text-center text-md-medium text-gray-300 md:px-6">
+                {EMPTY_MESSAGE}
+              </p>
+            ) : null}
 
-        {!isLoading
-          ? items.map((item) => (
-              <GnbNotificationItem
-                key={item.id}
-                item={item}
-                onClick={onItemClick}
-              />
-            ))
-          : null}
+            {!isLoading
+              ? items.map((item) => (
+                  <GnbNotificationItem
+                    key={item.id}
+                    item={item}
+                    onClick={onItemClick}
+                  />
+                ))
+              : null}
+          </div>
+        </div>
+
+        {/* 아래에 더 있음 — 맨 아래로 스크롤하면 숨김 (장식용) */}
+        {canScrollDown ? (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-white via-white/90 to-transparent pt-8 pb-1"
+          >
+            <ChevronDownIcon className="size-5 text-gray-300" />
+          </div>
+        ) : null}
       </div>
     </div>
   );

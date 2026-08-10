@@ -41,6 +41,15 @@ const SIZE_STYLES = {
   },
 } as const;
 
+const DISPLAY_NAME_MAX_LENGTH: Record<GnbProfileDropdownSize, number> = {
+  sm: 3,
+  md: 7,
+};
+
+/** 닉네임 maxLength 초과 시 말줄임표 */
+const truncateDisplayName = (name: string, maxLength: number): string =>
+  name.length > maxLength ? `${name.slice(0, maxLength)}...` : name;
+
 /** GNB 프로필 드롭다운 메뉴 */
 export const GnbProfileDropdown = ({
   size = 'md',
@@ -53,7 +62,12 @@ export const GnbProfileDropdown = ({
 }: GnbProfileDropdownProps) => {
   const styles = SIZE_STYLES[size];
   const lastIndex = menuItems.length - 1;
-  const displayName = [userName, nameSuffix].filter(Boolean).join(' ');
+  const truncatedUserName = truncateDisplayName(
+    userName,
+    DISPLAY_NAME_MAX_LENGTH[size]
+  );
+  const displayName = [truncatedUserName, nameSuffix].filter(Boolean).join(' ');
+  const fullDisplayName = [userName, nameSuffix].filter(Boolean).join(' ');
 
   return (
     <div
@@ -65,7 +79,10 @@ export const GnbProfileDropdown = ({
         className
       )}
     >
-      <p className={cn('shrink-0 whitespace-nowrap', styles.name)}>
+      <p
+        title={fullDisplayName !== displayName ? fullDisplayName : undefined}
+        className={cn('shrink-0 whitespace-nowrap', styles.name)}
+      >
         {displayName}
       </p>
 
