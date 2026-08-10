@@ -11,8 +11,8 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 
 import { ProfileImageCropModal } from '@/app/(main)/(customer)/profile/customer/_components/ProfileImageCropModal';
+import { ProfileImageField } from '@/app/(main)/(customer)/profile/customer/_components/ProfileImageField';
 import { useProfileImageCrop } from '@/app/(main)/(customer)/profile/customer/_lib/useProfileImageCrop';
-import NoImageIcon from '@/assets/icons/no-image.svg';
 import { Button } from '@/components/Button/Button';
 import { RegionChip, ServiceChip } from '@/components/ui/Chip';
 import { TextArea, TextFieldOutlined } from '@/components/ui/Input';
@@ -119,11 +119,12 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
 
   const {
     imageInputRef,
-    previewUrl,
+    displayImageUrl,
     cropImageSrc,
     profileImageFile,
     handleImageChange,
     handleImageButtonClick,
+    handleImageClear,
     handleCropClose,
     handleCropComplete,
   } = useProfileImageCrop();
@@ -316,40 +317,15 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
 
         <div className="flex w-full flex-col items-start gap-5 lg:flex-row lg:justify-between lg:gap-10">
           <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
-            <section className="flex flex-col items-start gap-4">
-              <h2 className={LABEL_CLASSNAME}>프로필 이미지</h2>
-              <input
-                ref={imageInputRef}
-                id={imageInputId}
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={handleImageChange}
-              />
-              <button
-                type="button"
-                onClick={handleImageButtonClick}
-                aria-label="프로필 이미지 업로드"
-                className={cn(
-                  'flex size-[6.25rem] cursor-pointer items-center justify-center overflow-hidden rounded-md bg-background-200 lg:size-40',
-                  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300'
-                )}
-              >
-                {previewUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- blob preview
-                  <img
-                    src={previewUrl}
-                    alt="선택한 프로필 이미지 미리보기"
-                    className="size-full object-cover"
-                  />
-                ) : (
-                  <NoImageIcon
-                    className="size-8 text-gray-300 lg:size-10"
-                    aria-hidden
-                  />
-                )}
-              </button>
-            </section>
+            <ProfileImageField
+              imageInputId={imageInputId}
+              imageInputRef={imageInputRef}
+              displayImageUrl={displayImageUrl}
+              labelClassName={LABEL_CLASSNAME}
+              onImageChange={handleImageChange}
+              onImageButtonClick={handleImageButtonClick}
+              onImageClear={handleImageClear}
+            />
 
             <div className="h-px w-full bg-line-100" aria-hidden />
 
