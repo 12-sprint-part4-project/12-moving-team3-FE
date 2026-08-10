@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
+import { chatQueryKeys } from '@/hooks/useChat';
 import { moverQuoteQueryKeys } from '@/hooks/useMoverQuotes';
 import { estimateRequestQueryKeys } from '@/hooks/useReceivedEstimateRequests';
 import { useToast } from '@/hooks/useToast';
@@ -41,7 +42,10 @@ export const useQuoteSubmission = ({
     null
   );
 
-  /** 받은 요청·내 견적 목록 캐시 무효화 */
+  /**
+   * 받은 요청·내 견적·채팅 캐시 무효화.
+   * 견적 상태 변경 직후 `/chat` 칩·isMessagingAllowed가 바로 맞도록 한다 (#208).
+   */
   const invalidateRelatedLists = async () => {
     await Promise.all([
       queryClient.invalidateQueries({
@@ -49,6 +53,12 @@ export const useQuoteSubmission = ({
       }),
       queryClient.invalidateQueries({
         queryKey: moverQuoteQueryKeys.lists(),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: chatQueryKeys.rooms(),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: [...chatQueryKeys.all, 'room'],
       }),
     ]);
   };
