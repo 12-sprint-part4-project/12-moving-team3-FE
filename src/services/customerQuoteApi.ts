@@ -91,7 +91,7 @@ export const toCustomerQuoteMoverViewModel = (
   mover: CustomerQuoteMover
 ): CustomerQuoteMoverViewModel => ({
   moverId: mover.moverId,
-  nickname: mover.nickname,
+  name: mover.name,
   profileImageUrl: mover.profileImage,
   shortDescription: mover.shortDescription,
   averageRating: mover.rating,
@@ -107,7 +107,7 @@ export const toMoverCardModelFromCustomerQuoteMover = (
   mover: CustomerQuoteMoverViewModel
 ): MoverCardModel => ({
   moverId: mover.moverId,
-  name: mover.nickname,
+  name: mover.name,
   profileImageUrl: mover.profileImageUrl,
   services: [],
   regions: [],
@@ -211,7 +211,7 @@ export const toHistoryQuoteCardModels = (
       quoteId: item.quoteId,
       estimateRequestId: group.estimateRequestId,
       moverId: item.mover.moverId,
-      moverName: item.mover.nickname,
+      moverName: item.mover.name,
       moveType,
       isConfirmed: true,
       isDesignated: item.isDesignated,

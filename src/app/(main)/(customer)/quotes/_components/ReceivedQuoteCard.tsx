@@ -95,7 +95,7 @@ export const ReceivedQuoteCard = ({
       <Link
         href={detailHref}
         className="absolute inset-0 z-0 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
-        aria-label={`${quote.mover.nickname} 기사님 견적 상세보기`}
+        aria-label={`${quote.mover.name} 기사님 견적 상세보기`}
       />
     </article>
   );

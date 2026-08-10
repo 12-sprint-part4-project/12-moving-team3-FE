@@ -172,7 +172,7 @@ export const PendingQuoteCard = ({
           className={CTA_CLASS}
           disabled={isConfirming}
           onClick={handleConfirm}
-          aria-label={`${quote.mover.nickname} 기사님 견적 확정하기`}
+          aria-label={`${quote.mover.name} 기사님 견적 확정하기`}
         >
           {isConfirmingThis ? '확정 중...' : '견적 확정하기'}
         </Button>
@@ -186,7 +186,7 @@ export const PendingQuoteCard = ({
               'focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:outline-none'
             ),
           })}
-          aria-label={`${quote.mover.nickname} 기사님 견적 상세보기`}
+          aria-label={`${quote.mover.name} 기사님 견적 상세보기`}
         >
           상세보기
         </Link>

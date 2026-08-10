@@ -11,7 +11,7 @@ export type CustomerPastQuoteFilter = 'ALL' | 'CONFIRMED';
 /** 고객 견적 응답의 기사님 카드 (BE) */
 export interface CustomerQuoteMover {
   moverId: string;
-  nickname: string;
+  name: string;
   /** 공개/CDN URL. 이미지 없으면 null */
   profileImage: string | null;
   shortDescription: string | null;
@@ -119,7 +119,7 @@ export type ConfirmCustomerQuoteResponse = ApiSuccessResponse<{
 /** 기사님 카드 UI 모델 */
 export interface CustomerQuoteMoverViewModel {
   moverId: string;
-  nickname: string;
+  name: string;
   profileImageUrl: string | null;
   shortDescription: string | null;
   averageRating: number;

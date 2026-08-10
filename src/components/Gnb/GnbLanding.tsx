@@ -1,8 +1,13 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import MenuIcon from '@/assets/icons/menu.svg';
 
+import { isGnbNavActive } from '@/components/Gnb/gnbNav';
 import { Logo } from '@/components/Logo/Logo';
+import { cn } from '@/lib/utils';
 
 export type GnbLandingSize = 'sm' | 'md' | 'lg';
 
@@ -44,7 +49,10 @@ export const GnbLanding = ({
   onMenuClick,
   className = '',
 }: GnbLandingProps) => {
+  const pathname = usePathname();
   const isDesktop = size === 'lg';
+  const isFindDriverActive = isGnbNavActive(pathname, findDriverHref);
+  const isCommunityActive = isGnbNavActive(pathname, communityHref);
 
   return (
     <header
@@ -61,13 +69,21 @@ export const GnbLanding = ({
           <nav className="flex min-w-0 flex-1 items-center gap-10">
             <Link
               href={findDriverHref}
-              className="text-2lg-bold text-black-400"
+              aria-current={isFindDriverActive ? 'page' : undefined}
+              className={cn(
+                'text-2lg-bold',
+                isFindDriverActive ? 'text-gray-400' : 'text-black-400'
+              )}
             >
               기사님 찾기
             </Link>
             <Link
               href={communityHref}
-              className="text-2lg-bold text-black-400"
+              aria-current={isCommunityActive ? 'page' : undefined}
+              className={cn(
+                'text-2lg-bold',
+                isCommunityActive ? 'text-gray-400' : 'text-black-400'
+              )}
             >
               커뮤니티
             </Link>

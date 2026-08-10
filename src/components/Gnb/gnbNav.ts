@@ -3,6 +3,10 @@ export interface GnbNavItem {
   href: string;
 }
 
+/** pathname이 GNB 메뉴 href와 일치하는지 (하위 경로 포함) */
+export const isGnbNavActive = (pathname: string, href: string): boolean =>
+  pathname === href || pathname.startsWith(`${href}/`);
+
 /** 기사님(mover) / 일반 유저(customer) GNB 네비 항목 */
 export const GNB_NAV_BY_ROLE = {
   mover: [

@@ -122,7 +122,7 @@ const CustomerQuoteDetailPageClient = ({
   const showMobileActionBar = detail.canConfirm || detail.canStartChat;
   const quoteShareProps = {
     sharePath: `/quotes/${quoteId}`,
-    shareTitle: `${detail.mover.nickname} 기사님 견적서`,
+    shareTitle: `${detail.mover.name} 기사님 견적서`,
     shareDescription:
       detail.comment?.trim() ||
       detail.mover.shortDescription ||
