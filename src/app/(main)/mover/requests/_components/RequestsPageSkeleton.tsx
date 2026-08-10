@@ -1,3 +1,5 @@
+import { cn } from '@/lib/utils';
+
 const LIST_SKELETON_COUNT = 3;
 
 /** 받은 요청 카드 자리 표시용 스켈레톤 */
@@ -47,14 +49,12 @@ const SidebarFilterSkeleton = () => (
   </aside>
 );
 
-export interface RequestsListSkeletonProps {
-  className?: string;
-}
-
 /** 목록 카드만 — API pending 시 툴바·필터는 유지한 채 사용 */
 export const RequestsListSkeleton = ({
   className = '',
-}: RequestsListSkeletonProps) => (
+}: {
+  className?: string;
+}) => (
   <div
     className={className}
     role="status"
@@ -71,13 +71,21 @@ export const RequestsListSkeleton = ({
   </div>
 );
 
+export interface RequestsPageContentSkeletonProps {
+  className?: string;
+}
+
 /**
- * 제목 아래 본문 스켈레톤 — useSearchParams Suspense fallback용.
- * 페이지 타이틀(h1)은 서버 셸에서 별도 렌더한다.
+ * 제목 아래 본문 스켈레톤
  */
-export const RequestsPageContentSkeleton = () => (
+export const RequestsPageContentSkeleton = ({
+  className,
+}: RequestsPageContentSkeletonProps) => (
   <div
-    className="mx-auto flex w-full max-w-[1920px] flex-col gap-6 px-6 py-6 md:px-[4.5rem] md:py-8 lg:px-10 xl:flex-row xl:items-start xl:gap-8 xl:px-16 min-[90rem]:gap-12 min-[90rem]:px-[16.25rem]"
+    className={cn(
+      'mx-auto flex w-full max-w-[1920px] flex-col gap-6 px-6 py-6 md:px-[4.5rem] md:py-8 lg:px-10 xl:flex-row xl:items-start xl:gap-8 xl:px-16 min-[90rem]:gap-12 min-[90rem]:px-[16.25rem]',
+      className
+    )}
     role="status"
     aria-busy="true"
     aria-label="목록 불러오는 중"
