@@ -1,5 +1,7 @@
 import { Suspense } from 'react';
-import { Spinner } from '@/components/ui/Spinner/Spinner';
+
+import { QuotesPageContentSkeleton } from '@/components/quotes/QuotesPageSkeleton';
+
 import CustomerQuotesPageClient from './page.client';
 
 import type { Metadata } from 'next';
@@ -8,17 +10,15 @@ export const metadata: Metadata = {
   title: '내 견적 관리',
 };
 
+const PAGE_X_PADDING = 'px-6 md:px-18 lg:px-10 xl:px-16 min-[90rem]:px-65';
+
 /**
  * 고객 내 견적 관리 페이지 (대기 중인 견적)
  */
 const CustomerQuotesPage = () => {
   return (
     <Suspense
-      fallback={
-        <div className="flex min-h-full w-full items-center justify-center bg-background-200">
-          <Spinner message="목록 불러오는 중..." />
-        </div>
-      }
+      fallback={<QuotesPageContentSkeleton className={PAGE_X_PADDING} />}
     >
       <CustomerQuotesPageClient />
     </Suspense>

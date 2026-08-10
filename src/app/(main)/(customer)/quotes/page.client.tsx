@@ -7,6 +7,7 @@ import { useInView } from 'react-intersection-observer';
 import { Button } from '@/components/Button/Button';
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
+import { QuotesListSkeleton, ReceivedQuotesListSkeleton } from '@/components/quotes/QuotesPageSkeleton';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { Tab } from '@/components/ui/Tab/Tab';
 import { useConfirmQuoteModal } from '@/hooks/useConfirmQuoteModal';
@@ -148,7 +149,7 @@ const CustomerQuotesPageClient = () => {
     if (isPending) {
       return (
         <div className={CONTENT_CLASS}>
-          <Spinner message="목록 불러오는 중..." />
+          <QuotesListSkeleton />
         </div>
       );
     }
@@ -213,7 +214,7 @@ const CustomerQuotesPageClient = () => {
     if (isPastPending) {
       return (
         <div className={CONTENT_CLASS}>
-          <Spinner message="목록 불러오는 중..." />
+          <ReceivedQuotesListSkeleton />
         </div>
       );
     }

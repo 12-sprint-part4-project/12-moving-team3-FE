@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/Button/Button';
+import { QuotesListSkeleton } from '@/components/quotes/QuotesPageSkeleton';
 import { Pagination } from '@/components/ui/Pagination';
-import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { Tab } from '@/components/ui/Tab/Tab';
 import { useMoverQuotes } from '@/hooks/useMoverQuotes';
 import { ApiError } from '@/lib/apiClient';
@@ -123,7 +123,7 @@ const MoverQuotesPageClient = () => {
           aria-labelledby={`quotes-tab-${activeTab}`}
         >
           {isPending ? (
-            <Spinner message="목록 불러오는 중..." />
+            <QuotesListSkeleton />
           ) : isError ? (
             <div className="flex flex-col items-center gap-4 py-16">
               <p
