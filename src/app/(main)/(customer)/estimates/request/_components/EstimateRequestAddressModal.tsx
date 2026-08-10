@@ -41,10 +41,8 @@ const SIDE_TITLE: Record<AddressSide, string> = {
   arrival: '도착지를 선택해주세요',
 };
 
-/** 행안부 keyword 규칙 안내 — 시·도만 입력하면 검색 실패하기 쉬움 */
+/** 행안부 keyword 안내 — placeholder로 사전 예시, 실패 시에만 soft 오류 */
 const ADDRESS_SEARCH_PLACEHOLDER = '예: 반포대로 58 또는 삼성동 25';
-const ADDRESS_SEARCH_HINT =
-  '동·도로명·건물명 중 하나를 포함해 검색해 주세요';
 const ADDRESS_SEARCH_SOFT_ERROR =
   '검색어를 더 구체적으로 입력해 주세요. (예: 제주 이도동)';
 
@@ -190,39 +188,47 @@ export const EstimateRequestAddressModal = ({
 
         <div className="flex w-full flex-col gap-4 md:gap-6">
           {/* 모바일 검색(14px) → md+ 검색(20px·h-16) */}
-          <TextFieldSearch
-            size="sm"
-            value={query}
-            onChange={(event) => {
-              setQuery(event.target.value);
-              setErrorMessage(null);
-            }}
-            onClear={() => {
-              setQuery('');
-              resetSearchResults();
-              setErrorMessage(null);
-            }}
-            onSearch={() => {
-              // 새 검색어는 항상 1페이지부터
-              void handleSearch(query, 1);
-            }}
-            placeholder={ADDRESS_SEARCH_PLACEHOLDER}
-            className={cn(
-              '!max-w-none',
-              'md:h-16 md:gap-2 md:px-6',
-              'md:[&_input]:text-xl-regular',
-              'md:[&>svg]:size-9 md:[&_button]:size-9 md:[&>div]:gap-4'
-            )}
-            aria-label="주소 검색"
-            aria-describedby={`address-search-hint-${side}`}
-            disabled={isSearching}
-          />
-          <p
-            id={`address-search-hint-${side}`}
-            className="text-sm-medium text-gray-400 md:text-md-medium"
-          >
-            {ADDRESS_SEARCH_HINT}
-          </p>
+          <div className="flex w-full flex-col gap-2">
+            <TextFieldSearch
+              size="sm"
+              value={query}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setErrorMessage(null);
+              }}
+              onClear={() => {
+                setQuery('');
+                resetSearchResults();
+                setErrorMessage(null);
+              }}
+              onSearch={() => {
+                // 새 검색어는 항상 1페이지부터
+                void handleSearch(query, 1);
+              }}
+              placeholder={ADDRESS_SEARCH_PLACEHOLDER}
+              className={cn(
+                '!max-w-none',
+                'md:h-16 md:gap-2 md:px-6',
+                'md:[&_input]:text-xl-regular',
+                'md:[&>svg]:size-9 md:[&_button]:size-9 md:[&>div]:gap-4'
+              )}
+              aria-label="주소 검색"
+              aria-describedby={
+                errorMessage ? `address-search-error-${side}` : undefined
+              }
+              disabled={isSearching}
+            />
+            {/* 검색 관련 메시지만 검색 필드 바로 아래 — 상세주소와 분리 */}
+            {errorMessage ? (
+              <p
+                id={`address-search-error-${side}`}
+                className="text-md-medium text-red-200 md:text-lg-medium"
+                role="alert"
+              >
+                {errorMessage}
+              </p>
+            ) : null}
+          </div>
 
           {isSearching ? (
             <p
@@ -306,15 +312,6 @@ export const EstimateRequestAddressModal = ({
               aria-required
             />
           </div>
-
-          {errorMessage ? (
-            <p
-              className="text-md-medium text-red-200 md:text-lg-medium"
-              role="alert"
-            >
-              {errorMessage}
-            </p>
-          ) : null}
         </div>
 
         <ModalCtaButton
