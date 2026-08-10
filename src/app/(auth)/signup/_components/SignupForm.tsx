@@ -214,6 +214,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
 
       <div className="flex w-full flex-col items-center gap-12 lg:gap-[4.5rem]">
         <form
+          noValidate
           onSubmit={handleSubmit}
           className="flex w-full max-w-[20.4375rem] flex-col items-center gap-4 lg:max-w-[40rem] lg:gap-6"
         >

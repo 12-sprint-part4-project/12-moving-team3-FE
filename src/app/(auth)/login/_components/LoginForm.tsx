@@ -181,6 +181,7 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
       {/* Mobile: 폼↔SNS 48px / Tablet: 40px / Desktop: 외곽 gap으로 합류 */}
       <div className="flex w-full flex-col items-center gap-12 md:gap-10 lg:contents">
         <form
+          noValidate
           onSubmit={handleSubmit}
           className="flex w-full max-w-[20.4375rem] flex-col items-center gap-4 lg:max-w-[40rem] lg:gap-6"
         >
