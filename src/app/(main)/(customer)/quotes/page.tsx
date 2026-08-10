@@ -1,7 +1,13 @@
 import { Suspense } from 'react';
 
 import { QuotesPageContentSkeleton } from '@/components/quotes/QuotesPageSkeleton';
+import { resolveQuotesTabParam } from '@/components/quotes/QuotesTabsShell';
 
+import {
+  CUSTOMER_QUOTES_PAGE_X_PADDING,
+  CustomerQuotesTabs,
+  parseCustomerQuotesTabId,
+} from './_components/CustomerQuotesTabs';
 import CustomerQuotesPageClient from './page.client';
 
 import type { Metadata } from 'next';
@@ -10,18 +16,33 @@ export const metadata: Metadata = {
   title: '내 견적 관리',
 };
 
-const PAGE_X_PADDING = 'px-6 md:px-18 lg:px-10 xl:px-16 min-[90rem]:px-65';
+export interface CustomerQuotesPageProps {
+  searchParams: Promise<{ tab?: string | string[] }>;
+}
 
 /**
- * 고객 내 견적 관리 페이지 (대기 중인 견적)
+ * 고객 내 견적 관리 페이지
  */
-const CustomerQuotesPage = () => {
+const CustomerQuotesPage = async ({
+  searchParams,
+}: CustomerQuotesPageProps) => {
+  const params = await searchParams;
+  const activeTab = parseCustomerQuotesTabId(resolveQuotesTabParam(params.tab));
+
   return (
-    <Suspense
-      fallback={<QuotesPageContentSkeleton className={PAGE_X_PADDING} />}
-    >
-      <CustomerQuotesPageClient />
-    </Suspense>
+    <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden">
+      <CustomerQuotesTabs activeTab={activeTab} />
+      <Suspense
+        fallback={
+          <QuotesPageContentSkeleton
+            className={CUSTOMER_QUOTES_PAGE_X_PADDING}
+            withTabs={false}
+          />
+        }
+      >
+        <CustomerQuotesPageClient />
+      </Suspense>
+    </div>
   );
 };
 
