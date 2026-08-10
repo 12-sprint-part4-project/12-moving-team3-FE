@@ -41,6 +41,13 @@ const SIDE_TITLE: Record<AddressSide, string> = {
   arrival: '도착지를 선택해주세요',
 };
 
+/** 행안부 keyword 규칙 안내 — 시·도만 입력하면 검색 실패하기 쉬움 */
+const ADDRESS_SEARCH_PLACEHOLDER = '예: 반포대로 58 또는 삼성동 25';
+const ADDRESS_SEARCH_HINT =
+  '동·도로명·건물명 중 하나를 포함해 검색해 주세요';
+const ADDRESS_SEARCH_SOFT_ERROR =
+  '검색어를 더 구체적으로 입력해 주세요. (예: 제주 이도동)';
+
 /** 수정하기 진입 — draft를 AddressCard용 검색 항목으로 시드 (재검색 없이 상세만 수정 가능) */
 const toInitialItem = (draft: AddressDraft | null): AddressSearchItem | null =>
   draft
@@ -123,11 +130,19 @@ export const EstimateRequestAddressModal = ({
       setCurrentPage(1);
       setTotalCount(0);
       setHasSearched(true);
-      setErrorMessage(
-        error instanceof ApiError
-          ? error.message
-          : '주소 검색 중 오류가 발생했습니다.'
-      );
+      // 행안부 keyword 미충족 등으로 프록시가 실패할 때 — 일반 502와 구분한 soft 안내
+      if (
+        error instanceof ApiError &&
+        error.code === 'ADDRESS_SEARCH_FAILED'
+      ) {
+        setErrorMessage(ADDRESS_SEARCH_SOFT_ERROR);
+      } else {
+        setErrorMessage(
+          error instanceof ApiError
+            ? error.message
+            : '주소 검색 중 오류가 발생했습니다.'
+        );
+      }
     } finally {
       setIsSearching(false);
     }
@@ -191,7 +206,7 @@ export const EstimateRequestAddressModal = ({
               // 새 검색어는 항상 1페이지부터
               void handleSearch(query, 1);
             }}
-            placeholder="텍스트를 입력해 주세요."
+            placeholder={ADDRESS_SEARCH_PLACEHOLDER}
             className={cn(
               '!max-w-none',
               'md:h-16 md:gap-2 md:px-6',
@@ -199,8 +214,15 @@ export const EstimateRequestAddressModal = ({
               'md:[&>svg]:size-9 md:[&_button]:size-9 md:[&>div]:gap-4'
             )}
             aria-label="주소 검색"
+            aria-describedby={`address-search-hint-${side}`}
             disabled={isSearching}
           />
+          <p
+            id={`address-search-hint-${side}`}
+            className="text-sm-medium text-gray-400 md:text-md-medium"
+          >
+            {ADDRESS_SEARCH_HINT}
+          </p>
 
           {isSearching ? (
             <p
