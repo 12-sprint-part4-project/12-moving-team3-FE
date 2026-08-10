@@ -7,7 +7,10 @@ import { useInView } from 'react-intersection-observer';
 import { Button } from '@/components/Button/Button';
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
-import { QuotesListSkeleton, ReceivedQuotesListSkeleton } from '@/components/quotes/QuotesPageSkeleton';
+import {
+  QuotesListSkeleton,
+  ReceivedQuotesListSkeleton,
+} from '@/components/quotes/QuotesPageSkeleton';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { Tab } from '@/components/ui/Tab/Tab';
 import { useConfirmQuoteModal } from '@/hooks/useConfirmQuoteModal';

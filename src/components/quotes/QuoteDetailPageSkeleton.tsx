@@ -46,8 +46,8 @@ const DetailBodySkeleton = () => (
   </div>
 );
 
-/** 데스크톱 우측 공유·CTA 자리 */
-const DetailAsideSkeleton = () => (
+/** 데스크톱 우측 — 고객: CTA + 공유 */
+const DetailCtaAsideSkeleton = () => (
   <aside
     className="col-start-1 hidden w-full flex-col gap-6 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:flex lg:w-[20.5rem]"
     aria-hidden
@@ -65,22 +65,54 @@ const DetailAsideSkeleton = () => (
   </aside>
 );
 
+/** 데스크톱 우측 — 기사: 공유만 */
+const DetailShareAsideSkeleton = () => (
+  <aside
+    className="col-start-1 hidden lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:block"
+    aria-hidden
+  >
+    <div className="flex flex-col gap-3">
+      <div className="h-5 w-24 animate-pulse rounded bg-background-200" />
+      <div className="flex gap-3">
+        <div className="h-12 w-12 animate-pulse rounded-full bg-background-200" />
+        <div className="h-12 w-12 animate-pulse rounded-full bg-background-200" />
+        <div className="h-12 w-12 animate-pulse rounded-full bg-background-200" />
+      </div>
+    </div>
+  </aside>
+);
+
+/** 상세 우측 aside 변형 */
+export type QuoteDetailAsideVariant = 'cta' | 'share' | 'none';
+
 export interface QuoteDetailContentSkeletonProps {
   className?: string;
-  withAside?: boolean;
+  /**
+   * 우측 aside 구성
+   * - cta: 고객 상세 (확정 CTA + 공유, 20.5rem 그리드)
+   * - share: 기사 보낸 견적 (공유만, auto 그리드)
+   * - none: 반려 등 aside 없음
+   */
+  aside?: QuoteDetailAsideVariant;
 }
+
+const ASIDE_GRID_CLASS: Record<QuoteDetailAsideVariant, string> = {
+  cta: 'lg:grid-cols-[minmax(0,59.6875rem)_20.5rem]',
+  share: 'lg:grid-cols-[minmax(0,59.6875rem)_auto]',
+  none: '',
+};
 
 /**
  * 견적 상세 본문 스켈레톤
  */
 export const QuoteDetailContentSkeleton = ({
   className,
-  withAside = true,
+  aside = 'cta',
 }: QuoteDetailContentSkeletonProps) => (
   <div
     className={cn(
       'mx-auto grid w-full max-w-[1920px] flex-1 grid-cols-1 gap-6 py-6 md:gap-8 md:py-8 lg:items-start lg:justify-between lg:gap-10 lg:py-10',
-      withAside ? 'lg:grid-cols-[minmax(0,59.6875rem)_20.5rem]' : '',
+      ASIDE_GRID_CLASS[aside],
       DETAIL_PAGE_X_PADDING,
       className
     )}
@@ -92,7 +124,8 @@ export const QuoteDetailContentSkeleton = ({
       <DetailSummaryCardSkeleton />
       <DetailBodySkeleton />
     </div>
-    {withAside ? <DetailAsideSkeleton /> : null}
+    {aside === 'cta' ? <DetailCtaAsideSkeleton /> : null}
+    {aside === 'share' ? <DetailShareAsideSkeleton /> : null}
   </div>
 );
 

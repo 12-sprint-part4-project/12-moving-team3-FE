@@ -14,6 +14,7 @@ import { useConfirmQuoteModal } from '@/hooks/useConfirmQuoteModal';
 import { useCustomerQuoteDetail } from '@/hooks/useCustomerQuoteDetail';
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { ApiError } from '@/lib/apiClient';
+import { cn } from '@/lib/utils';
 
 import { ConfirmQuoteModal } from '../_components/ConfirmQuoteModal';
 import { CustomerQuoteDetailActions } from './_components/CustomerQuoteDetailActions';
@@ -124,9 +125,10 @@ const CustomerQuoteDetailPageClient = ({
 
   return (
     <div
-      className={`flex min-h-0 w-full flex-1 flex-col ${
-        showMobileActionBar ? 'pb-[4.625rem] lg:pb-0' : ''
-      }`}
+      className={cn(
+        'flex min-h-0 w-full flex-1 flex-col',
+        showMobileActionBar && 'pb-[4.625rem] lg:pb-0'
+      )}
     >
       <div
         className={`mx-auto grid w-full max-w-[1920px] flex-1 grid-cols-1 gap-6 py-6 md:gap-8 md:py-8 lg:grid-cols-[minmax(0,59.6875rem)_20.5rem] lg:items-start lg:justify-between lg:gap-10 lg:py-10 ${PAGE_X_PADDING}`}

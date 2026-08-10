@@ -50,7 +50,7 @@ const MoverQuoteDetailPageClient = ({
   }
 
   if (isPending) {
-    return <QuoteDetailContentSkeleton />;
+    return <QuoteDetailContentSkeleton aside="share" />;
   }
 
   if (isError || !detail) {
