@@ -136,6 +136,8 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
   };
 
   const handleKakaoLogin = () => {
+    if (isPending) return;
+
     try {
       redirectToKakaoLogin(USER_TYPE_BY_ROLE[role]);
     } catch {
@@ -237,8 +239,9 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
           <button
             type="button"
             aria-label={KAKAO_LOGIN_LABEL}
+            disabled={isPending}
             onClick={handleKakaoLogin}
-            className="inline-flex size-[3.375rem] shrink-0 cursor-pointer items-center justify-center overflow-clip rounded-full lg:size-[4.5rem]"
+            className="inline-flex size-[3.375rem] shrink-0 cursor-pointer items-center justify-center overflow-clip rounded-full disabled:cursor-not-allowed disabled:opacity-50 lg:size-[4.5rem]"
           >
             <KakaoIcon className="size-full" aria-hidden focusable="false" />
           </button>
