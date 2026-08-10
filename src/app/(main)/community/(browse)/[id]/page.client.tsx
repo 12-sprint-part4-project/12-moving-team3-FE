@@ -201,6 +201,7 @@ export const CommunityPostDetailPageClient = ({
     handleCompleteModalClose,
     handleCompleteConfirm,
     isChatRoomPending,
+    isCompletePending,
   } = useCommunityFurnitureShareDetail({
     post,
     postId,
@@ -423,7 +424,11 @@ export const CommunityPostDetailPageClient = ({
         )}
       >
         <div className={COMMUNITY_DETAIL_MAX_W}>
-          <CommunityPostBadges category={post.category} region={post.region} />
+          <CommunityPostBadges
+            category={post.category}
+            region={post.region}
+            isCompleted={post.isCompleted}
+          />
 
           <div className="mt-4 min-[46.5rem]:mt-5 xl:mt-6">
             <h1
@@ -618,6 +623,7 @@ export const CommunityPostDetailPageClient = ({
             confirmLabel="완료하기"
             onClose={handleCompleteModalClose}
             onConfirm={handleCompleteConfirm}
+            isDeleting={isCompletePending}
           />
         </Modal>
       ) : null}

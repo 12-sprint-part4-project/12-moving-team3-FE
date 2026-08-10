@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { getCommunityWriteMarkdown } from '@/app/(main)/community/write/_components/communityWriteEditor';
 import { getInitialWriteCategory, MAX_POST_IMAGE_COUNT } from '@/constants/communityOptions';
 import { useCreatePost, usePost, useUpdatePost, useUploadPostImage } from '@/hooks/useCommunity';
 import { useToast } from '@/hooks/useToast';
@@ -207,7 +208,7 @@ const CommunityWriteForm = ({
 
       if (isEditMode && editPostId !== null) {
         const body: UpdatePostBody = {
-          content: editor.getMarkdown(),
+          content: getCommunityWriteMarkdown(editor),
           imageKeys,
         };
 
@@ -221,7 +222,7 @@ const CommunityWriteForm = ({
       const body: CreatePostBody = {
         category,
         title: title.trim(),
-        content: editor.getMarkdown(),
+        content: getCommunityWriteMarkdown(editor),
         ...(imageKeys.length > 0 ? { imageKeys } : {}),
         ...(category === 'FURNITURE_SHARE' && region !== null
           ? { region }

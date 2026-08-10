@@ -100,6 +100,7 @@ export const COMMUNITY_WRITE_CONTENT_EDITOR_CLASS = [
   COMMUNITY_RICH_TEXT_PROSE_CLASS,
   COMMUNITY_WRITE_CONTENT_EDITOR_PLACEHOLDER_CLASS,
   '[&_h1]:text-xl-bold [&_h2]:text-md-bold',
+  '[&_p+p]:mt-2',
 ].join(' ');
 
 /** 이미지 추가 버튼 — 80×80 */

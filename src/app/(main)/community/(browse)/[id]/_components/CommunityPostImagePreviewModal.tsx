@@ -70,7 +70,7 @@ export const CommunityPostImagePreviewModal = ({
         type="button"
         onClick={onClose}
         aria-label="이미지 미리보기 닫기"
-        className="absolute top-0 right-0 z-10 inline-flex size-10 cursor-pointer items-center justify-center rounded-full bg-black/40 text-white"
+        className="absolute -top-2 -right-2 z-10 inline-flex size-10 cursor-pointer items-center justify-center rounded-full bg-black/40 text-white sm:-top-3 sm:-right-3"
       >
         <CloseIcon className="size-6" aria-hidden />
       </button>

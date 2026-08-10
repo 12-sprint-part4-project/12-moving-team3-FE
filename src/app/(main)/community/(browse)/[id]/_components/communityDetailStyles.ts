@@ -87,6 +87,6 @@ export const COMMUNITY_POST_DETAIL_THUMB_BUTTON_CLASS =
 export const COMMUNITY_POST_DETAIL_BROKEN_ICON_CLASS =
   'size-[1.5625rem] text-gray-200 tablet:size-[3.125rem] xl:size-[4.6875rem]';
 
-/** 이미지 미리보기 패널 */
+/** 이미지 미리보기 패널 — overflow-visible로 닫기 버튼 clipping 방지 */
 export const COMMUNITY_POST_IMAGE_PREVIEW_PANEL_CLASS =
-  'relative max-w-[min(92vw,56.25rem)] bg-transparent shadow-none sm:max-w-[min(92vw,56.25rem)]';
+  'relative max-w-[min(92vw,56.25rem)] overflow-visible rounded-none bg-transparent shadow-none sm:max-w-[min(92vw,56.25rem)]';

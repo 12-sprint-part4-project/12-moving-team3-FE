@@ -37,4 +37,16 @@ describe('normalizeCommunityPostContentForRender', () => {
       normalizeCommunityPostContentForRender('<https://example.com>')
     ).toBe('[https://example.com](https://example.com)');
   });
+
+  it('줄바꿈 문자를 유지한다', () => {
+    expect(normalizeCommunityPostContentForRender('첫줄\n둘째줄')).toBe(
+      '첫줄\n둘째줄'
+    );
+    expect(normalizeCommunityPostContentForRender('첫줄\n\n둘째줄')).toBe(
+      '첫줄\n\n둘째줄'
+    );
+    expect(normalizeCommunityPostContentForRender('첫줄  \n둘째줄')).toBe(
+      '첫줄  \n둘째줄'
+    );
+  });
 });
