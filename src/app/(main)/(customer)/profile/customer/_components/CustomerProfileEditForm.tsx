@@ -248,7 +248,7 @@ const CustomerProfileEditFields = ({
                   size="sm"
                   type="email"
                   name="email"
-                  autoComplete="email"
+                  autoComplete="off"
                   value={email}
                   readOnly
                   className={READONLY_FIELD_CLASSNAME}
@@ -289,7 +289,7 @@ const CustomerProfileEditFields = ({
                       size="sm"
                       type="password"
                       name="currentPassword"
-                      autoComplete="current-password"
+                      autoComplete="new-password"
                       placeholder="현재 비밀번호를 입력해주세요"
                       showVisibilityToggle
                       value={currentPassword}
