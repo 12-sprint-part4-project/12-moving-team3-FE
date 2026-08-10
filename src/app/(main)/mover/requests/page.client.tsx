@@ -30,6 +30,7 @@ import { ReceivedRequestCard } from './_components/ReceivedRequestCard';
 import { RequestsEmptyState } from './_components/RequestsEmptyState';
 import { RequestsFilterResetButton } from './_components/RequestsFilterResetButton';
 import { RequestsMobileFilterModal } from './_components/RequestsMobileFilterModal';
+import { RequestsListSkeleton } from './_components/RequestsPageSkeleton';
 import { RequestsSidebarFilter } from './_components/RequestsSidebarFilter';
 import {
   buildRequestsListHref,
@@ -79,10 +80,9 @@ const MoverRequestsPageClient = () => {
   const commitSearchKeyword = useCallback(
     (keyword: string) => {
       const current = parseRequestsListSearchParams(searchParams);
-      router.replace(
-        buildRequestsListHref({ ...current, keyword }),
-        { scroll: false }
-      );
+      router.replace(buildRequestsListHref({ ...current, keyword }), {
+        scroll: false,
+      });
     },
     [router, searchParams]
   );
@@ -274,25 +274,10 @@ const MoverRequestsPageClient = () => {
     void refetch();
   };
 
-  /** 페이지 가로 패딩 클래스 정의 */
-  const pageXPadding =
-    'px-6 md:px-[4.5rem] lg:px-10 xl:px-16 min-[90rem]:px-[16.25rem]';
-
   return (
-    <div className="flex w-full flex-col overflow-x-hidden bg-white">
-      {/* 페이지 타이틀 영역 렌더 */}
-      <div
-        className={`border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8 ${pageXPadding}`}
-      >
-        <h1 className="text-2lg-semibold text-black-400 lg:text-2xl-semibold">
-          받은 요청
-        </h1>
-      </div>
-
-      {/* 사이드 필터 + 목록 레이아웃 렌더 */}
-      <div
-        className={`mx-auto flex w-full max-w-[1920px] flex-col gap-6 py-6 md:py-8 xl:flex-row xl:items-start xl:gap-8 min-[90rem]:gap-12 ${pageXPadding}`}
-      >
+    <>
+      {/* 사이드 필터 + 목록 레이아웃 */}
+      <div className="mx-auto flex w-full max-w-[1920px] flex-col gap-6 px-6 py-6 md:px-[4.5rem] md:py-8 lg:px-10 xl:flex-row xl:items-start xl:gap-8 xl:px-16 min-[90rem]:gap-12 min-[90rem]:px-[16.25rem]">
         {/* 데스크톱 사이드 필터 렌더 */}
         <RequestsSidebarFilter
           className="hidden w-full max-w-[20.5rem] shrink-0 xl:flex"
@@ -364,7 +349,7 @@ const MoverRequestsPageClient = () => {
 
           {/* 로딩·에러·빈목록·목록 상태 분기 */}
           {isPending ? (
-            <Spinner message="목록 불러오는 중..." />
+            <RequestsListSkeleton />
           ) : isError ? (
             <div className="flex flex-col items-center gap-4 py-16">
               <p
@@ -466,7 +451,7 @@ const MoverRequestsPageClient = () => {
           />
         </Modal>
       ) : null}
-    </div>
+    </>
   );
 };
 
