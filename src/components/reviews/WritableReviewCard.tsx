@@ -45,27 +45,23 @@ export const WritableReviewCard = ({
         {(moveTypeUi || item.isDesignated) && (
           <div className="flex flex-wrap items-center gap-2 xl:gap-3">
             {moveTypeUi ? (
-              <MoveTypeChip type={moveTypeUi} size="sm" className="xl:hidden" />
-            ) : null}
-            {moveTypeUi ? (
-              <MoveTypeChip
-                type={moveTypeUi}
-                size="md"
-                className="hidden xl:inline-flex"
-              />
+              <>
+                <span className="contents xl:hidden">
+                  <MoveTypeChip type={moveTypeUi} size="sm" />
+                </span>
+                <span className="hidden xl:contents">
+                  <MoveTypeChip type={moveTypeUi} size="md" />
+                </span>
+              </>
             ) : null}
             {item.isDesignated ? (
               <>
-                <MoveTypeChip
-                  type="designated"
-                  size="sm"
-                  className="xl:hidden"
-                />
-                <MoveTypeChip
-                  type="designated"
-                  size="md"
-                  className="hidden xl:inline-flex"
-                />
+                <span className="contents xl:hidden">
+                  <MoveTypeChip type="designated" size="sm" />
+                </span>
+                <span className="hidden xl:contents">
+                  <MoveTypeChip type="designated" size="md" />
+                </span>
               </>
             ) : null}
           </div>
@@ -121,24 +117,28 @@ export const WritableReviewCard = ({
         </div>
       </div>
 
-      <Button
-        type="button"
-        variant="solid"
-        size="sm"
-        className="rounded-lg xl:hidden"
-        onClick={() => onWriteClick(item)}
-      >
-        리뷰 작성하기
-      </Button>
-      <Button
-        type="button"
-        variant="solid"
-        size="md"
-        className="hidden rounded-2xl xl:inline-flex"
-        onClick={() => onWriteClick(item)}
-      >
-        리뷰 작성하기
-      </Button>
+      <div className="contents xl:hidden">
+        <Button
+          type="button"
+          variant="solid"
+          size="sm"
+          className="rounded-lg"
+          onClick={() => onWriteClick(item)}
+        >
+          리뷰 작성하기
+        </Button>
+      </div>
+      <div className="hidden xl:contents">
+        <Button
+          type="button"
+          variant="solid"
+          size="md"
+          className="rounded-2xl"
+          onClick={() => onWriteClick(item)}
+        >
+          리뷰 작성하기
+        </Button>
+      </div>
     </article>
   );
 };
