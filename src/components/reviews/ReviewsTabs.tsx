@@ -11,7 +11,7 @@ export interface ReviewsTabsProps {
   className?: string;
 }
 
-/** 내 견적 관리와 동일한 페이지 좌우 패딩 */
+/**좌우 패딩 */
 export const REVIEWS_PAGE_X_PADDING =
   'px-6 md:px-18 lg:px-10 xl:px-16 min-[90rem]:px-65';
 
@@ -20,7 +20,7 @@ const TABS: { id: ReviewsPageTab; label: string }[] = [
   { id: 'written', label: '내가 작성한 리뷰' },
 ];
 
-/** 이사 리뷰 페이지 탭 — 내 견적 관리(Tab depth)와 동일 패턴 */
+/** 이사 리뷰 페이지 탭*/
 export const ReviewsTabs = ({
   activeTab,
   onTabChange,
