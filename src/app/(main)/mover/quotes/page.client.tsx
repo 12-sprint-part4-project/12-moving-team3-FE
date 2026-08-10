@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 
 import { Button } from '@/components/Button/Button';
 import { QuotesListSkeleton } from '@/components/quotes/QuotesPageSkeleton';
@@ -34,11 +35,24 @@ const TABS: { id: QuotesTabId; label: string }[] = [
 const isQuotesTabId = (value: string): value is QuotesTabId =>
   value === 'sent' || value === 'rejected';
 
+/** URL tab 쿼리 → 탭 id */
+const parseQuotesTabId = (value: string | null): QuotesTabId =>
+  value === 'rejected' ? 'rejected' : 'sent';
+
 /** 내 견적 관리 페이지 클라이언트 — 보낸 견적 / 반려 요청 탭 목록 */
 const MoverQuotesPageClient = () => {
-  const [activeTab, setActiveTab] = useState<QuotesTabId>('sent');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeTab = parseQuotesTabId(searchParams.get('tab'));
   const [page, setPage] = useState(1);
+  const [pageTab, setPageTab] = useState(activeTab);
   const listStatus = TAB_TO_STATUS[activeTab];
+
+  /** 탭이 바뀌면 1페이지로 초기화 */
+  if (pageTab !== activeTab) {
+    setPageTab(activeTab);
+    setPage(1);
+  }
 
   const {
     quotes,
@@ -53,11 +67,9 @@ const MoverQuotesPageClient = () => {
   } = useMoverQuotes({ status: listStatus, page });
 
   /** 총 페이지 감소 시 현재 페이지를 범위 안으로 보정 */
-  useEffect(() => {
-    if (totalPages > 0 && page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [page, totalPages]);
+  if (totalPages > 0 && page > totalPages) {
+    setPage(totalPages);
+  }
 
   /** 에러 메시지 결정 */
   const errorMessage =
@@ -65,13 +77,15 @@ const MoverQuotesPageClient = () => {
       ? error.message
       : '견적 목록을 불러오지 못했습니다.';
 
-  /** 탭 변경 시 1페이지로 초기화 */
+  /** 탭 변경 */
   const handleTabChange = (tabId: string) => {
     if (!isQuotesTabId(tabId) || tabId === activeTab) {
       return;
     }
-    setActiveTab(tabId);
-    setPage(1);
+    router.replace(
+      tabId === 'rejected' ? '/mover/quotes?tab=rejected' : '/mover/quotes',
+      { scroll: false }
+    );
   };
 
   /** 페이지 변경 */
