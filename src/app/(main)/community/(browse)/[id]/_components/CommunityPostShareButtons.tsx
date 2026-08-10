@@ -3,10 +3,7 @@
 import SymbolFacebookIcon from '@/assets/icons/symbol-facebook.svg';
 import SymbolKakaoIcon from '@/assets/icons/symbol-kakao.svg';
 import { useToast } from '@/hooks/useToast';
-import {
-  isKakaoShareConfigured,
-  shareQuoteToKakao,
-} from '@/lib/kakaoShare';
+import { isKakaoShareConfigured, shareQuoteToKakao } from '@/lib/kakaoShare';
 import { cn } from '@/lib/utils';
 
 import {
@@ -31,6 +28,9 @@ export const CommunityPostShareButtons = ({
 }: CommunityPostShareButtonsProps) => {
   const { showToast } = useToast();
 
+  const getShareUrl = () =>
+    `${process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '')}${window.location.pathname}${window.location.search}`;
+
   const handleShareKakao = () => {
     if (!isKakaoShareConfigured()) {
       showToast({
@@ -43,7 +43,7 @@ export const CommunityPostShareButtons = ({
       title,
       description,
       imageUrl,
-      shareUrl: window.location.href,
+      shareUrl: getShareUrl(),
       buttonTitle: '게시글 보기',
     }).catch((error: unknown) => {
       const message =
@@ -55,7 +55,7 @@ export const CommunityPostShareButtons = ({
   };
 
   const handleShareFacebook = () => {
-    const shareUrl = encodeURIComponent(window.location.href);
+    const shareUrl = encodeURIComponent(getShareUrl());
     window.open(
       `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`,
       'facebook-share',

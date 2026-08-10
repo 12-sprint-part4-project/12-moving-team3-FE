@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 import { cn } from '@/lib/utils';
 import {
   COMMUNITY_DESKTOP_X,
@@ -27,7 +29,9 @@ const CommunityLayout = ({ children }: CommunityLayoutProps) => (
         COMMUNITY_DESKTOP_X
       )}
     >
-      <h1 className={COMMUNITY_PAGE_TITLE_CLASS}>커뮤니티</h1>
+      <h1 className={COMMUNITY_PAGE_TITLE_CLASS}>
+        <Link href="/community">커뮤니티</Link>
+      </h1>
     </header>
     {children}
   </div>

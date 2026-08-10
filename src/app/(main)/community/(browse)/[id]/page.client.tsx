@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
@@ -14,6 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import {
   useCommentList,
   useCreateComment,
+  useCreateReply,
   useDeleteComment,
   useDeletePost,
   usePost,
@@ -82,6 +83,7 @@ export const CommunityPostDetailPageClient = ({
   );
   const [isPostDeleteModalOpen, setIsPostDeleteModalOpen] = useState(false);
   const [commentDraft, setCommentDraft] = useState('');
+  const skipNextCommentFocusRef = useRef(false);
 
   const {
     data: post,
@@ -125,6 +127,7 @@ export const CommunityPostDetailPageClient = ({
     useCreateComment(postId);
   const { mutate: deleteCommentMutate, isPending: isDeleteCommentPending } =
     useDeleteComment(postId);
+  const { mutate: createReply } = useCreateReply(postId);
   const { mutate: deletePostMutate, isPending: isDeletePostPending } =
     useDeletePost();
 
@@ -176,7 +179,12 @@ export const CommunityPostDetailPageClient = ({
     setAuthModalKind('profile');
   }, []);
 
-  const closeAuthModal = useCallback(() => {
+  const closeLoginModal = useCallback(() => {
+    skipNextCommentFocusRef.current = true;
+    setAuthModalKind(null);
+  }, []);
+
+  const closeProfileModal = useCallback(() => {
     setAuthModalKind(null);
   }, []);
 
@@ -231,6 +239,21 @@ export const CommunityPostDetailPageClient = ({
     });
   }, [ensureProfileReady, post, postId, togglePostLike, showToast, showMutationError]);
 
+  const handleReplySubmit = useCallback(
+    (commentId: number, content: string) => {
+      if (!ensureProfileReady()) return;
+      createReply(
+        { commentId, content },
+        {
+          onError: (error) => {
+            showMutationError(error, '답글 작성에 실패했습니다.');
+          },
+        }
+      );
+    },
+    [ensureProfileReady, createReply, showMutationError]
+  );
+
   const handleCommentSubmit = useCallback(
     (content: string) => {
       if (!ensureProfileReady()) {
@@ -254,7 +277,13 @@ export const CommunityPostDetailPageClient = ({
 
   const handleCommentInputFocus = useCallback(() => {
     // 비회원만 포커스 시 로그인 유도. 프로필 미완료는 제출 시에만 모달
-    // (취소 후 포커스 복원으로 모달이 다시 열리는 것 방지)
+    if (skipNextCommentFocusRef.current) {
+      skipNextCommentFocusRef.current = false;
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      return;
+    }
     if (!user) {
       openLoginModal();
     }
@@ -519,6 +548,8 @@ export const CommunityPostDetailPageClient = ({
               isDeleteCommentPending ? commentIdToDelete : null
             }
             onDeleteRequest={user ? handleDeleteCommentRequest : undefined}
+            onReplySubmit={handleReplySubmit}
+            onLoginRequired={openLoginModal}
             isPending={isCommentsPending}
             isError={isCommentsError}
             isFetchingNextPage={isCommentsFetchingNextPage}
@@ -573,10 +604,10 @@ export const CommunityPostDetailPageClient = ({
         </div>
       </article>
 
-      <LoginRequiredModal open={authModalKind === 'login'} onClose={closeAuthModal} />
+      <LoginRequiredModal open={authModalKind === 'login'} onClose={closeLoginModal} />
       <ProfileRequiredModal
         open={authModalKind === 'profile'}
-        onClose={closeAuthModal}
+        onClose={closeProfileModal}
       />
 
       {commentIdToDelete !== null ? (
