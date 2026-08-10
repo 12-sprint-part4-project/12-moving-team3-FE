@@ -104,7 +104,8 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
       {children}
       {isMounted
         ? createPortal(
-            <div className="pointer-events-none fixed inset-x-0 top-4 z-50 flex flex-col items-center gap-2 px-4 sm:top-6">
+            // Modal(z-50) 딤보다 위에 두어 모달+토스트 동시 노출 시 토스트가 가려지지 않게 한다
+            <div className="pointer-events-none fixed inset-x-0 top-4 z-[60] flex flex-col items-center gap-2 px-4 sm:top-6">
               {toasts.map(({ id, content, icon, iconClassName }) => (
                 <Toast
                   key={id}
