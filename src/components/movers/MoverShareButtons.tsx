@@ -29,9 +29,12 @@ export const MoverShareButtons = ({
 }: MoverShareButtonsProps) => {
   const { showToast } = useToast();
 
+  const getShareUrl = () =>
+    `${process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '')}${window.location.pathname}${window.location.search}`;
+
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(getShareUrl());
       showToast({ content: '링크가 복사되었습니다.' });
     } catch {
       showToast({ content: '링크 복사에 실패했습니다.' });
@@ -50,7 +53,7 @@ export const MoverShareButtons = ({
       name,
       description,
       profileImageUrl,
-      shareUrl: window.location.href,
+      shareUrl: getShareUrl(),
     }).catch((error: unknown) => {
       const message =
         error instanceof Error
@@ -61,7 +64,7 @@ export const MoverShareButtons = ({
   };
 
   const handleShareFacebook = () => {
-    const shareUrl = encodeURIComponent(window.location.href);
+    const shareUrl = encodeURIComponent(getShareUrl());
     window.open(
       `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`,
       'facebook-share',

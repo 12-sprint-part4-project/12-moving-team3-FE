@@ -5,10 +5,7 @@ import FacebookIcon from '@/assets/icons/symbol-facebook.svg';
 import KakaoIcon from '@/assets/icons/symbol-kakao.svg';
 import { IconButton } from '@/components/ui/IconButton/IconButton';
 import { useToast } from '@/hooks/useToast';
-import {
-  isKakaoShareConfigured,
-  shareQuoteToKakao,
-} from '@/lib/kakaoShare';
+import { isKakaoShareConfigured, shareQuoteToKakao } from '@/lib/kakaoShare';
 
 export interface QuoteShareButtonsProps {
   /** 공유할 경로 (예: /quotes/1) */
@@ -33,7 +30,8 @@ export const QuoteShareButtons = ({
   const { showToast } = useToast();
 
   /** 절대 URL로 공유 주소 생성 */
-  const getShareUrl = () => `${window.location.origin}${sharePath}`;
+  const getShareUrl = () =>
+    `${process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '')}${sharePath}`;
 
   /** 현재 상세 URL 클립보드 복사 */
   const handleCopyLink = async () => {
