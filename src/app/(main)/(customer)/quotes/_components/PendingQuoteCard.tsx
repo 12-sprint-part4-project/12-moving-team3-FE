@@ -184,7 +184,7 @@ export const PendingQuoteCard = ({
               className={CTA_CLASS}
               disabled={isConfirming || isChatPending}
               onClick={handleChatClick}
-              aria-label={`${quote.mover.nickname} 기사님과 채팅하기`}
+              aria-label={`${quote.mover.name} 기사님과 채팅하기`}
             >
               {isChatPending ? '연결 중...' : '채팅하기'}
             </Button>
