@@ -72,7 +72,7 @@ export const GnbMenu = ({
               aria-current={isActive ? 'page' : undefined}
               className={cn(
                 'flex w-full items-center overflow-hidden bg-white px-5 py-6 text-lg-medium whitespace-nowrap',
-                isActive ? 'text-gray-400' : 'text-black-400'
+                isActive ? 'text-black-400' : 'text-gray-400'
               )}
             >
               {item.label}
