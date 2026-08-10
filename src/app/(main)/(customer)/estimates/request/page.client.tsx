@@ -8,6 +8,7 @@ import { EstimateRequestShell } from './_components/EstimateRequestShell';
 import { AddressStep } from './_components/steps/AddressStep';
 import { MoveDateStep } from './_components/steps/MoveDateStep';
 import { MoveTypeStep } from './_components/steps/MoveTypeStep';
+import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 import type { EstimateRequestVisualStep } from '@/types/customerEstimateRequest';
 
@@ -62,13 +63,11 @@ export const EstimateRequestPageClient = () => {
     }
   }, [bootstrap]);
 
-  // loading · 일반 에러(자동 재시도 중) 공통 — 풀페이지 에러 화면 없음
+  // loading · 일반 에러(자동 재시도 중) 공통 — 공용 Spinner로 톤 맞춤
   if (bootstrap.status === 'loading' || bootstrap.status === 'error') {
     return (
       <div className="mx-auto max-w-[1400px] px-6 py-8 sm:px-18">
-        <p className="text-lg-medium text-gray-400" role="status">
-          견적 요청을 준비하는 중…
-        </p>
+        <Spinner message="견적 요청을 준비하는 중…" />
       </div>
     );
   }
