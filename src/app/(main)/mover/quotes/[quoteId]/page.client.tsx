@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { Button } from '@/components/Button/Button';
 import { QuoteDetailContentSkeleton } from '@/components/quotes/QuoteDetailPageSkeleton';
 import { QuoteShareButtons } from '@/components/QuoteShareButtons/QuoteShareButtons';
+import { useAuth } from '@/hooks/useAuth';
 import { useMoverQuoteDetail } from '@/hooks/useMoverQuoteDetail';
+import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 
@@ -26,9 +28,15 @@ const parseQuoteId = (value: string): number => {
 const MoverQuoteDetailPageClient = ({
   quoteId,
 }: MoverQuoteDetailPageClientProps) => {
+  const { user } = useAuth();
   const numericQuoteId = parseQuoteId(quoteId);
   const { detail, isPending, isError, error, refetch } =
     useMoverQuoteDetail(numericQuoteId);
+  /**
+   * `/mover/quotes/[quoteId]` — 견적 보냄~확정 공통.
+   * 견적서 공유하기 아래 `채팅하기` (닫힌·반려면 canStartChat=false).
+   */
+  const { startEstimateChat, isChatPending } = useStartEstimateChat();
   /** 페이지 가로 패딩 클래스 정의 */
   const pageXPadding =
     'px-6 md:px-[4.5rem] lg:px-10 xl:px-16 min-[90rem]:px-[16.25rem]';
@@ -84,6 +92,21 @@ const MoverQuoteDetailPageClient = ({
     );
   }
 
+  /** 보낸 견적 상세 → 해당 고객과 방 열고 `/chat/{roomId}` */
+  const handleChatClick = () => {
+    if (!user?.id) {
+      return;
+    }
+
+    startEstimateChat({
+      moverId: user.id,
+      isDesignated: detail.isDesignated,
+      estimateRequestId: detail.estimateRequestId,
+      designatedMoverId: detail.designatedMoverId,
+      quoteId: detail.id,
+    });
+  };
+
   return (
     <div
       className={cn(
@@ -95,12 +118,22 @@ const MoverQuoteDetailPageClient = ({
       <QuoteDetailSummaryCard detail={detail} className="col-start-1" />
 
       {!detail.isRejected ? (
-        <aside className="col-start-1 lg:col-start-2 lg:row-span-3 lg:row-start-1">
+        <aside className="col-start-1 flex flex-col gap-4 lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:gap-6">
           <QuoteShareButtons
             sharePath={`/mover/quotes/${quoteId}`}
             shareTitle={`${detail.customerName} 고객님 견적서`}
             shareDescription={`${detail.serviceLabel} · ${detail.priceLabel}`}
           />
+          {detail.canStartChat ? (
+            <Button
+              size="md"
+              variant="outlined"
+              disabled={isChatPending}
+              onClick={handleChatClick}
+            >
+              {isChatPending ? '연결 중...' : '채팅하기'}
+            </Button>
+          ) : null}
         </aside>
       ) : null}
 

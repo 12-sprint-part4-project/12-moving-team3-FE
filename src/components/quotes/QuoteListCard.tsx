@@ -27,6 +27,11 @@ export interface QuoteListCardProps {
   className?: string;
   /** 칩 영역 커스텀 (반려 칩 등) */
   chips?: ReactNode;
+  /**
+   * `/quotes/history` 등 — 본문 전체 링크 대신 하단 CTA([상세보기][채팅하기]).
+   * 전달 시 본문은 링크가 아니며 footerActions를 렌더한다.
+   */
+  footerActions?: ReactNode;
 }
 
 /**
@@ -50,6 +55,7 @@ export const QuoteListCard = ({
   overlayMessage,
   className = '',
   chips,
+  footerActions,
 }: QuoteListCardProps) => {
   const defaultChips = (
     <>
@@ -97,6 +103,8 @@ export const QuoteListCard = ({
     </>
   );
 
+  const useFooterActions = Boolean(footerActions) && !isClosed;
+
   return (
     <article
       className={cn(
@@ -104,7 +112,7 @@ export const QuoteListCard = ({
         className
       )}
     >
-      {isClosed ? (
+      {isClosed || useFooterActions ? (
         <div className="flex w-full flex-1 flex-col gap-6.5 lg:gap-4">
           {cardBody}
         </div>
@@ -117,6 +125,12 @@ export const QuoteListCard = ({
           {cardBody}
         </Link>
       )}
+
+      {useFooterActions ? (
+        <div className="flex w-full flex-col gap-2 md:flex-row md:gap-3">
+          {footerActions}
+        </div>
+      ) : null}
 
       {isClosed && overlayMessage ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl border border-gray-300 bg-black-500/65">

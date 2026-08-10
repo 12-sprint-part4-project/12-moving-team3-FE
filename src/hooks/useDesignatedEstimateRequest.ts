@@ -71,6 +71,12 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
   });
 
   const isAlreadyDesignated = existenceQuery.data?.exists === true;
+  /** `/movers/[id]` DESIGNATED 채팅방 생성용 EstimateDesignatedMover.id */
+  const designatedMoverId =
+    existenceQuery.data?.designatedEstimateRequest?.id ?? null;
+  /** 지정 행에 묶인 견적요청 id — 채팅 body의estimateRequestId */
+  const estimateRequestId =
+    existenceQuery.data?.designatedEstimateRequest?.estimateId ?? null;
   const hasReceivedQuoteFromMover = pendingQuotesQuery.quotes.some(
     (quote) => quote.mover.moverId === moverId
   );
@@ -129,13 +135,9 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
 
         if (error.code === 'DESIGNATED_ALREADY_EXISTS') {
           setAlreadyDesignatedOpen(true);
-          queryClient.setQueryData<DesignatedEstimateExistence>(
-            designatedEstimateQueryKeys.existence(moverId),
-            {
-              exists: true,
-              designatedEstimateRequest: null,
-            }
-          );
+          void queryClient.invalidateQueries({
+            queryKey: designatedEstimateQueryKeys.existence(moverId),
+          });
           return;
         }
 
@@ -186,6 +188,8 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
   return {
     isPending: mutation.isPending,
     isAlreadyDesignated,
+    designatedMoverId,
+    estimateRequestId,
     hasReceivedQuoteFromMover,
     isQuoteStatusError,
     isStatusLoading,

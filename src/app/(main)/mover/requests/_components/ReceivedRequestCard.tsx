@@ -14,6 +14,8 @@ export interface ReceivedRequestCardProps {
   request: ReceivedRequestCardModel;
   onSendQuote?: (request: ReceivedRequestCardModel) => void;
   onReject?: (request: ReceivedRequestCardModel) => void;
+  onChatClick?: (request: ReceivedRequestCardModel) => void;
+  isChatPending?: boolean;
   className?: string;
 }
 
@@ -21,11 +23,16 @@ const FIELD_LABEL_CLASS =
   'px-1.5 py-0.5 text-md-medium text-gray-400 lg:py-1 lg:text-2lg-regular lg:text-gray-500';
 const FIELD_VALUE_CLASS = 'text-md-medium text-black-300 lg:text-2lg-medium';
 
-/** 받은 요청 카드 — 고객·경로 정보와 액션 버튼 표시 */
+/**
+ * `/mover/requests` 받은 요청 카드 (견적 보내기 전).
+ * CTA: [견적 보내기][+반려(지정만)][채팅하기] — 고객과 GENERAL/DESIGNATED 방 오픈.
+ */
 export const ReceivedRequestCard = ({
   request,
   onSendQuote,
   onReject,
+  onChatClick,
+  isChatPending = false,
   className = '',
 }: ReceivedRequestCardProps) => {
   /** 견적 보내기 클릭 전달 */
@@ -38,17 +45,28 @@ export const ReceivedRequestCard = ({
     onReject?.(request);
   };
 
+  /** 채팅하기 클릭 전달 */
+  const handleChatClick = () => {
+    onChatClick?.(request);
+  };
+
+  const canStartChat =
+    !request.isDesignated || request.designatedMoverId != null;
+
   /** 지정 견적만 반려 가능 — 일반 요청은 견적 보내기만 표시 */
-  type CardAction = {
+  interface CardAction {
+    key: string;
     label: string;
     variant: ButtonVariant;
     showIcon: boolean;
+    disabled?: boolean;
     onClick: () => void;
-  };
+  }
 
   const rejectActions: CardAction[] = request.isDesignated
     ? [
         {
+          key: 'reject',
           label: '반려',
           variant: 'outlined',
           showIcon: false,
@@ -57,21 +75,36 @@ export const ReceivedRequestCard = ({
       ]
     : [];
 
+  const chatActions: CardAction[] = canStartChat
+    ? [
+        {
+          key: 'chat',
+          label: isChatPending ? '연결 중...' : '채팅하기',
+          variant: 'outlined',
+          showIcon: false,
+          disabled: isChatPending,
+          onClick: handleChatClick,
+        },
+      ]
+    : [];
+
   const CARD_ACTIONS: CardAction[] = [
     {
+      key: 'send-quote',
       label: '견적 보내기',
       variant: 'solid',
       showIcon: true,
       onClick: handleSendQuote,
     },
     ...rejectActions,
+    ...chatActions,
   ];
 
   /** size별 액션 버튼 공통 렌더 */
   const renderCardActions = (size: ButtonSize) =>
     CARD_ACTIONS.map((action) => (
       <div
-        key={`${size}-${action.label}`}
+        key={`${size}-${action.key}`}
         className={
           size === 'sm'
             ? 'w-full min-w-0 lg:hidden'
@@ -82,6 +115,7 @@ export const ReceivedRequestCard = ({
           size={size}
           variant={action.variant}
           showIcon={action.showIcon}
+          disabled={action.disabled}
           onClick={action.onClick}
           className="cursor-pointer"
         >
@@ -207,7 +241,7 @@ export const ReceivedRequestCard = ({
         </div>
       </div>
 
-      {/* 견적 보내기·반려 버튼 렌더 (사이즈별 분리) */}
+      {/* 견적 보내기·반려·채팅 버튼 렌더 (사이즈별 분리) */}
       <div className="flex w-full min-w-0 flex-col gap-2 lg:flex-row lg:items-stretch lg:gap-4">
         {renderCardActions('sm')}
         {renderCardActions('md')}

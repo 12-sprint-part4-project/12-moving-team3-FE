@@ -18,6 +18,10 @@ export interface MoverDetailBottomBarProps {
   hasReceivedQuoteFromMover?: boolean;
   isQuoteStatusError?: boolean;
   isDesignatedStatusLoading?: boolean;
+  /** `/movers/[id]` 모바일: 지정 CTA 오른쪽 `채팅하기` (지정 완료 후에만) */
+  showChatCta?: boolean;
+  onChatClick?: () => void;
+  isChatPending?: boolean;
   className?: string;
 }
 
@@ -33,6 +37,9 @@ export const MoverDetailBottomBar = ({
   hasReceivedQuoteFromMover = false,
   isQuoteStatusError = false,
   isDesignatedStatusLoading = false,
+  showChatCta = false,
+  onChatClick,
+  isChatPending = false,
   className = '',
 }: MoverDetailBottomBarProps) => {
   const isHardDisabled =
@@ -78,6 +85,19 @@ export const MoverDetailBottomBar = ({
                 isQuoteStatusError
               )}
             </Button>
+            {showChatCta ? (
+              <Button
+                type="button"
+                variant="outlined"
+                size="sm"
+                onClick={onChatClick}
+                disabled={isChatPending}
+                aria-busy={isChatPending}
+                className="flex-1"
+              >
+                {isChatPending ? '연결 중...' : '채팅하기'}
+              </Button>
+            ) : null}
           </>
         ) : (
           <FavoriteButton

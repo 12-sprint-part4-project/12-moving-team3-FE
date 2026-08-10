@@ -13,6 +13,7 @@ import { Toast } from '@/components/ui/Toast/Toast';
 import { useConfirmQuoteModal } from '@/hooks/useConfirmQuoteModal';
 import { useCustomerQuoteDetail } from '@/hooks/useCustomerQuoteDetail';
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';
+import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 
@@ -60,6 +61,9 @@ const CustomerQuoteDetailPageClient = ({
   } = useConfirmQuoteModal(() => {
     router.replace('/quotes/history');
   });
+
+  /** `/quotes/[quoteId]` 보조 CTA — 확정 기사 상세에서 채팅 시작 */
+  const { startEstimateChat, isChatPending } = useStartEstimateChat();
 
   if (!Number.isInteger(numericQuoteId)) {
     return (
@@ -112,7 +116,7 @@ const CustomerQuoteDetailPageClient = ({
     );
   }
 
-  const showMobileActionBar = detail.canConfirm;
+  const showMobileActionBar = detail.canConfirm || detail.canStartChat;
   const quoteShareProps = {
     sharePath: `/quotes/${quoteId}`,
     shareTitle: `${detail.mover.name} 기사님 견적서`,
@@ -121,6 +125,21 @@ const CustomerQuoteDetailPageClient = ({
       detail.mover.shortDescription ||
       `${detail.serviceLabel} · ${detail.priceLabel}`,
     shareImageUrl: detail.mover.profileImageUrl,
+  };
+
+  /**
+   * 견적 상세 채팅 시작.
+   * 데스크톱: 공유 아래 버튼 / 모바일: 하단바 `채팅하기`.
+   * 닫힌 견적요청이면 canStartChat=false로 CTA 숨김.
+   */
+  const handleChatClick = () => {
+    startEstimateChat({
+      moverId: detail.mover.moverId,
+      isDesignated: detail.isDesignated,
+      estimateRequestId: detail.estimateRequestId,
+      designatedMoverId: detail.designatedMoverId,
+      quoteId: detail.quoteId,
+    });
   };
 
   return (
@@ -186,7 +205,7 @@ const CustomerQuoteDetailPageClient = ({
           ) : null}
         </div>
 
-        {/* 데스크톱: 우측 확정 CTA + 공유 */}
+        {/* 데스크톱: 우측 확정 CTA + 공유 + 채팅 */}
         <aside className="col-start-1 hidden w-full flex-col gap-10 lg:col-start-2 lg:row-span-1 lg:row-start-1 lg:flex lg:w-[20.5rem]">
           <CustomerQuoteDetailActions
             variant="desktop"
@@ -206,17 +225,31 @@ const CustomerQuoteDetailPageClient = ({
             <div className="h-px w-full bg-line-100" />
           ) : null}
           <QuoteShareButtons {...quoteShareProps} />
+          {/* 데스크톱: 견적서 공유하기 아래 채팅하기 */}
+          {detail.canStartChat ? (
+            <Button
+              size="md"
+              variant="outlined"
+              disabled={isChatPending}
+              onClick={handleChatClick}
+            >
+              {isChatPending ? '연결 중...' : '채팅하기'}
+            </Button>
+          ) : null}
         </aside>
       </div>
 
-      {/* 모바일·태블릿: 하단 고정 찜 + 확정 (확정 가능할 때만) */}
+      {/* 모바일·태블릿: 하단 고정 찜 + 확정 + 채팅 */}
       <CustomerQuoteDetailActions
         variant="mobile"
         canConfirm={detail.canConfirm}
+        canStartChat={detail.canStartChat}
         isConfirming={isConfirming}
+        isChatPending={isChatPending}
         isFavorited={detail.mover.isFavorited}
         isFavoritePending={isMoverPending(detail.mover.moverId)}
         onConfirm={() => openConfirmModal(detail.quoteId)}
+        onChatClick={handleChatClick}
         onToggleFavorite={() =>
           handleFavoriteClick(detail.mover.moverId, !detail.mover.isFavorited)
         }

@@ -31,6 +31,8 @@ export const customerQuoteItemSchema = z.object({
   price: z.number().nullable(),
   status: customerQuoteStatusSchema,
   isDesignated: z.boolean(),
+  /** EstimateDesignatedMover.id — 지정 채팅방 생성용. 비지정이면 null */
+  designatedMoverId: z.number().nullable(),
   mover: customerQuoteMoverSchema,
 });
 
@@ -86,6 +88,8 @@ export const customerQuoteDetailResponseSchema = z.object({
     comment: z.string().nullable(),
     status: customerQuoteStatusSchema,
     isDesignated: z.boolean(),
+    /** EstimateDesignatedMover.id — 지정 채팅방 생성용. 비지정이면 null */
+    designatedMoverId: z.number().nullable(),
     estimateRequestStatus: estimateRequestStatusSchema,
     serviceType: moveTypeSchema.nullable(),
     moveDate: z.string().nullable(),

@@ -36,6 +36,8 @@ const quoteListItemBaseSchema = z.object({
   customer: quoteCustomerSchema,
   moveType: moveTypeSchema.nullable(),
   isDesignated: z.boolean(),
+  /** EstimateDesignatedMover.id — 지정 채팅방 생성용. 비지정이면 null */
+  designatedMoverId: z.number().nullable(),
   moveDate: z.string().nullable(),
   fromRegionLabel: z.string().nullable(),
   toRegionLabel: z.string().nullable(),

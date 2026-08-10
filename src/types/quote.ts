@@ -54,6 +54,8 @@ export interface QuoteListItemBase {
   customer: { name: string };
   moveType: ApiMoveType | null;
   isDesignated: boolean;
+  /** EstimateDesignatedMover.id — 지정 채팅방 생성용. 비지정이면 null */
+  designatedMoverId: number | null;
   moveDate: string | null;
   fromRegionLabel: string | null;
   toRegionLabel: string | null;
@@ -129,6 +131,8 @@ export interface QuoteDetail {
   customer: { name: string };
   moveType: ApiMoveType | null;
   isDesignated: boolean;
+  /** EstimateDesignatedMover.id — 지정 채팅방 생성용. 비지정이면 null */
+  designatedMoverId: number | null;
   requestedAt: string | null;
   moveDate: string | null;
   fromAddress: string | null;
@@ -140,13 +144,17 @@ export type QuoteDetailResponse = ApiSuccessResponse<QuoteDetail>;
 /** 견적 상세 카드 UI 모델 */
 export interface QuoteDetailViewModel {
   id: number;
+  estimateRequestId: number;
   customerName: string;
   moveType: MoveTypeOption | null;
   isConfirmed: boolean;
   isRejected: boolean;
   isDesignated: boolean;
+  designatedMoverId: number | null;
   estimateRequestStatus: EstimateRequestStatus;
   isMoveCompleted: boolean;
+  /** 채팅하기 CTA — 닫힌·반려 견적이면 false */
+  canStartChat: boolean;
   priceLabel: string;
   rejectReason: string | null;
   requestedAtLabel: string;
