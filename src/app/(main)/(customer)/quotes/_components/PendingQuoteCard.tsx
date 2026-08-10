@@ -166,7 +166,7 @@ export const PendingQuoteCard = ({
 
       {/* CTA — 1줄 확정·채팅 / 2줄 상세보기(텍스트) */}
       <div className="flex w-full flex-col gap-2 lg:gap-3">
-        <div className="flex w-full gap-2 lg:gap-[0.6875rem]">
+        <div className="flex w-full gap-2 lg:gap-3">
           <Button
             size="md"
             variant="solid"

@@ -54,14 +54,14 @@ export const ReceivedRequestCard = ({
     !request.isDesignated || request.designatedMoverId != null;
 
   /** 지정 견적만 반려 가능 — 일반 요청은 견적 보내기만 표시 */
-  type CardAction = {
+  interface CardAction {
     key: string;
     label: string;
     variant: ButtonVariant;
     showIcon: boolean;
     disabled?: boolean;
     onClick: () => void;
-  };
+  }
 
   const rejectActions: CardAction[] = request.isDesignated
     ? [
