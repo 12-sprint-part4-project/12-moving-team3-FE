@@ -3,8 +3,8 @@
 import Link from 'next/link';
 
 import { Button } from '@/components/Button/Button';
+import { QuoteDetailContentSkeleton } from '@/components/quotes/QuoteDetailPageSkeleton';
 import { QuoteShareButtons } from '@/components/QuoteShareButtons/QuoteShareButtons';
-import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useMoverQuoteDetail } from '@/hooks/useMoverQuoteDetail';
 import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
@@ -50,11 +50,7 @@ const MoverQuoteDetailPageClient = ({
   }
 
   if (isPending) {
-    return (
-      <div className="flex min-h-full w-full items-center justify-center bg-white">
-        <Spinner message="견적 상세 불러오는 중..." />
-      </div>
-    );
+    return <QuoteDetailContentSkeleton />;
   }
 
   if (isError || !detail) {
@@ -89,64 +85,52 @@ const MoverQuoteDetailPageClient = ({
   }
 
   return (
-    <div className="flex min-h-full w-full flex-col overflow-x-hidden bg-white">
-      {/* 페이지 타이틀 렌더 */}
-      <div
-        className={`border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8 ${pageXPadding}`}
-      >
-        <h1 className="text-2lg-semibold text-black-400 lg:text-2xl-semibold">
-          견적 상세
-        </h1>
-      </div>
+    <div
+      className={cn(
+        'mx-auto grid w-full max-w-[1920px] flex-1 grid-cols-1 gap-6 py-6 md:gap-8 md:py-8 lg:items-start lg:justify-between lg:gap-10 lg:py-10',
+        detail.isRejected ? '' : 'lg:grid-cols-[minmax(0,59.6875rem)_auto]',
+        pageXPadding
+      )}
+    >
+      <QuoteDetailSummaryCard detail={detail} className="col-start-1" />
 
-      {/* 본문 — 보낸 견적: 모바일 요약→공유→본문 / 데스크톱 좌측 본문·우측 공유 */}
-      <div
-        className={cn(
-          'mx-auto grid w-full max-w-[1920px] flex-1 grid-cols-1 gap-6 py-6 md:gap-8 md:py-8 lg:items-start lg:justify-between lg:gap-10 lg:py-10',
-          detail.isRejected ? '' : 'lg:grid-cols-[minmax(0,59.6875rem)_auto]',
-          pageXPadding
+      {!detail.isRejected ? (
+        <aside className="col-start-1 lg:col-start-2 lg:row-span-3 lg:row-start-1">
+          <QuoteShareButtons
+            sharePath={`/mover/quotes/${quoteId}`}
+            shareTitle={`${detail.customerName} 고객님 견적서`}
+            shareDescription={`${detail.serviceLabel} · ${detail.priceLabel}`}
+          />
+        </aside>
+      ) : null}
+
+      <div className="col-start-1 flex w-full max-w-[59.6875rem] flex-col gap-6 md:gap-8 lg:gap-10">
+        <div className="h-px w-full bg-line-100" />
+
+        {/* 견적가 또는 반려 사유 */}
+        {detail.isRejected ? (
+          <section className="flex w-full flex-col gap-4 lg:gap-8">
+            <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
+              반려 사유
+            </h2>
+            <p className="text-2lg-regular text-black-400 lg:text-2xl-regular">
+              {detail.rejectReason ?? '-'}
+            </p>
+          </section>
+        ) : (
+          <section className="flex w-full flex-col gap-4 lg:gap-8">
+            <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
+              견적가
+            </h2>
+            <p className="text-2lg-bold text-black-400 lg:text-3xl-bold">
+              {detail.priceLabel}
+            </p>
+          </section>
         )}
-      >
-        <QuoteDetailSummaryCard detail={detail} className="col-start-1" />
 
-        {!detail.isRejected ? (
-          <aside className="col-start-1 lg:col-start-2 lg:row-span-3 lg:row-start-1">
-            <QuoteShareButtons
-              sharePath={`/mover/quotes/${quoteId}`}
-              shareTitle={`${detail.customerName} 고객님 견적서`}
-              shareDescription={`${detail.serviceLabel} · ${detail.priceLabel}`}
-            />
-          </aside>
-        ) : null}
+        <div className="h-px w-full bg-line-100" />
 
-        <div className="col-start-1 flex w-full max-w-[59.6875rem] flex-col gap-6 md:gap-8 lg:gap-10">
-          <div className="h-px w-full bg-line-100" />
-
-          {/* 견적가 또는 반려 사유 */}
-          {detail.isRejected ? (
-            <section className="flex w-full flex-col gap-4 lg:gap-8">
-              <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
-                반려 사유
-              </h2>
-              <p className="text-2lg-regular text-black-400 lg:text-2xl-regular">
-                {detail.rejectReason ?? '-'}
-              </p>
-            </section>
-          ) : (
-            <section className="flex w-full flex-col gap-4 lg:gap-8">
-              <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
-                견적가
-              </h2>
-              <p className="text-2lg-bold text-black-400 lg:text-3xl-bold">
-                {detail.priceLabel}
-              </p>
-            </section>
-          )}
-
-          <div className="h-px w-full bg-line-100" />
-
-          <QuoteDetailInfoSection detail={detail} />
-        </div>
+        <QuoteDetailInfoSection detail={detail} />
       </div>
     </div>
   );
