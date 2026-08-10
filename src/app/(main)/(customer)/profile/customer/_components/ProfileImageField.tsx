@@ -15,6 +15,7 @@ interface ProfileImageFieldProps {
   onImageChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onImageButtonClick: () => void;
   onImageClear: () => void;
+  className?: string;
 }
 
 const isLocalPreviewUrl = (url: string): boolean =>
@@ -29,6 +30,7 @@ export const ProfileImageField = ({
   onImageChange,
   onImageButtonClick,
   onImageClear,
+  className,
 }: ProfileImageFieldProps) => {
   const handleClearClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -37,13 +39,16 @@ export const ProfileImageField = ({
   };
 
   return (
-    <section className="flex flex-col items-start gap-4 lg:gap-6">
+    <section
+      className={cn('flex flex-col items-start gap-4 lg:gap-6', className)}
+    >
       <h2 className={labelClassName}>프로필 이미지</h2>
       <input
         ref={imageInputRef}
         id={imageInputId}
         type="file"
         accept="image/*"
+        aria-label="프로필 이미지 파일 선택"
         className="sr-only"
         onChange={onImageChange}
       />
