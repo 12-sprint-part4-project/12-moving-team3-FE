@@ -2,13 +2,18 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useRef, useState } from 'react';
 
 import MenuIcon from '@/assets/icons/menu.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
 
 import { ChatGnbButton } from '@/components/chat/ChatGnbButton';
-import { GNB_NAV_BY_ROLE, type GnbNavItem } from '@/components/Gnb/gnbNav';
+import {
+  GNB_NAV_BY_ROLE,
+  isGnbNavActive,
+  type GnbNavItem,
+} from '@/components/Gnb/gnbNav';
 import { GnbProfileDropdown } from '@/components/Gnb/GnbProfileDropdown';
 import { NotificationGnbButton } from '@/components/Gnb/NotificationGnbButton';
 import { Logo } from '@/components/Logo/Logo';
@@ -165,6 +170,7 @@ const GnbHeader = ({
   onLogout,
   withBorder = true,
 }: GnbHeaderProps) => {
+  const pathname = usePathname();
   const isDesktop = size === 'lg';
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   // 채팅·알림·프로필 상호 배타 — 각각 별도 closeSignal
@@ -221,15 +227,23 @@ const GnbHeader = ({
 
           {isDesktop ? (
             <nav className="flex h-full shrink-0 items-center gap-10">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href + item.label}
-                  href={item.href}
-                  className="flex h-[5.5rem] shrink-0 items-center py-4 text-2lg-bold whitespace-nowrap text-black-400"
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                const isActive = isGnbNavActive(pathname, item.href);
+
+                return (
+                  <Link
+                    key={item.href + item.label}
+                    href={item.href}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={cn(
+                      'flex h-[5.5rem] shrink-0 items-center py-4 text-2lg-bold whitespace-nowrap',
+                      isActive ? 'text-gray-400' : 'text-black-400'
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
             </nav>
           ) : null}
         </div>
