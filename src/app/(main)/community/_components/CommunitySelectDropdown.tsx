@@ -112,7 +112,7 @@ export const CommunitySelectDropdown = ({
             'absolute top-full left-0 z-20 mt-1 border border-line-200 bg-white',
             isDesktop
               ? 'w-[20.5rem] overflow-hidden rounded-2xl'
-              : 'max-h-[11.25rem] overflow-y-auto rounded-lg'
+              : 'w-max min-w-full max-h-[11.25rem] overflow-y-auto rounded-lg'
           )}
         >
           <ul
