@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
+import { chatQueryKeys } from '@/hooks/useChat';
 import { useCustomerPendingQuotes } from '@/hooks/useCustomerPendingQuotes';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
@@ -124,6 +125,15 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
           designatedEstimateRequest: created,
         }
       );
+      // 지정 요청 후 기존 채팅방이 있으면 목록·상세를 다시 맞춰 둔다 (#208)
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: chatQueryKeys.rooms(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: [...chatQueryKeys.all, 'room'],
+        }),
+      ]);
       showToast({ content: '지정 견적 요청을 보냈어요.' });
     },
     onError: (error: unknown) => {
