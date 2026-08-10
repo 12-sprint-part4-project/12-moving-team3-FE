@@ -17,7 +17,8 @@ export interface UpsertCustomerProfileRequest {
   newPasswordConfirm?: string;
   region?: CustomerRegion;
   service?: CustomerServiceType[];
-  s3Key?: string;
+  /** Presigned 업로드 후 s3Key. null이면 이미지 삭제, 미전송 시 기존 유지 */
+  s3Key?: string | null;
 }
 
 export interface CustomerProfile {

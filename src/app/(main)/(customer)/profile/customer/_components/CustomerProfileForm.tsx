@@ -10,7 +10,6 @@ import {
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
-import NoImageIcon from '@/assets/icons/no-image.svg';
 import { Button } from '@/components/Button/Button';
 import { RegionChip, ServiceChip } from '@/components/ui/Chip';
 import { TextFieldOutlined } from '@/components/ui/Input';
@@ -24,7 +23,6 @@ import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { getAuthSession } from '@/lib/authSession';
 import { uploadProfileImage } from '@/lib/uploadProfileImage';
-import { cn } from '@/lib/utils';
 import { upsertCustomerProfile } from '@/services/customerProfileApi';
 import type {
   CustomerRegion,
@@ -34,6 +32,7 @@ import type {
 import { toggleService } from '../_lib/toggleService';
 import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
 import { ProfileImageCropModal } from './ProfileImageCropModal';
+import { ProfileImageField } from './ProfileImageField';
 
 const PHONE_NUMBER_LENGTH = 11;
 const NICKNAME_MIN_LENGTH = 2;
@@ -60,11 +59,12 @@ export const CustomerProfileForm = () => {
   const phoneInputId = useId();
   const {
     imageInputRef,
-    previewUrl,
+    displayImageUrl,
     cropImageSrc,
     profileImageFile,
     handleImageChange,
     handleImageButtonClick,
+    handleImageClear,
     handleCropClose,
     handleCropComplete,
   } = useProfileImageCrop();
@@ -198,40 +198,15 @@ export const CustomerProfileForm = () => {
           </header>
 
           <div className="flex w-full flex-col items-start gap-5 lg:gap-8">
-            <section className="flex flex-col items-start gap-4 lg:gap-6">
-              <h2 className={LABEL_CLASSNAME}>프로필 이미지</h2>
-              <input
-                ref={imageInputRef}
-                id={imageInputId}
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={handleImageChange}
-              />
-              <button
-                type="button"
-                onClick={handleImageButtonClick}
-                aria-label="프로필 이미지 업로드"
-                className={cn(
-                  'flex size-[6.25rem] cursor-pointer items-center justify-center overflow-hidden rounded-md bg-background-200 lg:size-40',
-                  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300'
-                )}
-              >
-                {previewUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- blob preview
-                  <img
-                    src={previewUrl}
-                    alt="선택한 프로필 이미지 미리보기"
-                    className="size-full object-cover"
-                  />
-                ) : (
-                  <NoImageIcon
-                    className="size-8 text-gray-300 lg:size-10"
-                    aria-hidden
-                  />
-                )}
-              </button>
-            </section>
+            <ProfileImageField
+              imageInputId={imageInputId}
+              imageInputRef={imageInputRef}
+              displayImageUrl={displayImageUrl}
+              labelClassName={LABEL_CLASSNAME}
+              onImageChange={handleImageChange}
+              onImageButtonClick={handleImageButtonClick}
+              onImageClear={handleImageClear}
+            />
 
             <div className="h-px w-full bg-line-100" aria-hidden />
 

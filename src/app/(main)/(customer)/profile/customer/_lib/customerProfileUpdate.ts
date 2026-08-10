@@ -26,8 +26,8 @@ interface BuildCustomerProfileUpdateBodyParams {
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
-  s3Key?: string;
-  /** 이미지 업로드 전에도 변경 여부를 반영하기 위한 플래그 */
+  s3Key?: string | null;
+  /** 이미지 업로드·삭제 전에도 변경 여부를 반영하기 위한 플래그 */
   hasImageChange?: boolean;
 }
 
@@ -86,7 +86,7 @@ export const buildCustomerProfileUpdateBody = ({
     body.newPasswordConfirm = confirmPassword;
   }
 
-  if (s3Key) {
+  if (s3Key !== undefined) {
     body.s3Key = s3Key;
   }
 

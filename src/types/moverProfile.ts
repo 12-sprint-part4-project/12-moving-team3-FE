@@ -21,8 +21,8 @@ export interface UpsertMoverProfileRequest {
   service: MoverServiceType[];
   /** 서비스 가능 지역 (최소 1개) */
   serviceRegions: MoverRegion[];
-  /** Presigned 업로드 후 s3Key. 미전송 시 기존 이미지 유지 */
-  s3Key?: string;
+  /** Presigned 업로드 후 s3Key. null이면 이미지 삭제, 미전송 시 기존 유지 */
+  s3Key?: string | null;
 }
 
 /** PATCH 응답 data */

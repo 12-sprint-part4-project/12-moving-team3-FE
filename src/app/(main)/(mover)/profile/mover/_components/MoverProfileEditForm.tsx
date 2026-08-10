@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { redirect, useRouter } from 'next/navigation';
 import {
   useId,
@@ -11,8 +10,8 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 
 import { ProfileImageCropModal } from '@/app/(main)/(customer)/profile/customer/_components/ProfileImageCropModal';
+import { ProfileImageField } from '@/app/(main)/(customer)/profile/customer/_components/ProfileImageField';
 import { useProfileImageCrop } from '@/app/(main)/(customer)/profile/customer/_lib/useProfileImageCrop';
-import NoImageIcon from '@/assets/icons/no-image.svg';
 import { Button } from '@/components/Button/Button';
 import { RegionChip, ServiceChip } from '@/components/ui/Chip';
 import { TextArea, TextFieldOutlined } from '@/components/ui/Input';
@@ -86,14 +85,16 @@ const MoverProfileEditFields = ({
 
   const {
     imageInputRef,
-    previewUrl,
+    displayImageUrl,
     cropImageSrc,
     profileImageFile,
+    isImageCleared,
     handleImageChange,
     handleImageButtonClick,
+    handleImageClear,
     handleCropClose,
     handleCropComplete,
-  } = useProfileImageCrop();
+  } = useProfileImageCrop({ initialImageUrl: profile.profileImageUrl });
 
   const [nickname, setNickname] = useState(profile.nickname);
   const [career, setCareer] = useState(
@@ -119,8 +120,6 @@ const MoverProfileEditFields = ({
     selectedServices.length > 0 &&
     selectedRegions.length > 0 &&
     !isPending;
-
-  const displayImageUrl = previewUrl ?? profile.profileImageUrl;
 
   const handleCancel = () => {
     router.back();
@@ -214,10 +213,12 @@ const MoverProfileEditFields = ({
     setIsPending(true);
 
     try {
-      let s3Key: string | undefined;
+      let s3Key: string | null | undefined;
 
       if (profileImageFile) {
         s3Key = await uploadProfileImage(profileImageFile);
+      } else if (isImageCleared) {
+        s3Key = null;
       }
 
       const response = await upsertMoverProfile({
@@ -227,7 +228,7 @@ const MoverProfileEditFields = ({
         description: trimmedDescription,
         service: selectedServices,
         serviceRegions: selectedRegions,
-        ...(s3Key ? { s3Key } : {}),
+        ...(s3Key !== undefined ? { s3Key } : {}),
       });
 
       await queryClient.invalidateQueries({
@@ -299,52 +300,18 @@ const MoverProfileEditFields = ({
               />
             </section>
 
-            <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
+            <div className="flex w-full flex-col items-start gap-4 lg:col-start-1">
               <div className="h-px w-full bg-line-100" aria-hidden />
-              <h2 className={LABEL_CLASSNAME}>프로필 이미지</h2>
-              <input
-                ref={imageInputRef}
-                id={imageInputId}
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={handleImageChange}
+              <ProfileImageField
+                imageInputId={imageInputId}
+                imageInputRef={imageInputRef}
+                displayImageUrl={displayImageUrl}
+                labelClassName={LABEL_CLASSNAME}
+                onImageChange={handleImageChange}
+                onImageButtonClick={handleImageButtonClick}
+                onImageClear={handleImageClear}
               />
-              <button
-                type="button"
-                onClick={handleImageButtonClick}
-                aria-label="프로필 이미지 업로드"
-                className={cn(
-                  'relative flex size-[6.25rem] cursor-pointer items-center justify-center overflow-hidden rounded-md bg-background-200 lg:size-40',
-                  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300'
-                )}
-              >
-                {displayImageUrl ? (
-                  displayImageUrl.startsWith('blob:') ||
-                  displayImageUrl.startsWith('data:') ? (
-                    // eslint-disable-next-line @next/next/no-img-element -- blob/data 미리보기는 next/image 미지원
-                    <img
-                      src={displayImageUrl}
-                      alt="프로필 이미지 미리보기"
-                      className="size-full object-cover"
-                    />
-                  ) : (
-                    <Image
-                      src={displayImageUrl}
-                      alt="프로필 이미지 미리보기"
-                      fill
-                      sizes="(min-width: 64rem) 160px, 100px"
-                      className="object-cover"
-                    />
-                  )
-                ) : (
-                  <NoImageIcon
-                    className="size-8 text-gray-300 lg:size-10"
-                    aria-hidden
-                  />
-                )}
-              </button>
-            </section>
+            </div>
 
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
               <div className="h-px w-full bg-line-100" aria-hidden />
