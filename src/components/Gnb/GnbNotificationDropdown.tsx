@@ -16,7 +16,7 @@ export interface GnbNotificationDropdownProps {
 const EMPTY_MESSAGE = '새로운 알림이 없어요';
 const LOADING_MESSAGE = '불러오는 중…';
 
-/** GNB 알림 드롭다운 — 헤더·목록·empty/loading (실 API 연동은 상위 Sprint 2) */
+/** GNB 알림 드롭다운 — 헤더·목록·empty/loading */
 export const GnbNotificationDropdown = ({
   items,
   isLoading = false,
@@ -49,7 +49,8 @@ export const GnbNotificationDropdown = ({
         </button>
       </div>
 
-      <div className="flex w-full flex-col items-stretch">
+      {/* 알림 많을 때 패널이 뷰포트를 넘지 않도록 목록만 스크롤 (헤더는 shrink-0) */}
+      <div className="flex max-h-[24rem] w-full flex-col items-stretch overflow-y-auto">
         {isLoading ? (
           <Spinner message={LOADING_MESSAGE} className="gap-3 py-8" />
         ) : null}
