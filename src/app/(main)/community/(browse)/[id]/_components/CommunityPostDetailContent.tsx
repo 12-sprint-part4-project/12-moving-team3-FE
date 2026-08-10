@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeSanitize from 'rehype-sanitize';
+import remarkBreaks from 'remark-breaks';
 
 import { normalizeCommunityPostContentForRender } from '@/lib/stripCommunityPostMarkdown';
 import { cn } from '@/lib/utils';
@@ -26,7 +27,10 @@ export const CommunityPostDetailContent = ({
 
   return (
     <div className={cn(COMMUNITY_DETAIL_BODY_MARKDOWN_CLASS, className)}>
-      <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+      <ReactMarkdown
+        remarkPlugins={[remarkBreaks]}
+        rehypePlugins={[rehypeSanitize]}
+      >
         {normalizedContent}
       </ReactMarkdown>
     </div>

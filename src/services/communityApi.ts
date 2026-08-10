@@ -127,6 +127,12 @@ export const deletePost = (postId: number): Promise<void> =>
     method: 'DELETE',
   });
 
+/** 가구 나눔 게시글 나눔 완료 */
+export const completePost = (postId: number): Promise<PostIdResponse> =>
+  communityFetch<PostIdResponse>(`${BASE_PATH}/${postId}/complete`, {
+    method: 'PATCH',
+  });
+
 /** 댓글 목록 조회 쿼리스트링 생성 */
 export const buildCommentListQueryString = (
   query: CommentListQuery = {}

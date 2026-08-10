@@ -5,7 +5,7 @@ import { type ChangeEvent, useRef } from 'react';
 
 import CloseIcon from '@/assets/icons/close.svg';
 import { MAX_POST_IMAGE_COUNT } from '@/constants/communityOptions';
-import { validateChatImageFile } from '@/lib/uploadChatImage';
+import { validatePostImageFile } from '@/lib/uploadPostImage';
 import { cn } from '@/lib/utils';
 
 const POST_IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
@@ -57,7 +57,7 @@ export const CommunityWriteImageField = ({
     }
 
     for (const file of files.slice(0, remainingSlots)) {
-      const errorMessage = validateChatImageFile(file);
+      const errorMessage = validatePostImageFile(file);
 
       if (errorMessage) {
         firstError ??= errorMessage;
@@ -132,7 +132,7 @@ export const CommunityWriteImageField = ({
       </div>
 
       <p className={cn(COMMUNITY_WRITE_HINT_CLASS, 'mt-2')}>
-        이미지는 최대 {MAX_POST_IMAGE_COUNT}장까지 첨부할 수 있어요.
+        이미지는 최대 {MAX_POST_IMAGE_COUNT}장, 장당 5MB 이하만 첨부할 수 있어요.
       </p>
     </section>
   );

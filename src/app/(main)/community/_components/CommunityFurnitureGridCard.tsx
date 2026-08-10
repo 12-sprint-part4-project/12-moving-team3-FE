@@ -69,7 +69,7 @@ export const CommunityFurnitureGridCard = ({
           </div>
         ) : null}
 
-        {post.isCompleted ? (
+        {post.isCompleted === true ? (
           <div className={COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_CLASS}>
             <span className={COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_TEXT_CLASS}>
               {FURNITURE_SHARE_COMPLETE_LABEL}

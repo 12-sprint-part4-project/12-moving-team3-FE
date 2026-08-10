@@ -6,6 +6,7 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
+  type InfiniteData,
 } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 
@@ -18,6 +19,7 @@ import {
 } from '@/lib/postViewTracking';
 import { uploadPostImage } from '@/lib/uploadPostImage';
 import {
+  completePost,
   createComment,
   createPost,
   createReply,
@@ -38,7 +40,9 @@ import type {
   CreateCommentBody,
   CreatePostBody,
   CreateReplyBody,
+  PostDetailResponse,
   PostListParams,
+  PostListResponse,
   UpdatePostBody,
 } from '@/types/community';
 
@@ -76,6 +80,50 @@ const invalidatePostComments = (
   queryClient.invalidateQueries({
     queryKey: [...communityQueryKeys.commentLists(), postId],
   });
+
+const markPostCompletedInCache = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  postId: number
+) => {
+  queryClient.setQueryData<PostDetailResponse>(
+    communityQueryKeys.detail(postId),
+    (previous) => {
+      if (previous?.data === undefined) {
+        return previous;
+      }
+
+      return {
+        ...previous,
+        data: {
+          ...previous.data,
+          isCompleted: true,
+        },
+      };
+    }
+  );
+
+  queryClient.setQueriesData<InfiniteData<PostListResponse>>(
+    { queryKey: communityQueryKeys.lists() },
+    (previous) => {
+      if (previous === undefined) {
+        return previous;
+      }
+
+      return {
+        ...previous,
+        pages: previous.pages.map((page) => ({
+          ...page,
+          data: {
+            ...page.data,
+            items: page.data.items.map((item) =>
+              item.id === postId ? { ...item, isCompleted: true } : item
+            ),
+          },
+        })),
+      };
+    }
+  );
+};
 
 const invalidatePostEngagement = (
   queryClient: ReturnType<typeof useQueryClient>,
@@ -226,6 +274,46 @@ export const useDeletePost = () => {
     mutationFn: (postId: number) => deletePost(postId),
     onSuccess: async (_data, postId) => {
       await invalidatePostSummary(queryClient, postId);
+    },
+  });
+};
+
+/** 가구 나눔 게시글 나눔 완료 */
+export const useCompletePost = (postId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => completePost(postId),
+    onMutate: async () => {
+      await queryClient.cancelQueries({
+        queryKey: communityQueryKeys.detail(postId),
+      });
+      await queryClient.cancelQueries({
+        queryKey: communityQueryKeys.lists(),
+      });
+
+      const previousDetail = queryClient.getQueryData<PostDetailResponse>(
+        communityQueryKeys.detail(postId)
+      );
+
+      markPostCompletedInCache(queryClient, postId);
+
+      return { previousDetail };
+    },
+    onSuccess: async () => {
+      await invalidatePostSummary(queryClient, postId);
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousDetail !== undefined) {
+        queryClient.setQueryData(
+          communityQueryKeys.detail(postId),
+          context.previousDetail
+        );
+      }
+
+      void queryClient.invalidateQueries({
+        queryKey: communityQueryKeys.lists(),
+      });
     },
   });
 };

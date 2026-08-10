@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import type { PostListItem } from '@/types/community';
 
 import { CommunityPostBadges } from './CommunityPostBadges';
+import { CommunityFurnitureShareCompletedBadge } from './CommunityFurnitureShareCompletedBadge';
 import { CommunityPostThumbnail } from './CommunityPostThumbnail';
 
 interface CommunityPostCardProps {
@@ -130,10 +131,8 @@ export const CommunityPostCard = ({
           </time>
         </div>
 
-        {post.isCompleted ? (
-          <span className="mt-1 inline-flex w-fit rounded bg-background-300 px-1.5 py-0.5 text-md-medium text-gray-400">
-            나눔 완료
-          </span>
+        {post.isCompleted === true ? (
+          <CommunityFurnitureShareCompletedBadge className="mt-1" />
         ) : null}
       </div>
 

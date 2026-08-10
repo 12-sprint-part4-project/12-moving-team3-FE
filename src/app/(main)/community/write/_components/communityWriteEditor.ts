@@ -68,6 +68,14 @@ export const getCommunityWriteEditorExtensions = (): Extensions =>
 
 export const getCommunityWriteEditorProps = () => COMMUNITY_WRITE_EDITOR_PROPS;
 
+export const getCommunityWriteMarkdown = (editor: Editor): string => {
+  if (typeof editor.getMarkdown === 'function') {
+    return editor.getMarkdown();
+  }
+
+  return editor.getText();
+};
+
 export const runCommunityWriteToolbarCommand = (
   editor: Editor,
   itemId: CommunityWriteToolbarItemId

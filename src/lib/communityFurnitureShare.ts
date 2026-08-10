@@ -5,9 +5,8 @@ export type FurnitureShareDetailAction = 'chat' | 'complete' | 'completed-status
 export { isFurnitureSharePost };
 
 export const resolveFurnitureShareCompleted = (
-  isCompleted: boolean | null | undefined,
-  isLocallyMarkedComplete: boolean
-): boolean => isCompleted === true || isLocallyMarkedComplete;
+  isCompleted: boolean | null | undefined
+): boolean => isCompleted === true;
 
 export const resolveFurnitureShareDetailAction = (
   isFurnitureShare: boolean,
