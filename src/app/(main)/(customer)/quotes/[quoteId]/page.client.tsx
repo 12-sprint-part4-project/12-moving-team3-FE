@@ -7,13 +7,14 @@ import InfoIcon from '@/assets/icons/info.svg';
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
 import { Button } from '@/components/Button/Button';
+import { QuoteDetailContentSkeleton } from '@/components/quotes/QuoteDetailPageSkeleton';
 import { QuoteShareButtons } from '@/components/QuoteShareButtons/QuoteShareButtons';
-import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { Toast } from '@/components/ui/Toast/Toast';
 import { useConfirmQuoteModal } from '@/hooks/useConfirmQuoteModal';
 import { useCustomerQuoteDetail } from '@/hooks/useCustomerQuoteDetail';
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { ApiError } from '@/lib/apiClient';
+import { cn } from '@/lib/utils';
 
 import { ConfirmQuoteModal } from '../_components/ConfirmQuoteModal';
 import { CustomerQuoteDetailActions } from './_components/CustomerQuoteDetailActions';
@@ -77,11 +78,7 @@ const CustomerQuoteDetailPageClient = ({
   }
 
   if (isPending) {
-    return (
-      <div className="flex min-h-full w-full items-center justify-center bg-white">
-        <Spinner message="견적 상세 불러오는 중..." />
-      </div>
-    );
+    return <QuoteDetailContentSkeleton />;
   }
 
   if (isError || !detail) {
@@ -128,18 +125,11 @@ const CustomerQuoteDetailPageClient = ({
 
   return (
     <div
-      className={`flex min-h-full w-full flex-col overflow-x-hidden bg-white lg:pb-0 ${
-        showMobileActionBar ? 'pb-[4.625rem]' : ''
-      }`}
+      className={cn(
+        'flex min-h-0 w-full flex-1 flex-col',
+        showMobileActionBar && 'pb-[4.625rem] lg:pb-0'
+      )}
     >
-      <div
-        className={`border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8 ${PAGE_X_PADDING}`}
-      >
-        <h1 className="text-2lg-semibold text-black-400 lg:text-2xl-semibold">
-          견적 상세
-        </h1>
-      </div>
-
       <div
         className={`mx-auto grid w-full max-w-[1920px] flex-1 grid-cols-1 gap-6 py-6 md:gap-8 md:py-8 lg:grid-cols-[minmax(0,59.6875rem)_20.5rem] lg:items-start lg:justify-between lg:gap-10 lg:py-10 ${PAGE_X_PADDING}`}
       >
