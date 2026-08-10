@@ -12,7 +12,6 @@ import {
   ReceivedQuotesListSkeleton,
 } from '@/components/quotes/QuotesPageSkeleton';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
-import { Tab } from '@/components/ui/Tab/Tab';
 import { useConfirmQuoteModal } from '@/hooks/useConfirmQuoteModal';
 import {
   PAST_QUOTE_GROUP_LIMIT,
@@ -25,35 +24,22 @@ import { ApiError } from '@/lib/apiClient';
 import type { PendingQuoteCardModel } from '@/types/customerQuote';
 
 import { ConfirmQuoteModal } from './_components/ConfirmQuoteModal';
+import {
+  CUSTOMER_QUOTES_PAGE_X_PADDING,
+  parseCustomerQuotesTabId,
+} from './_components/CustomerQuotesTabs';
 import { PendingQuoteCard } from './_components/PendingQuoteCard';
 import { PendingQuotesEmptyState } from './_components/PendingQuotesEmptyState';
 import { PendingRequestSubHeader } from './_components/PendingRequestSubHeader';
 import { ReceivedQuoteGroupSection } from './_components/ReceivedQuoteGroupSection';
 
-type QuotesTabId = 'pending' | 'received';
+const CONTENT_CLASS = `mx-auto w-full max-w-[1920px] py-6 md:py-8 lg:py-10 ${CUSTOMER_QUOTES_PAGE_X_PADDING}`;
 
-const TABS: { id: QuotesTabId; label: string }[] = [
-  { id: 'pending', label: '대기 중인 견적' },
-  { id: 'received', label: '받았던 견적' },
-];
-
-const PAGE_X_PADDING = 'px-6 md:px-18 lg:px-10 xl:px-16 min-[90rem]:px-65';
-
-const CONTENT_CLASS = `mx-auto w-full max-w-[1920px] py-6 md:py-8 lg:py-10 ${PAGE_X_PADDING}`;
-
-/** URL tab 쿼리 → 탭 id */
-const parseQuotesTabId = (value: string | null): QuotesTabId =>
-  value === 'received' ? 'received' : 'pending';
-
-/** 탭 id 유효성 판별 */
-const isQuotesTabId = (value: string): value is QuotesTabId =>
-  value === 'pending' || value === 'received';
-
-/** 고객 내 견적 관리 페이지 클라이언트 */
+/** 고객 내 견적 관리 본문 */
 const CustomerQuotesPageClient = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const activeTab = parseQuotesTabId(searchParams.get('tab'));
+  const activeTab = parseCustomerQuotesTabId(searchParams.get('tab'));
   const {
     handleFavoriteClick,
     isMoverPending,
@@ -142,16 +128,6 @@ const CustomerQuotesPageClient = () => {
     pastError instanceof ApiError
       ? pastError.message
       : '견적 목록을 불러오지 못했습니다.';
-
-  /** 탭 변경 */
-  const handleTabChange = (tabId: string) => {
-    if (!isQuotesTabId(tabId) || tabId === activeTab) {
-      return;
-    }
-    router.replace(tabId === 'received' ? '/quotes?tab=received' : '/quotes', {
-      scroll: false,
-    });
-  };
 
   /** 목록 재조회 */
   const handleRetry = () => {
@@ -290,37 +266,8 @@ const CustomerQuotesPageClient = () => {
   };
 
   return (
-    <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden">
-      {/* 대기 중 / 받았던 견적 탭 */}
-      <div
-        className={`shrink-0 border-b border-line-100 bg-white pt-4 shadow-page-title ${PAGE_X_PADDING}`}
-      >
-        <div
-          role="tablist"
-          aria-label="내 견적 관리 탭"
-          className="flex items-start gap-6 lg:gap-8"
-        >
-          {TABS.map((tab) => (
-            <Tab
-              key={tab.id}
-              variant="depth"
-              active={activeTab === tab.id}
-              onClick={() => handleTabChange(tab.id)}
-              id={`customer-quotes-tab-${tab.id}`}
-              aria-controls={`customer-quotes-panel-${tab.id}`}
-            >
-              {tab.label}
-            </Tab>
-          ))}
-        </div>
-      </div>
-
-      <div
-        className="min-h-0 w-full flex-1 bg-background-200"
-        role="tabpanel"
-        id={`customer-quotes-panel-${activeTab}`}
-        aria-labelledby={`customer-quotes-tab-${activeTab}`}
-      >
+    <>
+      <div className="min-h-0 w-full flex-1 bg-background-200">
         {activeTab === 'pending' ? renderPendingPanel() : renderReceivedPanel()}
       </div>
 
@@ -336,7 +283,7 @@ const CustomerQuotesPageClient = () => {
         open={isProfileModalOpen}
         onClose={closeAuthModal}
       />
-    </div>
+    </>
   );
 };
 
