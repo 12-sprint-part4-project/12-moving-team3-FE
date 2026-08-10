@@ -17,6 +17,8 @@ interface CommunityCommentListProps {
   currentUserId?: string;
   deletingCommentId?: number | null;
   onDeleteRequest?: (commentId: number) => void;
+  onReplySubmit?: (commentId: number, content: string) => void;
+  onLoginRequired?: () => void;
   isPending: boolean;
   isError: boolean;
   isFetchingNextPage: boolean;
@@ -39,6 +41,8 @@ export const CommunityCommentList = ({
   currentUserId,
   deletingCommentId = null,
   onDeleteRequest,
+  onReplySubmit,
+  onLoginRequired,
   isPending,
   isError,
   isFetchingNextPage,
@@ -112,6 +116,8 @@ export const CommunityCommentList = ({
                 currentUserId={currentUserId}
                 deletingCommentId={deletingCommentId}
                 onDeleteRequest={onDeleteRequest}
+                onReplySubmit={onReplySubmit}
+                onLoginRequired={onLoginRequired}
               />
             ))}
           </ul>

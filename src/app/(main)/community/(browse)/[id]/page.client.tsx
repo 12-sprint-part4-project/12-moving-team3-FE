@@ -14,6 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import {
   useCommentList,
   useCreateComment,
+  useCreateReply,
   useDeleteComment,
   useDeletePost,
   usePost,
@@ -126,6 +127,7 @@ export const CommunityPostDetailPageClient = ({
     useCreateComment(postId);
   const { mutate: deleteCommentMutate, isPending: isDeleteCommentPending } =
     useDeleteComment(postId);
+  const { mutate: createReply } = useCreateReply(postId);
   const { mutate: deletePostMutate, isPending: isDeletePostPending } =
     useDeletePost();
 
@@ -232,6 +234,21 @@ export const CommunityPostDetailPageClient = ({
       },
     });
   }, [ensureProfileReady, post, postId, togglePostLike, showToast, showMutationError]);
+
+  const handleReplySubmit = useCallback(
+    (commentId: number, content: string) => {
+      if (!ensureProfileReady()) return;
+      createReply(
+        { commentId, content },
+        {
+          onError: (error) => {
+            showMutationError(error, '답글 작성에 실패했습니다.');
+          },
+        }
+      );
+    },
+    [ensureProfileReady, createReply, showMutationError]
+  );
 
   const handleCommentSubmit = useCallback(
     (content: string) => {
@@ -525,6 +542,8 @@ export const CommunityPostDetailPageClient = ({
               isDeleteCommentPending ? commentIdToDelete : null
             }
             onDeleteRequest={user ? handleDeleteCommentRequest : undefined}
+            onReplySubmit={handleReplySubmit}
+            onLoginRequired={openLoginModal}
             isPending={isCommentsPending}
             isError={isCommentsError}
             isFetchingNextPage={isCommentsFetchingNextPage}

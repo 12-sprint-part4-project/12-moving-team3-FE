@@ -1,14 +1,18 @@
 'use client';
 
+import { useState } from 'react';
+
 import { ChatAvatar } from '@/components/chat/ChatAvatar';
 import { formatRelativeTime } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
 import type { CommentItem, CommentWithReplies } from '@/types/community';
 
+import { CommunityCommentMoreMenu } from './CommunityCommentMoreMenu';
 import { CommunityPostAuthorBadge } from './CommunityPostAuthorBadge';
 import {
   COMMUNITY_COMMENT_REPLY_INDENT_CLASS,
   COMMUNITY_COMMENT_ROW_GAP_CLASS,
+  COMMUNITY_DETAIL_COMMENT_INPUT,
   COMMUNITY_DETAIL_READING_TEXT_CLASS,
 } from './communityDetailStyles';
 
@@ -17,6 +21,8 @@ interface CommunityCommentInteractionProps {
   currentUserId?: string;
   deletingCommentId?: number | null;
   onDeleteRequest?: (commentId: number) => void;
+  onReplySubmit?: (commentId: number, content: string) => void;
+  onLoginRequired?: () => void;
 }
 
 interface CommunityCommentItemProps extends CommunityCommentInteractionProps {
@@ -26,6 +32,7 @@ interface CommunityCommentItemProps extends CommunityCommentInteractionProps {
 interface CommunityCommentRowProps extends CommunityCommentInteractionProps {
   item: CommentItem;
   isReply?: boolean;
+  onReplyClick?: () => void;
 }
 
 const isOwnComment = (
@@ -53,9 +60,10 @@ const CommunityCommentRow = ({
   deletingCommentId = null,
   onDeleteRequest,
   isReply = false,
+  onReplyClick,
 }: CommunityCommentRowProps) => {
   const relativeTime = formatRelativeTime(item.createdAt);
-  const canDelete = onDeleteRequest !== undefined && isOwnComment(item, currentUserId);
+  const isOwn = isOwnComment(item, currentUserId);
   const isDeleting = deletingCommentId === item.id;
   const isPostAuthor =
     postAuthorId !== undefined && item.author.id === postAuthorId;
@@ -84,19 +92,12 @@ const CommunityCommentRow = ({
               {relativeTime}
             </span>
           </div>
-          {canDelete ? (
-            <button
-              type="button"
-              aria-label="댓글 삭제"
-              disabled={isDeleting}
-              onClick={() => onDeleteRequest(item.id)}
-              className={cn(
-                'shrink-0 cursor-pointer text-md-regular text-gray-400 xl:text-2lg-regular',
-                'hover:text-black-400 disabled:cursor-not-allowed disabled:opacity-60'
-              )}
-            >
-              삭제
-            </button>
+          {!isDeleting ? (
+            <CommunityCommentMoreMenu
+              isOwn={isOwn}
+              commentId={item.id}
+              onDelete={() => onDeleteRequest?.(item.id)}
+            />
           ) : null}
         </div>
         <p
@@ -107,6 +108,15 @@ const CommunityCommentRow = ({
         >
           {item.content}
         </p>
+        {!isReply && onReplyClick ? (
+          <button
+            type="button"
+            onClick={onReplyClick}
+            className="mt-1.5 cursor-pointer text-md-regular text-gray-400 hover:text-black-400 min-[46.5rem]:text-lg-regular xl:text-2lg-regular"
+          >
+            답글 달기
+          </button>
+        ) : null}
       </div>
     </div>
   );
@@ -119,30 +129,86 @@ export const CommunityCommentItem = ({
   currentUserId,
   deletingCommentId = null,
   onDeleteRequest,
-}: CommunityCommentItemProps) => (
-  <li className="flex flex-col gap-4 min-[46.5rem]:gap-5">
-    <CommunityCommentRow
-      item={comment}
-      postAuthorId={postAuthorId}
-      currentUserId={currentUserId}
-      deletingCommentId={deletingCommentId}
-      onDeleteRequest={onDeleteRequest}
-    />
-    {comment.replies.length > 0 ? (
-      <ul className="flex flex-col gap-4 min-[46.5rem]:gap-5">
-        {comment.replies.map((reply) => (
-          <li key={reply.id}>
-            <CommunityCommentRow
-              item={reply}
-              postAuthorId={postAuthorId}
-              currentUserId={currentUserId}
-              deletingCommentId={deletingCommentId}
-              onDeleteRequest={onDeleteRequest}
-              isReply
-            />
-          </li>
-        ))}
-      </ul>
-    ) : null}
-  </li>
-);
+  onReplySubmit,
+  onLoginRequired,
+}: CommunityCommentItemProps) => {
+  const [isReplying, setIsReplying] = useState(false);
+  const [replyDraft, setReplyDraft] = useState('');
+
+  const handleReplyClick = () => {
+    if (!currentUserId) {
+      onLoginRequired?.();
+      return;
+    }
+    setIsReplying((prev) => !prev);
+  };
+
+  const handleReplySubmit = () => {
+    const trimmed = replyDraft.trim();
+    if (!trimmed) return;
+    onReplySubmit?.(comment.id, trimmed);
+    setReplyDraft('');
+    setIsReplying(false);
+  };
+
+  return (
+    <li className="flex flex-col gap-4 min-[46.5rem]:gap-5">
+      <CommunityCommentRow
+        item={comment}
+        postAuthorId={postAuthorId}
+        currentUserId={currentUserId}
+        deletingCommentId={deletingCommentId}
+        onDeleteRequest={onDeleteRequest}
+        onReplyClick={handleReplyClick}
+      />
+
+      {isReplying ? (
+        <div className={cn('flex gap-2', COMMUNITY_COMMENT_REPLY_INDENT_CLASS)}>
+          <input
+            type="text"
+            className={COMMUNITY_DETAIL_COMMENT_INPUT}
+            placeholder="답글을 입력해 주세요."
+            value={replyDraft}
+            onChange={(e) => setReplyDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleReplySubmit();
+              }
+            }}
+            autoFocus
+          />
+          <button
+            type="button"
+            onClick={handleReplySubmit}
+            disabled={!replyDraft.trim()}
+            className={cn(
+              'shrink-0 cursor-pointer rounded-lg px-4 text-md-semibold text-white min-[46.5rem]:text-lg-semibold xl:text-2lg-semibold',
+              'bg-blue-300 hover:bg-blue-400 disabled:cursor-not-allowed disabled:opacity-50',
+              'h-11 xl:h-[3.625rem]'
+            )}
+          >
+            등록
+          </button>
+        </div>
+      ) : null}
+
+      {comment.replies.length > 0 ? (
+        <ul className="flex flex-col gap-4 min-[46.5rem]:gap-5">
+          {comment.replies.map((reply) => (
+            <li key={reply.id}>
+              <CommunityCommentRow
+                item={reply}
+                postAuthorId={postAuthorId}
+                currentUserId={currentUserId}
+                deletingCommentId={deletingCommentId}
+                onDeleteRequest={onDeleteRequest}
+                isReply
+              />
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </li>
+  );
+};
