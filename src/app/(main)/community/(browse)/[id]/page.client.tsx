@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
@@ -82,6 +82,7 @@ export const CommunityPostDetailPageClient = ({
   );
   const [isPostDeleteModalOpen, setIsPostDeleteModalOpen] = useState(false);
   const [commentDraft, setCommentDraft] = useState('');
+  const skipNextCommentFocusRef = useRef(false);
 
   const {
     data: post,
@@ -177,6 +178,7 @@ export const CommunityPostDetailPageClient = ({
   }, []);
 
   const closeAuthModal = useCallback(() => {
+    skipNextCommentFocusRef.current = true;
     setAuthModalKind(null);
   }, []);
 
@@ -254,7 +256,11 @@ export const CommunityPostDetailPageClient = ({
 
   const handleCommentInputFocus = useCallback(() => {
     // 비회원만 포커스 시 로그인 유도. 프로필 미완료는 제출 시에만 모달
-    // (취소 후 포커스 복원으로 모달이 다시 열리는 것 방지)
+    if (skipNextCommentFocusRef.current) {
+      skipNextCommentFocusRef.current = false;
+      (document.activeElement as HTMLElement)?.blur();
+      return;
+    }
     if (!user) {
       openLoginModal();
     }
