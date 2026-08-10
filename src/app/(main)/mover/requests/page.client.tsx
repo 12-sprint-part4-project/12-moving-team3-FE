@@ -1,13 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ChangeEvent,
-} from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import { Button } from '@/components/Button/Button';
@@ -45,6 +39,7 @@ import {
   parseRequestsListSearchParams,
   type RequestsListUrlState,
 } from './_lib/requestsListSearchParams';
+import { useRequestsListSearch } from './_lib/useRequestsListSearch';
 
 /** 정렬 옵션 정의 */
 const SORT_OPTIONS: { label: string; value: RequestsSortValue }[] = [
@@ -52,8 +47,6 @@ const SORT_OPTIONS: { label: string; value: RequestsSortValue }[] = [
   { label: '요청일 빠른순', value: 'requestDateAsc' },
 ];
 
-/** 검색어 API 조회 디바운스 지연(ms) */
-const SEARCH_DEBOUNCE_MS = 300;
 /** 데스크톱 필터 변경 API 조회 디바운스 지연(ms) */
 const FILTER_DEBOUNCE_MS = 200;
 
@@ -66,9 +59,6 @@ const MoverRequestsPageClient = () => {
     [searchParams]
   );
 
-  const [searchDraft, setSearchDraft] = useState('');
-  const [isSearchDirty, setIsSearchDirty] = useState(false);
-  const [isSearchFlushed, setIsSearchFlushed] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [sendQuoteTarget, setSendQuoteTarget] =
     useState<ReceivedRequestCardModel | null>(null);
@@ -78,9 +68,6 @@ const MoverRequestsPageClient = () => {
   const selectedMoveTypes = listFilters.moveTypes;
   const selectedScopes = listFilters.scopes;
   const sortValue = listFilters.sort;
-  const searchInputValue = isSearchDirty
-    ? searchDraft
-    : listFilters.keyword;
 
   const replaceListFilters = useCallback(
     (next: RequestsListUrlState) => {
@@ -88,6 +75,35 @@ const MoverRequestsPageClient = () => {
     },
     [router]
   );
+
+  const commitSearchKeyword = useCallback(
+    (keyword: string) => {
+      const current = parseRequestsListSearchParams(searchParams);
+      router.replace(
+        buildRequestsListHref({ ...current, keyword }),
+        { scroll: false }
+      );
+    },
+    [router, searchParams]
+  );
+
+  const {
+    searchInputValue,
+    queryKeyword,
+    handleSearchChange,
+    handleSearch,
+    handleSearchClear,
+    setSearchDraft,
+  } = useRequestsListSearch({
+    urlKeyword: listFilters.keyword,
+    onCommitKeyword: commitSearchKeyword,
+  });
+
+  const debouncedMoveTypes = useDebouncedValue(
+    selectedMoveTypes,
+    FILTER_DEBOUNCE_MS
+  );
+  const debouncedScopes = useDebouncedValue(selectedScopes, FILTER_DEBOUNCE_MS);
 
   const handleMoveTypesChange = useCallback(
     (moveTypes: MoveTypeOption[]) => {
@@ -112,50 +128,6 @@ const MoverRequestsPageClient = () => {
     onProposalSuccess: () => setSendQuoteTarget(null),
     onRejectionSuccess: () => setRejectTarget(null),
   });
-
-  /** 검색어, 이사 유형, 요청 범위 필터 디바운스 적용 */
-  const debouncedSearch = useDebouncedValue(
-    searchInputValue,
-    SEARCH_DEBOUNCE_MS
-  );
-  const debouncedMoveTypes = useDebouncedValue(
-    selectedMoveTypes,
-    FILTER_DEBOUNCE_MS
-  );
-  const debouncedScopes = useDebouncedValue(selectedScopes, FILTER_DEBOUNCE_MS);
-
-  /** 입력 중인 검색어를 디바운스 후 URL에 반영 (새로고침 유지) */
-  useEffect(() => {
-    if (!isSearchDirty) {
-      return;
-    }
-
-    // 디바운스가 현재 입력값을 따라잡기 전에는 URL을 갱신하지 않음
-    if (debouncedSearch !== searchInputValue) {
-      return;
-    }
-
-    const nextKeyword = debouncedSearch.trim();
-    if (nextKeyword === listFilters.keyword) {
-      return;
-    }
-
-    replaceListFilters({ ...listFilters, keyword: nextKeyword });
-  }, [
-    debouncedSearch,
-    searchInputValue,
-    isSearchDirty,
-    listFilters,
-    replaceListFilters,
-  ]);
-
-  /** API에 전달할 검색어 결정 */
-  const queryKeyword =
-    searchInputValue.trim() === ''
-      ? ''
-      : isSearchFlushed
-        ? searchInputValue.trim()
-        : debouncedSearch.trim();
 
   /** 받은 요청 목록·필터 건수 조회 */
   const {
@@ -209,35 +181,9 @@ const MoverRequestsPageClient = () => {
       ? error.message
       : '받은 요청 목록을 불러오지 못했습니다.';
 
-  /** 검색 입력 반영 */
-  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setIsSearchFlushed(false);
-    setIsSearchDirty(true);
-    setSearchDraft(event.target.value);
-  };
-
-  /** 검색 즉시 조회 · URL 반영 */
-  const handleSearch = () => {
-    const trimmed = searchInputValue.trim();
-    setSearchDraft(trimmed);
-    setIsSearchDirty(false);
-    setIsSearchFlushed(true);
-    replaceListFilters({ ...listFilters, keyword: trimmed });
-  };
-
-  /** 검색어 초기화 */
-  const handleSearchClear = () => {
-    setSearchDraft('');
-    setIsSearchDirty(false);
-    setIsSearchFlushed(false);
-    replaceListFilters({ ...listFilters, keyword: '' });
-  };
-
   /** 검색·이사유형·필터·정렬 전체 초기화 */
   const handleResetAll = () => {
     setSearchDraft('');
-    setIsSearchDirty(false);
-    setIsSearchFlushed(false);
     replaceListFilters({ ...DEFAULT_REQUESTS_LIST_URL_STATE });
   };
 
