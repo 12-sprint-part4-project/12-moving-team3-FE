@@ -12,7 +12,6 @@ export interface QuotesTabsShellProps<T extends string> {
   tabs: QuotesTabItem<T>[];
   activeTab: T;
   className?: string;
-  idPrefix: string;
   ariaLabel?: string;
 }
 
@@ -27,14 +26,14 @@ export const resolveQuotesTabParam = (
 };
 
 /**
- * 내 견적 관리 공통 탭 셸
+ * 내 견적 관리 공통 탭 셸 (라우트 내비게이션).
+ * Suspense 밖에 두어 useSearchParams suspend 중에도 클릭 가능.
  */
 export const QuotesTabsShell = <T extends string>({
   tabs,
   activeTab,
   className = '',
-  idPrefix,
-  ariaLabel = '내 견적 관리 탭',
+  ariaLabel = '내 견적 관리',
 }: QuotesTabsShellProps<T>) => (
   <div
     className={cn(
@@ -42,11 +41,7 @@ export const QuotesTabsShell = <T extends string>({
       className
     )}
   >
-    <div
-      role="tablist"
-      aria-label={ariaLabel}
-      className="flex items-start gap-6 lg:gap-8"
-    >
+    <nav aria-label={ariaLabel} className="flex items-start gap-6 lg:gap-8">
       {tabs.map((tab) => {
         const active = activeTab === tab.id;
         return (
@@ -54,10 +49,7 @@ export const QuotesTabsShell = <T extends string>({
             key={tab.id}
             href={tab.href}
             scroll={false}
-            role="tab"
-            aria-selected={active}
-            id={`${idPrefix}-tab-${tab.id}`}
-            aria-controls={`${idPrefix}-panel-${tab.id}`}
+            aria-current={active ? 'page' : undefined}
             className={cn(
               'flex cursor-pointer items-center justify-center self-stretch py-4 text-xl-semibold whitespace-nowrap',
               active
@@ -69,6 +61,6 @@ export const QuotesTabsShell = <T extends string>({
           </Link>
         );
       })}
-    </div>
+    </nav>
   </div>
 );

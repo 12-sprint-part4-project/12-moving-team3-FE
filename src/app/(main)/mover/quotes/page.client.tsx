@@ -8,6 +8,7 @@ import { QuotesListSkeleton } from '@/components/quotes/QuotesPageSkeleton';
 import { Pagination } from '@/components/ui/Pagination';
 import { useMoverQuotes } from '@/hooks/useMoverQuotes';
 import { ApiError } from '@/lib/apiClient';
+import { cn } from '@/lib/utils';
 import type {
   QuoteListStatus,
   RejectedQuoteCardModel,
@@ -81,9 +82,6 @@ const MoverQuotesPageClient = () => {
     <div className="min-h-0 w-full flex-1 bg-background-200">
       <div
         className={`mx-auto w-full max-w-[1920px] py-6 md:py-8 lg:py-10 ${MOVER_QUOTES_PAGE_X_PADDING}`}
-        role="tabpanel"
-        id={`quotes-panel-${activeTab}`}
-        aria-labelledby={`quotes-tab-${activeTab}`}
       >
         {isPending ? (
           <QuotesListSkeleton />
@@ -105,7 +103,10 @@ const MoverQuotesPageClient = () => {
           <QuotesEmptyState status={listStatus} />
         ) : (
           <div
-            className={`flex w-full flex-col gap-8 lg:gap-12 ${showPageFetching ? 'opacity-60' : ''}`}
+            className={cn(
+              'flex w-full flex-col gap-8 lg:gap-12',
+              showPageFetching && 'opacity-60'
+            )}
             aria-busy={showPageFetching}
           >
             <ul className="grid w-full grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-x-6 lg:gap-y-12">

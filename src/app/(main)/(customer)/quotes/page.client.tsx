@@ -250,12 +250,7 @@ const CustomerQuotesPageClient = () => {
 
   return (
     <>
-      <div
-        className="min-h-0 w-full flex-1 bg-background-200"
-        role="tabpanel"
-        id={`customer-quotes-panel-${activeTab}`}
-        aria-labelledby={`customer-quotes-tab-${activeTab}`}
-      >
+      <div className="min-h-0 w-full flex-1 bg-background-200">
         {activeTab === 'pending' ? renderPendingPanel() : renderReceivedPanel()}
       </div>
 

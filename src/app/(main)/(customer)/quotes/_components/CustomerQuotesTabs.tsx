@@ -28,6 +28,5 @@ export const CustomerQuotesTabs = ({ activeTab }: CustomerQuotesTabsProps) => (
     tabs={TABS}
     activeTab={activeTab}
     className={CUSTOMER_QUOTES_PAGE_X_PADDING}
-    idPrefix="customer-quotes"
   />
 );

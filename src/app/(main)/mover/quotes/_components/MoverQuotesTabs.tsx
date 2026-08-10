@@ -28,6 +28,5 @@ export const MoverQuotesTabs = ({ activeTab }: MoverQuotesTabsProps) => (
     tabs={TABS}
     activeTab={activeTab}
     className={MOVER_QUOTES_PAGE_X_PADDING}
-    idPrefix="quotes"
   />
 );
