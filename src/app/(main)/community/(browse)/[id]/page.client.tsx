@@ -179,8 +179,12 @@ export const CommunityPostDetailPageClient = ({
     setAuthModalKind('profile');
   }, []);
 
-  const closeAuthModal = useCallback(() => {
+  const closeLoginModal = useCallback(() => {
     skipNextCommentFocusRef.current = true;
+    setAuthModalKind(null);
+  }, []);
+
+  const closeProfileModal = useCallback(() => {
     setAuthModalKind(null);
   }, []);
 
@@ -275,7 +279,9 @@ export const CommunityPostDetailPageClient = ({
     // 비회원만 포커스 시 로그인 유도. 프로필 미완료는 제출 시에만 모달
     if (skipNextCommentFocusRef.current) {
       skipNextCommentFocusRef.current = false;
-      (document.activeElement as HTMLElement)?.blur();
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
       return;
     }
     if (!user) {
@@ -598,10 +604,10 @@ export const CommunityPostDetailPageClient = ({
         </div>
       </article>
 
-      <LoginRequiredModal open={authModalKind === 'login'} onClose={closeAuthModal} />
+      <LoginRequiredModal open={authModalKind === 'login'} onClose={closeLoginModal} />
       <ProfileRequiredModal
         open={authModalKind === 'profile'}
-        onClose={closeAuthModal}
+        onClose={closeProfileModal}
       />
 
       {commentIdToDelete !== null ? (

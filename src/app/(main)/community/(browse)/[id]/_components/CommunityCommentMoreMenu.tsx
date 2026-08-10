@@ -20,6 +20,7 @@ interface CommunityCommentMoreMenuProps {
   isOwn: boolean;
   commentId: number;
   onDelete: () => void;
+  className?: string;
 }
 
 /** 댓글 더보기 — 삭제(본인) · 신고(타인) */
@@ -27,9 +28,11 @@ export const CommunityCommentMoreMenu = ({
   isOwn,
   commentId,
   onDelete,
+  className,
 }: CommunityCommentMoreMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useOutsideClick(menuRef, isOpen, setIsOpen);
 
@@ -37,7 +40,10 @@ export const CommunityCommentMoreMenu = ({
     if (!isOpen) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setIsOpen(false);
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+        triggerRef.current?.focus();
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -50,11 +56,13 @@ export const CommunityCommentMoreMenu = ({
   };
 
   return (
-    <div ref={menuRef} className="relative flex shrink-0 items-center self-center">
+    <div ref={menuRef} className={cn('relative flex shrink-0 items-center self-center', className)}>
       <button
+        ref={triggerRef}
         type="button"
         aria-label="댓글 메뉴"
         aria-expanded={isOpen}
+        aria-haspopup="menu"
         onClick={() => setIsOpen((prev) => !prev)}
         className={COMMUNITY_POST_META_ACTION_BUTTON_CLASS}
       >
@@ -65,22 +73,25 @@ export const CommunityCommentMoreMenu = ({
       </button>
 
       {isOpen ? (
-        <div className={cn(COMMUNITY_POST_MORE_MENU_PANEL_CLASS, 'right-0')}>
+        <div role="menu" className={cn(COMMUNITY_POST_MORE_MENU_PANEL_CLASS, 'right-0')}>
           {isOwn ? (
             <button
               type="button"
+              role="menuitem"
               onClick={() => closeAndRun(onDelete)}
               className={cn(MENU_ITEM_CLASS, 'text-red-200')}
             >
               삭제
             </button>
           ) : (
-            <ReportAction
-              target="COMMENT"
-              targetId={String(commentId)}
-              buttonVariant="default"
-              className={MENU_ITEM_CLASS}
-            />
+            <div role="menuitem">
+              <ReportAction
+                target="COMMENT"
+                targetId={String(commentId)}
+                buttonVariant="default"
+                className={MENU_ITEM_CLASS}
+              />
+            </div>
           )}
         </div>
       ) : null}

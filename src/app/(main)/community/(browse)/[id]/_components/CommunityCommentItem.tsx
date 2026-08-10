@@ -92,7 +92,7 @@ const CommunityCommentRow = ({
               {relativeTime}
             </span>
           </div>
-          {!isDeleting ? (
+          {!isDeleting && item.id > 0 ? (
             <CommunityCommentMoreMenu
               isOwn={isOwn}
               commentId={item.id}
@@ -108,7 +108,7 @@ const CommunityCommentRow = ({
         >
           {item.content}
         </p>
-        {!isReply && onReplyClick ? (
+        {!isReply && item.id > 0 && onReplyClick ? (
           <button
             type="button"
             onClick={onReplyClick}
@@ -166,12 +166,13 @@ export const CommunityCommentItem = ({
         <div className={cn('flex gap-2', COMMUNITY_COMMENT_REPLY_INDENT_CLASS)}>
           <input
             type="text"
+            aria-label="답글 입력"
             className={COMMUNITY_DETAIL_COMMENT_INPUT}
             placeholder="답글을 입력해 주세요."
             value={replyDraft}
             onChange={(e) => setReplyDraft(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
+              if (e.key === 'Enter') {
                 e.preventDefault();
                 handleReplySubmit();
               }

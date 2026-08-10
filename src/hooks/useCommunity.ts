@@ -7,6 +7,7 @@ import {
   useQuery,
   useQueryClient,
   type InfiniteData,
+  type QueryKey,
 } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 
@@ -128,6 +129,15 @@ const markPostCompletedInCache = (
       };
     }
   );
+};
+
+const rollbackCommentQueries = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  previousComments: [QueryKey, InfiniteData<CommentListResponse> | undefined][]
+) => {
+  for (const [key, data] of previousComments) {
+    queryClient.setQueryData(key, data);
+  }
 };
 
 const invalidatePostEngagement = (
@@ -475,9 +485,7 @@ export const useCreateComment = (postId: number) => {
     },
     onError: (_err, _vars, context) => {
       if (context?.previousComments) {
-        for (const [key, data] of context.previousComments) {
-          queryClient.setQueryData(key, data);
-        }
+        rollbackCommentQueries(queryClient, context.previousComments);
       }
     },
     onSettled: async () => {
@@ -544,9 +552,7 @@ export const useCreateReply = (postId: number) => {
     },
     onError: (_err, _vars, context) => {
       if (context?.previousComments) {
-        for (const [key, data] of context.previousComments) {
-          queryClient.setQueryData(key, data);
-        }
+        rollbackCommentQueries(queryClient, context.previousComments);
       }
     },
     onSettled: async () => {
@@ -597,9 +603,7 @@ export const useDeleteComment = (postId: number) => {
     },
     onError: (_err, _vars, context) => {
       if (context?.previousComments) {
-        for (const [key, data] of context.previousComments) {
-          queryClient.setQueryData(key, data);
-        }
+        rollbackCommentQueries(queryClient, context.previousComments);
       }
     },
     onSettled: async () => {
