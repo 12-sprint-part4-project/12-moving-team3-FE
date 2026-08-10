@@ -65,20 +65,22 @@ export const ReviewListSection = <T,>({
         </div>
 
         <div className="flex justify-center pt-2">
-          <Pagination
-            size="sm"
-            page={page}
-            totalPages={Math.max(1, totalPages)}
-            onPageChange={onPageChange}
-            className="xl:hidden"
-          />
-          <Pagination
-            size="lg"
-            page={page}
-            totalPages={Math.max(1, totalPages)}
-            onPageChange={onPageChange}
-            className="hidden xl:flex"
-          />
+          <div className="contents xl:hidden">
+            <Pagination
+              size="sm"
+              page={page}
+              totalPages={Math.max(1, totalPages)}
+              onPageChange={onPageChange}
+            />
+          </div>
+          <div className="hidden xl:contents">
+            <Pagination
+              size="lg"
+              page={page}
+              totalPages={Math.max(1, totalPages)}
+              onPageChange={onPageChange}
+            />
+          </div>
         </div>
       </>
     ) : null}
