@@ -432,7 +432,7 @@ export const useCreateComment = (postId: number) => {
   return useMutation({
     mutationFn: (body: CreateCommentBody) => createComment(postId, body),
     onMutate: async ({ content }) => {
-      const commentListKey = [...communityQueryKeys.commentLists(), postId];
+      const commentListKey = communityQueryKeys.commentListsByPost(postId);
       await queryClient.cancelQueries({ queryKey: commentListKey });
 
       const previousComments = queryClient.getQueriesData<
@@ -446,7 +446,7 @@ export const useCreateComment = (postId: number) => {
           author: {
             id: user.id,
             nickname: user.nickname,
-            profileImageUrl: null,
+            profileImageUrl: null, // AuthUser에 profileImageUrl 없음
           },
           isMine: true,
           createdAt: new Date().toISOString(),
@@ -495,7 +495,7 @@ export const useCreateReply = (postId: number) => {
     mutationFn: ({ commentId, content }: CreateReplyBody) =>
       createReply(postId, commentId, { content }),
     onMutate: async ({ commentId, content }) => {
-      const commentListKey = [...communityQueryKeys.commentLists(), postId];
+      const commentListKey = communityQueryKeys.commentListsByPost(postId);
       await queryClient.cancelQueries({ queryKey: commentListKey });
 
       const previousComments = queryClient.getQueriesData<
@@ -509,7 +509,7 @@ export const useCreateReply = (postId: number) => {
           author: {
             id: user.id,
             nickname: user.nickname,
-            profileImageUrl: null,
+            profileImageUrl: null, // AuthUser에 profileImageUrl 없음
           },
           isMine: true,
           createdAt: new Date().toISOString(),
@@ -562,7 +562,7 @@ export const useDeleteComment = (postId: number) => {
   return useMutation({
     mutationFn: (commentId: number) => deleteComment(postId, commentId),
     onMutate: async (commentId) => {
-      const commentListKey = [...communityQueryKeys.commentLists(), postId];
+      const commentListKey = communityQueryKeys.commentListsByPost(postId);
       await queryClient.cancelQueries({ queryKey: commentListKey });
 
       const previousComments = queryClient.getQueriesData<
