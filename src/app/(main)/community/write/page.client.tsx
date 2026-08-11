@@ -95,6 +95,7 @@ const CommunityWriteForm = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const contentEditorRef = useRef<Editor | null>(null);
   const imageItemsRef = useRef<WriteImageItem[]>(imageItems);
+  const isSubmittedRef = useRef(false);
 
   useEffect(() => {
     imageItemsRef.current = imageItems;
@@ -106,6 +107,20 @@ const CommunityWriteForm = ({
     },
     []
   );
+
+  const isDirty = title.trim().length > 0 || !isContentEmpty || imageItems.length > 0;
+
+  useEffect(() => {
+    if (!isDirty) return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (isSubmittedRef.current) return;
+      event.preventDefault();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
 
   const imagePreviews = useMemo(
     () => getWriteImagePreviewUrls(imageItems),
@@ -218,6 +233,7 @@ const CommunityWriteForm = ({
 
         await updatePost(body);
 
+        isSubmittedRef.current = true;
         showToast({ content: '게시글이 수정되었습니다.' });
         router.push(`/community/${editPostId}`);
         return;
@@ -235,6 +251,7 @@ const CommunityWriteForm = ({
 
       const response = await createPost(body);
 
+      isSubmittedRef.current = true;
       showToast({ content: '게시글이 등록되었습니다.' });
       router.push(`/community/${response.data.id}`);
     } catch (error) {
