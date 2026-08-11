@@ -11,6 +11,7 @@ import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 
+import { MoverQuoteDetailActions } from './_components/MoverQuoteDetailActions';
 import { QuoteDetailInfoSection } from './_components/QuoteDetailInfoSection';
 import { QuoteDetailSummaryCard } from './_components/QuoteDetailSummaryCard';
 
@@ -34,7 +35,7 @@ const MoverQuoteDetailPageClient = ({
     useMoverQuoteDetail(numericQuoteId);
   /**
    * `/mover/quotes/[quoteId]` — 견적 보냄~확정 공통.
-   * 견적서 공유하기 아래 `채팅하기` (닫힌·반려면 canStartChat=false).
+   * 데스크톱: 공유 위 `채팅하기` / 모바일·태블릿: 하단바 (닫힌·반려면 숨김).
    */
   const { startEstimateChat, isChatPending } = useStartEstimateChat();
   /** 페이지 가로 패딩 클래스 정의 */
@@ -107,64 +108,111 @@ const MoverQuoteDetailPageClient = ({
     });
   };
 
+  const quoteShareProps = {
+    sharePath: `/mover/quotes/${quoteId}`,
+    shareTitle: `${detail.customerName} 고객님 견적서`,
+    shareDescription:
+      detail.comment?.trim() || `${detail.serviceLabel} · ${detail.priceLabel}`,
+  };
+
+  const showMobileActionBar = detail.canStartChat;
+
   return (
     <div
       className={cn(
-        'mx-auto grid w-full max-w-[1920px] flex-1 grid-cols-1 gap-6 py-6 md:gap-8 md:py-8 lg:items-start lg:justify-between lg:gap-10 lg:py-10',
-        detail.isRejected ? '' : 'lg:grid-cols-[minmax(0,59.6875rem)_auto]',
-        pageXPadding
+        'flex min-h-0 w-full flex-1 flex-col',
+        showMobileActionBar && 'pb-[4.625rem] lg:pb-0'
       )}
     >
-      <QuoteDetailSummaryCard detail={detail} className="col-start-1" />
-
-      {!detail.isRejected ? (
-        <aside className="col-start-1 flex flex-col gap-4 lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:gap-6">
-          <QuoteShareButtons
-            sharePath={`/mover/quotes/${quoteId}`}
-            shareTitle={`${detail.customerName} 고객님 견적서`}
-            shareDescription={`${detail.serviceLabel} · ${detail.priceLabel}`}
-          />
-          {detail.canStartChat ? (
-            <Button
-              size="md"
-              variant="outlined"
-              disabled={isChatPending}
-              onClick={handleChatClick}
-            >
-              {isChatPending ? '연결 중...' : '채팅하기'}
-            </Button>
-          ) : null}
-        </aside>
-      ) : null}
-
-      <div className="col-start-1 flex w-full max-w-[59.6875rem] flex-col gap-6 md:gap-8 lg:gap-10">
-        <div className="h-px w-full bg-line-100" />
-
-        {/* 견적가 또는 반려 사유 */}
-        {detail.isRejected ? (
-          <section className="flex w-full flex-col gap-4 lg:gap-8">
-            <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
-              반려 사유
-            </h2>
-            <p className="text-2lg-regular text-black-400 lg:text-2xl-regular">
-              {detail.rejectReason ?? '-'}
-            </p>
-          </section>
-        ) : (
-          <section className="flex w-full flex-col gap-4 lg:gap-8">
-            <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
-              견적가
-            </h2>
-            <p className="text-2lg-bold text-black-400 lg:text-3xl-bold">
-              {detail.priceLabel}
-            </p>
-          </section>
+      <div
+        className={cn(
+          'mx-auto grid w-full max-w-[1920px] flex-1 grid-cols-1 gap-6 py-6 md:gap-8 md:py-8 lg:items-start lg:justify-between lg:gap-10 lg:py-10',
+          detail.isRejected ? '' : 'lg:grid-cols-[minmax(0,59.6875rem)_auto]',
+          pageXPadding
         )}
+      >
+        {/* 본문 */}
+        <div className="col-start-1 flex w-full max-w-[59.6875rem] flex-col gap-6 md:gap-8 lg:gap-10">
+          <QuoteDetailSummaryCard detail={detail} />
 
-        <div className="h-px w-full bg-line-100" />
+          <div className="h-px w-full bg-line-100" />
 
-        <QuoteDetailInfoSection detail={detail} />
+          {/* 보낸 견적: 견적가 + 코멘트 / 반려: 반려 사유 */}
+          {detail.isRejected ? (
+            detail.rejectReason ? (
+              <section className="flex w-full flex-col gap-4 lg:gap-8">
+                <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
+                  반려 사유
+                </h2>
+                <p className="text-lg-regular whitespace-pre-wrap text-black-400 lg:text-2lg-regular">
+                  {detail.rejectReason}
+                </p>
+              </section>
+            ) : null
+          ) : (
+            <>
+              <section className="flex w-full flex-col gap-4 lg:gap-8">
+                <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
+                  견적가
+                </h2>
+                <p className="text-2lg-bold text-black-400 lg:text-3xl-bold">
+                  {detail.priceLabel}
+                </p>
+              </section>
+
+              {detail.comment ? (
+                <>
+                  <div className="h-px w-full bg-line-100" />
+                  <section className="flex w-full flex-col gap-4 lg:gap-8">
+                    <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
+                      코멘트
+                    </h2>
+                    <p className="text-lg-regular whitespace-pre-wrap text-black-400 lg:text-2lg-regular">
+                      {detail.comment}
+                    </p>
+                  </section>
+                </>
+              ) : null}
+            </>
+          )}
+
+          {/* 모바일·태블릿: 본문 내 공유 (반려 제외) */}
+          {!detail.isRejected ? (
+            <div className="flex flex-col gap-6 lg:hidden">
+              <div className="h-px w-full bg-line-100" />
+              <QuoteShareButtons {...quoteShareProps} />
+            </div>
+          ) : null}
+
+          <div className="h-px w-full bg-line-100" />
+
+          <QuoteDetailInfoSection detail={detail} />
+        </div>
+
+        {/* 데스크톱: 우측 채팅 → 공유 */}
+        {!detail.isRejected ? (
+          <aside className="col-start-1 hidden w-full flex-col gap-10 lg:col-start-2 lg:row-span-1 lg:row-start-1 lg:flex">
+            <MoverQuoteDetailActions
+              variant="desktop"
+              canStartChat={detail.canStartChat}
+              isChatPending={isChatPending}
+              onChatClick={handleChatClick}
+            />
+            {detail.canStartChat ? (
+              <div className="h-px w-full bg-line-100" />
+            ) : null}
+            <QuoteShareButtons {...quoteShareProps} />
+          </aside>
+        ) : null}
       </div>
+
+      {/* 모바일·태블릿: 하단 고정 채팅하기 */}
+      <MoverQuoteDetailActions
+        variant="mobile"
+        canStartChat={detail.canStartChat}
+        isChatPending={isChatPending}
+        onChatClick={handleChatClick}
+      />
     </div>
   );
 };
