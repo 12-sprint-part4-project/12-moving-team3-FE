@@ -34,7 +34,7 @@ export const CommunityPostDetailContent = ({
 
   const sanitizedHtml = useMemo(() => {
     if (!isHtml) return null;
-    return DOMPurify.sanitize(content);
+    return DOMPurify.sanitize(content).replace(/<p><\/p>/g, '<p><br></p>');
   }, [isHtml, content]);
 
   const normalizedMarkdown = useMemo(() => {
