@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { fn } from 'storybook/test';
 
+import MenuIcon from '@/assets/icons/menu.svg';
+
+import { GnbLandingLoginButton } from './GnbLandingLoginButton';
 import { GnbLanding } from './GnbLanding';
 
 const meta: Meta<typeof GnbLanding> = {
@@ -18,15 +20,24 @@ const meta: Meta<typeof GnbLanding> = {
   },
   args: {
     size: 'sm',
-    onMenuClick: fn(),
   },
 };
 export default meta;
 
 type Story = StoryObj<typeof GnbLanding>;
 
-/** Figma gnb/landing size=sm (375) */
+const MenuPlaceholder = () => (
+  <button
+    type="button"
+    aria-label="메뉴 열기"
+    className="inline-flex size-6 shrink-0 items-center justify-center [&_path]:stroke-gray-300"
+  >
+    <MenuIcon className="size-6" aria-hidden />
+  </button>
+);
+
 export const Sm: Story = {
+  args: { menuSlot: <MenuPlaceholder /> },
   decorators: [
     (Story) => (
       <div className="w-[23.4375rem]">
@@ -36,9 +47,8 @@ export const Sm: Story = {
   ],
 };
 
-/** Figma gnb/landing size=md (744) */
 export const Md: Story = {
-  args: { size: 'md' },
+  args: { size: 'md', menuSlot: <MenuPlaceholder /> },
   decorators: [
     (Story) => (
       <div className="w-[46.5rem]">
@@ -48,9 +58,8 @@ export const Md: Story = {
   ],
 };
 
-/** Figma gnb/landing size=lg (1920) */
 export const Lg: Story = {
-  args: { size: 'lg' },
+  args: { size: 'lg', loginButton: <GnbLandingLoginButton /> },
   decorators: [
     (Story) => (
       <div className="w-[120rem]">
@@ -64,13 +73,13 @@ export const AllSizes: Story = {
   render: () => (
     <div className="flex flex-col gap-6 bg-background-200 p-6">
       <div className="w-[23.4375rem]">
-        <GnbLanding size="sm" onMenuClick={fn()} />
+        <GnbLanding size="sm" menuSlot={<MenuPlaceholder />} />
       </div>
       <div className="w-[46.5rem]">
-        <GnbLanding size="md" onMenuClick={fn()} />
+        <GnbLanding size="md" menuSlot={<MenuPlaceholder />} />
       </div>
       <div className="w-full min-w-[75rem]">
-        <GnbLanding size="lg" />
+        <GnbLanding size="lg" loginButton={<GnbLandingLoginButton />} />
       </div>
     </div>
   ),
