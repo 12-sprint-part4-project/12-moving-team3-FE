@@ -22,13 +22,7 @@ export const useConfirmCustomerQuote = () => {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: customerQuoteQueryKeys.pending(),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: [...customerQuoteQueryKeys.all, 'past'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: customerQuoteQueryKeys.details(),
+          queryKey: customerQuoteQueryKeys.all,
         }),
         queryClient.invalidateQueries({
           queryKey: customerEstimateRequestQueryKeys.active(),
