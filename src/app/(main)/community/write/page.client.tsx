@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Spinner } from '@/components/ui/Spinner/Spinner';
-import { getCommunityWriteMarkdown } from '@/app/(main)/community/write/_components/communityWriteEditor';
+import { getCommunityWriteHtml } from '@/app/(main)/community/write/_components/communityWriteEditor';
 import { getInitialWriteCategory, MAX_POST_IMAGE_COUNT } from '@/constants/communityOptions';
 import { useCreatePost, usePost, useUpdatePost, useUploadPostImage } from '@/hooks/useCommunity';
 import { useToast } from '@/hooks/useToast';
@@ -20,7 +20,9 @@ import {
   revokePendingWriteImageItems,
   type WriteImageItem,
 } from '@/lib/communityWriteImageItems';
-import { normalizeCommunityPostContentForRender } from '@/lib/stripCommunityPostMarkdown';
+import { marked } from 'marked';
+
+import { isHtmlContent } from '@/lib/communityPostContent';
 import { cn } from '@/lib/utils';
 import type {
   CreatePostBody,
@@ -71,11 +73,13 @@ const CommunityWriteForm = ({
   const { mutateAsync: updatePost } = useUpdatePost(editPostId ?? 0);
   const { mutateAsync: uploadPostImage } = useUploadPostImage();
 
-  const editInitialContent = useMemo(
-    () =>
-      editPost ? normalizeCommunityPostContentForRender(editPost.content) : '',
-    [editPost]
-  );
+  const editInitialContent = useMemo(() => {
+    if (!editPost) return '';
+    const { content } = editPost;
+    if (isHtmlContent(content)) return content;
+    // Legacy Markdown: HTML로 변환해 Tiptap에 전달
+    return String(marked.parse(content));
+  }, [editPost]);
 
   const [category, setCategory] = useState<PostCategory>(
     () => editPost?.category ?? initialCategory
@@ -208,7 +212,7 @@ const CommunityWriteForm = ({
 
       if (isEditMode && editPostId !== null) {
         const body: UpdatePostBody = {
-          content: getCommunityWriteMarkdown(editor),
+          content: getCommunityWriteHtml(editor),
           imageKeys,
         };
 
@@ -222,7 +226,7 @@ const CommunityWriteForm = ({
       const body: CreatePostBody = {
         category,
         title: title.trim(),
-        content: getCommunityWriteMarkdown(editor),
+        content: getCommunityWriteHtml(editor),
         ...(imageKeys.length > 0 ? { imageKeys } : {}),
         ...(category === 'FURNITURE_SHARE' && region !== null
           ? { region }

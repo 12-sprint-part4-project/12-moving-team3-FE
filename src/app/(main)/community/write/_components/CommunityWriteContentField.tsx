@@ -57,7 +57,7 @@ export const CommunityWriteContentField = ({
       return;
     }
 
-    editor.commands.setContent(initialContent, { contentType: 'markdown' });
+    editor.commands.setContent(initialContent);
     hydratedContentRef.current = initialContent;
     onEditorUpdateRef.current(editor);
   }, [editor, initialContent]);
