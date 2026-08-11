@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { getAuthRouteRequirement } from '@/lib/authRoutePaths';
 import { logout } from '@/services/authApi';
+import type { AuthUiUser } from '@/lib/authUiCookie';
 
 const LANDING_MENU_ITEMS: GnbNavItem[] = [
   { label: '기사님 찾기', href: '/movers' },
@@ -23,20 +24,19 @@ const LANDING_MENU_ITEMS: GnbNavItem[] = [
 ];
 
 export interface HeaderClientProps {
-  /** Server에서 조립한 비로그인 GNB (sm) */
+  /** Server가 UI 쿠키로 읽은 유저 — hydration 전 SSR과 맞춤 */
+  initialUser: AuthUiUser | null;
   landingSm: ReactNode;
-  /** Server에서 조립한 비로그인 GNB (md) */
   landingMd: ReactNode;
-  /** Server에서 조립한 비로그인 GNB (lg) */
   landingLg: ReactNode;
 }
 
 /**
  * 인증·메뉴 상태만 담당하는 Client 경계.
- * 비로그인 UI는 Server Header가 넘긴 GnbLanding 슬롯을 그대로 렌더한다.
- * hydration 전(isReady=false)에도 랜딩 GNB를 그려 헤더 깜빡임을 막는다.
+ * hydration 전에는 initialUser로 로그인 GNB를 SSR해 깜빡임을 막는다.
  */
 export const HeaderClient = ({
+  initialUser,
   landingSm,
   landingMd,
   landingLg,
@@ -47,6 +47,9 @@ export const HeaderClient = ({
   const { showToast } = useToast();
   const { user, isReady, clearSession } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const resolvedUser = isReady ? user : initialUser;
+
   const isCustomerProfileReady = Boolean(
     isReady && user?.userType === 'CUSTOMER' && user.isProfileCompleted
   );
@@ -80,11 +83,7 @@ export const HeaderClient = ({
     }
   };
 
-  /**
-   * isReady 전·비로그인은 Server에서 조립한 랜딩 GNB를 즉시 렌더한다.
-   * (이전: isReady 전 null → 새로고침 시 헤더가 늦게 뜨는 원인)
-   */
-  if (!isReady || !user) {
+  if (!resolvedUser) {
     return (
       <GuestHeaderMenuProvider openMenu={handleMenuOpen}>
         <div className="min-[46.5rem]:hidden">{landingSm}</div>
@@ -111,7 +110,7 @@ export const HeaderClient = ({
     );
   }
 
-  const navRole = user.userType === 'MOVER' ? 'mover' : 'customer';
+  const navRole = resolvedUser.userType === 'MOVER' ? 'mover' : 'customer';
   const desktopMenu = navRole === 'mover' ? 'twoMenu' : 'threeMenu';
   const nameSuffix = navRole === 'mover' ? '기사님' : '고객님';
   const avatarSrc =
@@ -120,7 +119,7 @@ export const HeaderClient = ({
       : (customerProfile?.profileImageUrl ?? null);
   const profileMenuItems = getGnbProfileMenuItems(
     navRole,
-    user.isProfileCompleted
+    resolvedUser.isProfileCompleted
   );
 
   return (
@@ -129,7 +128,7 @@ export const HeaderClient = ({
         <GnbDefault
           size="sm"
           menu="iconProfile"
-          userName={user.nickname}
+          userName={resolvedUser.nickname}
           nameSuffix={nameSuffix}
           avatarSrc={avatarSrc}
           profileMenuItems={profileMenuItems}
@@ -142,7 +141,7 @@ export const HeaderClient = ({
         <GnbDefault
           size="md"
           menu="iconProfile"
-          userName={user.nickname}
+          userName={resolvedUser.nickname}
           nameSuffix={nameSuffix}
           avatarSrc={avatarSrc}
           profileMenuItems={profileMenuItems}
@@ -155,7 +154,7 @@ export const HeaderClient = ({
         <GnbDefault
           size="lg"
           menu={desktopMenu}
-          userName={user.nickname}
+          userName={resolvedUser.nickname}
           nameSuffix={nameSuffix}
           avatarSrc={avatarSrc}
           profileMenuItems={profileMenuItems}

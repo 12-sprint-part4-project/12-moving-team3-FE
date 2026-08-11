@@ -1,14 +1,21 @@
 'use client';
 
-import { createContext, useSyncExternalStore, type ReactNode } from 'react';
+import {
+  createContext,
+  useEffect,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
 
 import {
   clearAuthSession,
+  getAuthSession,
   getAuthSessionUser,
   setAuthSession,
   subscribeAuthSession,
   type AuthSession,
 } from '@/lib/authSession';
+import { clearAuthUiCookie, writeAuthUiCookie } from '@/lib/authUiCookie';
 import type { AuthUser } from '@/types/auth';
 
 export interface AuthContextValue {
@@ -50,6 +57,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // hydration 전에는 서버와 동일하게 null을 노출한다.
   const user = isReady ? sessionUser : null;
+
+  // 기존 localStorage 세션에 UI 쿠키가 없으면 한 번 맞춰 둔다.
+  useEffect(() => {
+    const session = getAuthSession();
+    if (session) {
+      writeAuthUiCookie(session.user);
+      return;
+    }
+    clearAuthUiCookie();
+  }, []);
 
   const setSession = (session: AuthSession) => {
     setAuthSession(session);

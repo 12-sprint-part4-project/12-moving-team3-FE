@@ -1,3 +1,4 @@
+import { clearAuthUiCookie, writeAuthUiCookie } from '@/lib/authUiCookie';
 import type { AuthUser, UserStatus } from '@/types/auth';
 
 const AUTH_SESSION_KEY = 'authSession';
@@ -96,6 +97,7 @@ export const setAuthSession = (session: AuthSession): void => {
   localStorage.setItem(AUTH_SESSION_KEY, raw);
   cachedRaw = raw;
   cachedUser = nextSession.user;
+  writeAuthUiCookie(nextSession.user);
   notifyAuthSessionListeners();
 };
 
@@ -134,5 +136,6 @@ export const clearAuthSession = (): void => {
   localStorage.removeItem(AUTH_SESSION_KEY);
   cachedRaw = null;
   cachedUser = null;
+  clearAuthUiCookie();
   notifyAuthSessionListeners();
 };
