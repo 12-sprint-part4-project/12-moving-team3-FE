@@ -1,7 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import { Button } from '@/components/Button/Button';
@@ -21,9 +20,7 @@ import { ApiError } from '@/lib/apiClient';
 import {
   ALL_MOVE_TYPES,
   ALL_SCOPES,
-  type MoveTypeOption,
   type ReceivedRequestCardModel,
-  type RequestScopeOption,
   type RequestsFilterState,
   type RequestsSortValue,
 } from '@/types/estimateRequest';
@@ -35,14 +32,11 @@ import { RequestsMobileFilterModal } from './_components/RequestsMobileFilterMod
 import { RequestsListSkeleton } from './_components/RequestsPageSkeleton';
 import { RequestsSidebarFilter } from './_components/RequestsSidebarFilter';
 import {
-  buildRequestsListHref,
-  DEFAULT_REQUESTS_LIST_URL_STATE,
   isDefaultRequestsListUrlState,
-  isRequestsSortValue,
-  parseRequestsListSearchParams,
   type RequestsListUrlState,
 } from './_lib/requestsListSearchParams';
 import { useRequestsListSearch } from './_lib/useRequestsListSearch';
+import { useRequestsListUrlState } from './_lib/useRequestsListUrlState';
 
 /** 정렬 옵션 정의 */
 const SORT_OPTIONS: { label: string; value: RequestsSortValue }[] = [
@@ -53,43 +47,36 @@ const SORT_OPTIONS: { label: string; value: RequestsSortValue }[] = [
 /** 데스크톱 필터 변경 API 조회 디바운스 지연(ms) */
 const FILTER_DEBOUNCE_MS = 200;
 
+export interface MoverRequestsPageClientProps {
+  /** 서버 page searchParams에서 파싱한 초기 URL 상태 */
+  initialUrlState: RequestsListUrlState;
+}
+
 /** 받은 요청 페이지 클라이언트 — 검색·정렬·필터·목록 조회 */
-const MoverRequestsPageClient = () => {
+const MoverRequestsPageClient = ({
+  initialUrlState,
+}: MoverRequestsPageClientProps) => {
   const { user } = useAuth();
   const { startEstimateChat, isChatPending } = useStartEstimateChat();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const listFilters = useMemo(
-    () => parseRequestsListSearchParams(searchParams),
-    [searchParams]
-  );
+
+  const {
+    listFilters,
+    selectedMoveTypes,
+    selectedScopes,
+    sortValue,
+    commitSearchKeyword,
+    handleMoveTypesChange,
+    handleScopesChange,
+    handleSortChange,
+    handleFilterSubmit: applyFilterState,
+    resetListFilters,
+  } = useRequestsListUrlState(initialUrlState);
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [sendQuoteTarget, setSendQuoteTarget] =
     useState<ReceivedRequestCardModel | null>(null);
   const [rejectTarget, setRejectTarget] =
     useState<ReceivedRequestCardModel | null>(null);
-
-  const selectedMoveTypes = listFilters.moveTypes;
-  const selectedScopes = listFilters.scopes;
-  const sortValue = listFilters.sort;
-
-  const replaceListFilters = useCallback(
-    (next: RequestsListUrlState) => {
-      router.replace(buildRequestsListHref(next), { scroll: false });
-    },
-    [router]
-  );
-
-  const commitSearchKeyword = useCallback(
-    (keyword: string) => {
-      const current = parseRequestsListSearchParams(searchParams);
-      router.replace(buildRequestsListHref({ ...current, keyword }), {
-        scroll: false,
-      });
-    },
-    [router, searchParams]
-  );
 
   const {
     searchInputValue,
@@ -108,20 +95,6 @@ const MoverRequestsPageClient = () => {
     FILTER_DEBOUNCE_MS
   );
   const debouncedScopes = useDebouncedValue(selectedScopes, FILTER_DEBOUNCE_MS);
-
-  const handleMoveTypesChange = useCallback(
-    (moveTypes: MoveTypeOption[]) => {
-      replaceListFilters({ ...listFilters, moveTypes });
-    },
-    [listFilters, replaceListFilters]
-  );
-
-  const handleScopesChange = useCallback(
-    (scopes: RequestScopeOption[]) => {
-      replaceListFilters({ ...listFilters, scopes });
-    },
-    [listFilters, replaceListFilters]
-  );
 
   const {
     submitErrorMessage,
@@ -188,23 +161,12 @@ const MoverRequestsPageClient = () => {
   /** 검색·이사유형·필터·정렬 전체 초기화 */
   const handleResetAll = () => {
     setSearchDraft('');
-    replaceListFilters({ ...DEFAULT_REQUESTS_LIST_URL_STATE });
-  };
-
-  /** 정렬 값 변경 */
-  const handleSortChange = (value: string) => {
-    if (isRequestsSortValue(value)) {
-      replaceListFilters({ ...listFilters, sort: value });
-    }
+    resetListFilters();
   };
 
   /** 모바일 필터 적용 */
   const handleFilterSubmit = (next: RequestsFilterState) => {
-    replaceListFilters({
-      ...listFilters,
-      moveTypes: next.moveTypes,
-      scopes: next.scopes,
-    });
+    applyFilterState(next);
     setIsFilterModalOpen(false);
   };
 
