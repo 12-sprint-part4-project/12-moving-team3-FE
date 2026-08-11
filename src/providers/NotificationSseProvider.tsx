@@ -23,7 +23,7 @@ interface NotificationSseProviderProps {
 /**
  * 로그인 세션이 있을 때 알림 SSE를 연결하고,
  * 단건 알림은 캐시·토스트에, fan-out refresh는 목록 invalidate로 반영한다.
- * 견적 상태 알림은 채팅 칩·입력 상태 캐시도 함께 맞춘다 (#208).
+ * 견적·지정 상태 알림은 채팅 칩·입력 상태 캐시도 함께 맞춘다 (#208, #216).
  */
 export const NotificationSseProvider = ({
   children,
