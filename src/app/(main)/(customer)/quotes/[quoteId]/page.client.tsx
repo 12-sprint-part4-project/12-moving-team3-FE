@@ -129,7 +129,7 @@ const CustomerQuoteDetailPageClient = ({
 
   /**
    * 견적 상세 채팅 시작.
-   * 데스크톱: 공유 아래 버튼 / 모바일: 하단바 `채팅하기`.
+   * 데스크톱: 확정 버튼 아래 / 모바일: 하단바 `채팅하기`.
    * 닫힌 견적요청이면 canStartChat=false로 CTA 숨김.
    */
   const handleChatClick = () => {
@@ -205,15 +205,18 @@ const CustomerQuoteDetailPageClient = ({
           ) : null}
         </div>
 
-        {/* 데스크톱: 우측 확정 CTA + 공유 + 채팅 */}
+        {/* 데스크톱: 우측 확정·채팅 CTA + 공유 */}
         <aside className="col-start-1 hidden w-full flex-col gap-10 lg:col-start-2 lg:row-span-1 lg:row-start-1 lg:flex lg:w-[20.5rem]">
           <CustomerQuoteDetailActions
             variant="desktop"
             canConfirm={detail.canConfirm}
+            canStartChat={detail.canStartChat}
             isConfirming={isConfirming}
+            isChatPending={isChatPending}
             isFavorited={detail.mover.isFavorited}
             isFavoritePending={isMoverPending(detail.mover.moverId)}
             onConfirm={() => openConfirmModal(detail.quoteId)}
+            onChatClick={handleChatClick}
             onToggleFavorite={() =>
               handleFavoriteClick(
                 detail.mover.moverId,
@@ -221,21 +224,10 @@ const CustomerQuoteDetailPageClient = ({
               )
             }
           />
-          {detail.canConfirm ? (
+          {detail.canConfirm || detail.canStartChat ? (
             <div className="h-px w-full bg-line-100" />
           ) : null}
           <QuoteShareButtons {...quoteShareProps} />
-          {/* 데스크톱: 견적서 공유하기 아래 채팅하기 */}
-          {detail.canStartChat ? (
-            <Button
-              size="md"
-              variant="outlined"
-              disabled={isChatPending}
-              onClick={handleChatClick}
-            >
-              {isChatPending ? '연결 중...' : '채팅하기'}
-            </Button>
-          ) : null}
         </aside>
       </div>
 
