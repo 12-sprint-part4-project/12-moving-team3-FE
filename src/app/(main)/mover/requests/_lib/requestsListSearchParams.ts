@@ -113,6 +113,48 @@ export const parseRequestsListSearchParams = (
   };
 };
 
+/** `searchParams` 값 → 단일 문자열 */
+export const resolveRequestsListSearchParam = (
+  value: string | string[] | undefined
+): string | null => {
+  if (Array.isArray(value)) {
+    return value[0] ?? null;
+  }
+  return value ?? null;
+};
+
+/** 서버 page `searchParams` → 검색·필터·정렬 상태 */
+export const parseRequestsListSearchParamsRecord = (params: {
+  keyword?: string | string[];
+  moveTypes?: string | string[];
+  scopes?: string | string[];
+  sort?: string | string[];
+}): RequestsListUrlState => {
+  const searchParams = new URLSearchParams();
+
+  const keyword = resolveRequestsListSearchParam(params.keyword);
+  if (keyword) {
+    searchParams.set('keyword', keyword);
+  }
+
+  const moveTypes = resolveRequestsListSearchParam(params.moveTypes);
+  if (moveTypes !== null) {
+    searchParams.set('moveTypes', moveTypes);
+  }
+
+  const scopes = resolveRequestsListSearchParam(params.scopes);
+  if (scopes !== null) {
+    searchParams.set('scopes', scopes);
+  }
+
+  const sort = resolveRequestsListSearchParam(params.sort);
+  if (sort) {
+    searchParams.set('sort', sort);
+  }
+
+  return parseRequestsListSearchParams(searchParams);
+};
+
 /** 검색·필터·정렬 상태 → URL searchParams (기본값은 생략) */
 export const buildRequestsListSearchParams = (
   state: RequestsListUrlState
