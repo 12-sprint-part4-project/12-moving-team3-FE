@@ -11,9 +11,7 @@ export interface GnbLandingProps {
   homeHref?: string;
   findDriverHref?: string;
   communityHref?: string;
-  /** lg 로그인 CTA (Client) */
   loginButton?: ReactNode;
-  /** sm/md 햄버거 (Client) */
   menuSlot?: ReactNode;
   className?: string;
 }
@@ -24,7 +22,6 @@ const ROOT_STYLE: Record<GnbLandingSize, string> = {
   lg: 'h-[5.5rem] gap-[5.125rem] px-[7.5rem] py-[1.625rem]',
 };
 
-/** 랜딩 GNB (Server Component). Figma gnb/landing sm | md | lg. */
 export const GnbLanding = ({
   size = 'sm',
   homeHref = '/',

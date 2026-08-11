@@ -9,7 +9,6 @@ export interface GnbLandingLoginButtonProps {
   className?: string;
 }
 
-/** 랜딩 GNB 로그인 버튼 (Client). */
 export const GnbLandingLoginButton = ({
   href = '/login',
   className,

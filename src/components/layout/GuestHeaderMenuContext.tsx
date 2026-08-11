@@ -18,7 +18,6 @@ interface GuestHeaderMenuProviderProps {
   children: ReactNode;
 }
 
-/** 비로그인 헤더 햄버거 ↔ HeaderClient 메뉴 상태를 연결한다. */
 export const GuestHeaderMenuProvider = ({
   openMenu,
   children,

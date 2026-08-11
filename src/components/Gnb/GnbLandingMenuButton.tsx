@@ -4,7 +4,6 @@ import MenuIcon from '@/assets/icons/menu.svg';
 
 import { useGuestHeaderMenu } from '@/components/layout/GuestHeaderMenuContext';
 
-/** 랜딩 GNB sm/md 햄버거 — HeaderClient 메뉴 open과 Context로 연결. */
 export const GnbLandingMenuButton = () => {
   const { openMenu } = useGuestHeaderMenu();
 
