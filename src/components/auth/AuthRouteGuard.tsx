@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useState, type ReactNode } from 'react';
+import { Suspense, useEffect, useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import {
   getAuthRouteRequirement,
+  isGuestOnlyPath,
   LOGIN_HREF_BY_USER_TYPE,
 } from '@/lib/authRoutePaths';
 import { logout } from '@/services/authApi';
@@ -22,6 +23,7 @@ interface AuthRouteGuardProps {
 
 type AuthGateState =
   | { kind: 'none' }
+  | { kind: 'guestOnly' }
   | { kind: 'loginRequired'; loginHref: string }
   | { kind: 'roleMismatch'; requiredUserType: ApiUserType };
 
@@ -29,6 +31,10 @@ const resolveAuthGate = (
   pathname: string,
   userType: ApiUserType | null
 ): AuthGateState => {
+  if (userType != null && isGuestOnlyPath(pathname)) {
+    return { kind: 'guestOnly' };
+  }
+
   const requirement = getAuthRouteRequirement(pathname);
 
   if (requirement.kind === 'public') {
@@ -59,7 +65,8 @@ const resolveAuthGate = (
 };
 
 /**
- * 보호 경로에 비로그인·역할 불일치로 직접 진입 시 모달로 안내
+ * 보호 경로에 비로그인·역할 불일치로 직접 진입 시 모달로 안내.
+ * 로그인 사용자가 로그인·회원가입 경로에 들어오면 `/`로 보낸다.
  */
 const AuthRouteGuardInner = ({ children }: AuthRouteGuardProps) => {
   const router = useRouter();
@@ -80,17 +87,29 @@ const AuthRouteGuardInner = ({ children }: AuthRouteGuardProps) => {
 
   const requirement = getAuthRouteRequirement(pathname);
   const isProtectedPath = requirement.kind !== 'public';
+  const isGuestOnly = isGuestOnlyPath(pathname);
 
   const gate: AuthGateState = isReady
     ? resolveAuthGate(pathname, user?.userType ?? null)
     : { kind: 'none' };
 
-  /** 인증 실패 시 콘텐츠는 계속 숨기고, 모달만 dismiss로 닫을 수 있다 */
+  useEffect(() => {
+    if (gate.kind !== 'guestOnly') return;
+    router.replace('/');
+  }, [gate.kind, router]);
+
+  /**
+   * - 보호 경로: 인증 준비 전·실패 시 숨김
+   * - guest 전용: 준비 전에도 숨겨 로그인 유저 진입 시 폼 깜빡임을 막음
+   */
   const shouldHideChildren =
-    (!isReady && isProtectedPath) || (isReady && gate.kind !== 'none');
+    (!isReady && (isProtectedPath || isGuestOnly)) ||
+    (isReady && gate.kind !== 'none');
 
   const isModalOpen =
-    isReady && gate.kind !== 'none' && dismissedPath !== pathname;
+    isReady &&
+    (gate.kind === 'loginRequired' || gate.kind === 'roleMismatch') &&
+    dismissedPath !== pathname;
 
   /** 취소·닫기 — 모달 닫고 홈으로 */
   const handleDismiss = () => {

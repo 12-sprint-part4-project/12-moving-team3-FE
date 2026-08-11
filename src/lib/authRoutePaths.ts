@@ -12,6 +12,12 @@ export const PUBLIC_PATH_PREFIXES = [
   '/suspended',
 ] as const;
 
+/**
+ * 비로그인 전용 경로 prefix.
+ * 로그인 사용자는 진입 시 `/`로 리다이렉트한다.
+ */
+export const GUEST_ONLY_PATH_PREFIXES = ['/login', '/signup'] as const;
+
 /** 일반 유저(CUSTOMER) 전용 경로 prefix */
 export const CUSTOMER_ONLY_PATH_PREFIXES = [
   '/favorites',
@@ -48,6 +54,10 @@ export const isPublicPath = (pathname: string): boolean => {
 
   return PUBLIC_PATH_PREFIXES.some((prefix) => matchesPrefix(pathname, prefix));
 };
+
+/** 비로그인 전용 경로 여부 (`/login`, `/signup` 및 하위 경로) */
+export const isGuestOnlyPath = (pathname: string): boolean =>
+  GUEST_ONLY_PATH_PREFIXES.some((prefix) => matchesPrefix(pathname, prefix));
 
 /** 일반 유저 전용 경로 여부 */
 export const isCustomerOnlyPath = (pathname: string): boolean =>
