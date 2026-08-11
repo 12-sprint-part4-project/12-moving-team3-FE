@@ -19,7 +19,7 @@ export interface ChatPartner {
   nickname: string;
   /**
    * roomType별 표시명. COMMUNITY=닉네임, GENERAL/DESIGNATED=이름.
-   * 목록·드롭다운·방 헤더는 이 값을 쓴다. (#225, BE #299)
+   * 목록·드롭다운·방 헤더·탭 타이틀은 이 값을 쓴다. (#225, BE #299)
    */
   displayName: string;
   /** 공개/CDN URL. 이미지 없으면 null */
