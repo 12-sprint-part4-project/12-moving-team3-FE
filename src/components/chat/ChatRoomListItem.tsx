@@ -69,7 +69,7 @@ export const ChatRoomListItem = ({
               hasUnread ? 'text-lg-semibold' : 'text-lg-medium'
             )}
           >
-            {room.partner.nickname}
+            {room.partner.displayName}
           </p>
           <ChatRoomStatusChip
             roomType={room.roomType}
