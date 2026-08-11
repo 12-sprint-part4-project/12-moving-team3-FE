@@ -31,9 +31,10 @@ const meta: Meta<typeof MoveTypeChip> = {
         'quotePending',
         'quoteConfirmed',
         'quoteRejected',
+        'furnitureShare',
       ],
       description:
-        '이사 유형/상태. small/home/office(파란), designated(빨간), 상태칩(대기/확정/반려)=회색·xs 없음',
+        '이사 유형/상태. small/home/office(파란), designated(빨간), 상태칩(대기/확정/반려)=회색·xs 없음, furnitureShare(노란)',
     },
     size: {
       control: 'select',
@@ -81,6 +82,13 @@ export const Designated: Story = {
 export const QuotePending: Story = {
   args: {
     type: 'quotePending',
+    size: 'sm',
+  },
+};
+
+export const FurnitureShare: Story = {
+  args: {
+    type: 'furnitureShare',
     size: 'sm',
   },
 };
@@ -134,6 +142,10 @@ export const AllTypes: Story = {
       <div className="flex flex-wrap items-center gap-2">
         <MoveTypeChip type="quoteRejected" size="sm" />
         <MoveTypeChip type="quoteRejected" size="md" />
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <MoveTypeChip type="furnitureShare" size="sm" />
+        <MoveTypeChip type="furnitureShare" size="md" />
       </div>
     </div>
   ),
