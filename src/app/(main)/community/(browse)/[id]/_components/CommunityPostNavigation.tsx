@@ -71,7 +71,7 @@ export const CommunityPostNavigation = ({
         )}
       >
         {prev ? (
-          <div className="min-w-0 w-full px-1.5">
+          <div className="w-full min-w-0 px-1.5">
             <NavItem direction="prev" neighbor={prev} listContext={listContext} />
           </div>
         ) : null}
@@ -79,7 +79,7 @@ export const CommunityPostNavigation = ({
           <div className={COMMUNITY_DETAIL_DIVIDER} aria-hidden />
         ) : null}
         {next ? (
-          <div className="min-w-0 w-full px-1.5">
+          <div className="w-full min-w-0 px-1.5">
             <NavItem direction="next" neighbor={next} listContext={listContext} />
           </div>
         ) : null}
