@@ -16,6 +16,12 @@ import {
   EMAIL_MAX_LENGTH,
   validateEmail,
 } from '@/lib/validateEmail';
+import {
+  PASSWORD_FORMAT_ERROR_MESSAGE,
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MISMATCH_ERROR_MESSAGE,
+  validatePassword,
+} from '@/lib/validatePassword';
 import { signup } from '@/services/authApi';
 import type { ApiUserType } from '@/types/auth';
 
@@ -143,14 +149,20 @@ export const SignupForm = ({ role }: SignupFormProps) => {
       return;
     }
 
-    if (values.password !== values.passwordConfirm) {
-      showToast({ content: '비밀번호가 일치하지 않습니다.' });
-      return;
-    }
-
     const trimmedEmail = values.email.trim();
     if (validateEmail(trimmedEmail)) {
       showToast({ content: EMAIL_FORMAT_ERROR_MESSAGE });
+      return;
+    }
+
+    const passwordError = validatePassword(values.password);
+    if (passwordError) {
+      showToast({ content: passwordError });
+      return;
+    }
+
+    if (values.password !== values.passwordConfirm) {
+      showToast({ content: PASSWORD_MISMATCH_ERROR_MESSAGE });
       return;
     }
 
@@ -170,6 +182,14 @@ export const SignupForm = ({ role }: SignupFormProps) => {
       showToast({ content: '회원가입이 완료되었습니다. 로그인해 주세요.' });
       router.replace(LOGIN_HREF[role]);
     } catch (error) {
+      if (
+        error instanceof ApiError &&
+        error.code === 'INVALID_PASSWORD_FORMAT'
+      ) {
+        showToast({ content: PASSWORD_FORMAT_ERROR_MESSAGE });
+        return;
+      }
+
       const message =
         error instanceof ApiError
           ? error.message
@@ -283,6 +303,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
                   name="password"
                   autoComplete="new-password"
                   showVisibilityToggle
+                  maxLength={PASSWORD_MAX_LENGTH}
                   placeholder="비밀번호를 입력해 주세요"
                   value={values.password}
                   onChange={handleChange('password')}
@@ -304,6 +325,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
                   name="passwordConfirm"
                   autoComplete="new-password"
                   showVisibilityToggle
+                  maxLength={PASSWORD_MAX_LENGTH}
                   placeholder="비밀번호를 다시 한번 입력해 주세요"
                   value={values.passwordConfirm}
                   onChange={handleChange('passwordConfirm')}

@@ -1,3 +1,4 @@
+import { validatePassword } from '@/lib/validatePassword';
 import type {
   MoverProfileMe,
   UpdateMoverBasicInfoRequest,
@@ -88,6 +89,10 @@ export const getMoverBasicInfoUpdateError = ({
   if (hasPasswordInput) {
     if (!currentPassword || !newPassword || !confirmPassword) {
       return '비밀번호 변경 시 현재·새 비밀번호·확인을 모두 입력해 주세요.';
+    }
+    const passwordError = validatePassword(newPassword);
+    if (passwordError) {
+      return passwordError;
     }
     if (newPassword !== confirmPassword) {
       return '새 비밀번호와 확인이 일치하지 않습니다.';
