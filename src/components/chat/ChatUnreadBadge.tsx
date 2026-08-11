@@ -31,7 +31,7 @@ export const ChatUnreadBadge = ({
       className={cn(
         'inline-flex items-center justify-center rounded-full bg-red-200 text-xs-semibold text-white',
         isIcon
-          ? 'absolute -top-0.5 -right-0.5 size-[0.78125rem] p-0 text-[0.625rem] leading-none sm:-top-1 sm:size-5 sm:text-xs-semibold'
+          ? 'absolute -top-0.5 -right-0.5 size-[0.78125rem] p-0 text-2xs-semibold sm:-top-1 sm:size-5 sm:text-xs-semibold'
           : 'min-w-8 shrink-0 px-2.5 py-0.5 text-sm-semibold',
         className
       )}

@@ -33,6 +33,7 @@ const TYPOGRAPHY_SIZES = [
   'xs-semibold',
   'xs-medium',
   'xs-regular',
+  '2xs-semibold',
 ] as const;
 
 const twMerge = extendTailwindMerge({

@@ -19,27 +19,31 @@ import OfficeFillIcon from '@/assets/icons/office-fill.svg';
   - className: string
 */
 
-type MoveType =
-  | 'small'
-  | 'home'
-  | 'office'
-  | 'designated'
-  | 'quotePending'
-  | 'quoteConfirmed'
-  | 'quoteRejected'
-  | 'furnitureShare';
-type MoveTypeSize = 'xs' | 'sm' | 'md';
+type IconMoveType = 'small' | 'home' | 'office' | 'designated';
 type StatusMoveType =
   | 'quotePending'
   | 'quoteConfirmed'
   | 'quoteRejected'
   | 'furnitureShare';
+type MoveType = IconMoveType | StatusMoveType;
+type MoveTypeSize = 'xs' | 'sm' | 'md';
+type StatusMoveTypeSize = Exclude<MoveTypeSize, 'xs'>;
 
-interface MoveTypeChipProps extends HTMLAttributes<HTMLDivElement> {
-  type?: MoveType;
-  size?: MoveTypeSize;
+interface MoveTypeChipBaseProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactNode;
 }
+
+interface IconMoveTypeChipProps extends MoveTypeChipBaseProps {
+  type?: IconMoveType;
+  size?: MoveTypeSize;
+}
+
+interface StatusMoveTypeChipProps extends MoveTypeChipBaseProps {
+  type: StatusMoveType;
+  size?: StatusMoveTypeSize;
+}
+
+type MoveTypeChipProps = IconMoveTypeChipProps | StatusMoveTypeChipProps;
 
 const DEFAULT_LABELS: Record<MoveType, string> = {
   small: '소형이사',
