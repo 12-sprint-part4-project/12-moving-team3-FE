@@ -65,12 +65,14 @@ const DetailCtaAsideSkeleton = () => (
   </aside>
 );
 
-/** 데스크톱 우측 — 기사: 공유만 */
+/** 데스크톱 우측 — 기사: 채팅 + 공유 */
 const DetailShareAsideSkeleton = () => (
   <aside
-    className="col-start-1 hidden lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:block"
+    className="col-start-1 hidden w-full flex-col gap-10 lg:col-start-2 lg:row-span-1 lg:row-start-1 lg:flex"
     aria-hidden
   >
+    <div className="h-14 w-full animate-pulse rounded-2xl bg-background-200" />
+    <div className="h-px w-full bg-line-100" />
     <div className="flex flex-col gap-3">
       <div className="h-5 w-24 animate-pulse rounded bg-background-200" />
       <div className="flex gap-3">
@@ -89,8 +91,8 @@ export interface QuoteDetailContentSkeletonProps {
   className?: string;
   /**
    * 우측 aside 구성
-   * - cta: 고객 상세 (확정 CTA + 공유, 20.5rem 그리드)
-   * - share: 기사 보낸 견적 (공유만, auto 그리드)
+   * - cta: 고객 상세 (확정 CTA + 공유)
+   * - share: 기사 보낸 견적 (채팅 + 공유)
    * - none: 반려 등 aside 없음
    */
   aside?: QuoteDetailAsideVariant;

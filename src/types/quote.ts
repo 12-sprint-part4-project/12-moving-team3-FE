@@ -125,6 +125,7 @@ export interface QuoteDetail {
   estimateRequestId: number;
   price: number | null;
   status: QuoteStatus;
+  comment: string | null;
   rejectReason: string | null;
   estimateRequestStatus: EstimateRequestStatus;
   isMoveCompleted: boolean;
@@ -156,6 +157,7 @@ export interface QuoteDetailViewModel {
   /** 채팅하기 CTA — 닫힌·반려 견적이면 false */
   canStartChat: boolean;
   priceLabel: string;
+  comment: string | null;
   rejectReason: string | null;
   requestedAtLabel: string;
   serviceLabel: string;

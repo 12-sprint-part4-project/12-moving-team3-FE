@@ -10,15 +10,19 @@ const SCROLL_TO_TOP_EXCLUDED_PATHS = new Set([
 ]);
 
 /** 완전히 숨기는 경로 프리픽스 */
-const SCROLL_TO_TOP_EXCLUDED_PREFIXES = ['/chat', '/profile'];
+const SCROLL_TO_TOP_EXCLUDED_PREFIXES = [
+  '/chat',
+  '/profile',
+  '/quotes/',
+  '/mover/quotes/',
+];
 
 /**
  * 모바일에서 하단 고정 바 위로 버튼을 올려야 하는 경로 프리픽스
  * - /community/  → 게시글 상세 (CommunityPostEngagementBar ~68px)
- * - /quotes/     → 견적 상세 (CustomerQuoteDetailActions ~56px)
  * - /movers/     → 기사 상세 (MoverDetailBottomBar ~56px)
  */
-const SCROLL_TO_TOP_RAISED_PREFIXES = ['/community/', '/quotes/', '/movers/'];
+const SCROLL_TO_TOP_RAISED_PREFIXES = ['/community/', '/movers/'];
 
 export interface ScrollToTopConfig {
   visible: boolean;
