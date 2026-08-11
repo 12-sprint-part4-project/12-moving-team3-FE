@@ -135,7 +135,7 @@ const PaginationItem = ({
     <button
       type={type}
       disabled={disabled}
-      className={`inline-flex shrink-0 items-center justify-center bg-white p-2.5 disabled:cursor-not-allowed ${sizeStyles[size].item} ${className}`.trim()}
+      className={`inline-flex shrink-0 cursor-pointer items-center justify-center bg-white p-2.5 disabled:cursor-default ${sizeStyles[size].item} ${className}`.trim()}
       {...rest}
     >
       {children}

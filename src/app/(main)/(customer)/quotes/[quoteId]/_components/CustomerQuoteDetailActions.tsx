@@ -7,10 +7,7 @@ import { cn } from '@/lib/utils';
 export interface CustomerQuoteDetailActionsProps {
   /** 확정 CTA 노출 (활성 SUBMITTED + PENDING) */
   canConfirm: boolean;
-  /**
-   * `/quotes/[quoteId]` 모바일 하단바 `채팅하기`.
-   * 데스크톱 채팅 CTA는 페이지에서 공유 버튼 아래에 별도 배치.
-   */
+  /** 채팅하기 CTA — 데스크톱은 확정 버튼 아래, 모바일은 하단 고정바 */
   canStartChat?: boolean;
   isConfirming: boolean;
   isChatPending?: boolean;
@@ -19,7 +16,7 @@ export interface CustomerQuoteDetailActionsProps {
   onConfirm: () => void;
   onChatClick?: () => void;
   onToggleFavorite: () => void;
-  /** desktop=사이드바 확정 CTA / mobile=하단 고정바 */
+  /** desktop=사이드바 확정·채팅 CTA / mobile=하단 고정바 */
   variant: 'desktop' | 'mobile';
   className?: string;
 }
@@ -39,20 +36,32 @@ export const CustomerQuoteDetailActions = ({
   className = '',
 }: CustomerQuoteDetailActionsProps) => {
   if (variant === 'desktop') {
-    if (!canConfirm) {
+    if (!canConfirm && !canStartChat) {
       return null;
     }
 
     return (
-      <div className={cn('w-full', className)}>
-        <Button
-          size="md"
-          variant="solid"
-          disabled={isConfirming}
-          onClick={onConfirm}
-        >
-          {isConfirming ? '확정 중...' : '견적 확정하기'}
-        </Button>
+      <div className={cn('flex w-full flex-col gap-4', className)}>
+        {canConfirm ? (
+          <Button
+            size="md"
+            variant="solid"
+            disabled={isConfirming}
+            onClick={onConfirm}
+          >
+            {isConfirming ? '확정 중...' : '견적 확정하기'}
+          </Button>
+        ) : null}
+        {canStartChat ? (
+          <Button
+            size="md"
+            variant="outlined"
+            disabled={isChatPending}
+            onClick={onChatClick}
+          >
+            {isChatPending ? '연결 중...' : '채팅하기'}
+          </Button>
+        ) : null}
       </div>
     );
   }
