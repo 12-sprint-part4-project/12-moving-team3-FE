@@ -1,6 +1,5 @@
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
-import { Markdown } from '@tiptap/markdown';
 import type { Editor, Extensions } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
@@ -53,7 +52,6 @@ const COMMUNITY_WRITE_EDITOR_EXTENSIONS: Extensions = [
   Placeholder.configure({
     placeholder: COMMUNITY_WRITE_CONTENT_PLACEHOLDER,
   }),
-  Markdown,
 ];
 
 const COMMUNITY_WRITE_EDITOR_PROPS = {
@@ -68,13 +66,8 @@ export const getCommunityWriteEditorExtensions = (): Extensions =>
 
 export const getCommunityWriteEditorProps = () => COMMUNITY_WRITE_EDITOR_PROPS;
 
-export const getCommunityWriteMarkdown = (editor: Editor): string => {
-  if (typeof editor.getMarkdown === 'function') {
-    return editor.getMarkdown();
-  }
-
-  return editor.getText();
-};
+export const getCommunityWriteHtml = (editor: Editor): string =>
+  editor.getHTML();
 
 export const runCommunityWriteToolbarCommand = (
   editor: Editor,
