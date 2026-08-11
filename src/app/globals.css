@@ -209,6 +209,11 @@
   --text-sm-medium--line-height: 1.6923;
   --text-sm-medium--font-weight: 500;
 
+  /* Text-2xs: 10px / 10px — GNB 미읽음 뱃지 등 초소형 */
+  --text-2xs-semibold: 0.625rem;
+  --text-2xs-semibold--line-height: 1;
+  --text-2xs-semibold--font-weight: 600;
+
   /* Text-xs: 12px, semibold만 line-height가 다름 (20px), medium/regular는 18px */
   --text-xs-semibold: 0.75rem;
   --text-xs-semibold--line-height: 1.6667;

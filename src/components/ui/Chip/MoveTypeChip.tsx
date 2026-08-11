@@ -12,29 +12,38 @@ import OfficeFillIcon from '@/assets/icons/office-fill.svg';
   type별로 아이콘·색·기본 라벨이 다르고, size로 밀도(아이콘만 ↔ 라벨 포함)를 조절합니다.
 
   [props]
-  - type: 'small' | 'home' | 'office' | 'designated' | 'quotePending' | 'quoteConfirmed' | 'quoteRejected'
-    · quotePending/quoteConfirmed/quoteRejected는 아이콘이 없고 xs 사이즈도 없음 (텍스트만 상태 표시용)
+  - type: 'small' | 'home' | 'office' | 'designated' | 'quotePending' | 'quoteConfirmed' | 'quoteRejected' | 'furnitureShare'
+    · quotePending/quoteConfirmed/quoteRejected/furnitureShare는 아이콘이 없고 xs 사이즈도 없음 (텍스트만 상태 표시용)
   - size: 'xs' | 'sm' | 'md' (xs = 아이콘만)
   - children: ReactNode (미지정 시 type별 기본 라벨)
   - className: string
 */
 
-type MoveType =
-  | 'small'
-  | 'home'
-  | 'office'
-  | 'designated'
+type IconMoveType = 'small' | 'home' | 'office' | 'designated';
+type StatusMoveType =
   | 'quotePending'
   | 'quoteConfirmed'
-  | 'quoteRejected';
+  | 'quoteRejected'
+  | 'furnitureShare';
+type MoveType = IconMoveType | StatusMoveType;
 type MoveTypeSize = 'xs' | 'sm' | 'md';
-type StatusMoveType = 'quotePending' | 'quoteConfirmed' | 'quoteRejected';
+type StatusMoveTypeSize = Exclude<MoveTypeSize, 'xs'>;
 
-interface MoveTypeChipProps extends HTMLAttributes<HTMLDivElement> {
-  type?: MoveType;
-  size?: MoveTypeSize;
+interface MoveTypeChipBaseProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactNode;
 }
+
+interface IconMoveTypeChipProps extends MoveTypeChipBaseProps {
+  type?: IconMoveType;
+  size?: MoveTypeSize;
+}
+
+interface StatusMoveTypeChipProps extends MoveTypeChipBaseProps {
+  type: StatusMoveType;
+  size?: StatusMoveTypeSize;
+}
+
+type MoveTypeChipProps = IconMoveTypeChipProps | StatusMoveTypeChipProps;
 
 const DEFAULT_LABELS: Record<MoveType, string> = {
   small: '소형이사',
@@ -44,6 +53,7 @@ const DEFAULT_LABELS: Record<MoveType, string> = {
   quotePending: '견적 대기',
   quoteConfirmed: '견적 확정',
   quoteRejected: '반려',
+  furnitureShare: '가구나눔',
 };
 
 // 일반 이사 = 파란, 지정 요청 = 빨간(강조), 상태칩(대기/확정/반려) = 회색 배경·진한 텍스트 (Figma Chip/이사유형)
@@ -55,6 +65,7 @@ const themeStyles: Record<MoveType, string> = {
   quotePending: 'bg-line-100 text-blue-400',
   quoteConfirmed: 'bg-line-100 text-blue-400',
   quoteRejected: 'bg-line-100 text-blue-400',
+  furnitureShare: 'bg-yellow-100/12 text-yellow-100',
 };
 
 // 아이콘+라벨 레이아웃. 왼쪽 패딩을 작게 해 아이콘이 라벨에 붙도록 함
@@ -79,7 +90,8 @@ const iconSizeStyles: Record<MoveTypeSize, string> = {
 const isStatusChip = (type: MoveType): type is StatusMoveType =>
   type === 'quotePending' ||
   type === 'quoteConfirmed' ||
-  type === 'quoteRejected';
+  type === 'quoteRejected' ||
+  type === 'furnitureShare';
 
 // 상태칩은 아이콘 맵에서 제외 (상태 텍스트만 표시)
 const ICONS: Record<Exclude<MoveType, StatusMoveType>, typeof BoxFillIcon> = {

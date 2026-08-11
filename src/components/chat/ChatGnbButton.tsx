@@ -79,7 +79,14 @@ export const ChatGnbButton = ({
       </button>
 
       {isOpen ? (
-        <div className="absolute top-full right-0 z-50 mt-2">
+        // mobile: viewport 고정(top 48 / right 20). sm+: 채팅 아이콘 기준
+        <div
+          className={cn(
+            'z-50',
+            'fixed top-12 right-5',
+            'sm:absolute sm:top-full sm:right-0 sm:mt-2'
+          )}
+        >
           <ChatPreviewDropdown onClose={handleClose} />
         </div>
       ) : null}

@@ -20,7 +20,7 @@ const QUOTE_STATUS_CHIP_TYPE = {
 
 /**
  * 채팅방 상태 칩.
- * COMMUNITY → 가구나눔
+ * COMMUNITY → 가구나눔 (커뮤니티와 동일 노란 칩)
  * DESIGNATED + 견적 미연결 → 지정 요청
  * quoteStatus → 견적 대기/확정/반려 (지정 여부 표기 없음)
  */
@@ -33,12 +33,10 @@ export const ChatRoomStatusChip = ({
   if (roomType === 'COMMUNITY') {
     return (
       <MoveTypeChip
-        type="quotePending"
+        type="furnitureShare"
         size={size}
         className={cn('shrink-0', className)}
-      >
-        가구나눔
-      </MoveTypeChip>
+      />
     );
   }
 
