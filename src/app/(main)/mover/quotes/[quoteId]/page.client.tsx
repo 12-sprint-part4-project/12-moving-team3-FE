@@ -139,7 +139,7 @@ const MoverQuoteDetailPageClient = ({
 
           {/* 보낸 견적: 견적가 + 코멘트 / 반려: 반려 사유 */}
           {detail.isRejected ? (
-            detail.rejectReason ? (
+            detail.rejectReason?.trim() ? (
               <section className="flex w-full flex-col gap-4 lg:gap-8">
                 <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
                   반려 사유
@@ -160,7 +160,7 @@ const MoverQuoteDetailPageClient = ({
                 </p>
               </section>
 
-              {detail.comment ? (
+              {detail.comment?.trim() ? (
                 <>
                   <div className="h-px w-full bg-line-100" />
                   <section className="flex w-full flex-col gap-4 lg:gap-8">
