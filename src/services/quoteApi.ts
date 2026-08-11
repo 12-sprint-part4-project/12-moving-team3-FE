@@ -103,6 +103,7 @@ export const toQuoteDetailViewModel = (
     isMoveCompleted: detail.isMoveCompleted,
     canStartChat,
     priceLabel: formatQuotePriceLabel(detail.price),
+    comment: detail.comment,
     rejectReason: detail.rejectReason,
     requestedAtLabel: formatShortDateLabel(detail.requestedAt),
     serviceLabel: moveType ? MOVE_TYPE_LABELS[moveType] : '-',
@@ -249,6 +250,8 @@ const isQuoteDetailResponse = (body: unknown): body is QuoteDetailResponse => {
     typeof detail.isDesignated === 'boolean' &&
     (detail.designatedMoverId === null ||
       typeof detail.designatedMoverId === 'number') &&
+    (detail.comment === null || typeof detail.comment === 'string') &&
+    (detail.rejectReason === null || typeof detail.rejectReason === 'string') &&
     !!detail.customer &&
     typeof detail.customer.name === 'string'
   );
