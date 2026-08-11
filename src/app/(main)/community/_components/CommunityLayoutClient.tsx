@@ -3,7 +3,14 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
-import { type CommunityTabId } from '@/constants/communityOptions';
+import type { CommunityTabId } from '@/constants/communityOptions';
+import {
+  WRITE_FAB_BOTTOM_CLASS,
+  WRITE_FAB_BOTTOM_RAISED_CLASS,
+  WRITE_FAB_REST_BOTTOM_CLASS,
+  WRITE_FAB_REST_BOTTOM_RAISED_CLASS,
+} from '@/constants/floatingActionLayout';
+import { useIsScrolled } from '@/hooks/useIsScrolled';
 import {
   buildCommunityListHref,
   parsePostListContextFromSearchParams,
@@ -90,11 +97,29 @@ export const CommunityLayoutClient = ({
     [setActiveTabOverride]
   );
 
+  const isScrolled = useIsScrolled();
+  const isWritePage = pathname.startsWith('/community/write');
+  const isDetailPage =
+    !isWritePage &&
+    pathname !== '/community' &&
+    pathname.startsWith('/community/');
+
+  const fabBottomClass = isDetailPage
+    ? (isScrolled ? WRITE_FAB_BOTTOM_RAISED_CLASS : WRITE_FAB_REST_BOTTOM_RAISED_CLASS)
+    : (isScrolled ? WRITE_FAB_BOTTOM_CLASS : WRITE_FAB_REST_BOTTOM_CLASS);
+
   return (
     <CommunityTabBarContext.Provider value={tabBarContextValue}>
       <CommunityTabBar activeTab={activeTab} onTabChange={handleTabChange} />
       {children}
-      <CommunityWriteButton variant="fab" activeTab={activeTab} />
+      {!isWritePage && (
+        <CommunityWriteButton
+          variant="fab"
+          activeTab={activeTab}
+          visibility={isDetailPage ? 'always' : 'mobile-always'}
+          bottomClass={fabBottomClass}
+        />
+      )}
     </CommunityTabBarContext.Provider>
   );
 };

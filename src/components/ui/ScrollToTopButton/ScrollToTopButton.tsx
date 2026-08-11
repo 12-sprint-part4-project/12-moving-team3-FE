@@ -5,28 +5,28 @@ import { useCallback } from 'react';
 
 import ChevronUpIcon from '@/assets/icons/chevron-up.svg';
 import {
-  FLOATING_ACTION_BASE_POSITION_CLASS,
   FLOATING_ACTION_BUTTON_SIZE_CLASS,
   FLOATING_ACTION_FIXED_CLASS,
+  FLOATING_ACTION_ICON_CLASS,
+  FLOATING_ACTION_INSET_X_CLASS,
   SCROLL_TO_TOP_DESKTOP_BOTTOM_CLASS,
-  SCROLL_TO_TOP_ICON_CLASS,
   SCROLL_TO_TOP_TABLET_BOTTOM_CLASS,
 } from '@/constants/floatingActionLayout';
 import { useFloatingActionScrollVisibility } from '@/hooks/useFloatingActionScrollVisibility';
-import { isScrollToTopVisible } from '@/lib/scrollToTopConfig';
+import { getScrollToTopConfig } from '@/lib/scrollToTopConfig';
 import { cn } from '@/lib/utils';
 
 interface ScrollToTopButtonProps {
   className?: string;
 }
 
-/** 전역 맨 위로 플로팅 버튼 — Mobile 항상 / Tablet·Desktop 스크롤 시 */
+/** 전역 맨 위로 플로팅 버튼 */
 export const ScrollToTopButton = ({
   className = '',
 }: ScrollToTopButtonProps) => {
   const pathname = usePathname();
-  const visible = isScrollToTopVisible(pathname);
-  const visibilityClass = useFloatingActionScrollVisibility(visible);
+  const { visible, mobileBottomClass } = getScrollToTopConfig(pathname);
+  const visibilityClass = useFloatingActionScrollVisibility();
 
   const handleClick = useCallback(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -45,7 +45,8 @@ export const ScrollToTopButton = ({
         FLOATING_ACTION_FIXED_CLASS,
         'bg-white hover:bg-background-200',
         FLOATING_ACTION_BUTTON_SIZE_CLASS,
-        FLOATING_ACTION_BASE_POSITION_CLASS,
+        FLOATING_ACTION_INSET_X_CLASS,
+        mobileBottomClass,
         SCROLL_TO_TOP_TABLET_BOTTOM_CLASS,
         SCROLL_TO_TOP_DESKTOP_BOTTOM_CLASS,
         visibilityClass,
@@ -53,7 +54,7 @@ export const ScrollToTopButton = ({
       )}
     >
       <ChevronUpIcon
-        className={cn(SCROLL_TO_TOP_ICON_CLASS, 'text-blue-300')}
+        className={cn(FLOATING_ACTION_ICON_CLASS, 'text-blue-300')}
         aria-hidden
       />
     </button>

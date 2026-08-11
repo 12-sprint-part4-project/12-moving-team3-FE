@@ -1,49 +1,19 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useIsScrolled } from './useIsScrolled';
 
-const SCROLL_THRESHOLD_PX = 300;
-const TABLET_MIN_WIDTH_QUERY = '(min-width: 46.5rem)';
+export type FloatingActionVisibility = 'scroll' | 'mobile-always' | 'always';
 
-/** Mobile 항상 노출 / Tablet·Desktop 페이지 top에선 숨김 */
+/** 플로팅 버튼 노출 Tailwind 클래스 반환 */
 export const useFloatingActionScrollVisibility = (
-  enabled = true
+  mode: FloatingActionVisibility = 'scroll',
 ): string => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isTabletOrDesktop, setIsTabletOrDesktop] = useState(false);
+  const isScrolled = useIsScrolled();
 
-  useEffect(() => {
-    if (!enabled) {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia(TABLET_MIN_WIDTH_QUERY);
-
-    const updateViewport = () => {
-      setIsTabletOrDesktop(mediaQuery.matches);
-    };
-
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > SCROLL_THRESHOLD_PX);
-    };
-
-    updateViewport();
-    handleScroll();
-
-    mediaQuery.addEventListener('change', updateViewport);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      mediaQuery.removeEventListener('change', updateViewport);
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [enabled]);
-
-  if (!enabled) {
-    return 'opacity-100';
+  if (mode === 'always') return 'opacity-100';
+  if (isScrolled) return 'opacity-100';
+  if (mode === 'mobile-always') {
+    return 'opacity-100 min-[46.5rem]:pointer-events-none min-[46.5rem]:opacity-0';
   }
-
-  return isTabletOrDesktop && !isScrolled
-    ? 'pointer-events-none opacity-0'
-    : 'opacity-100';
+  return 'pointer-events-none opacity-0';
 };
