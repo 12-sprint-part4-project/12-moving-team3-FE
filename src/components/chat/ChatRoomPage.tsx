@@ -24,6 +24,7 @@ import {
 import { useChatSocketRoom } from '@/hooks/useChatSocketRoom';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { chatRoomDocumentTitle } from '@/lib/chatPartnerDisplayName';
 import { uploadChatImage } from '@/lib/uploadChatImage';
 import { cn } from '@/lib/utils';
 
@@ -78,6 +79,14 @@ export const ChatRoomPage = ({
   }
 
   useChatSocketRoom(enabled ? roomId : 0);
+
+  // SEO 탭 타이틀 — auth(localStorage)라 generateMetadata 불가, room 로드 후 absolute로 설정
+  useEffect(() => {
+    if (!room) {
+      return;
+    }
+    document.title = chatRoomDocumentTitle(room.partner);
+  }, [room]);
 
   useEffect(() => {
     lastMarkedMessageIdRef.current = null;
