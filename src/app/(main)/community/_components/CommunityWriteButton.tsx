@@ -2,37 +2,36 @@
 
 import EditIcon from '@/assets/icons/edit.svg';
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
+import type { CommunityTabId } from '@/constants/communityOptions';
 import {
   FLOATING_ACTION_BUTTON_SIZE_CLASS,
   FLOATING_ACTION_FIXED_CLASS,
+  FLOATING_ACTION_ICON_CLASS,
   FLOATING_ACTION_INSET_X_CLASS,
   WRITE_FAB_BOTTOM_CLASS,
-  WRITE_FAB_ICON_CLASS,
 } from '@/constants/floatingActionLayout';
-import type { CommunityTabId } from '@/constants/communityOptions';
 import { useCommunityWriteAction } from '@/hooks/useCommunityWriteAction';
-import { useFloatingActionScrollVisibility } from '@/hooks/useFloatingActionScrollVisibility';
+import {
+  type FloatingActionVisibility,
+  useFloatingActionScrollVisibility,
+} from '@/hooks/useFloatingActionScrollVisibility';
 import { cn } from '@/lib/utils';
 
 type CommunityWriteButtonVariant = 'fab' | 'toolbar' | 'desktop';
 
-interface CommunityWriteButtonProps {
-  variant: CommunityWriteButtonVariant;
-  activeTab?: CommunityTabId;
-  className?: string;
-}
-
 interface CommunityWriteFabProps {
   onClick: () => void;
-  className?: string;
+  visibility?: FloatingActionVisibility;
+  bottomClass?: string;
 }
 
-/** Tablet·Desktop 스크롤 시에만 노출 — Mobile은 항상 표시 */
+/** 스크롤 전: Top 버튼 자리 / 스크롤 후: Top 버튼 위 */
 const CommunityWriteFab = ({
   onClick,
-  className = '',
+  visibility = 'scroll',
+  bottomClass = WRITE_FAB_BOTTOM_CLASS,
 }: CommunityWriteFabProps) => {
-  const visibilityClass = useFloatingActionScrollVisibility(true);
+  const visibilityClass = useFloatingActionScrollVisibility(visibility);
 
   return (
     <button
@@ -44,24 +43,33 @@ const CommunityWriteFab = ({
         'bg-blue-300 hover:bg-blue-200',
         FLOATING_ACTION_BUTTON_SIZE_CLASS,
         FLOATING_ACTION_INSET_X_CLASS,
-        WRITE_FAB_BOTTOM_CLASS,
+        bottomClass,
         visibilityClass,
-        className
       )}
     >
       <EditIcon
-        className={cn(WRITE_FAB_ICON_CLASS, 'text-white')}
+        className={cn(FLOATING_ACTION_ICON_CLASS, 'text-white')}
         aria-hidden
       />
     </button>
   );
 };
 
+interface CommunityWriteButtonProps {
+  variant: CommunityWriteButtonVariant;
+  activeTab?: CommunityTabId;
+  className?: string;
+  visibility?: FloatingActionVisibility;
+  bottomClass?: string;
+}
+
 /** 커뮤니티 글쓰기 — FAB / Tablet·Desktop 툴바·헤더 버튼 */
 export const CommunityWriteButton = ({
   variant,
   activeTab = 'board',
   className = '',
+  visibility,
+  bottomClass,
 }: CommunityWriteButtonProps) => {
   const { handleWriteClick, isLoginModalOpen, handleCloseLoginModal } =
     useCommunityWriteAction(activeTab);
@@ -69,7 +77,11 @@ export const CommunityWriteButton = ({
   return (
     <>
       {variant === 'fab' ? (
-        <CommunityWriteFab onClick={handleWriteClick} className={className} />
+        <CommunityWriteFab
+          onClick={handleWriteClick}
+          visibility={visibility}
+          bottomClass={bottomClass}
+        />
       ) : (
         <button
           type="button"
