@@ -20,6 +20,8 @@ import {
   revokePendingWriteImageItems,
   type WriteImageItem,
 } from '@/lib/communityWriteImageItems';
+import { marked } from 'marked';
+
 import { isHtmlContent } from '@/lib/communityPostContent';
 import { cn } from '@/lib/utils';
 import type {
@@ -74,9 +76,9 @@ const CommunityWriteForm = ({
   const editInitialContent = useMemo(() => {
     if (!editPost) return '';
     const { content } = editPost;
-    // HTML 포맷: Tiptap에 직접 전달
-    // Legacy Markdown 포맷: plain text로 로드 (재저장 시 HTML로 전환됨)
-    return isHtmlContent(content) ? content : content;
+    if (isHtmlContent(content)) return content;
+    // Legacy Markdown: HTML로 변환해 Tiptap에 전달
+    return String(marked.parse(content));
   }, [editPost]);
 
   const [category, setCategory] = useState<PostCategory>(

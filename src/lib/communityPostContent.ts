@@ -11,9 +11,12 @@
 
 // ─── 포맷 판별 ────────────────────────────────────────────────
 
+/** HTML 태그 시작 패턴 — Markdown 자동 링크(<https://...>)를 HTML로 오판하지 않도록 실제 태그 형식만 인정 */
+const HTML_TAG_START_PATTERN = /^<\/?[a-z][\w:-]*(?:\s[^>]*|\/?)>/i;
+
 /** HTML 포맷 여부 — Tiptap getHTML()은 항상 <p>로 시작 */
 export const isHtmlContent = (content: string): boolean =>
-  content.trimStart().startsWith('<');
+  HTML_TAG_START_PATTERN.test(content.trimStart());
 
 // ─── HTML → plain text ────────────────────────────────────────
 

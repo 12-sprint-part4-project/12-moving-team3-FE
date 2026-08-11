@@ -17,6 +17,11 @@ describe('isHtmlContent', () => {
     expect(isHtmlContent('내용')).toBe(false);
     expect(isHtmlContent('[링크](https://example.com)')).toBe(false);
   });
+
+  it('Markdown 자동 링크(<https://...>)는 false', () => {
+    expect(isHtmlContent('<https://example.com>')).toBe(false);
+    expect(isHtmlContent('<http://example.com>')).toBe(false);
+  });
 });
 
 describe('stripCommunityPostContent — HTML 포맷', () => {
@@ -44,6 +49,10 @@ describe('stripCommunityPostContent — Legacy Markdown 포맷', () => {
 
   it('markdown 링크는 라벨만 남긴다', () => {
     expect(stripCommunityPostContent('[링크](https://example.com)')).toBe('링크');
+  });
+
+  it('Markdown 자동 링크는 URL을 plain text로 남긴다', () => {
+    expect(stripCommunityPostContent('<https://example.com>')).toBe('https://example.com');
   });
 });
 
