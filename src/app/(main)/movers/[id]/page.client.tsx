@@ -45,6 +45,7 @@ export const MoverDetailPageClient = () => {
     hasReceivedQuoteFromMover,
     isQuoteStatusError,
     isStatusLoading: isDesignatedStatusLoading,
+    isDesignatedRequestFailed,
     needGeneralOpen,
     alreadyDesignatedOpen,
     closeNeedGeneralModal,
@@ -199,6 +200,7 @@ export const MoverDetailPageClient = () => {
           hasReceivedQuoteFromMover={hasReceivedQuoteFromMover}
           isQuoteStatusError={isQuoteStatusError}
           isDesignatedStatusLoading={isDesignatedStatusLoading}
+          isDesignatedRequestFailed={isDesignatedRequestFailed}
           showChatCta={showChatCta}
           onChatClick={handleChatClick}
           isChatPending={isChatPending}
@@ -218,6 +220,7 @@ export const MoverDetailPageClient = () => {
         hasReceivedQuoteFromMover={hasReceivedQuoteFromMover}
         isQuoteStatusError={isQuoteStatusError}
         isDesignatedStatusLoading={isDesignatedStatusLoading}
+        isDesignatedRequestFailed={isDesignatedRequestFailed}
         showChatCta={showChatCta}
         onChatClick={handleChatClick}
         isChatPending={isChatPending}

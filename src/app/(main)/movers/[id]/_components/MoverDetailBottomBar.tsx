@@ -18,6 +18,8 @@ export interface MoverDetailBottomBarProps {
   hasReceivedQuoteFromMover?: boolean;
   isQuoteStatusError?: boolean;
   isDesignatedStatusLoading?: boolean;
+  /** 처리되지 않은 지정 견적 요청 에러 발생 시 비활성 */
+  isDesignatedRequestFailed?: boolean;
   /** `/movers/[id]` 모바일: 지정 CTA 오른쪽 `채팅하기` (지정 완료 후에만) */
   showChatCta?: boolean;
   onChatClick?: () => void;
@@ -37,13 +39,17 @@ export const MoverDetailBottomBar = ({
   hasReceivedQuoteFromMover = false,
   isQuoteStatusError = false,
   isDesignatedStatusLoading = false,
+  isDesignatedRequestFailed = false,
   showChatCta = false,
   onChatClick,
   isChatPending = false,
   className = '',
 }: MoverDetailBottomBarProps) => {
   const isHardDisabled =
-    isDesignatedPending || isAlreadyDesignated || isDesignatedStatusLoading;
+    isDesignatedPending ||
+    isAlreadyDesignated ||
+    isDesignatedStatusLoading ||
+    isDesignatedRequestFailed;
   const isSoftBlocked =
     (hasReceivedQuoteFromMover || isQuoteStatusError) && !isHardDisabled;
 
@@ -82,7 +88,8 @@ export const MoverDetailBottomBar = ({
                 hasReceivedQuoteFromMover,
                 isDesignatedPending,
                 isDesignatedStatusLoading,
-                isQuoteStatusError
+                isQuoteStatusError,
+                isDesignatedRequestFailed
               )}
             </Button>
             {showChatCta ? (
