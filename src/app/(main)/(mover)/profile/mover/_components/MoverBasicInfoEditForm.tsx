@@ -18,6 +18,7 @@ import { getAuthSession } from '@/lib/authSession';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
+  isValidKrPhoneNumber,
   KR_MOBILE_PREFIX_LABEL,
 } from '@/lib/phoneNumber';
 import { cn } from '@/lib/utils';
@@ -35,6 +36,8 @@ const FIELD_CLASSNAME =
 const READONLY_FIELD_CLASSNAME = `${FIELD_CLASSNAME} [&_input]:!text-gray-300`;
 
 const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
+
+const NAME_MIN_LENGTH = 2;
 
 interface MoverBasicInfoEditFieldsProps {
   profile: MoverProfileMe;
@@ -68,6 +71,11 @@ const MoverBasicInfoEditFields = ({
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isSubmitEnabled =
+    name.trim().length >= NAME_MIN_LENGTH &&
+    isValidKrPhoneNumber(composeKrMobilePhone(phoneNumber)) &&
+    !isSubmitting;
 
   // 프로필 API에 번호가 없으면 세션(프로필 등록 시 저장분)으로 채운다.
   useEffect(() => {
@@ -306,7 +314,7 @@ const MoverBasicInfoEditFields = ({
           type="submit"
           variant="solid"
           size="sm"
-          disabled={isSubmitting}
+          disabled={!isSubmitEnabled}
           className="order-1 lg:order-2 lg:h-16 lg:max-w-[41.25rem] lg:text-xl-semibold"
         >
           {isSubmitting ? '수정 중...' : '수정하기'}

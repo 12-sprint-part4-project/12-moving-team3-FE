@@ -119,11 +119,16 @@ const MoverProfileEditFields = ({
 
   const phoneNumber = profile.phoneNumber ?? '';
   const careerValue = career === '' ? null : Number(career);
+  const isCareerValid =
+    careerValue !== null &&
+    Number.isInteger(careerValue) &&
+    careerValue >= 0 &&
+    careerValue <= CAREER_MAX;
   const isSubmitEnabled =
-    nickname.trim().length > 0 &&
-    career !== '' &&
+    nickname.trim().length >= NICKNAME_MIN_LENGTH &&
+    isCareerValid &&
     shortIntro.trim().length > 0 &&
-    description.trim().length > 0 &&
+    description.trim().length >= DESCRIPTION_MIN &&
     selectedServices.length > 0 &&
     selectedRegions.length > 0 &&
     !isPending;

@@ -25,6 +25,7 @@ import { getAuthSession } from '@/lib/authSession';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
+  isValidKrPhoneNumber,
   KR_MOBILE_PREFIX_LABEL,
 } from '@/lib/phoneNumber';
 import { uploadProfileImage } from '@/lib/uploadProfileImage';
@@ -54,6 +55,9 @@ const CHIP_CLASSNAME =
   'px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium';
 
 const HELPER_CLASSNAME = 'text-xs-regular text-gray-400 lg:text-lg-regular';
+
+const NAME_MIN_LENGTH = 2;
+const NICKNAME_MIN_LENGTH = 2;
 
 interface CustomerProfileEditFieldsProps {
   profile: CustomerProfileMe;
@@ -107,9 +111,9 @@ const CustomerProfileEditFields = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isSubmitEnabled =
-    name.trim().length > 0 &&
-    nickname.trim().length > 0 &&
-    phoneNumber.trim().length > 0 &&
+    name.trim().length >= NAME_MIN_LENGTH &&
+    nickname.trim().length >= NICKNAME_MIN_LENGTH &&
+    isValidKrPhoneNumber(composeKrMobilePhone(phoneNumber)) &&
     selectedServices.length > 0 &&
     selectedRegion !== null &&
     !isSubmitting;
