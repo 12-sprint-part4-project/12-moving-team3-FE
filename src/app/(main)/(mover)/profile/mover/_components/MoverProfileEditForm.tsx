@@ -58,6 +58,13 @@ const DESCRIPTION_MIN = 8;
 
 const toDigits = (value: string): string => value.replace(/\D/g, '');
 
+const areSortedEqual = (left: string[], right: string[]): boolean => {
+  if (left.length !== right.length) return false;
+  const sortedLeft = [...left].sort();
+  const sortedRight = [...right].sort();
+  return sortedLeft.every((value, index) => value === sortedRight[index]);
+};
+
 const toggleChip = <T extends string>(values: T[], value: T): T[] =>
   values.includes(value)
     ? values.filter((item) => item !== value)
@@ -207,6 +214,21 @@ const MoverProfileEditFields = ({
       showToast({
         content: '등록된 전화번호가 없습니다. 기본정보를 먼저 수정해 주세요.',
       });
+      return;
+    }
+
+    const hasImageChange = Boolean(profileImageFile) || isImageCleared;
+    const hasFieldChange =
+      trimmedNickname !== profile.nickname ||
+      careerValue !== profile.career ||
+      trimmedShortIntro !== (profile.shortDescription ?? '') ||
+      trimmedDescription !== (profile.description ?? '') ||
+      !areSortedEqual(selectedServices, profile.service) ||
+      !areSortedEqual(selectedRegions, profile.serviceRegions) ||
+      hasImageChange;
+
+    if (!hasFieldChange) {
+      showToast({ content: '변경된 내용이 없습니다.' });
       return;
     }
 
