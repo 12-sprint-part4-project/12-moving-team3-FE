@@ -21,7 +21,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { customerProfileQueryKeys } from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
-import { getAuthSession } from '@/lib/authSession';
 import { uploadProfileImage } from '@/lib/uploadProfileImage';
 import { upsertCustomerProfile } from '@/services/customerProfileApi';
 import type {
@@ -53,7 +52,7 @@ const toDigits = (value: string): string => value.replace(/\D/g, '');
 export const CustomerProfileForm = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user, setSession } = useAuth();
+  const { user } = useAuth();
   const { showToast } = useToast();
   const imageInputId = useId();
   const phoneInputId = useId();
@@ -152,18 +151,6 @@ export const CustomerProfileForm = () => {
       await queryClient.invalidateQueries({
         queryKey: customerProfileQueryKeys.all,
       });
-
-      const session = getAuthSession();
-      if (session) {
-        setSession({
-          ...session,
-          user: {
-            ...session.user,
-            phoneNumber,
-            isProfileCompleted: true,
-          },
-        });
-      }
 
       showToast({ content: '프로필 등록이 완료되었습니다.' });
       router.replace('/');

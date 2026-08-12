@@ -9,9 +9,7 @@ import {
 
 import {
   clearAuthSession,
-  getAuthSessionUser,
   setAuthSession,
-  subscribeAuthSession,
   type AuthSession,
 } from '@/lib/authSession';
 import type { AuthUser } from '@/types/auth';
@@ -33,8 +31,6 @@ const subscribeIsReady = () => () => {};
 const getIsReadySnapshot = () => true;
 const getIsReadyServerSnapshot = () => false;
 
-const getUserServerSnapshot = (): AuthUser | null => null;
-
 const clearLegacyAuthUiCookie = (): void => {
   document.cookie = 'auth_ui=; path=/; Max-Age=0; SameSite=Lax';
 };
@@ -46,13 +42,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     getIsReadyServerSnapshot
   );
 
-  const sessionUser = useSyncExternalStore(
-    subscribeAuthSession,
-    getAuthSessionUser,
-    getUserServerSnapshot
-  );
-
-  const user = isReady ? sessionUser : null;
+  // 3단계: authSession은 토큰만 저장. user는 4단계 me 조회로 채운다.
+  const user = null;
 
   useEffect(() => {
     clearLegacyAuthUiCookie();

@@ -14,14 +14,12 @@ import {
   type RegionChipValue,
   type ServiceChipValue,
 } from '@/constants/commonOptions';
-import { useAuth } from '@/hooks/useAuth';
 import {
   customerProfileQueryKeys,
   useCustomerProfile,
 } from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
-import { getAuthSession } from '@/lib/authSession';
 import { uploadProfileImage } from '@/lib/uploadProfileImage';
 import { upsertCustomerProfile } from '@/services/customerProfileApi';
 import type { CustomerProfileMe } from '@/types/customerProfile';
@@ -60,7 +58,6 @@ const CustomerProfileEditFields = ({
 }: CustomerProfileEditFieldsProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { setSession } = useAuth();
   const { showToast } = useToast();
   const imageInputId = useId();
   const nameInputId = useId();
@@ -155,23 +152,11 @@ const CustomerProfileEditFields = ({
         return;
       }
 
-      const response = await upsertCustomerProfile(body);
+      await upsertCustomerProfile(body);
 
       await queryClient.invalidateQueries({
         queryKey: customerProfileQueryKeys.all,
       });
-
-      const session = getAuthSession();
-      if (session) {
-        setSession({
-          ...session,
-          user: {
-            ...session.user,
-            nickname: response.data.nickname,
-            phoneNumber: response.data.phoneNumber ?? session.user.phoneNumber,
-          },
-        });
-      }
 
       showToast({ content: '프로필이 수정되었습니다.' });
       router.back();

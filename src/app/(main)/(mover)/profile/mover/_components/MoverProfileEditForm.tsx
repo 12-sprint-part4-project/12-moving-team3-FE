@@ -22,14 +22,12 @@ import {
   type RegionChipValue,
   type ServiceChipValue,
 } from '@/constants/commonOptions';
-import { useAuth } from '@/hooks/useAuth';
 import {
   moverProfileQueryKeys,
   useMoverProfile,
 } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
-import { getAuthSession } from '@/lib/authSession';
 import { uploadProfileImage } from '@/lib/uploadProfileImage';
 import { cn } from '@/lib/utils';
 import { upsertMoverProfile } from '@/services/moverProfileApi';
@@ -75,7 +73,6 @@ const MoverProfileEditFields = ({
 }: MoverProfileEditFieldsProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { setSession } = useAuth();
   const { showToast } = useToast();
   const imageInputId = useId();
   const nicknameInputId = useId();
@@ -221,7 +218,7 @@ const MoverProfileEditFields = ({
         s3Key = null;
       }
 
-      const response = await upsertMoverProfile({
+      await upsertMoverProfile({
         nickname: trimmedNickname,
         career: careerValue,
         shortDescription: trimmedShortIntro,
@@ -234,17 +231,6 @@ const MoverProfileEditFields = ({
       await queryClient.invalidateQueries({
         queryKey: moverProfileQueryKeys.all,
       });
-
-      const session = getAuthSession();
-      if (session) {
-        setSession({
-          ...session,
-          user: {
-            ...session.user,
-            nickname: response.data.nickname,
-          },
-        });
-      }
 
       showToast({ content: '프로필이 수정되었습니다.' });
       router.back();

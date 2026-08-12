@@ -14,7 +14,6 @@ import {
 } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
-import { getAuthSession } from '@/lib/authSession';
 import { cn } from '@/lib/utils';
 import { updateMoverBasicInfo } from '@/services/moverProfileApi';
 import type { MoverProfileMe } from '@/types/moverProfile';
@@ -43,7 +42,7 @@ const MoverBasicInfoEditFields = ({
 }: MoverBasicInfoEditFieldsProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user, setSession } = useAuth();
+  const { user } = useAuth();
   const { showToast } = useToast();
   const nameInputId = useId();
   const emailInputId = useId();
@@ -102,23 +101,11 @@ const MoverBasicInfoEditFields = ({
     setIsSubmitting(true);
 
     try {
-      const response = await updateMoverBasicInfo(body);
+      await updateMoverBasicInfo(body);
 
       await queryClient.invalidateQueries({
         queryKey: moverProfileQueryKeys.all,
       });
-
-      const session = getAuthSession();
-      if (session) {
-        setSession({
-          ...session,
-          user: {
-            ...session.user,
-            phoneNumber:
-              response.data.phoneNumber ?? session.user.phoneNumber,
-          },
-        });
-      }
 
       showToast({ content: '기본정보가 수정되었습니다.' });
       router.back();
