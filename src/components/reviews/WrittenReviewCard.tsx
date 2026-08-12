@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { forwardRef } from 'react';
 
 import ProfileIcon from '@/assets/icons/profile.svg';
 import StarIcon from '@/assets/icons/star.svg';
@@ -17,6 +18,8 @@ import type { CustomerReviewItem } from '@/types/review';
 export interface WrittenReviewCardProps {
   item: CustomerReviewItem;
   onClick: (item: CustomerReviewItem) => void;
+  /** 방금 등록한 리뷰 강조 */
+  highlighted?: boolean;
   className?: string;
 }
 
@@ -24,11 +27,13 @@ export interface WrittenReviewCardProps {
  * 내가 작성한 리뷰 카드 (Figma: Card-list/내가 작성한 리뷰).
  * 클릭 시 상세 모달을 연다.
  */
-export const WrittenReviewCard = ({
-  item,
-  onClick,
-  className,
-}: WrittenReviewCardProps) => {
+export const WrittenReviewCard = forwardRef<
+  HTMLButtonElement,
+  WrittenReviewCardProps
+>(function WrittenReviewCard(
+  { item, onClick, highlighted = false, className },
+  ref
+) {
   const quote = item.quote;
   const moveTypeUi = quote?.moveType
     ? API_MOVE_TYPE_TO_UI[quote.moveType]
@@ -45,12 +50,14 @@ export const WrittenReviewCard = ({
 
   return (
     <button
+      ref={ref}
       type="button"
       onClick={() => onClick(item)}
       className={cn(
-        'flex w-full cursor-pointer flex-col rounded-2xl bg-white text-left shadow-[0.125rem_0.125rem_0.3125rem] shadow-shadow-gray-100/20 transition-shadow hover:shadow-[0.125rem_0.125rem_0.5rem] hover:shadow-shadow-gray-200/25',
+        'flex w-full cursor-pointer flex-col rounded-2xl bg-white text-left shadow-[0.125rem_0.125rem_0.3125rem] shadow-shadow-gray-100/20 transition-[box-shadow,background-color] duration-700 hover:shadow-[0.125rem_0.125rem_0.5rem] hover:shadow-shadow-gray-200/25',
         'gap-2.5 px-3.5 pt-4 pb-2.5',
         'xl:gap-8 xl:rounded-3xl xl:px-6 xl:py-8 xl:shadow-[0.25rem_0.25rem_0.3125rem] xl:shadow-shadow-gray-100/20',
+        highlighted && 'bg-blue-50 ring-2 ring-blue-300 ring-offset-2',
         className
       )}
     >
@@ -163,4 +170,4 @@ export const WrittenReviewCard = ({
       </div>
     </button>
   );
-};
+});
