@@ -22,6 +22,11 @@ import {
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { getAuthSession } from '@/lib/authSession';
+import {
+  composeKrMobilePhone,
+  formatKrMobileSubscriberInput,
+  KR_MOBILE_PREFIX_LABEL,
+} from '@/lib/phoneNumber';
 import { uploadProfileImage } from '@/lib/uploadProfileImage';
 import { upsertCustomerProfile } from '@/services/customerProfileApi';
 import type { CustomerProfileMe } from '@/types/customerProfile';
@@ -37,7 +42,7 @@ import { ProfileImageField } from './ProfileImageField';
 
 /** Figma Mobile·Tablet: input sm / Desktop(lg+): md 높이·텍스트 */
 const FIELD_CLASSNAME =
-  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
+  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular';
 
 const READONLY_FIELD_CLASSNAME = `${FIELD_CLASSNAME} [&_input]:!text-gray-300`;
 
@@ -87,7 +92,9 @@ const CustomerProfileEditFields = ({
   const [name, setName] = useState(profile.name);
   const [nickname, setNickname] = useState(profile.nickname);
   const [email] = useState(profile.email);
-  const [phoneNumber, setPhoneNumber] = useState(profile.phoneNumber ?? '');
+  const [phoneNumber, setPhoneNumber] = useState(
+    formatKrMobileSubscriberInput(profile.phoneNumber ?? '')
+  );
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -119,7 +126,7 @@ const CustomerProfileEditFields = ({
       profile,
       name,
       nickname,
-      phoneNumber,
+      phoneNumber: composeKrMobilePhone(phoneNumber),
       selectedServices,
       selectedRegion,
       currentPassword,
@@ -267,8 +274,14 @@ const CustomerProfileEditFields = ({
                   type="tel"
                   name="phone"
                   autoComplete="tel"
-                  value={phoneNumber}
-                  onChange={(event) => setPhoneNumber(event.target.value)}
+                  leftAddon={KR_MOBILE_PREFIX_LABEL}
+                  placeholder="1234-5678"
+                  value={formatKrMobileSubscriberInput(phoneNumber)}
+                  onChange={(event) =>
+                    setPhoneNumber(
+                      formatKrMobileSubscriberInput(event.target.value)
+                    )
+                  }
                   className={FIELD_CLASSNAME}
                 />
               </section>

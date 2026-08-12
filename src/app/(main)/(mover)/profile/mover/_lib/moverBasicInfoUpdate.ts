@@ -1,15 +1,12 @@
+import { getPhoneNumberError, toPhoneDigits } from '@/lib/phoneNumber';
 import { validatePassword } from '@/lib/validatePassword';
 import type {
   MoverProfileMe,
   UpdateMoverBasicInfoRequest,
 } from '@/types/moverProfile';
 
-const PHONE_NUMBER_LENGTH = 11;
 const NAME_MIN_LENGTH = 2;
 const NAME_MAX_LENGTH = 20;
-
-export const toPhoneDigits = (value: string): string =>
-  value.replace(/\D/g, '');
 
 interface BuildMoverBasicInfoUpdateParams {
   profile: MoverProfileMe;
@@ -39,7 +36,7 @@ export const buildMoverBasicInfoUpdateBody = ({
 
   const hasBasicChange =
     trimmedName !== profile.name ||
-    phoneDigits !== (profile.phoneNumber ?? '');
+    phoneDigits !== toPhoneDigits(profile.phoneNumber ?? '');
 
   if (!hasBasicChange && !hasPasswordInput) {
     return null;
@@ -76,9 +73,9 @@ export const getMoverBasicInfoUpdateError = ({
     return `이름은 ${NAME_MIN_LENGTH}~${NAME_MAX_LENGTH}자로 입력해 주세요.`;
   }
 
-  const phoneDigits = toPhoneDigits(phoneNumber);
-  if (phoneDigits.length !== PHONE_NUMBER_LENGTH) {
-    return '전화번호는 숫자 11자리로 입력해 주세요.';
+  const phoneError = getPhoneNumberError(phoneNumber);
+  if (phoneError) {
+    return phoneError;
   }
 
   const hasPasswordInput =

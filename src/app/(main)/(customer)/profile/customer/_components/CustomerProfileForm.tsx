@@ -22,6 +22,13 @@ import { customerProfileQueryKeys } from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { getAuthSession } from '@/lib/authSession';
+import {
+  composeKrMobilePhone,
+  formatKrMobileSubscriberInput,
+  getPhoneNumberError,
+  KR_MOBILE_PREFIX_LABEL,
+  toPhoneDigits,
+} from '@/lib/phoneNumber';
 import { uploadProfileImage } from '@/lib/uploadProfileImage';
 import { upsertCustomerProfile } from '@/services/customerProfileApi';
 import type {
@@ -34,12 +41,11 @@ import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
 import { ProfileImageCropModal } from './ProfileImageCropModal';
 import { ProfileImageField } from './ProfileImageField';
 
-const PHONE_NUMBER_LENGTH = 11;
 const NICKNAME_MIN_LENGTH = 2;
 const NICKNAME_MAX_LENGTH = 20;
 
 const FIELD_CLASSNAME =
-  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
+  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular';
 
 /** Figma Mobile·Tablet: lg-semibold / Desktop(lg+): xl-semibold */
 const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
@@ -47,8 +53,6 @@ const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
 /** Figma Mobile·Tablet chip sm / Desktop: md */
 const CHIP_CLASSNAME =
   'px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium';
-
-const toDigits = (value: string): string => value.replace(/\D/g, '');
 
 export const CustomerProfileForm = () => {
   const router = useRouter();
@@ -86,30 +90,30 @@ export const CustomerProfileForm = () => {
 
   // 세션에 번호가 있으면(이전 데이터 등) 미리 채운다. 신규 가입은 비어 있다.
   useEffect(() => {
-    const sessionPhone = toDigits(user?.phoneNumber ?? '');
+    const sessionPhone = user?.phoneNumber?.trim() ?? '';
     if (!sessionPhone) return;
 
-    setPhoneNumber((prev) => (prev ? prev : sessionPhone));
+    setPhoneNumber((prev) =>
+      prev ? prev : formatKrMobileSubscriberInput(sessionPhone)
+    );
   }, [user?.phoneNumber]);
 
   const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setPhoneNumber(toDigits(event.target.value).slice(0, PHONE_NUMBER_LENGTH));
+    setPhoneNumber(formatKrMobileSubscriberInput(event.target.value));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (isPending) return;
 
-    if (phoneNumber.length === 0) {
+    const fullPhone = composeKrMobilePhone(phoneNumber);
+    const phoneError = getPhoneNumberError(fullPhone);
+    if (phoneError) {
+      showToast({ content: phoneError });
       return;
     }
 
-    if (phoneNumber.length !== PHONE_NUMBER_LENGTH) {
-      showToast({
-        content: `전화번호는 ${PHONE_NUMBER_LENGTH}자리로 입력해 주세요.`,
-      });
-      return;
-    }
+    const phoneDigits = toPhoneDigits(fullPhone);
 
     if (selectedServices.length === 0) {
       showToast({ content: '이용 서비스를 한 개 이상 선택해 주세요.' });
@@ -143,7 +147,7 @@ export const CustomerProfileForm = () => {
 
       await upsertCustomerProfile({
         nickname,
-        phoneNumber,
+        phoneNumber: phoneDigits,
         region: selectedRegion,
         service: selectedServices,
         ...(s3Key ? { s3Key } : {}),
@@ -159,7 +163,7 @@ export const CustomerProfileForm = () => {
           ...session,
           user: {
             ...session.user,
-            phoneNumber,
+            phoneNumber: phoneDigits,
             isProfileCompleted: true,
           },
         });
@@ -221,8 +225,9 @@ export const CustomerProfileForm = () => {
                 name="phone"
                 inputMode="numeric"
                 autoComplete="tel"
-                placeholder="숫자만 입력해 주세요"
-                value={phoneNumber}
+                leftAddon={KR_MOBILE_PREFIX_LABEL}
+                placeholder="1234-5678"
+                value={formatKrMobileSubscriberInput(phoneNumber)}
                 onChange={handlePhoneChange}
                 className={FIELD_CLASSNAME}
               />

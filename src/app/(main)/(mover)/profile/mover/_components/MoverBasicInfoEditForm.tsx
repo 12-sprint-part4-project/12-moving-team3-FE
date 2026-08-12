@@ -15,6 +15,11 @@ import {
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { getAuthSession } from '@/lib/authSession';
+import {
+  composeKrMobilePhone,
+  formatKrMobileSubscriberInput,
+  KR_MOBILE_PREFIX_LABEL,
+} from '@/lib/phoneNumber';
 import { cn } from '@/lib/utils';
 import { updateMoverBasicInfo } from '@/services/moverProfileApi';
 import type { MoverProfileMe } from '@/types/moverProfile';
@@ -25,7 +30,7 @@ import {
 } from '../_lib/moverBasicInfoUpdate';
 
 const FIELD_CLASSNAME =
-  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
+  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular';
 
 const READONLY_FIELD_CLASSNAME = `${FIELD_CLASSNAME} [&_input]:!text-gray-300`;
 
@@ -55,7 +60,9 @@ const MoverBasicInfoEditFields = ({
   const [name, setName] = useState(profile.name);
   const [email] = useState(profile.email);
   const [phoneNumber, setPhoneNumber] = useState(
-    profile.phoneNumber || user?.phoneNumber || ''
+    formatKrMobileSubscriberInput(
+      profile.phoneNumber || user?.phoneNumber || ''
+    )
   );
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -67,7 +74,9 @@ const MoverBasicInfoEditFields = ({
     const sessionPhone = user?.phoneNumber?.trim() ?? '';
     if (!sessionPhone) return;
 
-    setPhoneNumber((prev) => (prev ? prev : sessionPhone));
+    setPhoneNumber((prev) =>
+      prev ? prev : formatKrMobileSubscriberInput(sessionPhone)
+    );
   }, [user?.phoneNumber]);
 
   const handleCancel = () => {
@@ -81,7 +90,7 @@ const MoverBasicInfoEditFields = ({
     const updateParams = {
       profile,
       name,
-      phoneNumber,
+      phoneNumber: composeKrMobilePhone(phoneNumber),
       currentPassword,
       newPassword,
       confirmPassword,
@@ -198,8 +207,14 @@ const MoverBasicInfoEditFields = ({
                 type="tel"
                 name="phone"
                 autoComplete="tel"
-                value={phoneNumber}
-                onChange={(event) => setPhoneNumber(event.target.value)}
+                leftAddon={KR_MOBILE_PREFIX_LABEL}
+                placeholder="1234-5678"
+                value={formatKrMobileSubscriberInput(phoneNumber)}
+                onChange={(event) =>
+                  setPhoneNumber(
+                    formatKrMobileSubscriberInput(event.target.value)
+                  )
+                }
                 className={FIELD_CLASSNAME}
               />
             </section>

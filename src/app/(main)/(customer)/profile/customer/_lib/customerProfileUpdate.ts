@@ -2,20 +2,17 @@ import type {
   RegionChipValue,
   ServiceChipValue,
 } from '@/constants/commonOptions';
+import { getPhoneNumberError, toPhoneDigits } from '@/lib/phoneNumber';
 import { validatePassword } from '@/lib/validatePassword';
 import type {
   CustomerProfileMe,
   UpsertCustomerProfileRequest,
 } from '@/types/customerProfile';
 
-const PHONE_NUMBER_LENGTH = 11;
 const NAME_MIN_LENGTH = 2;
 const NAME_MAX_LENGTH = 20;
 const NICKNAME_MIN_LENGTH = 2;
 const NICKNAME_MAX_LENGTH = 20;
-
-export const toPhoneDigits = (value: string): string =>
-  value.replace(/\D/g, '');
 
 interface BuildCustomerProfileUpdateBodyParams {
   profile: CustomerProfileMe;
@@ -94,7 +91,7 @@ export const buildCustomerProfileUpdateBody = ({
   const hasOtherChanges =
     body.name !== undefined ||
     trimmedNickname !== profile.nickname ||
-    phoneDigits !== (profile.phoneNumber ?? '') ||
+    phoneDigits !== toPhoneDigits(profile.phoneNumber ?? '') ||
     body.service !== undefined ||
     body.region !== undefined ||
     body.currentPassword !== undefined ||
@@ -134,9 +131,9 @@ export const getCustomerProfileUpdateError = ({
     return `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`;
   }
 
-  const phoneDigits = toPhoneDigits(phoneNumber);
-  if (phoneDigits.length !== PHONE_NUMBER_LENGTH) {
-    return '전화번호는 숫자 11자리로 입력해 주세요.';
+  const phoneError = getPhoneNumberError(phoneNumber);
+  if (phoneError) {
+    return phoneError;
   }
 
   if (

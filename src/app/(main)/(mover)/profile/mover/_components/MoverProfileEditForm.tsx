@@ -30,6 +30,7 @@ import {
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { getAuthSession } from '@/lib/authSession';
+import { isValidKrPhoneNumber } from '@/lib/phoneNumber';
 import { uploadProfileImage } from '@/lib/uploadProfileImage';
 import { cn } from '@/lib/utils';
 import { upsertMoverProfile } from '@/services/moverProfileApi';
@@ -37,7 +38,7 @@ import type { MoverProfileMe } from '@/types/moverProfile';
 
 /** Figma Mobile·Tablet: input sm / Desktop(lg+): md 높이·텍스트 */
 const FIELD_CLASSNAME =
-  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
+  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular';
 
 const TEXTAREA_CLASSNAME =
   'w-full [&_>div]:min-h-40 [&_>div]:w-full [&_>div]:max-w-full [&_textarea]:lg:text-xl-regular';
@@ -51,7 +52,6 @@ const CHIP_CLASSNAME =
 
 const NICKNAME_MIN_LENGTH = 2;
 const NICKNAME_MAX_LENGTH = 20;
-const PHONE_NUMBER_LENGTH = 11;
 const CAREER_MAX = 50;
 const SHORT_DESCRIPTION_MAX = 20;
 const DESCRIPTION_MIN = 8;
@@ -110,7 +110,7 @@ const MoverProfileEditFields = ({
   ]);
   const [isPending, setIsPending] = useState(false);
 
-  const phoneNumber = toDigits(profile.phoneNumber ?? '');
+  const phoneNumber = profile.phoneNumber ?? '';
   const careerValue = career === '' ? null : Number(career);
   const isSubmitEnabled =
     nickname.trim().length > 0 &&
@@ -203,7 +203,7 @@ const MoverProfileEditFields = ({
       return;
     }
 
-    if (phoneNumber.length !== PHONE_NUMBER_LENGTH) {
+    if (!isValidKrPhoneNumber(phoneNumber)) {
       showToast({
         content: '등록된 전화번호가 없습니다. 기본정보를 먼저 수정해 주세요.',
       });

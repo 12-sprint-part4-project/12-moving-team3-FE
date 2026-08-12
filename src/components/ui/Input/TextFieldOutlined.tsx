@@ -27,6 +27,7 @@ import VisibilityOnIcon from '@/assets/icons/visibility-on.svg';
   - errorMessage: string
   - isError: boolean
   - showVisibilityToggle: boolean (password일 때 눈 아이콘 표시)
+  - leftAddon: ReactNode (입력 왼쪽 고정 표시)
   - rightIcon: ReactNode (toggle이 없을 때만 오른쪽에 렌더)
   - type / value / defaultValue / onChange / disabled
   - ...rest: InputHTMLAttributes<HTMLInputElement>
@@ -42,6 +43,8 @@ interface TextFieldOutlinedProps extends Omit<
   errorMessage?: string;
   isError?: boolean;
   showVisibilityToggle?: boolean;
+  /** 입력 왼쪽 고정 표시 (예: 전화번호 010) */
+  leftAddon?: ReactNode;
   rightIcon?: ReactNode;
 }
 
@@ -66,6 +69,7 @@ export const TextFieldOutlined = ({
   errorMessage,
   isError = false,
   showVisibilityToggle = false,
+  leftAddon,
   rightIcon,
   type = 'text',
   className = '',
@@ -132,10 +136,15 @@ export const TextFieldOutlined = ({
   return (
     <div className={`flex w-full flex-col ${className}`.trim()}>
       <div
-        className={`relative flex items-center overflow-clip border ${sizeStyles[size].field} ${bgClass} ${borderClass}`}
+        className={`relative flex items-center overflow-clip border ${sizeStyles[size].field} ${sizeStyles[size].input} ${bgClass} ${borderClass}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
+        {leftAddon ? (
+          <span className="shrink-0 text-black-400" aria-hidden>
+            {leftAddon}
+          </span>
+        ) : null}
         <input
           {...rest}
           type={inputType}
@@ -151,7 +160,7 @@ export const TextFieldOutlined = ({
             setIsFocused(false);
             rest.onBlur?.(event);
           }}
-          className={`w-full min-w-0 bg-transparent outline-none placeholder:text-gray-400 disabled:cursor-not-allowed ${sizeStyles[size].input} ${
+          className={`w-full min-w-0 bg-transparent outline-none placeholder:text-gray-400 disabled:cursor-not-allowed ${
             hasValue ? 'text-black-400' : 'text-gray-400'
           }`}
         />
