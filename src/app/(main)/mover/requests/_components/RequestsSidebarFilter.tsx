@@ -1,8 +1,11 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
+
 import { CheckBox } from '@/components/ui/CheckBox/CheckBox';
 import { FilterCheckBox } from '@/components/ui/Filter/FilterCheckBox';
 
+import { fadeUp, getMotionTransition, tapScale } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 import type {
@@ -31,6 +34,39 @@ export interface RequestsSidebarFilterProps {
   className?: string;
 }
 
+interface AnimatedFilterRowProps {
+  label: string;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}
+
+const AnimatedFilterRow = ({
+  label,
+  checked,
+  onCheckedChange,
+}: AnimatedFilterRowProps) => {
+  const shouldReduceMotion = useReducedMotion();
+
+  return (
+    <motion.div
+      layout
+      {...(shouldReduceMotion ? {} : tapScale)}
+      animate={{
+        backgroundColor: checked
+          ? 'rgba(239, 246, 255, 0.6)'
+          : 'rgba(255, 255, 255, 1)',
+      }}
+      transition={getMotionTransition(shouldReduceMotion, { duration: 0.2 })}
+    >
+      <FilterCheckBox
+        label={label}
+        checked={checked}
+        onCheckedChange={onCheckedChange}
+      />
+    </motion.div>
+  );
+};
+
 /** 데스크톱 사이드 필터 — 이사 유형·범위 선택 */
 export const RequestsSidebarFilter = ({
   selectedMoveTypes,
@@ -41,11 +77,12 @@ export const RequestsSidebarFilter = ({
   onScopesChange,
   className = '',
 }: RequestsSidebarFilterProps) => {
-  /** 이사 유형 전체선택 여부 판별 */
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
+
   const isAllMoveTypesSelected = MOVE_TYPE_OPTIONS.every((type) =>
     selectedMoveTypes.includes(type)
   );
-  /** 요청 범위 전체선택 여부 판별 */
   const isAllScopesSelected = SCOPE_OPTIONS.every((scope) =>
     selectedScopes.includes(scope)
   );
@@ -71,8 +108,12 @@ export const RequestsSidebarFilter = ({
   };
 
   return (
-    <aside className={cn('flex w-full flex-col gap-6', className)}>
-      {/* 이사 유형 필터 섹션 렌더 */}
+    <motion.aside
+      initial={{ opacity: 0, x: -12 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={motionTransition}
+      className={cn('flex w-full flex-col gap-6', className)}
+    >
       <section className="flex w-full flex-col gap-6 bg-white">
         <div className="flex items-center justify-between border-b border-line-200 px-2.5 py-4">
           <h2 className="text-xl-medium text-black-400">이사 유형</h2>
@@ -87,22 +128,33 @@ export const RequestsSidebarFilter = ({
             <span className="text-2lg-regular text-gray-300">전체선택</span>
           </div>
         </div>
-        <div className="flex flex-col">
-          {MOVE_TYPE_OPTIONS.map((type) => (
-            <FilterCheckBox
+        <motion.div layout className="flex flex-col">
+          {MOVE_TYPE_OPTIONS.map((type, index) => (
+            <motion.div
               key={type}
-              label={formatFilterLabel(
-                MOVE_TYPE_LABELS[type],
-                moveTypeCounts?.[type]
-              )}
-              checked={selectedMoveTypes.includes(type)}
-              onCheckedChange={(checked) => handleMoveTypeToggle(type, checked)}
-            />
+              variants={fadeUp}
+              initial="hidden"
+              animate="show"
+              transition={{
+                ...motionTransition,
+                delay: shouldReduceMotion ? 0 : index * 0.04,
+              }}
+            >
+              <AnimatedFilterRow
+                label={formatFilterLabel(
+                  MOVE_TYPE_LABELS[type],
+                  moveTypeCounts?.[type]
+                )}
+                checked={selectedMoveTypes.includes(type)}
+                onCheckedChange={(checked) =>
+                  handleMoveTypeToggle(type, checked)
+                }
+              />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </section>
 
-      {/* 요청 범위 필터 섹션 렌더 */}
       <section className="flex w-full flex-col gap-6 bg-white">
         <div className="flex items-center justify-between border-b border-line-200 px-2.5 py-4">
           <h2 className="text-xl-medium text-black-400">필터</h2>
@@ -117,20 +169,30 @@ export const RequestsSidebarFilter = ({
             <span className="text-2lg-regular text-gray-300">전체선택</span>
           </div>
         </div>
-        <div className="flex flex-col">
-          {SCOPE_OPTIONS.map((scope) => (
-            <FilterCheckBox
+        <motion.div layout className="flex flex-col">
+          {SCOPE_OPTIONS.map((scope, index) => (
+            <motion.div
               key={scope}
-              label={formatFilterLabel(
-                SCOPE_LABELS[scope],
-                scopeCounts?.[scope]
-              )}
-              checked={selectedScopes.includes(scope)}
-              onCheckedChange={(checked) => handleScopeToggle(scope, checked)}
-            />
+              variants={fadeUp}
+              initial="hidden"
+              animate="show"
+              transition={{
+                ...motionTransition,
+                delay: shouldReduceMotion ? 0 : index * 0.04,
+              }}
+            >
+              <AnimatedFilterRow
+                label={formatFilterLabel(
+                  SCOPE_LABELS[scope],
+                  scopeCounts?.[scope]
+                )}
+                checked={selectedScopes.includes(scope)}
+                onCheckedChange={(checked) => handleScopeToggle(scope, checked)}
+              />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </section>
-    </aside>
+    </motion.aside>
   );
 };

@@ -1,5 +1,6 @@
 'use client';
 
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useId, useState } from 'react';
 
 import { FilterCheckBox } from '@/components/ui/Filter/FilterCheckBox';
@@ -10,6 +11,11 @@ import {
   MODAL_PANEL_CLASS,
 } from '@/components/ui/Modal/modalPanel';
 
+import {
+  getMotionTransition,
+  tabContentSlide,
+  tapScale,
+} from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 import type {
@@ -50,9 +56,12 @@ export const RequestsMobileFilterModal = ({
   scopeCounts,
   className = '',
 }: RequestsMobileFilterModalProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const titleId = useId();
   const [activeTab, setActiveTab] =
     useState<RequestsMobileFilterTab>('moveType');
+  const [tabDirection, setTabDirection] = useState(1);
   const [selectedMoveTypes, setSelectedMoveTypes] = useState<
     Set<MoveTypeOption>
   >(() => new Set(defaultMoveTypes));
@@ -77,6 +86,13 @@ export const RequestsMobileFilterModal = ({
   /** 요청 범위 건수 합산 */
   const scopeTotal =
     (scopeCounts?.serviceArea ?? 0) + (scopeCounts?.designated ?? 0);
+
+  /** 모바일 탭 변경 */
+  const handleTabChange = (tab: RequestsMobileFilterTab) => {
+    if (tab === activeTab) return;
+    setTabDirection(tab === 'scope' ? 1 : -1);
+    setActiveTab(tab);
+  };
 
   /** 이사 유형 전체선택 토글 */
   const handleMoveTypeSelectAll = (checked: boolean) => {
@@ -118,6 +134,35 @@ export const RequestsMobileFilterModal = ({
     });
   };
 
+  const renderTabButton = (tab: RequestsMobileFilterTab, label: string) => {
+    const active = activeTab === tab;
+
+    return (
+      <button
+        type="button"
+        onClick={() => handleTabChange(tab)}
+        className={cn(
+          'relative cursor-pointer pb-1 text-2lg-semibold transition-colors',
+          active ? 'text-black-400' : 'text-gray-300'
+        )}
+        aria-pressed={active}
+      >
+        {label}
+        {active ? (
+          <motion.span
+            layoutId="requests-mobile-filter-tab-indicator"
+            className="absolute right-0 -bottom-0.5 left-0 h-0.5 bg-black-400"
+            transition={
+              shouldReduceMotion
+                ? { duration: 0 }
+                : { type: 'spring', stiffness: 400, damping: 30 }
+            }
+          />
+        ) : null}
+      </button>
+    );
+  };
+
   return (
     <section
       role="dialog"
@@ -135,28 +180,8 @@ export const RequestsMobileFilterModal = ({
         <ModalHeader
           title={
             <span className="flex items-center gap-6">
-              <button
-                type="button"
-                onClick={() => setActiveTab('moveType')}
-                className={cn(
-                  'cursor-pointer text-2lg-semibold',
-                  activeTab === 'moveType' ? 'text-black-400' : 'text-gray-300'
-                )}
-                aria-pressed={activeTab === 'moveType'}
-              >
-                이사 유형
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('scope')}
-                className={cn(
-                  'cursor-pointer text-2lg-semibold',
-                  activeTab === 'scope' ? 'text-black-400' : 'text-gray-300'
-                )}
-                aria-pressed={activeTab === 'scope'}
-              >
-                필터
-              </button>
+              {renderTabButton('moveType', '이사 유형')}
+              {renderTabButton('scope', '필터')}
             </span>
           }
           titleClassName="text-inherit sm:text-inherit"
@@ -164,64 +189,97 @@ export const RequestsMobileFilterModal = ({
           titleId={titleId}
         />
 
-        {/* 활성 탭 필터 목록 렌더 */}
-        {activeTab === 'moveType' ? (
-          <div className="flex w-full flex-col gap-2">
-            <FilterCheckBox
-              label={formatFilterLabel(
-                '전체선택',
-                moveTypeCounts ? moveTypeTotal : undefined
-              )}
-              checked={isAllMoveTypesSelected}
-              onCheckedChange={handleMoveTypeSelectAll}
-              labelClassName="text-gray-300"
-              className="px-2.5 py-2"
-            />
-            <div className="flex w-full flex-col">
-              {MOVE_TYPE_OPTIONS.map((type) => (
+        <AnimatePresence mode="wait" custom={tabDirection}>
+          {activeTab === 'moveType' ? (
+            <motion.div
+              key="moveType"
+              custom={tabDirection}
+              variants={tabContentSlide}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={motionTransition}
+              className="flex w-full flex-col gap-2"
+            >
+              <motion.div {...(shouldReduceMotion ? {} : tapScale)}>
                 <FilterCheckBox
-                  key={type}
                   label={formatFilterLabel(
-                    MOVE_TYPE_LABELS[type],
-                    moveTypeCounts?.[type]
+                    '전체선택',
+                    moveTypeCounts ? moveTypeTotal : undefined
                   )}
-                  checked={selectedMoveTypes.has(type)}
-                  onCheckedChange={(checked) =>
-                    handleMoveTypeToggle(type, checked)
-                  }
+                  checked={isAllMoveTypesSelected}
+                  onCheckedChange={handleMoveTypeSelectAll}
+                  labelClassName="text-gray-300"
+                  className="px-2.5 py-2"
                 />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="flex w-full flex-col gap-2">
-            <FilterCheckBox
-              label={formatFilterLabel(
-                '전체선택',
-                scopeCounts ? scopeTotal : undefined
-              )}
-              checked={isAllScopesSelected}
-              onCheckedChange={handleScopeSelectAll}
-              labelClassName="text-gray-300"
-              className="px-2.5 py-2"
-            />
-            <div className="flex w-full flex-col">
-              {SCOPE_OPTIONS.map((scope) => (
+              </motion.div>
+              <div className="flex w-full flex-col">
+                {MOVE_TYPE_OPTIONS.map((type) => (
+                  <motion.div
+                    key={type}
+                    layout
+                    {...(shouldReduceMotion ? {} : tapScale)}
+                  >
+                    <FilterCheckBox
+                      label={formatFilterLabel(
+                        MOVE_TYPE_LABELS[type],
+                        moveTypeCounts?.[type]
+                      )}
+                      checked={selectedMoveTypes.has(type)}
+                      onCheckedChange={(checked) =>
+                        handleMoveTypeToggle(type, checked)
+                      }
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="scope"
+              custom={tabDirection}
+              variants={tabContentSlide}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={motionTransition}
+              className="flex w-full flex-col gap-2"
+            >
+              <motion.div {...(shouldReduceMotion ? {} : tapScale)}>
                 <FilterCheckBox
-                  key={scope}
                   label={formatFilterLabel(
-                    SCOPE_LABELS[scope],
-                    scopeCounts?.[scope]
+                    '전체선택',
+                    scopeCounts ? scopeTotal : undefined
                   )}
-                  checked={selectedScopes.has(scope)}
-                  onCheckedChange={(checked) =>
-                    handleScopeToggle(scope, checked)
-                  }
+                  checked={isAllScopesSelected}
+                  onCheckedChange={handleScopeSelectAll}
+                  labelClassName="text-gray-300"
+                  className="px-2.5 py-2"
                 />
-              ))}
-            </div>
-          </div>
-        )}
+              </motion.div>
+              <div className="flex w-full flex-col">
+                {SCOPE_OPTIONS.map((scope) => (
+                  <motion.div
+                    key={scope}
+                    layout
+                    {...(shouldReduceMotion ? {} : tapScale)}
+                  >
+                    <FilterCheckBox
+                      label={formatFilterLabel(
+                        SCOPE_LABELS[scope],
+                        scopeCounts?.[scope]
+                      )}
+                      checked={selectedScopes.has(scope)}
+                      onCheckedChange={(checked) =>
+                        handleScopeToggle(scope, checked)
+                      }
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* 필터 조회 버튼 렌더 */}
