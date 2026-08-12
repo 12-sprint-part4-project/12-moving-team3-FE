@@ -64,6 +64,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     clearLegacyAuthUiCookie();
   }, []);
 
+  /** refresh 실패 등으로 토큰만 지워진 경우에도 me 캐시를 정리한다. */
+  useEffect(() => {
+    if (hasToken) {
+      return;
+    }
+    queryClient.removeQueries({ queryKey: authQueryKeys.me() });
+  }, [hasToken, queryClient]);
+
   useEffect(() => {
     if (!hasToken || !meQuery.isError) {
       return;
