@@ -122,6 +122,10 @@ export const ChatComposer = ({
     }
   };
 
+  const handleValueChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    setValue(event.target.value.slice(0, CHAT_MESSAGE_MAX_LENGTH));
+  };
+
   const handleClipClick = () => {
     if (isBusy || !onSendImages) {
       return;
@@ -304,9 +308,7 @@ export const ChatComposer = ({
           rows={1}
           value={value}
           maxLength={CHAT_MESSAGE_MAX_LENGTH}
-          onChange={(event) =>
-            setValue(event.target.value.slice(0, CHAT_MESSAGE_MAX_LENGTH))
-          }
+          onChange={handleValueChange}
           onKeyDown={handleKeyDown}
           disabled={isBusy}
           placeholder={
