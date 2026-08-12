@@ -31,8 +31,6 @@ import {
 import { cn } from '@/lib/utils';
 
 const CHAT_IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
-/** textarea 최대 높이 — Tailwind max-h-32(8rem)과 동일 */
-const TEXTAREA_MAX_HEIGHT_PX = 128;
 
 export interface ChatComposerProps {
   disabled?: boolean;
@@ -64,8 +62,8 @@ export const ChatComposer = ({
   const pendingImagesRef = useRef(pendingImages);
 
   const trimmed = value.trim();
-  const isAtMessageLimit = trimmed.length >= CHAT_MESSAGE_MAX_LENGTH;
-  const isOverMessageLimit = trimmed.length > CHAT_MESSAGE_MAX_LENGTH;
+  const isAtMessageLimit = value.length >= CHAT_MESSAGE_MAX_LENGTH;
+  const isOverMessageLimit = value.length > CHAT_MESSAGE_MAX_LENGTH;
   const hasPendingImages = pendingImages.length > 0;
   const isBusy = disabled || isSending;
   const canSend =
@@ -79,11 +77,15 @@ export const ChatComposer = ({
       return;
     }
 
+    const maxHeight = Number.parseFloat(window.getComputedStyle(el).maxHeight);
+    if (!Number.isFinite(maxHeight)) {
+      return;
+    }
+
     el.style.height = 'auto';
-    const nextHeight = Math.min(el.scrollHeight, TEXTAREA_MAX_HEIGHT_PX);
+    const nextHeight = Math.min(el.scrollHeight, maxHeight);
     el.style.height = `${nextHeight}px`;
-    el.style.overflowY =
-      el.scrollHeight > TEXTAREA_MAX_HEIGHT_PX ? 'auto' : 'hidden';
+    el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden';
   }, []);
 
   useEffect(() => {
@@ -116,11 +118,11 @@ export const ChatComposer = ({
       }
     }
 
-    if (trimmed.length === 0 || trimmed.length > CHAT_MESSAGE_MAX_LENGTH) {
+    if (trimmed.length === 0) {
       return;
     }
 
-    const content = trimmed.slice(0, CHAT_MESSAGE_MAX_LENGTH);
+    const content = trimmed;
     setValue('');
     try {
       await onSend(content);

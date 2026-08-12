@@ -9,10 +9,6 @@ import { ChatComposer } from '@/components/chat/ChatComposer';
 import { ChatMessageList } from '@/components/chat/ChatMessageList';
 import { ChatRoomHeader } from '@/components/chat/ChatRoomHeader';
 import { ChatRoomHeaderPlaceholder } from '@/components/chat/ChatRoomHeaderPlaceholder';
-import {
-  CHAT_MESSAGE_MAX_LENGTH,
-  CHAT_MESSAGE_MAX_LENGTH_HINT,
-} from '@/constants/chatUi';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useChatMessages,
@@ -137,18 +133,10 @@ export const ChatRoomPage = ({
       return;
     }
 
-    const trimmed = content.trim();
-    if (trimmed.length === 0 || trimmed.length > CHAT_MESSAGE_MAX_LENGTH) {
-      if (trimmed.length > CHAT_MESSAGE_MAX_LENGTH) {
-        showToast({ content: CHAT_MESSAGE_MAX_LENGTH_HINT });
-      }
-      return;
-    }
-
     try {
       await sendMutation.mutateAsync({
         messageType: 'TEXT',
-        content: trimmed,
+        content,
       });
       setScrollToBottomSignal((current) => current + 1);
       setFocusInputSignal((current) => current + 1);
