@@ -7,14 +7,12 @@ import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { TextArea } from '@/components/ui/Input/TextArea';
 import { MOVE_TYPE_CHIP_RESPONSIVE_CLASS } from '@/components/ui/Modal/modalPanel';
 import { StarRating } from '@/components/ui/StarRating/StarRating';
-import {
-  API_MOVE_TYPE_TO_UI,
-  type ApiMoveType,
-} from '@/types/estimateRequest';
+import { API_MOVE_TYPE_TO_UI, type ApiMoveType } from '@/types/estimateRequest';
 import {
   MAX_REVIEW_CONTENT_LENGTH,
   MIN_REVIEW_CONTENT_LENGTH,
 } from '@/types/review';
+import { useRef, useState } from 'react';
 
 export interface ReviewFormFieldsProps {
   moveType?: ApiMoveType | null;
@@ -67,8 +65,19 @@ export const ReviewFormFields = ({
   const moveTypeUi = moveType ? API_MOVE_TYPE_TO_UI[moveType] : null;
 
   const handleContentChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    onContentChange(event.target.value.slice(0, MAX_REVIEW_CONTENT_LENGTH));
+    const raw = event.target.value;
+    setOverMax(raw.length > MAX_REVIEW_CONTENT_LENGTH);
+    onContentChange(raw.slice(0, MAX_REVIEW_CONTENT_LENGTH));
   };
+
+  const [contentTouched, setContentTouched] = useState(false);
+  const [overMax, setOverMax] = useState(false);
+
+  const contentError = overMax
+    ? '600자 이하로 입력해 주세요'
+    : contentTouched && content.trim().length < MIN_REVIEW_CONTENT_LENGTH
+      ? '10자 이상 입력해 주세요'
+      : undefined;
 
   return (
     <div className="flex w-full flex-col gap-5 sm:gap-8">
@@ -105,6 +114,13 @@ export const ReviewFormFields = ({
           {ratingLabel}
         </p>
         <StarRating value={rating} onChange={onRatingChange} />
+        {rating < 1 ? (
+          <p className="min-h-6 text-sm-medium text-red-200">
+            1점 이상 선택해주세요
+          </p>
+        ) : (
+          <p className="min-h-6" />
+        )}
       </div>
 
       <div className="flex flex-col gap-4">
@@ -115,11 +131,12 @@ export const ReviewFormFields = ({
           size="sm"
           rows={4}
           value={content}
-          maxLength={MAX_REVIEW_CONTENT_LENGTH}
           onChange={handleContentChange}
           placeholder="10자 이상 600자 이하로 작성해주세요"
           className="[&>div]:w-full [&>div>textarea]:sm:text-xl-regular"
           aria-label="상세 후기"
+          onBlur={() => setContentTouched(true)}
+          errorMessage={contentError}
         />
       </div>
     </div>
