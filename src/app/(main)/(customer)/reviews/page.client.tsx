@@ -1,5 +1,6 @@
 'use client';
 
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
@@ -26,6 +27,11 @@ import { useCustomerWritableQuotes } from '@/hooks/useCustomerWritableQuotes';
 import { useDeleteReview } from '@/hooks/useDeleteReview';
 import { useUpdateReview } from '@/hooks/useUpdateReview';
 import { ApiError } from '@/lib/apiClient';
+import {
+  fadeIn,
+  getMotionTransition,
+  tabContentSlide,
+} from '@/lib/motionVariants';
 import { formatReviewMoveDate } from '@/lib/reviewDisplay';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
 import type { CustomerReviewItem, WritableQuoteItem } from '@/types/review';
@@ -35,6 +41,8 @@ const CONTENT_CLASS = `mx-auto flex min-h-0 w-full max-w-[1920px] flex-1 flex-co
 
 /** 이사 리뷰 — 작성 가능 / 내가 작성한 리뷰 + 모달 */
 export const ReviewsPageClient = () => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const router = useRouter();
   const highlightCardRef = useRef<HTMLButtonElement>(null);
   const highlightHandledRef = useRef<number | null>(null);
@@ -227,9 +235,15 @@ export const ReviewsPageClient = () => {
 
   if (!isReady || !user) {
     return (
-      <div className="flex min-h-0 w-full flex-1 items-center justify-center bg-background-200">
+      <motion.div
+        variants={fadeIn}
+        initial="hidden"
+        animate="show"
+        transition={motionTransition}
+        className="flex min-h-0 w-full flex-1 items-center justify-center bg-background-200"
+      >
         <Spinner message="로딩 중..." />
-      </div>
+      </motion.div>
     );
   }
 
@@ -245,81 +259,101 @@ export const ReviewsPageClient = () => {
     !written.isError &&
     (written.isEmpty || writtenTotal === 0);
 
+  const tabDirection = activeTab === 'written' ? 1 : -1;
+
   return (
     <>
-      <div className="flex min-h-0 w-full flex-1 flex-col bg-background-200">
-        <div
-          role="tabpanel"
-          id="reviews-panel-writable"
-          aria-labelledby="reviews-tab-writable"
-          hidden={activeTab !== 'writable'}
-          className="flex min-h-0 flex-1 flex-col"
-        >
-          <div className={CONTENT_CLASS}>
-            <ReviewListSection
-              items={writable.writableQuotes}
-              isPending={writable.isPending}
-              isError={writable.isError}
-              showEmpty={showWritableEmpty}
-              pendingMessage="작성 가능한 리뷰를 불러오는 중..."
-              errorMessage={writableErrorMessage}
-              onRetry={() => {
-                void writable.refetch();
-              }}
-              emptyState={<ReviewsEmptyState />}
-              renderItem={(item) => (
-                <WritableReviewCard
-                  key={item.quoteId}
-                  item={item}
-                  onWriteClick={handleWriteClick}
+      <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden bg-background-200">
+        <AnimatePresence mode="wait" custom={tabDirection}>
+          {activeTab === 'writable' ? (
+            <motion.div
+              key="writable"
+              custom={tabDirection}
+              variants={tabContentSlide}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={motionTransition}
+              role="tabpanel"
+              id="reviews-panel-writable"
+              aria-labelledby="reviews-tab-writable"
+              className="flex min-h-0 flex-1 flex-col"
+            >
+              <div className={CONTENT_CLASS}>
+                <ReviewListSection
+                  items={writable.writableQuotes}
+                  isPending={writable.isPending}
+                  isFetching={writable.isFetching}
+                  isError={writable.isError}
+                  showEmpty={showWritableEmpty}
+                  pendingMessage="작성 가능한 리뷰를 불러오는 중..."
+                  errorMessage={writableErrorMessage}
+                  onRetry={() => {
+                    void writable.refetch();
+                  }}
+                  emptyState={<ReviewsEmptyState />}
+                  getItemKey={(item) => item.quoteId}
+                  renderItem={(item) => (
+                    <WritableReviewCard
+                      item={item}
+                      onWriteClick={handleWriteClick}
+                    />
+                  )}
+                  page={writable.page}
+                  totalPages={writable.totalPages}
+                  onPageChange={writable.setPage}
                 />
-              )}
-              page={writable.page}
-              totalPages={writable.totalPages}
-              onPageChange={writable.setPage}
-            />
-          </div>
-        </div>
-
-        <div
-          role="tabpanel"
-          id="reviews-panel-written"
-          aria-labelledby="reviews-tab-written"
-          hidden={activeTab !== 'written'}
-          className="flex min-h-0 flex-1 flex-col"
-        >
-          <div className={CONTENT_CLASS}>
-            <ReviewListSection
-              items={written.reviews}
-              isPending={written.isPending}
-              isError={written.isError}
-              showEmpty={showWrittenEmpty}
-              pendingMessage="작성한 리뷰를 불러오는 중..."
-              errorMessage={writtenErrorMessage}
-              onRetry={() => {
-                void written.refetch();
-              }}
-              emptyState={
-                <ReviewsEmptyState message="아직 작성한 리뷰가 없어요" />
-              }
-              renderItem={(item) => {
-                const highlighted = highlightReviewId === item.id;
-                return (
-                  <WrittenReviewCard
-                    key={item.id}
-                    ref={highlighted ? highlightCardRef : undefined}
-                    item={item}
-                    highlighted={highlighted}
-                    onClick={handleReviewClick}
-                  />
-                );
-              }}
-              page={written.page}
-              totalPages={written.totalPages}
-              onPageChange={written.setPage}
-            />
-          </div>
-        </div>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="written"
+              custom={tabDirection}
+              variants={tabContentSlide}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={motionTransition}
+              role="tabpanel"
+              id="reviews-panel-written"
+              aria-labelledby="reviews-tab-written"
+              className="flex min-h-0 flex-1 flex-col"
+            >
+              <div className={CONTENT_CLASS}>
+                <ReviewListSection
+                  items={written.reviews}
+                  isPending={written.isPending}
+                  isFetching={written.isFetching}
+                  isError={written.isError}
+                  showEmpty={showWrittenEmpty}
+                  pendingMessage="작성한 리뷰를 불러오는 중..."
+                  errorMessage={writtenErrorMessage}
+                  onRetry={() => {
+                    void written.refetch();
+                  }}
+                  emptyState={
+                    <ReviewsEmptyState message="아직 작성한 리뷰가 없어요" />
+                  }
+                  getItemKey={(item) => item.id}
+                  renderItem={(item) => {
+                    const highlighted = highlightReviewId === item.id;
+                    return (
+                      <WrittenReviewCard
+                        ref={highlighted ? highlightCardRef : undefined}
+                        item={item}
+                        highlighted={highlighted}
+                        onClick={handleReviewClick}
+                      />
+                    );
+                  }}
+                  page={written.page}
+                  totalPages={written.totalPages}
+                  onPageChange={written.setPage}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {selectedQuote ? (

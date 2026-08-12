@@ -1,9 +1,16 @@
 'use client';
 
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import type { ReactNode } from 'react';
 
 import { Pagination } from '@/components/ui/Pagination/Pagination';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import {
+  fadeIn,
+  fadeUp,
+  getMotionTransition,
+  listStagger,
+} from '@/lib/motionVariants';
 
 export interface ReviewListSectionProps<T> {
   items: T[];
@@ -18,6 +25,9 @@ export interface ReviewListSectionProps<T> {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  /** keepPreviousData 재조회 중 — 목록 stagger를 잠시 끈다 */
+  isFetching?: boolean;
+  getItemKey?: (item: T) => string | number;
 }
 
 /**
@@ -38,52 +48,110 @@ export const ReviewListSection = <T,>({
   page,
   totalPages,
   onPageChange,
-}: ReviewListSectionProps<T>) => (
-  <div className="flex min-h-0 flex-1 flex-col">
-    {isPending && items.length === 0 ? (
-      <Spinner message={pendingMessage} />
-    ) : null}
+  isFetching = false,
+  getItemKey,
+}: ReviewListSectionProps<T>) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
+  const showListFetching = isFetching && !isPending && items.length > 0;
+  const shouldAnimateList = !showListFetching;
 
-    {isError ? (
-      <div className="flex flex-col items-start gap-3 py-10">
-        <p className="text-md-medium text-gray-400">{errorMessage}</p>
-        <button
-          type="button"
-          onClick={onRetry}
-          className="text-md-semibold text-blue-300 underline"
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      {isPending && items.length === 0 ? (
+        <motion.div
+          variants={fadeIn}
+          initial="hidden"
+          animate="show"
+          transition={motionTransition}
         >
-          다시 시도
-        </button>
-      </div>
-    ) : null}
+          <Spinner message={pendingMessage} />
+        </motion.div>
+      ) : null}
 
-    {!isError && showEmpty ? emptyState : null}
+      {isError ? (
+        <motion.div
+          variants={fadeIn}
+          initial="hidden"
+          animate="show"
+          transition={motionTransition}
+          className="flex flex-col items-start gap-3 py-10"
+        >
+          <p className="text-md-medium text-gray-400">{errorMessage}</p>
+          <button
+            type="button"
+            onClick={onRetry}
+            className="text-md-semibold text-blue-300 underline"
+          >
+            다시 시도
+          </button>
+        </motion.div>
+      ) : null}
 
-    {!isError && !showEmpty && items.length > 0 ? (
-      <>
-        <div className="grid grid-cols-1 gap-8 xl:grid-cols-2 xl:gap-x-6 xl:gap-y-10">
-          {items.map((item) => renderItem(item))}
-        </div>
+      {!isError && showEmpty ? emptyState : null}
 
-        <div className="mt-auto flex justify-center pt-6">
-          <div className="contents xl:hidden">
-            <Pagination
-              size="sm"
-              page={page}
-              totalPages={Math.max(1, totalPages)}
-              onPageChange={onPageChange}
-            />
+      {!isError && !showEmpty && items.length > 0 ? (
+        <>
+          <div className="relative">
+            <AnimatePresence>
+              {showListFetching ? (
+                <motion.div
+                  variants={fadeIn}
+                  initial="hidden"
+                  animate="show"
+                  exit="exit"
+                  transition={motionTransition}
+                  className="pointer-events-none absolute inset-0 z-10 rounded-2xl bg-background-200/50"
+                  aria-hidden
+                />
+              ) : null}
+            </AnimatePresence>
+
+            <motion.div
+              key={shouldAnimateList ? page : 'review-list'}
+              variants={shouldAnimateList ? listStagger : undefined}
+              initial={shouldAnimateList ? 'hidden' : false}
+              animate={shouldAnimateList ? 'show' : undefined}
+              className="grid grid-cols-1 gap-8 xl:grid-cols-2 xl:gap-x-6 xl:gap-y-10"
+            >
+              {items.map((item, index) => (
+                <motion.div
+                  key={getItemKey?.(item) ?? index}
+                  variants={fadeUp}
+                  transition={motionTransition}
+                >
+                  {renderItem(item)}
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
-          <div className="hidden xl:contents">
-            <Pagination
-              size="lg"
-              page={page}
-              totalPages={Math.max(1, totalPages)}
-              onPageChange={onPageChange}
-            />
-          </div>
-        </div>
-      </>
-    ) : null}
-  </div>
-);
+
+          <motion.div
+            variants={fadeIn}
+            initial="hidden"
+            animate="show"
+            transition={motionTransition}
+            className="mt-auto flex justify-center pt-6"
+          >
+            <div className="contents xl:hidden">
+              <Pagination
+                size="sm"
+                page={page}
+                totalPages={Math.max(1, totalPages)}
+                onPageChange={onPageChange}
+              />
+            </div>
+            <div className="hidden xl:contents">
+              <Pagination
+                size="lg"
+                page={page}
+                totalPages={Math.max(1, totalPages)}
+                onPageChange={onPageChange}
+              />
+            </div>
+          </motion.div>
+        </>
+      ) : null}
+    </div>
+  );
+};

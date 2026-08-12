@@ -1,10 +1,12 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 
 import ProfileIcon from '@/assets/icons/profile.svg';
 import { Button } from '@/components/Button/Button';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
+import { cardHover, tapScale } from '@/lib/motionVariants';
 import { formatReviewMoveDate } from '@/lib/reviewDisplay';
 import { cn } from '@/lib/utils';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
@@ -25,16 +27,16 @@ export const WritableReviewCard = ({
   onWriteClick,
   className,
 }: WritableReviewCardProps) => {
-  const moveTypeUi = item.moveType
-    ? API_MOVE_TYPE_TO_UI[item.moveType]
-    : null;
+  const moveTypeUi = item.moveType ? API_MOVE_TYPE_TO_UI[item.moveType] : null;
   const moverName = item.mover?.name?.trim() || '기사';
   const avatarSrc = item.mover?.profileImageUrl ?? undefined;
   const moveDateLabel = formatReviewMoveDate(item.moveDate);
   const priceLabel = formatQuotePriceLabel(item.price);
+  const shouldReduceMotion = useReducedMotion();
 
   return (
-    <article
+    <motion.article
+      {...(shouldReduceMotion ? {} : cardHover)}
       className={cn(
         'flex w-full flex-col gap-3.5 rounded-2xl bg-white px-5 pt-5 pb-3.5 shadow-[0.125rem_0.125rem_0.3125rem] shadow-shadow-gray-100/20',
         'xl:gap-8 xl:rounded-3xl xl:px-6 xl:py-8',
@@ -117,7 +119,10 @@ export const WritableReviewCard = ({
         </div>
       </div>
 
-      <div className="contents xl:hidden">
+      <motion.div
+        className="xl:hidden"
+        {...(shouldReduceMotion ? {} : tapScale)}
+      >
         <Button
           type="button"
           variant="solid"
@@ -127,8 +132,11 @@ export const WritableReviewCard = ({
         >
           리뷰 작성하기
         </Button>
-      </div>
-      <div className="hidden xl:contents">
+      </motion.div>
+      <motion.div
+        className="hidden xl:block"
+        {...(shouldReduceMotion ? {} : tapScale)}
+      >
         <Button
           type="button"
           variant="solid"
@@ -138,7 +146,7 @@ export const WritableReviewCard = ({
         >
           리뷰 작성하기
         </Button>
-      </div>
-    </article>
+      </motion.div>
+    </motion.article>
   );
 };

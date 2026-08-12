@@ -1,5 +1,6 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { MouseEvent } from 'react';
@@ -10,6 +11,7 @@ import { FavoriteButton } from '@/components/Favorite';
 import { ReportAction } from '@/components/reports';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 
+import { cardHover, fadeUp, listStagger, tapScale } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import { API_MOVE_TYPE_TO_UI } from '@/types/estimateRequest';
 import type { ApiMoveType, MoverCardModel } from '@/types/mover';
@@ -66,135 +68,166 @@ export const MoverCard = ({
     onFavoriteClick?.(mover.moverId, !mover.isFavorited);
   };
 
+  const shouldReduceMotion = useReducedMotion();
+
   return (
-    <div
+    <motion.article
+      layout
+      {...(shouldReduceMotion || disableNavigation ? {} : cardHover)}
       className={cn(
         'relative flex w-full flex-col border border-line-100 bg-white shadow-request-card transition-colors',
         !disableNavigation && 'cursor-pointer hover:border-blue-200',
-        isCompact
-          ? 'gap-3 rounded-2xl px-4 py-4'
-          : 'gap-4 rounded-2xl px-6 py-5',
+        isCompact ? 'rounded-2xl px-4 py-4' : 'rounded-2xl px-6 py-5',
         className
       )}
     >
-      <div className={cn('flex justify-between')}>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          {mover.services.length > 0 ? (
-            mover.services.map((service: ApiMoveType) => (
-              <MoveTypeChip
-                key={service}
-                type={API_MOVE_TYPE_TO_UI[service]}
-                size="sm"
-              />
-            ))
-          ) : (
-            <span className="text-md-medium text-gray-300">서비스 미등록</span>
-          )}
-          {mover.isDesignated ? (
-            <MoveTypeChip type="designated" size="sm" />
-          ) : null}
-        </div>
-        {!isCompact ? (
-          <ReportAction
-            target="USER"
-            targetId={mover.moverId}
-            className="relative z-10"
-          />
-        ) : null}
-      </div>
-
-      {showDescription ? (
-        <p className="text-xl-semibold text-black-300 sm:text-2xl-semibold">
-          {description}
-        </p>
-      ) : null}
-
-      <div
-        className={cn(
-          'flex w-full items-start border border-line-100 bg-white shadow-[0.25rem_0.25rem_0.5rem] shadow-shadow-gray-200/10',
-          isCompact
-            ? 'gap-3 rounded-md px-3 py-3'
-            : 'gap-4 rounded-md px-[1.125rem] py-4'
-        )}
+      <motion.div
+        variants={listStagger}
+        initial="hidden"
+        animate="show"
+        className={cn('flex w-full flex-col', isCompact ? 'gap-3' : 'gap-4')}
       >
-        <div
-          className={cn(
-            'relative shrink-0 overflow-hidden rounded-full',
-            isCompact ? 'size-10' : 'size-14'
-          )}
-        >
-          {mover.profileImageUrl ? (
-            <Image
-              src={mover.profileImageUrl}
-              alt={profileAlt}
-              fill
-              sizes={isCompact ? '40px' : '56px'}
-              className="object-cover"
-            />
-          ) : (
-            <ProfileIcon className="size-full" aria-hidden />
-          )}
-        </div>
-
-        <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:gap-2">
-          {disableNavigation ? (
-            <p className={nameClassName}>{mover.name} 기사님</p>
-          ) : (
-            <Link href={`/movers/${mover.moverId}`} className={nameClassName}>
-              <span className="absolute inset-0 z-0" aria-hidden />
-              {mover.name} 기사님
-            </Link>
-          )}
-          <div
-            className={cn(
-              'flex flex-wrap items-center gap-x-3 gap-y-1 sm:gap-x-4',
-              isCompact ? 'text-md-medium' : 'text-lg-medium'
-            )}
-          >
-            <span className="inline-flex items-center gap-1.5">
-              <StarIcon
-                className={cn(
-                  'shrink-0 text-yellow-100',
-                  isCompact ? 'size-5' : 'size-6'
-                )}
-                aria-hidden
-              />
-              <span className="text-black-300">{ratingLabel}</span>
-              <span className="text-gray-300">
-                ({mover.reviewCount.toLocaleString('ko-KR')})
+        <motion.div variants={fadeUp} className="flex justify-between">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            {mover.services.length > 0 ? (
+              mover.services.map((service: ApiMoveType) => (
+                <MoveTypeChip
+                  key={service}
+                  type={API_MOVE_TYPE_TO_UI[service]}
+                  size="sm"
+                />
+              ))
+            ) : (
+              <span className="text-md-medium text-gray-300">
+                서비스 미등록
               </span>
-            </span>
-            {showCareerAndConfirmed ? (
-              <>
-                <span
-                  aria-hidden
-                  className="hidden h-3.5 w-px bg-line-200 sm:block"
-                />
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="text-gray-300">경력</span>
-                  <span className="text-black-300">{careerLabel}</span>
-                </span>
-                <span
-                  aria-hidden
-                  className="hidden h-3.5 w-px bg-line-200 sm:block"
-                />
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="text-black-300">{confirmedLabel}</span>
-                  <span className="text-gray-300">확정</span>
-                </span>
-              </>
+            )}
+            {mover.isDesignated ? (
+              <motion.div
+                animate={
+                  shouldReduceMotion ? undefined : { scale: [1, 1.04, 1] }
+                }
+                transition={
+                  shouldReduceMotion
+                    ? undefined
+                    : { duration: 2, repeat: 3, ease: 'easeInOut' }
+                }
+              >
+                <MoveTypeChip type="designated" size="sm" />
+              </motion.div>
             ) : null}
           </div>
-        </div>
+          {!isCompact ? (
+            <ReportAction
+              target="USER"
+              targetId={mover.moverId}
+              className="relative z-10"
+            />
+          ) : null}
+        </motion.div>
 
-        <FavoriteButton
-          variant="count"
-          isFavorited={mover.isFavorited}
-          favoritedCount={mover.favoritedCount}
-          isPending={isFavoritePending}
-          onClick={handleFavoriteClick}
-        />
-      </div>
-    </div>
+        {showDescription ? (
+          <motion.p
+            variants={fadeUp}
+            className="text-xl-semibold text-black-300 sm:text-2xl-semibold"
+          >
+            {description}
+          </motion.p>
+        ) : null}
+
+        <motion.div
+          variants={fadeUp}
+          className={cn(
+            'flex w-full items-start border border-line-100 bg-white shadow-[0.25rem_0.25rem_0.5rem] shadow-shadow-gray-200/10',
+            isCompact
+              ? 'gap-3 rounded-md px-3 py-3'
+              : 'gap-4 rounded-md px-[1.125rem] py-4'
+          )}
+        >
+          <div
+            className={cn(
+              'relative shrink-0 overflow-hidden rounded-full',
+              isCompact ? 'size-10' : 'size-14'
+            )}
+          >
+            {mover.profileImageUrl ? (
+              <Image
+                src={mover.profileImageUrl}
+                alt={profileAlt}
+                fill
+                sizes={isCompact ? '40px' : '56px'}
+                className="object-cover"
+              />
+            ) : (
+              <ProfileIcon className="size-full" aria-hidden />
+            )}
+          </div>
+
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:gap-2">
+            {disableNavigation ? (
+              <p className={nameClassName}>{mover.name} 기사님</p>
+            ) : (
+              <Link href={`/movers/${mover.moverId}`} className={nameClassName}>
+                <span className="absolute inset-0 z-0" aria-hidden />
+                {mover.name} 기사님
+              </Link>
+            )}
+            <div
+              className={cn(
+                'flex flex-wrap items-center gap-x-3 gap-y-1 sm:gap-x-4',
+                isCompact ? 'text-md-medium' : 'text-lg-medium'
+              )}
+            >
+              <span className="inline-flex items-center gap-1.5">
+                <StarIcon
+                  className={cn(
+                    'shrink-0 text-yellow-100',
+                    isCompact ? 'size-5' : 'size-6'
+                  )}
+                  aria-hidden
+                />
+                <span className="text-black-300">{ratingLabel}</span>
+                <span className="text-gray-300">
+                  ({mover.reviewCount.toLocaleString('ko-KR')})
+                </span>
+              </span>
+              {showCareerAndConfirmed ? (
+                <>
+                  <span
+                    aria-hidden
+                    className="hidden h-3.5 w-px bg-line-200 sm:block"
+                  />
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="text-gray-300">경력</span>
+                    <span className="text-black-300">{careerLabel}</span>
+                  </span>
+                  <span
+                    aria-hidden
+                    className="hidden h-3.5 w-px bg-line-200 sm:block"
+                  />
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="text-black-300">{confirmedLabel}</span>
+                    <span className="text-gray-300">확정</span>
+                  </span>
+                </>
+              ) : null}
+            </div>
+          </div>
+
+          <motion.div
+            className="relative z-10"
+            {...(shouldReduceMotion ? {} : tapScale)}
+          >
+            <FavoriteButton
+              variant="count"
+              isFavorited={mover.isFavorited}
+              favoritedCount={mover.favoritedCount}
+              isPending={isFavoritePending}
+              onClick={handleFavoriteClick}
+            />
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </motion.article>
   );
 };
