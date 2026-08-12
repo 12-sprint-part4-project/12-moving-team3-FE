@@ -15,6 +15,8 @@ export interface GnbNotificationDropdownProps {
   isLoading?: boolean;
   onClose?: () => void;
   onItemClick?: (item: NotificationItem) => void;
+  /** 아이템 hover 시 라우트 prefetch 등 */
+  onItemPointerEnter?: (item: NotificationItem) => void;
   className?: string;
 }
 
@@ -29,6 +31,7 @@ export const GnbNotificationDropdown = ({
   isLoading = false,
   onClose,
   onItemClick,
+  onItemPointerEnter,
   className,
 }: GnbNotificationDropdownProps) => {
   const isEmpty = !isLoading && items.length === 0;
@@ -119,6 +122,7 @@ export const GnbNotificationDropdown = ({
                     key={item.id}
                     item={item}
                     onClick={onItemClick}
+                    onPointerEnter={onItemPointerEnter}
                   />
                 ))
               : null}
