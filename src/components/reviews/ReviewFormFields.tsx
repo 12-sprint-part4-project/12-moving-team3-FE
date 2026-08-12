@@ -80,8 +80,8 @@ export const ReviewFormFields = ({
       : undefined;
 
   return (
-    <div className="flex w-full flex-col gap-5 sm:gap-8">
-      <div className="flex flex-col gap-3.5 sm:gap-6">
+    <div className="flex w-full flex-col gap-5 sm:gap-5">
+      <div className="mb-7 flex flex-col gap-3.5 sm:gap-6">
         {moveTypeUi || isDesignated ? (
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {moveTypeUi ? (
