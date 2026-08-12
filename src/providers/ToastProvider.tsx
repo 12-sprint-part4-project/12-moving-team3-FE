@@ -291,7 +291,7 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
                       opacity: { duration: EXIT_DURATION_MS / 1000 },
                       y: { duration: EXIT_DURATION_MS / 1000 },
                     }}
-                    className="w-full max-w-[59.6875rem]"
+                    className="w-full max-w-[955px]"
                   >
                     <Toast
                       content={content}
