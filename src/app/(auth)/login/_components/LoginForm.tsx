@@ -149,7 +149,10 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
     if (isPending) return;
 
     try {
-      redirectToKakaoLogin(USER_TYPE_BY_ROLE[role]);
+      redirectToKakaoLogin(
+        USER_TYPE_BY_ROLE[role],
+        searchParams.get('redirect')
+      );
     } catch {
       showToast({ content: '카카오 로그인 설정이 필요합니다.' });
     }

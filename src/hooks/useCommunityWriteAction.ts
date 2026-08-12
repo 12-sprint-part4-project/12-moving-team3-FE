@@ -30,6 +30,7 @@ export const useCommunityWriteAction = (
   }, []);
 
   return {
+    writeHref,
     handleWriteClick,
     isLoginModalOpen,
     handleCloseLoginModal,

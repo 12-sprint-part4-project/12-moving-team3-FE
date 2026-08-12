@@ -1,7 +1,7 @@
 'use client';
 
 import { redirect, useRouter } from 'next/navigation';
-import { useEffect, useId, useState, type FormEvent } from 'react';
+import { useId, useState, type FormEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/Button/Button';
@@ -15,6 +15,13 @@ import {
 } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { getAuthSession } from '@/lib/authSession';
+import {
+  composeKrMobilePhone,
+  formatKrMobileSubscriberInput,
+  isValidKrPhoneNumber,
+  KR_MOBILE_PREFIX_LABEL,
+} from '@/lib/phoneNumber';
 import { cn } from '@/lib/utils';
 import { updateMoverBasicInfo } from '@/services/moverProfileApi';
 import type { MoverProfileMe } from '@/types/moverProfile';
@@ -25,11 +32,13 @@ import {
 } from '../_lib/moverBasicInfoUpdate';
 
 const FIELD_CLASSNAME =
-  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
+  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular';
 
 const READONLY_FIELD_CLASSNAME = `${FIELD_CLASSNAME} [&_input]:!text-gray-300`;
 
 const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
+
+const NAME_MIN_LENGTH = 2;
 
 interface MoverBasicInfoEditFieldsProps {
   profile: MoverProfileMe;
@@ -54,21 +63,23 @@ const MoverBasicInfoEditFields = ({
 
   const [name, setName] = useState(profile.name);
   const [email] = useState(profile.email);
-  const [phoneNumber, setPhoneNumber] = useState(
-    profile.phoneNumber || user?.phoneNumber || ''
-  );
+  const [phoneDraft, setPhoneDraft] = useState<string | null>(null);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 프로필 API에 번호가 없으면 세션(프로필 등록 시 저장분)으로 채운다.
-  useEffect(() => {
-    const sessionPhone = user?.phoneNumber?.trim() ?? '';
-    if (!sessionPhone) return;
+  // 프로필 번호 → 세션 번호 순으로 표시. 사용자 입력 후에만 draft 사용
+  const phoneNumber =
+    phoneDraft ??
+    formatKrMobileSubscriberInput(
+      profile.phoneNumber || user?.phoneNumber || ''
+    );
 
-    setPhoneNumber((prev) => (prev ? prev : sessionPhone));
-  }, [user?.phoneNumber]);
+  const isSubmitEnabled =
+    name.trim().length >= NAME_MIN_LENGTH &&
+    isValidKrPhoneNumber(composeKrMobilePhone(phoneNumber)) &&
+    !isSubmitting;
 
   const handleCancel = () => {
     router.back();
@@ -81,7 +92,7 @@ const MoverBasicInfoEditFields = ({
     const updateParams = {
       profile,
       name,
-      phoneNumber,
+      phoneNumber: composeKrMobilePhone(phoneNumber),
       currentPassword,
       newPassword,
       confirmPassword,
@@ -110,7 +121,6 @@ const MoverBasicInfoEditFields = ({
       await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me() });
 
       showToast({ content: '기본정보가 수정되었습니다.' });
-      router.back();
     } catch (error) {
       const message =
         error instanceof ApiError
@@ -187,8 +197,14 @@ const MoverBasicInfoEditFields = ({
                 type="tel"
                 name="phone"
                 autoComplete="tel"
-                value={phoneNumber}
-                onChange={(event) => setPhoneNumber(event.target.value)}
+                leftAddon={KR_MOBILE_PREFIX_LABEL}
+                placeholder="1234-5678"
+                value={formatKrMobileSubscriberInput(phoneNumber)}
+                onChange={(event) =>
+                  setPhoneDraft(
+                    formatKrMobileSubscriberInput(event.target.value)
+                  )
+                }
                 className={FIELD_CLASSNAME}
               />
             </section>
@@ -281,7 +297,7 @@ const MoverBasicInfoEditFields = ({
           type="submit"
           variant="solid"
           size="sm"
-          disabled={isSubmitting}
+          disabled={!isSubmitEnabled}
           className="order-1 lg:order-2 lg:h-16 lg:max-w-[41.25rem] lg:text-xl-semibold"
         >
           {isSubmitting ? '수정 중...' : '수정하기'}

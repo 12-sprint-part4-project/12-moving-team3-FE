@@ -27,6 +27,14 @@ import { AUTH_QUERY_KEYS } from '@/hooks/useAuthMe';
 import { moverProfileQueryKeys } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { getAuthSession } from '@/lib/authSession';
+import {
+  composeKrMobilePhone,
+  formatKrMobileSubscriberInput,
+  getPhoneNumberError,
+  KR_MOBILE_PREFIX_LABEL,
+  toPhoneDigits,
+} from '@/lib/phoneNumber';
 import { uploadProfileImage } from '@/lib/uploadProfileImage';
 import { cn } from '@/lib/utils';
 import {
@@ -36,7 +44,7 @@ import {
 } from '@/services/moverProfileApi';
 
 const FIELD_CLASSNAME =
-  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
+  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular';
 
 const TEXTAREA_CLASSNAME =
   'w-full [&_>div]:min-h-40 [&_>div]:w-full [&_>div]:max-w-full [&_textarea]:lg:text-xl-regular';
@@ -48,7 +56,6 @@ const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
 const CHIP_CLASSNAME =
   'px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium';
 
-const PHONE_NUMBER_LENGTH = 11;
 const NICKNAME_MIN_LENGTH = 2;
 const NICKNAME_MAX_LENGTH = 20;
 const CAREER_MAX = 50;
@@ -139,7 +146,8 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
   const [selectedRegions, setSelectedRegions] = useState<RegionChipValue[]>([]);
   const [isPending, setIsPending] = useState(false);
 
-  const phoneNumber = phoneDraft ?? toDigits(user?.phoneNumber ?? '');
+  const phoneNumber =
+    phoneDraft ?? formatKrMobileSubscriberInput(user?.phoneNumber ?? '');
   const careerValue = career === '' ? null : Number(career);
   const isSubmitEnabled =
     phoneNumber.length > 0 &&
@@ -151,7 +159,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
     !isPending;
 
   const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setPhoneDraft(toDigits(event.target.value).slice(0, PHONE_NUMBER_LENGTH));
+    setPhoneDraft(formatKrMobileSubscriberInput(event.target.value));
   };
 
   const handleCareerChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -176,12 +184,14 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
     event.preventDefault();
     if (isPending) return;
 
-    if (phoneNumber.length !== PHONE_NUMBER_LENGTH) {
-      showToast({
-        content: `전화번호는 ${PHONE_NUMBER_LENGTH}자리로 입력해 주세요.`,
-      });
+    const fullPhone = composeKrMobilePhone(phoneNumber);
+    const phoneError = getPhoneNumberError(fullPhone);
+    if (phoneError) {
+      showToast({ content: phoneError });
       return;
     }
+
+    const phoneDigits = toPhoneDigits(fullPhone);
 
     // 카카오 가입 닉네임은 최대 50자일 수 있어, 프로필 API(2~20자)에 맞게 자른다.
     const nickname = (user?.nickname?.trim() ?? '').slice(
@@ -260,7 +270,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
       if (savedProfile) {
         await updateMoverBasicInfo({
           name: savedProfile.name,
-          phoneNumber,
+          phoneNumber: phoneDigits,
         });
       }
 
@@ -326,8 +336,9 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
                 name="phone"
                 inputMode="numeric"
                 autoComplete="tel"
-                placeholder="숫자만 입력해 주세요"
-                value={phoneNumber}
+                leftAddon={KR_MOBILE_PREFIX_LABEL}
+                placeholder="1234-5678"
+                value={formatKrMobileSubscriberInput(phoneNumber)}
                 onChange={handlePhoneChange}
                 className={FIELD_CLASSNAME}
               />

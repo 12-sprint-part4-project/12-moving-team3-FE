@@ -29,6 +29,8 @@ import {
 } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { getAuthSession } from '@/lib/authSession';
+import { isValidKrPhoneNumber } from '@/lib/phoneNumber';
 import { uploadProfileImage } from '@/lib/uploadProfileImage';
 import { cn } from '@/lib/utils';
 import { upsertMoverProfile } from '@/services/moverProfileApi';
@@ -36,7 +38,7 @@ import type { MoverProfileMe } from '@/types/moverProfile';
 
 /** Figma Mobile·Tablet: input sm / Desktop(lg+): md 높이·텍스트 */
 const FIELD_CLASSNAME =
-  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
+  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular';
 
 const TEXTAREA_CLASSNAME =
   'w-full [&_>div]:min-h-40 [&_>div]:w-full [&_>div]:max-w-full [&_textarea]:lg:text-xl-regular';
@@ -50,12 +52,18 @@ const CHIP_CLASSNAME =
 
 const NICKNAME_MIN_LENGTH = 2;
 const NICKNAME_MAX_LENGTH = 20;
-const PHONE_NUMBER_LENGTH = 11;
 const CAREER_MAX = 50;
 const SHORT_DESCRIPTION_MAX = 20;
 const DESCRIPTION_MIN = 8;
 
 const toDigits = (value: string): string => value.replace(/\D/g, '');
+
+const areSortedEqual = (left: string[], right: string[]): boolean => {
+  if (left.length !== right.length) return false;
+  const sortedLeft = [...left].sort();
+  const sortedRight = [...right].sort();
+  return sortedLeft.every((value, index) => value === sortedRight[index]);
+};
 
 const toggleChip = <T extends string>(values: T[], value: T): T[] =>
   values.includes(value)
@@ -108,13 +116,18 @@ const MoverProfileEditFields = ({
   ]);
   const [isPending, setIsPending] = useState(false);
 
-  const phoneNumber = toDigits(profile.phoneNumber ?? '');
+  const phoneNumber = profile.phoneNumber ?? '';
   const careerValue = career === '' ? null : Number(career);
+  const isCareerValid =
+    careerValue !== null &&
+    Number.isInteger(careerValue) &&
+    careerValue >= 0 &&
+    careerValue <= CAREER_MAX;
   const isSubmitEnabled =
-    nickname.trim().length > 0 &&
-    career !== '' &&
+    nickname.trim().length >= NICKNAME_MIN_LENGTH &&
+    isCareerValid &&
     shortIntro.trim().length > 0 &&
-    description.trim().length > 0 &&
+    description.trim().length >= DESCRIPTION_MIN &&
     selectedServices.length > 0 &&
     selectedRegions.length > 0 &&
     !isPending;
@@ -201,10 +214,25 @@ const MoverProfileEditFields = ({
       return;
     }
 
-    if (phoneNumber.length !== PHONE_NUMBER_LENGTH) {
+    if (!isValidKrPhoneNumber(phoneNumber)) {
       showToast({
         content: '등록된 전화번호가 없습니다. 기본정보를 먼저 수정해 주세요.',
       });
+      return;
+    }
+
+    const hasImageChange = Boolean(profileImageFile) || isImageCleared;
+    const hasFieldChange =
+      trimmedNickname !== profile.nickname ||
+      careerValue !== profile.career ||
+      trimmedShortIntro !== (profile.shortDescription ?? '') ||
+      trimmedDescription !== (profile.description ?? '') ||
+      !areSortedEqual(selectedServices, profile.service) ||
+      !areSortedEqual(selectedRegions, profile.serviceRegions) ||
+      hasImageChange;
+
+    if (!hasFieldChange) {
+      showToast({ content: '변경된 내용이 없습니다.' });
       return;
     }
 
@@ -235,7 +263,6 @@ const MoverProfileEditFields = ({
       await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me() });
 
       showToast({ content: '프로필이 수정되었습니다.' });
-      router.back();
     } catch (error) {
       const message =
         error instanceof ApiError

@@ -71,8 +71,12 @@ export const CommunityWriteButton = ({
   visibility,
   bottomClass,
 }: CommunityWriteButtonProps) => {
-  const { handleWriteClick, isLoginModalOpen, handleCloseLoginModal } =
-    useCommunityWriteAction(activeTab);
+  const {
+    writeHref,
+    handleWriteClick,
+    isLoginModalOpen,
+    handleCloseLoginModal,
+  } = useCommunityWriteAction(activeTab);
 
   return (
     <>
@@ -101,6 +105,7 @@ export const CommunityWriteButton = ({
       <LoginRequiredModal
         open={isLoginModalOpen}
         onClose={handleCloseLoginModal}
+        redirectTo={writeHref}
       />
     </>
   );

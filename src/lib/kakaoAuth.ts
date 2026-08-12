@@ -10,8 +10,15 @@ type SearchParamsReader = {
 type PendingKakaoOAuthState = {
   state: string;
   userType: ApiUserType;
+  /** 로그인 페이지 ?redirect= 값 — 콜백 후 복귀용 */
+  redirectTo?: string | null;
   consumed: boolean;
 };
+
+export interface ConsumedKakaoOAuthState {
+  userType: ApiUserType;
+  redirectTo: string | null;
+}
 
 export interface KakaoCallbackSuccess {
   ok: true;
@@ -39,7 +46,10 @@ const createRandomState = (): string => {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 };
 
-export const createKakaoOAuthState = (userType: ApiUserType): string => {
+export const createKakaoOAuthState = (
+  userType: ApiUserType,
+  redirectTo?: string | null
+): string => {
   if (typeof window === 'undefined') {
     throw new Error('카카오 OAuth state는 브라우저에서만 생성할 수 있습니다.');
   }
@@ -48,6 +58,7 @@ export const createKakaoOAuthState = (userType: ApiUserType): string => {
   const pendingState: PendingKakaoOAuthState = {
     state,
     userType,
+    redirectTo: redirectTo ?? null,
     consumed: false,
   };
 
@@ -59,7 +70,9 @@ export const createKakaoOAuthState = (userType: ApiUserType): string => {
   return state;
 };
 
-export const consumeKakaoOAuthState = (state: string): ApiUserType | null => {
+export const consumeKakaoOAuthState = (
+  state: string
+): ConsumedKakaoOAuthState | null => {
   if (typeof window === 'undefined') {
     return null;
   }
@@ -87,7 +100,10 @@ export const consumeKakaoOAuthState = (state: string): ApiUserType | null => {
       JSON.stringify(nextState)
     );
 
-    return parsedState.userType;
+    return {
+      userType: parsedState.userType,
+      redirectTo: parsedState.redirectTo ?? null,
+    };
   } catch {
     return null;
   }
@@ -120,8 +136,11 @@ export const getKakaoAuthorizeUrl = (
 };
 
 /** 카카오 로그인 화면으로 이동한다. */
-export const redirectToKakaoLogin = (userType: ApiUserType): void => {
-  const state = createKakaoOAuthState(userType);
+export const redirectToKakaoLogin = (
+  userType: ApiUserType,
+  redirectTo?: string | null
+): void => {
+  const state = createKakaoOAuthState(userType, redirectTo);
   window.location.assign(getKakaoAuthorizeUrl(userType, state));
 };
 

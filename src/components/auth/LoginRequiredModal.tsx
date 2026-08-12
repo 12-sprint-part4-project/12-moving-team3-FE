@@ -12,6 +12,8 @@ export interface LoginRequiredModalProps {
   onClose: () => void;
   className?: string;
   loginHref?: string;
+  /** 로그인 후 이동 경로. 없으면 현재 pathname(+search) */
+  redirectTo?: string;
   onBeforeLogin?: () => void;
 }
 
@@ -20,6 +22,7 @@ const LoginRequiredModalInner = ({
   onClose,
   className,
   loginHref = '/login',
+  redirectTo,
   onBeforeLogin,
 }: LoginRequiredModalProps) => {
   const router = useRouter();
@@ -32,11 +35,13 @@ const LoginRequiredModalInner = ({
 
   const handleLogin = () => {
     (onBeforeLogin ?? onClose)();
-    const search = searchParams.toString();
-    const redirectTo = search ? `${pathname}?${search}` : pathname;
+    const currentPath = searchParams.toString()
+      ? `${pathname}?${searchParams.toString()}`
+      : pathname;
+    const nextPath = redirectTo ?? currentPath;
     const separator = loginHref.includes('?') ? '&' : '?';
     router.push(
-      `${loginHref}${separator}redirect=${encodeURIComponent(redirectTo)}`
+      `${loginHref}${separator}redirect=${encodeURIComponent(nextPath)}`
     );
   };
 
