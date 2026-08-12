@@ -1,7 +1,8 @@
 'use client';
 
-import { type ComponentType, type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 interface QueryProviderProps {
   children: ReactNode;
@@ -33,25 +34,6 @@ function getQueryClient() {
   return browserQueryClient;
 }
 
-/** development 전용 — 동적 import로 프로덕션 번들에서 제외 */
-const Devtools = () => {
-  const [ReactQueryDevtools, setReactQueryDevtools] = useState<ComponentType<{
-    initialIsOpen?: boolean;
-  }> | null>(null);
-
-  useEffect(() => {
-    void import('@tanstack/react-query-devtools').then((mod) => {
-      setReactQueryDevtools(() => mod.ReactQueryDevtools);
-    });
-  }, []);
-
-  if (!ReactQueryDevtools) {
-    return null;
-  }
-
-  return <ReactQueryDevtools initialIsOpen={false} />;
-};
-
 /**
  * TanStack Query 전역 Provider
  */
@@ -61,7 +43,7 @@ export const QueryProvider = ({ children }: QueryProviderProps) => {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {process.env.NODE_ENV === 'development' ? <Devtools /> : null}
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 };
