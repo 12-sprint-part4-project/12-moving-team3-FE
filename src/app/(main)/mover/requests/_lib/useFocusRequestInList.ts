@@ -21,6 +21,10 @@ interface UseFocusRequestInListParams {
   listFilters: RequestsListUrlState;
 }
 
+/** DOM에 카드가 붙을 때까지 재시도 (entrance 애니·커밋 지연 대비) */
+const SCROLL_RETRY_MAX = 20;
+const SCROLL_RETRY_INTERVAL_MS = 50;
+
 /**
  * 알림 `?focus={id}` 딥링크 — 대상 카드가 나올 때까지 다음 페이지를 받고
  * `data-request-id` 요소로 scrollIntoView 한 뒤 focus 쿼리를 제거한다.
@@ -37,7 +41,6 @@ export const useFocusRequestInList = ({
   const router = useRouter();
   const targetIdRef = useRef(focusRequestId);
   const settledRef = useRef(false);
-  // replace 시 최신 필터만 쓰면 됨 — effect deps에 넣어 재실행하지 않음
   const listFiltersRef = useRef(listFilters);
   listFiltersRef.current = listFilters;
 
@@ -57,21 +60,52 @@ export const useFocusRequestInList = ({
       return;
     }
 
+    const clearFocusFromUrl = () => {
+      router.replace(buildRequestsListHref(listFiltersRef.current), {
+        scroll: false,
+      });
+    };
+
     const found = requests.some((request) => request.id === targetId);
     if (found) {
-      settledRef.current = true;
+      // settled는 스크롤 성공(또는 재시도 소진) 후에만 true.
+      // 미리 true로 두면 effect cleanup이 타이머를 끊었을 때 영구 스킵됨.
+      let cancelled = false;
+      let timeoutId = 0;
+      let attempt = 0;
 
-      const frameId = window.requestAnimationFrame(() => {
+      const tryScroll = () => {
+        if (cancelled || settledRef.current) {
+          return;
+        }
+
         const element = document.querySelector<HTMLElement>(
           `[data-request-id="${targetId}"]`
         );
-        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        router.replace(buildRequestsListHref(listFiltersRef.current), {
-          scroll: false,
-        });
-      });
 
-      return () => window.cancelAnimationFrame(frameId);
+        if (element) {
+          settledRef.current = true;
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          clearFocusFromUrl();
+          return;
+        }
+
+        attempt += 1;
+        if (attempt >= SCROLL_RETRY_MAX) {
+          settledRef.current = true;
+          clearFocusFromUrl();
+          return;
+        }
+
+        timeoutId = window.setTimeout(tryScroll, SCROLL_RETRY_INTERVAL_MS);
+      };
+
+      tryScroll();
+
+      return () => {
+        cancelled = true;
+        window.clearTimeout(timeoutId);
+      };
     }
 
     if (hasNextPage && !isFetchingNextPage) {
@@ -81,9 +115,7 @@ export const useFocusRequestInList = ({
 
     if (!hasNextPage && !isFetchingNextPage) {
       settledRef.current = true;
-      router.replace(buildRequestsListHref(listFiltersRef.current), {
-        scroll: false,
-      });
+      clearFocusFromUrl();
     }
   }, [
     requests,

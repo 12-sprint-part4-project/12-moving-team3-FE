@@ -188,7 +188,10 @@ export const buildRequestsListHref = (state: RequestsListUrlState): string => {
   return qs ? `/mover/requests?${qs}` : '/mover/requests';
 };
 
-/** 알림 딥링크 `?focus=` → 양수 견적 요청 id (서버·클라이언트 공용) */
+/**
+ * 견적 요청 알림 클릭 시 해당 견적 요청 카드까지 스크롤
+ * 알림 딥링크 `?focus=` → 양수 견적 요청 id (서버·클라이언트 공용) 
+*/
 export const parseFocusRequestId = (
   value: string | string[] | undefined
 ): number | null => {
