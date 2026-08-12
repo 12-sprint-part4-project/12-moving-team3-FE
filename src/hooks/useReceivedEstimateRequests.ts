@@ -1,6 +1,7 @@
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
+import { useAuth } from '@/hooks/useAuth';
 import {
   getReceivedEstimateRequests,
   toMoveTypeFilterCounts,
@@ -47,6 +48,8 @@ export const useReceivedEstimateRequests = ({
   sort,
   limit = 10,
 }: UseReceivedEstimateRequestsParams) => {
+  const { user, isReady } = useAuth();
+  const isMoverReady = isReady && user?.userType === 'MOVER';
   const hasSelectedMoveTypes = moveTypes.length > 0;
   const hasSelectedScopes = scopes.length > 0;
 
@@ -91,6 +94,7 @@ export const useReceivedEstimateRequests = ({
         cursor: pageParam,
       }),
     initialPageParam: undefined as string | undefined,
+    enabled: isMoverReady,
     getNextPageParam: (lastPage) =>
       lastPage.meta.hasNextPage
         ? (lastPage.meta.nextCursor ?? undefined)

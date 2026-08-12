@@ -11,6 +11,8 @@ export interface MoverDetailDesignated {
   hasReceivedQuoteFromMover: boolean;
   isQuoteStatusError: boolean;
   isStatusLoading: boolean;
+  /** 처리되지 않은 지정 견적 요청 에러 — 버튼 비활성 */
+  isRequestFailed: boolean;
   onClick: () => void;
 }
 

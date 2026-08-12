@@ -38,6 +38,7 @@ export const useMoverDetailActions = (
     hasReceivedQuoteFromMover,
     isQuoteStatusError,
     isStatusLoading: isDesignatedStatusLoading,
+    isDesignatedRequestFailed,
     needGeneralOpen,
     alreadyDesignatedOpen,
     closeNeedGeneralModal,
@@ -130,6 +131,7 @@ export const useMoverDetailActions = (
       hasReceivedQuoteFromMover,
       isQuoteStatusError,
       isStatusLoading: isDesignatedStatusLoading,
+      isRequestFailed: isDesignatedRequestFailed,
       onClick: handleDesignatedQuoteClick,
     }),
     [
@@ -139,6 +141,7 @@ export const useMoverDetailActions = (
       hasReceivedQuoteFromMover,
       isQuoteStatusError,
       isDesignatedStatusLoading,
+      isDesignatedRequestFailed,
       handleDesignatedQuoteClick,
     ]
   );

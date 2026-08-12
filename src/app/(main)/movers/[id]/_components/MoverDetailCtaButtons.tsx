@@ -31,7 +31,8 @@ export const MoverDetailCtaButtons = ({
   const isHardDisabled =
     designated.isPending ||
     designated.isAlreadyDesignated ||
-    designated.isStatusLoading;
+    designated.isStatusLoading ||
+    designated.isRequestFailed;
   const isSoftBlocked =
     (designated.hasReceivedQuoteFromMover || designated.isQuoteStatusError) &&
     !isHardDisabled;
@@ -82,7 +83,8 @@ export const MoverDetailCtaButtons = ({
             designated.hasReceivedQuoteFromMover,
             designated.isPending,
             designated.isStatusLoading,
-            designated.isQuoteStatusError
+            designated.isQuoteStatusError,
+            designated.isRequestFailed
           )}
         </Button>
       ) : null}

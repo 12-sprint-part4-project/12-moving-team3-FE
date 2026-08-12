@@ -1,15 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import { Button } from '@/components/Button/Button';
-import { FilterButton } from '@/components/ui/Filter/FilterButton';
-import { TextFieldSearch } from '@/components/ui/Input/TextFieldSearch';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { RejectRequestModal } from '@/components/ui/Modal/RejectRequestModal';
 import { SendQuoteModal } from '@/components/ui/Modal/SendQuoteModal';
-import { Sort } from '@/components/ui/Sort/Sort';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,16 +16,21 @@ import { useReceivedEstimateRequests } from '@/hooks/useReceivedEstimateRequests
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 import { ApiError } from '@/lib/apiClient';
 import {
+  fadeIn,
+  fadeUp,
+  getMotionTransition,
+  listStagger,
+} from '@/lib/motionVariants';
+import {
   ALL_MOVE_TYPES,
   ALL_SCOPES,
   type ReceivedRequestCardModel,
   type RequestsFilterState,
-  type RequestsSortValue,
 } from '@/types/estimateRequest';
 
 import { ReceivedRequestCard } from './_components/ReceivedRequestCard';
 import { RequestsEmptyState } from './_components/RequestsEmptyState';
-import { RequestsFilterResetButton } from './_components/RequestsFilterResetButton';
+import { RequestsListToolbar } from './_components/RequestsListToolbar';
 import { RequestsMobileFilterModal } from './_components/RequestsMobileFilterModal';
 import { RequestsListSkeleton } from './_components/RequestsPageSkeleton';
 import { RequestsSidebarFilter } from './_components/RequestsSidebarFilter';
@@ -35,14 +38,7 @@ import {
   isDefaultRequestsListUrlState,
   type RequestsListUrlState,
 } from './_lib/requestsListSearchParams';
-import { useRequestsListSearch } from './_lib/useRequestsListSearch';
 import { useRequestsListUrlState } from './_lib/useRequestsListUrlState';
-
-/** 정렬 옵션 정의 */
-const SORT_OPTIONS: { label: string; value: RequestsSortValue }[] = [
-  { label: '이사 빠른순', value: 'moveDateAsc' },
-  { label: '요청일 빠른순', value: 'requestDateAsc' },
-];
 
 /** 데스크톱 필터 변경 API 조회 디바운스 지연(ms) */
 const FILTER_DEBOUNCE_MS = 200;
@@ -52,10 +48,23 @@ export interface MoverRequestsPageClientProps {
   initialUrlState: RequestsListUrlState;
 }
 
+const listItemVariants = {
+  hidden: fadeUp.hidden,
+  show: fadeUp.show,
+  exit: {
+    opacity: 0,
+    height: 0,
+    marginBottom: 0,
+    transition: { duration: 0.28, ease: 'easeInOut' as const },
+  },
+};
+
 /** 받은 요청 페이지 클라이언트 — 검색·정렬·필터·목록 조회 */
 const MoverRequestsPageClient = ({
   initialUrlState,
 }: MoverRequestsPageClientProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const { user } = useAuth();
   const { startEstimateChat, isChatPending } = useStartEstimateChat();
   const [pendingChatRequestId, setPendingChatRequestId] = useState<
@@ -81,23 +90,18 @@ const MoverRequestsPageClient = ({
     resetListFilters,
   } = useRequestsListUrlState(initialUrlState);
 
+  const [queryKeyword, setQueryKeyword] = useState(initialUrlState.keyword);
+  const [resetSignal, setResetSignal] = useState(0);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [sendQuoteTarget, setSendQuoteTarget] =
     useState<ReceivedRequestCardModel | null>(null);
   const [rejectTarget, setRejectTarget] =
     useState<ReceivedRequestCardModel | null>(null);
+  const [exitingIds, setExitingIds] = useState<Set<number>>(() => new Set());
 
-  const {
-    searchInputValue,
-    queryKeyword,
-    handleSearchChange,
-    handleSearch,
-    handleSearchClear,
-    setSearchDraft,
-  } = useRequestsListSearch({
-    urlKeyword: listFilters.keyword,
-    onCommitKeyword: commitSearchKeyword,
-  });
+  const handleQueryChange = useCallback((keyword: string) => {
+    setQueryKeyword(keyword);
+  }, []);
 
   const debouncedMoveTypes = useDebouncedValue(
     selectedMoveTypes,
@@ -105,14 +109,50 @@ const MoverRequestsPageClient = ({
   );
   const debouncedScopes = useDebouncedValue(selectedScopes, FILTER_DEBOUNCE_MS);
 
+  /** 정렬·필터 변경 시에만 목록 entrance 애니메이션 (검색어 제외) */
+  const listAnimationKey = useMemo(
+    () =>
+      [sortValue, debouncedMoveTypes.join(','), debouncedScopes.join(',')].join(
+        '|'
+      ),
+    [sortValue, debouncedMoveTypes, debouncedScopes]
+  );
+
+  const handleExitComplete = (id: number) => {
+    setExitingIds((prev) => {
+      if (!prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  };
+
+  const handleProposalSuccess = () => {
+    setSendQuoteTarget((target) => {
+      if (target) {
+        setExitingIds((prev) => new Set(prev).add(target.id));
+      }
+      return null;
+    });
+  };
+
+  const handleRejectionSuccess = () => {
+    setRejectTarget((target) => {
+      if (target) {
+        setExitingIds((prev) => new Set(prev).add(target.id));
+      }
+      return null;
+    });
+  };
+
   const {
     submitErrorMessage,
     clearSubmitError,
     proposalMutation,
     rejectionMutation,
   } = useQuoteSubmission({
-    onProposalSuccess: () => setSendQuoteTarget(null),
-    onRejectionSuccess: () => setRejectTarget(null),
+    onProposalSuccess: handleProposalSuccess,
+    onRejectionSuccess: handleRejectionSuccess,
   });
 
   /** 받은 요청 목록·필터 건수 조회 */
@@ -137,7 +177,11 @@ const MoverRequestsPageClient = ({
     sort: sortValue,
   });
 
-  /** 목록 하단 진입 여부 감지 */
+  const displayRequests = useMemo(
+    () => requests.filter((request) => !exitingIds.has(request.id)),
+    [exitingIds, requests]
+  );
+
   const { ref: loadMoreRef, inView } = useInView({
     rootMargin: '200px 0px',
   });
@@ -155,13 +199,23 @@ const MoverRequestsPageClient = ({
     selectedMoveTypes.length !== ALL_MOVE_TYPES.length ||
     selectedScopes.length !== ALL_SCOPES.length;
 
-  /** 검색·필터·정렬 중 하나라도 기본값과 다르면 초기화 가능 */
-  const canResetFilters = !isDefaultRequestsListUrlState({
-    ...listFilters,
-    keyword: searchInputValue.trim(),
-  });
+  const isFilteredEmpty =
+    isEmpty &&
+    (!isDefaultRequestsListUrlState({
+      ...listFilters,
+      keyword: queryKeyword,
+      moveTypes: debouncedMoveTypes,
+      scopes: debouncedScopes,
+    }) ||
+      debouncedMoveTypes.length === 0);
 
-  /** 에러 메시지 결정 */
+  const showListFetching = isFetching && !isPending && !isFetchingNextPage;
+  /**
+   * 목록 entrance/stagger 애니메이션은 "펜딩 중(=기존 data 유지 + isFetching=true)"에는
+   * 실행하지 않는다. 타이핑/필터 변경 시 목록이 계속 흔들리는 현상을 막기 위함이다.
+   */
+  const shouldAnimateList = !showListFetching;
+
   const errorMessage =
     error instanceof ApiError
       ? error.message
@@ -169,7 +223,8 @@ const MoverRequestsPageClient = ({
 
   /** 검색·이사유형·필터·정렬 전체 초기화 */
   const handleResetAll = () => {
-    setSearchDraft('');
+    setResetSignal((signal) => signal + 1);
+    setQueryKeyword('');
     resetListFilters();
   };
 
@@ -281,66 +336,23 @@ const MoverRequestsPageClient = ({
 
         <div className="flex min-w-0 flex-1 flex-col gap-6 lg:gap-8">
           {/* 검색·건수·정렬 툴바 렌더 */}
-          <div className="flex w-full flex-col gap-4 lg:gap-6">
-            <TextFieldSearch
-              size="sm"
-              className="w-full max-w-none lg:h-16 lg:gap-2 lg:px-6 lg:py-3.5 lg:[&_button]:size-9 lg:[&_input]:text-xl-regular lg:[&_svg]:size-9"
-              placeholder="고객명 또는 출발지·도착지로 검색해 보세요"
-              value={searchInputValue}
-              onChange={handleSearchChange}
-              onSearch={handleSearch}
-              onClear={handleSearchClear}
-              aria-label="고객명·출발지·도착지 검색"
-            />
-
-            <div className="flex items-center justify-between gap-3">
-              <p className="shrink-0 text-lg-medium text-black-400">
-                전체 {totalCount}건
-                {isFetching && !isPending && !isFetchingNextPage ? (
-                  <span className="ml-2 text-md-regular text-gray-400">
-                    업데이트 중...
-                  </span>
-                ) : null}
-              </p>
-
-              <div className="flex min-w-0 items-center gap-2">
-                <RequestsFilterResetButton
-                  onClick={handleResetAll}
-                  disabled={!canResetFilters}
-                />
-                {/* 모바일 정렬 렌더 */}
-                <div className="flex items-center md:hidden">
-                  <Sort
-                    options={SORT_OPTIONS}
-                    value={sortValue}
-                    onValueChange={handleSortChange}
-                    size="sm"
-                  />
-                </div>
-                {/* 태블릿·데스크톱 정렬 렌더 */}
-                <div className="hidden items-center md:flex">
-                  <Sort
-                    options={SORT_OPTIONS}
-                    value={sortValue}
-                    onValueChange={handleSortChange}
-                    size="md"
-                  />
-                </div>
-                {/* 모바일·태블릿 필터 버튼 렌더 */}
-                <FilterButton
-                  aria-label="필터 열기"
-                  active={isFilterActive}
-                  className="cursor-pointer xl:hidden"
-                  onClick={() => setIsFilterModalOpen(true)}
-                />
-              </div>
-            </div>
-          </div>
-
+          <RequestsListToolbar
+            listFilters={listFilters}
+            onCommitKeyword={commitSearchKeyword}
+            onQueryChange={handleQueryChange}
+            onResetAll={handleResetAll}
+            resetSignal={resetSignal}
+            totalCount={totalCount}
+            showListFetching={showListFetching}
+            sortValue={sortValue}
+            onSortChange={handleSortChange}
+            isFilterActive={isFilterActive}
+            onFilterOpen={() => setIsFilterModalOpen(true)}
+          />
           {/* 로딩·에러·빈목록·목록 상태 분기 */}
-          {isPending ? (
+          {isPending && requests.length === 0 ? (
             <RequestsListSkeleton />
-          ) : isError ? (
+          ) : isError && requests.length === 0 ? (
             <div className="flex flex-col items-center gap-4 py-16">
               <p
                 role="alert"
@@ -358,59 +370,129 @@ const MoverRequestsPageClient = ({
               </Button>
             </div>
           ) : isEmpty ? (
-            <RequestsEmptyState />
+            <RequestsEmptyState
+              variant={isFilteredEmpty ? 'filtered' : 'initial'}
+              onReset={isFilteredEmpty ? handleResetAll : undefined}
+            />
           ) : (
-            <>
-              {/* 요청 카드 목록 렌더 */}
-              <ul className="flex w-full flex-col gap-6 lg:gap-12">
-                {requests.map((request) => (
-                  <li key={request.id}>
-                    <ReceivedRequestCard
-                      request={request}
-                      onSendQuote={handleOpenSendQuoteModal}
-                      onReject={handleOpenRejectModal}
-                      onChatClick={handleChatClick}
-                      isChatPending={pendingChatRequestId === request.id}
-                    />
-                  </li>
-                ))}
-              </ul>
+            // 요청 카드 목록 렌더
+            <div className="relative">
+              <AnimatePresence>
+                {showListFetching ? (
+                  <motion.div
+                    variants={fadeIn}
+                    initial="hidden"
+                    animate="show"
+                    exit="exit"
+                    transition={motionTransition}
+                    className="pointer-events-none absolute inset-0 z-10 rounded-2xl bg-white/40"
+                    aria-hidden
+                  />
+                ) : null}
+              </AnimatePresence>
 
+              <motion.ul
+                key={shouldAnimateList ? listAnimationKey : 'requests-list'}
+                variants={shouldAnimateList ? listStagger : undefined}
+                initial={shouldAnimateList ? 'hidden' : false}
+                animate={shouldAnimateList ? 'show' : undefined}
+                className="flex w-full flex-col gap-6 lg:gap-12"
+              >
+                {shouldAnimateList ? (
+                  <AnimatePresence mode="popLayout">
+                    {displayRequests.map((request) => (
+                      <motion.li
+                        key={request.id}
+                        layout
+                        variants={listItemVariants}
+                        initial={false}
+                        animate="show"
+                        exit="exit"
+                        transition={motionTransition}
+                        onAnimationComplete={(definition) => {
+                          if (definition === 'exit') {
+                            handleExitComplete(request.id);
+                          }
+                        }}
+                        className="overflow-hidden"
+                      >
+                        <ReceivedRequestCard
+                          request={request}
+                          onSendQuote={handleOpenSendQuoteModal}
+                          onReject={handleOpenRejectModal}
+                          onChatClick={handleChatClick}
+                          isChatPending={pendingChatRequestId === request.id}
+                        />
+                      </motion.li>
+                    ))}
+                  </AnimatePresence>
+                ) : (
+                  displayRequests.map((request) => (
+                    <motion.li
+                      key={request.id}
+                      layout={false}
+                      className="overflow-hidden"
+                    >
+                      <ReceivedRequestCard
+                        request={request}
+                        onSendQuote={handleOpenSendQuoteModal}
+                        onReject={handleOpenRejectModal}
+                        onChatClick={handleChatClick}
+                        isChatPending={isChatPending}
+                      />
+                    </motion.li>
+                  ))
+                )}
+              </motion.ul>
               {/* 무한 스크롤 감지 영역 렌더 */}
               {hasNextPage || isFetchingNextPage ? (
                 <div
                   ref={loadMoreRef}
                   className="flex w-full justify-center py-6"
                 >
-                  {isFetchingNextPage ? (
-                    <Spinner message="더 불러오는 중..." className="py-4" />
-                  ) : (
-                    <span className="sr-only">스크롤하여 더 보기</span>
-                  )}
+                  <AnimatePresence>
+                    {isFetchingNextPage ? (
+                      <motion.div
+                        variants={fadeIn}
+                        initial="hidden"
+                        animate="show"
+                        exit="exit"
+                        transition={motionTransition}
+                      >
+                        <Spinner message="더 불러오는 중..." className="py-4" />
+                      </motion.div>
+                    ) : (
+                      <span className="sr-only">스크롤하여 더 보기</span>
+                    )}
+                  </AnimatePresence>
                 </div>
               ) : null}
-            </>
+            </div>
           )}
         </div>
       </div>
-
       {/* 모바일 필터 모달 렌더 */}
-      {isFilterModalOpen ? (
-        <Modal placement="bottom" onClose={handleCloseFilterModal}>
-          <RequestsMobileFilterModal
-            onClose={handleCloseFilterModal}
-            onSubmit={handleFilterSubmit}
-            defaultMoveTypes={selectedMoveTypes}
-            defaultScopes={selectedScopes}
-            moveTypeCounts={moveTypeCounts}
-            scopeCounts={scopeCounts}
-          />
-        </Modal>
-      ) : null}
-
+      <Modal
+        isOpen={isFilterModalOpen}
+        placement="bottom"
+        onClose={handleCloseFilterModal}
+      >
+        <RequestsMobileFilterModal
+          onClose={handleCloseFilterModal}
+          onSubmit={handleFilterSubmit}
+          defaultMoveTypes={selectedMoveTypes}
+          defaultScopes={selectedScopes}
+          moveTypeCounts={moveTypeCounts}
+          scopeCounts={scopeCounts}
+        />
+      </Modal>
       {/* 견적 보내기 모달 렌더 */}
-      {sendQuoteTarget ? (
-        <Modal placement="bottom" onClose={handleCloseSendQuoteModal}>
+      <Modal
+        isOpen={Boolean(sendQuoteTarget)}
+        placement="bottom"
+        onClose={handleCloseSendQuoteModal}
+      >
+        {sendQuoteTarget ? (
           <SendQuoteModal
             onClose={handleCloseSendQuoteModal}
             onSubmit={handleSendQuoteSubmit}
@@ -423,12 +505,15 @@ const MoverRequestsPageClient = ({
             isSubmitting={proposalMutation.isPending}
             errorMessage={submitErrorMessage ?? undefined}
           />
-        </Modal>
-      ) : null}
-
+        ) : null}
+      </Modal>
       {/* 반려 모달 렌더 */}
-      {rejectTarget ? (
-        <Modal placement="bottom" onClose={handleCloseRejectModal}>
+      <Modal
+        isOpen={Boolean(rejectTarget)}
+        placement="bottom"
+        onClose={handleCloseRejectModal}
+      >
+        {rejectTarget ? (
           <RejectRequestModal
             onClose={handleCloseRejectModal}
             onSubmit={handleRejectSubmit}
@@ -441,8 +526,8 @@ const MoverRequestsPageClient = ({
             isSubmitting={rejectionMutation.isPending}
             errorMessage={submitErrorMessage ?? undefined}
           />
-        </Modal>
-      ) : null}
+        ) : null}
+      </Modal>
     </>
   );
 };

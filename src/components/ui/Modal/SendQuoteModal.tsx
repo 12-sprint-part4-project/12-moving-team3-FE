@@ -2,14 +2,14 @@
 
 import { useId, useMemo, useState, type ChangeEvent } from 'react';
 
+import { PriceInput } from '@/components/ui/Input/PriceInput';
 import { TextArea } from '@/components/ui/Input/TextArea';
-import { TextFieldOutlined } from '@/components/ui/Input/TextFieldOutlined';
 
 import {
   MAX_QUOTE_TEXT_LENGTH,
   MIN_QUOTE_TEXT_LENGTH,
-  normalizeQuotePriceInput,
   normalizeQuoteTextInput,
+  quotePriceSchema,
   sendQuoteFormSchema,
 } from '@/lib/quoteModalSchema';
 import { cn } from '@/lib/utils';
@@ -76,15 +76,22 @@ export const SendQuoteModal = ({
 
   const isSubmittable = !isSubmitting && formResult.success;
 
+  const priceErrorMessage = useMemo(() => {
+    if (!price) {
+      return undefined;
+    }
+    const result = quotePriceSchema.safeParse(price);
+    if (result.success) {
+      return undefined;
+    }
+    return result.error.issues[0]?.message;
+  }, [price]);
+
   const commentLength = comment.trim().length;
   const commentErrorMessage =
     commentLength > 0 && commentLength < MIN_QUOTE_TEXT_LENGTH
       ? `최소 ${MIN_QUOTE_TEXT_LENGTH}자 이상 입력해 주세요.`
       : undefined;
-
-  const handlePriceChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setPrice(normalizeQuotePriceInput(event.target.value));
-  };
 
   const handleCommentChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setComment(normalizeQuoteTextInput(event.target.value));
@@ -128,16 +135,12 @@ export const SendQuoteModal = ({
           <p className="text-lg-semibold text-black-300 sm:text-xl-semibold">
             견적가를 입력해 주세요
           </p>
-          {/* Figma outlined 필드이지만 배경은 background-200. 공용 Outlined에 배경만 덮어쓴다. */}
-          <TextFieldOutlined
-            size="sm"
+          <PriceInput
             value={price}
-            onChange={handlePriceChange}
+            onValueChange={setPrice}
             placeholder="견적가 입력"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            aria-label="견적가"
-            className="[&>div]:w-full [&>div]:border-transparent [&>div]:bg-background-200 [&>div]:focus-within:border-blue-300"
+            errorMessage={priceErrorMessage}
+            isError={Boolean(priceErrorMessage)}
           />
         </div>
 

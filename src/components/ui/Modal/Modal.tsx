@@ -1,5 +1,6 @@
 'use client';
 
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   useEffect,
   useRef,
@@ -8,11 +9,19 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
+import {
+  bottomSheetPanelVariants,
+  centerModalPanelVariants,
+  dimmerVariants,
+  getMotionTransition,
+} from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 export type ModalPlacement = 'center' | 'bottom';
 
 export interface ModalProps {
+  /** 열림 상태. false면 exit 애니메이션 후 DOM에서 제거된다. @default true */
+  isOpen?: boolean;
   /** dimmed 배경·ESC 등으로 닫을 때 호출 */
   onClose: () => void;
   /** 중앙(또는 하단)에 배치할 모달 콘텐츠 (제목/버튼 등은 children이 직접 담당) */
@@ -65,14 +74,13 @@ const getFocusableElements = (container: HTMLElement): HTMLElement[] =>
  *
  * 사용 예:
  * ```tsx
- * {isOpen && (
- *   <Modal onClose={handleClose}>
- *     <SelectAddressModal onClose={handleClose} ... />
- *   </Modal>
- * )}
+ * <Modal isOpen={isOpen} onClose={handleClose}>
+ *   <SelectAddressModal onClose={handleClose} ... />
+ * </Modal>
  * ```
  */
 export const Modal = ({
+  isOpen = true,
   onClose,
   children,
   placement = 'center',
@@ -81,8 +89,7 @@ export const Modal = ({
   panelClassName = '',
   ariaLabel,
 }: ModalProps) => {
-  // SSR에서는 false, 클라이언트 하이드레이션 후 true로 맞춰져 포탈이 한 번 더 렌더된다.
-  // (`typeof document` 가드만 쓰면 서버 null이 클라이언트에 고정되어 모달이 안 뜨는 경우가 있다.)
+  const shouldReduceMotion = useReducedMotion();
   const isClient = useSyncExternalStore(
     subscribe,
     getClientSnapshot,
@@ -90,20 +97,27 @@ export const Modal = ({
   );
   const panelRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const previousOverflowRef = useRef<string | undefined>(undefined);
 
-  // 모달이 열려 있는 동안 배경 페이지 스크롤을 막는다.
+  const unlockBodyScroll = () => {
+    if (previousOverflowRef.current === undefined) return;
+    document.body.style.overflow = previousOverflowRef.current;
+    previousOverflowRef.current = undefined;
+  };
+
   useEffect(() => {
-    if (!isClient) return;
-    const previousOverflow = document.body.style.overflow;
+    if (!isClient || !isOpen) return;
+    previousOverflowRef.current = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [isClient]);
+  }, [isClient, isOpen]);
 
-  // 열릴 때 모달로 포커스 이동 → Tab 순환 → 닫힌 뒤 트리거로 복원. ESC로 닫기도 함께 처리.
+  // 컴포넌트가 언마운트되는 경우에도 스크롤 락을 반드시 해제한다.
   useEffect(() => {
-    if (!isClient) return;
+    return () => unlockBodyScroll();
+  }, []);
+
+  useEffect(() => {
+    if (!isClient || !isOpen) return;
 
     const panel = panelRef.current;
     if (!panel) return;
@@ -157,52 +171,63 @@ export const Modal = ({
         previous.focus({ preventScroll: true });
       }
     };
-  }, [isClient, onClose]);
+  }, [isClient, isOpen, onClose]);
 
   if (!isClient) return null;
 
   const isBottomSheet = placement === 'bottom';
+  const panelVariants = isBottomSheet
+    ? bottomSheetPanelVariants
+    : centerModalPanelVariants;
+  const motionTransition = getMotionTransition(shouldReduceMotion);
 
   return createPortal(
-    <div
-      role="presentation"
-      className={cn(
-        // Figma dimmer: #141414 @ 50% → bg-dimmer/50
-        'fixed inset-0 z-50 flex justify-center bg-dimmer/50',
-        // center: 모든 breakpoint에서 중앙. bottom: 모바일 하단 → sm부터 중앙
-        isBottomSheet
-          ? 'items-end sm:items-center sm:px-4'
-          : 'items-center px-4',
-        className
-      )}
-      onClick={() => {
-        if (closeOnDimmedClick) onClose();
-      }}
-    >
-      {/*
-        너비는 이 래퍼에서 고정한다.
-        sm:w-auto면 children 콘텐츠 Intrinsic 폭으로 줄어들어
-        패널의 w-full max-w-*가 의도한 공통 폭을 못 맞춘다.
-        tabIndex=-1: 포커스 가능 자식이 없을 때 셸이 포커스를 받을 수 있게 한다.
-      */}
-      <div
-        ref={panelRef}
-        tabIndex={-1}
-        role="dialog"
-        aria-modal="true"
-        aria-label={ariaLabel}
-        className={cn(
-          'max-h-[90vh] w-full overflow-hidden overflow-y-auto outline-none sm:max-w-[38rem]',
-          isBottomSheet
-            ? 'rounded-t-[2rem] sm:rounded-[2rem]'
-            : 'rounded-[1.5rem] sm:rounded-[2rem]',
-          panelClassName
-        )}
-        onClick={(event) => event.stopPropagation()}
-      >
-        {children}
-      </div>
-    </div>,
+    <AnimatePresence onExitComplete={() => (!isOpen ? unlockBodyScroll() : undefined)}>
+      {isOpen ? (
+        <motion.div
+          key="modal-dimmer"
+          role="presentation"
+          variants={dimmerVariants}
+          initial="hidden"
+          animate="show"
+          exit="exit"
+          transition={motionTransition}
+          className={cn(
+            'fixed inset-0 z-50 flex justify-center bg-dimmer/50',
+            isBottomSheet
+              ? 'items-end sm:items-center sm:px-4'
+              : 'items-center px-4',
+            className
+          )}
+          onClick={() => {
+            if (closeOnDimmedClick) onClose();
+          }}
+        >
+          <motion.div
+            ref={panelRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label={ariaLabel}
+            variants={panelVariants}
+            initial="hidden"
+            animate="show"
+            exit="exit"
+            transition={motionTransition}
+            className={cn(
+              'max-h-[90vh] w-full overflow-hidden overflow-y-auto outline-none sm:max-w-[38rem]',
+              isBottomSheet
+                ? 'rounded-t-[2rem] sm:rounded-[2rem]'
+                : 'rounded-[1.5rem] sm:rounded-[2rem]',
+              panelClassName
+            )}
+            onClick={(event) => event.stopPropagation()}
+          >
+            {children}
+          </motion.div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>,
     document.body
   );
 };

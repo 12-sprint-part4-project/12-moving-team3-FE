@@ -85,10 +85,6 @@ const AuthRouteGuardInner = ({ children }: AuthRouteGuardProps) => {
     setDismissedPath(null);
   }
 
-  const requirement = getAuthRouteRequirement(pathname);
-  const isProtectedPath = requirement.kind !== 'public';
-  const isGuestOnly = isGuestOnlyPath(pathname);
-
   const gate: AuthGateState = isReady
     ? resolveAuthGate(pathname, user?.userType ?? null)
     : { kind: 'none' };
@@ -99,12 +95,10 @@ const AuthRouteGuardInner = ({ children }: AuthRouteGuardProps) => {
   }, [gate.kind, router]);
 
   /**
-   * - 보호 경로: 인증 준비 전·실패 시 숨김
-   * - guest 전용: 준비 전에도 숨겨 로그인 유저 진입 시 폼 깜빡임을 막음
+   * 인증 준비 전에는 숨기지 않는다. (새로고침 빈 화면 방지)
+   * 비로그인·역할 불일치·guest 전용만 숨긴다.
    */
-  const shouldHideChildren =
-    (!isReady && (isProtectedPath || isGuestOnly)) ||
-    (isReady && gate.kind !== 'none');
+  const shouldHideChildren = isReady && gate.kind !== 'none';
 
   const isModalOpen =
     isReady &&

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
 import { chatQueryKeys } from '@/hooks/useChat';
@@ -57,9 +57,16 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
   const queryClient = useQueryClient();
   const [needGeneralOpen, setNeedGeneralOpen] = useState(false);
   const [alreadyDesignatedOpen, setAlreadyDesignatedOpen] = useState(false);
+  const [isDesignatedRequestFailed, setIsDesignatedRequestFailed] =
+    useState(false);
 
   const isCustomer = user?.userType === 'CUSTOMER';
   const canQueryExistence = Boolean(isCustomer && moverId);
+
+  // 기사님 상세가 바뀌면 "이전 에러 상태"는 초기화한다.
+  useEffect(() => {
+    setIsDesignatedRequestFailed(false);
+  }, [moverId]);
 
   const existenceQuery = useQuery({
     queryKey: designatedEstimateQueryKeys.existence(moverId),
@@ -118,6 +125,7 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
       });
     },
     onSuccess: async (created, targetMoverId) => {
+      setIsDesignatedRequestFailed(false);
       queryClient.setQueryData<DesignatedEstimateExistence>(
         designatedEstimateQueryKeys.existence(targetMoverId),
         {
@@ -157,11 +165,15 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
           return;
         }
 
+        // "따로 분기하지 않은" 백엔드 에러: 버튼 비활성 + 일반 토스트
         showToast({ content: error.message });
+        setIsDesignatedRequestFailed(true);
         return;
       }
 
+      // ApiError가 아닌 경우(네트워크/응답 파싱 등)도 동일하게 버튼 비활성한다.
       showToast({ content: '지정 견적 요청 중 오류가 발생했습니다.' });
+      setIsDesignatedRequestFailed(true);
     },
   });
 
@@ -203,6 +215,7 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
     hasReceivedQuoteFromMover,
     isQuoteStatusError,
     isStatusLoading,
+    isDesignatedRequestFailed,
     needGeneralOpen,
     alreadyDesignatedOpen,
     closeNeedGeneralModal,
