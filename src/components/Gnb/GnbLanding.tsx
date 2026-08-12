@@ -45,15 +45,24 @@ export const GnbLanding = ({
         size={isDesktop ? 'md' : 'sm'}
         variant="iconText"
         href={homeHref}
+        prefetch={false}
       />
 
       {isDesktop ? (
         <>
           <nav className="flex min-w-0 flex-1 items-center gap-10">
-            <Link href={findDriverHref} className="text-2lg-bold text-black-400">
+            <Link
+              href={findDriverHref}
+              prefetch={false}
+              className="text-2lg-bold text-black-400"
+            >
               기사님 찾기
             </Link>
-            <Link href={communityHref} className="text-2lg-bold text-black-400">
+            <Link
+              href={communityHref}
+              prefetch={false}
+              className="text-2lg-bold text-black-400"
+            >
               커뮤니티
             </Link>
           </nav>

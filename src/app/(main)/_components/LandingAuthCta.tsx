@@ -18,6 +18,7 @@ export const LandingAuthCta = () => {
     <div className="mt-11 flex w-full max-w-[20.4375rem] flex-col gap-2 lg:mt-12 lg:w-auto lg:max-w-none lg:flex-row lg:items-center lg:justify-center lg:gap-4">
       <Link
         href="/login"
+        prefetch={false}
         className={cn(
           CTA_BASE_STYLE,
           'bg-blue-300 text-white shadow-cta hover:bg-blue-200'
@@ -27,6 +28,7 @@ export const LandingAuthCta = () => {
       </Link>
       <Link
         href="/signup"
+        prefetch={false}
         className={cn(
           CTA_BASE_STYLE,
           'border border-blue-300 bg-white text-blue-300 shadow-cta hover:bg-blue-50 hover:shadow-cta-hover'

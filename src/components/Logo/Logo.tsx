@@ -19,6 +19,8 @@ export interface LogoProps {
   variant?: LogoVariant;
   /** 클릭 시 이동할 경로 */
   href?: string;
+  /** Next.js Link prefetch. 랜딩 등에서 불필요 RSC 요청을 줄이려면 false */
+  prefetch?: boolean;
   className?: string;
 }
 
@@ -50,6 +52,7 @@ export const Logo = ({
   size = 'sm',
   variant = 'iconText',
   href = '/',
+  prefetch,
   className = '',
 }: LogoProps) => {
   const LogoSvg = LOGO_COMPONENT[variant];
@@ -57,6 +60,7 @@ export const Logo = ({
   return (
     <Link
       href={href}
+      prefetch={prefetch}
       aria-label="무빙"
       className={cn(
         'inline-flex shrink-0 items-center justify-center',

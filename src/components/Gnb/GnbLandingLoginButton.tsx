@@ -15,6 +15,7 @@ export const GnbLandingLoginButton = ({
 }: GnbLandingLoginButtonProps) => (
   <Link
     href={href}
+    prefetch={false}
     className={cn(
       'inline-flex h-11 w-[7.25rem] shrink-0 items-center justify-center rounded-2xl bg-blue-300 text-2lg-semibold text-white',
       className
