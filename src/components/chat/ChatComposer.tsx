@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -30,6 +31,8 @@ import {
 import { cn } from '@/lib/utils';
 
 const CHAT_IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
+/** textarea 최대 높이 — Tailwind max-h-32(8rem)과 동일 */
+const TEXTAREA_MAX_HEIGHT_PX = 128;
 
 export interface ChatComposerProps {
   disabled?: boolean;
@@ -61,11 +64,31 @@ export const ChatComposer = ({
   const pendingImagesRef = useRef(pendingImages);
 
   const trimmed = value.trim();
-  const isAtMessageLimit = value.length >= CHAT_MESSAGE_MAX_LENGTH;
+  const isAtMessageLimit = trimmed.length >= CHAT_MESSAGE_MAX_LENGTH;
+  const isOverMessageLimit = trimmed.length > CHAT_MESSAGE_MAX_LENGTH;
   const hasPendingImages = pendingImages.length > 0;
   const isBusy = disabled || isSending;
   const canSend =
-    !isBusy && (trimmed.length > 0 || (hasPendingImages && Boolean(onSendImages)));
+    !isBusy &&
+    !isOverMessageLimit &&
+    (trimmed.length > 0 || (hasPendingImages && Boolean(onSendImages)));
+
+  const syncTextareaHeight = useCallback(() => {
+    const el = inputRef.current;
+    if (!el) {
+      return;
+    }
+
+    el.style.height = 'auto';
+    const nextHeight = Math.min(el.scrollHeight, TEXTAREA_MAX_HEIGHT_PX);
+    el.style.height = `${nextHeight}px`;
+    el.style.overflowY =
+      el.scrollHeight > TEXTAREA_MAX_HEIGHT_PX ? 'auto' : 'hidden';
+  }, []);
+
+  useEffect(() => {
+    syncTextareaHeight();
+  }, [value, syncTextareaHeight]);
 
   useEffect(() => {
     pendingImagesRef.current = pendingImages;
@@ -93,11 +116,11 @@ export const ChatComposer = ({
       }
     }
 
-    if (trimmed.length === 0) {
+    if (trimmed.length === 0 || trimmed.length > CHAT_MESSAGE_MAX_LENGTH) {
       return;
     }
 
-    const content = trimmed;
+    const content = trimmed.slice(0, CHAT_MESSAGE_MAX_LENGTH);
     setValue('');
     try {
       await onSend(content);
@@ -118,7 +141,9 @@ export const ChatComposer = ({
       !event.nativeEvent.isComposing
     ) {
       event.preventDefault();
-      void submit();
+      if (!isOverMessageLimit) {
+        void submit();
+      }
     }
   };
 
@@ -322,6 +347,7 @@ export const ChatComposer = ({
           }
           className={cn(
             'max-h-32 min-h-11 min-w-0 flex-1 resize-none rounded-2xl border border-line-200 bg-background-100 px-3.5 py-2.5 text-md-medium text-black-400 outline-none',
+            'overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
             'whitespace-pre-wrap',
             'placeholder:text-gray-300',
             'focus:border-blue-300',
