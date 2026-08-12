@@ -9,6 +9,7 @@ import {
 
 import VisibilityOffIcon from '@/assets/icons/visibility-off.svg';
 import VisibilityOnIcon from '@/assets/icons/visibility-on.svg';
+import { cn } from '@/lib/utils';
 
 /*
   TEXT FIELD OUTLINED
@@ -134,9 +135,15 @@ export const TextFieldOutlined = ({
   }
 
   return (
-    <div className={`flex w-full flex-col ${className}`.trim()}>
+    <div className={cn('flex w-full flex-col', className)}>
       <div
-        className={`relative flex items-center overflow-clip border ${sizeStyles[size].field} ${sizeStyles[size].input} ${bgClass} ${borderClass}`}
+        className={cn(
+          'relative flex items-center overflow-clip border',
+          sizeStyles[size].field,
+          sizeStyles[size].input,
+          bgClass,
+          borderClass
+        )}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -160,9 +167,10 @@ export const TextFieldOutlined = ({
             setIsFocused(false);
             rest.onBlur?.(event);
           }}
-          className={`w-full min-w-0 bg-transparent outline-none placeholder:text-gray-400 disabled:cursor-not-allowed ${
+          className={cn(
+            'w-full min-w-0 bg-transparent outline-none placeholder:text-gray-400 disabled:cursor-not-allowed',
             hasValue ? 'text-black-400' : 'text-gray-400'
-          }`}
+          )}
         />
 
         {/* toggle이 있으면 눈 아이콘 우선, 없으면 rightIcon 슬롯 */}
@@ -192,9 +200,11 @@ export const TextFieldOutlined = ({
 
       {errorMessage && (
         <p
-          className={`mt-1 text-red-200 ${
-            isRequiredFeedback ? 'pl-2 text-left' : 'pr-2 text-right'
-          } ${sizeStyles[size].error}`}
+          className={cn(
+            'mt-1 text-red-200',
+            isRequiredFeedback ? 'pl-2 text-left' : 'pr-2 text-right',
+            sizeStyles[size].error
+          )}
         >
           {errorMessage}
         </p>

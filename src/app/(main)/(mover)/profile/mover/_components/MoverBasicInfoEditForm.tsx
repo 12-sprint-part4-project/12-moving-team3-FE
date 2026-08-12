@@ -1,7 +1,7 @@
 'use client';
 
 import { redirect, useRouter } from 'next/navigation';
-import { useEffect, useId, useState, type FormEvent } from 'react';
+import { useId, useState, type FormEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/Button/Button';
@@ -62,30 +62,23 @@ const MoverBasicInfoEditFields = ({
 
   const [name, setName] = useState(profile.name);
   const [email] = useState(profile.email);
-  const [phoneNumber, setPhoneNumber] = useState(
-    formatKrMobileSubscriberInput(
-      profile.phoneNumber || user?.phoneNumber || ''
-    )
-  );
+  const [phoneDraft, setPhoneDraft] = useState<string | null>(null);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 프로필 번호 → 세션 번호 순으로 표시. 사용자 입력 후에만 draft 사용
+  const phoneNumber =
+    phoneDraft ??
+    formatKrMobileSubscriberInput(
+      profile.phoneNumber || user?.phoneNumber || ''
+    );
+
   const isSubmitEnabled =
     name.trim().length >= NAME_MIN_LENGTH &&
     isValidKrPhoneNumber(composeKrMobilePhone(phoneNumber)) &&
     !isSubmitting;
-
-  // 프로필 API에 번호가 없으면 세션(프로필 등록 시 저장분)으로 채운다.
-  useEffect(() => {
-    const sessionPhone = user?.phoneNumber?.trim() ?? '';
-    if (!sessionPhone) return;
-
-    setPhoneNumber((prev) =>
-      prev ? prev : formatKrMobileSubscriberInput(sessionPhone)
-    );
-  }, [user?.phoneNumber]);
 
   const handleCancel = () => {
     router.back();
@@ -218,7 +211,7 @@ const MoverBasicInfoEditFields = ({
                 placeholder="1234-5678"
                 value={formatKrMobileSubscriberInput(phoneNumber)}
                 onChange={(event) =>
-                  setPhoneNumber(
+                  setPhoneDraft(
                     formatKrMobileSubscriberInput(event.target.value)
                   )
                 }

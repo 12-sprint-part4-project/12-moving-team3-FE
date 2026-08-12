@@ -1,13 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import {
-  useEffect,
-  useId,
-  useState,
-  type ChangeEvent,
-  type FormEvent,
-} from 'react';
+import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/Button/Button';
@@ -73,7 +67,7 @@ export const CustomerProfileForm = () => {
     handleCropComplete,
   } = useProfileImageCrop();
 
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneDraft, setPhoneDraft] = useState<string | null>(null);
   const [selectedServices, setSelectedServices] = useState<
     CustomerServiceType[]
   >([]);
@@ -82,24 +76,18 @@ export const CustomerProfileForm = () => {
   );
   const [isPending, setIsPending] = useState(false);
 
+  // 세션 번호는 effect로 복사하지 않고, 미입력 시 표시값 fallback으로 사용
+  const phoneNumber =
+    phoneDraft ?? formatKrMobileSubscriberInput(user?.phoneNumber ?? '');
+
   const isSubmitEnabled =
     phoneNumber.length > 0 &&
     selectedServices.length > 0 &&
     selectedRegion !== null &&
     !isPending;
 
-  // 세션에 번호가 있으면(이전 데이터 등) 미리 채운다. 신규 가입은 비어 있다.
-  useEffect(() => {
-    const sessionPhone = user?.phoneNumber?.trim() ?? '';
-    if (!sessionPhone) return;
-
-    setPhoneNumber((prev) =>
-      prev ? prev : formatKrMobileSubscriberInput(sessionPhone)
-    );
-  }, [user?.phoneNumber]);
-
   const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setPhoneNumber(formatKrMobileSubscriberInput(event.target.value));
+    setPhoneDraft(formatKrMobileSubscriberInput(event.target.value));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
