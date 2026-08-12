@@ -10,6 +10,8 @@ export { WrittenReviewCard } from './WrittenReviewCard';
 export type { WrittenReviewCardProps } from './WrittenReviewCard';
 export { WriteReviewModal } from './WriteReviewModal';
 export type { WriteReviewModalProps } from './WriteReviewModal';
+export { ReviewFormFields, isReviewFormValid } from './ReviewFormFields';
+export type { ReviewFormFieldsProps } from './ReviewFormFields';
 export { ReviewMoverSummaryCard } from './ReviewMoverSummaryCard';
 export type { ReviewMoverSummaryCardProps } from './ReviewMoverSummaryCard';
 export { ReviewDetailModal } from './ReviewDetailModal';
@@ -22,5 +24,12 @@ export { ReviewsEmptyState } from './ReviewsEmptyState';
 export type { ReviewsEmptyStateProps } from './ReviewsEmptyState';
 export { ReviewListSection } from './ReviewListSection';
 export type { ReviewListSectionProps } from './ReviewListSection';
-export { ReviewsTabs, REVIEWS_PAGE_X_PADDING } from './ReviewsTabs';
+export {
+  ReviewsTabs,
+  REVIEWS_PAGE_X_PADDING,
+  REVIEW_HIGHLIGHT_DURATION_MS,
+  parseHighlightReviewId,
+  parseReviewsTabId,
+  resolveReviewsTabParam,
+} from './ReviewsTabs';
 export type { ReviewsPageTab, ReviewsTabsProps } from './ReviewsTabs';

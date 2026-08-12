@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 
 import { DeleteReviewConfirmModal } from '@/components/reviews/DeleteReviewConfirmModal';
 import { EditReviewModal } from '@/components/reviews/EditReviewModal';
@@ -8,9 +9,10 @@ import { ReviewListSection } from '@/components/reviews/ReviewListSection';
 import { ReviewsEmptyState } from '@/components/reviews/ReviewsEmptyState';
 import { ReviewDetailModal } from '@/components/reviews/ReviewDetailModal';
 import {
-  ReviewsTabs,
+  parseHighlightReviewId,
+  parseReviewsTabId,
+  REVIEW_HIGHLIGHT_DURATION_MS,
   REVIEWS_PAGE_X_PADDING,
-  type ReviewsPageTab,
 } from '@/components/reviews/ReviewsTabs';
 import { WritableReviewCard } from '@/components/reviews/WritableReviewCard';
 import { WriteReviewModal } from '@/components/reviews/WriteReviewModal';
@@ -33,15 +35,24 @@ const CONTENT_CLASS = `mx-auto flex min-h-0 w-full max-w-[1920px] flex-1 flex-co
 
 /** 이사 리뷰 — 작성 가능 / 내가 작성한 리뷰 + 모달 */
 export const ReviewsPageClient = () => {
+  const router = useRouter();
+  const highlightCardRef = useRef<HTMLButtonElement>(null);
+  const highlightHandledRef = useRef<number | null>(null);
+
+  const searchParams = useSearchParams();
+  const activeTab = parseReviewsTabId(searchParams.get('tab'));
+  const highlightReviewId = parseHighlightReviewId(
+    searchParams.get('highlight')
+  );
   const { user, isReady } = useAuth();
-  const [activeTab, setActiveTab] = useState<ReviewsPageTab>('writable');
   const [selectedQuote, setSelectedQuote] = useState<WritableQuoteItem | null>(
     null
   );
   const [selectedReview, setSelectedReview] =
     useState<CustomerReviewItem | null>(null);
-  const [editingReview, setEditingReview] =
-    useState<CustomerReviewItem | null>(null);
+  const [editingReview, setEditingReview] = useState<CustomerReviewItem | null>(
+    null
+  );
   const [reviewToDelete, setReviewToDelete] =
     useState<CustomerReviewItem | null>(null);
 
@@ -53,6 +64,49 @@ export const ReviewsPageClient = () => {
   const written = useCustomerReviews({
     enabled: isLoggedIn && activeTab === 'written',
   });
+
+  useEffect(() => {
+    if (highlightReviewId === null) {
+      highlightHandledRef.current = null;
+      return;
+    }
+
+    if (
+      activeTab !== 'written' ||
+      written.isPending ||
+      written.isError ||
+      highlightHandledRef.current === highlightReviewId
+    ) {
+      return;
+    }
+
+    const isHighlightedReviewVisible = written.reviews.some(
+      (review) => review.id === highlightReviewId
+    );
+    if (!isHighlightedReviewVisible) {
+      return;
+    }
+
+    highlightHandledRef.current = highlightReviewId;
+
+    highlightCardRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    });
+
+    const timer = window.setTimeout(() => {
+      router.replace('/reviews?tab=written');
+    }, REVIEW_HIGHLIGHT_DURATION_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    activeTab,
+    highlightReviewId,
+    router,
+    written.isError,
+    written.isPending,
+    written.reviews,
+  ]);
 
   const { submitReview, isPending: isSubmitting } = useCreateReview();
   const { submitUpdate, isPending: isUpdating } = useUpdateReview();
@@ -78,9 +132,10 @@ export const ReviewsPageClient = () => {
     }
 
     try {
-      const performed = await submitReview(selectedQuote.quoteId, review);
-      if (performed) {
+      const reviewId = await submitReview(selectedQuote.quoteId, review);
+      if (reviewId) {
         setSelectedQuote(null);
+        router.replace(`/reviews?tab=written&highlight=${reviewId}`);
       }
     } catch {
       // 성공/실패 토스트는 useCreateReview에서 처리
@@ -163,8 +218,7 @@ export const ReviewsPageClient = () => {
   const writableErrorMessage =
     writable.error instanceof ApiError
       ? writable.error.message
-      : (writable.error?.message ??
-        '작성 가능한 리뷰를 불러오지 못했습니다.');
+      : (writable.error?.message ?? '작성 가능한 리뷰를 불러오지 못했습니다.');
 
   const writtenErrorMessage =
     written.error instanceof ApiError
@@ -192,9 +246,7 @@ export const ReviewsPageClient = () => {
     (written.isEmpty || writtenTotal === 0);
 
   return (
-    <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden">
-      <ReviewsTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
+    <>
       <div className="flex min-h-0 w-full flex-1 flex-col bg-background-200">
         <div
           role="tabpanel"
@@ -250,13 +302,18 @@ export const ReviewsPageClient = () => {
               emptyState={
                 <ReviewsEmptyState message="아직 작성한 리뷰가 없어요" />
               }
-              renderItem={(item) => (
-                <WrittenReviewCard
-                  key={item.id}
-                  item={item}
-                  onClick={handleReviewClick}
-                />
-              )}
+              renderItem={(item) => {
+                const highlighted = highlightReviewId === item.id;
+                return (
+                  <WrittenReviewCard
+                    key={item.id}
+                    ref={highlighted ? highlightCardRef : undefined}
+                    item={item}
+                    highlighted={highlighted}
+                    onClick={handleReviewClick}
+                  />
+                );
+              }}
               page={written.page}
               totalPages={written.totalPages}
               onPageChange={written.setPage}
@@ -319,6 +376,6 @@ export const ReviewsPageClient = () => {
           />
         </Modal>
       ) : null}
-    </div>
+    </>
   );
 };

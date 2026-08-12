@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
@@ -19,8 +19,8 @@ import { usePostList } from '@/hooks/useCommunity';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { ApiError } from '@/lib/apiClient';
 import {
+  buildCommunityListHref,
   buildPostListContextSearchParams,
-  parsePostListContextFromSearchParams,
   type PostListContext,
 } from '@/lib/communityListContext';
 import {
@@ -49,24 +49,34 @@ const SORT_CLASS =
 const SORT_CLASS_MOBILE =
   'w-[7.25rem] [&_button]:h-9 [&_button]:w-full [&_button]:justify-center [&_button]:shadow-none! [&_button]:text-md-medium! [&_span]:text-md-medium!';
 
+interface CommunityPageClientProps {
+  initialContext: PostListContext;
+}
+
 /** 커뮤니티 게시글 목록 — Figma Mobile / Tablet / Desktop */
-export const CommunityPageClient = () => {
+export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const parsedContext = useMemo(
-    () => parsePostListContextFromSearchParams(searchParams),
-    [searchParams]
-  );
-  const activeTab = parsedContext.tab;
-  const categoryFilter = parsedContext.categoryFilter;
-  const regionFilter = parsedContext.regionFilter;
-  const sortValue = parsedContext.sort;
+
+  const serverHref = buildCommunityListHref(initialContext);
+  const [syncedServerHref, setSyncedServerHref] = useState(serverHref);
+  const [localContext, setLocalContext] = useState<PostListContext>(initialContext);
+
+  if (serverHref !== syncedServerHref) {
+    setSyncedServerHref(serverHref);
+    setLocalContext(initialContext);
+  }
+
+  const activeTab = localContext.tab;
+  const categoryFilter = localContext.categoryFilter;
+  const regionFilter = localContext.regionFilter;
+  const sortValue = localContext.sort;
 
   const [searchDraft, setSearchDraft] = useState('');
   const [isSearchFlushed, setIsSearchFlushed] = useState(false);
 
   const replaceListContextUrl = useCallback(
     (context: PostListContext) => {
+      setLocalContext(context);
       const params = buildPostListContextSearchParams(context);
       const qs = params.toString();
       router.replace(qs ? `/community?${qs}` : '/community', { scroll: false });
@@ -75,15 +85,15 @@ export const CommunityPageClient = () => {
   );
 
   const searchInputValue =
-    parsedContext.keyword !== undefined ? parsedContext.keyword : searchDraft;
+    localContext.keyword !== undefined ? localContext.keyword : searchDraft;
 
   const debouncedSearch = useDebouncedValue(
     searchDraft,
     COMMUNITY_SEARCH_DEBOUNCE_MS
   );
   const listKeyword = useMemo(() => {
-    if (parsedContext.keyword !== undefined) {
-      return parsedContext.keyword;
+    if (localContext.keyword !== undefined) {
+      return localContext.keyword;
     }
 
     const trimmed = searchDraft.trim();
@@ -98,7 +108,7 @@ export const CommunityPageClient = () => {
 
     return getCommunitySearchKeyword(debouncedSearch);
   }, [
-    parsedContext.keyword,
+    localContext.keyword,
     searchDraft,
     isSearchFlushed,
     debouncedSearch,
@@ -121,7 +131,7 @@ export const CommunityPageClient = () => {
     return regionFilter;
   }, [regionFilter]);
 
-  const listContext = useMemo(
+  const listContextValue = useMemo(
     (): PostListContext => ({
       tab: activeTab,
       sort: sortValue,
@@ -231,9 +241,9 @@ export const CommunityPageClient = () => {
     setIsSearchFlushed(false);
     setSearchDraft(value);
 
-    if (parsedContext.keyword !== undefined) {
+    if (localContext.keyword !== undefined) {
       replaceListContextUrl({
-        ...parsedContext,
+        ...localContext,
         keyword: undefined,
       });
     }
@@ -244,7 +254,7 @@ export const CommunityPageClient = () => {
     setSearchDraft(trimmed);
     setIsSearchFlushed(true);
     replaceListContextUrl({
-      ...parsedContext,
+      ...localContext,
       keyword: trimmed.length > 0 ? trimmed : undefined,
     });
   };
@@ -374,7 +384,7 @@ export const CommunityPageClient = () => {
 
           <CommunityPostList
             posts={posts}
-            listContext={listContext}
+            listContext={listContextValue}
             variant={activeTab === 'furniture' ? 'furniture-grid' : 'list'}
             showSkeleton={showListSkeleton}
             isError={isError}

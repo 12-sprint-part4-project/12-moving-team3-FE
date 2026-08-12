@@ -21,17 +21,11 @@ export type ApiRegion = RegionChipValue;
  * (정렬 방향은 모두 내림차순 고정)
  */
 export type MoverSortField =
-  | 'reviewCount'
-  | 'averageRating'
-  | 'career'
-  | 'confirmedCount';
+  'reviewCount' | 'averageRating' | 'career' | 'confirmedCount';
 
 /** UI 정렬 값 → API sort */
 export type MoversSortValue =
-  | 'reviewCountDesc'
-  | 'ratingDesc'
-  | 'careerDesc'
-  | 'confirmedCountDesc';
+  'reviewCountDesc' | 'ratingDesc' | 'careerDesc' | 'confirmedCountDesc';
 
 /** GET /api/movers 쿼리 파라미터 */
 export interface MoversListParams {
@@ -196,7 +190,7 @@ export const SERVICE_FILTER_OPTIONS: { label: string; value: string }[] = [
 ];
 
 /**
- * FE 정렬 ↔ BE 쿼리
+ * FE 정렬 ↔ BE 쿼리 (FE의 이름을 BE이름으로 매핑해줌)
  * - reviewCountDesc    → sort=reviewCount
  * - ratingDesc         → sort=averageRating
  * - careerDesc         → sort=career
