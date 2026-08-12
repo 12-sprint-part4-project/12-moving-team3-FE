@@ -1,11 +1,18 @@
+import {
+  API_BASE_URL,
+  apiClient,
+  createApiTimeoutSignal,
+  throwApiError,
+} from '@/lib/apiClient';
+import { authFetch } from '@/lib/authFetch';
 import { refreshAccessToken } from '@/lib/authRefresh';
-import { apiClient } from '@/lib/apiClient';
 import type {
   KakaoLoginRequest,
   KakaoLoginResponse,
   LoginRequest,
   LoginResponse,
   LogoutResponse,
+  MeResponse,
   RefreshResponse,
   SignupRequest,
   SignupResponse,
@@ -56,4 +63,18 @@ export const logout = (): Promise<LogoutResponse> => {
   return apiClient<LogoutResponse>('/api/auth/logout', {
     method: 'POST',
   });
+};
+
+/** GET /api/auth/me — Access Token으로 현재 유저 조회 */
+export const getMe = async (): Promise<MeResponse> => {
+  const response = await authFetch(`${API_BASE_URL}/api/auth/me`, {
+    method: 'GET',
+    signal: createApiTimeoutSignal(),
+  });
+
+  if (!response.ok) {
+    return throwApiError(response);
+  }
+
+  return (await response.json()) as MeResponse;
 };
