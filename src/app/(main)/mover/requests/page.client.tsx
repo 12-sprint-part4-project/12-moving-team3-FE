@@ -38,6 +38,7 @@ import {
   isDefaultRequestsListUrlState,
   type RequestsListUrlState,
 } from './_lib/requestsListSearchParams';
+import { useFocusRequestInList } from './_lib/useFocusRequestInList';
 import { useRequestsListUrlState } from './_lib/useRequestsListUrlState';
 
 /** 데스크톱 필터 변경 API 조회 디바운스 지연(ms) */
@@ -46,6 +47,8 @@ const FILTER_DEBOUNCE_MS = 200;
 export interface MoverRequestsPageClientProps {
   /** 서버 page searchParams에서 파싱한 초기 URL 상태 */
   initialUrlState: RequestsListUrlState;
+  /** 알림 딥링크 `?focus=` — 해당 요청 카드까지 로드·스크롤 */
+  focusRequestId?: number | null;
 }
 
 const listItemVariants = {
@@ -62,6 +65,7 @@ const listItemVariants = {
 /** 받은 요청 페이지 클라이언트 — 검색·정렬·필터·목록 조회 */
 const MoverRequestsPageClient = ({
   initialUrlState,
+  focusRequestId = null,
 }: MoverRequestsPageClientProps) => {
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
@@ -193,6 +197,20 @@ const MoverRequestsPageClient = ({
     }
     void fetchNextPage();
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // 알림 `?focus=` — 대상 카드가 보일 때까지 페이지 로드 후 스크롤
+  useFocusRequestInList({
+    focusRequestId,
+    requests,
+    isPending,
+    isFetchingNextPage,
+    hasNextPage: Boolean(hasNextPage),
+    fetchNextPage,
+    listFilters: {
+      ...listFilters,
+      keyword: queryKeyword,
+    },
+  });
 
   /** 필터 버튼 활성 여부 판별 */
   const isFilterActive =
@@ -414,6 +432,7 @@ const MoverRequestsPageClient = ({
                             handleExitComplete(request.id);
                           }
                         }}
+                        data-request-id={request.id}
                         className="overflow-hidden"
                       >
                         <ReceivedRequestCard
@@ -431,6 +450,7 @@ const MoverRequestsPageClient = ({
                     <motion.li
                       key={request.id}
                       layout={false}
+                      data-request-id={request.id}
                       className="overflow-hidden"
                     >
                       <ReceivedRequestCard
@@ -438,7 +458,7 @@ const MoverRequestsPageClient = ({
                         onSendQuote={handleOpenSendQuoteModal}
                         onReject={handleOpenRejectModal}
                         onChatClick={handleChatClick}
-                        isChatPending={isChatPending}
+                        isChatPending={pendingChatRequestId === request.id}
                       />
                     </motion.li>
                   ))

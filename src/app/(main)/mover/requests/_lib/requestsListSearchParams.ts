@@ -187,3 +187,20 @@ export const buildRequestsListHref = (state: RequestsListUrlState): string => {
   const qs = buildRequestsListSearchParams(state).toString();
   return qs ? `/mover/requests?${qs}` : '/mover/requests';
 };
+
+/** 알림 딥링크 `?focus=` → 양수 견적 요청 id (서버·클라이언트 공용) */
+export const parseFocusRequestId = (
+  value: string | string[] | undefined
+): number | null => {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (!raw) {
+    return null;
+  }
+
+  const parsed = Number(raw);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    return null;
+  }
+
+  return parsed;
+};
