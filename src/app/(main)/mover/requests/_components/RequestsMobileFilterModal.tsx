@@ -59,6 +59,7 @@ export const RequestsMobileFilterModal = ({
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const titleId = useId();
+  const tabsId = useId();
   const [activeTab, setActiveTab] =
     useState<RequestsMobileFilterTab>('moveType');
   const [tabDirection, setTabDirection] = useState(1);
@@ -134,18 +135,28 @@ export const RequestsMobileFilterModal = ({
     });
   };
 
+  const getTabId = (tab: RequestsMobileFilterTab) =>
+    `${tabsId}-tab-${tab}`;
+  const getPanelId = (tab: RequestsMobileFilterTab) =>
+    `${tabsId}-panel-${tab}`;
+
   const renderTabButton = (tab: RequestsMobileFilterTab, label: string) => {
     const active = activeTab === tab;
+    const tabId = getTabId(tab);
+    const panelId = getPanelId(tab);
 
     return (
       <button
         type="button"
         onClick={() => handleTabChange(tab)}
+        id={tabId}
+        role="tab"
         className={cn(
           'relative cursor-pointer pb-1 text-2lg-semibold transition-colors',
           active ? 'text-black-400' : 'text-gray-300'
         )}
-        aria-pressed={active}
+        aria-selected={active}
+        aria-controls={panelId}
       >
         {label}
         {active ? (
@@ -179,7 +190,11 @@ export const RequestsMobileFilterModal = ({
         {/* 탭 헤더 렌더 */}
         <ModalHeader
           title={
-            <span className="flex items-center gap-6">
+            <span
+              role="tablist"
+              className="flex items-center gap-6"
+              aria-label="필터 탭"
+            >
               {renderTabButton('moveType', '이사 유형')}
               {renderTabButton('scope', '필터')}
             </span>
@@ -200,6 +215,9 @@ export const RequestsMobileFilterModal = ({
               exit="exit"
               transition={motionTransition}
               className="flex w-full flex-col gap-2"
+              role="tabpanel"
+              id={getPanelId('moveType')}
+              aria-labelledby={getTabId('moveType')}
             >
               <motion.div {...(shouldReduceMotion ? {} : tapScale)}>
                 <FilterCheckBox
@@ -244,6 +262,9 @@ export const RequestsMobileFilterModal = ({
               exit="exit"
               transition={motionTransition}
               className="flex w-full flex-col gap-2"
+              role="tabpanel"
+              id={getPanelId('scope')}
+              aria-labelledby={getTabId('scope')}
             >
               <motion.div {...(shouldReduceMotion ? {} : tapScale)}>
                 <FilterCheckBox

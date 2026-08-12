@@ -127,7 +127,6 @@ export const RequestsListToolbar = ({
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={motionTransition}
                 className="ml-1 inline-flex items-center"
-                aria-live="polite"
                 role="status"
               >
                 <span

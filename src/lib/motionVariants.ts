@@ -1,4 +1,4 @@
-import type { Transition, Variants } from 'framer-motion';
+import type { HTMLMotionProps, Transition, Variants } from 'framer-motion';
 
 /** prefers-reduced-motion 대응 transition */
 export const getMotionTransition = (
@@ -92,12 +92,12 @@ export const floatY = {
       ease: 'easeInOut' as const,
     },
   },
-};
+} satisfies HTMLMotionProps<'div'>;
 
 export const tapScale = {
   whileTap: { scale: 0.97 },
-};
+} satisfies HTMLMotionProps<'div'>;
 
 export const cardHover = {
   whileHover: { y: -2, transition: { duration: 0.15 } },
-};
+} satisfies HTMLMotionProps<'div'>;

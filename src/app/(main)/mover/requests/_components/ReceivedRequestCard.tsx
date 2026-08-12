@@ -195,7 +195,7 @@ export const ReceivedRequestCard = ({
                 transition={
                   shouldReduceMotion
                     ? undefined
-                    : { duration: 2, repeat: Infinity, ease: 'easeInOut' }
+                    : { duration: 2, repeat: 3, ease: 'easeInOut' }
                 }
               >
                 <MoveTypeChip type="designated" size="sm" />

@@ -97,15 +97,24 @@ export const Modal = ({
   );
   const panelRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const previousOverflowRef = useRef<string | undefined>(undefined);
+
+  const unlockBodyScroll = () => {
+    if (previousOverflowRef.current === undefined) return;
+    document.body.style.overflow = previousOverflowRef.current;
+    previousOverflowRef.current = undefined;
+  };
 
   useEffect(() => {
     if (!isClient || !isOpen) return;
-    const previousOverflow = document.body.style.overflow;
+    previousOverflowRef.current = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
   }, [isClient, isOpen]);
+
+  // 컴포넌트가 언마운트되는 경우에도 스크롤 락을 반드시 해제한다.
+  useEffect(() => {
+    return () => unlockBodyScroll();
+  }, []);
 
   useEffect(() => {
     if (!isClient || !isOpen) return;
@@ -173,7 +182,7 @@ export const Modal = ({
   const motionTransition = getMotionTransition(shouldReduceMotion);
 
   return createPortal(
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={() => (!isOpen ? unlockBodyScroll() : undefined)}>
       {isOpen ? (
         <motion.div
           key="modal-dimmer"
