@@ -5,8 +5,8 @@ import { moverQueryKeys } from '@/hooks/useMoversList';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 
-export interface UseReviewMutationOptions<TVariables> {
-  mutationFn: (variables: TVariables) => Promise<unknown>;
+export interface UseReviewMutationOptions<TVariables, TResult> {
+  mutationFn: (variables: TVariables) => Promise<TResult>;
   successMessage: string;
   errorFallbackMessage: string;
 }
@@ -15,11 +15,11 @@ export interface UseReviewMutationOptions<TVariables> {
  * 리뷰 create/delete 공통 mutation.
  * 성공 토스트 + 리뷰·기사 목록/상세 invalidate + 에러 토스트 + 연타 가드.
  */
-export const useReviewMutation = <TVariables>({
+export const useReviewMutation = <TVariables, TResult = boolean>({
   mutationFn,
   successMessage,
   errorFallbackMessage,
-}: UseReviewMutationOptions<TVariables>) => {
+}: UseReviewMutationOptions<TVariables, TResult>) => {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
 
@@ -40,12 +40,13 @@ export const useReviewMutation = <TVariables>({
     },
   });
 
-  const submit = async (variables: TVariables): Promise<boolean> => {
+  const submit = async (
+    variables: TVariables
+  ): Promise<TResult | false> => {
     if (mutation.isPending) {
       return false;
     }
-    await mutation.mutateAsync(variables);
-    return true;
+    return mutation.mutateAsync(variables);
   };
 
   return {

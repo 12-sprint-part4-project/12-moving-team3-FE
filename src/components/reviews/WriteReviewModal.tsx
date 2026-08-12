@@ -2,26 +2,18 @@
 
 import { useId, useState } from 'react';
 
-import { ReviewMoverSummaryCard } from '@/components/reviews/ReviewMoverSummaryCard';
-import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
-import { TextArea } from '@/components/ui/Input/TextArea';
+import {
+  isReviewFormValid,
+  ReviewFormFields,
+} from '@/components/reviews/ReviewFormFields';
 import { ModalCtaButton } from '@/components/ui/Modal/ModalCtaButton';
 import { ModalHeader } from '@/components/ui/Modal/ModalHeader';
 import {
   MODAL_PANEL_BOTTOM_SHEET_CLASS,
   MODAL_PANEL_CLASS,
-  MOVE_TYPE_CHIP_RESPONSIVE_CLASS,
 } from '@/components/ui/Modal/modalPanel';
-import { StarRating } from '@/components/ui/StarRating/StarRating';
 import { cn } from '@/lib/utils';
-import {
-  API_MOVE_TYPE_TO_UI,
-  type ApiMoveType,
-} from '@/types/estimateRequest';
-import {
-  MAX_REVIEW_CONTENT_LENGTH,
-  MIN_REVIEW_CONTENT_LENGTH,
-} from '@/types/review';
+import type { ApiMoveType } from '@/types/estimateRequest';
 
 export interface WriteReviewModalProps {
   onClose: () => void;
@@ -65,14 +57,8 @@ export const WriteReviewModal = ({
   const [rating, setRating] = useState(0);
   const [content, setContent] = useState('');
 
-  const trimmedLength = content.trim().length;
   const isSubmittable =
-    !isSubmitting &&
-    rating > 0 &&
-    trimmedLength >= MIN_REVIEW_CONTENT_LENGTH &&
-    trimmedLength <= MAX_REVIEW_CONTENT_LENGTH;
-
-  const moveTypeUi = moveType ? API_MOVE_TYPE_TO_UI[moveType] : null;
+    !isSubmitting && isReviewFormValid({ rating, content });
 
   const handleSubmit = () => {
     if (!isSubmittable) return;
@@ -92,60 +78,18 @@ export const WriteReviewModal = ({
     >
       <ModalHeader title="리뷰 쓰기" onClose={onClose} titleId={titleId} />
 
-      <div className="flex w-full flex-col gap-5 sm:gap-8">
-        <div className="flex flex-col gap-3.5 sm:gap-6">
-          <div className="flex items-center gap-2 sm:gap-3">
-            {moveTypeUi ? (
-              <MoveTypeChip
-                type={moveTypeUi}
-                size="sm"
-                className={MOVE_TYPE_CHIP_RESPONSIVE_CLASS}
-              />
-            ) : null}
-            {isDesignated && (
-              <MoveTypeChip
-                type="designated"
-                size="sm"
-                className={MOVE_TYPE_CHIP_RESPONSIVE_CLASS}
-              />
-            )}
-          </div>
-
-          {/* 기사님 요약 카드 */}
-          <ReviewMoverSummaryCard
-            moverName={moverName}
-            moveDate={moveDate}
-            quotePrice={quotePrice}
-            avatarSrc={avatarSrc}
-          />
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <p className="text-lg-semibold text-black-300 sm:text-xl-semibold">
-            평점을 선택해 주세요
-          </p>
-          <StarRating value={rating} onChange={setRating} />
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <p className="text-lg-semibold text-black-300 sm:text-xl-semibold">
-            상세 후기를 작성해 주세요
-          </p>
-          {/* size=sm 기준 마크업 + sm:에서 타이포만 md 스펙으로 올린다 (이중 TextArea 방지) */}
-          <TextArea
-            size="sm"
-            rows={4}
-            value={content}
-            maxLength={MAX_REVIEW_CONTENT_LENGTH}
-            onChange={(event) =>
-              setContent(event.target.value.slice(0, MAX_REVIEW_CONTENT_LENGTH))
-            }
-            placeholder="10자 이상 600자 이하로 작성해주세요"
-            className="[&>div]:w-full [&>div>textarea]:sm:text-xl-regular"
-            aria-label="상세 후기"
-          />
-        </div>
-      </div>
+      <ReviewFormFields
+        moveType={moveType}
+        isDesignated={isDesignated}
+        moverName={moverName}
+        moveDate={moveDate}
+        quotePrice={quotePrice}
+        avatarSrc={avatarSrc}
+        rating={rating}
+        onRatingChange={setRating}
+        content={content}
+        onContentChange={setContent}
+      />
 
       <ModalCtaButton disabled={!isSubmittable} onClick={handleSubmit}>
         리뷰 등록
