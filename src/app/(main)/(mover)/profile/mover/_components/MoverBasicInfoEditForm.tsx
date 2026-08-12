@@ -8,6 +8,7 @@ import { Button } from '@/components/Button/Button';
 import { TextFieldOutlined } from '@/components/ui/Input';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
+import { AUTH_QUERY_KEYS } from '@/hooks/useAuthMe';
 import {
   moverProfileQueryKeys,
   useMoverProfile,
@@ -51,7 +52,7 @@ const MoverBasicInfoEditFields = ({
 }: MoverBasicInfoEditFieldsProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user, setSession } = useAuth();
+  const { user } = useAuth();
   const { showToast } = useToast();
   const nameInputId = useId();
   const emailInputId = useId();
@@ -119,23 +120,12 @@ const MoverBasicInfoEditFields = ({
     setIsSubmitting(true);
 
     try {
-      const response = await updateMoverBasicInfo(body);
+      await updateMoverBasicInfo(body);
 
       await queryClient.invalidateQueries({
         queryKey: moverProfileQueryKeys.all,
       });
-
-      const session = getAuthSession();
-      if (session) {
-        setSession({
-          ...session,
-          user: {
-            ...session.user,
-            phoneNumber:
-              response.data.phoneNumber ?? session.user.phoneNumber,
-          },
-        });
-      }
+      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me() });
 
       showToast({ content: '기본정보가 수정되었습니다.' });
     } catch (error) {

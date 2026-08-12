@@ -22,7 +22,7 @@ import {
   type RegionChipValue,
   type ServiceChipValue,
 } from '@/constants/commonOptions';
-import { useAuth } from '@/hooks/useAuth';
+import { AUTH_QUERY_KEYS } from '@/hooks/useAuthMe';
 import {
   moverProfileQueryKeys,
   useMoverProfile,
@@ -82,7 +82,6 @@ const MoverProfileEditFields = ({
 }: MoverProfileEditFieldsProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { setSession } = useAuth();
   const { showToast } = useToast();
   const imageInputId = useId();
   const nicknameInputId = useId();
@@ -248,7 +247,7 @@ const MoverProfileEditFields = ({
         s3Key = null;
       }
 
-      const response = await upsertMoverProfile({
+      await upsertMoverProfile({
         nickname: trimmedNickname,
         career: careerValue,
         shortDescription: trimmedShortIntro,
@@ -261,17 +260,7 @@ const MoverProfileEditFields = ({
       await queryClient.invalidateQueries({
         queryKey: moverProfileQueryKeys.all,
       });
-
-      const session = getAuthSession();
-      if (session) {
-        setSession({
-          ...session,
-          user: {
-            ...session.user,
-            nickname: response.data.nickname,
-          },
-        });
-      }
+      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me() });
 
       showToast({ content: '프로필이 수정되었습니다.' });
     } catch (error) {

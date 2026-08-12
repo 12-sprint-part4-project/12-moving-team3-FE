@@ -127,7 +127,6 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
 
       setSession({
         accessToken: response.data.accessToken,
-        user: response.data.user,
       });
       showToast({ content: '로그인되었습니다.' });
       router.replace(

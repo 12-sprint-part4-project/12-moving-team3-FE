@@ -72,4 +72,11 @@ export interface KakaoLoginResponse {
   };
 }
 
+/** GET /api/auth/me 응답 */
+export interface MeResponse {
+  data: {
+    user: AuthUser;
+  };
+}
+
 export type { ApiErrorBody } from '@/types/api';
