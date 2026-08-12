@@ -14,9 +14,13 @@ export const COMMUNITY_DESKTOP_X = 'xl:px-16 min-[90rem]:px-[16.25rem]';
 /** Sidebar(328) ↔ list gap 117px — Figma x=260+328=588, list x=705 */
 export const COMMUNITY_DESKTOP_MAIN_GAP = 'xl:gap-[7.3125rem]';
 
-/** 가구나눔 사진첩 그리드 — Mobile 2열 / Tablet·Desktop 3열 */
+/**
+ * 가구나눔 사진첩 그리드.
+ * Mobile: 2열 고정(유동) / Tablet+: 185px 고정폭 auto-fill
+ * → 브라우저 너비가 바뀌어도 카드 크기는 항상 185px, 공간이 부족하면 열 수만 줄어듦.
+ */
 export const COMMUNITY_FURNITURE_GRID_CLASS =
-  'mx-auto grid w-full grid-cols-2 gap-3 min-[46.5rem]:grid-cols-3 min-[46.5rem]:gap-4 xl:gap-5';
+  'mx-auto grid w-full grid-cols-2 gap-3 min-[46.5rem]:grid-cols-[repeat(auto-fill,_185px)] min-[46.5rem]:gap-4 xl:grid-cols-[repeat(auto-fill,_220px)] xl:gap-5';
 
 /** 상세 본문 최대 너비 900px — Figma 15167:41690 */
 export const COMMUNITY_DETAIL_MAX_W = 'mx-auto w-full max-w-[56.25rem]';
