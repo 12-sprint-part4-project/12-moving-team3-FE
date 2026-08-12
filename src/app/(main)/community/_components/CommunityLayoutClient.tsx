@@ -1,7 +1,7 @@
 'use client';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 
 import type { CommunityTabId } from '@/constants/communityOptions';
 import {
@@ -13,6 +13,7 @@ import {
 import { useIsScrolled } from '@/hooks/useIsScrolled';
 import {
   buildCommunityListHref,
+  DEFAULT_POST_LIST_CONTEXT,
   parsePostListContextFromSearchParams,
 } from '@/lib/communityListContext';
 
@@ -55,19 +56,41 @@ export const CommunityLayoutClient = ({
 }: CommunityLayoutClientProps) => {
   const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [activeTabOverride, setActiveTabOverrideState] =
     useState<TabOverrideState | null>(null);
 
-  const listContext = useMemo(
-    () => parsePostListContextFromSearchParams(searchParams),
-    [searchParams]
+  // useSearchParams 미사용 — window.location.search에서 직접 읽어 Suspense 불필요
+  const [localTab, setLocalTab] = useState<CommunityTabId>(
+    DEFAULT_POST_LIST_CONTEXT.tab
   );
+
+  // 페인트 전 탭 동기화 — 깜빡임 방지
+  useLayoutEffect(() => {
+    setLocalTab(
+      parsePostListContextFromSearchParams(
+        new URLSearchParams(window.location.search)
+      ).tab
+    );
+  }, []);
+
+  // 브라우저 back/forward 시 탭 동기화
+  useEffect(() => {
+    const handlePopState = () => {
+      setLocalTab(
+        parsePostListContextFromSearchParams(
+          new URLSearchParams(window.location.search)
+        ).tab
+      );
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const activeTab =
     activeTabOverride?.pathname === pathname
       ? activeTabOverride.tab
-      : listContext.tab;
+      : localTab;
 
   const setActiveTabOverride = useCallback(
     (tab: CommunityTabId | null) => {
@@ -80,7 +103,12 @@ export const CommunityLayoutClient = ({
 
   const handleTabChange = useCallback(
     (tabId: CommunityTabId) => {
-      const href = buildCommunityListHref({ ...listContext, tab: tabId });
+      setLocalTab(tabId);
+
+      const currentContext = parsePostListContextFromSearchParams(
+        new URLSearchParams(window.location.search)
+      );
+      const href = buildCommunityListHref({ ...currentContext, tab: tabId });
 
       if (pathname === '/community') {
         router.replace(href, { scroll: false });
@@ -89,7 +117,7 @@ export const CommunityLayoutClient = ({
 
       router.push(href);
     },
-    [listContext, pathname, router]
+    [pathname, router]
   );
 
   const tabBarContextValue = useMemo(
