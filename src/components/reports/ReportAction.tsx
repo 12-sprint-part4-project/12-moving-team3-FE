@@ -14,19 +14,28 @@ import { useToast } from '@/hooks/useToast';
 import { cn } from '@/lib/utils';
 import type { ReportCategory, ReportTarget } from '@/types/report';
 
-export interface ReportActionProps {
+interface ReportActionBaseProps {
   target: ReportTarget;
   targetId: string;
   buttonVariant?: ReportButtonVariant;
   className?: string;
-  /**
-   * 제공하면 controlled 모드로 동작한다 — 트리거 버튼을 렌더하지 않고
-   * 모달 open/close를 외부에서 제어한다.
-   * (드롭다운 안에서 사용 시 부모 조건부 렌더와 충돌을 피하기 위해 사용)
-   */
-  controlledOpen?: boolean;
-  onControlledClose?: () => void;
 }
+
+interface UncontrolledReportActionProps extends ReportActionBaseProps {
+  controlledOpen?: never;
+  onControlledClose?: never;
+}
+
+/**
+ * controlled 모드 — 트리거 버튼을 렌더하지 않고 모달 open/close를 외부에서 제어한다.
+ * (드롭다운 안에서 사용 시 부모 조건부 렌더와 충돌을 피하기 위해 사용)
+ */
+interface ControlledReportActionProps extends ReportActionBaseProps {
+  controlledOpen: boolean;
+  onControlledClose: () => void;
+}
+
+export type ReportActionProps = UncontrolledReportActionProps | ControlledReportActionProps;
 
 /**
  * 신고 트리거 + 사유 모달 + API 연동 컨테이너.
