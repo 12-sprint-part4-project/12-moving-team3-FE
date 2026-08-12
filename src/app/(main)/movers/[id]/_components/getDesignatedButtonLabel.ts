@@ -4,8 +4,13 @@ export const getDesignatedButtonLabel = (
   hasReceivedQuoteFromMover: boolean,
   isDesignatedPending: boolean,
   isDesignatedStatusLoading = false,
-  isQuoteStatusError = false
+  isQuoteStatusError = false,
+  isDesignatedRequestFailed = false
 ): string => {
+  if (isDesignatedRequestFailed) {
+    return '지정 견적 요청 불가';
+  }
+
   if (isAlreadyDesignated) {
     return '지정 견적 요청 완료';
   }
