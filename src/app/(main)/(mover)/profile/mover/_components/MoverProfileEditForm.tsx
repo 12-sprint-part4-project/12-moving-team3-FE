@@ -22,6 +22,7 @@ import {
   type RegionChipValue,
   type ServiceChipValue,
 } from '@/constants/commonOptions';
+import { authQueryKeys } from '@/hooks/useAuthMe';
 import {
   moverProfileQueryKeys,
   useMoverProfile,
@@ -231,6 +232,7 @@ const MoverProfileEditFields = ({
       await queryClient.invalidateQueries({
         queryKey: moverProfileQueryKeys.all,
       });
+      await queryClient.invalidateQueries({ queryKey: authQueryKeys.me() });
 
       showToast({ content: '프로필이 수정되었습니다.' });
       router.back();

@@ -23,6 +23,7 @@ import {
   type ServiceChipValue,
 } from '@/constants/commonOptions';
 import { useAuth } from '@/hooks/useAuth';
+import { authQueryKeys } from '@/hooks/useAuthMe';
 import { moverProfileQueryKeys } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
@@ -266,6 +267,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
       await queryClient.invalidateQueries({
         queryKey: moverProfileQueryKeys.all,
       });
+      await queryClient.invalidateQueries({ queryKey: authQueryKeys.me() });
 
       showToast({ content: '프로필 등록이 완료되었습니다.' });
       router.replace('/mover/requests');

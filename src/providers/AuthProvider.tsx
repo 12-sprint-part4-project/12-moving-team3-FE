@@ -6,10 +6,15 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
+import { authQueryKeys, useAuthMe } from '@/hooks/useAuthMe';
+import { ApiError } from '@/lib/apiClient';
 import {
   clearAuthSession,
+  getAuthSessionSnapshot,
   setAuthSession,
+  subscribeAuthSession,
   type AuthSession,
 } from '@/lib/authSession';
 import type { AuthUser } from '@/types/auth';
@@ -27,34 +32,69 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-const subscribeIsReady = () => () => {};
-const getIsReadySnapshot = () => true;
-const getIsReadyServerSnapshot = () => false;
+const subscribeIsClient = () => () => {};
+const getIsClientSnapshot = () => true;
+const getIsClientServerSnapshot = () => false;
+
+const getSessionServerSnapshot = (): AuthSession | null => null;
 
 const clearLegacyAuthUiCookie = (): void => {
   document.cookie = 'auth_ui=; path=/; Max-Age=0; SameSite=Lax';
 };
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const isReady = useSyncExternalStore(
-    subscribeIsReady,
-    getIsReadySnapshot,
-    getIsReadyServerSnapshot
+  const queryClient = useQueryClient();
+
+  const isClient = useSyncExternalStore(
+    subscribeIsClient,
+    getIsClientSnapshot,
+    getIsClientServerSnapshot
   );
 
-  // 3단계: authSession은 토큰만 저장. user는 4단계 me 조회로 채운다.
-  const user = null;
+  const session = useSyncExternalStore(
+    subscribeAuthSession,
+    getAuthSessionSnapshot,
+    getSessionServerSnapshot
+  );
+
+  const hasToken = Boolean(session?.accessToken);
+  const meQuery = useAuthMe(isClient && hasToken);
 
   useEffect(() => {
     clearLegacyAuthUiCookie();
   }, []);
 
-  const setSession = (session: AuthSession) => {
-    setAuthSession(session);
+  useEffect(() => {
+    if (!hasToken || !meQuery.isError) {
+      return;
+    }
+
+    const error = meQuery.error;
+    const isUnauthorized =
+      error instanceof ApiError &&
+      (error.status === 401 || error.status === 403);
+
+    if (!isUnauthorized) {
+      return;
+    }
+
+    clearAuthSession();
+    queryClient.removeQueries({ queryKey: authQueryKeys.me() });
+  }, [hasToken, meQuery.isError, meQuery.error, queryClient]);
+
+  const isReady =
+    isClient && (!hasToken || meQuery.isSuccess || meQuery.isError);
+
+  const user: AuthUser | null = hasToken ? (meQuery.data ?? null) : null;
+
+  const setSession = (nextSession: AuthSession) => {
+    setAuthSession(nextSession);
+    void queryClient.invalidateQueries({ queryKey: authQueryKeys.me() });
   };
 
   const clearSession = () => {
     clearAuthSession();
+    queryClient.removeQueries({ queryKey: authQueryKeys.me() });
   };
 
   return (
