@@ -255,3 +255,22 @@ body {
 @utility chat-room-content {
   @apply mx-auto flex w-full max-w-chat flex-col overflow-hidden;
 }
+
+/** 이미지 드래그 방지 */
+img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/**
+ * Tiptap(ProseMirror) 에디터 헤딩 크기.
+ * [&_h1] Tailwind arbitrary variant보다 우선 적용된다.
+ * 본문(text-md-medium / text-lg-regular)보다 항상 크게 유지한다.
+ */
+.ProseMirror h1 {
+  @apply text-2xl-bold;
+}
+
+.ProseMirror h2 {
+  @apply text-xl-bold;
+}

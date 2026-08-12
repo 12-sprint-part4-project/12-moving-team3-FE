@@ -3,8 +3,11 @@
 import { useEffect, useRef, useState } from 'react';
 
 import MoreVerticalIcon from '@/assets/icons/more-vertical.svg';
+import ReportIcon from '@/assets/icons/report.svg';
 import { ReportAction } from '@/components/reports';
+import { useAuth } from '@/hooks/useAuth';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
+import { useToast } from '@/hooks/useToast';
 import { cn } from '@/lib/utils';
 
 import {
@@ -14,7 +17,7 @@ import {
 } from './communityDetailStyles';
 
 const MENU_ITEM_CLASS =
-  'flex w-full cursor-pointer px-4 py-3 text-left text-2lg-medium text-black-400';
+  'flex w-full cursor-pointer px-4 py-2 text-left text-md-medium text-black-400 min-[46.5rem]:py-3 min-[46.5rem]:text-lg-medium xl:text-2lg-medium';
 
 interface CommunityCommentMoreMenuProps {
   isOwn: boolean;
@@ -30,7 +33,10 @@ export const CommunityCommentMoreMenu = ({
   onDelete,
   className,
 }: CommunityCommentMoreMenuProps) => {
+  const { user } = useAuth();
+  const { showToast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -53,6 +59,15 @@ export const CommunityCommentMoreMenu = ({
   const closeAndRun = (action: () => void) => {
     setIsOpen(false);
     action();
+  };
+
+  const handleReportClick = () => {
+    setIsOpen(false);
+    if (!user) {
+      showToast({ content: '로그인이 필요한 기능입니다' });
+      return;
+    }
+    setIsReportOpen(true);
   };
 
   return (
@@ -84,16 +99,27 @@ export const CommunityCommentMoreMenu = ({
               삭제
             </button>
           ) : (
-            <div role="menuitem">
-              <ReportAction
-                target="COMMENT"
-                targetId={String(commentId)}
-                buttonVariant="default"
-                className={MENU_ITEM_CLASS}
-              />
-            </div>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={handleReportClick}
+              className={cn(MENU_ITEM_CLASS, 'inline-flex items-center gap-1 text-gray-400')}
+            >
+              <ReportIcon className="size-4" aria-hidden />
+              신고
+            </button>
           )}
         </div>
+      ) : null}
+
+      {/* controlled 모드: 드롭다운 언마운트와 무관하게 항상 마운트 유지 */}
+      {!isOwn ? (
+        <ReportAction
+          target="COMMENT"
+          targetId={String(commentId)}
+          controlledOpen={isReportOpen}
+          onControlledClose={() => setIsReportOpen(false)}
+        />
       ) : null}
     </div>
   );

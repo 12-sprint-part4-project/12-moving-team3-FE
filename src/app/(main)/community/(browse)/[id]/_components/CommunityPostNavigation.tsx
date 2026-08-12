@@ -37,7 +37,7 @@ const NavItem = ({ direction, neighbor, listContext }: NavItemProps) => {
   return (
     <Link
       href={buildCommunityPostDetailHref(neighbor.id, listContext)}
-      className="flex w-full min-w-0 flex-col items-start text-left transition-opacity hover:opacity-80"
+      className="flex w-full min-w-0 flex-col items-start rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-background-200"
     >
       <span className={NAV_LABEL_CLASS}>{label}</span>
       <span className={NAV_TITLE_CLASS}>{neighbor.title}</span>
@@ -66,7 +66,7 @@ export const CommunityPostNavigation = ({
       <div className={COMMUNITY_DETAIL_DIVIDER} />
       <div
         className={cn(
-          'flex flex-col justify-start gap-5 pt-6',
+          'flex flex-col justify-start gap-1 pt-2 min-[46.5rem]:gap-5 min-[46.5rem]:pt-5',
           'xl:gap-6 xl:pt-7'
         )}
       >
