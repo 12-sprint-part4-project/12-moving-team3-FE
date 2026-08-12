@@ -8,7 +8,7 @@ import { Button } from '@/components/Button/Button';
 import { TextFieldOutlined } from '@/components/ui/Input';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
-import { authQueryKeys } from '@/hooks/useAuthMe';
+import { AUTH_QUERY_KEYS } from '@/hooks/useAuthMe';
 import {
   moverProfileQueryKeys,
   useMoverProfile,
@@ -107,7 +107,7 @@ const MoverBasicInfoEditFields = ({
       await queryClient.invalidateQueries({
         queryKey: moverProfileQueryKeys.all,
       });
-      await queryClient.invalidateQueries({ queryKey: authQueryKeys.me() });
+      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me() });
 
       showToast({ content: '기본정보가 수정되었습니다.' });
       router.back();

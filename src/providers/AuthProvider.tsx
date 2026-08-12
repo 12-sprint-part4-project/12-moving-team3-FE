@@ -8,7 +8,7 @@ import {
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { authQueryKeys, useAuthMe } from '@/hooks/useAuthMe';
+import { AUTH_QUERY_KEYS, useAuthMe } from '@/hooks/useAuthMe';
 import { ApiError } from '@/lib/apiClient';
 import {
   clearAuthSession,
@@ -69,11 +69,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (hasToken) {
       return;
     }
-    queryClient.removeQueries({ queryKey: authQueryKeys.me() });
+    queryClient.removeQueries({ queryKey: AUTH_QUERY_KEYS.me() });
   }, [hasToken, queryClient]);
 
   useEffect(() => {
-    if (!hasToken || !meQuery.isError) {
+    if (!hasToken || !meQuery.isError || meQuery.isFetching) {
       return;
     }
 
@@ -87,8 +87,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
 
     clearAuthSession();
-    queryClient.removeQueries({ queryKey: authQueryKeys.me() });
-  }, [hasToken, meQuery.isError, meQuery.error, queryClient]);
+    queryClient.removeQueries({ queryKey: AUTH_QUERY_KEYS.me() });
+  }, [
+    hasToken,
+    meQuery.isError,
+    meQuery.isFetching,
+    meQuery.error,
+    queryClient,
+  ]);
 
   const isReady =
     isClient && (!hasToken || meQuery.isSuccess || meQuery.isError);
@@ -96,13 +102,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const user: AuthUser | null = hasToken ? (meQuery.data ?? null) : null;
 
   const setSession = (nextSession: AuthSession) => {
+    // 이전 me 캐시/요청이 새 세션에 섞이지 않도록 토큰 저장 전에 제거
+    void queryClient.cancelQueries({ queryKey: AUTH_QUERY_KEYS.me() });
+    queryClient.removeQueries({ queryKey: AUTH_QUERY_KEYS.me() });
     setAuthSession(nextSession);
-    void queryClient.invalidateQueries({ queryKey: authQueryKeys.me() });
   };
 
   const clearSession = () => {
     clearAuthSession();
-    queryClient.removeQueries({ queryKey: authQueryKeys.me() });
+    queryClient.removeQueries({ queryKey: AUTH_QUERY_KEYS.me() });
   };
 
   return (

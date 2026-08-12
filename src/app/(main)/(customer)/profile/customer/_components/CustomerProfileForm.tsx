@@ -18,7 +18,7 @@ import {
   SERVICE_CHIP_OPTIONS,
 } from '@/constants/commonOptions';
 import { useAuth } from '@/hooks/useAuth';
-import { authQueryKeys } from '@/hooks/useAuthMe';
+import { AUTH_QUERY_KEYS } from '@/hooks/useAuthMe';
 import { customerProfileQueryKeys } from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
@@ -152,7 +152,7 @@ export const CustomerProfileForm = () => {
       await queryClient.invalidateQueries({
         queryKey: customerProfileQueryKeys.all,
       });
-      await queryClient.invalidateQueries({ queryKey: authQueryKeys.me() });
+      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me() });
 
       showToast({ content: '프로필 등록이 완료되었습니다.' });
       router.replace('/');

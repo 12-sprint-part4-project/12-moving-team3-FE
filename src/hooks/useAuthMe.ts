@@ -5,9 +5,9 @@ import { useQuery } from '@tanstack/react-query';
 import { getMe } from '@/services/authApi';
 import type { AuthUser } from '@/types/auth';
 
-export const authQueryKeys = {
+export const AUTH_QUERY_KEYS = {
   all: ['auth'] as const,
-  me: () => [...authQueryKeys.all, 'me'] as const,
+  me: () => [...AUTH_QUERY_KEYS.all, 'me'] as const,
 };
 
 const normalizeAuthUser = (user: AuthUser): AuthUser => {
@@ -21,7 +21,7 @@ const normalizeAuthUser = (user: AuthUser): AuthUser => {
 /** Access Token이 있을 때 현재 유저(me) 조회 */
 export const useAuthMe = (enabled: boolean) => {
   return useQuery({
-    queryKey: authQueryKeys.me(),
+    queryKey: AUTH_QUERY_KEYS.me(),
     queryFn: async () => {
       const response = await getMe();
       return normalizeAuthUser(response.data.user);
