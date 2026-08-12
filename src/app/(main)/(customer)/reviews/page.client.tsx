@@ -26,8 +26,6 @@ import { useCustomerWritableQuotes } from '@/hooks/useCustomerWritableQuotes';
 import { useDeleteReview } from '@/hooks/useDeleteReview';
 import { useUpdateReview } from '@/hooks/useUpdateReview';
 import { ApiError } from '@/lib/apiClient';
-import { formatReviewMoveDate } from '@/lib/reviewDisplay';
-import { formatQuotePriceLabel } from '@/services/quoteApi';
 import type { CustomerReviewItem, WritableQuoteItem } from '@/types/review';
 
 /** 내 견적 관리와 동일한 본문 컨테이너 — 패널 높이 채움(페이지네이션 mt-auto용) */
@@ -325,16 +323,12 @@ export const ReviewsPageClient = () => {
       {selectedQuote ? (
         <Modal placement="bottom" onClose={handleCloseWriteModal}>
           <WriteReviewModal
+            key={selectedQuote.quoteId}
+            quote={selectedQuote}
             onClose={handleCloseWriteModal}
             onSubmit={(review) => {
               void handleSubmitReview(review);
             }}
-            moveType={selectedQuote.moveType}
-            isDesignated={selectedQuote.isDesignated}
-            moverName={selectedQuote.mover?.name?.trim() || '기사'}
-            moveDate={formatReviewMoveDate(selectedQuote.moveDate)}
-            quotePrice={formatQuotePriceLabel(selectedQuote.price)}
-            avatarSrc={selectedQuote.mover?.profileImageUrl ?? undefined}
             isSubmitting={isSubmitting}
           />
         </Modal>

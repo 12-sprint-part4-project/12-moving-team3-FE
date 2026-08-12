@@ -10,8 +10,6 @@ import {
 import { WritableReviewCard } from '@/components/reviews/WritableReviewCard';
 import { WriteReviewModal } from '@/components/reviews/WriteReviewModal';
 import { Modal } from '@/components/ui/Modal/Modal';
-import { formatReviewMoveDate } from '@/lib/reviewDisplay';
-import { formatQuotePriceLabel } from '@/services/quoteApi';
 import type { WritableQuoteItem } from '@/types/review';
 
 const meta: Meta<typeof WritableReviewCard> = {
@@ -76,14 +74,9 @@ export const ListWithWriteModal: Story = {
         {selected ? (
           <Modal placement="bottom" onClose={() => setSelected(null)}>
             <WriteReviewModal
+              quote={selected}
               onClose={() => setSelected(null)}
               onSubmit={() => setSelected(null)}
-              moveType={selected.moveType}
-              isDesignated={selected.isDesignated}
-              moverName={selected.mover?.name ?? '기사'}
-              moveDate={formatReviewMoveDate(selected.moveDate)}
-              quotePrice={formatQuotePriceLabel(selected.price)}
-              avatarSrc={selected.mover?.profileImageUrl ?? undefined}
             />
           </Modal>
         ) : null}

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
+import { SAMPLE_WRITABLE_QUOTE } from '@/components/reviews/_fixtures/reviewFixtures';
 import { WriteReviewModal } from '@/components/reviews/WriteReviewModal';
 import { Modal } from '@/components/ui/Modal/Modal';
 
@@ -17,14 +18,6 @@ const meta: Meta<typeof WriteReviewModal> = {
 export default meta;
 
 type Story = StoryObj<typeof WriteReviewModal>;
-
-const SAMPLE = {
-  moveType: 'SMALL' as const,
-  isDesignated: true,
-  moverName: '김코드',
-  moveDate: '2024. 07. 01',
-  quotePrice: '210,000원',
-};
 
 /** Modal 셸과 조합해 실제 사용 형태를 확인 */
 export const WithModalShell: Story = {
@@ -43,7 +36,7 @@ export const WithModalShell: Story = {
         {isOpen && (
           <Modal placement="bottom" onClose={() => setIsOpen(false)}>
             <WriteReviewModal
-              {...SAMPLE}
+              quote={SAMPLE_WRITABLE_QUOTE}
               onClose={() => setIsOpen(false)}
               onSubmit={() => {
                 setIsOpen(false);
@@ -59,7 +52,7 @@ export const WithModalShell: Story = {
 /** 콘텐츠 패널만 (셸 없이) */
 export const PanelOnly: Story = {
   args: {
-    ...SAMPLE,
+    quote: SAMPLE_WRITABLE_QUOTE,
     onClose: () => {},
     onSubmit: () => {},
   },
