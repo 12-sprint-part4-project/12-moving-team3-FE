@@ -1,5 +1,6 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 import { DeleteReviewConfirmModal } from '@/components/reviews/DeleteReviewConfirmModal';
@@ -8,9 +9,8 @@ import { ReviewListSection } from '@/components/reviews/ReviewListSection';
 import { ReviewsEmptyState } from '@/components/reviews/ReviewsEmptyState';
 import { ReviewDetailModal } from '@/components/reviews/ReviewDetailModal';
 import {
-  ReviewsTabs,
+  parseReviewsTabId,
   REVIEWS_PAGE_X_PADDING,
-  type ReviewsPageTab,
 } from '@/components/reviews/ReviewsTabs';
 import { WritableReviewCard } from '@/components/reviews/WritableReviewCard';
 import { WriteReviewModal } from '@/components/reviews/WriteReviewModal';
@@ -33,8 +33,9 @@ const CONTENT_CLASS = `mx-auto flex min-h-0 w-full max-w-[1920px] flex-1 flex-co
 
 /** 이사 리뷰 — 작성 가능 / 내가 작성한 리뷰 + 모달 */
 export const ReviewsPageClient = () => {
+  const searchParams = useSearchParams();
+  const activeTab = parseReviewsTabId(searchParams.get('tab'));
   const { user, isReady } = useAuth();
-  const [activeTab, setActiveTab] = useState<ReviewsPageTab>('writable');
   const [selectedQuote, setSelectedQuote] = useState<WritableQuoteItem | null>(
     null
   );
@@ -192,9 +193,7 @@ export const ReviewsPageClient = () => {
     (written.isEmpty || writtenTotal === 0);
 
   return (
-    <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden">
-      <ReviewsTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
+    <>
       <div className="flex min-h-0 w-full flex-1 flex-col bg-background-200">
         <div
           role="tabpanel"
@@ -319,6 +318,6 @@ export const ReviewsPageClient = () => {
           />
         </Modal>
       ) : null}
-    </div>
+    </>
   );
 };
