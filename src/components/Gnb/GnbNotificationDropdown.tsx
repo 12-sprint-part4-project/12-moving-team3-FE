@@ -1,5 +1,6 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
@@ -15,6 +16,8 @@ export interface GnbNotificationDropdownProps {
   isLoading?: boolean;
   onClose?: () => void;
   onItemClick?: (item: NotificationItem) => void;
+  /** 아이템 hover 시 라우트 prefetch 등 */
+  onItemPointerEnter?: (item: NotificationItem) => void;
   className?: string;
 }
 
@@ -22,6 +25,8 @@ const EMPTY_MESSAGE = '새로운 알림이 없어요';
 const LOADING_MESSAGE = '불러오는 중…';
 /** scrollHeight 비교 오차 허용 (서브픽셀) */
 const SCROLL_BOTTOM_THRESHOLD_PX = 2;
+/** 스크롤 힌트 chevron이 위에서 아래로 한 번 떨어지는 주기(초) */
+const SCROLL_HINT_BOUNCE_DURATION_S = 1.2;
 
 /** GNB 알림 드롭다운 — 헤더·목록·empty/loading */
 export const GnbNotificationDropdown = ({
@@ -29,8 +34,10 @@ export const GnbNotificationDropdown = ({
   isLoading = false,
   onClose,
   onItemClick,
+  onItemPointerEnter,
   className,
 }: GnbNotificationDropdownProps) => {
+  const shouldReduceMotion = useReducedMotion();
   const isEmpty = !isLoading && items.length === 0;
   const listRef = useRef<HTMLDivElement>(null);
   const listContentRef = useRef<HTMLDivElement>(null);
@@ -119,19 +126,38 @@ export const GnbNotificationDropdown = ({
                     key={item.id}
                     item={item}
                     onClick={onItemClick}
+                    onPointerEnter={onItemPointerEnter}
                   />
                 ))
               : null}
           </div>
         </div>
 
-        {/* 아래에 더 있음 — 맨 아래로 스크롤하면 숨김 (장식용) */}
+        {/* 아래에 더 있음 — chevron이 위에서 아래로 떨어지는 힌트 (맨 아래면 숨김) */}
         {canScrollDown ? (
           <div
             aria-hidden
             className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-white via-white/90 to-transparent pt-8 pb-1"
           >
-            <ChevronDownIcon className="size-5 text-gray-300" />
+            <motion.span
+              className="inline-flex"
+              animate={
+                shouldReduceMotion
+                  ? undefined
+                  : { y: [-6, 8], opacity: [0.25, 1, 0.25] }
+              }
+              transition={
+                shouldReduceMotion
+                  ? undefined
+                  : {
+                      duration: SCROLL_HINT_BOUNCE_DURATION_S,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    }
+              }
+            >
+              <ChevronDownIcon className="size-5 text-gray-300" />
+            </motion.span>
           </div>
         ) : null}
       </div>

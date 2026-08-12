@@ -1,5 +1,9 @@
 import MoverRequestsPageClient from './page.client';
-import { parseRequestsListSearchParamsRecord } from './_lib/requestsListSearchParams';
+import {
+  DEFAULT_REQUESTS_LIST_URL_STATE,
+  parseFocusRequestId,
+  parseRequestsListSearchParamsRecord,
+} from './_lib/requestsListSearchParams';
 
 import type { Metadata } from 'next';
 
@@ -13,15 +17,21 @@ export interface MoverRequestsPageProps {
     moveTypes?: string | string[];
     scopes?: string | string[];
     sort?: string | string[];
+    focus?: string | string[];
   }>;
 }
 
 /**
  * 기사님 받은 요청 페이지.
+ * `?focus=` 알림 딥링크 시 필터는 기본값으로 열어 대상 카드가 목록에 나올 수 있게 한다.
  */
 const MoverRequestsPage = async ({ searchParams }: MoverRequestsPageProps) => {
   const params = await searchParams;
-  const initialUrlState = parseRequestsListSearchParamsRecord(params);
+  const focusRequestId = parseFocusRequestId(params.focus);
+  const initialUrlState =
+    focusRequestId != null
+      ? DEFAULT_REQUESTS_LIST_URL_STATE
+      : parseRequestsListSearchParamsRecord(params);
 
   return (
     <div className="flex w-full flex-col overflow-x-hidden bg-white">
@@ -31,7 +41,10 @@ const MoverRequestsPage = async ({ searchParams }: MoverRequestsPageProps) => {
         </h1>
       </div>
 
-      <MoverRequestsPageClient initialUrlState={initialUrlState} />
+      <MoverRequestsPageClient
+        initialUrlState={initialUrlState}
+        focusRequestId={focusRequestId}
+      />
     </div>
   );
 };

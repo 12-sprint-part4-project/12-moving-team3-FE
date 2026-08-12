@@ -1,7 +1,8 @@
 'use client';
 
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import AlarmIcon from '@/assets/icons/alarm.svg';
 
@@ -31,6 +32,9 @@ export interface NotificationGnbButtonProps {
   className?: string;
 }
 
+/** 드롭다운 열림/닫힘 모션 시간(초) */
+const DROPDOWN_MOTION_DURATION_S = 0.18;
+
 /** GNB 알림 벨 + 미읽음 배지 + 드롭다운 (실 API) */
 export const NotificationGnbButton = ({
   role,
@@ -41,6 +45,7 @@ export const NotificationGnbButton = ({
   className,
 }: NotificationGnbButtonProps) => {
   const router = useRouter();
+  const shouldReduceMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
   const [prevCloseSignal, setPrevCloseSignal] = useState(closeSignal);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -48,6 +53,8 @@ export const NotificationGnbButton = ({
   const { items, unreadCount, isLoading } = useNotifications();
   const markAsRead = useMarkNotificationAsRead();
   const iconSizeClass = size === 'lg' ? 'size-9' : 'size-6';
+  // prefers-reduced-motion이면 위치 이동 없이 opacity만
+  const dropdownOffsetY = shouldReduceMotion ? 0 : -12;
 
   useOutsideClick(containerRef, isOpen, setIsOpen);
 
@@ -58,6 +65,20 @@ export const NotificationGnbButton = ({
       setIsOpen(false);
     }
   }
+
+  // 드롭다운이 열리면 이동 가능한 알림 경로를 라우트 셸만 미리 받는다
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    for (const item of items) {
+      const href = getNotificationHref(item, role);
+      if (href) {
+        router.prefetch(href);
+      }
+    }
+  }, [isOpen, items, role, router]);
 
   const handleToggle = () => {
     const next = !isOpen;
@@ -88,6 +109,14 @@ export const NotificationGnbButton = ({
     }
   };
 
+  // hover 시에도 해당 경로만 한 번 더 prefetch (오픈 직후 목록 갱신 대비)
+  const handleItemPointerEnter = (item: NotificationItem) => {
+    const href = getNotificationHref(item, role);
+    if (href) {
+      router.prefetch(href);
+    }
+  };
+
   const ariaLabel =
     unreadCount > 0
       ? `알림, 읽지 않은 알림 ${unreadCount}개`
@@ -105,7 +134,8 @@ export const NotificationGnbButton = ({
         aria-expanded={isOpen}
         onClick={handleToggle}
         className={cn(
-          'relative inline-flex shrink-0 cursor-pointer items-center justify-center text-gray-200',
+          'relative inline-flex shrink-0 cursor-pointer items-center justify-center',
+          unreadCount > 0 ? 'text-yellow-100' : 'text-gray-200',
           iconSizeClass
         )}
       >
@@ -113,23 +143,32 @@ export const NotificationGnbButton = ({
         <ChatUnreadBadge count={unreadCount} variant="icon" />
       </button>
 
-      {isOpen ? (
-        // mobile: viewport 고정(top 48 / right 20). sm+: 벨 아이콘 기준
-        <div
-          className={cn(
-            'z-50',
-            'fixed top-12 right-5',
-            'sm:absolute sm:top-full sm:right-0 sm:mt-2'
-          )}
-        >
-          <GnbNotificationDropdown
-            items={items}
-            isLoading={isLoading}
-            onClose={handleClose}
-            onItemClick={handleItemClick}
-          />
-        </div>
-      ) : null}
+      {/* mobile: viewport 고정(top 48 / right 20). sm+: 벨 아이콘 기준 */}
+      <AnimatePresence>
+        {isOpen ? (
+          <motion.div
+            key="gnb-notification-dropdown"
+            // fadeInDown — reduced motion이면 opacity만 (y=0)
+            initial={{ opacity: 0, y: dropdownOffsetY }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: dropdownOffsetY }}
+            transition={{ duration: DROPDOWN_MOTION_DURATION_S, ease: 'easeOut' }}
+            className={cn(
+              'z-50',
+              'fixed top-12 right-5',
+              'sm:absolute sm:top-full sm:right-0 sm:mt-2'
+            )}
+          >
+            <GnbNotificationDropdown
+              items={items}
+              isLoading={isLoading}
+              onClose={handleClose}
+              onItemClick={handleItemClick}
+              onItemPointerEnter={handleItemPointerEnter}
+            />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 };

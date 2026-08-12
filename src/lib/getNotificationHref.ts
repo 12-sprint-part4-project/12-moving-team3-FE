@@ -54,7 +54,10 @@ export const getNotificationHref = (
   }
 
   if (item.estimateRequestId != null) {
-    return role === 'mover' ? '/mover/requests' : '/quotes';
+    // 기사: 받은 요청 목록 + focus(스크롤 딥링크용). 고객: 견적 목록
+    return role === 'mover'
+      ? `/mover/requests?focus=${item.estimateRequestId}`
+      : '/quotes';
   }
 
   return null;

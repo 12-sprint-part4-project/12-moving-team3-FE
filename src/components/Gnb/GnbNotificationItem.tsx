@@ -6,6 +6,7 @@ import type { NotificationItem } from '@/types/notification';
 export interface GnbNotificationItemProps {
   item: NotificationItem;
   onClick?: (item: NotificationItem) => void;
+  onPointerEnter?: (item: NotificationItem) => void;
   className?: string;
 }
 
@@ -13,6 +14,7 @@ export interface GnbNotificationItemProps {
 export const GnbNotificationItem = ({
   item,
   onClick,
+  onPointerEnter,
   className,
 }: GnbNotificationItemProps) => {
   const relativeTime = formatRelativeTime(item.createdAt);
@@ -23,6 +25,7 @@ export const GnbNotificationItem = ({
     <button
       type="button"
       onClick={() => onClick?.(item)}
+      onPointerEnter={() => onPointerEnter?.(item)}
       className={cn(
         'flex w-full cursor-pointer flex-col items-start gap-0.5 border-b border-line-200 bg-white px-4 py-3 text-left last:border-b-0 md:px-6 md:py-4',
         'hover:bg-background-100 focus-visible:bg-background-100 focus-visible:outline-none',
