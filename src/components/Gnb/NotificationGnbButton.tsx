@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
@@ -45,6 +45,7 @@ export const NotificationGnbButton = ({
   className,
 }: NotificationGnbButtonProps) => {
   const router = useRouter();
+  const shouldReduceMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
   const [prevCloseSignal, setPrevCloseSignal] = useState(closeSignal);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -52,6 +53,8 @@ export const NotificationGnbButton = ({
   const { items, unreadCount, isLoading } = useNotifications();
   const markAsRead = useMarkNotificationAsRead();
   const iconSizeClass = size === 'lg' ? 'size-9' : 'size-6';
+  // prefers-reduced-motion이면 위치 이동 없이 opacity만
+  const dropdownOffsetY = shouldReduceMotion ? 0 : -12;
 
   useOutsideClick(containerRef, isOpen, setIsOpen);
 
@@ -145,10 +148,10 @@ export const NotificationGnbButton = ({
         {isOpen ? (
           <motion.div
             key="gnb-notification-dropdown"
-            // fadeInDown — 위에서 살짝 내려오며 나타남 (scale/origin 없음)
-            initial={{ opacity: 0, y: -12 }}
+            // fadeInDown — reduced motion이면 opacity만 (y=0)
+            initial={{ opacity: 0, y: dropdownOffsetY }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
+            exit={{ opacity: 0, y: dropdownOffsetY }}
             transition={{ duration: DROPDOWN_MOTION_DURATION_S, ease: 'easeOut' }}
             className={cn(
               'z-50',
