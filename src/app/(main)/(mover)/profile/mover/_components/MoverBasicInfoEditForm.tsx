@@ -130,7 +130,6 @@ const MoverBasicInfoEditFields = ({
       }
 
       showToast({ content: '기본정보가 수정되었습니다.' });
-      router.back();
     } catch (error) {
       const message =
         error instanceof ApiError
