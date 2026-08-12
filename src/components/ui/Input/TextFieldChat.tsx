@@ -70,15 +70,15 @@ export const TextFieldChat = ({
       {...rest}
       className={cn(
         // w-fit: flex 부모 stretch에도 말풍선이 콘텐츠 폭만 유지
-        'inline-flex w-fit max-w-full px-5 py-3 drop-shadow-sm md:px-10 md:py-5',
+        'inline-flex w-fit min-w-0 max-w-full px-5 py-3 drop-shadow-sm md:px-10 md:py-5',
         colorStyles[color],
         typographyStyles[color],
         radiusStyles[color],
         className
       )}
     >
-      {/* pre-wrap: 줄바꿈·공백 유지, break-words: 긴 URL 등 오버플로우 방지 */}
-      <p className="break-words whitespace-pre-wrap">
+      {/* pre-wrap: 줄바꿈·공백 유지, wrap-anywhere: 긴 URL 등 오버플로우 방지 */}
+      <p className="min-w-0 wrap-anywhere whitespace-pre-wrap">
         {hasDesktopChildren ? (
           <>
             <span className="md:hidden">{children}</span>

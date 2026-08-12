@@ -22,6 +22,7 @@ export const ChatPreviewDropdown = ({
 }: ChatPreviewDropdownProps) => {
   const { rooms, isPending, isError, isEmpty } = useChatRooms();
   const previewRooms = rooms.slice(0, PREVIEW_LIMIT);
+  const showViewAllLink = rooms.length > PREVIEW_LIMIT;
 
   return (
     <div
@@ -75,15 +76,17 @@ export const ChatPreviewDropdown = ({
           : null}
       </div>
 
-      <div className="flex w-full items-center justify-center border-t border-line-100 py-3">
-        <Link
-          href="/chat"
-          onClick={onClose}
-          className="text-md-medium text-gray-500 hover:text-black-400"
-        >
-          더보기
-        </Link>
-      </div>
+      {showViewAllLink ? (
+        <div className="flex w-full items-center justify-center border-t border-line-100 py-3">
+          <Link
+            href="/chat"
+            onClick={onClose}
+            className="text-md-medium text-gray-500 hover:text-black-400"
+          >
+            전체 보기
+          </Link>
+        </div>
+      ) : null}
     </div>
   );
 };
