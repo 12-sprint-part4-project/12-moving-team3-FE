@@ -5,7 +5,10 @@ import { useEffect, useRef, useState } from 'react';
 
 import { DeleteReviewConfirmModal } from '@/components/reviews/DeleteReviewConfirmModal';
 import { EditReviewModal } from '@/components/reviews/EditReviewModal';
-import { ReviewListSection } from '@/components/reviews/ReviewListSection';
+import {
+  ReviewListSection,
+  type ReviewListStatus,
+} from '@/components/reviews/ReviewListSection';
 import { ReviewsEmptyState } from '@/components/reviews/ReviewsEmptyState';
 import { ReviewDetailModal } from '@/components/reviews/ReviewDetailModal';
 import {
@@ -30,6 +33,23 @@ import type { CustomerReviewItem, WritableQuoteItem } from '@/types/review';
 
 /** 내 견적 관리와 동일한 본문 컨테이너 — 패널 높이 채움(페이지네이션 mt-auto용) */
 const CONTENT_CLASS = `mx-auto flex min-h-0 w-full max-w-[1920px] flex-1 flex-col py-6 md:py-8 lg:py-10 ${REVIEWS_PAGE_X_PADDING}`;
+
+const toListErrorMessage = (error: unknown, fallback: string) =>
+  error instanceof ApiError
+    ? error.message
+    : error instanceof Error
+      ? error.message
+      : fallback;
+
+const isReviewListEmpty = (list: {
+  isPending: boolean;
+  isError: boolean;
+  isEmpty: boolean;
+  pagination?: { totalCount: number } | null;
+}) =>
+  !list.isPending &&
+  !list.isError &&
+  (list.isEmpty || (list.pagination?.totalCount ?? 0) === 0);
 
 /** 이사 리뷰 — 작성 가능 / 내가 작성한 리뷰 + 모달 */
 export const ReviewsPageClient = () => {
@@ -213,16 +233,6 @@ export const ReviewsPageClient = () => {
     }
   };
 
-  const writableErrorMessage =
-    writable.error instanceof ApiError
-      ? writable.error.message
-      : (writable.error?.message ?? '작성 가능한 리뷰를 불러오지 못했습니다.');
-
-  const writtenErrorMessage =
-    written.error instanceof ApiError
-      ? written.error.message
-      : (written.error?.message ?? '작성한 리뷰를 불러오지 못했습니다.');
-
   if (!isReady || !user) {
     return (
       <div className="flex min-h-0 w-full flex-1 items-center justify-center bg-background-200">
@@ -231,17 +241,35 @@ export const ReviewsPageClient = () => {
     );
   }
 
-  const writableTotal = writable.pagination?.totalCount ?? 0;
-  const showWritableEmpty =
-    !writable.isPending &&
-    !writable.isError &&
-    (writable.isEmpty || writableTotal === 0);
+  const writableStatus: ReviewListStatus = {
+    isPending: writable.isPending,
+    isError: writable.isError,
+    showEmpty: isReviewListEmpty(writable),
+    pendingMessage: '작성 가능한 리뷰를 불러오는 중...',
+    errorMessage: toListErrorMessage(
+      writable.error,
+      '작성 가능한 리뷰를 불러오지 못했습니다.'
+    ),
+    onRetry: () => {
+      void writable.refetch();
+    },
+    emptyState: <ReviewsEmptyState />,
+  };
 
-  const writtenTotal = written.pagination?.totalCount ?? 0;
-  const showWrittenEmpty =
-    !written.isPending &&
-    !written.isError &&
-    (written.isEmpty || writtenTotal === 0);
+  const writtenStatus: ReviewListStatus = {
+    isPending: written.isPending,
+    isError: written.isError,
+    showEmpty: isReviewListEmpty(written),
+    pendingMessage: '작성한 리뷰를 불러오는 중...',
+    errorMessage: toListErrorMessage(
+      written.error,
+      '작성한 리뷰를 불러오지 못했습니다.'
+    ),
+    onRetry: () => {
+      void written.refetch();
+    },
+    emptyState: <ReviewsEmptyState message="아직 작성한 리뷰가 없어요" />,
+  };
 
   return (
     <>
@@ -256,15 +284,12 @@ export const ReviewsPageClient = () => {
           <div className={CONTENT_CLASS}>
             <ReviewListSection
               items={writable.writableQuotes}
-              isPending={writable.isPending}
-              isError={writable.isError}
-              showEmpty={showWritableEmpty}
-              pendingMessage="작성 가능한 리뷰를 불러오는 중..."
-              errorMessage={writableErrorMessage}
-              onRetry={() => {
-                void writable.refetch();
+              status={writableStatus}
+              pagination={{
+                page: writable.page,
+                totalPages: writable.totalPages,
+                onPageChange: writable.setPage,
               }}
-              emptyState={<ReviewsEmptyState />}
               renderItem={(item) => (
                 <WritableReviewCard
                   key={item.quoteId}
@@ -272,9 +297,6 @@ export const ReviewsPageClient = () => {
                   onWriteClick={handleWriteClick}
                 />
               )}
-              page={writable.page}
-              totalPages={writable.totalPages}
-              onPageChange={writable.setPage}
             />
           </div>
         </div>
@@ -289,17 +311,12 @@ export const ReviewsPageClient = () => {
           <div className={CONTENT_CLASS}>
             <ReviewListSection
               items={written.reviews}
-              isPending={written.isPending}
-              isError={written.isError}
-              showEmpty={showWrittenEmpty}
-              pendingMessage="작성한 리뷰를 불러오는 중..."
-              errorMessage={writtenErrorMessage}
-              onRetry={() => {
-                void written.refetch();
+              status={writtenStatus}
+              pagination={{
+                page: written.page,
+                totalPages: written.totalPages,
+                onPageChange: written.setPage,
               }}
-              emptyState={
-                <ReviewsEmptyState message="아직 작성한 리뷰가 없어요" />
-              }
               renderItem={(item) => {
                 const highlighted = highlightReviewId === item.id;
                 return (
@@ -312,9 +329,6 @@ export const ReviewsPageClient = () => {
                   />
                 );
               }}
-              page={written.page}
-              totalPages={written.totalPages}
-              onPageChange={written.setPage}
             />
           </div>
         </div>

@@ -23,7 +23,11 @@ export type { DeleteReviewConfirmModalProps } from './DeleteReviewConfirmModal';
 export { ReviewsEmptyState } from './ReviewsEmptyState';
 export type { ReviewsEmptyStateProps } from './ReviewsEmptyState';
 export { ReviewListSection } from './ReviewListSection';
-export type { ReviewListSectionProps } from './ReviewListSection';
+export type {
+  ReviewListSectionProps,
+  ReviewListStatus,
+  ReviewListPagination,
+} from './ReviewListSection';
 export {
   ReviewsTabs,
   REVIEWS_PAGE_X_PADDING,
