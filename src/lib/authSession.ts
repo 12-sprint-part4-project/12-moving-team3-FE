@@ -1,10 +1,7 @@
-import type { AuthUser, UserStatus } from '@/types/auth';
-
 const AUTH_SESSION_KEY = 'authSession';
 
 export interface AuthSession {
   accessToken: string;
-  user: AuthUser;
 }
 
 type Listener = () => void;
@@ -13,56 +10,42 @@ const listeners = new Set<Listener>();
 
 /** useSyncExternalStore getSnapshot은 동일 참조를 반환해야 한다. */
 let cachedRaw: string | null | undefined;
-let cachedUser: AuthUser | null = null;
+let cachedSession: AuthSession | null = null;
 
 const notifyAuthSessionListeners = (): void => {
   listeners.forEach((listener) => listener());
 };
 
-/** 구 세션에 status가 없으면 ACTIVE로 정규화 */
-const normalizeAuthUser = (user: AuthUser): AuthUser => {
-  const status: UserStatus =
-    user.status === 'SUSPENDED' ? 'SUSPENDED' : 'ACTIVE';
-  if (user.status === status) {
-    return user;
-  }
-  return { ...user, status };
-};
-
 const parseAuthSession = (raw: string): AuthSession | null => {
   try {
-    const session = JSON.parse(raw) as AuthSession;
-    if (!session?.user || !session.accessToken) {
+    const session = JSON.parse(raw) as Partial<AuthSession>;
+    if (typeof session?.accessToken !== 'string' || !session.accessToken) {
       return null;
     }
-    return {
-      ...session,
-      user: normalizeAuthUser(session.user),
-    };
+    return { accessToken: session.accessToken };
   } catch {
     return null;
   }
 };
 
-const readUserSnapshot = (): AuthUser | null => {
+const readSessionSnapshot = (): AuthSession | null => {
   if (typeof window === 'undefined') return null;
 
   const raw = localStorage.getItem(AUTH_SESSION_KEY);
 
   if (raw === cachedRaw) {
-    return cachedUser;
+    return cachedSession;
   }
 
   cachedRaw = raw;
 
   if (!raw) {
-    cachedUser = null;
-    return cachedUser;
+    cachedSession = null;
+    return cachedSession;
   }
 
-  const session = parseAuthSession(raw);
-  cachedUser = session?.user ?? null;
-  return cachedUser;
+  cachedSession = parseAuthSession(raw);
+  return cachedSession;
 };
 
 export const subscribeAuthSession = (listener: Listener): (() => void) => {
@@ -83,56 +66,39 @@ export const getAuthSession = (): AuthSession | null => {
   return parseAuthSession(raw);
 };
 
-export const getAuthSessionUser = (): AuthUser | null => {
-  return readUserSnapshot();
+/** useSyncExternalStore용 스냅샷 (참조 안정) */
+export const getAuthSessionSnapshot = (): AuthSession | null => {
+  return readSessionSnapshot();
 };
 
 export const setAuthSession = (session: AuthSession): void => {
-  const nextSession: AuthSession = {
-    ...session,
-    user: normalizeAuthUser(session.user),
-  };
+  const nextSession: AuthSession = { accessToken: session.accessToken };
   const raw = JSON.stringify(nextSession);
   localStorage.setItem(AUTH_SESSION_KEY, raw);
   cachedRaw = raw;
-  cachedUser = nextSession.user;
+  cachedSession = nextSession;
   notifyAuthSessionListeners();
 };
 
-/** Access Token만 교체. user 스냅샷/구독 알림은 유지한다. */
+/** Access Token만 교체 */
 export const updateAuthAccessToken = (accessToken: string): boolean => {
   const session = getAuthSession();
   if (!session) {
     return false;
   }
 
-  const nextSession: AuthSession = { ...session, accessToken };
+  const nextSession: AuthSession = { accessToken };
   const raw = JSON.stringify(nextSession);
   localStorage.setItem(AUTH_SESSION_KEY, raw);
   cachedRaw = raw;
-  return true;
-};
-
-/** user.status만 갱신 (USER_SUSPENDED 등) */
-export const updateAuthUserStatus = (status: UserStatus): boolean => {
-  const session = getAuthSession();
-  if (!session) {
-    return false;
-  }
-
-  setAuthSession({
-    ...session,
-    user: {
-      ...session.user,
-      status,
-    },
-  });
+  cachedSession = nextSession;
+  notifyAuthSessionListeners();
   return true;
 };
 
 export const clearAuthSession = (): void => {
   localStorage.removeItem(AUTH_SESSION_KEY);
   cachedRaw = null;
-  cachedUser = null;
+  cachedSession = null;
   notifyAuthSessionListeners();
 };

@@ -57,7 +57,6 @@ export const KakaoCallbackClient = () => {
 
         setSession({
           accessToken: response.data.accessToken,
-          user: response.data.user,
         });
 
         showToast({

@@ -23,10 +23,10 @@ import {
   type ServiceChipValue,
 } from '@/constants/commonOptions';
 import { useAuth } from '@/hooks/useAuth';
+import { AUTH_QUERY_KEYS } from '@/hooks/useAuthMe';
 import { moverProfileQueryKeys } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
-import { getAuthSession } from '@/lib/authSession';
 import { uploadProfileImage } from '@/lib/uploadProfileImage';
 import { cn } from '@/lib/utils';
 import {
@@ -109,7 +109,7 @@ interface MoverProfileFormProps {
 export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user, setSession } = useAuth();
+  const { user } = useAuth();
   const { showToast } = useToast();
   const imageInputId = useId();
   const phoneInputId = useId();
@@ -267,19 +267,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
       await queryClient.invalidateQueries({
         queryKey: moverProfileQueryKeys.all,
       });
-
-      const session = getAuthSession();
-      if (session) {
-        setSession({
-          ...session,
-          user: {
-            ...session.user,
-            nickname,
-            phoneNumber,
-            isProfileCompleted: true,
-          },
-        });
-      }
+      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me() });
 
       showToast({ content: '프로필 등록이 완료되었습니다.' });
       router.replace('/mover/requests');
