@@ -27,6 +27,8 @@ export type { ReviewListSectionProps } from './ReviewListSection';
 export {
   ReviewsTabs,
   REVIEWS_PAGE_X_PADDING,
+  REVIEW_HIGHLIGHT_DURATION_MS,
+  parseHighlightReviewId,
   parseReviewsTabId,
   resolveReviewsTabParam,
 } from './ReviewsTabs';
