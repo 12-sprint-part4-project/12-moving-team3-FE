@@ -56,6 +56,11 @@ export const useMoversFilters = () => {
     setServiceValue('ALL');
   }, []);
 
+  const handleResetAll = useCallback(() => {
+    setSearchValue('');
+    handleResetFilters();
+  }, [handleResetFilters]);
+
   const filters = useMemo(
     (): MoversFilters => ({ regionValue, serviceValue }),
     [regionValue, serviceValue]
@@ -95,5 +100,6 @@ export const useMoversFilters = () => {
     selectedMoveTypes,
     debouncedSearch,
     sortValue,
+    handleResetAll,
   };
 };

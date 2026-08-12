@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { useEffect, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import { MoverCard } from '@/components/movers/MoverCard';
@@ -13,14 +14,23 @@ import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useFavoriteMoversPreview } from '@/hooks/useFavoriteMoversPreview';
 import { useMoversList } from '@/hooks/useMoversList';
 import { ApiError } from '@/lib/apiClient';
+import {
+  fadeIn,
+  fadeUp,
+  getMotionTransition,
+  listStagger,
+} from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
+import { MoversEmptyState } from './_components/MoversEmptyState';
 import { MoversSidebar } from './_components/MoversSidebar';
 import { MoversToolbar } from './_components/MoversToolbar';
 import { useMoversFilters } from './_lib/useMoversFilters';
 
 /** 기사님 찾기 목록 페이지 클라이언트 */
 export const MoversPageClient = () => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const { user } = useAuth();
   const isLoggedIn = Boolean(user);
   const canUseFavorites = Boolean(user?.isProfileCompleted);
@@ -41,11 +51,13 @@ export const MoversPageClient = () => {
     selectedMoveTypes,
     debouncedSearch,
     sortValue,
+    handleResetAll,
   } = useMoversFilters();
 
   const {
     movers,
     isPending,
+    isFetching,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
@@ -72,6 +84,25 @@ export const MoversPageClient = () => {
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  /** 정렬·필터 변경 시에만 목록 entrance 애니메이션 (검색어 제외) */
+  const listAnimationKey = useMemo(
+    () => [sortValue, filters.regionValue, filters.serviceValue].join('|'),
+    [sortValue, filters.regionValue, filters.serviceValue]
+  );
+
+  const showListFetching = isFetching && !isPending && !isFetchingNextPage;
+  /**
+   * 목록 entrance/stagger 애니메이션은 "펜딩 중(=기존 data 유지 + isFetching=true)"에는
+   * 실행하지 않는다. 타이핑/필터 변경 시 목록이 계속 흔들리는 현상을 막기 위함이다.
+   */
+  const shouldAnimateList = !showListFetching;
+
+  const isFilteredEmpty =
+    isEmpty &&
+    (debouncedSearch.trim() !== '' ||
+      filters.regionValue !== 'ALL' ||
+      filters.serviceValue !== 'ALL');
+
   const handleRetry = () => {
     void refetch();
   };
@@ -86,7 +117,11 @@ export const MoversPageClient = () => {
 
   return (
     <div className="flex w-full flex-col overflow-x-hidden bg-white">
-      <div
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="show"
+        transition={motionTransition}
         className={cn(
           'border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8',
           pageXPadding
@@ -95,7 +130,7 @@ export const MoversPageClient = () => {
         <h1 className="text-2lg-semibold text-black-400 lg:text-2xl-semibold">
           기사님 찾기
         </h1>
-      </div>
+      </motion.div>
 
       <div
         className={cn(
@@ -114,19 +149,39 @@ export const MoversPageClient = () => {
         />
 
         <div className="flex min-w-0 flex-1 flex-col gap-6 lg:gap-8">
-          <MoversToolbar
-            filters={filters}
-            filterActions={filterActions}
-            search={search}
-            sort={sort}
-          />
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            transition={motionTransition}
+          >
+            <MoversToolbar
+              filters={filters}
+              filterActions={filterActions}
+              search={search}
+              sort={sort}
+            />
+          </motion.div>
 
           {isPending ? (
-            <Spinner message="기사님 목록을 불러오는 중..." />
+            <motion.div
+              variants={fadeIn}
+              initial="hidden"
+              animate="show"
+              transition={motionTransition}
+            >
+              <Spinner message="기사님 목록을 불러오는 중..." />
+            </motion.div>
           ) : null}
 
           {isError ? (
-            <div className="flex flex-col items-center gap-4 py-16">
+            <motion.div
+              variants={fadeIn}
+              initial="hidden"
+              animate="show"
+              transition={motionTransition}
+              className="flex flex-col items-center gap-4 py-16"
+            >
               <p className="text-lg-medium text-gray-400">{errorMessage}</p>
               <Button
                 type="button"
@@ -137,37 +192,75 @@ export const MoversPageClient = () => {
               >
                 다시 시도
               </Button>
-            </div>
+            </motion.div>
           ) : null}
 
           {!isPending && !isError && isEmpty ? (
-            <div className="flex flex-col items-center justify-center py-16">
-              <p className="text-xl-regular text-gray-400">
-                조건에 맞는 기사님이 없어요.
-              </p>
-            </div>
+            <MoversEmptyState
+              onReset={isFilteredEmpty ? handleResetAll : undefined}
+            />
           ) : null}
 
           {!isError && movers.length > 0 ? (
-            <ul className="flex flex-col gap-6 lg:gap-12">
-              {movers.map((mover) => (
-                <li key={mover.moverId}>
-                  <MoverCard
-                    mover={mover}
-                    size="lg"
-                    onFavoriteClick={handleFavoriteClick}
-                    isFavoritePending={isMoverPending(mover.moverId)}
+            <div className="relative">
+              <AnimatePresence>
+                {showListFetching ? (
+                  <motion.div
+                    variants={fadeIn}
+                    initial="hidden"
+                    animate="show"
+                    exit="exit"
+                    transition={motionTransition}
+                    className="pointer-events-none absolute inset-0 z-10 rounded-2xl bg-white/40"
+                    aria-hidden
                   />
-                </li>
-              ))}
-            </ul>
+                ) : null}
+              </AnimatePresence>
+
+              <motion.ul
+                key={listAnimationKey}
+                variants={shouldAnimateList ? listStagger : undefined}
+                initial={shouldAnimateList ? 'hidden' : false}
+                animate={shouldAnimateList ? 'show' : undefined}
+                className="flex flex-col gap-6 lg:gap-12"
+              >
+                {movers.map((mover) => (
+                  <motion.li
+                    key={mover.moverId}
+                    variants={fadeUp}
+                    transition={motionTransition}
+                  >
+                    <MoverCard
+                      mover={mover}
+                      size="lg"
+                      onFavoriteClick={handleFavoriteClick}
+                      isFavoritePending={isMoverPending(mover.moverId)}
+                    />
+                  </motion.li>
+                ))}
+              </motion.ul>
+            </div>
           ) : null}
 
-          <div ref={loadMoreRef} className="w-full">
-            {isFetchingNextPage ? (
-              <Spinner message="더 불러오는 중..." className="py-6" />
-            ) : null}
-          </div>
+          {hasNextPage || isFetchingNextPage ? (
+            <div ref={loadMoreRef} className="flex w-full justify-center py-6">
+              <AnimatePresence>
+                {isFetchingNextPage ? (
+                  <motion.div
+                    variants={fadeIn}
+                    initial="hidden"
+                    animate="show"
+                    exit="exit"
+                    transition={motionTransition}
+                  >
+                    <Spinner message="더 불러오는 중..." className="py-4" />
+                  </motion.div>
+                ) : (
+                  <span className="sr-only">스크롤하여 더 보기</span>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : null}
         </div>
       </div>
 

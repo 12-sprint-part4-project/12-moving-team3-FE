@@ -1,6 +1,9 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
+
 import { MoverShareButtons } from '@/components/movers/MoverShareButtons';
+import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 import { MoverDetailCtaButtons } from './MoverDetailCtaButtons';
@@ -27,14 +30,25 @@ export const MoverDetailSidebar = ({
   share,
   className = '',
 }: MoverDetailSidebarProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
+
   return (
-    <aside
+    <motion.aside
+      initial={{ opacity: 0, x: 12 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={motionTransition}
       className={cn(
         'flex w-full max-w-[22.125rem] shrink-0 flex-col gap-10',
         className
       )}
     >
-      <div className="flex flex-col gap-4">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="show"
+        className="flex flex-col gap-4"
+      >
         <MoverDetailCtaButtons
           layout="sidebar"
           name={share.name}
@@ -42,9 +56,18 @@ export const MoverDetailSidebar = ({
           designated={designated}
           chat={chat}
         />
-      </div>
+      </motion.div>
 
-      <div className="flex flex-col gap-[1.375rem] border-t border-line-100 pt-10">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="show"
+        transition={{
+          ...motionTransition,
+          delay: shouldReduceMotion ? 0 : 0.08,
+        }}
+        className="flex flex-col gap-[1.375rem] border-t border-line-100 pt-10"
+      >
         <p className="text-xl-semibold text-black-400">
           나만 알기엔 아쉬운 기사님인가요?
         </p>
@@ -54,7 +77,7 @@ export const MoverDetailSidebar = ({
           description={share.description}
           profileImageUrl={share.profileImageUrl}
         />
-      </div>
-    </aside>
+      </motion.div>
+    </motion.aside>
   );
 };

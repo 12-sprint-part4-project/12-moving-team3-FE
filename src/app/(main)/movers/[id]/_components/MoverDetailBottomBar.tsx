@@ -1,5 +1,8 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
+
+import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 import { MoverDetailCtaButtons } from './MoverDetailCtaButtons';
@@ -23,8 +26,15 @@ export const MoverDetailBottomBar = ({
   chat,
   className = '',
 }: MoverDetailBottomBarProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
+
   return (
-    <div
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      animate="show"
+      transition={motionTransition}
       className={cn(
         'fixed inset-x-0 bottom-0 z-40 border-t border-line-100 bg-white px-6 py-2.5 md:px-[4.5rem] xl:hidden',
         className
@@ -38,6 +48,6 @@ export const MoverDetailBottomBar = ({
           chat={chat}
         />
       </div>
-    </div>
+    </motion.div>
   );
 };

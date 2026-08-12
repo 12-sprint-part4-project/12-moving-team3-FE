@@ -1,7 +1,10 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
+
 import { RegionChip } from '@/components/ui/Chip/RegionChip';
 import { ServiceChip } from '@/components/ui/Chip/ServiceChip';
+import { fadeUp, getMotionTransition, listStagger } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import {
   REGION_LABELS,
@@ -21,6 +24,8 @@ export const MoverDetailSections = ({
   mover,
   className = '',
 }: MoverDetailSectionsProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const description =
     mover.description?.trim() || '등록된 상세설명이 없습니다.';
 
@@ -40,13 +45,27 @@ export const MoverDetailSections = ({
           제공 서비스
         </h2>
         {mover.services.length > 0 ? (
-          <div className="flex flex-wrap gap-2 lg:gap-3">
-            {mover.services.map((service: ApiMoveType) => (
-              <ServiceChip key={service} variant="textOnly">
-                {SERVICE_LABELS[service]}
-              </ServiceChip>
+          <motion.div
+            variants={listStagger}
+            initial="hidden"
+            animate="show"
+            className="flex flex-wrap gap-2 lg:gap-3"
+          >
+            {mover.services.map((service: ApiMoveType, index) => (
+              <motion.div
+                key={service}
+                variants={fadeUp}
+                transition={{
+                  ...motionTransition,
+                  delay: shouldReduceMotion ? 0 : index * 0.04,
+                }}
+              >
+                <ServiceChip variant="textOnly">
+                  {SERVICE_LABELS[service]}
+                </ServiceChip>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         ) : (
           <p className="text-md-medium text-gray-300 lg:text-2lg-medium">
             서비스 미등록
@@ -59,13 +78,27 @@ export const MoverDetailSections = ({
           서비스 가능 지역
         </h2>
         {mover.regions.length > 0 ? (
-          <div className="flex flex-wrap gap-2 lg:gap-3">
-            {mover.regions.map((region: ApiRegion) => (
-              <RegionChip key={region} variant="textOnly">
-                {REGION_LABELS[region]}
-              </RegionChip>
+          <motion.div
+            variants={listStagger}
+            initial="hidden"
+            animate="show"
+            className="flex flex-wrap gap-2 lg:gap-3"
+          >
+            {mover.regions.map((region: ApiRegion, index) => (
+              <motion.div
+                key={region}
+                variants={fadeUp}
+                transition={{
+                  ...motionTransition,
+                  delay: shouldReduceMotion ? 0 : index * 0.04,
+                }}
+              >
+                <RegionChip variant="textOnly">
+                  {REGION_LABELS[region]}
+                </RegionChip>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         ) : (
           <p className="text-md-medium text-gray-300 lg:text-2lg-medium">
             지역 미등록

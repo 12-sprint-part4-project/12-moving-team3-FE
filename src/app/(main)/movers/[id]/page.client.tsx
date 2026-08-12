@@ -1,5 +1,6 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
 import { useParams } from 'next/navigation';
 
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
@@ -9,6 +10,12 @@ import { MoverReviews } from '@/components/movers/MoverReviews';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useMoverDetail } from '@/hooks/useMoverDetail';
 import { ApiError } from '@/lib/apiClient';
+import {
+  fadeIn,
+  fadeUp,
+  getMotionTransition,
+  listStagger,
+} from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 import { AlreadyDesignatedModal } from './_components/AlreadyDesignatedModal';
@@ -21,6 +28,8 @@ import { useMoverDetailActions } from './_lib/useMoverDetailActions';
 
 /** 기사님 상세 페이지 클라이언트 */
 export const MoverDetailPageClient = () => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const params = useParams();
   const moverId = typeof params.id === 'string' ? params.id : '';
 
@@ -52,17 +61,29 @@ export const MoverDetailPageClient = () => {
 
   if (isNotFound) {
     return (
-      <div className="flex w-full flex-col items-center justify-center py-24">
+      <motion.div
+        variants={fadeIn}
+        initial="hidden"
+        animate="show"
+        transition={motionTransition}
+        className="flex w-full flex-col items-center justify-center py-24"
+      >
         <p className="text-lg-medium text-gray-400">기사님을 찾을 수 없어요.</p>
-      </div>
+      </motion.div>
     );
   }
 
   if (isPending) {
     return (
-      <div className="flex w-full flex-col py-24">
+      <motion.div
+        variants={fadeIn}
+        initial="hidden"
+        animate="show"
+        transition={motionTransition}
+        className="flex w-full flex-col py-24"
+      >
         <Spinner message="기사님 정보를 불러오는 중..." />
-      </div>
+      </motion.div>
     );
   }
 
@@ -73,7 +94,13 @@ export const MoverDetailPageClient = () => {
         : (error?.message ?? '기사님 정보를 불러오지 못했습니다.');
 
     return (
-      <div className="flex w-full flex-col items-center gap-4 py-24">
+      <motion.div
+        variants={fadeIn}
+        initial="hidden"
+        animate="show"
+        transition={motionTransition}
+        className="flex w-full flex-col items-center gap-4 py-24"
+      >
         <p className="text-lg-medium text-gray-400">{errorMessage}</p>
         <button
           type="button"
@@ -82,7 +109,7 @@ export const MoverDetailPageClient = () => {
         >
           다시 시도
         </button>
-      </div>
+      </motion.div>
     );
   }
 
@@ -94,29 +121,40 @@ export const MoverDetailPageClient = () => {
           pageXPadding
         )}
       >
-        <div className="flex min-w-0 flex-1 flex-col">
-          <MoverCard
-            mover={mover}
-            size="lg"
-            disableNavigation
-            onFavoriteClick={handleFavoriteClick}
-            isFavoritePending={isMoverPending(mover.moverId)}
-          />
+        <motion.div
+          variants={listStagger}
+          initial="hidden"
+          animate="show"
+          className="flex min-w-0 flex-1 flex-col"
+        >
+          <motion.div variants={fadeUp}>
+            <MoverCard
+              mover={mover}
+              size="lg"
+              disableNavigation
+              onFavoriteClick={handleFavoriteClick}
+              isFavoritePending={isMoverPending(mover.moverId)}
+            />
+          </motion.div>
 
           <div className="mt-6 border-t border-line-100 xl:mt-10" />
 
-          <MoverDetailShareSection
-            name={share.name}
-            description={share.description}
-            profileImageUrl={share.profileImageUrl}
-          />
+          <motion.div variants={fadeUp}>
+            <MoverDetailShareSection
+              name={share.name}
+              description={share.description}
+              profileImageUrl={share.profileImageUrl}
+            />
+          </motion.div>
 
-          <MoverDetailSections mover={mover} />
+          <motion.div variants={fadeUp}>
+            <MoverDetailSections mover={mover} />
+          </motion.div>
 
-          <div className="py-6 lg:py-10">
+          <motion.div variants={fadeUp} className="py-6 lg:py-10">
             <MoverReviews moverId={mover.moverId} />
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         <MoverDetailSidebar
           className="hidden xl:flex"

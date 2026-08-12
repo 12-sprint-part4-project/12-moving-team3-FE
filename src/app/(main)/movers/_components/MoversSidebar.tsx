@@ -1,8 +1,16 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 
 import { MoverCard } from '@/components/movers/MoverCard';
+import {
+  fadeIn,
+  fadeUp,
+  getMotionTransition,
+  listStagger,
+  tapScale,
+} from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import type { MoverCardModel } from '@/types/mover';
 import { REGION_FILTER_OPTIONS, SERVICE_FILTER_OPTIONS } from '@/types/mover';
@@ -30,27 +38,39 @@ export const MoversSidebar = ({
   isMoverPending,
   className = '',
 }: MoversSidebarProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const { regionValue, serviceValue } = filters;
   const { onRegionChange, onServiceChange, onResetFilters } = filterActions;
 
   return (
-    <aside
+    <motion.aside
+      initial={{ opacity: 0, x: -12 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={motionTransition}
       className={cn('flex w-full max-w-[20.5rem] flex-col gap-10', className)}
     >
       <section className="flex w-full flex-col">
         <div className="flex items-center justify-between px-3.5 py-4">
           <h2 className="text-2xl-semibold text-black-400">필터</h2>
-          <button
+          <motion.button
             type="button"
             onClick={onResetFilters}
+            {...(shouldReduceMotion ? {} : tapScale)}
             className="cursor-pointer text-2lg-medium text-gray-300 hover:text-gray-400"
           >
             초기화
-          </button>
+          </motion.button>
         </div>
 
         <div className="flex flex-col gap-8 border-t border-line-100 pt-8">
-          <div className="flex flex-col gap-4">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            transition={motionTransition}
+            className="flex flex-col gap-4"
+          >
             <p className="text-2lg-semibold text-black-400">
               지역을 선택해주세요
             </p>
@@ -63,8 +83,17 @@ export const MoversSidebar = ({
               fullWidth
               columns={2}
             />
-          </div>
-          <div className="flex flex-col gap-4">
+          </motion.div>
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            transition={{
+              ...motionTransition,
+              delay: shouldReduceMotion ? 0 : 0.04,
+            }}
+            className="flex flex-col gap-4"
+          >
             <p className="text-2lg-semibold text-black-400">
               어떤 서비스가 필요하세요?
             </p>
@@ -76,7 +105,7 @@ export const MoversSidebar = ({
               onValueChange={onServiceChange}
               fullWidth
             />
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -90,28 +119,45 @@ export const MoversSidebar = ({
           </Link>
         </h2>
         {!isLoggedIn ? (
-          <p className="rounded-2xl border border-line-100 bg-background-200 px-4 py-8 text-center text-lg-medium text-gray-400">
+          <motion.p
+            variants={fadeIn}
+            initial="hidden"
+            animate="show"
+            transition={motionTransition}
+            className="rounded-2xl border border-line-100 bg-background-200 px-4 py-8 text-center text-lg-medium text-gray-400"
+          >
             로그인이 필요한 기능입니다
-          </p>
+          </motion.p>
         ) : favoriteMovers.length === 0 ? (
-          <p className="rounded-2xl border border-line-100 bg-background-200 px-4 py-8 text-center text-lg-medium text-gray-400">
+          <motion.p
+            variants={fadeIn}
+            initial="hidden"
+            animate="show"
+            transition={motionTransition}
+            className="rounded-2xl border border-line-100 bg-background-200 px-4 py-8 text-center text-lg-medium text-gray-400"
+          >
             찜한 기사님이 없어요
-          </p>
+          </motion.p>
         ) : (
-          <ul className="flex flex-col gap-4">
+          <motion.ul
+            variants={listStagger}
+            initial="hidden"
+            animate="show"
+            className="flex flex-col gap-4"
+          >
             {favoriteMovers.map((mover) => (
-              <li key={mover.moverId}>
+              <motion.li key={mover.moverId} variants={fadeUp}>
                 <MoverCard
                   mover={mover}
                   size="sm"
                   onFavoriteClick={onFavoriteClick}
                   isFavoritePending={isMoverPending?.(mover.moverId)}
                 />
-              </li>
+              </motion.li>
             ))}
-          </ul>
+          </motion.ul>
         )}
       </section>
-    </aside>
+    </motion.aside>
   );
 };

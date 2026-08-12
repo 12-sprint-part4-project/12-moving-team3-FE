@@ -22,6 +22,7 @@ export const MoverReviews = ({ moverId, className }: MoverReviewsProps) => {
     totalPages,
     setPage,
     isPending,
+    isFetching,
     isError,
     refetch,
   } = useMoverReviews(moverId);
@@ -36,6 +37,7 @@ export const MoverReviews = ({ moverId, className }: MoverReviewsProps) => {
       totalPages={totalPages}
       onPageChange={setPage}
       isPending={isPending}
+      isFetching={isFetching}
       isError={isError}
       onRetry={() => {
         void refetch();
