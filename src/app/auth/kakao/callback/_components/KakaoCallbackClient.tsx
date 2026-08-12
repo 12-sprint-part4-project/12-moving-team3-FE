@@ -41,13 +41,15 @@ export const KakaoCallbackClient = () => {
         return;
       }
 
-      const userType = consumeKakaoOAuthState(result.state);
+      const oauthState = consumeKakaoOAuthState(result.state);
 
-      if (!userType) {
+      if (!oauthState) {
         showToast({ content: '잘못된 로그인 요청입니다.' });
         router.replace('/login');
         return;
       }
+
+      const { userType, redirectTo } = oauthState;
 
       try {
         const response = await kakaoLogin({
@@ -65,7 +67,9 @@ export const KakaoCallbackClient = () => {
             ? '회원가입이 완료되었습니다.'
             : '로그인되었습니다.',
         });
-        router.replace(getPostAuthRedirectPath(response.data.user));
+        router.replace(
+          getPostAuthRedirectPath(response.data.user, { redirectTo })
+        );
       } catch (error) {
         const message =
           error instanceof ApiError
