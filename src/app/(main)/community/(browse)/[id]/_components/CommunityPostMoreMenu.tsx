@@ -13,7 +13,7 @@ import {
 } from './communityDetailStyles';
 
 const MENU_ITEM_CLASS =
-  'flex w-full cursor-pointer px-4 py-3 text-left text-2lg-medium text-black-400';
+  'flex w-full cursor-pointer px-4 py-2 text-left text-md-medium text-black-400 min-[46.5rem]:py-3 min-[46.5rem]:text-lg-medium xl:text-2lg-medium';
 
 interface CommunityPostMoreMenuProps {
   isPostOwner: boolean;

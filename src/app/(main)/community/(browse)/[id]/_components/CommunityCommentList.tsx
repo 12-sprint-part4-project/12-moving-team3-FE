@@ -96,7 +96,7 @@ export const CommunityCommentList = ({
         ) : null}
 
         {showEmpty ? (
-          <p className="text-center text-2lg-medium text-gray-400">
+          <p className="text-center text-md-regular text-gray-400 min-[46.5rem]:text-lg-regular xl:text-2lg-regular">
             아직 댓글이 없어요.
           </p>
         ) : null}
