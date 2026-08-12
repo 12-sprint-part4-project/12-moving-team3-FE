@@ -13,6 +13,7 @@ import { useCustomerProfile } from '@/hooks/useCustomerProfile';
 import { useMoverProfile } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { suppressLoginGate, releaseLoginGate } from '@/lib/authLoginGate';
 import { getAuthRouteRequirement } from '@/lib/authRoutePaths';
 import { logout } from '@/services/authApi';
 
@@ -72,11 +73,20 @@ export const HeaderClient = ({
     }
 
     queryClient.clear();
+    const isProtectedPath =
+      getAuthRouteRequirement(pathname).kind !== 'public';
+
+    if (isProtectedPath) {
+      suppressLoginGate();
+    }
+
     clearSession();
     showToast({ content: '로그아웃되었습니다.' });
 
-    if (getAuthRouteRequirement(pathname).kind !== 'public') {
+    if (isProtectedPath) {
       router.replace('/');
+    } else {
+      releaseLoginGate();
     }
   };
 

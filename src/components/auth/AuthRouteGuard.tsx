@@ -14,6 +14,11 @@ import {
   isGuestOnlyPath,
   LOGIN_HREF_BY_USER_TYPE,
 } from '@/lib/authRoutePaths';
+import {
+  isLoginGateSuppressed,
+  releaseLoginGate,
+  suppressLoginGate,
+} from '@/lib/authLoginGate';
 import { logout } from '@/services/authApi';
 import type { ApiUserType } from '@/types/auth';
 
@@ -83,8 +88,10 @@ const AuthRouteGuardInner = ({ children }: AuthRouteGuardProps) => {
   if (pathname !== prevPathname) {
     setPrevPathname(pathname);
     setDismissedPath(null);
+    releaseLoginGate();
   }
 
+  const loginGateSuppressed = isLoginGateSuppressed();
   const gate: AuthGateState = isReady
     ? resolveAuthGate(pathname, user?.userType ?? null)
     : { kind: 'none' };
@@ -97,11 +104,14 @@ const AuthRouteGuardInner = ({ children }: AuthRouteGuardProps) => {
   /**
    * 인증 준비 전에는 숨기지 않는다. (새로고침 빈 화면 방지)
    * 비로그인·역할 불일치·guest 전용만 숨긴다.
+   * 로그아웃 직후 보호 경로에 남는 동안은 숨기지 않는다.
    */
-  const shouldHideChildren = isReady && gate.kind !== 'none';
+  const shouldHideChildren =
+    isReady && gate.kind !== 'none' && !loginGateSuppressed;
 
   const isModalOpen =
     isReady &&
+    !loginGateSuppressed &&
     (gate.kind === 'loginRequired' || gate.kind === 'roleMismatch') &&
     dismissedPath !== pathname;
 
@@ -139,6 +149,7 @@ const AuthRouteGuardInner = ({ children }: AuthRouteGuardProps) => {
     }
 
     queryClient.clear();
+    suppressLoginGate();
     clearSession();
     setDismissedPath(pathname);
     showToast({ content: '로그아웃되었습니다.' });
