@@ -39,20 +39,21 @@ export const useFocusRequestInList = ({
   listFilters,
 }: UseFocusRequestInListParams) => {
   const router = useRouter();
-  const targetIdRef = useRef(focusRequestId);
   const settledRef = useRef(false);
   const listFiltersRef = useRef(listFilters);
-  listFiltersRef.current = listFilters;
 
-  // 서버에서 새 focus로 진입하면 다시 시도
-  if (focusRequestId !== targetIdRef.current) {
-    targetIdRef.current = focusRequestId;
+  // 새 focus로 진입하면 다시 시도 (렌더 중 ref 쓰기 금지 → effect로 초기화)
+  useEffect(() => {
     settledRef.current = false;
-  }
+  }, [focusRequestId]);
+
+  // clearFocus 시 최신 필터를 쓰도록 동기화 (렌더 중 ref 쓰기 금지)
+  useEffect(() => {
+    listFiltersRef.current = listFilters;
+  }, [listFilters]);
 
   useEffect(() => {
-    const targetId = targetIdRef.current;
-    if (targetId == null || settledRef.current) {
+    if (focusRequestId == null || settledRef.current) {
       return;
     }
 
@@ -66,7 +67,7 @@ export const useFocusRequestInList = ({
       });
     };
 
-    const found = requests.some((request) => request.id === targetId);
+    const found = requests.some((request) => request.id === focusRequestId);
     if (found) {
       // settled는 스크롤 성공(또는 재시도 소진) 후에만 true.
       // 미리 true로 두면 effect cleanup이 타이머를 끊었을 때 영구 스킵됨.
@@ -80,7 +81,7 @@ export const useFocusRequestInList = ({
         }
 
         const element = document.querySelector<HTMLElement>(
-          `[data-request-id="${targetId}"]`
+          `[data-request-id="${focusRequestId}"]`
         );
 
         if (element) {
