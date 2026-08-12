@@ -145,12 +145,13 @@ export const NotificationGnbButton = ({
         {isOpen ? (
           <motion.div
             key="gnb-notification-dropdown"
-            initial={{ opacity: 0, y: -8, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.96 }}
+            // fadeInDown — 위에서 살짝 내려오며 나타남 (scale/origin 없음)
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
             transition={{ duration: DROPDOWN_MOTION_DURATION_S, ease: 'easeOut' }}
             className={cn(
-              'z-50 origin-top-right',
+              'z-50',
               'fixed top-12 right-5',
               'sm:absolute sm:top-full sm:right-0 sm:mt-2'
             )}
