@@ -1,9 +1,17 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
+
 import { ReviewRatingChart } from '@/components/reviews/ReviewRatingChart';
 import { ReviewListItem } from '@/components/reviews/ReviewListItem';
 import { Pagination } from '@/components/ui/Pagination/Pagination';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import {
+  fadeIn,
+  fadeUp,
+  getMotionTransition,
+  listStagger,
+} from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import type {
   MoverPublicReviewItem,
@@ -27,6 +35,7 @@ export interface MoverReviewSectionProps {
   totalPages: number;
   onPageChange: (page: number) => void;
   isPending?: boolean;
+  isFetching?: boolean;
   isError?: boolean;
   onRetry?: () => void;
   className?: string;
@@ -44,10 +53,13 @@ export const MoverReviewSection = ({
   totalPages,
   onPageChange,
   isPending = false,
+  isFetching = false,
   isError = false,
   onRetry,
   className,
 }: MoverReviewSectionProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const isInitialLoading =
     isPending && !ratingStatistics && reviews.length === 0;
   const hasLoadedData = Boolean(ratingStatistics) || reviews.length > 0;
@@ -55,6 +67,8 @@ export const MoverReviewSection = ({
   const isInitialError = isError && !hasLoadedData;
   const isEmpty = !isPending && totalCount === 0;
   const statistics = ratingStatistics ?? EMPTY_RATING_STATISTICS;
+  const showListFetching = isFetching && !isPending && reviews.length > 0;
+  const shouldAnimateList = !showListFetching;
 
   return (
     <section className={cn('flex w-full flex-col gap-4 lg:gap-8', className)}>
@@ -62,10 +76,25 @@ export const MoverReviewSection = ({
         리뷰 ({totalCount})
       </h2>
 
-      {isInitialLoading ? <Spinner message="리뷰를 불러오는 중..." /> : null}
+      {isInitialLoading ? (
+        <motion.div
+          variants={fadeIn}
+          initial="hidden"
+          animate="show"
+          transition={motionTransition}
+        >
+          <Spinner message="리뷰를 불러오는 중..." />
+        </motion.div>
+      ) : null}
 
       {isInitialError ? (
-        <div className="flex flex-col items-start gap-3 py-6">
+        <motion.div
+          variants={fadeIn}
+          initial="hidden"
+          animate="show"
+          transition={motionTransition}
+          className="flex flex-col items-start gap-3 py-6"
+        >
           <p className="text-md-medium text-gray-400">
             리뷰를 불러오지 못했습니다.
           </p>
@@ -78,7 +107,7 @@ export const MoverReviewSection = ({
               다시 시도
             </button>
           ) : null}
-        </div>
+        </motion.div>
       ) : null}
 
       {!isInitialLoading && !isInitialError ? (
@@ -103,32 +132,55 @@ export const MoverReviewSection = ({
           <ReviewRatingChart statistics={statistics} />
 
           {isEmpty ? (
-            <p className="py-8 text-center text-md-medium text-gray-400">
+            <motion.p
+              variants={fadeIn}
+              initial="hidden"
+              animate="show"
+              transition={motionTransition}
+              className="py-8 text-center text-md-medium text-gray-400"
+            >
               아직 리뷰가 없습니다
-            </p>
+            </motion.p>
           ) : (
-            <div className="flex flex-col">
+            <motion.div
+              key={shouldAnimateList ? page : 'mover-reviews'}
+              variants={shouldAnimateList ? listStagger : undefined}
+              initial={shouldAnimateList ? 'hidden' : false}
+              animate={shouldAnimateList ? 'show' : undefined}
+              className="flex flex-col"
+            >
               {reviews.map((review) => (
-                <ReviewListItem
+                <motion.div
                   key={review.id}
-                  customerName={review.customer.nickname}
-                  createdAt={review.createdAt}
-                  rating={review.rating}
-                  content={review.content}
-                  reviewId={review.id}
-                />
+                  variants={fadeUp}
+                  transition={motionTransition}
+                >
+                  <ReviewListItem
+                    customerName={review.customer.nickname}
+                    createdAt={review.createdAt}
+                    rating={review.rating}
+                    content={review.content}
+                    reviewId={review.id}
+                  />
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
 
-          <div className="flex justify-center pt-2">
+          <motion.div
+            variants={fadeIn}
+            initial="hidden"
+            animate="show"
+            transition={motionTransition}
+            className="flex justify-center pt-2"
+          >
             <Pagination
               size="sm"
               page={page}
               totalPages={Math.max(1, totalPages)}
               onPageChange={onPageChange}
             />
-          </div>
+          </motion.div>
         </div>
       ) : null}
     </section>

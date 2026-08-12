@@ -37,6 +37,7 @@ const MoverMyPageClient = () => {
     totalPages,
     setPage,
     isPending: isReviewsPending,
+    isFetching: isReviewsFetching,
     isError: isReviewsError,
     refetch: refetchReviews,
   } = useMoverReceivedReviews({ enabled: Boolean(profile) });
@@ -66,9 +67,7 @@ const MoverMyPageClient = () => {
     pagination?.totalCount ??
     (ratingStatistics ? getReviewStatsTotalCount(ratingStatistics) : 0);
   const averageRating =
-    reviewCount > 0 && ratingStatistics
-      ? ratingStatistics.average
-      : null;
+    reviewCount > 0 && ratingStatistics ? ratingStatistics.average : null;
 
   return (
     <div className="flex w-full flex-col overflow-x-hidden bg-white">
@@ -87,7 +86,9 @@ const MoverMyPageClient = () => {
           <Spinner message="프로필을 불러오는 중..." />
         ) : isProfileError ? (
           <div className="flex flex-col items-center gap-4 py-16">
-            <p className="text-lg-medium text-gray-400">{profileErrorMessage}</p>
+            <p className="text-lg-medium text-gray-400">
+              {profileErrorMessage}
+            </p>
             <button
               type="button"
               onClick={handleRetry}
@@ -129,6 +130,7 @@ const MoverMyPageClient = () => {
               totalPages={totalPages}
               onPageChange={setPage}
               isPending={isReviewsPending}
+              isFetching={isReviewsFetching}
               isError={isReviewsError}
               onRetry={() => {
                 void refetchReviews();

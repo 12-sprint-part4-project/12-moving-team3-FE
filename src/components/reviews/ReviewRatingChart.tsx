@@ -1,6 +1,9 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
+
 import StarIcon from '@/assets/icons/star.svg';
+import { getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import {
   getReviewScoreBreakdown,
@@ -22,12 +25,14 @@ export const ReviewRatingChart = ({
   statistics,
   className,
 }: ReviewRatingChartProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const barTransition = getMotionTransition(shouldReduceMotion, {
+    duration: 0.45,
+    ease: 'easeOut',
+  });
   const breakdown = getReviewScoreBreakdown(statistics);
   const total = getReviewStatsTotalCount(statistics);
-  const filledStars = Math.min(
-    5,
-    Math.max(0, Math.round(statistics.average))
-  );
+  const filledStars = Math.min(5, Math.max(0, Math.round(statistics.average)));
   const averageLabel = Number.isFinite(statistics.average)
     ? statistics.average.toFixed(1)
     : '0.0';
@@ -84,7 +89,7 @@ export const ReviewRatingChart = ({
           좁은 폭에서는 고정 너비 대신 max-w만 써서 바가 줄어들도록 함 */}
       <div
         className={cn(
-          'flex w-full min-w-0 max-w-[20.4375rem] flex-col items-stretch justify-center gap-1.5 rounded-3xl bg-background-200 px-[1.125rem] py-4',
+          'flex w-full max-w-[20.4375rem] min-w-0 flex-col items-stretch justify-center gap-1.5 rounded-3xl bg-background-200 px-[1.125rem] py-4',
           'md:min-w-0 md:flex-1',
           'xl:max-w-[30.625rem] xl:gap-3.5 xl:rounded-none xl:bg-transparent xl:p-0'
         )}
@@ -113,9 +118,11 @@ export const ReviewRatingChart = ({
                 {score}점
               </p>
               <div className="relative h-2 min-w-0 flex-1 overflow-hidden rounded-[0.9375rem] bg-background-300 xl:max-w-[23.125rem]">
-                <div
+                <motion.div
                   className="absolute inset-y-0 left-0 rounded-[0.9375rem] bg-yellow-100"
-                  style={{ width: `${widthPercent}%` }}
+                  initial={shouldReduceMotion ? false : { width: 0 }}
+                  animate={{ width: `${widthPercent}%` }}
+                  transition={barTransition}
                 />
               </div>
               <p

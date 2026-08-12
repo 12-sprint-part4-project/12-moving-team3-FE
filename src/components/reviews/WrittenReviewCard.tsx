@@ -1,11 +1,13 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 import { forwardRef } from 'react';
 
 import ProfileIcon from '@/assets/icons/profile.svg';
 import StarIcon from '@/assets/icons/star.svg';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
+import { cardHover } from '@/lib/motionVariants';
 import {
   formatReviewCreatedDate,
   formatReviewMoveDate,
@@ -47,12 +49,15 @@ export const WrittenReviewCard = forwardRef<
     formatReviewCreatedDate(item.createdAt)
   );
   const safeRating = Math.min(5, Math.max(0, Math.round(item.rating)));
+  const shouldReduceMotion = useReducedMotion();
 
   return (
-    <button
+    <motion.button
       ref={ref}
       type="button"
       onClick={() => onClick(item)}
+      {...(shouldReduceMotion ? {} : cardHover)}
+      whileTap={shouldReduceMotion ? undefined : { scale: 0.99 }}
       className={cn(
         'flex w-full cursor-pointer flex-col rounded-2xl bg-white text-left shadow-[0.125rem_0.125rem_0.3125rem] shadow-shadow-gray-100/20 transition-[box-shadow,background-color] duration-700 hover:shadow-[0.125rem_0.125rem_0.5rem] hover:shadow-shadow-gray-200/25',
         'gap-2.5 px-3.5 pt-4 pb-2.5',
@@ -168,6 +173,6 @@ export const WrittenReviewCard = forwardRef<
           <span>{createdLabel}</span>
         </p>
       </div>
-    </button>
+    </motion.button>
   );
 });
