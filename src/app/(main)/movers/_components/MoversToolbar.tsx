@@ -1,7 +1,5 @@
 'use client';
 
-import type { ChangeEvent } from 'react';
-
 import { TextFieldSearch } from '@/components/ui/Input/TextFieldSearch';
 import { Sort } from '@/components/ui/Sort/Sort';
 import {
@@ -9,33 +7,38 @@ import {
   MOVERS_SORT_OPTIONS,
   REGION_FILTER_OPTIONS,
   SERVICE_FILTER_OPTIONS,
-  type MoversSortValue,
 } from '@/types/mover';
 
+import type {
+  MoversFilterActions,
+  MoversFilters,
+  MoversSearch,
+  MoversSort,
+} from '../_lib/moversFilters';
 import { MoversSelectDropdown } from './MoversSelectDropdown';
 
 export interface MoversToolbarProps {
-  searchValue: string;
-  onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  sortValue: MoversSortValue;
-  onSortChange: (value: MoversSortValue) => void;
-  regionValue: string;
-  serviceValue: string;
-  onRegionChange: (value: string) => void;
-  onServiceChange: (value: string) => void;
+  filters: MoversFilters;
+  filterActions: Pick<
+    MoversFilterActions,
+    'onRegionChange' | 'onServiceChange'
+  >;
+  search: MoversSearch;
+  sort: MoversSort;
 }
 
 /** 검색·정렬·(xl 미만)인라인 필터 툴바 */
 export const MoversToolbar = ({
-  searchValue,
-  onSearchChange,
-  sortValue,
-  onSortChange,
-  regionValue,
-  serviceValue,
-  onRegionChange,
-  onServiceChange,
+  filters,
+  filterActions,
+  search,
+  sort,
 }: MoversToolbarProps) => {
+  const { regionValue, serviceValue } = filters;
+  const { onRegionChange, onServiceChange } = filterActions;
+  const { searchValue, onSearchChange } = search;
+  const { sortValue, onSortChange } = sort;
+
   const handleSortChange = (value: string) => {
     if (isMoversSortValue(value)) {
       onSortChange(value);

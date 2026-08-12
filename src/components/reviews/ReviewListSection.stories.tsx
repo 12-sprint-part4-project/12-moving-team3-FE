@@ -3,9 +3,7 @@
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
-import {
-  SAMPLE_WRITABLE_QUOTES,
-} from '@/components/reviews/_fixtures/reviewFixtures';
+import { SAMPLE_WRITABLE_QUOTES } from '@/components/reviews/_fixtures/reviewFixtures';
 import { ReviewListSection } from '@/components/reviews/ReviewListSection';
 import { ReviewsEmptyState } from '@/components/reviews/ReviewsEmptyState';
 import { WritableReviewCard } from '@/components/reviews/WritableReviewCard';
@@ -36,6 +34,22 @@ const renderWritableCard = (item: WritableQuoteItem) => (
   <WritableReviewCard key={item.quoteId} item={item} onWriteClick={() => {}} />
 );
 
+const IDLE_STATUS = {
+  isPending: false,
+  isError: false,
+  showEmpty: false,
+  pendingMessage: '작성 가능한 리뷰를 불러오는 중...',
+  errorMessage: '작성 가능한 리뷰를 불러오지 못했습니다.',
+  onRetry: () => {},
+  emptyState: <ReviewsEmptyState />,
+};
+
+const IDLE_PAGINATION = {
+  page: 1,
+  totalPages: 1,
+  onPageChange: () => {},
+};
+
 /** 목록 + 페이지네이션 */
 export const WithItems: Story = {
   render: () => {
@@ -44,17 +58,13 @@ export const WithItems: Story = {
     return (
       <ReviewListSection
         items={SAMPLE_WRITABLE_QUOTES}
-        isPending={false}
-        isError={false}
-        showEmpty={false}
-        pendingMessage="작성 가능한 리뷰를 불러오는 중..."
-        errorMessage="작성 가능한 리뷰를 불러오지 못했습니다."
-        onRetry={() => {}}
-        emptyState={<ReviewsEmptyState />}
+        status={IDLE_STATUS}
+        pagination={{
+          page,
+          totalPages: 3,
+          onPageChange: setPage,
+        }}
         renderItem={renderWritableCard}
-        page={page}
-        totalPages={3}
-        onPageChange={setPage}
       />
     );
   },
@@ -64,17 +74,12 @@ export const WithItems: Story = {
 export const Pending: Story = {
   args: {
     items: [],
-    isPending: true,
-    isError: false,
-    showEmpty: false,
-    pendingMessage: '작성 가능한 리뷰를 불러오는 중...',
-    errorMessage: '작성 가능한 리뷰를 불러오지 못했습니다.',
-    onRetry: () => {},
-    emptyState: <ReviewsEmptyState />,
+    status: {
+      ...IDLE_STATUS,
+      isPending: true,
+    },
+    pagination: IDLE_PAGINATION,
     renderItem: renderWritableCard,
-    page: 1,
-    totalPages: 1,
-    onPageChange: () => {},
   },
 };
 
@@ -82,17 +87,12 @@ export const Pending: Story = {
 export const ErrorState: Story = {
   args: {
     items: [],
-    isPending: false,
-    isError: true,
-    showEmpty: false,
-    pendingMessage: '작성 가능한 리뷰를 불러오는 중...',
-    errorMessage: '작성 가능한 리뷰를 불러오지 못했습니다.',
-    onRetry: () => {},
-    emptyState: <ReviewsEmptyState />,
+    status: {
+      ...IDLE_STATUS,
+      isError: true,
+    },
+    pagination: IDLE_PAGINATION,
     renderItem: renderWritableCard,
-    page: 1,
-    totalPages: 1,
-    onPageChange: () => {},
   },
 };
 
@@ -100,16 +100,11 @@ export const ErrorState: Story = {
 export const Empty: Story = {
   args: {
     items: [],
-    isPending: false,
-    isError: false,
-    showEmpty: true,
-    pendingMessage: '작성 가능한 리뷰를 불러오는 중...',
-    errorMessage: '작성 가능한 리뷰를 불러오지 못했습니다.',
-    onRetry: () => {},
-    emptyState: <ReviewsEmptyState />,
+    status: {
+      ...IDLE_STATUS,
+      showEmpty: true,
+    },
+    pagination: IDLE_PAGINATION,
     renderItem: renderWritableCard,
-    page: 1,
-    totalPages: 1,
-    onPageChange: () => {},
   },
 };

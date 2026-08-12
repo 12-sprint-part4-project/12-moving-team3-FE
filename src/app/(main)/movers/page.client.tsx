@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import { MoverCard } from '@/components/movers/MoverCard';
@@ -10,7 +10,6 @@ import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
-import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useFavoriteMoversPreview } from '@/hooks/useFavoriteMoversPreview';
 import { useMoversList } from '@/hooks/useMoversList';
@@ -22,29 +21,20 @@ import {
   listStagger,
 } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
-import {
-  isApiMoveType,
-  isApiRegion,
-  type ApiMoveType,
-  type ApiRegion,
-  type MoversSortValue,
-} from '@/types/mover';
 
 import { MoversEmptyState } from './_components/MoversEmptyState';
 import { MoversSidebar } from './_components/MoversSidebar';
 import { MoversToolbar } from './_components/MoversToolbar';
-
-const SEARCH_DEBOUNCE_MS = 300; //0.3초 딜레이
+import { useMoversFilters } from './_lib/useMoversFilters';
 
 /** 기사님 찾기 목록 페이지 클라이언트 */
 export const MoversPageClient = () => {
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
-  const { user } = useAuth(); //유저 정보를 가져오기
-  const isLoggedIn = Boolean(user); //로그인 여부 확인 (user가 존재하면 로그인이 된 것. null이 아닌 것.)
-  const canUseFavorites = Boolean(user?.isProfileCompleted); //유저 프로필이 완성되어야..찜을 할 수 있다? <- 나중에 소정님이 수정하실수도?
+  const { user } = useAuth();
+  const isLoggedIn = Boolean(user);
+  const canUseFavorites = Boolean(user?.isProfileCompleted);
   const {
-    //찜 기능 관련 함수들
     handleFavoriteClick,
     isMoverPending,
     isLoginModalOpen,
@@ -52,40 +42,25 @@ export const MoversPageClient = () => {
     closeAuthModal,
   } = useFavoriteAction();
 
-  const [searchValue, setSearchValue] = useState('');
-  const [sortValue, setSortValue] =
-    useState<MoversSortValue>('reviewCountDesc');
-  const [regionValue, setRegionValue] = useState('ALL');
-  const [serviceValue, setServiceValue] = useState('ALL');
+  const {
+    filters,
+    filterActions,
+    search,
+    sort,
+    selectedRegions,
+    selectedMoveTypes,
+    debouncedSearch,
+    sortValue,
+    handleResetAll,
+  } = useMoversFilters();
 
-  const debouncedSearch = useDebouncedValue(searchValue, SEARCH_DEBOUNCE_MS); //0.3초 딜레이 후의 searchValue를 리턴해준다.
-
-  //useMemo: 값이 바뀔 때만, 함수를 다시 실행해서 값을 만드는 훅. (값이 같으면 함수 실행 굳이 안함) (useQuery는 fetch한 데이터를 캐싱하기 위해 사용하는 것!)
-  //useMemo를 사용하면, 의존성 배열이 변경되지 않는 한 이전에 계산한 값을 재사용해서 "불필요한 재계산"을 막아줍니다.
-  // 즉, 값이 바뀔 때만 함수를 실행하고, 그렇지 않으면 메모리에 저장된 결과를 반환해서 성능을 최적화합니다.
-  //여기에서 useMemo를 사용하는 큰 이유는, "참조 안정"을 유지하기 위함. 배열은 값이 같아도 메모리 주소가 바뀐다면 동작이 한 번 더 실행될 수 있는..그런 상황을 방지하기 위해.
-  const selectedRegions = useMemo((): ApiRegion[] => {
-    if (regionValue === 'ALL' || !isApiRegion(regionValue)) {
-      return [];
-    }
-    return [regionValue]; //값이 1개지만 일관성을 위해 배열로 반환. (훅같은 곳에서 여러지역을 받을 수 있게 되어있다고 함.)
-  }, [regionValue]);
-
-  const selectedMoveTypes = useMemo((): ApiMoveType[] => {
-    if (serviceValue === 'ALL' || !isApiMoveType(serviceValue)) {
-      return [];
-    }
-    return [serviceValue];
-  }, [serviceValue]);
-
-  //기사님 목록을 가져오기. (무한 스크롤로 구현)
   const {
     movers,
     isPending,
     isFetching,
     isFetchingNextPage,
     hasNextPage,
-    fetchNextPage, //queryFn을 실행시켜서 다음 페이지를 가져옴.
+    fetchNextPage,
     isError,
     error,
     isEmpty,
@@ -100,27 +75,19 @@ export const MoversPageClient = () => {
   const { favorites } = useFavoriteMoversPreview(canUseFavorites);
 
   const { ref: loadMoreRef, inView } = useInView({
-    rootMargin: '200px', //실제 요소보다 200px 위에서부터 inView가 true가 됨.
+    rootMargin: '200px',
   });
-  //useInView: 특정 DOM 요소가 화면에 보이는지(뷰포트에 진입했는지) 감지하는 React 훅
-  //ref: 관찰할 요소
-  //inView: 관찰 요소의 가시성 여부
 
-  //다음 페이지 가져오기 (무한 스크롤)
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       void fetchNextPage();
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  //검색어 설정
-  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(event.target.value);
-  };
   /** 정렬·필터 변경 시에만 목록 entrance 애니메이션 (검색어 제외) */
   const listAnimationKey = useMemo(
-    () => [sortValue, regionValue, serviceValue].join('|'),
-    [sortValue, regionValue, serviceValue]
+    () => [sortValue, filters.regionValue, filters.serviceValue].join('|'),
+    [sortValue, filters.regionValue, filters.serviceValue]
   );
 
   const showListFetching = isFetching && !isPending && !isFetchingNextPage;
@@ -133,22 +100,9 @@ export const MoversPageClient = () => {
   const isFilteredEmpty =
     isEmpty &&
     (debouncedSearch.trim() !== '' ||
-      regionValue !== 'ALL' ||
-      serviceValue !== 'ALL');
+      filters.regionValue !== 'ALL' ||
+      filters.serviceValue !== 'ALL');
 
-  //필터 초기화
-  const handleResetFilters = () => {
-    setRegionValue('ALL');
-    setServiceValue('ALL');
-  };
-
-  /** 검색·지역·서비스 전체 초기화 */
-  const handleResetAll = () => {
-    setSearchValue('');
-    handleResetFilters();
-  };
-
-  //다시 시도 (에러 발생 시 사용함)
   const handleRetry = () => {
     void refetch();
   };
@@ -158,7 +112,6 @@ export const MoversPageClient = () => {
       ? error.message
       : (error?.message ?? '기사님 목록을 불러오지 못했습니다.');
 
-  //다양한 화면 크기에서 좌우 패딩(px 단위)이 다르게 적용되도록 설정한 Tailwind CSS 클래스 문자열
   const pageXPadding =
     'px-6 md:px-[4.5rem] lg:px-10 xl:px-16 min-[90rem]:px-[16.25rem]';
 
@@ -187,11 +140,8 @@ export const MoversPageClient = () => {
       >
         <MoversSidebar
           className="hidden shrink-0 xl:flex"
-          regionValue={regionValue}
-          serviceValue={serviceValue}
-          onRegionChange={setRegionValue}
-          onServiceChange={setServiceValue}
-          onResetFilters={handleResetFilters}
+          filters={filters}
+          filterActions={filterActions}
           isLoggedIn={isLoggedIn}
           favoriteMovers={favorites}
           onFavoriteClick={handleFavoriteClick}
@@ -206,14 +156,10 @@ export const MoversPageClient = () => {
             transition={motionTransition}
           >
             <MoversToolbar
-              searchValue={searchValue}
-              onSearchChange={handleSearchChange}
-              sortValue={sortValue}
-              onSortChange={setSortValue}
-              regionValue={regionValue}
-              serviceValue={serviceValue}
-              onRegionChange={setRegionValue}
-              onServiceChange={setServiceValue}
+              filters={filters}
+              filterActions={filterActions}
+              search={search}
+              sort={sort}
             />
           </motion.div>
 
@@ -272,7 +218,7 @@ export const MoversPageClient = () => {
               </AnimatePresence>
 
               <motion.ul
-                key={shouldAnimateList ? listAnimationKey : 'movers-list'}
+                key={listAnimationKey}
                 variants={shouldAnimateList ? listStagger : undefined}
                 initial={shouldAnimateList ? 'hidden' : false}
                 animate={shouldAnimateList ? 'show' : undefined}

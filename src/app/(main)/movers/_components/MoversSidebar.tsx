@@ -15,14 +15,12 @@ import { cn } from '@/lib/utils';
 import type { MoverCardModel } from '@/types/mover';
 import { REGION_FILTER_OPTIONS, SERVICE_FILTER_OPTIONS } from '@/types/mover';
 
+import type { MoversFilterActions, MoversFilters } from '../_lib/moversFilters';
 import { MoversSelectDropdown } from './MoversSelectDropdown';
 
 export interface MoversSidebarProps {
-  regionValue: string;
-  serviceValue: string;
-  onRegionChange: (value: string) => void;
-  onServiceChange: (value: string) => void;
-  onResetFilters: () => void;
+  filters: MoversFilters;
+  filterActions: MoversFilterActions;
   isLoggedIn: boolean;
   favoriteMovers: MoverCardModel[];
   onFavoriteClick: (moverId: string, nextFavorited: boolean) => void;
@@ -32,11 +30,8 @@ export interface MoversSidebarProps {
 
 /** Desktop 좌측 사이드바 — 필터 + 찜한 기사님(최대 3) */
 export const MoversSidebar = ({
-  regionValue,
-  serviceValue,
-  onRegionChange,
-  onServiceChange,
-  onResetFilters,
+  filters,
+  filterActions,
   isLoggedIn,
   favoriteMovers,
   onFavoriteClick,
@@ -45,6 +40,8 @@ export const MoversSidebar = ({
 }: MoversSidebarProps) => {
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
+  const { regionValue, serviceValue } = filters;
+  const { onRegionChange, onServiceChange, onResetFilters } = filterActions;
 
   return (
     <motion.aside

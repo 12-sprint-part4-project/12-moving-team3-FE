@@ -12,25 +12,16 @@ import {
   MODAL_PANEL_BOTTOM_SHEET_CLASS,
   MODAL_PANEL_CLASS,
 } from '@/components/ui/Modal/modalPanel';
+import { formatReviewMoveDate } from '@/lib/reviewDisplay';
 import { cn } from '@/lib/utils';
-import type { ApiMoveType } from '@/types/estimateRequest';
+import { formatQuotePriceLabel } from '@/services/quoteApi';
+import type { WritableQuoteItem } from '@/types/review';
 
 export interface WriteReviewModalProps {
+  quote: WritableQuoteItem;
   onClose: () => void;
   /** 등록 버튼 클릭 시 호출. API 연동은 호출 측(리뷰 도메인)에서 담당 */
   onSubmit: (review: { rating: number; content: string }) => void;
-  /** 이사 유형 (API ApiMoveType). null이면 칩 미표시 */
-  moveType?: ApiMoveType | null;
-  /** 지정 견적 요청 칩 표시 여부 */
-  isDesignated?: boolean;
-  /** 기사님 이름 (예: '김코드') */
-  moverName: string;
-  /** 이사일 (예: '2024. 07. 01') */
-  moveDate: string;
-  /** 견적가 표시 문자열 (예: '210,000원') */
-  quotePrice: string;
-  /** 프로필 이미지 URL. 없으면 기본 ProfileIcon */
-  avatarSrc?: string;
   /** 등록 요청 진행 중 — CTA 비활성 */
   isSubmitting?: boolean;
   className?: string;
@@ -42,18 +33,18 @@ export interface WriteReviewModalProps {
  * 사용 시 `<Modal placement="bottom">`과 조합한다 (모바일 하단 시트).
  */
 export const WriteReviewModal = ({
+  quote,
   onClose,
   onSubmit,
-  moveType = null,
-  isDesignated = false,
-  moverName,
-  moveDate,
-  quotePrice,
-  avatarSrc,
   isSubmitting = false,
   className = '',
 }: WriteReviewModalProps) => {
   const titleId = useId();
+  const moverName = quote.mover?.name?.trim() || '기사';
+  const avatarSrc = quote.mover?.profileImageUrl ?? undefined;
+  const moveDateLabel = formatReviewMoveDate(quote.moveDate);
+  const priceLabel = formatQuotePriceLabel(quote.price);
+
   const [rating, setRating] = useState(0);
   const [content, setContent] = useState('');
 
@@ -79,11 +70,11 @@ export const WriteReviewModal = ({
       <ModalHeader title="리뷰 쓰기" onClose={onClose} titleId={titleId} />
 
       <ReviewFormFields
-        moveType={moveType}
-        isDesignated={isDesignated}
+        moveType={quote.moveType}
+        isDesignated={quote.isDesignated}
         moverName={moverName}
-        moveDate={moveDate}
-        quotePrice={quotePrice}
+        moveDate={moveDateLabel}
+        quotePrice={priceLabel}
         avatarSrc={avatarSrc}
         rating={rating}
         onRatingChange={setRating}

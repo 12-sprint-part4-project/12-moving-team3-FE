@@ -12,8 +12,7 @@ import {
   listStagger,
 } from '@/lib/motionVariants';
 
-export interface ReviewListSectionProps<T> {
-  items: T[];
+export interface ReviewListStatus {
   isPending: boolean;
   isError: boolean;
   showEmpty: boolean;
@@ -21,13 +20,22 @@ export interface ReviewListSectionProps<T> {
   errorMessage: string;
   onRetry: () => void;
   emptyState: ReactNode;
-  renderItem: (item: T) => ReactNode;
+}
+
+export interface ReviewListPagination<T = unknown> {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
   /** keepPreviousData 재조회 중 — 목록 stagger를 잠시 끈다 */
   isFetching?: boolean;
   getItemKey?: (item: T) => string | number;
+}
+
+export interface ReviewListSectionProps<T> {
+  items: T[];
+  status: ReviewListStatus;
+  pagination: ReviewListPagination<T>;
+  renderItem: (item: T) => ReactNode;
 }
 
 /**
@@ -37,20 +45,27 @@ export interface ReviewListSectionProps<T> {
  */
 export const ReviewListSection = <T,>({
   items,
-  isPending,
-  isError,
-  showEmpty,
-  pendingMessage,
-  errorMessage,
-  onRetry,
-  emptyState,
+  status,
+  pagination,
   renderItem,
-  page,
-  totalPages,
-  onPageChange,
-  isFetching = false,
-  getItemKey,
 }: ReviewListSectionProps<T>) => {
+  const {
+    isPending,
+    isError,
+    showEmpty,
+    pendingMessage,
+    errorMessage,
+    onRetry,
+    emptyState,
+  } = status;
+  const {
+    page,
+    totalPages,
+    onPageChange,
+    isFetching = false,
+    getItemKey,
+  } = pagination;
+
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const showListFetching = isFetching && !isPending && items.length > 0;
