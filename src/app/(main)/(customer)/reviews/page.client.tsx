@@ -1,6 +1,6 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 import { DeleteReviewConfirmModal } from '@/components/reviews/DeleteReviewConfirmModal';
@@ -33,6 +33,8 @@ const CONTENT_CLASS = `mx-auto flex min-h-0 w-full max-w-[1920px] flex-1 flex-co
 
 /** 이사 리뷰 — 작성 가능 / 내가 작성한 리뷰 + 모달 */
 export const ReviewsPageClient = () => {
+  const router = useRouter();
+
   const searchParams = useSearchParams();
   const activeTab = parseReviewsTabId(searchParams.get('tab'));
   const { user, isReady } = useAuth();
@@ -41,8 +43,9 @@ export const ReviewsPageClient = () => {
   );
   const [selectedReview, setSelectedReview] =
     useState<CustomerReviewItem | null>(null);
-  const [editingReview, setEditingReview] =
-    useState<CustomerReviewItem | null>(null);
+  const [editingReview, setEditingReview] = useState<CustomerReviewItem | null>(
+    null
+  );
   const [reviewToDelete, setReviewToDelete] =
     useState<CustomerReviewItem | null>(null);
 
@@ -83,6 +86,7 @@ export const ReviewsPageClient = () => {
       if (performed) {
         setSelectedQuote(null);
       }
+      router.replace('/reviews?tab=written'); //다시 등록/수정모달로 돌아가지 않도록 replace
     } catch {
       // 성공/실패 토스트는 useCreateReview에서 처리
     }
@@ -164,8 +168,7 @@ export const ReviewsPageClient = () => {
   const writableErrorMessage =
     writable.error instanceof ApiError
       ? writable.error.message
-      : (writable.error?.message ??
-        '작성 가능한 리뷰를 불러오지 못했습니다.');
+      : (writable.error?.message ?? '작성 가능한 리뷰를 불러오지 못했습니다.');
 
   const writtenErrorMessage =
     written.error instanceof ApiError
