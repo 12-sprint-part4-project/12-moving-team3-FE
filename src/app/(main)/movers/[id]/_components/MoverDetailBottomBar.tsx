@@ -1,7 +1,10 @@
 'use client';
 
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+
 import { Button } from '@/components/Button/Button';
 import { FavoriteButton } from '@/components/Favorite';
+import { fadeUp, getMotionTransition, tapScale } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 import { getDesignatedButtonLabel } from './getDesignatedButtonLabel';
@@ -45,6 +48,8 @@ export const MoverDetailBottomBar = ({
   isChatPending = false,
   className = '',
 }: MoverDetailBottomBarProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const isHardDisabled =
     isDesignatedPending ||
     isAlreadyDesignated ||
@@ -54,7 +59,11 @@ export const MoverDetailBottomBar = ({
     (hasReceivedQuoteFromMover || isQuoteStatusError) && !isHardDisabled;
 
   return (
-    <div
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      animate="show"
+      transition={motionTransition}
       className={cn(
         'fixed inset-x-0 bottom-0 z-40 border-t border-line-100 bg-white px-6 py-2.5 md:px-[4.5rem] xl:hidden',
         className
@@ -63,59 +72,89 @@ export const MoverDetailBottomBar = ({
       <div className="mx-auto flex w-full max-w-[37.5rem] items-center gap-2">
         {showDesignatedCta ? (
           <>
-            <FavoriteButton
-              variant="icon-only"
-              isFavorited={isFavorited}
-              isPending={isFavoritePending}
-              onClick={onFavoriteClick}
-            />
-            <Button
-              type="button"
-              variant="solid"
-              size="sm"
-              onClick={onDesignatedQuoteClick}
-              disabled={isHardDisabled}
-              aria-disabled={isHardDisabled || isSoftBlocked}
-              aria-busy={isDesignatedPending || isDesignatedStatusLoading}
-              className={cn(
-                'flex-1',
-                isSoftBlocked &&
-                  'cursor-not-allowed bg-gray-100 hover:bg-gray-100'
-              )}
+            <motion.div
+              className="shrink-0"
+              {...(shouldReduceMotion ? {} : tapScale)}
             >
-              {getDesignatedButtonLabel(
-                isAlreadyDesignated,
-                hasReceivedQuoteFromMover,
-                isDesignatedPending,
-                isDesignatedStatusLoading,
-                isQuoteStatusError,
-                isDesignatedRequestFailed
-              )}
-            </Button>
-            {showChatCta ? (
+              <FavoriteButton
+                variant="icon-only"
+                isFavorited={isFavorited}
+                isPending={isFavoritePending}
+                onClick={onFavoriteClick}
+              />
+            </motion.div>
+            <motion.div
+              className="flex-1"
+              {...(shouldReduceMotion ? {} : tapScale)}
+            >
               <Button
                 type="button"
-                variant="outlined"
+                variant="solid"
                 size="sm"
-                onClick={onChatClick}
-                disabled={isChatPending}
-                aria-busy={isChatPending}
-                className="flex-1"
+                onClick={onDesignatedQuoteClick}
+                disabled={isHardDisabled}
+                aria-disabled={isHardDisabled || isSoftBlocked}
+                aria-busy={isDesignatedPending || isDesignatedStatusLoading}
+                className={cn(
+                  'w-full',
+                  isSoftBlocked &&
+                    'cursor-not-allowed bg-gray-100 hover:bg-gray-100'
+                )}
               >
-                {isChatPending ? '연결 중...' : '채팅하기'}
+                {getDesignatedButtonLabel(
+                  isAlreadyDesignated,
+                  hasReceivedQuoteFromMover,
+                  isDesignatedPending,
+                  isDesignatedStatusLoading,
+                  isQuoteStatusError,
+                  isDesignatedRequestFailed
+                )}
               </Button>
+            </motion.div>
+            {showChatCta ? (
+              <motion.div
+                className="flex-1"
+                {...(shouldReduceMotion ? {} : tapScale)}
+              >
+                <Button
+                  type="button"
+                  variant="outlined"
+                  size="sm"
+                  onClick={onChatClick}
+                  disabled={isChatPending}
+                  aria-busy={isChatPending}
+                  className="w-full"
+                >
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.span
+                      key={isChatPending ? 'pending' : 'idle'}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={motionTransition}
+                    >
+                      {isChatPending ? '연결 중...' : '채팅하기'}
+                    </motion.span>
+                  </AnimatePresence>
+                </Button>
+              </motion.div>
             ) : null}
           </>
         ) : (
-          <FavoriteButton
-            variant="labeled"
-            isFavorited={isFavorited}
-            isPending={isFavoritePending}
-            onClick={onFavoriteClick}
-            className="text-lg-semibold"
-          />
+          <motion.div
+            className="w-full"
+            {...(shouldReduceMotion ? {} : tapScale)}
+          >
+            <FavoriteButton
+              variant="labeled"
+              isFavorited={isFavorited}
+              isPending={isFavoritePending}
+              onClick={onFavoriteClick}
+              className="text-lg-semibold"
+            />
+          </motion.div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
