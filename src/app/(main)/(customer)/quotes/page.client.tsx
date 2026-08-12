@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import { Button } from '@/components/Button/Button';
@@ -107,8 +107,18 @@ const CustomerQuotesPageClient = () => {
 
   /** `/quotes` 대기 카드 → 해당 기사와 GENERAL/DESIGNATED 방 열고 채팅 화면 이동 */
   const { startEstimateChat, isChatPending } = useStartEstimateChat();
+  const [pendingChatQuoteId, setPendingChatQuoteId] = useState<number | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (!isChatPending) {
+      setPendingChatQuoteId(null);
+    }
+  }, [isChatPending]);
 
   const handlePendingChatClick = (quote: PendingQuoteCardModel) => {
+    setPendingChatQuoteId(quote.quoteId);
     startEstimateChat({
       moverId: quote.mover.moverId,
       isDesignated: quote.isDesignated,
@@ -190,7 +200,7 @@ const CustomerQuotesPageClient = () => {
                     quote={quote}
                     isConfirming={isConfirming}
                     isConfirmingThis={confirmingQuoteId === quote.quoteId}
-                    isChatPending={isChatPending}
+                    isChatPending={pendingChatQuoteId === quote.quoteId}
                     onConfirm={openConfirmModal}
                     onChatClick={handlePendingChatClick}
                     onFavoriteClick={handleFavoriteClick}

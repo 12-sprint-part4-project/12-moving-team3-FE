@@ -14,6 +14,10 @@ import CloseIcon from '@/assets/icons/close.svg';
 import SendIcon from '@/assets/icons/send.svg';
 
 import {
+  CHAT_MESSAGE_MAX_LENGTH,
+  CHAT_MESSAGE_MAX_LENGTH_HINT,
+} from '@/constants/chatUi';
+import {
   CHAT_IMAGE_MAX_COUNT,
   validateChatImageFile,
 } from '@/lib/uploadChatImage';
@@ -49,7 +53,7 @@ export const ChatComposer = ({
   className,
 }: ChatComposerProps) => {
   const composerRef = useRef<HTMLFormElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [value, setValue] = useState('');
   const [pendingImages, setPendingImages] = useState<PendingImageFile[]>([]);
   const [imageError, setImageError] = useState<string | null>(null);
@@ -57,6 +61,7 @@ export const ChatComposer = ({
   const pendingImagesRef = useRef(pendingImages);
 
   const trimmed = value.trim();
+  const isAtMessageLimit = value.length >= CHAT_MESSAGE_MAX_LENGTH;
   const hasPendingImages = pendingImages.length > 0;
   const isBusy = disabled || isSending;
   const canSend =
@@ -106,8 +111,12 @@ export const ChatComposer = ({
     void submit();
   };
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
+  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (
+      event.key === 'Enter' &&
+      !event.shiftKey &&
+      !event.nativeEvent.isComposing
+    ) {
       event.preventDefault();
       void submit();
     }
@@ -255,7 +264,17 @@ export const ChatComposer = ({
         </p>
       ) : null}
 
-      <div className="flex items-center gap-2.5">
+      {isAtMessageLimit ? (
+        <p
+          id="chat-composer-message-limit-hint"
+          className="text-sm-medium text-red-200"
+          role="alert"
+        >
+          {CHAT_MESSAGE_MAX_LENGTH_HINT}
+        </p>
+      ) : null}
+
+      <div className="flex items-end gap-2.5">
         <input
           ref={fileInputRef}
           type="file"
@@ -280,11 +299,14 @@ export const ChatComposer = ({
         >
           <ClipIcon className="size-9" aria-hidden />
         </button>
-        <input
+        <textarea
           ref={inputRef}
-          type="text"
+          rows={1}
           value={value}
-          onChange={(event) => setValue(event.target.value)}
+          maxLength={CHAT_MESSAGE_MAX_LENGTH}
+          onChange={(event) =>
+            setValue(event.target.value.slice(0, CHAT_MESSAGE_MAX_LENGTH))
+          }
           onKeyDown={handleKeyDown}
           disabled={isBusy}
           placeholder={
@@ -293,8 +315,12 @@ export const ChatComposer = ({
               : '메시지를 입력하세요'
           }
           aria-label="메시지 입력"
+          aria-describedby={
+            isAtMessageLimit ? 'chat-composer-message-limit-hint' : undefined
+          }
           className={cn(
-            'min-w-0 flex-1 rounded-full border border-line-200 bg-background-100 px-3.5 py-2.5 text-md-medium text-black-400 outline-none',
+            'max-h-32 min-h-11 min-w-0 flex-1 resize-none rounded-2xl border border-line-200 bg-background-100 px-3.5 py-2.5 text-md-medium text-black-400 outline-none',
+            'whitespace-pre-wrap',
             'placeholder:text-gray-300',
             'focus:border-blue-300',
             'disabled:cursor-not-allowed disabled:bg-background-200 disabled:text-gray-300'

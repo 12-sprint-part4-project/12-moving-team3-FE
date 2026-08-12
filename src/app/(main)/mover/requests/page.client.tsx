@@ -58,6 +58,15 @@ const MoverRequestsPageClient = ({
 }: MoverRequestsPageClientProps) => {
   const { user } = useAuth();
   const { startEstimateChat, isChatPending } = useStartEstimateChat();
+  const [pendingChatRequestId, setPendingChatRequestId] = useState<
+    number | null
+  >(null);
+
+  useEffect(() => {
+    if (!isChatPending) {
+      setPendingChatRequestId(null);
+    }
+  }, [isChatPending]);
 
   const {
     listFilters,
@@ -196,6 +205,7 @@ const MoverRequestsPageClient = ({
       return;
     }
 
+    setPendingChatRequestId(request.id);
     startEstimateChat({
       moverId: user.id,
       isDesignated: request.isDesignated,
@@ -360,7 +370,7 @@ const MoverRequestsPageClient = ({
                       onSendQuote={handleOpenSendQuoteModal}
                       onReject={handleOpenRejectModal}
                       onChatClick={handleChatClick}
-                      isChatPending={isChatPending}
+                      isChatPending={pendingChatRequestId === request.id}
                     />
                   </li>
                 ))}
