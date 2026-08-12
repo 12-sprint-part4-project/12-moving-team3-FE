@@ -12,6 +12,7 @@ import {
   ReceivedQuotesListSkeleton,
 } from '@/components/quotes/QuotesPageSkeleton';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { useAuth } from '@/hooks/useAuth';
 import { useConfirmQuoteModal } from '@/hooks/useConfirmQuoteModal';
 import {
   PAST_QUOTE_GROUP_LIMIT,
@@ -40,6 +41,8 @@ const CustomerQuotesPageClient = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeTab = parseCustomerQuotesTabId(searchParams.get('tab'));
+  const { user, isReady } = useAuth();
+  const isCustomerReady = isReady && user?.userType === 'CUSTOMER';
   const {
     handleFavoriteClick,
     isMoverPending,
@@ -58,7 +61,7 @@ const CustomerQuotesPageClient = () => {
     error,
     refetch,
   } = useCustomerPendingQuotes({
-    enabled: activeTab === 'pending',
+    enabled: isCustomerReady && activeTab === 'pending',
   });
 
   const {
@@ -73,7 +76,7 @@ const CustomerQuotesPageClient = () => {
     fetchNextPage,
   } = useCustomerPastQuotes({
     limit: PAST_QUOTE_GROUP_LIMIT,
-    enabled: activeTab === 'received',
+    enabled: isCustomerReady && activeTab === 'received',
   });
 
   const { ref: loadMoreRef, inView } = useInView({
