@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { useAuth } from '@/hooks/useAuth';
 import {
   getMoverQuotes,
   toRejectedQuoteCardModel,
@@ -95,6 +96,9 @@ export const useMoverQuotes = ({
   page,
   limit = DEFAULT_QUOTES_LIMIT,
 }: UseMoverQuotesParams) => {
+  const { user, isReady } = useAuth();
+  const isMoverReady = isReady && user?.userType === 'MOVER';
+
   const query = useQuery({
     queryKey: moverQuoteQueryKeys.list(status, page, limit),
     queryFn: async (): Promise<MoverQuotesViewData> => {
@@ -106,6 +110,7 @@ export const useMoverQuotes = ({
       const data = await getMoverQuotes({ status: 'REJECTED', page, limit });
       return selectRejectedQuotesView(data);
     },
+    enabled: isMoverReady,
     placeholderData: (
       previousData: MoverQuotesViewData | undefined,
       previousQuery

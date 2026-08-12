@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { getAuthSession } from '@/lib/authSession';
@@ -204,12 +205,15 @@ const bootstrapCustomerEstimateRequest =
 export const useCustomerEstimateRequest = () => {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const { user, isReady } = useAuth();
+  const isCustomerReady = isReady && user?.userType === 'CUSTOMER';
   /** 연속 재시도 중 토스트 스팸 방지 — 정상 진입 상태로 복귀하면 리셋 */
   const hasToastedBootstrapErrorRef = useRef(false);
 
   const bootstrapQuery = useQuery({
     queryKey: customerEstimateRequestQueryKeys.active(),
     queryFn: bootstrapCustomerEstimateRequest,
+    enabled: isCustomerReady,
     staleTime: 0,
     // 일반 에러는 queryFn 안에서 status:'error'로 반환되므로 RQ retry 대상이 아님
     retry: false,

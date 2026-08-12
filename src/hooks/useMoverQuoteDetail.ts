@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { useAuth } from '@/hooks/useAuth';
 import {
   getMoverQuoteDetail,
   toQuoteDetailViewModel,
@@ -17,10 +18,13 @@ export const moverQuoteDetailQueryKeys = {
  * 기사님 견적 상세 조회 훅
  */
 export const useMoverQuoteDetail = (quoteId: number) => {
+  const { user, isReady } = useAuth();
+  const isMoverReady = isReady && user?.userType === 'MOVER';
+
   const query = useQuery({
     queryKey: moverQuoteDetailQueryKeys.detail(quoteId),
     queryFn: () => getMoverQuoteDetail(quoteId),
-    enabled: Number.isInteger(quoteId) && quoteId > 0,
+    enabled: isMoverReady && Number.isInteger(quoteId) && quoteId > 0,
     select: (data) => toQuoteDetailViewModel(data.data),
   });
 
