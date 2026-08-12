@@ -283,7 +283,6 @@ export const MoversPageClient = () => {
                     key={mover.moverId}
                     variants={fadeUp}
                     transition={motionTransition}
-                    className="overflow-hidden"
                   >
                     <MoverCard
                       mover={mover}
