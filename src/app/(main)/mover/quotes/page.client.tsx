@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 import { QuotesListErrorState } from '@/components/quotes/QuotesListErrorState';
-import { QuotesListSkeleton } from '@/components/quotes/QuotesPageSkeleton';
+import { QuotesListSkeleton } from '@/components/ui/Skeleton';
 import { Pagination } from '@/components/ui/Pagination';
 import { useMoverQuotes } from '@/hooks/useMoverQuotes';
 import { ApiError } from '@/lib/apiClient';

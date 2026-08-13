@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/Button/Button';
+import { CommunityPostListSkeleton } from '@/components/ui/Skeleton';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { cn } from '@/lib/utils';
 import type { PostListContext } from '@/lib/communityListContext';
@@ -8,7 +9,6 @@ import type { PostListItem } from '@/types/community';
 
 import { CommunityFurnitureGridCard } from './CommunityFurnitureGridCard';
 import { CommunityPostCard } from './CommunityPostCard';
-import { CommunityPostListSkeleton } from './CommunityPostListSkeleton';
 import { COMMUNITY_FURNITURE_GRID_CLASS } from './communityLayout';
 
 type CommunityPostListVariant = 'list' | 'furniture-grid';
@@ -61,7 +61,10 @@ export const CommunityPostList = ({
   return (
     <div className={className}>
       {showSkeleton ? (
-        <CommunityPostListSkeleton variant={variant} listClassName={listClassName} />
+        <CommunityPostListSkeleton
+          variant={variant}
+          listClassName={resolvedListClassName}
+        />
       ) : null}
 
       {isInitialError ? (

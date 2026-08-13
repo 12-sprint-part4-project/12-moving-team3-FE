@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 
-import { QuotesPageContentSkeleton } from '@/components/quotes/QuotesPageSkeleton';
-import { resolveQuotesTabParam } from '@/components/quotes/QuotesTabsShell';
+import { QuotesPageContentSkeleton } from '@/components/ui/Skeleton';
+import { resolveTabSearchParam } from '@/lib/resolveTabSearchParam';
 
 import {
   MOVER_QUOTES_PAGE_X_PADDING,
@@ -25,7 +25,7 @@ export interface MoverQuotesPageProps {
  */
 const MoverQuotesPage = async ({ searchParams }: MoverQuotesPageProps) => {
   const params = await searchParams;
-  const activeTab = parseMoverQuotesTabId(resolveQuotesTabParam(params.tab));
+  const activeTab = parseMoverQuotesTabId(resolveTabSearchParam(params.tab));
 
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden">
