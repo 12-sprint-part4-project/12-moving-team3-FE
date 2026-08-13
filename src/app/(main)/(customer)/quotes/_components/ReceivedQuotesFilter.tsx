@@ -1,10 +1,11 @@
 'use client';
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
+import { useId, useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 
+import { useListboxKeyboard } from '@/hooks/useListboxKeyboard';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
 import {
   dropdownPanelVariants,
@@ -35,121 +36,47 @@ export const ReceivedQuotesFilter = ({
     duration: 0.16,
   });
   const [isOpen, setIsOpen] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const optionRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const optionRefs = useRef<Array<HTMLElement | null>>([]);
   const listboxId = useId();
+  useOutsideClick(containerRef, isOpen, setIsOpen);
 
   const selectedIndex = Math.max(
     0,
     FILTER_OPTIONS.findIndex((option) => option.value === value)
   );
   const selected = FILTER_OPTIONS[selectedIndex] ?? FILTER_OPTIONS[0];
+  const triggerStateClass = isOpen
+    ? 'border-blue-300 bg-blue-50 text-blue-300 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-blue/10 [&_path]:stroke-blue-300'
+    : 'border-line-200 bg-white text-black-400 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-gray-100/10 [&_path]:stroke-black-100';
 
-  useOutsideClick(containerRef, isOpen, setIsOpen);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const frame = requestAnimationFrame(() => {
-      optionRefs.current[activeIndex]?.focus();
-    });
-
-    return () => cancelAnimationFrame(frame);
-  }, [isOpen, activeIndex]);
-
-  if (!selected) {
-    return null;
-  }
-
-  const closeAndRestoreFocus = () => {
-    setIsOpen(false);
-    requestAnimationFrame(() => {
-      triggerRef.current?.focus();
-    });
-  };
-
-  const openListbox = () => {
-    setActiveIndex(selectedIndex);
-    setIsOpen(true);
-  };
-
-  const focusOption = (index: number) => {
-    setActiveIndex(Math.min(Math.max(index, 0), FILTER_OPTIONS.length - 1));
-  };
-
-  const handleToggle = () => {
-    if (isOpen) {
-      setIsOpen(false);
-      return;
-    }
-    openListbox();
-  };
+  const {
+    activeIndex,
+    closeAndRestoreFocus,
+    handleToggle,
+    handleTriggerKeyDown,
+    handleListKeyDown,
+  } = useListboxKeyboard({
+    optionCount: FILTER_OPTIONS.length,
+    selectedIndex,
+    isOpen,
+    setIsOpen,
+    triggerRef,
+    optionRefs,
+    onSelect: (index) => {
+      const option = FILTER_OPTIONS[index];
+      if (!option) {
+        return;
+      }
+      onValueChange(option.value);
+    },
+  });
 
   const handleSelect = (nextValue: CustomerPastQuoteFilter) => {
     onValueChange(nextValue);
     closeAndRestoreFocus();
   };
-
-  const handleTriggerKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
-    if (
-      event.key === 'ArrowDown' ||
-      event.key === 'ArrowUp' ||
-      event.key === 'Enter' ||
-      event.key === ' '
-    ) {
-      event.preventDefault();
-      openListbox();
-    }
-  };
-
-  const handleListKeyDown = (event: KeyboardEvent<HTMLElement>) => {
-    const lastIndex = FILTER_OPTIONS.length - 1;
-
-    switch (event.key) {
-      case 'ArrowDown':
-        event.preventDefault();
-        focusOption(activeIndex + 1);
-        break;
-      case 'ArrowUp':
-        event.preventDefault();
-        focusOption(activeIndex - 1);
-        break;
-      case 'Home':
-        event.preventDefault();
-        focusOption(0);
-        break;
-      case 'End':
-        event.preventDefault();
-        focusOption(lastIndex);
-        break;
-      case 'Enter':
-      case ' ': {
-        event.preventDefault();
-        const activeOption = FILTER_OPTIONS[activeIndex];
-        if (activeOption) {
-          handleSelect(activeOption.value);
-        }
-        break;
-      }
-      case 'Escape':
-        event.preventDefault();
-        closeAndRestoreFocus();
-        break;
-      case 'Tab':
-        setIsOpen(false);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const triggerStateClass = isOpen
-    ? 'border-blue-300 bg-blue-50 text-blue-300 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-blue/10 [&_path]:stroke-blue-300'
-    : 'border-line-200 bg-white text-black-400 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-gray-100/10 [&_path]:stroke-black-100';
 
   return (
     <div

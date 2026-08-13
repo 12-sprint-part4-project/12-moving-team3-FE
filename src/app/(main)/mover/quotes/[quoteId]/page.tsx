@@ -1,4 +1,4 @@
-import { DETAIL_PAGE_X_PADDING } from '@/components/quotes/QuoteDetailPageSkeleton';
+import { DETAIL_PAGE_X_PADDING } from '@/components/ui/Skeleton';
 
 import MoverQuoteDetailPageClient from './page.client';
 

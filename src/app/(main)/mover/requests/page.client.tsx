@@ -8,6 +8,7 @@ import { Button } from '@/components/Button/Button';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { RejectRequestModal } from '@/components/ui/Modal/RejectRequestModal';
 import { SendQuoteModal } from '@/components/ui/Modal/SendQuoteModal';
+import { RequestsListSkeleton } from '@/components/ui/Skeleton';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useAuth } from '@/hooks/useAuth';
@@ -32,7 +33,6 @@ import { ReceivedRequestCard } from './_components/ReceivedRequestCard';
 import { RequestsEmptyState } from './_components/RequestsEmptyState';
 import { RequestsListToolbar } from './_components/RequestsListToolbar';
 import { RequestsMobileFilterModal } from './_components/RequestsMobileFilterModal';
-import { RequestsListSkeleton } from './_components/RequestsPageSkeleton';
 import { RequestsSidebarFilter } from './_components/RequestsSidebarFilter';
 import {
   isDefaultRequestsListUrlState,

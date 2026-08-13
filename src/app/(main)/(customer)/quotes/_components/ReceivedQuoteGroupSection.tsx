@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
 
+import { QuoteInfoRows } from '@/components/quotes/QuoteInfoRows';
 import {
   fadeIn,
   fadeUp,
@@ -12,7 +13,6 @@ import {
 import { cn } from '@/lib/utils';
 import type {
   CustomerPastQuoteFilter,
-  QuoteInfoViewModel,
   ReceivedQuoteCardModel,
   ReceivedQuoteGroupModel,
 } from '@/types/customerQuote';
@@ -20,53 +20,12 @@ import type {
 import { ReceivedQuoteCard } from './ReceivedQuoteCard';
 import { ReceivedQuotesFilter } from './ReceivedQuotesFilter';
 
-interface InfoRowsProps {
-  info: QuoteInfoViewModel;
-  className?: string;
-}
-
-/** 견적 정보 행 */
-const InfoRows = ({ info, className }: InfoRowsProps) => {
-  const rows = [
-    { label: '견적 요청일', value: info.requestedAtLabel },
-    { label: '서비스', value: info.serviceLabel },
-    { label: '이용일', value: info.moveDateLabel },
-    { label: '출발지', value: info.departure },
-    { label: '도착지', value: info.arrival },
-  ];
-
-  return (
-    <dl
-      className={cn(
-        'flex w-full flex-col gap-2 rounded-2xl bg-background-200 px-5 py-4 md:gap-2 md:px-10 md:py-8 lg:gap-2.5',
-        className
-      )}
-    >
-      {rows.map((row) => (
-        <div
-          key={row.label}
-          className="flex items-start gap-[2.5rem] text-md-medium lg:gap-[2rem] lg:text-2lg-medium"
-        >
-          <dt className="w-[4.0625rem] shrink-0 text-gray-300 lg:w-[5.75rem]">
-            {row.label}
-          </dt>
-          <dd className="min-w-0 break-keep text-black-400">{row.value}</dd>
-        </div>
-      ))}
-    </dl>
-  );
-};
-
 /** 그룹 내 필터 적용 */
 const filterQuotesByStatus = (
   quotes: ReceivedQuoteCardModel[],
   filter: CustomerPastQuoteFilter
-): ReceivedQuoteCardModel[] => {
-  if (filter === 'CONFIRMED') {
-    return quotes.filter((quote) => quote.isConfirmed);
-  }
-  return quotes;
-};
+): ReceivedQuoteCardModel[] =>
+  filter === 'CONFIRMED' ? quotes.filter((quote) => quote.isConfirmed) : quotes;
 
 export interface ReceivedQuoteGroupSectionProps {
   group: ReceivedQuoteGroupModel;
@@ -108,7 +67,6 @@ export const ReceivedQuoteGroupSection = ({
       )}
       aria-labelledby={`received-group-${group.estimateRequestId}-info`}
     >
-      {/* 견적 정보 */}
       <div className="flex w-full flex-col gap-4 lg:gap-8">
         <h2
           id={`received-group-${group.estimateRequestId}-info`}
@@ -116,15 +74,18 @@ export const ReceivedQuoteGroupSection = ({
         >
           견적 정보
         </h2>
-        <InfoRows info={group.info} />
+        <QuoteInfoRows info={group.info} variant="group" />
       </div>
 
-      {/* 견적서 목록 — 이 그룹 안에서만 필터 */}
+      {/* 이 그룹 안에서만 필터 */}
       <div className="flex w-full flex-col gap-3 md:gap-4 lg:gap-6">
         <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
           견적서 목록
         </h2>
-        <ReceivedQuotesFilter value={filter} onValueChange={handleFilterChange} />
+        <ReceivedQuotesFilter
+          value={filter}
+          onValueChange={handleFilterChange}
+        />
         <AnimatePresence mode="wait" initial={false}>
           {visibleQuotes.length > 0 ? (
             <motion.ul

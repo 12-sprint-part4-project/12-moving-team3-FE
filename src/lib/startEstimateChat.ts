@@ -21,6 +21,26 @@ export interface BuildEstimateChatRoomBodyParams {
   quoteId?: number | null;
 }
 
+/** 채팅 시작 params로 매핑할 견적·요청 소스 필드 */
+export interface StartEstimateChatSource {
+  isDesignated: boolean;
+  estimateRequestId: number;
+  designatedMoverId?: number | null;
+  quoteId?: number | null;
+}
+
+/** 견적·요청 모델에서 채팅 시작 params 구성 */
+export const toStartEstimateChatParams = (
+  source: StartEstimateChatSource,
+  moverId: string
+): BuildEstimateChatRoomBodyParams => ({
+  moverId,
+  isDesignated: source.isDesignated,
+  estimateRequestId: source.estimateRequestId,
+  designatedMoverId: source.designatedMoverId,
+  quoteId: source.quoteId,
+});
+
 /**
  * POST /api/chat/rooms body 구성.
  * - GENERAL: moverId + estimateRequestId + quoteId?(있으면)

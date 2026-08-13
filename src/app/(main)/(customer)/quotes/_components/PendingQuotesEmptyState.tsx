@@ -9,10 +9,7 @@ import { fadeIn, floatY, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 export type PendingQuotesEmptyVariant =
-  | 'waiting'
-  | 'noRequest'
-  | 'receivedEmpty'
-  | 'historyEmpty';
+  'waiting' | 'noRequest' | 'receivedEmpty' | 'historyEmpty';
 
 export interface PendingQuotesEmptyStateProps {
   variant: PendingQuotesEmptyVariant;

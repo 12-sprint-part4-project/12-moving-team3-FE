@@ -22,10 +22,6 @@ export const ConfirmQuoteModal = ({
   onConfirm,
   className = '',
 }: ConfirmQuoteModalProps) => {
-  if (!open) {
-    return null;
-  }
-
   /** 확정 요청 중에는 닫기 차단 */
   const handleClose = () => {
     if (isConfirming) {
@@ -33,6 +29,10 @@ export const ConfirmQuoteModal = ({
     }
     onClose();
   };
+
+  if (!open) {
+    return null;
+  }
 
   return (
     <Modal onClose={handleClose} closeOnDimmedClick={!isConfirming}>

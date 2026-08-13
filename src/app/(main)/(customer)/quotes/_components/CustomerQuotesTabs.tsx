@@ -3,15 +3,14 @@ import {
   type QuotesTabItem,
 } from '@/components/quotes/QuotesTabsShell';
 
+import { CUSTOMER_QUOTES_PAGE_X_PADDING } from './customerQuotesLayout';
+
 export type CustomerQuotesTabId = 'pending' | 'received';
 
 const TABS: QuotesTabItem<CustomerQuotesTabId>[] = [
   { id: 'pending', label: '대기 중인 견적', href: '/quotes' },
   { id: 'received', label: '받았던 견적', href: '/quotes?tab=received' },
 ];
-
-export const CUSTOMER_QUOTES_PAGE_X_PADDING =
-  'px-6 md:px-18 lg:px-10 xl:px-16 min-[90rem]:px-65';
 
 /** URL tab 쿼리 → 탭 id */
 export const parseCustomerQuotesTabId = (

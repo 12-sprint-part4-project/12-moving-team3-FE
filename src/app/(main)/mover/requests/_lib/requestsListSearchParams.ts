@@ -1,3 +1,5 @@
+import { parsePositiveInt } from '@/lib/parsePositiveInt';
+import { resolveTabSearchParam } from '@/lib/resolveTabSearchParam';
 import {
   ALL_MOVE_TYPES,
   ALL_SCOPES,
@@ -194,16 +196,4 @@ export const buildRequestsListHref = (state: RequestsListUrlState): string => {
 */
 export const parseFocusRequestId = (
   value: string | string[] | undefined
-): number | null => {
-  const raw = Array.isArray(value) ? value[0] : value;
-  if (!raw) {
-    return null;
-  }
-
-  const parsed = Number(raw);
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    return null;
-  }
-
-  return parsed;
-};
+): number | null => parsePositiveInt(resolveTabSearchParam(value));

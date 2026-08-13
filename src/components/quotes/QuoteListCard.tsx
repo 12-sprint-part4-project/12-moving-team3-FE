@@ -5,7 +5,8 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { QuoteCardInfo } from '@/components/quotes/QuoteCardInfo';
-import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
+import { QuotePriceRow } from '@/components/quotes/QuotePriceRow';
+import { QuoteStatusChips } from '@/components/quotes/QuoteStatusChips';
 import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import type { MoveTypeOption } from '@/types/estimateRequest';
@@ -62,15 +63,13 @@ export const QuoteListCard = ({
   const shouldReduceMotion = useReducedMotion();
 
   const defaultChips = (
-    <>
-      {isConfirmed ? (
-        <MoveTypeChip type="quoteConfirmed" size="sm">
-          견적 확정
-        </MoveTypeChip>
-      ) : null}
-      {moveType ? <MoveTypeChip type={moveType} size="sm" /> : null}
-      {isDesignated ? <MoveTypeChip type="designated" size="sm" /> : null}
-    </>
+    <QuoteStatusChips
+      status={isConfirmed ? 'confirmed' : null}
+      moveType={moveType}
+      isDesignated={isDesignated}
+      size="sm"
+      statusLabel="견적 확정"
+    />
   );
 
   const cardBody = (
@@ -94,16 +93,7 @@ export const QuoteListCard = ({
         arrival={arrival}
       />
 
-      {priceLabel ? (
-        <div className="flex w-full items-end justify-end gap-2 lg:h-10 lg:gap-4">
-          <p className="text-md-medium text-black-400 lg:text-2lg-medium">
-            견적 금액
-          </p>
-          <p className="text-2lg-bold text-black-400 lg:text-2xl-bold">
-            {priceLabel}
-          </p>
-        </div>
-      ) : null}
+      {priceLabel ? <QuotePriceRow priceLabel={priceLabel} /> : null}
     </>
   );
 

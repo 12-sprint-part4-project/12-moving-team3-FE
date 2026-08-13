@@ -3,10 +3,13 @@
 import Link from 'next/link';
 
 import { Button, getButtonClassName } from '@/components/Button/Button';
-import { QuoteListCard } from '@/components/quotes/QuoteListCard';
 import { getClosedQuoteOverlayMessage } from '@/components/quotes/closedQuoteOverlay';
+import { QuoteListCard } from '@/components/quotes/QuoteListCard';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
-import { isEstimateRequestClosedForChat } from '@/lib/startEstimateChat';
+import {
+  isEstimateRequestClosedForChat,
+  toStartEstimateChatParams,
+} from '@/lib/startEstimateChat';
 import { cn } from '@/lib/utils';
 import type { HistoryQuoteCardModel } from '@/types/customerQuote';
 
@@ -35,13 +38,7 @@ export const HistoryQuoteCard = ({
 
   /** 확정 기사와 1:1 방 열고 채팅 화면으로 이동 */
   const handleChatClick = () => {
-    startEstimateChat({
-      moverId: quote.moverId,
-      isDesignated: quote.isDesignated,
-      estimateRequestId: quote.estimateRequestId,
-      designatedMoverId: quote.designatedMoverId,
-      quoteId: quote.quoteId,
-    });
+    startEstimateChat(toStartEstimateChatParams(quote, quote.moverId));
   };
 
   return (

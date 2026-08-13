@@ -4,33 +4,23 @@ import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 
 import { Button } from '@/components/Button/Button';
-import { QuoteDetailContentSkeleton } from '@/components/quotes/QuoteDetailPageSkeleton';
+import { QuoteInfoSection } from '@/components/quotes/QuoteInfoRows';
 import { QuoteShareButtons } from '@/components/QuoteShareButtons/QuoteShareButtons';
+import { QuoteDetailContentSkeleton } from '@/components/ui/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useMoverQuoteDetail } from '@/hooks/useMoverQuoteDetail';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 import { ApiError } from '@/lib/apiClient';
-import {
-  fadeIn,
-  fadeUp,
-  getListStagger,
-  getMotionTransition,
-} from '@/lib/motionVariants';
+import { fadeIn, fadeUp, getListStagger, getMotionTransition } from '@/lib/motionVariants';
+import { parsePositiveInt } from '@/lib/parsePositiveInt';
 import { cn } from '@/lib/utils';
 
 import { MoverQuoteDetailActions } from './_components/MoverQuoteDetailActions';
-import { QuoteDetailInfoSection } from './_components/QuoteDetailInfoSection';
 import { QuoteDetailSummaryCard } from './_components/QuoteDetailSummaryCard';
 
 export interface MoverQuoteDetailPageClientProps {
   quoteId: string;
 }
-
-/** 견적 ID 숫자 변환 */
-const parseQuoteId = (value: string): number => {
-  const parsed = Number(value);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : NaN;
-};
 
 /** 기사님 견적 상세 페이지 클라이언트 */
 const MoverQuoteDetailPageClient = ({
@@ -40,9 +30,9 @@ const MoverQuoteDetailPageClient = ({
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const listStaggerVariants = getListStagger(shouldReduceMotion);
   const { user } = useAuth();
-  const numericQuoteId = parseQuoteId(quoteId);
+  const numericQuoteId = parsePositiveInt(quoteId);
   const { detail, isPending, isError, error, refetch } =
-    useMoverQuoteDetail(numericQuoteId);
+    useMoverQuoteDetail(numericQuoteId ?? 0);
   /**
    * `/mover/quotes/[quoteId]` — 견적 보냄~확정 공통.
    * 데스크톱: 공유 위 `채팅하기` / 모바일·태블릿: 하단바 (닫힌·반려면 숨김).
@@ -52,7 +42,7 @@ const MoverQuoteDetailPageClient = ({
   const pageXPadding =
     'px-6 md:px-[4.5rem] lg:px-10 xl:px-16 min-[90rem]:px-[16.25rem]';
 
-  if (!Number.isInteger(numericQuoteId)) {
+  if (numericQuoteId == null) {
     return (
       <motion.div
         variants={fadeIn}
@@ -254,7 +244,7 @@ const MoverQuoteDetailPageClient = ({
           />
 
           <motion.div variants={fadeUp} transition={motionTransition}>
-            <QuoteDetailInfoSection detail={detail} />
+            <QuoteInfoSection info={detail} variant="moverDetail" />
           </motion.div>
         </motion.div>
 
