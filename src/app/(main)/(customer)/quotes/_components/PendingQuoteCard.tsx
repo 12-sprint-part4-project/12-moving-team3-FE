@@ -1,11 +1,13 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 
 import { Button } from '@/components/Button/Button';
 import { MoverProfileBlock } from '@/components/movers/MoverProfileBlock';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
+import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
 import type { PendingQuoteCardModel } from '@/types/customerQuote';
@@ -56,9 +58,9 @@ export const PendingQuoteCard = ({
   isFavoritePending = false,
   className = '',
 }: PendingQuoteCardProps) => {
+  const shouldReduceMotion = useReducedMotion();
   const detailHref = `/quotes/${quote.quoteId}`;
-  const canStartChat =
-    !quote.isDesignated || quote.designatedMoverId != null;
+  const canStartChat = !quote.isDesignated || quote.designatedMoverId != null;
 
   /** 견적 확정 */
   const handleConfirm = () => {
@@ -71,7 +73,8 @@ export const PendingQuoteCard = ({
   };
 
   return (
-    <article
+    <motion.article
+      {...(shouldReduceMotion ? {} : cardHover)}
       className={cn(
         'flex w-full flex-col gap-2 rounded-2xl border border-line-100 bg-white px-3 pt-5 pb-3.5 shadow-request-card lg:gap-6 lg:px-6 lg:pt-7 lg:pb-5.5',
         className
@@ -198,6 +201,6 @@ export const PendingQuoteCard = ({
           상세보기
         </Link>
       </div>
-    </article>
+    </motion.article>
   );
 };

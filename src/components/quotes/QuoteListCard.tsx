@@ -1,10 +1,12 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { QuoteCardInfo } from '@/components/quotes/QuoteCardInfo';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
+import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import type { MoveTypeOption } from '@/types/estimateRequest';
 
@@ -57,6 +59,8 @@ export const QuoteListCard = ({
   chips,
   footerActions,
 }: QuoteListCardProps) => {
+  const shouldReduceMotion = useReducedMotion();
+
   const defaultChips = (
     <>
       {isConfirmed ? (
@@ -106,9 +110,10 @@ export const QuoteListCard = ({
   const useFooterActions = Boolean(footerActions) && !isClosed;
 
   return (
-    <article
+    <motion.article
+      {...(shouldReduceMotion ? {} : cardHover)}
       className={cn(
-        'relative flex h-full w-full flex-col gap-6.5 overflow-hidden rounded-2xl border border-line-100 bg-white px-3.5 py-4 shadow-request-card lg:gap-4 lg:px-6 lg:pt-5 lg:pb-3',
+        'relative flex h-full w-full flex-col gap-6.5 overflow-hidden rounded-2xl border border-line-100 bg-white px-3.5 py-4 shadow-request-card transition-shadow hover:shadow-md lg:gap-4 lg:px-6 lg:pt-5 lg:pb-3',
         className
       )}
     >
@@ -146,6 +151,6 @@ export const QuoteListCard = ({
           </Link>
         </div>
       ) : null}
-    </article>
+    </motion.article>
   );
 };

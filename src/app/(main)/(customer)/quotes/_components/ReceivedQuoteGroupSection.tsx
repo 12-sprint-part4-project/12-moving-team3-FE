@@ -1,7 +1,14 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { useState } from 'react';
 
+import {
+  fadeIn,
+  fadeUp,
+  getMotionTransition,
+  listStagger,
+} from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import type {
   CustomerPastQuoteFilter,
@@ -63,6 +70,8 @@ const filterQuotesByStatus = (
 
 export interface ReceivedQuoteGroupSectionProps {
   group: ReceivedQuoteGroupModel;
+  /** 첫 데이터 로드 시에만 목록 entrance stagger (탭 전환 시 false) */
+  staggerOnEntrance?: boolean;
   onFavoriteClick?: (moverId: string, nextFavorited: boolean) => void;
   isMoverPending?: (moverId: string) => boolean;
   className?: string;
@@ -73,16 +82,23 @@ export interface ReceivedQuoteGroupSectionProps {
  */
 export const ReceivedQuoteGroupSection = ({
   group,
+  staggerOnEntrance = false,
   onFavoriteClick,
   isMoverPending,
   className = '',
 }: ReceivedQuoteGroupSectionProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const [filter, setFilter] = useState<CustomerPastQuoteFilter>('ALL');
+  /** 필터 변경으로 remount된 목록만 stagger */
+  const [staggerOnFilter, setStaggerOnFilter] = useState(false);
+  const visibleQuotes = filterQuotesByStatus(group.quotes, filter);
+  const shouldStaggerList = staggerOnEntrance || staggerOnFilter;
 
-  const visibleQuotes = useMemo(
-    () => filterQuotesByStatus(group.quotes, filter),
-    [group.quotes, filter]
-  );
+  const handleFilterChange = (next: CustomerPastQuoteFilter) => {
+    setStaggerOnFilter(true);
+    setFilter(next);
+  };
 
   return (
     <section
@@ -108,26 +124,48 @@ export const ReceivedQuoteGroupSection = ({
         <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
           견적서 목록
         </h2>
-        <ReceivedQuotesFilter value={filter} onValueChange={setFilter} />
-        {visibleQuotes.length > 0 ? (
-          <ul className="flex w-full flex-col gap-6 lg:gap-8">
-            {visibleQuotes.map((quote) => (
-              <li key={quote.quoteId}>
-                <ReceivedQuoteCard
-                  quote={quote}
-                  onFavoriteClick={onFavoriteClick}
-                  isFavoritePending={isMoverPending?.(quote.mover.moverId)}
-                />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="py-10 text-center text-lg-regular text-gray-400">
-            {filter === 'CONFIRMED'
-              ? '확정한 견적서가 없어요.'
-              : '받은 견적서가 없어요.'}
-          </p>
-        )}
+        <ReceivedQuotesFilter value={filter} onValueChange={handleFilterChange} />
+        <AnimatePresence mode="wait" initial={false}>
+          {visibleQuotes.length > 0 ? (
+            <motion.ul
+              key={filter}
+              variants={shouldStaggerList ? listStagger : undefined}
+              initial={shouldStaggerList ? 'hidden' : false}
+              animate={shouldStaggerList ? 'show' : undefined}
+              exit={{ opacity: 0 }}
+              transition={motionTransition}
+              className="flex w-full flex-col gap-6 lg:gap-8"
+            >
+              {visibleQuotes.map((quote) => (
+                <motion.li
+                  key={quote.quoteId}
+                  variants={shouldStaggerList ? fadeUp : undefined}
+                  transition={motionTransition}
+                >
+                  <ReceivedQuoteCard
+                    quote={quote}
+                    onFavoriteClick={onFavoriteClick}
+                    isFavoritePending={isMoverPending?.(quote.mover.moverId)}
+                  />
+                </motion.li>
+              ))}
+            </motion.ul>
+          ) : (
+            <motion.p
+              key={`empty-${filter}`}
+              variants={fadeIn}
+              initial="hidden"
+              animate="show"
+              exit="exit"
+              transition={motionTransition}
+              className="py-10 text-center text-lg-regular text-gray-400"
+            >
+              {filter === 'CONFIRMED'
+                ? '확정한 견적서가 없어요.'
+                : '받은 견적서가 없어요.'}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );

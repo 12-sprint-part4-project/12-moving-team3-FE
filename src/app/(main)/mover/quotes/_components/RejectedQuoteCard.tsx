@@ -1,9 +1,11 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 
 import { QuoteCardInfo } from '@/components/quotes/QuoteCardInfo';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
+import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import type { RejectedQuoteCardModel } from '@/types/quote';
 
@@ -17,10 +19,12 @@ export const RejectedQuoteCard = ({
   quote,
   className = '',
 }: RejectedQuoteCardProps) => {
+  const shouldReduceMotion = useReducedMotion();
   const detailHref = `/mover/quotes/${quote.id}`;
 
   return (
-    <article
+    <motion.article
+      {...(shouldReduceMotion ? {} : cardHover)}
       className={cn(
         'relative flex w-full flex-col gap-3.5 overflow-hidden rounded-2xl border border-line-100 bg-white px-3.5 py-4 shadow-request-card lg:gap-4 lg:px-6 lg:pt-5 lg:pb-3',
         className
@@ -56,6 +60,6 @@ export const RejectedQuoteCard = ({
           견적 상세보기
         </Link>
       </div>
-    </article>
+    </motion.article>
   );
 };

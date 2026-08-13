@@ -37,6 +37,7 @@ const CustomerQuotesPage = async ({
           <QuotesPageContentSkeleton
             className={CUSTOMER_QUOTES_PAGE_X_PADDING}
             withTabs={false}
+            withSubHeader={activeTab === 'pending'}
           />
         }
       >

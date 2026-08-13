@@ -7,7 +7,7 @@ import { FilterButton } from '@/components/ui/Filter/FilterButton';
 import { TextFieldSearch } from '@/components/ui/Input/TextFieldSearch';
 import { Sort } from '@/components/ui/Sort/Sort';
 
-import { getMotionTransition } from '@/lib/motionVariants';
+import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 
 import type { RequestsSortValue } from '@/types/estimateRequest';
 
@@ -91,7 +91,13 @@ export const RequestsListToolbar = ({
   };
 
   return (
-    <div className="flex w-full flex-col gap-4 lg:gap-6">
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      animate="show"
+      transition={motionTransition}
+      className="flex w-full flex-col gap-4 lg:gap-6"
+    >
       <TextFieldSearch
         size="sm"
         className="w-full max-w-none lg:h-16 lg:gap-2 lg:px-6 lg:py-3.5 lg:[&_button]:size-9 lg:[&_input]:text-xl-regular lg:[&_svg]:size-9"
@@ -168,6 +174,6 @@ export const RequestsListToolbar = ({
           />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

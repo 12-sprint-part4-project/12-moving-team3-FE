@@ -28,6 +28,19 @@ export const listStagger: Variants = {
   },
 };
 
+/** prefers-reduced-motion이면 stagger 없이 동시 전환 */
+export const getListStagger = (
+  shouldReduceMotion: boolean | null
+): Variants =>
+  shouldReduceMotion
+    ? {
+        hidden: {},
+        show: {
+          transition: { staggerChildren: 0, delayChildren: 0 },
+        },
+      }
+    : listStagger;
+
 export const cardExit: Variants = {
   exit: {
     opacity: 0,
@@ -35,6 +48,13 @@ export const cardExit: Variants = {
     marginBottom: 0,
     transition: { duration: 0.28, ease: 'easeInOut' },
   },
+};
+
+/** 목록 아이템 entrance(fadeUp) + exit(cardExit) */
+export const listItemVariants: Variants = {
+  hidden: fadeUp.hidden,
+  show: fadeUp.show,
+  exit: cardExit.exit,
 };
 
 export const dimmerVariants: Variants = {
@@ -112,6 +132,13 @@ export const tabContentSlide: Variants = {
     opacity: 0,
     x: direction > 0 ? -16 : 16,
   }),
+};
+
+/** Sort·필터 등 트리거 아래 드롭다운 패널 */
+export const dropdownPanelVariants: Variants = {
+  hidden: { opacity: 0, y: -6 },
+  show: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -6 },
 };
 
 export const floatY = {

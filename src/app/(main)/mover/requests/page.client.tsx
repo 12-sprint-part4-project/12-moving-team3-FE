@@ -17,8 +17,8 @@ import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 import { ApiError } from '@/lib/apiClient';
 import {
   fadeIn,
-  fadeUp,
   getMotionTransition,
+  listItemVariants,
   listStagger,
 } from '@/lib/motionVariants';
 import {
@@ -50,17 +50,6 @@ export interface MoverRequestsPageClientProps {
   /** 알림 딥링크 `?focus=` — 해당 요청 카드까지 로드·스크롤 */
   focusRequestId?: number | null;
 }
-
-const listItemVariants = {
-  hidden: fadeUp.hidden,
-  show: fadeUp.show,
-  exit: {
-    opacity: 0,
-    height: 0,
-    marginBottom: 0,
-    transition: { duration: 0.28, ease: 'easeInOut' as const },
-  },
-};
 
 /** 받은 요청 페이지 클라이언트 — 검색·정렬·필터·목록 조회 */
 const MoverRequestsPageClient = ({

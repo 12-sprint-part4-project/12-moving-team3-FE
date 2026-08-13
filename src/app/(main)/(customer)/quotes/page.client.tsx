@@ -1,17 +1,19 @@
 'use client';
 
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
-import { Button } from '@/components/Button/Button';
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
 import {
+  PendingRequestSubHeaderSkeleton,
   QuotesListSkeleton,
   ReceivedQuotesListSkeleton,
 } from '@/components/quotes/QuotesPageSkeleton';
-import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { QuotesListErrorState } from '@/components/quotes/QuotesListErrorState';
+import { QuotesLoadMoreSentinel } from '@/components/quotes/QuotesLoadMoreSentinel';
 import { useAuth } from '@/hooks/useAuth';
 import { useConfirmQuoteModal } from '@/hooks/useConfirmQuoteModal';
 import {
@@ -22,6 +24,12 @@ import { useCustomerPendingQuotes } from '@/hooks/useCustomerPendingQuotes';
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 import { ApiError } from '@/lib/apiClient';
+import {
+  fadeUp,
+  getMotionTransition,
+  listStagger,
+  tabContentSlide,
+} from '@/lib/motionVariants';
 import type { PendingQuoteCardModel } from '@/types/customerQuote';
 
 import { ConfirmQuoteModal } from './_components/ConfirmQuoteModal';
@@ -38,9 +46,17 @@ const CONTENT_CLASS = `mx-auto w-full max-w-[1920px] py-6 md:py-8 lg:py-10 ${CUS
 
 /** 고객 내 견적 관리 본문 */
 const CustomerQuotesPageClient = () => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeTab = parseCustomerQuotesTabId(searchParams.get('tab'));
+  /** 대기 중·받았던 견적 — 로드 완료 시에만 stagger (탭 슬라이드와 중첩 방지) */
+  const [listAnim, setListAnim] = useState({
+    tab: activeTab,
+    stagger: false,
+    sawLoading: false,
+  });
   const { user, isReady } = useAuth();
   const isCustomerReady = isReady && user?.userType === 'CUSTOMER';
   const {
@@ -78,6 +94,28 @@ const CustomerQuotesPageClient = () => {
     limit: PAST_QUOTE_GROUP_LIMIT,
     enabled: isCustomerReady && activeTab === 'received',
   });
+
+  const isActiveTabPending = activeTab === 'pending';
+  const isActiveTabLoading = isActiveTabPending ? isPending : isPastPending;
+
+  if (listAnim.tab !== activeTab) {
+    setListAnim({ tab: activeTab, stagger: false, sawLoading: false });
+  } else if (isActiveTabLoading && !listAnim.sawLoading) {
+    setListAnim({ ...listAnim, sawLoading: true });
+  } else if (
+    !isActiveTabLoading &&
+    listAnim.sawLoading &&
+    !listAnim.stagger
+  ) {
+    setListAnim({
+      tab: activeTab,
+      sawLoading: false,
+      stagger: true,
+    });
+  }
+
+  const staggerPendingList = isActiveTabPending && listAnim.stagger;
+  const staggerReceivedList = !isActiveTabPending && listAnim.stagger;
 
   const { ref: loadMoreRef, inView } = useInView({
     rootMargin: '200px',
@@ -155,28 +193,23 @@ const CustomerQuotesPageClient = () => {
   const renderPendingPanel = () => {
     if (isPending) {
       return (
-        <div className={CONTENT_CLASS}>
-          <QuotesListSkeleton />
-        </div>
+        <>
+          <PendingRequestSubHeaderSkeleton />
+          <div className={CONTENT_CLASS}>
+            <QuotesListSkeleton />
+          </div>
+        </>
       );
     }
 
     if (isError) {
       return (
         <div className={CONTENT_CLASS}>
-          <div className="flex flex-col items-center gap-4 py-16">
-            <p role="alert" className="text-center text-lg-medium text-red-200">
-              {errorMessage}
-            </p>
-            <Button
-              size="sm"
-              variant="outlined"
-              className="max-w-[10rem]"
-              onClick={handleRetry}
-            >
-              다시 시도
-            </Button>
-          </div>
+          <QuotesListErrorState
+            message={errorMessage}
+            onRetry={handleRetry}
+            withMotion={false}
+          />
         </div>
       );
     }
@@ -196,9 +229,18 @@ const CustomerQuotesPageClient = () => {
           {isWaitingForQuotes ? (
             <PendingQuotesEmptyState variant="waiting" />
           ) : (
-            <ul className="grid w-full grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-x-6 lg:gap-y-8">
+            <motion.ul
+              variants={staggerPendingList ? listStagger : undefined}
+              initial={staggerPendingList ? 'hidden' : false}
+              animate={staggerPendingList ? 'show' : undefined}
+              className="grid w-full grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-x-6 lg:gap-y-8"
+            >
               {quotes.map((quote) => (
-                <li key={quote.quoteId}>
+                <motion.li
+                  key={quote.quoteId}
+                  variants={fadeUp}
+                  transition={motionTransition}
+                >
                   <PendingQuoteCard
                     quote={quote}
                     isConfirming={isConfirming}
@@ -209,9 +251,9 @@ const CustomerQuotesPageClient = () => {
                     onFavoriteClick={handleFavoriteClick}
                     isFavoritePending={isMoverPending(quote.mover.moverId)}
                   />
-                </li>
+                </motion.li>
               ))}
-            </ul>
+            </motion.ul>
           )}
         </div>
       </>
@@ -231,19 +273,11 @@ const CustomerQuotesPageClient = () => {
     if (isPastError) {
       return (
         <div className={CONTENT_CLASS}>
-          <div className="flex flex-col items-center gap-4 py-16">
-            <p role="alert" className="text-center text-lg-medium text-red-200">
-              {pastErrorMessage}
-            </p>
-            <Button
-              size="sm"
-              variant="outlined"
-              className="max-w-[10rem]"
-              onClick={handlePastRetry}
-            >
-              다시 시도
-            </Button>
-          </div>
+          <QuotesListErrorState
+            message={pastErrorMessage}
+            onRetry={handlePastRetry}
+            withMotion={false}
+          />
         </div>
       );
     }
@@ -263,25 +297,61 @@ const CustomerQuotesPageClient = () => {
             <ReceivedQuoteGroupSection
               key={group.estimateRequestId}
               group={group}
+              staggerOnEntrance={staggerReceivedList}
               onFavoriteClick={handleFavoriteClick}
               isMoverPending={isMoverPending}
             />
           ))}
 
-          <div ref={loadMoreRef} className="flex w-full justify-center py-2">
-            {isFetchingNextPage ? (
-              <Spinner message="더 불러오는 중..." />
-            ) : null}
-          </div>
+          <QuotesLoadMoreSentinel
+            loadMoreRef={loadMoreRef}
+            isFetchingNextPage={isFetchingNextPage}
+          />
         </div>
       </div>
     );
   };
 
+  const tabDirection = activeTab === 'received' ? 1 : -1;
+
   return (
     <>
-      <div className="min-h-0 w-full flex-1 bg-background-200">
-        {activeTab === 'pending' ? renderPendingPanel() : renderReceivedPanel()}
+      <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden bg-background-200">
+        <AnimatePresence mode="wait" custom={tabDirection}>
+          {activeTab === 'pending' ? (
+            <motion.div
+              key="pending"
+              custom={tabDirection}
+              variants={tabContentSlide}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={motionTransition}
+              role="tabpanel"
+              id="quotes-panel-pending"
+              aria-labelledby="quotes-tab-pending"
+              className="flex min-h-0 flex-1 flex-col"
+            >
+              {renderPendingPanel()}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="received"
+              custom={tabDirection}
+              variants={tabContentSlide}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={motionTransition}
+              role="tabpanel"
+              id="quotes-panel-received"
+              aria-labelledby="quotes-tab-received"
+              className="flex min-h-0 flex-1 flex-col"
+            >
+              {renderReceivedPanel()}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <ConfirmQuoteModal

@@ -1,5 +1,6 @@
 'use client';
 
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
@@ -8,6 +9,10 @@ import { TriggerWidthSizer } from '@/components/ui/Common/TriggerWidthSizer';
 import type { DropdownOption } from '@/constants/dropdownOptions';
 import { useControllableValue } from '@/hooks/useControllableValue';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
+import {
+  dropdownPanelVariants,
+  getMotionTransition,
+} from '@/lib/motionVariants';
 
 export type SortOption = DropdownOption;
 
@@ -60,6 +65,10 @@ export const Sort = ({
   size = 'md',
   className,
 }: SortProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion, {
+    duration: 0.16,
+  });
   const [selectedValue, setSelectedValue] = useControllableValue(
     value,
     defaultValue ?? options[0]?.value ?? '',
@@ -106,39 +115,52 @@ export const Sort = ({
         className={`col-start-1 row-start-1 flex w-full cursor-pointer items-center justify-center whitespace-nowrap ${sizeStyles.trigger}`}
       >
         <span>{selectedOption.label}</span>
-        <ChevronDownIcon
+        <motion.span
           aria-hidden
-          className={`shrink-0 text-gray-200 ${sizeStyles.icon} ${isOpen ? 'rotate-180' : ''}`}
-        />
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={motionTransition}
+          className={`inline-flex shrink-0 text-gray-200 ${sizeStyles.icon}`}
+        >
+          <ChevronDownIcon className="size-full" />
+        </motion.span>
       </button>
 
-      {isOpen ? (
-        <ul
-          role="listbox"
-          aria-label="정렬 옵션"
-          className="absolute top-full left-0 z-10 mt-1 w-full overflow-hidden rounded-lg border border-line-100 bg-white"
-        >
-          {options.map((option) => {
-            const isSelected = option.value === selectedValue;
+      <AnimatePresence>
+        {isOpen ? (
+          <motion.ul
+            role="listbox"
+            aria-label="정렬 옵션"
+            variants={dropdownPanelVariants}
+            initial="hidden"
+            animate="show"
+            exit="exit"
+            transition={motionTransition}
+            className="absolute top-full left-0 z-10 mt-1 w-full overflow-hidden rounded-lg border border-line-100 bg-white"
+          >
+            {options.map((option) => {
+              const isSelected = option.value === selectedValue;
 
-            return (
-              <li key={option.value} role="presentation">
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={isSelected}
-                  onClick={() => handleSelect(option.value)}
-                  className={`flex w-full cursor-pointer items-center justify-center whitespace-nowrap ${sizeStyles.option} ${
-                    isSelected ? 'bg-background-300' : 'hover:bg-background-300'
-                  }`}
-                >
-                  {option.label}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      ) : null}
+              return (
+                <li key={option.value} role="presentation">
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    onClick={() => handleSelect(option.value)}
+                    className={`flex w-full cursor-pointer items-center justify-center whitespace-nowrap ${sizeStyles.option} ${
+                      isSelected
+                        ? 'bg-background-300'
+                        : 'hover:bg-background-300'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                </li>
+              );
+            })}
+          </motion.ul>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 };

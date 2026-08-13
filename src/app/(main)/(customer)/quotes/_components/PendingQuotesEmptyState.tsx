@@ -1,7 +1,11 @@
+'use client';
+
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 
 import { getButtonClassName } from '@/components/Button/Button';
+import { fadeIn, floatY, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 export type PendingQuotesEmptyVariant =
@@ -42,33 +46,54 @@ export const PendingQuotesEmptyState = ({
   variant,
   className = '',
 }: PendingQuotesEmptyStateProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const copy = EMPTY_COPY[variant];
+  const messageKey = copy.lines.join('|');
 
   return (
-    <div
+    <motion.div
+      variants={fadeIn}
+      initial="hidden"
+      animate="show"
+      transition={motionTransition}
       className={cn(
         'flex w-full flex-col items-center justify-center gap-6 py-16 lg:gap-8 lg:py-[11.25rem]',
         className
       )}
       role="status"
     >
-      <Image
-        src="/images/empty.svg"
-        alt=""
-        width={184}
-        height={136}
-        className="h-34 w-46"
-      />
-      <div className="flex flex-col items-center gap-1">
-        {copy.lines.map((line) => (
-          <p
-            key={line}
-            className="text-center text-lg-regular text-gray-400 lg:text-xl-regular"
-          >
-            {line}
-          </p>
-        ))}
-      </div>
+      <motion.div
+        {...(shouldReduceMotion ? {} : floatY)}
+        className="flex items-center justify-center"
+      >
+        <Image
+          src="/images/empty.svg"
+          alt=""
+          width={184}
+          height={136}
+          className="h-34 w-46"
+        />
+      </motion.div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={messageKey}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={motionTransition}
+          className="flex flex-col items-center gap-1"
+        >
+          {copy.lines.map((line) => (
+            <p
+              key={line}
+              className="text-center text-lg-regular text-gray-400 lg:text-xl-regular"
+            >
+              {line}
+            </p>
+          ))}
+        </motion.div>
+      </AnimatePresence>
       {copy.actionHref && copy.actionLabel ? (
         <Link
           href={copy.actionHref}
@@ -84,6 +109,6 @@ export const PendingQuotesEmptyState = ({
           {copy.actionLabel}
         </Link>
       ) : null}
-    </div>
+    </motion.div>
   );
 };
