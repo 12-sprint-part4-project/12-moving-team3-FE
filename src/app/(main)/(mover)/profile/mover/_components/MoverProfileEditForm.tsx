@@ -1,12 +1,7 @@
 'use client';
 
 import { redirect, useRouter } from 'next/navigation';
-import {
-  useId,
-  useState,
-  type ChangeEvent,
-  type FormEvent,
-} from 'react';
+import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { ProfileImageCropModal } from '@/app/(main)/(customer)/profile/customer/_components/ProfileImageCropModal';
@@ -15,6 +10,7 @@ import { useProfileImageCrop } from '@/app/(main)/(customer)/profile/customer/_l
 import { Button } from '@/components/Button/Button';
 import { RegionChip, ServiceChip } from '@/components/ui/Chip';
 import { TextArea, TextFieldOutlined } from '@/components/ui/Input';
+import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import {
   REGION_CHIP_OPTIONS,
@@ -29,9 +25,11 @@ import {
 } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
-import { getAuthSession } from '@/lib/authSession';
 import { isValidKrPhoneNumber } from '@/lib/phoneNumber';
-import { uploadProfileImage } from '@/lib/uploadProfileImage';
+import {
+  uploadProfileImage,
+  validateProfileImageFile,
+} from '@/lib/uploadProfileImage';
 import { cn } from '@/lib/utils';
 import { upsertMoverProfile } from '@/services/moverProfileApi';
 import type { MoverProfileMe } from '@/types/moverProfile';
@@ -55,6 +53,12 @@ const NICKNAME_MAX_LENGTH = 20;
 const CAREER_MAX = 50;
 const SHORT_DESCRIPTION_MAX = 20;
 const DESCRIPTION_MIN = 8;
+const DESCRIPTION_MAX = 500;
+
+const NICKNAME_FORMAT_ERROR_MESSAGE = `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`;
+const CAREER_FORMAT_ERROR_MESSAGE = `경력은 0~${CAREER_MAX} 사이의 값으로 입력해 주세요.`;
+const SHORT_INTRO_FORMAT_ERROR_MESSAGE = `한 줄 소개는 1~${SHORT_DESCRIPTION_MAX}자로 입력해 주세요.`;
+const DESCRIPTION_FORMAT_ERROR_MESSAGE = `상세 설명은 ${DESCRIPTION_MIN}~${DESCRIPTION_MAX}자로 입력해 주세요.`;
 
 const toDigits = (value: string): string => value.replace(/\D/g, '');
 
@@ -117,23 +121,55 @@ const MoverProfileEditFields = ({
   const [isPending, setIsPending] = useState(false);
 
   const phoneNumber = profile.phoneNumber ?? '';
+  const trimmedNickname = nickname.trim();
+  const trimmedShortIntro = shortIntro.trim();
+  const trimmedDescription = description.trim();
   const careerValue = career === '' ? null : Number(career);
   const isCareerValid =
     careerValue !== null &&
     Number.isInteger(careerValue) &&
     careerValue >= 0 &&
     careerValue <= CAREER_MAX;
+
+  const isNicknameFormatError =
+    trimmedNickname.length > 0 &&
+    (trimmedNickname.length < NICKNAME_MIN_LENGTH ||
+      trimmedNickname.length > NICKNAME_MAX_LENGTH);
+  const isCareerFormatError = career !== '' && !isCareerValid;
+  const isShortIntroFormatError =
+    trimmedShortIntro.length > SHORT_DESCRIPTION_MAX;
+  const isDescriptionFormatError =
+    trimmedDescription.length > 0 &&
+    (trimmedDescription.length < DESCRIPTION_MIN ||
+      trimmedDescription.length > DESCRIPTION_MAX);
+
   const isSubmitEnabled =
-    nickname.trim().length >= NICKNAME_MIN_LENGTH &&
+    trimmedNickname.length >= NICKNAME_MIN_LENGTH &&
+    trimmedNickname.length <= NICKNAME_MAX_LENGTH &&
     isCareerValid &&
-    shortIntro.trim().length > 0 &&
-    description.trim().length >= DESCRIPTION_MIN &&
+    trimmedShortIntro.length > 0 &&
+    trimmedShortIntro.length <= SHORT_DESCRIPTION_MAX &&
+    trimmedDescription.length >= DESCRIPTION_MIN &&
+    trimmedDescription.length <= DESCRIPTION_MAX &&
     selectedServices.length > 0 &&
     selectedRegions.length > 0 &&
     !isPending;
 
   const handleCancel = () => {
     router.back();
+  };
+
+  const handleValidatedImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const imageError = validateProfileImageFile(file);
+      if (imageError) {
+        event.target.value = '';
+        showToast({ content: imageError });
+        return;
+      }
+    }
+    handleImageChange(event);
   };
 
   const handleNicknameChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -160,59 +196,7 @@ const MoverProfileEditFields = ({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (isPending) return;
-
-    const trimmedNickname = nickname.trim();
-    if (
-      trimmedNickname.length < NICKNAME_MIN_LENGTH ||
-      trimmedNickname.length > NICKNAME_MAX_LENGTH
-    ) {
-      showToast({
-        content: `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`,
-      });
-      return;
-    }
-
-    const isCareerValid =
-      careerValue !== null &&
-      Number.isInteger(careerValue) &&
-      careerValue >= 0 &&
-      careerValue <= CAREER_MAX;
-    if (!isCareerValid || careerValue === null) {
-      showToast({
-        content: `경력은 0~${CAREER_MAX}년으로 입력해 주세요.`,
-      });
-      return;
-    }
-
-    const trimmedShortIntro = shortIntro.trim();
-    if (
-      trimmedShortIntro.length === 0 ||
-      trimmedShortIntro.length > SHORT_DESCRIPTION_MAX
-    ) {
-      showToast({
-        content: `한 줄 소개는 1~${SHORT_DESCRIPTION_MAX}자로 입력해 주세요.`,
-      });
-      return;
-    }
-
-    const trimmedDescription = description.trim();
-    if (trimmedDescription.length < DESCRIPTION_MIN) {
-      showToast({
-        content: `상세 설명은 ${DESCRIPTION_MIN}자 이상 입력해 주세요.`,
-      });
-      return;
-    }
-
-    if (selectedServices.length === 0) {
-      showToast({ content: '제공 서비스를 선택해 주세요.' });
-      return;
-    }
-
-    if (selectedRegions.length === 0) {
-      showToast({ content: '서비스 가능 지역을 선택해 주세요.' });
-      return;
-    }
+    if (!isSubmitEnabled) return;
 
     if (!isValidKrPhoneNumber(phoneNumber)) {
       showToast({
@@ -235,6 +219,8 @@ const MoverProfileEditFields = ({
       showToast({ content: '변경된 내용이 없습니다.' });
       return;
     }
+
+    if (careerValue === null) return;
 
     setIsPending(true);
 
@@ -300,9 +286,7 @@ const MoverProfileEditFields = ({
           */}
           <div className="grid w-full grid-cols-1 gap-5 lg:grid-cols-2 lg:items-start lg:gap-x-10 lg:gap-y-8">
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
-              <label htmlFor={nicknameInputId} className={LABEL_CLASSNAME}>
-                닉네임
-              </label>
+              <RequiredLabel htmlFor={nicknameInputId}>닉네임</RequiredLabel>
               <TextFieldOutlined
                 id={nicknameInputId}
                 size="sm"
@@ -311,6 +295,12 @@ const MoverProfileEditFields = ({
                 placeholder="닉네임을 입력해 주세요"
                 value={nickname}
                 onChange={handleNicknameChange}
+                isError={isNicknameFormatError}
+                errorMessage={
+                  isNicknameFormatError
+                    ? NICKNAME_FORMAT_ERROR_MESSAGE
+                    : undefined
+                }
                 className={FIELD_CLASSNAME}
               />
             </section>
@@ -322,7 +312,7 @@ const MoverProfileEditFields = ({
                 imageInputRef={imageInputRef}
                 displayImageUrl={displayImageUrl}
                 labelClassName={LABEL_CLASSNAME}
-                onImageChange={handleImageChange}
+                onImageChange={handleValidatedImageChange}
                 onImageButtonClick={handleImageButtonClick}
                 onImageClear={handleImageClear}
               />
@@ -330,9 +320,7 @@ const MoverProfileEditFields = ({
 
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
               <div className="h-px w-full bg-line-100" aria-hidden />
-              <label htmlFor={careerInputId} className={LABEL_CLASSNAME}>
-                경력
-              </label>
+              <RequiredLabel htmlFor={careerInputId}>경력</RequiredLabel>
               <TextFieldOutlined
                 id={careerInputId}
                 size="sm"
@@ -341,15 +329,19 @@ const MoverProfileEditFields = ({
                 placeholder="기사님의 경력을 입력해 주세요"
                 value={career}
                 onChange={handleCareerChange}
+                isError={isCareerFormatError}
+                errorMessage={
+                  isCareerFormatError ? CAREER_FORMAT_ERROR_MESSAGE : undefined
+                }
                 className={FIELD_CLASSNAME}
               />
             </section>
 
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
               <div className="h-px w-full bg-line-100" aria-hidden />
-              <label htmlFor={shortIntroInputId} className={LABEL_CLASSNAME}>
+              <RequiredLabel htmlFor={shortIntroInputId}>
                 한 줄 소개
-              </label>
+              </RequiredLabel>
               <TextFieldOutlined
                 id={shortIntroInputId}
                 size="sm"
@@ -357,13 +349,19 @@ const MoverProfileEditFields = ({
                 placeholder="한 줄 소개를 입력해 주세요"
                 value={shortIntro}
                 onChange={handleShortIntroChange}
+                isError={isShortIntroFormatError}
+                errorMessage={
+                  isShortIntroFormatError
+                    ? SHORT_INTRO_FORMAT_ERROR_MESSAGE
+                    : undefined
+                }
                 className={FIELD_CLASSNAME}
               />
             </section>
 
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-2 lg:row-start-1">
               <div className="h-px w-full bg-line-100 lg:hidden" aria-hidden />
-              <h2 className={LABEL_CLASSNAME}>제공 서비스</h2>
+              <RequiredLabel>제공 서비스</RequiredLabel>
               <div className="flex flex-wrap gap-1.5 lg:gap-3">
                 {SERVICE_CHIP_OPTIONS.map((option) => (
                   <ServiceChip
@@ -385,7 +383,7 @@ const MoverProfileEditFields = ({
 
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-2 lg:row-start-2">
               <div className="h-px w-full bg-line-100" aria-hidden />
-              <h2 className={LABEL_CLASSNAME}>서비스 가능 지역</h2>
+              <RequiredLabel>서비스 가능 지역</RequiredLabel>
               <div className="flex flex-wrap gap-x-2 gap-y-3 lg:gap-x-3.5 lg:gap-y-[1.125rem]">
                 {REGION_CHIP_OPTIONS.map((option) => (
                   <RegionChip
@@ -407,9 +405,9 @@ const MoverProfileEditFields = ({
 
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
               <div className="h-px w-full bg-line-100" aria-hidden />
-              <label htmlFor={descriptionInputId} className={LABEL_CLASSNAME}>
+              <RequiredLabel htmlFor={descriptionInputId}>
                 상세 설명
-              </label>
+              </RequiredLabel>
               <TextArea
                 id={descriptionInputId}
                 size="sm"
@@ -417,6 +415,12 @@ const MoverProfileEditFields = ({
                 placeholder="상세 내용을 입력해 주세요"
                 value={description}
                 onChange={handleDescriptionChange}
+                isError={isDescriptionFormatError}
+                errorMessage={
+                  isDescriptionFormatError
+                    ? DESCRIPTION_FORMAT_ERROR_MESSAGE
+                    : undefined
+                }
                 className={TEXTAREA_CLASSNAME}
               />
             </section>
