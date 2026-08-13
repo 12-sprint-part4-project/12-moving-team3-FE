@@ -229,6 +229,8 @@ export const MoversPageClient = () => {
                     key={mover.moverId}
                     variants={fadeUp}
                     transition={motionTransition}
+                    initial={false}
+                    animate="show"
                   >
                     <MoverCard
                       mover={mover}
