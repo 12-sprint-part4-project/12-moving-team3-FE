@@ -1,13 +1,24 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 
-import KakaoIcon from '@/assets/icons/kakao.svg';
-import TextLogoIcon from '@/assets/icons/text-logo.svg';
+import { AuthBrand, AuthHelperText } from '@/app/(auth)/_components/AuthBrand';
+import { AuthField } from '@/app/(auth)/_components/AuthField';
+import { AuthKakaoSection } from '@/app/(auth)/_components/AuthKakaoSection';
+import {
+  AUTH_PATH,
+  USER_TYPE_BY_ROLE,
+  getAuthRoleSwitch,
+  type AuthRole,
+} from '@/app/(auth)/_components/authRole';
+import {
+  AUTH_FIELDS_AND_SUBMIT_CLASS,
+  AUTH_FIELDS_CLASS,
+  AUTH_FORM_CLASS,
+  AUTH_SUBMIT_CLASS,
+} from '@/app/(auth)/_components/authStyles';
 import { Button } from '@/components/Button/Button';
-import { TextFieldOutlined } from '@/components/ui/Input';
 import { API_ERROR_CODE } from '@/constants/errorCode';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
@@ -20,41 +31,10 @@ import {
   validatePassword,
 } from '@/lib/validatePassword';
 import { signup } from '@/services/authApi';
-import type { ApiUserType } from '@/types/auth';
-
-export type SignupRole = 'customer' | 'mover';
 
 interface SignupFormProps {
-  role: SignupRole;
+  role: AuthRole;
 }
-
-const KAKAO_LOGIN_LABEL = '카카오로 가입';
-
-const ROLE_SWITCH_COPY: Record<
-  SignupRole,
-  { prompt: string; linkLabel: string; href: string }
-> = {
-  customer: {
-    prompt: '기사님이신가요?',
-    linkLabel: '기사님 전용 페이지',
-    href: '/signup/mover',
-  },
-  mover: {
-    prompt: '일반 유저라면?',
-    linkLabel: '일반 유저 전용 페이지',
-    href: '/signup',
-  },
-};
-
-const LOGIN_HREF: Record<SignupRole, string> = {
-  customer: '/login',
-  mover: '/login/mover',
-};
-
-const USER_TYPE_BY_ROLE: Record<SignupRole, ApiUserType> = {
-  customer: 'CUSTOMER',
-  mover: 'MOVER',
-};
 
 interface SignupFormValues {
   name: string;
@@ -63,14 +43,6 @@ interface SignupFormValues {
   password: string;
   passwordConfirm: string;
 }
-
-const INITIAL_VALUES: SignupFormValues = {
-  name: '',
-  email: '',
-  nickname: '',
-  password: '',
-  passwordConfirm: '',
-};
 
 const NICKNAME_MIN_LENGTH = 2;
 const NICKNAME_MAX_LENGTH = 20;
@@ -82,35 +54,28 @@ const NICKNAME_FORMAT_ERROR_MESSAGE = `닉네임은 ${NICKNAME_MIN_LENGTH}~${NIC
 const EMAIL_FORMAT_FIELD_ERROR_MESSAGE = '이메일 형식이 아닙니다.';
 const PASSWORD_FORMAT_FIELD_ERROR_MESSAGE = '비밀번호가 올바르지 않습니다.';
 
-/** Mobile·Tablet(sm) 기본 + Desktop(md)는 lg: 오버라이드 */
-const FIELD_CLASSNAME =
-  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
+const SIGNUP_STACK_CLASS = 'flex w-full flex-col items-center gap-8 lg:gap-14';
 
-const LABEL_CLASSNAME = 'text-md-regular text-black-400 lg:text-xl-regular';
+const SIGNUP_FORM_SNS_WRAP_CLASS =
+  'flex w-full flex-col items-center gap-12 lg:gap-[4.5rem]';
 
-const FIELD_GROUP_CLASSNAME = 'flex w-full flex-col gap-2 lg:gap-4';
+const INITIAL_VALUES: SignupFormValues = {
+  name: '',
+  email: '',
+  nickname: '',
+  password: '',
+  passwordConfirm: '',
+};
 
-const HELPER_TEXT_CLASSNAME =
-  'flex items-center justify-center gap-1 whitespace-nowrap text-xs-regular lg:gap-2 lg:text-xl-regular';
-
-const HELPER_MUTED_CLASSNAME = 'text-black-100 lg:text-black-200';
-
-const HELPER_LINK_CLASSNAME =
-  'text-xs-semibold text-blue-300 underline lg:text-xl-semibold';
-
-/**
- * 회원가입 폼 (customer / mover 공통).
- * 전화번호는 프로필 등록 API에서 수집한다.
- * Figma: Mobile(1:2900) · Tablet(1:2608) · Desktop(1:2756).
- * role → API userType(CUSTOMER|MOVER)으로 매핑한다.
- */
+/** 전화번호는 프로필 등록에서 받는다. */
 export const SignupForm = ({ role }: SignupFormProps) => {
   const router = useRouter();
   const { showToast } = useToast();
   const [values, setValues] = useState<SignupFormValues>(INITIAL_VALUES);
   const [isPending, setIsPending] = useState(false);
-  const roleSwitch = ROLE_SWITCH_COPY[role];
 
+  const roleSwitch = getAuthRoleSwitch('signup', role);
+  const userType = USER_TYPE_BY_ROLE[role];
   const trimmedName = values.name.trim();
   const trimmedEmail = values.email.trim();
   const trimmedNickname = values.nickname.trim();
@@ -143,6 +108,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
     values.passwordConfirm.length > 0 &&
     !isPasswordMismatchError &&
     !isPending;
+  const submitLabel = isPending ? '가입 중...' : '시작하기';
 
   const handleChange =
     (field: keyof SignupFormValues) =>
@@ -158,7 +124,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
 
     try {
       await signup({
-        userType: USER_TYPE_BY_ROLE[role],
+        userType,
         name: trimmedName,
         nickname: trimmedNickname,
         email: trimmedEmail,
@@ -168,7 +134,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
 
       // 이메일 가입은 로그인 페이지로, 카카오는 콜백에서 바로 로그인
       showToast({ content: '회원가입이 완료되었습니다. 로그인해 주세요.' });
-      router.replace(LOGIN_HREF[role]);
+      router.replace(AUTH_PATH.login[role]);
     } catch (error) {
       if (
         error instanceof ApiError &&
@@ -192,162 +158,87 @@ export const SignupForm = ({ role }: SignupFormProps) => {
     if (isPending) return;
 
     try {
-      redirectToKakaoLogin(USER_TYPE_BY_ROLE[role]);
+      redirectToKakaoLogin(userType);
     } catch {
       showToast({ content: '카카오 로그인 설정이 필요합니다.' });
     }
   };
 
   return (
-    <div className="flex w-full flex-col items-center gap-8 lg:gap-14">
-      <div className="flex flex-col items-center lg:gap-2">
-        <Link
-          href="/"
-          aria-label="무빙"
-          className="flex w-full max-w-[20.4375rem] flex-col items-center justify-center p-2.5 lg:max-w-[40rem]"
-        >
-          <TextLogoIcon
-            className="h-16 w-[7rem] lg:h-20 lg:w-[8.75rem]"
-            aria-hidden
-            focusable="false"
-          />
-        </Link>
-        <p className={HELPER_TEXT_CLASSNAME}>
-          <span className={HELPER_MUTED_CLASSNAME}>{roleSwitch.prompt}</span>
-          <Link href={roleSwitch.href} className={HELPER_LINK_CLASSNAME}>
-            {roleSwitch.linkLabel}
-          </Link>
-        </p>
-      </div>
+    <div className={SIGNUP_STACK_CLASS}>
+      <AuthBrand
+        prompt={roleSwitch.prompt}
+        linkLabel={roleSwitch.linkLabel}
+        href={roleSwitch.href}
+      />
 
-      <div className="flex w-full flex-col items-center gap-12 lg:gap-[4.5rem]">
-        <form
-          noValidate
-          onSubmit={handleSubmit}
-          className="flex w-full max-w-[20.4375rem] flex-col items-center gap-4 lg:max-w-[40rem] lg:gap-6"
-        >
-          <div className="flex w-full flex-col gap-8 lg:gap-14">
-            <div className="flex w-full flex-col gap-4 lg:gap-8">
-              <div className={FIELD_GROUP_CLASSNAME}>
-                <label htmlFor="signup-name" className={LABEL_CLASSNAME}>
-                  이름
-                </label>
-                <TextFieldOutlined
-                  id="signup-name"
-                  size="sm"
-                  type="text"
-                  name="name"
-                  autoComplete="name"
-                  placeholder="성함을 입력해 주세요"
-                  value={values.name}
-                  onChange={handleChange('name')}
-                  isError={isNameFormatError}
-                  errorMessage={
-                    isNameFormatError ? NAME_FORMAT_ERROR_MESSAGE : undefined
-                  }
-                  className={FIELD_CLASSNAME}
-                />
-              </div>
-
-              <div className={FIELD_GROUP_CLASSNAME}>
-                <label htmlFor="signup-email" className={LABEL_CLASSNAME}>
-                  이메일
-                </label>
-                <TextFieldOutlined
-                  id="signup-email"
-                  size="sm"
-                  type="email"
-                  name="email"
-                  autoComplete="email"
-                  maxLength={EMAIL_MAX_LENGTH}
-                  placeholder="이메일을 입력해 주세요"
-                  value={values.email}
-                  onChange={handleChange('email')}
-                  isError={isEmailFormatError}
-                  errorMessage={
-                    isEmailFormatError
-                      ? EMAIL_FORMAT_FIELD_ERROR_MESSAGE
-                      : undefined
-                  }
-                  className={FIELD_CLASSNAME}
-                />
-              </div>
-
-              <div className={FIELD_GROUP_CLASSNAME}>
-                <label htmlFor="signup-nickname" className={LABEL_CLASSNAME}>
-                  닉네임
-                </label>
-                <TextFieldOutlined
-                  id="signup-nickname"
-                  size="sm"
-                  type="text"
-                  name="nickname"
-                  autoComplete="nickname"
-                  placeholder="닉네임을 입력해 주세요"
-                  value={values.nickname}
-                  onChange={handleChange('nickname')}
-                  isError={isNicknameFormatError}
-                  errorMessage={
-                    isNicknameFormatError
-                      ? NICKNAME_FORMAT_ERROR_MESSAGE
-                      : undefined
-                  }
-                  className={FIELD_CLASSNAME}
-                />
-              </div>
-
-              <div className={FIELD_GROUP_CLASSNAME}>
-                <label htmlFor="signup-password" className={LABEL_CLASSNAME}>
-                  비밀번호
-                </label>
-                <TextFieldOutlined
-                  id="signup-password"
-                  size="sm"
-                  type="password"
-                  name="password"
-                  autoComplete="new-password"
-                  showVisibilityToggle
-                  maxLength={PASSWORD_MAX_LENGTH}
-                  placeholder="비밀번호를 입력해 주세요"
-                  value={values.password}
-                  onChange={handleChange('password')}
-                  isError={isPasswordFormatError}
-                  errorMessage={
-                    isPasswordFormatError
-                      ? PASSWORD_FORMAT_FIELD_ERROR_MESSAGE
-                      : undefined
-                  }
-                  className={FIELD_CLASSNAME}
-                />
-              </div>
-
-              <div className={FIELD_GROUP_CLASSNAME}>
-                <label
-                  htmlFor="signup-password-confirm"
-                  className={LABEL_CLASSNAME}
-                >
-                  비밀번호 확인
-                </label>
-                <TextFieldOutlined
-                  id="signup-password-confirm"
-                  size="sm"
-                  type="password"
-                  name="passwordConfirm"
-                  autoComplete="new-password"
-                  showVisibilityToggle
-                  maxLength={PASSWORD_MAX_LENGTH}
-                  placeholder="비밀번호를 다시 한번 입력해 주세요"
-                  value={values.passwordConfirm}
-                  onChange={handleChange('passwordConfirm')}
-                  isError={isPasswordMismatchError}
-                  errorMessage={
-                    isPasswordMismatchError
-                      ? PASSWORD_MISMATCH_ERROR_MESSAGE
-                      : undefined
-                  }
-                  className={FIELD_CLASSNAME}
-                />
-              </div>
+      <div className={SIGNUP_FORM_SNS_WRAP_CLASS}>
+        <form noValidate onSubmit={handleSubmit} className={AUTH_FORM_CLASS}>
+          <div className={AUTH_FIELDS_AND_SUBMIT_CLASS}>
+            <div className={AUTH_FIELDS_CLASS}>
+              <AuthField
+                id="signup-name"
+                label="이름"
+                name="name"
+                autoComplete="name"
+                placeholder="성함을 입력해 주세요"
+                value={values.name}
+                onChange={handleChange('name')}
+                isError={isNameFormatError}
+                errorMessage={NAME_FORMAT_ERROR_MESSAGE}
+              />
+              <AuthField
+                id="signup-email"
+                label="이메일"
+                name="email"
+                type="email"
+                autoComplete="email"
+                maxLength={EMAIL_MAX_LENGTH}
+                placeholder="이메일을 입력해 주세요"
+                value={values.email}
+                onChange={handleChange('email')}
+                isError={isEmailFormatError}
+                errorMessage={EMAIL_FORMAT_FIELD_ERROR_MESSAGE}
+              />
+              <AuthField
+                id="signup-nickname"
+                label="닉네임"
+                name="nickname"
+                autoComplete="nickname"
+                placeholder="닉네임을 입력해 주세요"
+                value={values.nickname}
+                onChange={handleChange('nickname')}
+                isError={isNicknameFormatError}
+                errorMessage={NICKNAME_FORMAT_ERROR_MESSAGE}
+              />
+              <AuthField
+                id="signup-password"
+                label="비밀번호"
+                name="password"
+                type="password"
+                autoComplete="new-password"
+                showVisibilityToggle
+                maxLength={PASSWORD_MAX_LENGTH}
+                placeholder="비밀번호를 입력해 주세요"
+                value={values.password}
+                onChange={handleChange('password')}
+                isError={isPasswordFormatError}
+                errorMessage={PASSWORD_FORMAT_FIELD_ERROR_MESSAGE}
+              />
+              <AuthField
+                id="signup-password-confirm"
+                label="비밀번호 확인"
+                name="passwordConfirm"
+                type="password"
+                autoComplete="new-password"
+                showVisibilityToggle
+                maxLength={PASSWORD_MAX_LENGTH}
+                placeholder="비밀번호를 다시 한번 입력해 주세요"
+                value={values.passwordConfirm}
+                onChange={handleChange('passwordConfirm')}
+                isError={isPasswordMismatchError}
+                errorMessage={PASSWORD_MISMATCH_ERROR_MESSAGE}
+              />
             </div>
 
             <Button
@@ -355,36 +246,24 @@ export const SignupForm = ({ role }: SignupFormProps) => {
               variant="solid"
               size="sm"
               disabled={!isSubmittable}
-              className="lg:h-16 lg:gap-2 lg:text-xl-semibold"
+              className={AUTH_SUBMIT_CLASS}
             >
-              {isPending ? '가입 중...' : '시작하기'}
+              {submitLabel}
             </Button>
           </div>
 
-          <p className={HELPER_TEXT_CLASSNAME}>
-            <span className={HELPER_MUTED_CLASSNAME}>
-              이미 무빙 회원이신가요?
-            </span>
-            <Link href={LOGIN_HREF[role]} className={HELPER_LINK_CLASSNAME}>
-              로그인
-            </Link>
-          </p>
+          <AuthHelperText
+            prompt="이미 무빙 회원이신가요?"
+            linkLabel="로그인"
+            href={AUTH_PATH.login[role]}
+          />
         </form>
 
-        <div className="flex flex-col items-center gap-6 lg:gap-8">
-          <p className="text-xs-regular text-black-100 lg:text-xl-regular lg:text-black-200">
-            SNS 계정으로 간편 가입하기
-          </p>
-          <button
-            type="button"
-            aria-label={KAKAO_LOGIN_LABEL}
-            disabled={isPending}
-            onClick={handleKakaoLogin}
-            className="inline-flex size-[3.375rem] shrink-0 cursor-pointer items-center justify-center overflow-clip rounded-full disabled:cursor-not-allowed disabled:opacity-50 lg:size-[4.5rem]"
-          >
-            <KakaoIcon className="size-full" aria-hidden focusable="false" />
-          </button>
-        </div>
+        <AuthKakaoSection
+          ariaLabel="카카오로 가입"
+          disabled={isPending}
+          onClick={handleKakaoLogin}
+        />
       </div>
     </div>
   );

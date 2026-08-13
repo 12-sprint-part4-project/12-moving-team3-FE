@@ -1,13 +1,24 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState, type ChangeEvent, type FormEvent } from 'react';
 
-import KakaoIcon from '@/assets/icons/kakao.svg';
-import TextLogoIcon from '@/assets/icons/text-logo.svg';
+import { AuthBrand, AuthHelperText } from '@/app/(auth)/_components/AuthBrand';
+import { AuthField } from '@/app/(auth)/_components/AuthField';
+import { AuthKakaoSection } from '@/app/(auth)/_components/AuthKakaoSection';
+import {
+  AUTH_PATH,
+  USER_TYPE_BY_ROLE,
+  getAuthRoleSwitch,
+  type AuthRole,
+} from '@/app/(auth)/_components/authRole';
+import {
+  AUTH_FIELDS_AND_SUBMIT_CLASS,
+  AUTH_FIELDS_CLASS,
+  AUTH_FORM_CLASS,
+  AUTH_SUBMIT_CLASS,
+} from '@/app/(auth)/_components/authStyles';
 import { Button } from '@/components/Button/Button';
-import { TextFieldOutlined } from '@/components/ui/Input';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
@@ -19,75 +30,27 @@ import {
   validateEmail,
 } from '@/lib/validateEmail';
 import { login } from '@/services/authApi';
-import type { ApiUserType } from '@/types/auth';
-
-export type LoginRole = 'customer' | 'mover';
 
 interface LoginFormProps {
-  role: LoginRole;
+  role: AuthRole;
 }
-
-const KAKAO_LOGIN_LABEL = '카카오로 로그인';
-
-const ROLE_SWITCH_COPY: Record<
-  LoginRole,
-  { prompt: string; linkLabel: string; href: string }
-> = {
-  customer: {
-    prompt: '기사님이신가요?',
-    linkLabel: '기사님 전용 페이지',
-    href: '/login/mover',
-  },
-  mover: {
-    prompt: '일반 유저라면?',
-    linkLabel: '일반 유저 전용 페이지',
-    href: '/login',
-  },
-};
-
-const SIGNUP_HREF: Record<LoginRole, string> = {
-  customer: '/signup',
-  mover: '/signup/mover',
-};
-
-const USER_TYPE_BY_ROLE: Record<LoginRole, ApiUserType> = {
-  customer: 'CUSTOMER',
-  mover: 'MOVER',
-};
 
 interface LoginFormValues {
   email: string;
   password: string;
 }
 
+const LOGIN_STACK_CLASS =
+  'flex w-full flex-col items-center gap-10 lg:gap-[4.5rem]';
+
+const LOGIN_FORM_SNS_WRAP_CLASS =
+  'flex w-full flex-col items-center gap-12 md:gap-10 lg:contents';
+
 const INITIAL_VALUES: LoginFormValues = {
   email: '',
   password: '',
 };
 
-/** Mobile·Tablet(sm) 기본 + Desktop(md)는 lg: 오버라이드 */
-const FIELD_CLASSNAME =
-  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
-
-const LABEL_CLASSNAME = 'text-md-regular text-black-400 lg:text-xl-regular';
-
-const FIELD_GROUP_CLASSNAME = 'flex w-full flex-col gap-2 lg:gap-4';
-
-const HELPER_TEXT_CLASSNAME =
-  'flex items-center justify-center gap-1 whitespace-nowrap text-xs-regular lg:gap-2 lg:text-xl-regular';
-
-const HELPER_MUTED_CLASSNAME = 'text-black-100 lg:text-black-200';
-
-const HELPER_LINK_CLASSNAME =
-  'text-xs-semibold text-blue-300 underline lg:text-xl-semibold';
-
-/**
- * 로그인 폼 (customer / mover 공통).
- * Figma: Mobile(1:2155) · Tablet(1:2329) · Desktop(1:2051).
- * Mobile/Tablet은 sm 스펙(327px), Desktop만 lg:에서 확대.
- * role → API userType(CUSTOMER|MOVER)으로 매핑한다.
- * 소셜 로그인은 카카오만 제공한다.
- */
 const LoginFormInner = ({ role }: LoginFormProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -95,10 +58,14 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
   const { setSession } = useAuth();
   const [values, setValues] = useState<LoginFormValues>(INITIAL_VALUES);
   const [isPending, setIsPending] = useState(false);
-  const roleSwitch = ROLE_SWITCH_COPY[role];
 
+  const roleSwitch = getAuthRoleSwitch('login', role);
+  const userType = USER_TYPE_BY_ROLE[role];
+  const redirectTo = searchParams.get('redirect');
+  const trimmedEmail = values.email.trim();
   const isSubmittable =
-    values.email.trim().length > 0 && values.password.length > 0 && !isPending;
+    trimmedEmail.length > 0 && values.password.length > 0 && !isPending;
+  const submitLabel = isPending ? '로그인 중...' : '로그인';
 
   const handleChange =
     (field: keyof LoginFormValues) =>
@@ -110,7 +77,6 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
     event.preventDefault();
     if (!isSubmittable) return;
 
-    const trimmedEmail = values.email.trim();
     if (validateEmail(trimmedEmail)) {
       showToast({ content: EMAIL_FORMAT_ERROR_MESSAGE });
       return;
@@ -120,7 +86,7 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
 
     try {
       const response = await login({
-        userType: USER_TYPE_BY_ROLE[role],
+        userType,
         email: trimmedEmail,
         password: values.password,
       });
@@ -131,7 +97,7 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
       showToast({ content: '로그인되었습니다.' });
       router.replace(
         getPostAuthRedirectPath(response.data.user, {
-          redirectTo: searchParams.get('redirect'),
+          redirectTo,
         })
       );
     } catch (error) {
@@ -149,81 +115,46 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
     if (isPending) return;
 
     try {
-      redirectToKakaoLogin(
-        USER_TYPE_BY_ROLE[role],
-        searchParams.get('redirect')
-      );
+      redirectToKakaoLogin(userType, redirectTo);
     } catch {
       showToast({ content: '카카오 로그인 설정이 필요합니다.' });
     }
   };
 
   return (
-    <div className="flex w-full flex-col items-center gap-10 lg:gap-[4.5rem]">
-      <div className="flex flex-col items-center lg:gap-2">
-        <Link
-          href="/"
-          aria-label="무빙"
-          className="flex w-full max-w-[20.4375rem] flex-col items-center justify-center p-2.5 lg:max-w-[40rem]"
-        >
-          <TextLogoIcon
-            className="h-16 w-[7rem] lg:h-20 lg:w-[8.75rem]"
-            aria-hidden
-            focusable="false"
-          />
-        </Link>
-        <p className={HELPER_TEXT_CLASSNAME}>
-          <span className={HELPER_MUTED_CLASSNAME}>{roleSwitch.prompt}</span>
-          <Link href={roleSwitch.href} className={HELPER_LINK_CLASSNAME}>
-            {roleSwitch.linkLabel}
-          </Link>
-        </p>
-      </div>
+    <div className={LOGIN_STACK_CLASS}>
+      <AuthBrand
+        prompt={roleSwitch.prompt}
+        linkLabel={roleSwitch.linkLabel}
+        href={roleSwitch.href}
+      />
 
-      {/* Mobile: 폼↔SNS 48px / Tablet: 40px / Desktop: 외곽 gap으로 합류 */}
-      <div className="flex w-full flex-col items-center gap-12 md:gap-10 lg:contents">
-        <form
-          noValidate
-          onSubmit={handleSubmit}
-          className="flex w-full max-w-[20.4375rem] flex-col items-center gap-4 lg:max-w-[40rem] lg:gap-6"
-        >
-          <div className="flex w-full flex-col gap-8 lg:gap-14">
-            <div className="flex w-full flex-col gap-4 lg:gap-8">
-              <div className={FIELD_GROUP_CLASSNAME}>
-                <label htmlFor="login-email" className={LABEL_CLASSNAME}>
-                  이메일
-                </label>
-                <TextFieldOutlined
-                  id="login-email"
-                  size="sm"
-                  type="email"
-                  name="email"
-                  autoComplete="email"
-                  maxLength={EMAIL_MAX_LENGTH}
-                  placeholder="이메일을 입력해 주세요"
-                  value={values.email}
-                  onChange={handleChange('email')}
-                  className={FIELD_CLASSNAME}
-                />
-              </div>
-
-              <div className={FIELD_GROUP_CLASSNAME}>
-                <label htmlFor="login-password" className={LABEL_CLASSNAME}>
-                  비밀번호
-                </label>
-                <TextFieldOutlined
-                  id="login-password"
-                  size="sm"
-                  type="password"
-                  name="password"
-                  autoComplete="current-password"
-                  showVisibilityToggle
-                  placeholder="비밀번호를 입력해 주세요"
-                  value={values.password}
-                  onChange={handleChange('password')}
-                  className={FIELD_CLASSNAME}
-                />
-              </div>
+      <div className={LOGIN_FORM_SNS_WRAP_CLASS}>
+        <form noValidate onSubmit={handleSubmit} className={AUTH_FORM_CLASS}>
+          <div className={AUTH_FIELDS_AND_SUBMIT_CLASS}>
+            <div className={AUTH_FIELDS_CLASS}>
+              <AuthField
+                id="login-email"
+                label="이메일"
+                name="email"
+                type="email"
+                autoComplete="email"
+                maxLength={EMAIL_MAX_LENGTH}
+                placeholder="이메일을 입력해 주세요"
+                value={values.email}
+                onChange={handleChange('email')}
+              />
+              <AuthField
+                id="login-password"
+                label="비밀번호"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                showVisibilityToggle
+                placeholder="비밀번호를 입력해 주세요"
+                value={values.password}
+                onChange={handleChange('password')}
+              />
             </div>
 
             <Button
@@ -231,36 +162,24 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
               variant="solid"
               size="sm"
               disabled={!isSubmittable}
-              className="lg:h-16 lg:gap-2 lg:text-xl-semibold"
+              className={AUTH_SUBMIT_CLASS}
             >
-              {isPending ? '로그인 중...' : '로그인'}
+              {submitLabel}
             </Button>
           </div>
 
-          <p className={HELPER_TEXT_CLASSNAME}>
-            <span className={HELPER_MUTED_CLASSNAME}>
-              아직 무빙 회원이 아니신가요?
-            </span>
-            <Link href={SIGNUP_HREF[role]} className={HELPER_LINK_CLASSNAME}>
-              이메일로 회원가입하기
-            </Link>
-          </p>
+          <AuthHelperText
+            prompt="아직 무빙 회원이 아니신가요?"
+            linkLabel="이메일로 회원가입하기"
+            href={AUTH_PATH.signup[role]}
+          />
         </form>
 
-        <div className="flex flex-col items-center gap-6 lg:gap-8">
-          <p className="text-xs-regular text-black-100 lg:text-xl-regular lg:text-black-200">
-            SNS 계정으로 간편 가입하기
-          </p>
-          <button
-            type="button"
-            aria-label={KAKAO_LOGIN_LABEL}
-            disabled={isPending}
-            onClick={handleKakaoLogin}
-            className="inline-flex size-[3.375rem] shrink-0 cursor-pointer items-center justify-center overflow-clip rounded-full disabled:cursor-not-allowed disabled:opacity-50 lg:size-[4.5rem]"
-          >
-            <KakaoIcon className="size-full" aria-hidden focusable="false" />
-          </button>
-        </div>
+        <AuthKakaoSection
+          ariaLabel="카카오로 로그인"
+          disabled={isPending}
+          onClick={handleKakaoLogin}
+        />
       </div>
     </div>
   );
