@@ -20,6 +20,7 @@ export interface PostListContext {
   categoryFilter: PostCategory | 'ALL';
   regionFilter: RegionFilterValue;
   keyword?: string;
+  hideCompleted?: boolean;
 }
 
 export const DEFAULT_POST_LIST_CONTEXT: PostListContext = {
@@ -48,6 +49,7 @@ export const postListContextToParams = (
     region,
     sort: context.sort,
     keyword: context.keyword,
+    hideCompleted: context.hideCompleted,
   };
 };
 
@@ -74,6 +76,10 @@ export const buildPostListContextSearchParams = (
 
   if (context.keyword) {
     params.set('keyword', context.keyword);
+  }
+
+  if (context.hideCompleted) {
+    params.set('hideCompleted', 'true');
   }
 
   return params;
@@ -130,11 +136,17 @@ export const parsePostListContextFromSearchParams = (
   const keyword =
     keywordParam && keywordParam.length > 0 ? keywordParam : undefined;
 
+  const hideCompleted =
+    tab === 'furniture' && searchParams.get('hideCompleted') === 'true'
+      ? true
+      : undefined;
+
   return {
     tab,
     sort,
     categoryFilter,
     regionFilter,
     keyword,
+    hideCompleted,
   };
 };

@@ -87,6 +87,7 @@ export interface PostListQuery {
   keyword?: string;
   cursor?: string;
   limit?: number;
+  hideCompleted?: boolean;
 }
 
 /** 목록 조회 파라미터 (cursor 제외) */

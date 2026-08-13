@@ -131,6 +131,8 @@ export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps
     return regionFilter;
   }, [regionFilter]);
 
+  const hideCompleted = localContext.hideCompleted ?? false;
+
   const listContextValue = useMemo(
     (): PostListContext => ({
       tab: activeTab,
@@ -138,8 +140,9 @@ export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps
       categoryFilter,
       regionFilter,
       keyword: listKeyword,
+      hideCompleted: hideCompleted || undefined,
     }),
-    [activeTab, sortValue, categoryFilter, regionFilter, listKeyword]
+    [activeTab, sortValue, categoryFilter, regionFilter, listKeyword, hideCompleted]
   );
 
   const {
@@ -160,6 +163,7 @@ export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps
     region: listRegion,
     sort: sortValue,
     keyword: listKeyword,
+    hideCompleted: hideCompleted || undefined,
   });
 
   const hasStalePosts = useMemo(
@@ -270,6 +274,13 @@ export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps
     });
   };
 
+  const handleHideCompletedChange = (value: boolean) => {
+    replaceListContextUrl({
+      ...localContext,
+      hideCompleted: value || undefined,
+    });
+  };
+
   const handleCategoryOpen = useCallback(() => {
     BOARD_CATEGORY_FILTER_OPTIONS.forEach((option) => {
       router.prefetch(
@@ -377,6 +388,8 @@ export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps
       >
         <CommunitySidebarFilter
           showCategoryFilter={activeTab === 'board'}
+          showHideCompleted={activeTab === 'furniture'}
+          hideCompleted={hideCompleted}
           categoryFilter={categoryFilter}
           regionFilter={regionFilter}
           searchValue={searchInputValue}
@@ -385,6 +398,7 @@ export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps
           onSearchChange={handleSearchChange}
           onSearch={handleSearch}
           onReset={handleFilterReset}
+          onHideCompletedChange={handleHideCompletedChange}
           onCategoryOpen={handleCategoryOpen}
           onRegionOpen={handleRegionOpen}
           className="hidden xl:block"
