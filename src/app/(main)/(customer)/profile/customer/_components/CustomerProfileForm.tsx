@@ -21,13 +21,15 @@ import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
   getKrMobileSubscriberError,
-  getPhoneNumberError,
   KR_MOBILE_PREFIX_LABEL,
   KR_MOBILE_SUBSCRIBER_LENGTH,
   toKrMobileSubscriberDigits,
   toPhoneDigits,
 } from '@/lib/phoneNumber';
-import { uploadProfileImage } from '@/lib/uploadProfileImage';
+import {
+  uploadProfileImage,
+  validateProfileImageFile,
+} from '@/lib/uploadProfileImage';
 import { upsertCustomerProfile } from '@/services/customerProfileApi';
 import type {
   CustomerRegion,
@@ -89,6 +91,7 @@ export const CustomerProfileForm = () => {
 
   const isSubmitEnabled =
     subscriberDigits.length === KR_MOBILE_SUBSCRIBER_LENGTH &&
+    !isPhoneFormatError &&
     selectedServices.length > 0 &&
     selectedRegion !== null &&
     !isPending;
@@ -97,36 +100,35 @@ export const CustomerProfileForm = () => {
     setPhoneDraft(formatKrMobileSubscriberInput(event.target.value));
   };
 
+  const handleValidatedImageChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const imageError = validateProfileImageFile(file);
+      if (imageError) {
+        event.target.value = '';
+        showToast({ content: imageError });
+        return;
+      }
+    }
+    handleImageChange(event);
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isSubmitEnabled) return;
 
     const fullPhone = composeKrMobilePhone(phoneNumber);
-    const phoneError = getPhoneNumberError(fullPhone);
-    if (phoneError) {
-      showToast({ content: phoneError });
-      return;
-    }
-
     const phoneDigits = toPhoneDigits(fullPhone);
 
-    if (selectedServices.length === 0) {
-      showToast({ content: '이용 서비스를 한 개 이상 선택해 주세요.' });
-      return;
-    }
-
-    if (!selectedRegion) {
-      showToast({ content: '내가 사는 지역을 선택해 주세요.' });
-      return;
-    }
-
-    const nickname = user?.nickname?.trim() ?? '';
-    if (
-      nickname.length < NICKNAME_MIN_LENGTH ||
-      nickname.length > NICKNAME_MAX_LENGTH
-    ) {
+    const nickname = (user?.nickname?.trim() ?? '').slice(
+      0,
+      NICKNAME_MAX_LENGTH
+    );
+    if (nickname.length < NICKNAME_MIN_LENGTH) {
       showToast({
-        content: `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`,
+        content: '로그인 정보가 올바르지 않습니다. 다시 로그인해 주세요.',
       });
       return;
     }
@@ -191,7 +193,7 @@ export const CustomerProfileForm = () => {
               imageInputRef={imageInputRef}
               displayImageUrl={displayImageUrl}
               labelClassName={LABEL_CLASSNAME}
-              onImageChange={handleImageChange}
+              onImageChange={handleValidatedImageChange}
               onImageButtonClick={handleImageButtonClick}
               onImageClear={handleImageClear}
             />

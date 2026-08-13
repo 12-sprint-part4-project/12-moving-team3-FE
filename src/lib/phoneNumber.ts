@@ -52,19 +52,22 @@ export const isValidKrPhoneNumber = (value: string): boolean => {
 /**
  * 010 고정 필드용 가입자 번호 검증.
  * 비어 있으면 null(필수 미입력은 버튼 비활성으로 처리),
- * 1~7자리면 길이 메시지, 8자리면 null.
+ * 1~7자리면 길이 메시지, 8자리인데 형식이 아니면 형식 메시지.
  */
 export const getKrMobileSubscriberError = (
   subscriber: string
 ): string | null => {
   const digits = toKrMobileSubscriberDigits(subscriber);
-  if (
-    digits.length === 0 ||
-    digits.length === KR_MOBILE_SUBSCRIBER_LENGTH
-  ) {
+  if (digits.length === 0) {
     return null;
   }
-  return PHONE_SUBSCRIBER_LENGTH_ERROR_MESSAGE;
+  if (digits.length < KR_MOBILE_SUBSCRIBER_LENGTH) {
+    return PHONE_SUBSCRIBER_LENGTH_ERROR_MESSAGE;
+  }
+  if (!isValidKrPhoneNumber(composeKrMobilePhone(digits))) {
+    return INVALID_PHONE_NUMBER_MESSAGE;
+  }
+  return null;
 };
 
 /** 검증 실패 시 메시지, 통과 시 null */
