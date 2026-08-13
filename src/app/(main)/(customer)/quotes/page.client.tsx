@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
-import { Button } from '@/components/Button/Button';
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
 import {
@@ -13,7 +12,8 @@ import {
   QuotesListSkeleton,
   ReceivedQuotesListSkeleton,
 } from '@/components/quotes/QuotesPageSkeleton';
-import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { QuotesListErrorState } from '@/components/quotes/QuotesListErrorState';
+import { QuotesLoadMoreSentinel } from '@/components/quotes/QuotesLoadMoreSentinel';
 import { useAuth } from '@/hooks/useAuth';
 import { useConfirmQuoteModal } from '@/hooks/useConfirmQuoteModal';
 import {
@@ -205,19 +205,11 @@ const CustomerQuotesPageClient = () => {
     if (isError) {
       return (
         <div className={CONTENT_CLASS}>
-          <div className="flex flex-col items-center gap-4 py-16">
-            <p role="alert" className="text-center text-lg-medium text-red-200">
-              {errorMessage}
-            </p>
-            <Button
-              size="sm"
-              variant="outlined"
-              className="max-w-[10rem]"
-              onClick={handleRetry}
-            >
-              다시 시도
-            </Button>
-          </div>
+          <QuotesListErrorState
+            message={errorMessage}
+            onRetry={handleRetry}
+            withMotion={false}
+          />
         </div>
       );
     }
@@ -281,19 +273,11 @@ const CustomerQuotesPageClient = () => {
     if (isPastError) {
       return (
         <div className={CONTENT_CLASS}>
-          <div className="flex flex-col items-center gap-4 py-16">
-            <p role="alert" className="text-center text-lg-medium text-red-200">
-              {pastErrorMessage}
-            </p>
-            <Button
-              size="sm"
-              variant="outlined"
-              className="max-w-[10rem]"
-              onClick={handlePastRetry}
-            >
-              다시 시도
-            </Button>
-          </div>
+          <QuotesListErrorState
+            message={pastErrorMessage}
+            onRetry={handlePastRetry}
+            withMotion={false}
+          />
         </div>
       );
     }
@@ -319,11 +303,10 @@ const CustomerQuotesPageClient = () => {
             />
           ))}
 
-          <div ref={loadMoreRef} className="flex w-full justify-center py-2">
-            {isFetchingNextPage ? (
-              <Spinner message="더 불러오는 중..." />
-            ) : null}
-          </div>
+          <QuotesLoadMoreSentinel
+            loadMoreRef={loadMoreRef}
+            isFetchingNextPage={isFetchingNextPage}
+          />
         </div>
       </div>
     );

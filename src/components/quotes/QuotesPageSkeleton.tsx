@@ -196,7 +196,7 @@ const HistoryQuoteCardSkeleton = () => (
 );
 
 const HISTORY_PAGE_X_PADDING =
-  'px-6 md:px-[4.5rem] lg:px-10 xl:px-16 min-[90rem]:px-[16.25rem]';
+  'px-6 md:px-18 lg:px-10 xl:px-16 min-[90rem]:px-65';
 
 /** 이용 내역 목록 카드 그리드 스켈레톤 */
 export const QuotesHistoryListSkeleton = ({

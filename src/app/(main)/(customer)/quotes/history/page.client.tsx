@@ -1,32 +1,25 @@
 'use client';
 
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 
-import { Button } from '@/components/Button/Button';
 import { QuotesHistoryPageSkeleton } from '@/components/quotes/QuotesPageSkeleton';
-import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { QuotesListErrorState } from '@/components/quotes/QuotesListErrorState';
+import { QuotesLoadMoreSentinel } from '@/components/quotes/QuotesLoadMoreSentinel';
 import { useAuth } from '@/hooks/useAuth';
 import {
   HISTORY_PAST_QUOTE_GROUP_LIMIT,
   useCustomerPastQuotes,
 } from '@/hooks/useCustomerPastQuotes';
 import { ApiError } from '@/lib/apiClient';
-import {
-  fadeIn,
-  fadeUp,
-  getMotionTransition,
-  listStagger,
-} from '@/lib/motionVariants';
+import { fadeUp, getMotionTransition, listStagger } from '@/lib/motionVariants';
 
+import { CUSTOMER_QUOTES_PAGE_X_PADDING } from '../_components/CustomerQuotesTabs';
 import { PendingQuotesEmptyState } from '../_components/PendingQuotesEmptyState';
 import { HistoryQuoteCard } from './_components/HistoryQuoteCard';
 
-const HISTORY_PAGE_X_PADDING =
-  'px-6 md:px-[4.5rem] lg:px-10 xl:px-16 min-[90rem]:px-[16.25rem]';
-
-const CONTENT_CLASS = `mx-auto w-full max-w-[1920px] py-6 md:py-8 lg:py-10 ${HISTORY_PAGE_X_PADDING}`;
+const CONTENT_CLASS = `mx-auto w-full max-w-[1920px] py-6 md:py-8 lg:py-10 ${CUSTOMER_QUOTES_PAGE_X_PADDING}`;
 
 /** 고객 이용 내역 */
 const CustomerQuoteHistoryPageClient = () => {
@@ -66,39 +59,30 @@ const CustomerQuoteHistoryPageClient = () => {
       ? error.message
       : '이용 내역을 불러오지 못했습니다.';
 
-  const showListSkeleton = !isReady || !user || isPending;
-
-  if (showListSkeleton) {
+  /** 인증 초기화·로그인 후 조회 중만 스켈레톤 (!user의 disabled isPending과 분리) */
+  if (!isReady || (user && isPending)) {
     return (
-      <QuotesHistoryPageSkeleton pageXPadding={HISTORY_PAGE_X_PADDING} />
+      <QuotesHistoryPageSkeleton
+        pageXPadding={CUSTOMER_QUOTES_PAGE_X_PADDING}
+      />
     );
+  }
+
+  /** 비로그인 — AuthRouteGuard(LoginRequiredModal)가 처리 */
+  if (!user) {
+    return null;
   }
 
   return (
     <div className="min-h-0 w-full flex-1 bg-background-200">
       {isError ? (
         <div className={CONTENT_CLASS}>
-          <motion.div
-            variants={fadeIn}
-            initial="hidden"
-            animate="show"
-            transition={motionTransition}
-            className="flex flex-col items-center gap-4 py-16"
-          >
-            <p role="alert" className="text-center text-lg-medium text-red-200">
-              {errorMessage}
-            </p>
-            <Button
-              size="sm"
-              variant="outlined"
-              className="max-w-[10rem]"
-              onClick={() => {
-                void refetch();
-              }}
-            >
-              다시 시도
-            </Button>
-          </motion.div>
+          <QuotesListErrorState
+            message={errorMessage}
+            onRetry={() => {
+              void refetch();
+            }}
+          />
         </div>
       ) : null}
 
@@ -127,21 +111,10 @@ const CustomerQuoteHistoryPageClient = () => {
             ))}
           </motion.ul>
 
-          <div ref={loadMoreRef} className="flex w-full justify-center py-2">
-            <AnimatePresence>
-              {isFetchingNextPage ? (
-                <motion.div
-                  variants={fadeIn}
-                  initial="hidden"
-                  animate="show"
-                  exit="exit"
-                  transition={motionTransition}
-                >
-                  <Spinner message="더 불러오는 중..." />
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-          </div>
+          <QuotesLoadMoreSentinel
+            loadMoreRef={loadMoreRef}
+            isFetchingNextPage={isFetchingNextPage}
+          />
         </div>
       ) : null}
     </div>

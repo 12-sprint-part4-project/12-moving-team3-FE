@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
-import { Button } from '@/components/Button/Button';
+import { QuotesListErrorState } from '@/components/quotes/QuotesListErrorState';
 import { QuotesListSkeleton } from '@/components/quotes/QuotesPageSkeleton';
 import { Pagination } from '@/components/ui/Pagination';
 import { useMoverQuotes } from '@/hooks/useMoverQuotes';
@@ -102,25 +102,10 @@ const MoverQuotesPageClient = () => {
 
     if (isError) {
       return (
-        <motion.div
-          variants={fadeIn}
-          initial="hidden"
-          animate="show"
-          transition={motionTransition}
-          className="flex flex-col items-center gap-4 py-16"
-        >
-          <p role="alert" className="text-center text-lg-medium text-red-200">
-            {errorMessage}
-          </p>
-          <Button
-            size="sm"
-            variant="outlined"
-            className="max-w-[10rem]"
-            onClick={handleRetry}
-          >
-            다시 시도
-          </Button>
-        </motion.div>
+        <QuotesListErrorState
+          message={errorMessage}
+          onRetry={handleRetry}
+        />
       );
     }
 
