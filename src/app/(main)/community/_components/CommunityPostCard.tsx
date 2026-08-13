@@ -5,7 +5,7 @@ import ChatIcon from '@/assets/icons/chat.svg';
 import HeartIcon from '@/assets/icons/heart.svg';
 import { COMMUNITY_POST_LIST_BADGE_FONT_CLASS } from '@/constants/communityCategoryStyles';
 import { formatRelativeTime } from '@/lib/formatDate';
-import { stripCommunityPostContent } from '@/lib/communityPostContent';
+import { stripCommunityPostContentPreview } from '@/lib/communityPostContent';
 import {
   buildCommunityPostDetailHref,
   type PostListContext,
@@ -105,7 +105,7 @@ export const CommunityPostCard = ({
             'xl:mt-1.5 xl:text-2lg-regular xl:text-gray-500'
           )}
         >
-          {stripCommunityPostContent(post.contentPreview)}
+          {stripCommunityPostContentPreview(post.contentPreview)}
         </p>
 
         <div

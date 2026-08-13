@@ -112,3 +112,13 @@ export const stripCommunityPostContent = (content: string): string => {
   }
   return stripMarkdownToPlain(normalizeCommunityPostContentForRender(content));
 };
+
+/** 첫 번째 단락/줄만 추출 — 목록 카드 본문 미리보기용 */
+export const stripCommunityPostContentPreview = (content: string): string => {
+  if (isHtmlContent(content)) {
+    const firstBlock = content.split(/<\/p>|<br/i)[0] ?? content;
+    return stripHtmlToPlainText(firstBlock);
+  }
+  const firstLine = content.split('\n')[0] ?? content;
+  return stripMarkdownToPlain(normalizeCommunityPostContentForRender(firstLine));
+};
