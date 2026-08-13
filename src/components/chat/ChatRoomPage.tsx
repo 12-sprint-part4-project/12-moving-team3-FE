@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 
@@ -64,7 +64,9 @@ export const ChatRoomPage = ({
   const sendMutation = useSendChatMessage(roomId);
   const { mutate: markAsRead } = useMarkChatRoomAsRead(roomId);
   const lastMarkedMessageIdRef = useRef<number | null>(null);
+  const lastPartnerMessageIdRef = useRef<number | null>(null);
   const [isNearBottom, setIsNearBottom] = useState(true);
+  const [showNewMessageChip, setShowNewMessageChip] = useState(false);
   const [trackedRoomId, setTrackedRoomId] = useState(roomId);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [scrollToBottomSignal, setScrollToBottomSignal] = useState(0);
@@ -73,6 +75,7 @@ export const ChatRoomPage = ({
   if (trackedRoomId !== roomId) {
     setTrackedRoomId(roomId);
     setIsNearBottom(true);
+    setShowNewMessageChip(false);
   }
 
   useChatSocketRoom(enabled ? roomId : 0);
@@ -91,6 +94,7 @@ export const ChatRoomPage = ({
 
   useEffect(() => {
     lastMarkedMessageIdRef.current = null;
+    lastPartnerMessageIdRef.current = null;
   }, [roomId]);
 
   useEffect(() => {
@@ -126,6 +130,43 @@ export const ChatRoomPage = ({
     );
   }, [enabled, roomId, messages, markAsRead, user?.id, isNearBottom]);
 
+  // 상대 새 메시지 추적 — 하단이면 커서만 갱신, 위로 스크롤 중이면 안내 칩 활성화
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    const latest = messages.at(-1);
+    if (!latest || latest.senderId === user?.id) {
+      return;
+    }
+
+    const latestId = latest.messageId;
+    if (isNearBottom) {
+      lastPartnerMessageIdRef.current = latestId;
+      return;
+    }
+
+    if (lastPartnerMessageIdRef.current === latestId) {
+      return;
+    }
+
+    lastPartnerMessageIdRef.current = latestId;
+    setShowNewMessageChip(true);
+  }, [enabled, messages, user?.id, isNearBottom]);
+
+  const handleNearBottomChange = useCallback((nearBottom: boolean) => {
+    setIsNearBottom(nearBottom);
+    if (nearBottom) {
+      setShowNewMessageChip(false);
+    }
+  }, []);
+
+  const handleScrollToBottom = useCallback(() => {
+    setScrollToBottomSignal((current) => current + 1);
+    setShowNewMessageChip(false);
+  }, []);
+
   const isMessagingAllowed = room?.isMessagingAllowed !== false;
 
   const handleSend = async (content: string) => {
@@ -138,7 +179,7 @@ export const ChatRoomPage = ({
         messageType: 'TEXT',
         content,
       });
-      setScrollToBottomSignal((current) => current + 1);
+      handleScrollToBottom();
       setFocusInputSignal((current) => current + 1);
     } catch (error) {
       const message =
@@ -162,7 +203,7 @@ export const ChatRoomPage = ({
         messageType: 'IMAGE',
         attachments,
       });
-      setScrollToBottomSignal((current) => current + 1);
+      handleScrollToBottom();
       setFocusInputSignal((current) => current + 1);
     } catch (error) {
       const message =
@@ -178,6 +219,12 @@ export const ChatRoomPage = ({
 
   const isSending = sendMutation.isPending || isUploadingImages;
   const composerDisabled = !isMessagingAllowed;
+  const scrollChipMode =
+    !isNearBottom && showNewMessageChip
+      ? 'new-message'
+      : !isNearBottom
+        ? 'to-bottom'
+        : 'hidden';
 
   if (!isReady) {
     return null;
@@ -273,7 +320,7 @@ export const ChatRoomPage = ({
             onLoadOlder={() => {
               void fetchNextPage();
             }}
-            onNearBottomChange={setIsNearBottom}
+            onNearBottomChange={handleNearBottomChange}
             scrollToBottomSignal={scrollToBottomSignal}
           />
           <ChatComposer
@@ -287,6 +334,8 @@ export const ChatRoomPage = ({
             onSend={handleSend}
             onSendImages={isMessagingAllowed ? handleSendImages : undefined}
             focusInputSignal={focusInputSignal}
+            scrollChipMode={scrollChipMode}
+            onScrollChipClick={handleScrollToBottom}
             className="shrink-0"
           />
         </>
