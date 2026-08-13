@@ -17,6 +17,7 @@ import { customerProfileQueryKeys } from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { getAuthSession } from '@/lib/authSession';
+import { cn } from '@/lib/utils';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
@@ -44,6 +45,12 @@ const FIELD_CLASSNAME =
 
 /** Figma Mobile·Tablet: lg-semibold / Desktop(lg+): xl-semibold */
 const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
+
+const FIELD_HINT_CLASSNAME = 'text-md-medium text-gray-400 lg:text-lg-medium';
+
+const FieldHint = ({ children }: { children: string }) => (
+  <span className={FIELD_HINT_CLASSNAME}>{children}</span>
+);
 
 /** Figma Mobile·Tablet chip sm / Desktop: md */
 const CHIP_CLASSNAME =
@@ -185,6 +192,7 @@ export const CustomerProfileForm = () => {
               imageInputRef={imageInputRef}
               displayImageUrl={displayImageUrl}
               labelClassName={LABEL_CLASSNAME}
+              labelExtra={<FieldHint>(선택)</FieldHint>}
               onImageChange={handleImageChange}
               onImageButtonClick={handleImageButtonClick}
               onImageClear={handleImageClear}
@@ -193,8 +201,12 @@ export const CustomerProfileForm = () => {
             <div className="h-px w-full bg-line-100" aria-hidden />
 
             <section className="flex w-full flex-col items-start gap-4 lg:gap-6">
-              <label htmlFor={phoneInputId} className={LABEL_CLASSNAME}>
+              <label
+                htmlFor={phoneInputId}
+                className={cn(LABEL_CLASSNAME, 'flex items-center gap-1.5')}
+              >
                 전화번호
+                <FieldHint>(필수)</FieldHint>
               </label>
               <TextFieldOutlined
                 id={phoneInputId}
@@ -215,7 +227,12 @@ export const CustomerProfileForm = () => {
 
             <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
               <div className="flex flex-col items-start gap-2">
-                <h2 className={LABEL_CLASSNAME}>이용 서비스</h2>
+                <h2
+                  className={cn(LABEL_CLASSNAME, 'flex items-center gap-1.5')}
+                >
+                  이용 서비스
+                  <FieldHint>(필수)</FieldHint>
+                </h2>
                 <p className="text-xs-regular text-gray-400 lg:text-lg-regular">
                   *이용 서비스는 중복 선택 가능하며, 언제든 수정 가능해요!
                 </p>
@@ -243,7 +260,12 @@ export const CustomerProfileForm = () => {
 
             <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
               <div className="flex w-full flex-col items-start gap-2">
-                <h2 className={LABEL_CLASSNAME}>내가 사는 지역</h2>
+                <h2
+                  className={cn(LABEL_CLASSNAME, 'flex items-center gap-1.5')}
+                >
+                  내가 사는 지역
+                  <FieldHint>(필수)</FieldHint>
+                </h2>
                 <p className="text-xs-regular text-gray-400 lg:text-lg-regular">
                   *내가 사는 지역은 언제든 수정 가능해요!
                 </p>
