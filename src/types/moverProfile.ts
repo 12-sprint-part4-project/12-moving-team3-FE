@@ -15,7 +15,7 @@ export interface UpsertMoverProfileRequest {
   career: number;
   /** 한 줄 소개 (1~20자) */
   shortDescription: string;
-  /** 상세 소개 (8~500자) */
+  /** 상세 소개 (8~200자) */
   description: string;
   /** 제공 서비스 (최소 1개) */
   service: MoverServiceType[];
