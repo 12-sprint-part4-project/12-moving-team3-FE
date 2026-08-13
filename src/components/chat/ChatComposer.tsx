@@ -10,6 +10,7 @@ import {
   type KeyboardEvent,
 } from 'react';
 
+import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import ClipIcon from '@/assets/icons/clip.svg';
 import CloseIcon from '@/assets/icons/close.svg';
 import SendIcon from '@/assets/icons/send.svg';
@@ -32,6 +33,8 @@ import { cn } from '@/lib/utils';
 
 const CHAT_IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
 
+export type ChatScrollChipMode = 'hidden' | 'to-bottom' | 'new-message';
+
 export interface ChatComposerProps {
   disabled?: boolean;
   /** disabled일 때 입력 영역 위에 표시할 안내 문구 */
@@ -40,6 +43,15 @@ export interface ChatComposerProps {
   onSend: (content: string) => Promise<void> | void;
   onSendImages?: (files: File[]) => Promise<void> | void;
   focusInputSignal?: number;
+  /**
+   * 스크롤 안내 칩 모드
+   * - `new-message`: 상대 새 메시지 도착
+   * - `to-bottom`: 하단이 아닌 위치에서 최신으로 이동
+   * - `hidden`: 미표시
+   */
+  scrollChipMode?: ChatScrollChipMode;
+  /** 스크롤 안내 칩 탭 시 콜백 */
+  onScrollChipClick?: () => void;
   className?: string;
 }
 
@@ -51,6 +63,8 @@ export const ChatComposer = ({
   onSend,
   onSendImages,
   focusInputSignal = 0,
+  scrollChipMode = 'hidden',
+  onScrollChipClick,
   className,
 }: ChatComposerProps) => {
   const composerRef = useRef<HTMLFormElement>(null);
@@ -240,14 +254,37 @@ export const ChatComposer = ({
   }, [focusInputSignal, isBusy]);
 
   return (
-    <form
-      ref={composerRef}
-      onSubmit={handleSubmit}
-      className={cn(
-        'flex shrink-0 flex-col gap-2 border-t border-line-100 bg-white px-4 py-3 md:px-6',
-        className
-      )}
-    >
+    <div className={cn('relative shrink-0', className)}>
+      {scrollChipMode === 'new-message' ? (
+        <div className="absolute -top-11 left-1/2 z-10 -translate-x-1/2">
+          <button
+            type="button"
+            onClick={onScrollChipClick}
+            className="flex cursor-pointer items-center gap-1 rounded-full bg-blue-300 px-3.5 py-2 text-sm-semibold text-white shadow-md transition-colors hover:bg-blue-200 active:bg-blue-200"
+          >
+            새 메시지가 있습니다
+            <ChevronDownIcon className="size-4" aria-hidden />
+          </button>
+        </div>
+      ) : null}
+
+      {scrollChipMode === 'to-bottom' ? (
+        <div className="absolute -top-12 right-4 z-10 md:right-6">
+          <button
+            type="button"
+            aria-label="맨 아래로 이동"
+            onClick={onScrollChipClick}
+            className="inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-line-200 bg-white text-gray-400 shadow-md transition-colors hover:bg-background-100 hover:text-blue-300 active:bg-background-100"
+          >
+            <ChevronDownIcon className="size-5" aria-hidden />
+          </button>
+        </div>
+      ) : null}
+      <form
+        ref={composerRef}
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-2 border-t border-line-100 bg-white px-4 py-3 md:px-6"
+      >
       {disabled && disabledReason ? (
         <p className="text-sm-medium text-gray-300" role="status">
           {disabledReason}
@@ -371,5 +408,6 @@ export const ChatComposer = ({
         </button>
       </div>
     </form>
+    </div>
   );
 };

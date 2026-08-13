@@ -184,6 +184,12 @@ export const ChatMessageList = ({
     });
   }, [reportNearBottom]);
 
+  const scrollToBottomRef = useRef(scrollToBottom);
+
+  useLayoutEffect(() => {
+    scrollToBottomRef.current = scrollToBottom;
+  }, [scrollToBottom]);
+
   // 이전 메시지 prepend 시에만 스크롤 복원 (앵커 스냅샷은 로드 중 유지)
   useLayoutEffect(() => {
     const el = scrollRef.current;
@@ -271,15 +277,15 @@ export const ChatMessageList = ({
     }
   }, [messages, isPending, scrollToBottom]);
 
-  // 전송 직후 강제 하단 이동
+  // 전송·칩 탭 등 부모가 요청한 강제 하단 이동 (signal 증가 시에만)
   useLayoutEffect(() => {
     if (scrollToBottomSignal === 0) {
       return;
     }
 
     shouldStickToBottomRef.current = true;
-    scrollToBottom();
-  }, [scrollToBottomSignal, scrollToBottom]);
+    scrollToBottomRef.current();
+  }, [scrollToBottomSignal]);
 
   // 이미지 등으로 콘텐츠 높이가 늘어나도 하단 고정 중이면 따라감
   useEffect(() => {
