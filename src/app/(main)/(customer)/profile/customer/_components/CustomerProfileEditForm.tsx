@@ -1,8 +1,8 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { redirect, useRouter } from 'next/navigation';
 import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/Button/Button';
 import { RegionChip, ServiceChip } from '@/components/ui/Chip';
@@ -15,7 +15,10 @@ import {
   type RegionChipValue,
   type ServiceChipValue,
 } from '@/constants/commonOptions';
-import { AUTH_QUERY_KEYS, customerProfileQueryKeys } from '@/constants/queryKey';
+import {
+  AUTH_QUERY_KEYS,
+  customerProfileQueryKeys,
+} from '@/constants/queryKey';
 import { useCustomerProfile } from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
@@ -31,6 +34,7 @@ import {
   uploadProfileImage,
   validateProfileImageFile,
 } from '@/lib/uploadProfileImage';
+import { cn } from '@/lib/utils';
 import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MISMATCH_ERROR_MESSAGE,
@@ -48,20 +52,28 @@ import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
 import { ProfileImageCropModal } from './ProfileImageCropModal';
 import { ProfileImageField } from './ProfileImageField';
 
-/** Figma Mobile·Tablet: input sm / Desktop(lg+): md 높이·텍스트 */
 const FIELD_CLASSNAME =
   'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular';
 
-const READONLY_FIELD_CLASSNAME = `${FIELD_CLASSNAME} [&_input]:!text-gray-300`;
+const READONLY_FIELD_CLASSNAME = cn(
+  FIELD_CLASSNAME,
+  '[&_input]:!text-gray-300'
+);
 
-/** Figma Mobile·Tablet: lg-semibold / Desktop(lg+): xl-semibold */
 const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
 
-/** Figma Mobile·Tablet chip sm / Desktop: md */
 const CHIP_CLASSNAME =
   'px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium';
 
 const HELPER_CLASSNAME = 'text-xs-regular text-gray-400 lg:text-lg-regular';
+
+const DIVIDER_CLASS = 'h-px w-full bg-line-100';
+
+const FORM_CLASS =
+  'flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 bg-white lg:max-w-[87.5rem] lg:gap-16 lg:rounded-[2rem] lg:px-6 lg:pt-8 lg:pb-10';
+
+const REGION_CHIP_WRAP_CLASS =
+  'flex flex-wrap gap-x-2 gap-y-3 lg:gap-x-3.5 lg:gap-y-[1.125rem]';
 
 const NAME_MIN_LENGTH = 2;
 const NAME_MAX_LENGTH = 20;
@@ -76,7 +88,7 @@ interface CustomerProfileEditFieldsProps {
   profile: CustomerProfileMe;
 }
 
-/** 쿼리 데이터로 초기화된 수정 폼. 마운트 시점에 profile이 이미 존재한다. */
+/** profile이 있을 때만 마운트한다. key로 리마운트한다. */
 const CustomerProfileEditFields = ({
   profile,
 }: CustomerProfileEditFieldsProps) => {
@@ -127,6 +139,7 @@ const CustomerProfileEditFields = ({
   const subscriberDigits = toKrMobileSubscriberDigits(phoneNumber);
   const phoneFieldError = getKrMobileSubscriberError(phoneNumber);
   const isPhoneFormatError = Boolean(phoneFieldError);
+  const showPasswordFields = profile.hasPassword;
 
   const isNameFormatError =
     trimmedName.length > 0 &&
@@ -169,9 +182,7 @@ const CustomerProfileEditFields = ({
     router.back();
   };
 
-  const handleValidatedImageChange = (
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleValidatedImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const imageError = validateProfileImageFile(file);
@@ -253,14 +264,14 @@ const CustomerProfileEditFields = ({
         onSubmit={(event) => {
           void handleSubmit(event);
         }}
-        className="flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 bg-white lg:max-w-[87.5rem] lg:gap-16 lg:rounded-[2rem] lg:px-6 lg:pt-8 lg:pb-10"
+        className={FORM_CLASS}
       >
         <div className="flex w-full flex-col items-stretch gap-5 lg:gap-10">
           <header className="flex w-full flex-col items-start gap-8 lg:gap-10">
             <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
               프로필 수정
             </h1>
-            <div className="h-px w-full bg-line-100" aria-hidden />
+            <div className={DIVIDER_CLASS} aria-hidden />
           </header>
 
           <div className="flex w-full flex-col items-stretch gap-5 lg:flex-row lg:items-start lg:justify-between lg:gap-10">
@@ -282,7 +293,7 @@ const CustomerProfileEditFields = ({
                 />
               </section>
 
-              <div className="h-px w-full bg-line-100" aria-hidden />
+              <div className={DIVIDER_CLASS} aria-hidden />
 
               <section className="flex w-full flex-col items-start gap-4">
                 <RequiredLabel htmlFor={nicknameInputId}>닉네임</RequiredLabel>
@@ -304,7 +315,7 @@ const CustomerProfileEditFields = ({
                 />
               </section>
 
-              <div className="h-px w-full bg-line-100" aria-hidden />
+              <div className={DIVIDER_CLASS} aria-hidden />
 
               <section className="flex w-full flex-col items-start gap-4">
                 <label htmlFor={emailInputId} className={LABEL_CLASSNAME}>
@@ -322,7 +333,7 @@ const CustomerProfileEditFields = ({
                 />
               </section>
 
-              <div className="h-px w-full bg-line-100" aria-hidden />
+              <div className={DIVIDER_CLASS} aria-hidden />
 
               <section className="flex w-full flex-col items-start gap-4">
                 <RequiredLabel htmlFor={phoneInputId}>전화번호</RequiredLabel>
@@ -346,9 +357,9 @@ const CustomerProfileEditFields = ({
                 />
               </section>
 
-              {profile.hasPassword ? (
+              {showPasswordFields ? (
                 <>
-                  <div className="h-px w-full bg-line-100" aria-hidden />
+                  <div className={DIVIDER_CLASS} aria-hidden />
 
                   <section className="flex w-full flex-col items-start gap-4">
                     <label
@@ -373,7 +384,7 @@ const CustomerProfileEditFields = ({
                     />
                   </section>
 
-                  <div className="h-px w-full bg-line-100" aria-hidden />
+                  <div className={DIVIDER_CLASS} aria-hidden />
 
                   <section className="flex w-full flex-col items-start gap-4">
                     <label htmlFor={newPasswordId} className={LABEL_CLASSNAME}>
@@ -400,7 +411,7 @@ const CustomerProfileEditFields = ({
                     />
                   </section>
 
-                  <div className="h-px w-full bg-line-100" aria-hidden />
+                  <div className={DIVIDER_CLASS} aria-hidden />
 
                   <section className="flex w-full flex-col items-start gap-4">
                     <label
@@ -435,10 +446,7 @@ const CustomerProfileEditFields = ({
               ) : null}
             </div>
 
-            <div
-              className="h-px w-full bg-line-100 lg:hidden"
-              aria-hidden
-            />
+            <div className={cn(DIVIDER_CLASS, 'lg:hidden')} aria-hidden />
 
             <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
               <ProfileImageField
@@ -451,7 +459,7 @@ const CustomerProfileEditFields = ({
                 onImageClear={handleImageClear}
               />
 
-              <div className="h-px w-full bg-line-100" aria-hidden />
+              <div className={DIVIDER_CLASS} aria-hidden />
 
               <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
                 <div className="flex flex-col items-start gap-2">
@@ -479,7 +487,7 @@ const CustomerProfileEditFields = ({
                 </div>
               </section>
 
-              <div className="h-px w-full bg-line-100" aria-hidden />
+              <div className={DIVIDER_CLASS} aria-hidden />
 
               <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
                 <div className="flex w-full flex-col items-start gap-2">
@@ -488,7 +496,7 @@ const CustomerProfileEditFields = ({
                     *견적 요청 시 지역을 설정할 수 있어요.
                   </p>
                 </div>
-                <div className="flex flex-wrap gap-x-2 gap-y-3 lg:gap-x-3.5 lg:gap-y-[1.125rem]">
+                <div className={REGION_CHIP_WRAP_CLASS}>
                   {REGION_CHIP_OPTIONS.map((option) => (
                     <RegionChip
                       key={option.value}
@@ -543,7 +551,6 @@ const CustomerProfileEditFields = ({
   );
 };
 
-/** 고객 프로필 수정. useCustomerProfile로 조회 후 폼에 전달 */
 export const CustomerProfileEditForm = () => {
   const {
     data: profile,
