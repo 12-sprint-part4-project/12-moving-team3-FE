@@ -55,8 +55,8 @@ export interface ChatMessageListProps {
 const NEAR_TOP_PX = 80;
 const NEAR_BOTTOM_PX = 120;
 
-/** 상대 나감 시스템 문구 (#275) */
-const PARTNER_LEFT_MESSAGE = '상대방이 채팅을 나갔습니다.';
+/** 상대 나감 시스템 문구 — 빈 방·하단 공통 (#275) */
+const PARTNER_LEFT_MESSAGE = '상대방이 채팅방을 나갔습니다.';
 
 /**
  * 같은 보낸이가 같은 분(분 단위)에 연속 메시지를 보내면

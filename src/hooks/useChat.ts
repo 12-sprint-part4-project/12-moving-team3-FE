@@ -251,10 +251,19 @@ const applySentMessageToCaches = (
   );
 
   // REST 전송만으로도 상대 재참여가 일어나므로 소켓 미연결 시에도 나감 표시를 해제한다.
+  // 전송 이후 상대가 다시 나간 최신 소켓 상태는 덮어쓰지 않는다.
   queryClient.setQueryData<ChatRoomDetailResponse>(
     chatQueryKeys.room(roomId),
     (current) => {
       if (!current?.data.isPartnerLeft) {
+        return current;
+      }
+
+      const partnerLeftAt = current.data.partnerLeftAt;
+      if (
+        partnerLeftAt &&
+        Date.parse(partnerLeftAt) > Date.parse(message.createdAt)
+      ) {
         return current;
       }
 

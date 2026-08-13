@@ -69,16 +69,34 @@ const refetchRoomsList = (queryClient: QueryClient): void => {
     });
 };
 
+/** 방 상세 상대 나감 캐시 패치 값 (#275) */
+interface PartnerLeftState {
+  isPartnerLeft: boolean;
+  partnerLeftAt: string | null;
+}
+
 /** 방 상세의 상대 나감 플래그를 갱신한다 (#275). */
 const patchRoomPartnerLeft = (
   queryClient: QueryClient,
   roomId: number,
-  next: { isPartnerLeft: boolean; partnerLeftAt: string | null }
+  next: PartnerLeftState,
+  /** 나감 해제 시, 이 시각 이후 나간 상태면 캐시를 유지한다 */
+  clearedAsOf?: string
 ): void => {
   queryClient.setQueryData<ChatRoomDetailResponse>(
     chatQueryKeys.room(roomId),
     (current) => {
       if (!current) {
+        return current;
+      }
+
+      if (
+        !next.isPartnerLeft &&
+        clearedAsOf &&
+        current.data.isPartnerLeft &&
+        current.data.partnerLeftAt &&
+        Date.parse(current.data.partnerLeftAt) > Date.parse(clearedAsOf)
+      ) {
         return current;
       }
 
@@ -206,10 +224,16 @@ export const applySocketMessageToCaches = (
   prependMessageToInfiniteCache(queryClient, roomId, message);
 
   // 메시지 전송 시 BE가 나간 상대를 재참여시키므로 나감 표시를 해제한다.
-  patchRoomPartnerLeft(queryClient, roomId, {
-    isPartnerLeft: false,
-    partnerLeftAt: null,
-  });
+  // 전송 이후 상대가 다시 나간 최신 상태는 덮어쓰지 않는다.
+  patchRoomPartnerLeft(
+    queryClient,
+    roomId,
+    {
+      isPartnerLeft: false,
+      partnerLeftAt: null,
+    },
+    message.createdAt
+  );
 
   const isRoomVisible = syncRoomsListIfMissing(queryClient, roomId);
 
