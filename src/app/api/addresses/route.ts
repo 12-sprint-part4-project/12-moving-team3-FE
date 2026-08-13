@@ -11,6 +11,30 @@ import type { AddressSearchResult } from '@/types/addressSearch';
 /** 검색어 최소 길이 — 1자 요청으로 행안부 부하·차단 완화 */
 const MIN_KEYWORD_LENGTH = 2;
 
+/** 주소 검색 실패 응답 — code·status·message를 한 항목에 묶음 */
+const ADDRESS_SEARCH_ERRORS = {
+  INVALID_KEYWORD: {
+    code: 'INVALID_KEYWORD',
+    status: 400,
+    message: '검색어를 2자 이상 입력해 주세요.',
+  },
+  ADDRESS_SEARCH_FAILED: {
+    code: 'ADDRESS_SEARCH_FAILED',
+    status: 502,
+    message:
+      '주소 검색 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+  },
+} as const;
+
+type AddressSearchError =
+  (typeof ADDRESS_SEARCH_ERRORS)[keyof typeof ADDRESS_SEARCH_ERRORS];
+
+const jsonAddressSearchError = (error: AddressSearchError) =>
+  NextResponse.json(
+    { success: false, message: error.message, code: error.code },
+    { status: error.status }
+  );
+
 /**
  * GET /api/addresses?keyword=&page=
  * 행안부 도로명주소 API 프록시. confmKey(JUSO_API_KEY)는 서버에만 둔다.
@@ -27,14 +51,7 @@ export const GET = async (request: Request) => {
     Number.isFinite(pageParam) && pageParam > 0 ? Math.floor(pageParam) : 1;
 
   if (keyword.length < MIN_KEYWORD_LENGTH) {
-    return NextResponse.json(
-      {
-        success: false,
-        message: '검색어를 2자 이상 입력해 주세요.',
-        code: 'INVALID_KEYWORD',
-      },
-      { status: 400 }
-    );
+    return jsonAddressSearchError(ADDRESS_SEARCH_ERRORS.INVALID_KEYWORD);
   }
 
   const confmKey = process.env.JUSO_API_KEY?.trim() ?? '';
@@ -71,13 +88,6 @@ export const GET = async (request: Request) => {
       docs: JUSO_API_DOCS_URL,
     });
 
-    return NextResponse.json(
-      {
-        success: false,
-        message: '주소 검색 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
-        code: 'ADDRESS_SEARCH_FAILED',
-      },
-      { status: 502 }
-    );
+    return jsonAddressSearchError(ADDRESS_SEARCH_ERRORS.ADDRESS_SEARCH_FAILED);
   }
 };
