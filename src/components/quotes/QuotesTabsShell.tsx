@@ -16,16 +16,6 @@ export interface QuotesTabsShellProps<T extends string> {
   tabIdPrefix?: string;
 }
 
-/** searchParams.tab 단일 문자열로 정규화 */
-export const resolveQuotesTabParam = (
-  tab: string | string[] | undefined
-): string | null => {
-  if (Array.isArray(tab)) {
-    return tab[0] ?? null;
-  }
-  return tab ?? null;
-};
-
 /**
  * 내 견적 관리 공통 탭 셸 (라우트 내비게이션).
  * Suspense 밖에 두어 useSearchParams suspend 중에도 클릭 가능.

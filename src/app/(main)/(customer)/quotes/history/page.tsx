@@ -1,9 +1,12 @@
 import { Suspense } from 'react';
 
-import { QuotesHistoryPageSkeleton } from '@/components/quotes/QuotesPageSkeleton';
-import { cn } from '@/lib/utils';
+import { QuotesHistoryPageSkeleton } from '@/components/ui/Skeleton';
 
-import { CUSTOMER_QUOTES_PAGE_X_PADDING } from '../_components/CustomerQuotesTabs';
+import { CustomerQuotesTitleHeader } from '../_components/CustomerQuotesTitleHeader';
+import {
+  CUSTOMER_QUOTES_PAGE_SHELL_CLASS,
+  CUSTOMER_QUOTES_PAGE_X_PADDING,
+} from '../_components/customerQuotesLayout';
 import CustomerQuoteHistoryPageClient from './page.client';
 
 import type { Metadata } from 'next';
@@ -12,22 +15,15 @@ export const metadata: Metadata = {
   title: '이용 내역',
 };
 
-/**
- * 고객 이용 내역 페이지 (확정한 견적)
- */
+/** 고객 이용 내역 페이지 (확정한 견적) */
 const CustomerQuoteHistoryPage = () => {
   return (
-    <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden">
-      <div
-        className={cn(
-          'shrink-0 border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8',
-          CUSTOMER_QUOTES_PAGE_X_PADDING
-        )}
-      >
-        <h1 className="text-2lg-semibold text-black-400 lg:text-2xl-semibold">
-          이용 내역
-        </h1>
-      </div>
+    <div className={CUSTOMER_QUOTES_PAGE_SHELL_CLASS}>
+      <CustomerQuotesTitleHeader
+        title="이용 내역"
+        paddingClassName={CUSTOMER_QUOTES_PAGE_X_PADDING}
+        className="shrink-0"
+      />
 
       <Suspense
         fallback={

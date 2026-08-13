@@ -1,10 +1,13 @@
 import { Suspense } from 'react';
 
-import { QuotesPageContentSkeleton } from '@/components/quotes/QuotesPageSkeleton';
-import { resolveQuotesTabParam } from '@/components/quotes/QuotesTabsShell';
+import { QuotesPageContentSkeleton } from '@/components/ui/Skeleton';
+import { resolveTabSearchParam } from '@/lib/resolveTabSearchParam';
 
 import {
+  CUSTOMER_QUOTES_PAGE_SHELL_CLASS,
   CUSTOMER_QUOTES_PAGE_X_PADDING,
+} from './_components/customerQuotesLayout';
+import {
   CustomerQuotesTabs,
   parseCustomerQuotesTabId,
 } from './_components/CustomerQuotesTabs';
@@ -20,17 +23,15 @@ export interface CustomerQuotesPageProps {
   searchParams: Promise<{ tab?: string | string[] }>;
 }
 
-/**
- * 고객 내 견적 관리 페이지
- */
+/** 고객 내 견적 관리 페이지 */
 const CustomerQuotesPage = async ({
   searchParams,
 }: CustomerQuotesPageProps) => {
   const params = await searchParams;
-  const activeTab = parseCustomerQuotesTabId(resolveQuotesTabParam(params.tab));
+  const activeTab = parseCustomerQuotesTabId(resolveTabSearchParam(params.tab));
 
   return (
-    <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden">
+    <div className={CUSTOMER_QUOTES_PAGE_SHELL_CLASS}>
       <CustomerQuotesTabs activeTab={activeTab} />
       <Suspense
         fallback={

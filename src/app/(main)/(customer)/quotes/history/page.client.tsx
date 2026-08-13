@@ -1,25 +1,25 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { useEffect } from 'react';
-import { useInView } from 'react-intersection-observer';
 
-import { QuotesHistoryPageSkeleton } from '@/components/quotes/QuotesPageSkeleton';
 import { QuotesListErrorState } from '@/components/quotes/QuotesListErrorState';
 import { QuotesLoadMoreSentinel } from '@/components/quotes/QuotesLoadMoreSentinel';
+import { QuotesHistoryPageSkeleton } from '@/components/ui/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import {
   HISTORY_PAST_QUOTE_GROUP_LIMIT,
   useCustomerPastQuotes,
 } from '@/hooks/useCustomerPastQuotes';
+import { useLoadMoreOnView } from '@/hooks/useLoadMoreOnView';
 import { ApiError } from '@/lib/apiClient';
 import { fadeUp, getMotionTransition, listStagger } from '@/lib/motionVariants';
 
-import { CUSTOMER_QUOTES_PAGE_X_PADDING } from '../_components/CustomerQuotesTabs';
+import {
+  CUSTOMER_QUOTES_CONTENT_CLASS,
+  CUSTOMER_QUOTES_PAGE_X_PADDING,
+} from '../_components/customerQuotesLayout';
 import { PendingQuotesEmptyState } from '../_components/PendingQuotesEmptyState';
 import { HistoryQuoteCard } from './_components/HistoryQuoteCard';
-
-const CONTENT_CLASS = `mx-auto w-full max-w-[1920px] py-6 md:py-8 lg:py-10 ${CUSTOMER_QUOTES_PAGE_X_PADDING}`;
 
 /** 고객 이용 내역 */
 const CustomerQuoteHistoryPageClient = () => {
@@ -44,23 +44,22 @@ const CustomerQuoteHistoryPageClient = () => {
     enabled: isLoggedIn,
   });
 
-  const { ref: loadMoreRef, inView } = useInView({
-    rootMargin: '200px',
+  const loadMoreRef = useLoadMoreOnView({
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
   });
-
-  useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      void fetchNextPage();
-    }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
   const errorMessage =
     error instanceof ApiError
       ? error.message
       : '이용 내역을 불러오지 못했습니다.';
 
+  const handleRetry = () => {
+    void refetch();
+  };
+
   /** 인증 초기화·로그인 후 조회 중만 스켈레톤 (!user의 disabled isPending과 분리) */
-  if (!isReady || (user && isPending)) {
+  if (!isReady || (isLoggedIn && isPending)) {
     return (
       <QuotesHistoryPageSkeleton
         pageXPadding={CUSTOMER_QUOTES_PAGE_X_PADDING}
@@ -73,50 +72,51 @@ const CustomerQuoteHistoryPageClient = () => {
     return null;
   }
 
-  return (
-    <div className="min-h-0 w-full flex-1 bg-background-200">
-      {isError ? (
-        <div className={CONTENT_CLASS}>
-          <QuotesListErrorState
-            message={errorMessage}
-            onRetry={() => {
-              void refetch();
-            }}
-          />
+  if (isError) {
+    return (
+      <div className="min-h-0 w-full flex-1 bg-background-200">
+        <div className={CUSTOMER_QUOTES_CONTENT_CLASS}>
+          <QuotesListErrorState message={errorMessage} onRetry={handleRetry} />
         </div>
-      ) : null}
+      </div>
+    );
+  }
 
-      {!isError && isHistoryEmpty ? (
-        <div className={CONTENT_CLASS}>
+  if (isHistoryEmpty) {
+    return (
+      <div className="min-h-0 w-full flex-1 bg-background-200">
+        <div className={CUSTOMER_QUOTES_CONTENT_CLASS}>
           <PendingQuotesEmptyState variant="historyEmpty" />
         </div>
-      ) : null}
+      </div>
+    );
+  }
 
-      {!isError && !isHistoryEmpty ? (
-        <div className={CONTENT_CLASS}>
-          <motion.ul
-            variants={listStagger}
-            initial="hidden"
-            animate="show"
-            className="grid w-full grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-x-6 lg:gap-y-12"
-          >
-            {historyCards.map((quote) => (
-              <motion.li
-                key={quote.quoteId}
-                variants={fadeUp}
-                transition={motionTransition}
-              >
-                <HistoryQuoteCard quote={quote} />
-              </motion.li>
-            ))}
-          </motion.ul>
+  return (
+    <div className="min-h-0 w-full flex-1 bg-background-200">
+      <div className={CUSTOMER_QUOTES_CONTENT_CLASS}>
+        <motion.ul
+          variants={listStagger}
+          initial="hidden"
+          animate="show"
+          className="grid w-full grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-x-6 lg:gap-y-12"
+        >
+          {historyCards.map((quote) => (
+            <motion.li
+              key={quote.quoteId}
+              variants={fadeUp}
+              transition={motionTransition}
+            >
+              <HistoryQuoteCard quote={quote} />
+            </motion.li>
+          ))}
+        </motion.ul>
 
-          <QuotesLoadMoreSentinel
-            loadMoreRef={loadMoreRef}
-            isFetchingNextPage={isFetchingNextPage}
-          />
-        </div>
-      ) : null}
+        <QuotesLoadMoreSentinel
+          loadMoreRef={loadMoreRef}
+          isFetchingNextPage={isFetchingNextPage}
+        />
+      </div>
     </div>
   );
 };
