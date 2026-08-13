@@ -2,8 +2,7 @@ import type { Decorator } from '@storybook/nextjs-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { NOTIFICATION_LIST_FIXTURE } from '@/components/Gnb/notificationFixtures';
-import { chatQueryKeys } from '@/hooks/useChat';
-import { notificationQueryKeys } from '@/hooks/useNotifications';
+import { chatQueryKeys, notificationQueryKeys } from '@/constants/queryKey';
 import type {
   ChatRoomListResponse,
   ChatUnreadCountResponse,

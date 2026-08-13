@@ -2,14 +2,9 @@
 
 import { useQuery } from '@tanstack/react-query';
 
+import { customerProfileQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
 import { getCustomerProfileMe } from '@/services/customerProfileApi';
-
-export const customerProfileQueryKeys = {
-  all: ['customer-profile'] as const,
-  me: (userId: string) =>
-    [...customerProfileQueryKeys.all, 'me', userId] as const,
-};
 
 /** 본인 프로필 조회. 미등록(404)은 null */
 export const useCustomerProfile = (enabled = true) => {

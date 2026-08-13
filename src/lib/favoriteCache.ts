@@ -1,8 +1,10 @@
 import type { InfiniteData, QueryClient, QueryKey } from '@tanstack/react-query';
 
-import { customerQuoteQueryKeys } from '@/hooks/useCustomerPendingQuotes';
-import { favoriteQueryKeys } from '@/hooks/useFavoriteMoversPreview';
-import { moverQueryKeys } from '@/hooks/useMoversList';
+import {
+  customerQuoteQueryKeys,
+  favoriteQueryKeys,
+  moverQueryKeys,
+} from '@/constants/queryKey';
 import type {
   CustomerPastQuotesResponse,
   CustomerPendingQuotesResponse,

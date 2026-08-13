@@ -1,3 +1,4 @@
+import { API_ERROR_CODE } from '@/constants/errorCode';
 import {
   API_BASE_URL,
   ApiError,
@@ -33,7 +34,7 @@ export const getNotifications =
     const parsed = notificationListResponseSchema.safeParse(body);
 
     if (!parsed.success) {
-      throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, API_ERROR_CODE.INVALID_RESPONSE);
     }
 
     return parsed.data;
@@ -62,7 +63,7 @@ export const markNotificationAsRead = async (
   const parsed = notificationMarkReadResponseSchema.safeParse(body);
 
   if (!parsed.success) {
-    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, API_ERROR_CODE.INVALID_RESPONSE);
   }
 
   return parsed.data.data;

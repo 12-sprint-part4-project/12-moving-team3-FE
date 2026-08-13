@@ -1,6 +1,7 @@
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
+import { moverQueryKeys } from '@/constants/queryKey';
 import { getMovers, toMoverCardModelFromListItem } from '@/services/moversApi';
 import type {
   ApiMoveType,
@@ -16,31 +17,6 @@ import { SORT_VALUE_TO_API } from '@/types/mover';
 const toStableOptions = <T extends string>(items: readonly T[]): T[] =>
   [...items].sort(); //알파벳 순으로 정렬. (얕은 복사?)
 //readOnly T[] : 배열의 불변성을 보장하기 위해 사용함. (말그대로 읽기만 가능)
-
-/*
-React Query에서 사용할 "쿼리 키(query key)"를 생성하는 헬퍼 객체
-- all: 루트키 - 모든 movers 관련 쿼리의 루트 키 (연관된 모든 키를 한번에 무효화 가능)
-- lists(): 목록 쿼리(전체 movers 리스트)의 키
-- list(params): 특정 파라미터로 movers 리스트 쿼리의 고유 키 (캐싱·리페치 등에서 params에 따라 다르게 구분)
-- details(): 개별 mover 상세 쿼리의 기본 키
-- detail(id): 특정 id의 mover 상세 쿼리의 키
-이런 구조로 통일성 있게 키를 만들면, React Query에서 데이터 구분과 무효화(invalidate)가 안전하고 직관적으로 가능해짐.
-*/
-export const moverQueryKeys = {
-  all: ['movers'] as const,
-  lists: () => [...moverQueryKeys.all, 'list'] as const,
-  list: (params: Omit<MoversListParams, 'cursor'>) =>
-    [...moverQueryKeys.lists(), params] as const,
-  //Omit : 특정 타입에서 지정한 key(속성)만 빼고 나머지 속성들로 새 타입을 만드는 기능
-  //cursor는 페이지네이션 용이라서 뺌 (리스트랑 관련 X), limit은 보여줄 리스트 개수에 관련이 있어서 포함해야 함.
-  //정렬, 필터링 등의 정보를 저장함.
-  details: () => [...moverQueryKeys.all, 'detail'] as const,
-  detail: (id: string) => [...moverQueryKeys.details(), id] as const,
-  //mover의 id를 가진 쿼리 키
-  //여러 개를 가지게 됨.
-  //id 값에 따라 매번 새로운 배열(['movers', 'detail', id])을 만들어 반환하여,
-  //id가 다르면 서로 다른 쿼리키가 생성
-};
 
 //MoversListParams랑 비슷하나 조금 다름. 왜일까?
 export interface UseMoversListParams {

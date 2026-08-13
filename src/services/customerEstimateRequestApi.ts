@@ -1,3 +1,4 @@
+import { API_ERROR_CODE } from '@/constants/errorCode';
 import {
   API_BASE_URL,
   ApiError,
@@ -38,12 +39,12 @@ const getAuthHeaders = (withJson = false): HeadersInit => ({
 /** 성공 응답 data를 zod로 런타임 검증 */
 const parseResponseData = <T>(schema: z.ZodType<T>, body: unknown): T => {
   if (!body || typeof body !== 'object' || !('data' in body)) {
-    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, API_ERROR_CODE.INVALID_RESPONSE);
   }
 
   const result = schema.safeParse((body as { data: unknown }).data);
   if (!result.success) {
-    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, API_ERROR_CODE.INVALID_RESPONSE);
   }
 
   return result.data;
@@ -56,7 +57,7 @@ const parseRequestBody = <T>(schema: z.ZodType<T>, body: unknown): T => {
     throw new ApiError(
       400,
       '요청 형식이 올바르지 않습니다.',
-      'INVALID_REQUEST'
+      API_ERROR_CODE.INVALID_REQUEST
     );
   }
   return result.data;
@@ -73,10 +74,10 @@ const isTimeoutError = (error: unknown): boolean => {
 /** 네트워크·타임아웃 예외를 ApiError로 정규화 (chatApi와 동일 패턴, 도메인 로컬) */
 const toNetworkApiError = (error: unknown): ApiError => {
   if (isTimeoutError(error)) {
-    return new ApiError(408, '요청 시간이 초과되었습니다.', 'TIMEOUT');
+    return new ApiError(408, '요청 시간이 초과되었습니다.', API_ERROR_CODE.TIMEOUT);
   }
 
-  return new ApiError(0, '네트워크 오류가 발생했습니다.', 'NETWORK_ERROR');
+  return new ApiError(0, '네트워크 오류가 발생했습니다.', API_ERROR_CODE.NETWORK_ERROR);
 };
 
 /**
@@ -117,7 +118,7 @@ const requestJson = async <T>(
     throw new ApiError(
       500,
       '요청 처리 중 오류가 발생했습니다.',
-      'INVALID_RESPONSE'
+      API_ERROR_CODE.INVALID_RESPONSE
     );
   }
 };

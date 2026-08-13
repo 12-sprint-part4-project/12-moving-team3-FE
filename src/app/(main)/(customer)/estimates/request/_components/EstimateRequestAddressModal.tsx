@@ -10,6 +10,7 @@ import { ModalCtaButton } from '@/components/ui/Modal/ModalCtaButton';
 import { ModalHeader } from '@/components/ui/Modal/ModalHeader';
 import { MODAL_PANEL_CLASS } from '@/components/ui/Modal/modalPanel';
 import { Pagination } from '@/components/ui/Pagination';
+import { API_ERROR_CODE } from '@/constants/errorCode';
 import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 import { searchAddresses } from '@/services/addressSearchApi';
@@ -131,7 +132,7 @@ export const EstimateRequestAddressModal = ({
       // 행안부 keyword 미충족 등으로 프록시가 실패할 때 — 일반 502와 구분한 soft 안내
       if (
         error instanceof ApiError &&
-        error.code === 'ADDRESS_SEARCH_FAILED'
+        error.code === API_ERROR_CODE.ADDRESS_SEARCH_FAILED
       ) {
         setErrorMessage(ADDRESS_SEARCH_SOFT_ERROR);
       } else {

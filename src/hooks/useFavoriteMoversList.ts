@@ -1,14 +1,13 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
+import { favoriteQueryKeys } from '@/constants/queryKey';
 import { getMoverAccessToken } from '@/services/moversAuth';
 import {
   getFavoriteMovers,
   toMoverCardModelFromFavorite,
 } from '@/services/moversApi';
 import type { MoverCardModel } from '@/types/mover';
-
-import { favoriteQueryKeys } from './useFavoriteMoversPreview';
 
 const DEFAULT_LIMIT = 10;
 

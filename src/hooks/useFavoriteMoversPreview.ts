@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { favoriteQueryKeys } from '@/constants/queryKey';
 import { getMoverAccessToken } from '@/services/moversAuth';
 import {
   getFavoriteMovers,
@@ -7,18 +8,7 @@ import {
 } from '@/services/moversApi';
 import type { MoverCardModel } from '@/types/mover';
 
-import { moverQueryKeys } from './useMoversList';
-
 const FAVORITE_PREVIEW_LIMIT = 3;
-
-export const favoriteQueryKeys = {
-  all: [...moverQueryKeys.all, 'favorites'] as const,
-  lists: () => [...favoriteQueryKeys.all, 'list'] as const,
-  list: (limit: number) => [...favoriteQueryKeys.lists(), limit] as const,
-  preview: (limit: number) =>
-    [...favoriteQueryKeys.all, 'preview', limit] as const,
-};
-//preview제외하곤 사용된 적은 없음.
 
 /**
  * Desktop 사이드바용 찜한 기사님 미리보기 (최대 3명).

@@ -1,6 +1,6 @@
 import type { InfiniteData, QueryClient } from '@tanstack/react-query';
 
-import { chatQueryKeys } from '@/hooks/useChat';
+import { chatQueryKeys } from '@/constants/queryKey';
 import type {
   ChatMessage,
   ChatMessagesResponse,

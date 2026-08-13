@@ -1,3 +1,4 @@
+import { API_ERROR_CODE } from '@/constants/errorCode';
 import {
   API_BASE_URL,
   ApiError,
@@ -156,7 +157,7 @@ const submitQuote = async (
   const parsed = quoteSubmitResponseSchema.safeParse(responseBody);
 
   if (!parsed.success) {
-    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, API_ERROR_CODE.INVALID_RESPONSE);
   }
 
   return parsed.data;
@@ -223,7 +224,7 @@ export async function getMoverQuotes(
   const parsed = quoteListResponseSchema.safeParse(body);
 
   if (!parsed.success) {
-    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
+    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, API_ERROR_CODE.INVALID_RESPONSE);
   }
 
   return parsed.data as QuoteListResponse;
@@ -282,7 +283,7 @@ export const getMoverQuoteDetail = async (
     throw new ApiError(
       response.status,
       DEFAULT_API_ERROR_MESSAGE,
-      'INVALID_RESPONSE'
+      API_ERROR_CODE.INVALID_RESPONSE
     );
   }
 

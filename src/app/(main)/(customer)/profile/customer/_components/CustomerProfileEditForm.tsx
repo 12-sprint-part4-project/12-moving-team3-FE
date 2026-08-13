@@ -15,11 +15,8 @@ import {
   type RegionChipValue,
   type ServiceChipValue,
 } from '@/constants/commonOptions';
-import { AUTH_QUERY_KEYS } from '@/hooks/useAuthMe';
-import {
-  customerProfileQueryKeys,
-  useCustomerProfile,
-} from '@/hooks/useCustomerProfile';
+import { AUTH_QUERY_KEYS, customerProfileQueryKeys } from '@/constants/queryKey';
+import { useCustomerProfile } from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import {

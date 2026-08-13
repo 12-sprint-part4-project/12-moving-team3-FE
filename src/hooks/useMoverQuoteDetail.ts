@@ -1,18 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { moverQuoteDetailQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
 import {
   getMoverQuoteDetail,
   toQuoteDetailViewModel,
 } from '@/services/quoteApi';
-
-import { moverQuoteQueryKeys } from './useMoverQuotes';
-
-export const moverQuoteDetailQueryKeys = {
-  all: [...moverQuoteQueryKeys.all, 'detail'] as const,
-  detail: (quoteId: number) =>
-    [...moverQuoteDetailQueryKeys.all, quoteId] as const,
-};
 
 /**
  * 기사님 견적 상세 조회 훅

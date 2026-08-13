@@ -1,10 +1,8 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
-import {
-  MOVER_REVIEWS_PAGE_SIZE,
-  reviewQueryKeys,
-} from '@/hooks/reviewQueryKeys';
+import { reviewQueryKeys } from '@/constants/queryKey';
+import { MOVER_REVIEWS_PAGE_SIZE } from '@/hooks/reviewQueryKeys';
 import { getMoverPublicReviews } from '@/services/reviewsApi';
 import { isMoverId } from '@/types/mover';
 

@@ -8,12 +8,9 @@ import { Button } from '@/components/Button/Button';
 import { TextFieldOutlined } from '@/components/ui/Input';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { AUTH_QUERY_KEYS, moverProfileQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
-import { AUTH_QUERY_KEYS } from '@/hooks/useAuthMe';
-import {
-  moverProfileQueryKeys,
-  useMoverProfile,
-} from '@/hooks/useMoverProfile';
+import { useMoverProfile } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import {

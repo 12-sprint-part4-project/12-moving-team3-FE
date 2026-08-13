@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 
+import { API_ERROR_CODE } from '@/constants/errorCode';
 import {
   JUSO_API_DOCS_URL,
   sanitizeJusoKeyword,
@@ -14,12 +15,12 @@ const MIN_KEYWORD_LENGTH = 2;
 /** 주소 검색 실패 응답 — code·status·message를 한 항목에 묶음 */
 const ADDRESS_SEARCH_ERRORS = {
   INVALID_KEYWORD: {
-    code: 'INVALID_KEYWORD',
+    code: API_ERROR_CODE.INVALID_KEYWORD,
     status: 400,
     message: '검색어를 2자 이상 입력해 주세요.',
   },
   ADDRESS_SEARCH_FAILED: {
-    code: 'ADDRESS_SEARCH_FAILED',
+    code: API_ERROR_CODE.ADDRESS_SEARCH_FAILED,
     status: 502,
     message:
       '주소 검색 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',

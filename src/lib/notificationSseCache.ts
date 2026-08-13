@@ -1,7 +1,6 @@
 import type { QueryClient } from '@tanstack/react-query';
 
-import { chatQueryKeys } from '@/hooks/useChat';
-import { notificationQueryKeys } from '@/hooks/useNotifications';
+import { chatQueryKeys, notificationQueryKeys } from '@/constants/queryKey';
 import type {
   NotificationItem,
   NotificationListResponse,

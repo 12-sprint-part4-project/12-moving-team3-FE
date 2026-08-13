@@ -3,8 +3,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 
+import { API_ERROR_CODE } from '@/constants/errorCode';
+import { chatQueryKeys, designatedEstimateQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
-import { chatQueryKeys } from '@/hooks/useChat';
 import { useCustomerPendingQuotes } from '@/hooks/useCustomerPendingQuotes';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
@@ -14,12 +15,6 @@ import {
   createDesignatedEstimateRequest,
   getDesignatedEstimateExistence,
 } from '@/services/designatedEstimateRequestApi';
-
-export const designatedEstimateQueryKeys = {
-  all: ['designated-estimate'] as const,
-  existence: (moverId: string) =>
-    [...designatedEstimateQueryKeys.all, 'existence', moverId] as const,
-};
 
 const NOT_DESIGNATED: DesignatedEstimateExistence = {
   exists: false,
@@ -114,7 +109,7 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
         const error = new ApiError(
           409,
           '제출된 견적 요청에만 지정 견적을 보낼 수 있습니다.',
-          'ESTIMATE_REQUEST_NOT_SUBMITTED'
+          API_ERROR_CODE.ESTIMATE_REQUEST_NOT_SUBMITTED
         );
         throw error;
       }
@@ -146,12 +141,12 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
     },
     onError: (error: unknown) => {
       if (error instanceof ApiError) {
-        if (error.code === 'ESTIMATE_REQUEST_NOT_SUBMITTED') {
+        if (error.code === API_ERROR_CODE.ESTIMATE_REQUEST_NOT_SUBMITTED) {
           setNeedGeneralOpen(true);
           return;
         }
 
-        if (error.code === 'DESIGNATED_ALREADY_EXISTS') {
+        if (error.code === API_ERROR_CODE.DESIGNATED_ALREADY_EXISTS) {
           setAlreadyDesignatedOpen(true);
           void queryClient.invalidateQueries({
             queryKey: designatedEstimateQueryKeys.existence(moverId),
@@ -159,7 +154,7 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
           return;
         }
 
-        if (error.code === 'QUOTE_ALREADY_RECEIVED_FROM_MOVER') {
+        if (error.code === API_ERROR_CODE.QUOTE_ALREADY_RECEIVED_FROM_MOVER) {
           showToast({ content: '이미 견적을 받은 기사님입니다' });
           void refetchPendingQuotes();
           return;

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { notificationQueryKeys } from '@/hooks/useNotifications';
+import { notificationQueryKeys } from '@/constants/queryKey';
 import { markNotificationAsRead } from '@/services/notificationApi';
 
 /**

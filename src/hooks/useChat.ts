@@ -10,6 +10,8 @@ import {
 } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
+import { API_ERROR_CODE } from '@/constants/errorCode';
+import { chatQueryKeys } from '@/constants/queryKey';
 import { ApiError } from '@/lib/apiClient';
 import {
   createChatRoom,
@@ -35,15 +37,6 @@ import type {
 
 /** 메시지 이력 기본 page size (BE default와 동일) */
 const DEFAULT_MESSAGES_LIMIT = 30;
-
-export const chatQueryKeys = {
-  all: ['chat'] as const,
-  rooms: () => [...chatQueryKeys.all, 'rooms'] as const,
-  room: (roomId: number) => [...chatQueryKeys.all, 'room', roomId] as const,
-  messages: (roomId: number) =>
-    [...chatQueryKeys.all, 'messages', roomId] as const,
-  unread: () => [...chatQueryKeys.all, 'unread'] as const,
-};
 
 const isValidRoomId = (roomId: number): boolean =>
   Number.isFinite(roomId) && roomId > 0;
@@ -343,7 +336,7 @@ const isAlreadyLeftError = (error: unknown): boolean => {
   }
   // code가 있으면 ALREADY_LEFT만 인정. 다른 409(CONFLICT 등)는 성공으로 취급하지 않는다.
   if (error.code) {
-    return error.code === 'ALREADY_LEFT';
+    return error.code === API_ERROR_CODE.ALREADY_LEFT;
   }
   return error.status === 409;
 };

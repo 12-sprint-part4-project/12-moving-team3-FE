@@ -8,6 +8,7 @@ import KakaoIcon from '@/assets/icons/kakao.svg';
 import TextLogoIcon from '@/assets/icons/text-logo.svg';
 import { Button } from '@/components/Button/Button';
 import { TextFieldOutlined } from '@/components/ui/Input';
+import { API_ERROR_CODE } from '@/constants/errorCode';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
@@ -171,7 +172,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
     } catch (error) {
       if (
         error instanceof ApiError &&
-        error.code === 'INVALID_PASSWORD_FORMAT'
+        error.code === API_ERROR_CODE.INVALID_PASSWORD_FORMAT
       ) {
         showToast({ content: PASSWORD_FORMAT_ERROR_MESSAGE });
         return;

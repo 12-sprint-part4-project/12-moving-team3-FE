@@ -11,11 +11,9 @@ import {
 } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef } from 'react';
 
+import { communityQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
-
 import { findPostNeighborsInListCache } from '@/lib/communityPostNeighbors';
-import { communityQueryKeys } from '@/lib/communityQueryKeys';
-
 import {
   hasRecordedPostViewInSession,
   markPostViewRecordedInSession,
@@ -51,8 +49,6 @@ import type {
   PostListResponse,
   UpdatePostBody,
 } from '@/types/community';
-
-export { communityQueryKeys } from '@/lib/communityQueryKeys';
 
 export interface TogglePostLikeVariables {
   postId: number;

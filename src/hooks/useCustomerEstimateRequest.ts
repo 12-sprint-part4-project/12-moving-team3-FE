@@ -3,6 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
+import { API_ERROR_CODE } from '@/constants/errorCode';
+import { customerEstimateRequestQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
@@ -30,17 +32,6 @@ import type {
 
 /** bootstrap 일반 에러 시 자동 재시도 간격 (풀페이지 대신 토스트 + 재조회) */
 const BOOTSTRAP_AUTO_RETRY_MS = 3000;
-
-export const customerEstimateRequestQueryKeys = {
-  all: ['customer-estimate-request'] as const,
-  active: () => [...customerEstimateRequestQueryKeys.all, 'active'] as const,
-  detail: (estimateRequestId: number) =>
-    [
-      ...customerEstimateRequestQueryKeys.all,
-      'detail',
-      estimateRequestId,
-    ] as const,
-};
 
 /** bootstrap 결과 — 페이지가 Shell/Blocked/에러 UI를 고를 때 사용 */
 export interface CustomerEstimateRequestBootstrap {
@@ -89,7 +80,7 @@ const bootstrapCustomerEstimateRequest =
         error: new ApiError(
           401,
           '견적 요청은 로그인 후 이용할 수 있습니다.',
-          'UNAUTHORIZED'
+          API_ERROR_CODE.UNAUTHORIZED
         ),
       });
     }
@@ -128,14 +119,14 @@ const bootstrapCustomerEstimateRequest =
       });
     } catch (error) {
       if (error instanceof ApiError) {
-        if (error.status === 401 || error.code === 'UNAUTHORIZED') {
+        if (error.status === 401 || error.code === API_ERROR_CODE.UNAUTHORIZED) {
           return makeBootstrapResult({
             status: 'unauthorized',
             error,
           });
         }
 
-        if (error.code === 'PROFILE_NOT_FOUND') {
+        if (error.code === API_ERROR_CODE.PROFILE_NOT_FOUND) {
           return makeBootstrapResult({
             status: 'profileIncomplete',
             error,
@@ -143,7 +134,7 @@ const bootstrapCustomerEstimateRequest =
         }
 
         // 생성 경합으로 활성 요청이 생긴 경우 → active 재조회
-        if (error.code === 'ACTIVE_REQUEST_EXISTS') {
+        if (error.code === API_ERROR_CODE.ACTIVE_REQUEST_EXISTS) {
           const active = await getActiveEstimateRequest();
           if (active.request?.status === 'DRAFT') {
             const detail = await getEstimateRequestDetail(active.request.id);
@@ -193,7 +184,9 @@ const bootstrapCustomerEstimateRequest =
           isNetworkError
             ? '서버에 연결할 수 없습니다. 잠시 후 다시 시도합니다.'
             : '요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도합니다.',
-          isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR'
+          isNetworkError
+            ? API_ERROR_CODE.NETWORK_ERROR
+            : API_ERROR_CODE.UNKNOWN_ERROR
         ),
       });
     }
@@ -246,7 +239,7 @@ export const useCustomerEstimateRequest = () => {
           : new ApiError(
               500,
               '요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도합니다.',
-              'UNKNOWN_ERROR'
+              API_ERROR_CODE.UNKNOWN_ERROR
             ),
       refetch,
     });

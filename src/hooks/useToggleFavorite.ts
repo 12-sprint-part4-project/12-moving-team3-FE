@@ -2,9 +2,11 @@ import type { QueryKey } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef, useState } from 'react';
 
-import { customerQuoteQueryKeys } from '@/hooks/useCustomerPendingQuotes';
-import { favoriteQueryKeys } from '@/hooks/useFavoriteMoversPreview';
-import { moverQueryKeys } from '@/hooks/useMoversList';
+import {
+  customerQuoteQueryKeys,
+  favoriteQueryKeys,
+  moverQueryKeys,
+} from '@/constants/queryKey';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import {

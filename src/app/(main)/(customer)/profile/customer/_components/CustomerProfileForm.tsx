@@ -12,9 +12,8 @@ import {
   REGION_CHIP_OPTIONS,
   SERVICE_CHIP_OPTIONS,
 } from '@/constants/commonOptions';
+import { AUTH_QUERY_KEYS, customerProfileQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
-import { AUTH_QUERY_KEYS } from '@/hooks/useAuthMe';
-import { customerProfileQueryKeys } from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import {
