@@ -15,6 +15,7 @@ import { InlineErrorMessage } from '../InlineErrorMessage';
 import { MoveTypeRevisePanel } from '../MoveTypeRevisePanel';
 import { Calendar } from '@/components/ui/Calendar/Calendar';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
+import { API_ERROR_CODE } from '@/constants/errorCode';
 import { useMoveInfoRevise } from '@/hooks/useMoveInfoRevise';
 import { ApiError } from '@/lib/apiClient';
 import { saveEstimateRequestStepBodySchema } from '@/lib/customerEstimateRequestSchema';
@@ -185,7 +186,7 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
       // 이미 제출된 요청이면 대기 견적으로 보내 UX를 맞춤
       if (
         error instanceof ApiError &&
-        error.code === 'REQUEST_ALREADY_SUBMITTED'
+        error.code === API_ERROR_CODE.REQUEST_ALREADY_SUBMITTED
       ) {
         router.push('/quotes');
         return;

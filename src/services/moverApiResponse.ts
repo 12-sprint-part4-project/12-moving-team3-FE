@@ -1,3 +1,4 @@
+import { API_ERROR_CODE } from '@/constants/errorCode';
 import { ApiError, createApiTimeoutSignal } from '@/lib/apiClient';
 import { authFetch } from '@/lib/authFetch';
 import type { ApiErrorBody } from '@/types/api';
@@ -16,7 +17,7 @@ const parseMoverApiResponse = async (
     throw new ApiError(
       response.status,
       errorBody?.error?.message ?? fallbackMessage,
-      errorBody?.error?.code ?? 'UNKNOWN_ERROR'
+      errorBody?.error?.code ?? API_ERROR_CODE.UNKNOWN_ERROR
     );
   }
 
@@ -42,7 +43,11 @@ export const fetchAndValidate = async <T>(
   const body = await parseMoverApiResponse(response, fallbackMessage);
 
   if (!validator(body)) {
-    throw new ApiError(response.status, fallbackMessage, 'INVALID_RESPONSE');
+    throw new ApiError(
+      response.status,
+      fallbackMessage,
+      API_ERROR_CODE.INVALID_RESPONSE
+    );
   }
 
   return body;
@@ -68,7 +73,7 @@ export const fetchNoContent = async (
     throw new ApiError(
       response.status,
       errorBody?.error?.message ?? fallbackMessage,
-      errorBody?.error?.code ?? 'UNKNOWN_ERROR'
+      errorBody?.error?.code ?? API_ERROR_CODE.UNKNOWN_ERROR
     );
   }
 };

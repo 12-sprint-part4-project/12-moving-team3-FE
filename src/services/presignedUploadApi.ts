@@ -1,3 +1,4 @@
+import { API_ERROR_CODE } from '@/constants/errorCode';
 import {
   API_BASE_URL,
   ApiError,
@@ -53,7 +54,7 @@ export const uploadToPresignedUrl = async (
     throw new ApiError(
       response.status,
       '이미지 업로드에 실패했습니다.',
-      'UPLOAD_FAILED'
+      API_ERROR_CODE.UPLOAD_FAILED
     );
   }
 };

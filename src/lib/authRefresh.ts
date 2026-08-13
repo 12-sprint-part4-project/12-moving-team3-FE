@@ -1,3 +1,4 @@
+import { API_ERROR_CODE } from '@/constants/errorCode';
 import {
   API_BASE_URL,
   ApiError,
@@ -74,7 +75,7 @@ export const refreshAccessToken = (): Promise<string> => {
       throw new ApiError(
         401,
         '로그인이 만료되었습니다. 다시 로그인해 주세요.',
-        'UNAUTHORIZED'
+        API_ERROR_CODE.UNAUTHORIZED
       );
     }
 

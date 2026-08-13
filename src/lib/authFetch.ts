@@ -1,3 +1,4 @@
+import { API_ERROR_CODE } from '@/constants/errorCode';
 import {
   ApiError,
   createApiTimeoutSignal,
@@ -66,7 +67,8 @@ export const authFetch = async (
     // refresh·재시도 fetch의 네트워크·타임아웃은 그대로 전달
     if (
       error instanceof ApiError &&
-      (error.code === 'NETWORK_ERROR' || error.code === 'TIMEOUT')
+      (error.code === API_ERROR_CODE.NETWORK_ERROR ||
+        error.code === API_ERROR_CODE.TIMEOUT)
     ) {
       throw error;
     }

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { API_ERROR_CODE } from '@/constants/errorCode';
 import { ApiError } from '@/lib/apiClient';
 import { parseEventBlock } from '@/lib/notificationSseClient';
 
@@ -30,7 +31,7 @@ describe('parseEventBlock — notification-refresh', () => {
     expect(handlers.onError).toHaveBeenCalledTimes(1);
     expect(handlers.onError.mock.calls[0]?.[0]).toBeInstanceOf(ApiError);
     expect(handlers.onError.mock.calls[0]?.[0]).toMatchObject({
-      code: 'INVALID_SSE_EVENT',
+      code: API_ERROR_CODE.INVALID_SSE_EVENT,
     });
     expect(handlers.onNotificationRefresh).not.toHaveBeenCalled();
   });
@@ -45,7 +46,7 @@ describe('parseEventBlock — notification-refresh', () => {
 
     expect(handlers.onError).toHaveBeenCalledTimes(1);
     expect(handlers.onError.mock.calls[0]?.[0]).toMatchObject({
-      code: 'INVALID_SSE_EVENT',
+      code: API_ERROR_CODE.INVALID_SSE_EVENT,
     });
     expect(handlers.onNotificationRefresh).not.toHaveBeenCalled();
   });

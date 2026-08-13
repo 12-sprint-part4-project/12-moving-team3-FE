@@ -1,3 +1,4 @@
+import { API_ERROR_CODE } from '@/constants/errorCode';
 import { getAuthSession } from '@/lib/authSession';
 import type { ApiErrorBody } from '@/types/api';
 
@@ -9,7 +10,7 @@ export const API_FETCH_TIMEOUT_MS = 10_000;
 
 /** API 실패 시 기본 메시지·코드 */
 export const DEFAULT_API_ERROR_MESSAGE = '요청 처리 중 오류가 발생했습니다.';
-export const DEFAULT_API_ERROR_CODE = 'UNKNOWN_ERROR';
+export const DEFAULT_API_ERROR_CODE = API_ERROR_CODE.UNKNOWN_ERROR;
 
 export class ApiError extends Error {
   readonly status: number;
@@ -70,10 +71,18 @@ export const toNetworkApiError = (error: unknown): ApiError => {
   const isTimeout = errorName === 'TimeoutError' || errorName === 'AbortError';
 
   if (isTimeout) {
-    return new ApiError(408, '요청 시간이 초과되었습니다.', 'TIMEOUT');
+    return new ApiError(
+      408,
+      '요청 시간이 초과되었습니다.',
+      API_ERROR_CODE.TIMEOUT
+    );
   }
 
-  return new ApiError(0, '네트워크 오류가 발생했습니다.', 'NETWORK_ERROR');
+  return new ApiError(
+    0,
+    '네트워크 오류가 발생했습니다.',
+    API_ERROR_CODE.NETWORK_ERROR
+  );
 };
 
 /** API·일반 Error에서 사용자 메시지 추출 (React Query error.message 호환) */

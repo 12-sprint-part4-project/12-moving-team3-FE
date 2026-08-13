@@ -1,3 +1,4 @@
+import { API_ERROR_CODE } from '@/constants/errorCode';
 import {
   ApiError,
   DEFAULT_API_ERROR_MESSAGE,
@@ -29,7 +30,11 @@ export const searchAddresses = async (
 ): Promise<AddressSearchResult> => {
   const keyword = params.keyword.trim();
   if (!keyword) {
-    throw new ApiError(400, '검색어를 입력해 주세요.', 'INVALID_KEYWORD');
+    throw new ApiError(
+      400,
+      '검색어를 입력해 주세요.',
+      API_ERROR_CODE.INVALID_KEYWORD
+    );
   }
 
   const query = new URLSearchParams({
@@ -63,14 +68,22 @@ export const searchAddresses = async (
   }
 
   if (!body || typeof body !== 'object' || !('data' in body)) {
-    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
+    throw new ApiError(
+      500,
+      DEFAULT_API_ERROR_MESSAGE,
+      API_ERROR_CODE.INVALID_RESPONSE
+    );
   }
 
   const parsed = addressSearchResultSchema.safeParse(
     (body as { data: unknown }).data
   );
   if (!parsed.success) {
-    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_RESPONSE');
+    throw new ApiError(
+      500,
+      DEFAULT_API_ERROR_MESSAGE,
+      API_ERROR_CODE.INVALID_RESPONSE
+    );
   }
 
   return parsed.data;

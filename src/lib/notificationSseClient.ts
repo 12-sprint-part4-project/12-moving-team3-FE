@@ -1,3 +1,4 @@
+import { API_ERROR_CODE } from '@/constants/errorCode';
 import {
   API_BASE_URL,
   ApiError,
@@ -119,7 +120,7 @@ export const parseEventBlock = (
     payload = JSON.parse(data);
   } catch {
     handlers.onError?.(
-      new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_SSE_EVENT')
+      new ApiError(500, DEFAULT_API_ERROR_MESSAGE, API_ERROR_CODE.INVALID_SSE_EVENT)
     );
     return;
   }
@@ -128,7 +129,7 @@ export const parseEventBlock = (
     const parsed = notificationItemSchema.safeParse(payload);
     if (!parsed.success) {
       handlers.onError?.(
-        new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_SSE_EVENT')
+        new ApiError(500, DEFAULT_API_ERROR_MESSAGE, API_ERROR_CODE.INVALID_SSE_EVENT)
       );
       return;
     }
@@ -140,7 +141,7 @@ export const parseEventBlock = (
     const parsed = notificationSseUnreadCountSchema.safeParse(payload);
     if (!parsed.success) {
       handlers.onError?.(
-        new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_SSE_EVENT')
+        new ApiError(500, DEFAULT_API_ERROR_MESSAGE, API_ERROR_CODE.INVALID_SSE_EVENT)
       );
       return;
     }
@@ -153,7 +154,7 @@ export const parseEventBlock = (
     const parsed = notificationSseRefreshSchema.safeParse(payload);
     if (!parsed.success) {
       handlers.onError?.(
-        new ApiError(500, DEFAULT_API_ERROR_MESSAGE, 'INVALID_SSE_EVENT')
+        new ApiError(500, DEFAULT_API_ERROR_MESSAGE, API_ERROR_CODE.INVALID_SSE_EVENT)
       );
       return;
     }
@@ -171,7 +172,7 @@ const consumeStream = async (
     throw new ApiError(
       500,
       DEFAULT_API_ERROR_MESSAGE,
-      'SSE_STREAM_UNAVAILABLE'
+      API_ERROR_CODE.SSE_STREAM_UNAVAILABLE
     );
   }
 
