@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 
@@ -54,6 +54,13 @@ export const FilterDropdown = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const regionGridRef = useRef<HTMLUListElement>(null);
+  const selectedRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      selectedRef.current?.scrollIntoView({ block: 'center' });
+    }
+  }, [isOpen]);
 
   const selectedOption =
     options.find((option) => option.value === selectedValue) ?? options[0];
@@ -138,6 +145,7 @@ export const FilterDropdown = ({
                       }`}
                     >
                       <button
+                        ref={isSelected ? selectedRef : undefined}
                         type="button"
                         role="option"
                         aria-selected={isSelected}
@@ -163,6 +171,7 @@ export const FilterDropdown = ({
                 return (
                   <li key={option.value} role="presentation">
                     <button
+                      ref={isSelected ? selectedRef : undefined}
                       type="button"
                       role="option"
                       aria-selected={isSelected}

@@ -380,10 +380,16 @@ export const useTogglePostLike = () => {
       return unlikePost(postId);
     },
     onMutate: async ({ postId, nextLiked }) => {
-      await queryClient.cancelQueries({ queryKey: communityQueryKeys.detail(postId) });
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: communityQueryKeys.detail(postId) }),
+        queryClient.cancelQueries({ queryKey: communityQueryKeys.lists() }),
+      ]);
 
       const previousDetail = queryClient.getQueryData<PostDetailResponse>(
         communityQueryKeys.detail(postId)
+      );
+      const previousLists = queryClient.getQueriesData<InfiniteData<PostListResponse>>(
+        { queryKey: communityQueryKeys.lists() }
       );
 
       queryClient.setQueryData<PostDetailResponse>(
@@ -401,15 +407,39 @@ export const useTogglePostLike = () => {
         }
       );
 
-      return { previousDetail };
+      queryClient.setQueriesData<InfiniteData<PostListResponse>>(
+        { queryKey: communityQueryKeys.lists() },
+        (prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            pages: prev.pages.map((page) => ({
+              ...page,
+              data: {
+                ...page.data,
+                items: page.data.items.map((item) =>
+                  item.id === postId
+                    ? { ...item, isLiked: nextLiked, likeCount: item.likeCount + (nextLiked ? 1 : -1) }
+                    : item
+                ),
+              },
+            })),
+          };
+        }
+      );
+
+      return { previousDetail, previousLists };
     },
     onError: (_err, { postId }, context) => {
       if (context?.previousDetail !== undefined) {
         queryClient.setQueryData(communityQueryKeys.detail(postId), context.previousDetail);
       }
+      for (const [key, data] of context?.previousLists ?? []) {
+        queryClient.setQueryData(key, data);
+      }
     },
-    onSettled: async (_data, _err, { postId }) => {
-      await invalidatePostSummary(queryClient, postId);
+    onSettled: () => {
+      // 낙관적 업데이트 + onError 롤백으로 처리 — 추가 재조회 불필요
     },
   });
 

@@ -83,7 +83,7 @@ export const bottomSheetPanelVariants: Variants = {
   hidden: { y: '100%' },
   show: {
     y: 0,
-    transition: { type: 'spring', damping: 28, stiffness: 320 },
+    transition: { type: 'spring', damping: 40, stiffness: 320 },
   },
   exit: {
     y: '100%',
