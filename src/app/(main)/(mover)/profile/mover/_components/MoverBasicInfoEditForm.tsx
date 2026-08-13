@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/Button/Button';
 import { TextFieldOutlined } from '@/components/ui/Input';
+import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
 import { AUTH_QUERY_KEYS } from '@/hooks/useAuthMe';
@@ -15,14 +16,20 @@ import {
 } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
-import { getAuthSession } from '@/lib/authSession';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
-  isValidKrPhoneNumber,
+  getKrMobileSubscriberError,
   KR_MOBILE_PREFIX_LABEL,
+  KR_MOBILE_SUBSCRIBER_LENGTH,
+  toKrMobileSubscriberDigits,
 } from '@/lib/phoneNumber';
 import { cn } from '@/lib/utils';
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MISMATCH_ERROR_MESSAGE,
+  validatePassword,
+} from '@/lib/validatePassword';
 import { updateMoverBasicInfo } from '@/services/moverProfileApi';
 import type { MoverProfileMe } from '@/types/moverProfile';
 
@@ -39,6 +46,10 @@ const READONLY_FIELD_CLASSNAME = `${FIELD_CLASSNAME} [&_input]:!text-gray-300`;
 const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
 
 const NAME_MIN_LENGTH = 2;
+const NAME_MAX_LENGTH = 20;
+
+const NAME_FORMAT_ERROR_MESSAGE = `이름은 ${NAME_MIN_LENGTH}~${NAME_MAX_LENGTH}자로 입력해 주세요.`;
+const PASSWORD_FORMAT_FIELD_ERROR_MESSAGE = '비밀번호가 올바르지 않습니다.';
 
 interface MoverBasicInfoEditFieldsProps {
   profile: MoverProfileMe;
@@ -76,9 +87,38 @@ const MoverBasicInfoEditFields = ({
       profile.phoneNumber || user?.phoneNumber || ''
     );
 
+  const trimmedName = name.trim();
+  const subscriberDigits = toKrMobileSubscriberDigits(phoneNumber);
+  const phoneFieldError = getKrMobileSubscriberError(phoneNumber);
+  const isPhoneFormatError = Boolean(phoneFieldError);
+
+  const isNameFormatError =
+    trimmedName.length > 0 &&
+    (trimmedName.length < NAME_MIN_LENGTH ||
+      trimmedName.length > NAME_MAX_LENGTH);
+
+  const hasPasswordInput =
+    currentPassword.length > 0 ||
+    newPassword.length > 0 ||
+    confirmPassword.length > 0;
+  const isPasswordFormatError =
+    newPassword.length > 0 && Boolean(validatePassword(newPassword));
+  const isPasswordMismatchError =
+    confirmPassword.length > 0 && newPassword !== confirmPassword;
+  const isPasswordIncomplete =
+    hasPasswordInput &&
+    (currentPassword.length === 0 ||
+      newPassword.length === 0 ||
+      confirmPassword.length === 0);
+
   const isSubmitEnabled =
-    name.trim().length >= NAME_MIN_LENGTH &&
-    isValidKrPhoneNumber(composeKrMobilePhone(phoneNumber)) &&
+    trimmedName.length >= NAME_MIN_LENGTH &&
+    trimmedName.length <= NAME_MAX_LENGTH &&
+    subscriberDigits.length === KR_MOBILE_SUBSCRIBER_LENGTH &&
+    !isPhoneFormatError &&
+    !isPasswordFormatError &&
+    !isPasswordMismatchError &&
+    !isPasswordIncomplete &&
     !isSubmitting;
 
   const handleCancel = () => {
@@ -87,7 +127,7 @@ const MoverBasicInfoEditFields = ({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (isSubmitting) return;
+    if (!isSubmitEnabled) return;
 
     const updateParams = {
       profile,
@@ -153,9 +193,7 @@ const MoverBasicInfoEditFields = ({
         <div className="flex w-full flex-col items-stretch gap-5 lg:flex-row lg:items-start lg:justify-between lg:gap-10">
           <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
             <section className="flex w-full flex-col items-start gap-4">
-              <label htmlFor={nameInputId} className={LABEL_CLASSNAME}>
-                이름
-              </label>
+              <RequiredLabel htmlFor={nameInputId}>이름</RequiredLabel>
               <TextFieldOutlined
                 id={nameInputId}
                 size="sm"
@@ -163,6 +201,10 @@ const MoverBasicInfoEditFields = ({
                 autoComplete="name"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
+                isError={isNameFormatError}
+                errorMessage={
+                  isNameFormatError ? NAME_FORMAT_ERROR_MESSAGE : undefined
+                }
                 className={FIELD_CLASSNAME}
               />
             </section>
@@ -188,14 +230,13 @@ const MoverBasicInfoEditFields = ({
             <div className="h-px w-full bg-line-100" aria-hidden />
 
             <section className="flex w-full flex-col items-start gap-4">
-              <label htmlFor={phoneInputId} className={LABEL_CLASSNAME}>
-                전화번호
-              </label>
+              <RequiredLabel htmlFor={phoneInputId}>전화번호</RequiredLabel>
               <TextFieldOutlined
                 id={phoneInputId}
                 size="sm"
                 type="tel"
                 name="phone"
+                inputMode="numeric"
                 autoComplete="tel"
                 leftAddon={KR_MOBILE_PREFIX_LABEL}
                 placeholder="1234-5678"
@@ -205,6 +246,8 @@ const MoverBasicInfoEditFields = ({
                     formatKrMobileSubscriberInput(event.target.value)
                   )
                 }
+                isError={isPhoneFormatError}
+                errorMessage={phoneFieldError ?? undefined}
                 className={FIELD_CLASSNAME}
               />
             </section>
@@ -256,8 +299,15 @@ const MoverBasicInfoEditFields = ({
                     autoComplete="new-password"
                     placeholder="새 비밀번호를 입력해주세요"
                     showVisibilityToggle
+                    maxLength={PASSWORD_MAX_LENGTH}
                     value={newPassword}
                     onChange={(event) => setNewPassword(event.target.value)}
+                    isError={isPasswordFormatError}
+                    errorMessage={
+                      isPasswordFormatError
+                        ? PASSWORD_FORMAT_FIELD_ERROR_MESSAGE
+                        : undefined
+                    }
                     className={FIELD_CLASSNAME}
                   />
                 </section>
@@ -279,9 +329,16 @@ const MoverBasicInfoEditFields = ({
                     autoComplete="new-password"
                     placeholder="새 비밀번호를 다시 한번 입력해주세요"
                     showVisibilityToggle
+                    maxLength={PASSWORD_MAX_LENGTH}
                     value={confirmPassword}
                     onChange={(event) =>
                       setConfirmPassword(event.target.value)
+                    }
+                    isError={isPasswordMismatchError}
+                    errorMessage={
+                      isPasswordMismatchError
+                        ? PASSWORD_MISMATCH_ERROR_MESSAGE
+                        : undefined
                     }
                     className={FIELD_CLASSNAME}
                   />

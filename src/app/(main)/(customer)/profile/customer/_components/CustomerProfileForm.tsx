@@ -7,6 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/Button/Button';
 import { RegionChip, ServiceChip } from '@/components/ui/Chip';
 import { TextFieldOutlined } from '@/components/ui/Input';
+import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import {
   REGION_CHIP_OPTIONS,
   SERVICE_CHIP_OPTIONS,
@@ -16,15 +17,19 @@ import { AUTH_QUERY_KEYS } from '@/hooks/useAuthMe';
 import { customerProfileQueryKeys } from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
-import { getAuthSession } from '@/lib/authSession';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
-  getPhoneNumberError,
+  getKrMobileSubscriberError,
   KR_MOBILE_PREFIX_LABEL,
+  KR_MOBILE_SUBSCRIBER_LENGTH,
+  toKrMobileSubscriberDigits,
   toPhoneDigits,
 } from '@/lib/phoneNumber';
-import { uploadProfileImage } from '@/lib/uploadProfileImage';
+import {
+  uploadProfileImage,
+  validateProfileImageFile,
+} from '@/lib/uploadProfileImage';
 import { upsertCustomerProfile } from '@/services/customerProfileApi';
 import type {
   CustomerRegion,
@@ -80,9 +85,13 @@ export const CustomerProfileForm = () => {
   // 세션 번호는 effect로 복사하지 않고, 미입력 시 표시값 fallback으로 사용
   const phoneNumber =
     phoneDraft ?? formatKrMobileSubscriberInput(user?.phoneNumber ?? '');
+  const subscriberDigits = toKrMobileSubscriberDigits(phoneNumber);
+  const phoneFieldError = getKrMobileSubscriberError(phoneNumber);
+  const isPhoneFormatError = Boolean(phoneFieldError);
 
   const isSubmitEnabled =
-    phoneNumber.length > 0 &&
+    subscriberDigits.length === KR_MOBILE_SUBSCRIBER_LENGTH &&
+    !isPhoneFormatError &&
     selectedServices.length > 0 &&
     selectedRegion !== null &&
     !isPending;
@@ -91,36 +100,35 @@ export const CustomerProfileForm = () => {
     setPhoneDraft(formatKrMobileSubscriberInput(event.target.value));
   };
 
+  const handleValidatedImageChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const imageError = validateProfileImageFile(file);
+      if (imageError) {
+        event.target.value = '';
+        showToast({ content: imageError });
+        return;
+      }
+    }
+    handleImageChange(event);
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (isPending) return;
+    if (!isSubmitEnabled) return;
 
     const fullPhone = composeKrMobilePhone(phoneNumber);
-    const phoneError = getPhoneNumberError(fullPhone);
-    if (phoneError) {
-      showToast({ content: phoneError });
-      return;
-    }
-
     const phoneDigits = toPhoneDigits(fullPhone);
 
-    if (selectedServices.length === 0) {
-      showToast({ content: '이용 서비스를 한 개 이상 선택해 주세요.' });
-      return;
-    }
-
-    if (!selectedRegion) {
-      showToast({ content: '내가 사는 지역을 선택해 주세요.' });
-      return;
-    }
-
-    const nickname = user?.nickname?.trim() ?? '';
-    if (
-      nickname.length < NICKNAME_MIN_LENGTH ||
-      nickname.length > NICKNAME_MAX_LENGTH
-    ) {
+    const nickname = (user?.nickname?.trim() ?? '').slice(
+      0,
+      NICKNAME_MAX_LENGTH
+    );
+    if (nickname.length < NICKNAME_MIN_LENGTH) {
       showToast({
-        content: `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`,
+        content: '로그인 정보가 올바르지 않습니다. 다시 로그인해 주세요.',
       });
       return;
     }
@@ -185,7 +193,7 @@ export const CustomerProfileForm = () => {
               imageInputRef={imageInputRef}
               displayImageUrl={displayImageUrl}
               labelClassName={LABEL_CLASSNAME}
-              onImageChange={handleImageChange}
+              onImageChange={handleValidatedImageChange}
               onImageButtonClick={handleImageButtonClick}
               onImageClear={handleImageClear}
             />
@@ -193,9 +201,7 @@ export const CustomerProfileForm = () => {
             <div className="h-px w-full bg-line-100" aria-hidden />
 
             <section className="flex w-full flex-col items-start gap-4 lg:gap-6">
-              <label htmlFor={phoneInputId} className={LABEL_CLASSNAME}>
-                전화번호
-              </label>
+              <RequiredLabel htmlFor={phoneInputId}>전화번호</RequiredLabel>
               <TextFieldOutlined
                 id={phoneInputId}
                 size="sm"
@@ -207,6 +213,8 @@ export const CustomerProfileForm = () => {
                 placeholder="1234-5678"
                 value={formatKrMobileSubscriberInput(phoneNumber)}
                 onChange={handlePhoneChange}
+                isError={isPhoneFormatError}
+                errorMessage={phoneFieldError ?? undefined}
                 className={FIELD_CLASSNAME}
               />
             </section>
@@ -215,9 +223,9 @@ export const CustomerProfileForm = () => {
 
             <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
               <div className="flex flex-col items-start gap-2">
-                <h2 className={LABEL_CLASSNAME}>이용 서비스</h2>
+                <RequiredLabel>이용 서비스</RequiredLabel>
                 <p className="text-xs-regular text-gray-400 lg:text-lg-regular">
-                  *이용 서비스는 중복 선택 가능하며, 언제든 수정 가능해요!
+                  이용 서비스는 중복 선택 가능하며, 언제든 수정 가능해요!
                 </p>
               </div>
               <div className="flex flex-wrap gap-1.5 lg:gap-3">
@@ -243,9 +251,9 @@ export const CustomerProfileForm = () => {
 
             <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
               <div className="flex w-full flex-col items-start gap-2">
-                <h2 className={LABEL_CLASSNAME}>내가 사는 지역</h2>
+                <RequiredLabel>내가 사는 지역</RequiredLabel>
                 <p className="text-xs-regular text-gray-400 lg:text-lg-regular">
-                  *내가 사는 지역은 언제든 수정 가능해요!
+                  내가 사는 지역은 언제든 수정 가능해요!
                 </p>
               </div>
               <div className="flex flex-wrap gap-x-2 gap-y-3 lg:gap-x-3.5 lg:gap-y-[1.125rem]">

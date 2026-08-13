@@ -1,13 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import {
-  useId,
-  useState,
-  type ChangeEvent,
-  type FormEvent,
-  type ReactNode,
-} from 'react';
+import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { ProfileImageCropModal } from '@/app/(main)/(customer)/profile/customer/_components/ProfileImageCropModal';
@@ -16,6 +10,7 @@ import { useProfileImageCrop } from '@/app/(main)/(customer)/profile/customer/_l
 import { Button } from '@/components/Button/Button';
 import { RegionChip, ServiceChip } from '@/components/ui/Chip';
 import { TextArea, TextFieldOutlined } from '@/components/ui/Input';
+import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import {
   REGION_CHIP_OPTIONS,
   SERVICE_CHIP_OPTIONS,
@@ -27,15 +22,19 @@ import { AUTH_QUERY_KEYS } from '@/hooks/useAuthMe';
 import { moverProfileQueryKeys } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
-import { getAuthSession } from '@/lib/authSession';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
-  getPhoneNumberError,
+  getKrMobileSubscriberError,
   KR_MOBILE_PREFIX_LABEL,
+  KR_MOBILE_SUBSCRIBER_LENGTH,
+  toKrMobileSubscriberDigits,
   toPhoneDigits,
 } from '@/lib/phoneNumber';
-import { uploadProfileImage } from '@/lib/uploadProfileImage';
+import {
+  uploadProfileImage,
+  validateProfileImageFile,
+} from '@/lib/uploadProfileImage';
 import { cn } from '@/lib/utils';
 import {
   getMoverProfileMe,
@@ -61,6 +60,11 @@ const NICKNAME_MAX_LENGTH = 20;
 const CAREER_MAX = 50;
 const SHORT_DESCRIPTION_MAX = 20;
 const DESCRIPTION_MIN = 8;
+const DESCRIPTION_MAX = 200;
+
+const CAREER_FORMAT_ERROR_MESSAGE = `경력은 0~${CAREER_MAX} 사이의 값으로 입력해 주세요.`;
+const SHORT_INTRO_FORMAT_ERROR_MESSAGE = `한 줄 소개는 1~${SHORT_DESCRIPTION_MAX}자로 입력해 주세요.`;
+const DESCRIPTION_FORMAT_ERROR_MESSAGE = `상세 설명은 ${DESCRIPTION_MIN}~${DESCRIPTION_MAX}자로 입력해 주세요.`;
 
 const toDigits = (value: string): string => value.replace(/\D/g, '');
 
@@ -68,46 +72,6 @@ const toggleChip = <T extends string>(values: T[], value: T): T[] =>
   values.includes(value)
     ? values.filter((item) => item !== value)
     : [...values, value];
-
-interface RequiredLabelProps {
-  htmlFor?: string;
-  children: ReactNode;
-  className?: string;
-}
-
-const RequiredLabel = ({
-  htmlFor,
-  children,
-  className,
-}: RequiredLabelProps) => {
-  const content = (
-    <>
-      <span>{children}</span>
-      <span className="text-blue-300" aria-hidden>
-        *
-      </span>
-    </>
-  );
-
-  if (htmlFor) {
-    return (
-      <label
-        htmlFor={htmlFor}
-        className={cn(LABEL_CLASSNAME, 'flex items-center gap-1', className)}
-      >
-        {content}
-      </label>
-    );
-  }
-
-  return (
-    <h2
-      className={cn(LABEL_CLASSNAME, 'flex items-center gap-1', className)}
-    >
-      {content}
-    </h2>
-  );
-};
 
 interface MoverProfileFormProps {
   className?: string;
@@ -148,18 +112,54 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
 
   const phoneNumber =
     phoneDraft ?? formatKrMobileSubscriberInput(user?.phoneNumber ?? '');
+  const subscriberDigits = toKrMobileSubscriberDigits(phoneNumber);
+  const phoneFieldError = getKrMobileSubscriberError(phoneNumber);
+  const isPhoneFormatError = Boolean(phoneFieldError);
+
+  const trimmedShortIntro = shortIntro.trim();
+  const trimmedDescription = description.trim();
   const careerValue = career === '' ? null : Number(career);
+  const isCareerValid =
+    careerValue !== null &&
+    Number.isInteger(careerValue) &&
+    careerValue >= 0 &&
+    careerValue <= CAREER_MAX;
+
+  const isCareerFormatError = career !== '' && !isCareerValid;
+  const isShortIntroFormatError =
+    trimmedShortIntro.length > SHORT_DESCRIPTION_MAX;
+  const isDescriptionFormatError =
+    trimmedDescription.length > 0 &&
+    (trimmedDescription.length < DESCRIPTION_MIN ||
+      trimmedDescription.length > DESCRIPTION_MAX);
+
   const isSubmitEnabled =
-    phoneNumber.length > 0 &&
-    career !== '' &&
-    shortIntro.trim().length > 0 &&
-    description.trim().length > 0 &&
+    subscriberDigits.length === KR_MOBILE_SUBSCRIBER_LENGTH &&
+    !isPhoneFormatError &&
+    isCareerValid &&
+    trimmedShortIntro.length > 0 &&
+    trimmedShortIntro.length <= SHORT_DESCRIPTION_MAX &&
+    trimmedDescription.length >= DESCRIPTION_MIN &&
+    trimmedDescription.length <= DESCRIPTION_MAX &&
     selectedServices.length > 0 &&
     selectedRegions.length > 0 &&
     !isPending;
 
   const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
     setPhoneDraft(formatKrMobileSubscriberInput(event.target.value));
+  };
+
+  const handleValidatedImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const imageError = validateProfileImageFile(file);
+      if (imageError) {
+        event.target.value = '';
+        showToast({ content: imageError });
+        return;
+      }
+    }
+    handleImageChange(event);
   };
 
   const handleCareerChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -182,15 +182,10 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (isPending) return;
+    if (!isSubmitEnabled) return;
+    if (careerValue === null) return;
 
     const fullPhone = composeKrMobilePhone(phoneNumber);
-    const phoneError = getPhoneNumberError(fullPhone);
-    if (phoneError) {
-      showToast({ content: phoneError });
-      return;
-    }
-
     const phoneDigits = toPhoneDigits(fullPhone);
 
     // 카카오 가입 닉네임은 최대 50자일 수 있어, 프로필 API(2~20자)에 맞게 자른다.
@@ -202,47 +197,6 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
       showToast({
         content: '로그인 정보가 올바르지 않습니다. 다시 로그인해 주세요.',
       });
-      return;
-    }
-
-    const isCareerValid =
-      careerValue !== null &&
-      Number.isInteger(careerValue) &&
-      careerValue >= 0 &&
-      careerValue <= CAREER_MAX;
-    if (!isCareerValid || careerValue === null) {
-      showToast({
-        content: `경력은 0~${CAREER_MAX}년으로 입력해 주세요.`,
-      });
-      return;
-    }
-
-    const trimmedShortIntro = shortIntro.trim();
-    if (
-      trimmedShortIntro.length === 0 ||
-      trimmedShortIntro.length > SHORT_DESCRIPTION_MAX
-    ) {
-      showToast({
-        content: `한 줄 소개는 1~${SHORT_DESCRIPTION_MAX}자로 입력해 주세요.`,
-      });
-      return;
-    }
-
-    const trimmedDescription = description.trim();
-    if (trimmedDescription.length < DESCRIPTION_MIN) {
-      showToast({
-        content: `상세 설명은 ${DESCRIPTION_MIN}자 이상 입력해 주세요.`,
-      });
-      return;
-    }
-
-    if (selectedServices.length === 0) {
-      showToast({ content: '제공 서비스를 선택해 주세요.' });
-      return;
-    }
-
-    if (selectedRegions.length === 0) {
-      showToast({ content: '서비스 가능 지역을 선택해 주세요.' });
       return;
     }
 
@@ -320,7 +274,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
               imageInputRef={imageInputRef}
               displayImageUrl={displayImageUrl}
               labelClassName={LABEL_CLASSNAME}
-              onImageChange={handleImageChange}
+              onImageChange={handleValidatedImageChange}
               onImageButtonClick={handleImageButtonClick}
               onImageClear={handleImageClear}
             />
@@ -340,6 +294,8 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
                 placeholder="1234-5678"
                 value={formatKrMobileSubscriberInput(phoneNumber)}
                 onChange={handlePhoneChange}
+                isError={isPhoneFormatError}
+                errorMessage={phoneFieldError ?? undefined}
                 className={FIELD_CLASSNAME}
               />
             </section>
@@ -356,6 +312,10 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
                 placeholder="기사님의 경력을 입력해 주세요"
                 value={career}
                 onChange={handleCareerChange}
+                isError={isCareerFormatError}
+                errorMessage={
+                  isCareerFormatError ? CAREER_FORMAT_ERROR_MESSAGE : undefined
+                }
                 className={FIELD_CLASSNAME}
               />
             </section>
@@ -373,6 +333,12 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
                 placeholder="한 줄 소개를 입력해 주세요"
                 value={shortIntro}
                 onChange={handleShortIntroChange}
+                isError={isShortIntroFormatError}
+                errorMessage={
+                  isShortIntroFormatError
+                    ? SHORT_INTRO_FORMAT_ERROR_MESSAGE
+                    : undefined
+                }
                 className={FIELD_CLASSNAME}
               />
             </section>
@@ -392,6 +358,12 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
                 placeholder="상세 내용을 입력해 주세요"
                 value={description}
                 onChange={handleDescriptionChange}
+                isError={isDescriptionFormatError}
+                errorMessage={
+                  isDescriptionFormatError
+                    ? DESCRIPTION_FORMAT_ERROR_MESSAGE
+                    : undefined
+                }
                 className={TEXTAREA_CLASSNAME}
               />
             </section>

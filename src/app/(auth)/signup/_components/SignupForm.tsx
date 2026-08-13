@@ -11,11 +11,7 @@ import { TextFieldOutlined } from '@/components/ui/Input';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
-import {
-  EMAIL_FORMAT_ERROR_MESSAGE,
-  EMAIL_MAX_LENGTH,
-  validateEmail,
-} from '@/lib/validateEmail';
+import { EMAIL_MAX_LENGTH, validateEmail } from '@/lib/validateEmail';
 import {
   PASSWORD_FORMAT_ERROR_MESSAGE,
   PASSWORD_MAX_LENGTH,
@@ -80,6 +76,11 @@ const NICKNAME_MAX_LENGTH = 20;
 const NAME_MIN_LENGTH = 2;
 const NAME_MAX_LENGTH = 20;
 
+const NAME_FORMAT_ERROR_MESSAGE = `이름은 ${NAME_MIN_LENGTH}~${NAME_MAX_LENGTH}자로 입력해 주세요.`;
+const NICKNAME_FORMAT_ERROR_MESSAGE = `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`;
+const EMAIL_FORMAT_FIELD_ERROR_MESSAGE = '이메일 형식이 아닙니다.';
+const PASSWORD_FORMAT_FIELD_ERROR_MESSAGE = '비밀번호가 올바르지 않습니다.';
+
 /** Mobile·Tablet(sm) 기본 + Desktop(md)는 lg: 오버라이드 */
 const FIELD_CLASSNAME =
   'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular';
@@ -109,12 +110,37 @@ export const SignupForm = ({ role }: SignupFormProps) => {
   const [isPending, setIsPending] = useState(false);
   const roleSwitch = ROLE_SWITCH_COPY[role];
 
-  const isSubmittable =
-    values.name.trim().length > 0 &&
-    values.email.trim().length > 0 &&
-    values.nickname.trim().length > 0 &&
-    values.password.length > 0 &&
+  const trimmedName = values.name.trim();
+  const trimmedEmail = values.email.trim();
+  const trimmedNickname = values.nickname.trim();
+
+  const isNameFormatError =
+    trimmedName.length > 0 &&
+    (trimmedName.length < NAME_MIN_LENGTH ||
+      trimmedName.length > NAME_MAX_LENGTH);
+  const isEmailFormatError =
+    trimmedEmail.length > 0 && Boolean(validateEmail(trimmedEmail));
+  const isNicknameFormatError =
+    trimmedNickname.length > 0 &&
+    (trimmedNickname.length < NICKNAME_MIN_LENGTH ||
+      trimmedNickname.length > NICKNAME_MAX_LENGTH);
+  const isPasswordFormatError =
+    values.password.length > 0 && Boolean(validatePassword(values.password));
+  const isPasswordMismatchError =
     values.passwordConfirm.length > 0 &&
+    values.password !== values.passwordConfirm;
+
+  const isSubmittable =
+    trimmedName.length >= NAME_MIN_LENGTH &&
+    trimmedName.length <= NAME_MAX_LENGTH &&
+    trimmedEmail.length > 0 &&
+    !isEmailFormatError &&
+    trimmedNickname.length >= NICKNAME_MIN_LENGTH &&
+    trimmedNickname.length <= NICKNAME_MAX_LENGTH &&
+    values.password.length > 0 &&
+    !isPasswordFormatError &&
+    values.passwordConfirm.length > 0 &&
+    !isPasswordMismatchError &&
     !isPending;
 
   const handleChange =
@@ -126,45 +152,6 @@ export const SignupForm = ({ role }: SignupFormProps) => {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isSubmittable) return;
-
-    const trimmedName = values.name.trim();
-    if (
-      trimmedName.length < NAME_MIN_LENGTH ||
-      trimmedName.length > NAME_MAX_LENGTH
-    ) {
-      showToast({
-        content: `이름은 ${NAME_MIN_LENGTH}~${NAME_MAX_LENGTH}자로 입력해 주세요.`,
-      });
-      return;
-    }
-
-    const trimmedNickname = values.nickname.trim();
-    if (
-      trimmedNickname.length < NICKNAME_MIN_LENGTH ||
-      trimmedNickname.length > NICKNAME_MAX_LENGTH
-    ) {
-      showToast({
-        content: `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`,
-      });
-      return;
-    }
-
-    const trimmedEmail = values.email.trim();
-    if (validateEmail(trimmedEmail)) {
-      showToast({ content: EMAIL_FORMAT_ERROR_MESSAGE });
-      return;
-    }
-
-    const passwordError = validatePassword(values.password);
-    if (passwordError) {
-      showToast({ content: passwordError });
-      return;
-    }
-
-    if (values.password !== values.passwordConfirm) {
-      showToast({ content: PASSWORD_MISMATCH_ERROR_MESSAGE });
-      return;
-    }
 
     setIsPending(true);
 
@@ -253,6 +240,10 @@ export const SignupForm = ({ role }: SignupFormProps) => {
                   placeholder="성함을 입력해 주세요"
                   value={values.name}
                   onChange={handleChange('name')}
+                  isError={isNameFormatError}
+                  errorMessage={
+                    isNameFormatError ? NAME_FORMAT_ERROR_MESSAGE : undefined
+                  }
                   className={FIELD_CLASSNAME}
                 />
               </div>
@@ -271,6 +262,12 @@ export const SignupForm = ({ role }: SignupFormProps) => {
                   placeholder="이메일을 입력해 주세요"
                   value={values.email}
                   onChange={handleChange('email')}
+                  isError={isEmailFormatError}
+                  errorMessage={
+                    isEmailFormatError
+                      ? EMAIL_FORMAT_FIELD_ERROR_MESSAGE
+                      : undefined
+                  }
                   className={FIELD_CLASSNAME}
                 />
               </div>
@@ -288,6 +285,12 @@ export const SignupForm = ({ role }: SignupFormProps) => {
                   placeholder="닉네임을 입력해 주세요"
                   value={values.nickname}
                   onChange={handleChange('nickname')}
+                  isError={isNicknameFormatError}
+                  errorMessage={
+                    isNicknameFormatError
+                      ? NICKNAME_FORMAT_ERROR_MESSAGE
+                      : undefined
+                  }
                   className={FIELD_CLASSNAME}
                 />
               </div>
@@ -307,6 +310,12 @@ export const SignupForm = ({ role }: SignupFormProps) => {
                   placeholder="비밀번호를 입력해 주세요"
                   value={values.password}
                   onChange={handleChange('password')}
+                  isError={isPasswordFormatError}
+                  errorMessage={
+                    isPasswordFormatError
+                      ? PASSWORD_FORMAT_FIELD_ERROR_MESSAGE
+                      : undefined
+                  }
                   className={FIELD_CLASSNAME}
                 />
               </div>
@@ -329,6 +338,12 @@ export const SignupForm = ({ role }: SignupFormProps) => {
                   placeholder="비밀번호를 다시 한번 입력해 주세요"
                   value={values.passwordConfirm}
                   onChange={handleChange('passwordConfirm')}
+                  isError={isPasswordMismatchError}
+                  errorMessage={
+                    isPasswordMismatchError
+                      ? PASSWORD_MISMATCH_ERROR_MESSAGE
+                      : undefined
+                  }
                   className={FIELD_CLASSNAME}
                 />
               </div>
