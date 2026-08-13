@@ -5,13 +5,13 @@ import Link from 'next/link';
 
 import { Button } from '@/components/Button/Button';
 import { MoverProfileBlock } from '@/components/movers/MoverProfileBlock';
-import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
+import { QuotePriceRow } from '@/components/quotes/QuotePriceRow';
+import { QuoteStatusChipRow } from '@/components/quotes/QuoteStatusChips';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
 import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
 import type { PendingQuoteCardModel } from '@/types/customerQuote';
-import type { MoveTypeOption } from '@/types/estimateRequest';
 
 export interface PendingQuoteCardProps {
   quote: PendingQuoteCardModel;
@@ -27,13 +27,6 @@ export interface PendingQuoteCardProps {
   isFavoritePending?: boolean;
   className?: string;
 }
-
-/** Figma Mobile Card-list/대기중인내역 — 짧은 이사 유형 라벨 */
-const MOVE_TYPE_SHORT_LABEL: Record<MoveTypeOption, string> = {
-  small: '소형',
-  home: '가정',
-  office: '사무실',
-};
 
 const FIELD_LABEL_CLASS =
   'px-1.5 py-0.5 text-md-medium text-gray-400 lg:py-1 lg:text-2lg-regular lg:text-gray-500';
@@ -62,12 +55,10 @@ export const PendingQuoteCard = ({
   const detailHref = `/quotes/${quote.quoteId}`;
   const canStartChat = !quote.isDesignated || quote.designatedMoverId != null;
 
-  /** 견적 확정 */
   const handleConfirm = () => {
     onConfirm?.(quote.quoteId);
   };
 
-  /** 채팅하기 */
   const handleChatClick = () => {
     onChatClick?.(quote);
   };
@@ -81,33 +72,12 @@ export const PendingQuoteCard = ({
       )}
     >
       <div className="flex w-full flex-col gap-3.5 lg:gap-6">
-        <div className="flex w-full flex-wrap items-center gap-2 lg:hidden">
-          <MoveTypeChip type="quotePending" size="sm">
-            견적 대기
-          </MoveTypeChip>
-          {quote.moveType ? (
-            <MoveTypeChip type={quote.moveType} size="sm">
-              {MOVE_TYPE_SHORT_LABEL[quote.moveType]}
-            </MoveTypeChip>
-          ) : null}
-          {quote.isDesignated ? (
-            <MoveTypeChip type="designated" size="sm">
-              지정 견적
-            </MoveTypeChip>
-          ) : null}
-        </div>
-
-        <div className="hidden w-full flex-wrap items-center gap-3 lg:flex">
-          <MoveTypeChip type="quotePending" size="md">
-            견적 대기
-          </MoveTypeChip>
-          {quote.moveType ? (
-            <MoveTypeChip type={quote.moveType} size="md" />
-          ) : null}
-          {quote.isDesignated ? (
-            <MoveTypeChip type="designated" size="md" />
-          ) : null}
-        </div>
+        <QuoteStatusChipRow
+          status="pending"
+          moveType={quote.moveType}
+          isDesignated={quote.isDesignated}
+          shortDesignatedLabel="지정 견적"
+        />
 
         <div className="flex w-full flex-col gap-3.5 lg:gap-6">
           <MoverProfileBlock
@@ -157,17 +127,8 @@ export const PendingQuoteCard = ({
         </div>
       </div>
 
-      {/* 견적 금액 */}
-      <div className="flex w-full items-end justify-end gap-2 lg:h-10 lg:gap-4">
-        <p className="text-md-medium text-black-400 lg:text-2lg-medium">
-          견적 금액
-        </p>
-        <p className="text-2lg-bold text-black-400 lg:text-2xl-bold">
-          {quote.priceLabel}
-        </p>
-      </div>
+      <QuotePriceRow priceLabel={quote.priceLabel} />
 
-      {/* CTA — 1줄 확정·채팅 / 2줄 상세보기(텍스트) */}
       <div className="flex w-full flex-col gap-2 lg:gap-3">
         <div className="flex w-full gap-2 lg:gap-3">
           <Button

@@ -1,5 +1,5 @@
 import { MoverProfileBlock } from '@/components/movers/MoverProfileBlock';
-import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
+import { QuoteStatusChips } from '@/components/quotes/QuoteStatusChips';
 import { cn } from '@/lib/utils';
 import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
 import type {
@@ -31,21 +31,12 @@ export const CustomerQuoteDetailSummaryCard = ({
     )}
   >
     <div className="flex w-full flex-wrap items-center gap-2 lg:gap-3">
-      {detail.isConfirmed ? (
-        <MoveTypeChip type="quoteConfirmed" size="sm">
-          확정 견적
-        </MoveTypeChip>
-      ) : (
-        <MoveTypeChip type="quotePending" size="sm">
-          견적 대기
-        </MoveTypeChip>
-      )}
-      {detail.moveType ? (
-        <MoveTypeChip type={detail.moveType} size="sm" />
-      ) : null}
-      {detail.isDesignated ? (
-        <MoveTypeChip type="designated" size="sm" />
-      ) : null}
+      <QuoteStatusChips
+        status={detail.isConfirmed ? 'confirmed' : 'pending'}
+        moveType={detail.moveType}
+        isDesignated={detail.isDesignated}
+        size="sm"
+      />
     </div>
 
     {mover.shortDescription ? (
