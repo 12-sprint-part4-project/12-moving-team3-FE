@@ -100,17 +100,15 @@ export const ReportAction = ({
         </div>
       ) : null}
 
-      {isModalOpen ? (
-        <Modal placement="bottom" onClose={handleClose}>
-          <ReportCategoryModal
-            onClose={handleClose}
-            onSubmit={(category) => {
-              void handleSubmit(category);
-            }}
-            isSubmitting={isPending}
-          />
-        </Modal>
-      ) : null}
+      <Modal isOpen={isModalOpen} placement="bottom" onClose={handleClose}>
+        <ReportCategoryModal
+          onClose={handleClose}
+          onSubmit={(category) => {
+            void handleSubmit(category);
+          }}
+          isSubmitting={isPending}
+        />
+      </Modal>
     </>
   );
 };
