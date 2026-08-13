@@ -1,4 +1,4 @@
-import { reviewQueryKeys } from '@/hooks/reviewQueryKeys';
+import { reviewQueryKeys } from '@/constants/queryKey';
 import { useReviewPagedQuery } from '@/hooks/useReviewPagedQuery';
 import { getMoverReceivedReviews } from '@/services/reviewsApi';
 import type {

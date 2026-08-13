@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { moverQuoteQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
 import {
   getMoverQuotes,
@@ -20,13 +21,6 @@ type RejectedQuoteListResponse = QuoteListResponse<RejectedQuoteListItem>;
 
 /** 목록 기본 페이지 크기 */
 const DEFAULT_QUOTES_LIMIT = 8;
-
-export const moverQuoteQueryKeys = {
-  all: ['mover-quotes'] as const,
-  lists: () => [...moverQuoteQueryKeys.all, 'list'] as const,
-  list: (status: QuoteListStatus, page: number, limit: number) =>
-    [...moverQuoteQueryKeys.lists(), { status, page, limit }] as const,
-};
 
 export interface UseMoverQuotesParams {
   status: QuoteListStatus;

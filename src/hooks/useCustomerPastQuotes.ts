@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-import { customerQuoteQueryKeys } from '@/hooks/useCustomerPendingQuotes';
+import { customerQuoteQueryKeys } from '@/constants/queryKey';
 import {
   getCustomerPastQuotes,
   toHistoryQuoteCardModels,

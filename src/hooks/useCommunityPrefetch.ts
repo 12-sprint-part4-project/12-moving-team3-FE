@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { communityQueryKeys } from '@/lib/communityQueryKeys';
+import { communityQueryKeys } from '@/constants/queryKey';
 import { getPosts } from '@/services/communityApi';
 import type { PostListParams } from '@/types/community';
 

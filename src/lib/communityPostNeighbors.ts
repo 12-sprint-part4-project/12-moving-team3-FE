@@ -1,6 +1,6 @@
 import type { InfiniteData, QueryClient } from '@tanstack/react-query';
 
-import { communityQueryKeys } from '@/lib/communityQueryKeys';
+import { communityQueryKeys } from '@/constants/queryKey';
 import type {
   PostListParams,
   PostListResponse,

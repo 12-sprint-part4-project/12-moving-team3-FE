@@ -1,19 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { customerQuoteQueryKeys } from '@/constants/queryKey';
 import {
   getCustomerPendingQuotes,
   toPendingQuotesPageModel,
 } from '@/services/customerQuoteApi';
-
-export const customerQuoteQueryKeys = {
-  all: ['customer-quotes'] as const,
-  pending: () => [...customerQuoteQueryKeys.all, 'pending'] as const,
-  past: (params: { limit: number; filter?: string }) =>
-    [...customerQuoteQueryKeys.all, 'past', params] as const,
-  details: () => [...customerQuoteQueryKeys.all, 'detail'] as const,
-  detail: (quoteId: number) =>
-    [...customerQuoteQueryKeys.details(), quoteId] as const,
-};
 
 export interface UseCustomerPendingQuotesOptions {
   /** false면 조회하지 않음 (예: 받았던 견적 탭) */

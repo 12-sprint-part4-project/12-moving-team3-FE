@@ -3,9 +3,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
-import { chatQueryKeys } from '@/hooks/useChat';
-import { moverQuoteQueryKeys } from '@/hooks/useMoverQuotes';
-import { estimateRequestQueryKeys } from '@/hooks/useReceivedEstimateRequests';
+import {
+  chatQueryKeys,
+  estimateRequestQueryKeys,
+  moverQuoteQueryKeys,
+} from '@/constants/queryKey';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { submitProposalQuote, submitRejectionQuote } from '@/services/quoteApi';

@@ -1,6 +1,7 @@
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
+import { estimateRequestQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
 import {
   getReceivedEstimateRequests,
@@ -10,7 +11,6 @@ import {
 } from '@/services/estimateRequestApi';
 import type {
   MoveTypeOption,
-  ReceivedEstimateRequestsParams,
   RequestScopeOption,
   RequestsSortValue,
 } from '@/types/estimateRequest';
@@ -18,13 +18,6 @@ import type {
 /** 필터 배열을 정렬해 queryKey·요청 파라미터를 안정화 */
 const toStableOptions = <T extends string>(items: readonly T[]): T[] =>
   [...items].sort();
-
-export const estimateRequestQueryKeys = {
-  all: ['estimate-requests'] as const,
-  receivedLists: () => [...estimateRequestQueryKeys.all, 'received'] as const,
-  receivedList: (params: Omit<ReceivedEstimateRequestsParams, 'cursor'>) =>
-    [...estimateRequestQueryKeys.receivedLists(), params] as const,
-};
 
 export interface UseReceivedEstimateRequestsParams {
   keyword?: string;

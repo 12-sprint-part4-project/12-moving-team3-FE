@@ -8,7 +8,8 @@ import {
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { AUTH_QUERY_KEYS, useAuthMe } from '@/hooks/useAuthMe';
+import { AUTH_QUERY_KEYS } from '@/constants/queryKey';
+import { useAuthMe } from '@/hooks/useAuthMe';
 import { ApiError } from '@/lib/apiClient';
 import {
   clearAuthSession,

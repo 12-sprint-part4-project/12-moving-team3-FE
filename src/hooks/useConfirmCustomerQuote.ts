@@ -2,9 +2,11 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { chatQueryKeys } from '@/hooks/useChat';
-import { customerEstimateRequestQueryKeys } from '@/hooks/useCustomerEstimateRequest';
-import { customerQuoteQueryKeys } from '@/hooks/useCustomerPendingQuotes';
+import {
+  chatQueryKeys,
+  customerEstimateRequestQueryKeys,
+  customerQuoteQueryKeys,
+} from '@/constants/queryKey';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { confirmCustomerQuote } from '@/services/customerQuoteApi';

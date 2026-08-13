@@ -18,11 +18,8 @@ import {
   type RegionChipValue,
   type ServiceChipValue,
 } from '@/constants/commonOptions';
-import { AUTH_QUERY_KEYS } from '@/hooks/useAuthMe';
-import {
-  moverProfileQueryKeys,
-  useMoverProfile,
-} from '@/hooks/useMoverProfile';
+import { AUTH_QUERY_KEYS, moverProfileQueryKeys } from '@/constants/queryKey';
+import { useMoverProfile } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { isValidKrPhoneNumber } from '@/lib/phoneNumber';

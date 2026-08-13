@@ -2,13 +2,9 @@
 
 import { useQuery } from '@tanstack/react-query';
 
+import { AUTH_QUERY_KEYS } from '@/constants/queryKey';
 import { getMe } from '@/services/authApi';
 import type { AuthUser } from '@/types/auth';
-
-export const AUTH_QUERY_KEYS = {
-  all: ['auth'] as const,
-  me: () => [...AUTH_QUERY_KEYS.all, 'me'] as const,
-};
 
 const normalizeAuthUser = (user: AuthUser): AuthUser => {
   const status = user.status === 'SUSPENDED' ? 'SUSPENDED' : 'ACTIVE';

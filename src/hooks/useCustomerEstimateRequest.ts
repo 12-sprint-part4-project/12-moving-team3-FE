@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
+import { customerEstimateRequestQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
@@ -30,17 +31,6 @@ import type {
 
 /** bootstrap 일반 에러 시 자동 재시도 간격 (풀페이지 대신 토스트 + 재조회) */
 const BOOTSTRAP_AUTO_RETRY_MS = 3000;
-
-export const customerEstimateRequestQueryKeys = {
-  all: ['customer-estimate-request'] as const,
-  active: () => [...customerEstimateRequestQueryKeys.all, 'active'] as const,
-  detail: (estimateRequestId: number) =>
-    [
-      ...customerEstimateRequestQueryKeys.all,
-      'detail',
-      estimateRequestId,
-    ] as const,
-};
 
 /** bootstrap 결과 — 페이지가 Shell/Blocked/에러 UI를 고를 때 사용 */
 export interface CustomerEstimateRequestBootstrap {

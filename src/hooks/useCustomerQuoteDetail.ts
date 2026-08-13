@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { customerQuoteQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
-import { customerQuoteQueryKeys } from '@/hooks/useCustomerPendingQuotes';
 import {
   getCustomerQuoteDetail,
   toCustomerQuoteDetailViewModel,

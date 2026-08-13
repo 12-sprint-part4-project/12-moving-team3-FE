@@ -3,8 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 
+import { chatQueryKeys, designatedEstimateQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
-import { chatQueryKeys } from '@/hooks/useChat';
 import { useCustomerPendingQuotes } from '@/hooks/useCustomerPendingQuotes';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
@@ -14,12 +14,6 @@ import {
   createDesignatedEstimateRequest,
   getDesignatedEstimateExistence,
 } from '@/services/designatedEstimateRequestApi';
-
-export const designatedEstimateQueryKeys = {
-  all: ['designated-estimate'] as const,
-  existence: (moverId: string) =>
-    [...designatedEstimateQueryKeys.all, 'existence', moverId] as const,
-};
 
 const NOT_DESIGNATED: DesignatedEstimateExistence = {
   exists: false,

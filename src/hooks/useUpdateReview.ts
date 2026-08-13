@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { reviewQueryKeys } from '@/hooks/reviewQueryKeys';
-import { moverQueryKeys } from '@/hooks/useMoversList';
+import { moverQueryKeys, reviewQueryKeys } from '@/constants/queryKey';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { updateReview } from '@/services/reviewsApi';

@@ -1,16 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { notificationQueryKeys } from '@/constants/queryKey';
 import { getNotifications } from '@/services/notificationApi';
 
 /** SSE 푸시가 주 갱신 경로이므로 REST 재조회는 덜 자주 한다 */
 const NOTIFICATION_STALE_TIME_MS = 30_000;
-
-export const notificationQueryKeys = {
-  all: ['notifications'] as const,
-  lists: () => [...notificationQueryKeys.all, 'list'] as const,
-  /** 역할 없이 단일 목록 키 — GET /api/notifications */
-  list: () => [...notificationQueryKeys.lists()] as const,
-};
 
 /**
  * 알림 목록 조회.

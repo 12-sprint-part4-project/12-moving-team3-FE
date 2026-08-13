@@ -17,9 +17,8 @@ import {
   type RegionChipValue,
   type ServiceChipValue,
 } from '@/constants/commonOptions';
+import { AUTH_QUERY_KEYS, moverProfileQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
-import { AUTH_QUERY_KEYS } from '@/hooks/useAuthMe';
-import { moverProfileQueryKeys } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import {
