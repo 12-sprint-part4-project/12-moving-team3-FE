@@ -19,8 +19,8 @@ import { ApiError } from '@/lib/apiClient';
 import {
   fadeIn,
   fadeUp,
+  getListStagger,
   getMotionTransition,
-  listStagger,
 } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
@@ -48,6 +48,7 @@ const CustomerQuoteDetailPageClient = ({
 }: CustomerQuoteDetailPageClientProps) => {
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
+  const listStaggerVariants = getListStagger(shouldReduceMotion);
   const router = useRouter();
   const numericQuoteId = parseQuoteId(quoteId);
   const {
@@ -184,12 +185,13 @@ const CustomerQuoteDetailPageClient = ({
       >
         {/* 본문: 카드 → 견적가 → (모바일 공유) → 견적 정보 → 미확정 배너 */}
         <motion.div
-          variants={listStagger}
+          variants={listStaggerVariants}
           initial="hidden"
           animate="show"
+          transition={motionTransition}
           className="col-start-1 flex w-full max-w-[59.6875rem] flex-col gap-6 md:gap-8 lg:gap-10"
         >
-          <motion.div variants={fadeUp}>
+          <motion.div variants={fadeUp} transition={motionTransition}>
             <CustomerQuoteDetailSummaryCard
               detail={detail}
               mover={detail.mover}
@@ -198,10 +200,15 @@ const CustomerQuoteDetailPageClient = ({
             />
           </motion.div>
 
-          <motion.div variants={fadeUp} className="h-px w-full bg-line-100" />
+          <motion.div
+            variants={fadeUp}
+            transition={motionTransition}
+            className="h-px w-full bg-line-100"
+          />
 
           <motion.section
             variants={fadeUp}
+            transition={motionTransition}
             className="flex w-full flex-col gap-4 lg:gap-8"
           >
             <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
@@ -216,10 +223,12 @@ const CustomerQuoteDetailPageClient = ({
             <>
               <motion.div
                 variants={fadeUp}
+                transition={motionTransition}
                 className="h-px w-full bg-line-100"
               />
               <motion.section
                 variants={fadeUp}
+                transition={motionTransition}
                 className="flex w-full flex-col gap-4 lg:gap-8"
               >
                 <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
@@ -235,20 +244,25 @@ const CustomerQuoteDetailPageClient = ({
           {/* 모바일·태블릿: 본문 내 공유 */}
           <motion.div
             variants={fadeUp}
+            transition={motionTransition}
             className="flex flex-col gap-6 lg:hidden"
           >
             <div className="h-px w-full bg-line-100" />
             <QuoteShareButtons {...quoteShareProps} />
           </motion.div>
 
-          <motion.div variants={fadeUp} className="h-px w-full bg-line-100" />
+          <motion.div
+            variants={fadeUp}
+            transition={motionTransition}
+            className="h-px w-full bg-line-100"
+          />
 
-          <motion.div variants={fadeUp}>
+          <motion.div variants={fadeUp} transition={motionTransition}>
             <CustomerQuoteDetailInfoSection detail={detail} />
           </motion.div>
 
           {detail.showUnconfirmedBanner ? (
-            <motion.div variants={fadeUp}>
+            <motion.div variants={fadeUp} transition={motionTransition}>
               <Toast
                 icon={InfoIcon}
                 content="확정하지 않은 견적이에요!"
@@ -260,8 +274,10 @@ const CustomerQuoteDetailPageClient = ({
 
         {/* 데스크톱: 우측 확정·채팅 CTA + 공유 */}
         <motion.aside
-          initial={{ opacity: 0, x: 12 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={
+            shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: 12 }
+          }
+          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
           transition={motionTransition}
           className="col-start-1 hidden w-full flex-col gap-10 lg:col-start-2 lg:row-span-1 lg:row-start-1 lg:flex lg:w-[20.5rem]"
         >

@@ -70,6 +70,8 @@ const filterQuotesByStatus = (
 
 export interface ReceivedQuoteGroupSectionProps {
   group: ReceivedQuoteGroupModel;
+  /** 첫 데이터 로드 시에만 목록 entrance stagger (탭 전환 시 false) */
+  staggerOnEntrance?: boolean;
   onFavoriteClick?: (moverId: string, nextFavorited: boolean) => void;
   isMoverPending?: (moverId: string) => boolean;
   className?: string;
@@ -80,6 +82,7 @@ export interface ReceivedQuoteGroupSectionProps {
  */
 export const ReceivedQuoteGroupSection = ({
   group,
+  staggerOnEntrance = false,
   onFavoriteClick,
   isMoverPending,
   className = '',
@@ -87,7 +90,15 @@ export const ReceivedQuoteGroupSection = ({
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const [filter, setFilter] = useState<CustomerPastQuoteFilter>('ALL');
+  /** 필터 변경으로 remount된 목록만 stagger */
+  const [staggerOnFilter, setStaggerOnFilter] = useState(false);
   const visibleQuotes = filterQuotesByStatus(group.quotes, filter);
+  const shouldStaggerList = staggerOnEntrance || staggerOnFilter;
+
+  const handleFilterChange = (next: CustomerPastQuoteFilter) => {
+    setStaggerOnFilter(true);
+    setFilter(next);
+  };
 
   return (
     <section
@@ -113,14 +124,14 @@ export const ReceivedQuoteGroupSection = ({
         <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
           견적서 목록
         </h2>
-        <ReceivedQuotesFilter value={filter} onValueChange={setFilter} />
+        <ReceivedQuotesFilter value={filter} onValueChange={handleFilterChange} />
         <AnimatePresence mode="wait" initial={false}>
           {visibleQuotes.length > 0 ? (
             <motion.ul
               key={filter}
-              variants={listStagger}
-              initial="hidden"
-              animate="show"
+              variants={shouldStaggerList ? listStagger : undefined}
+              initial={shouldStaggerList ? 'hidden' : false}
+              animate={shouldStaggerList ? 'show' : undefined}
               exit={{ opacity: 0 }}
               transition={motionTransition}
               className="flex w-full flex-col gap-6 lg:gap-8"
@@ -128,7 +139,7 @@ export const ReceivedQuoteGroupSection = ({
               {visibleQuotes.map((quote) => (
                 <motion.li
                   key={quote.quoteId}
-                  variants={fadeUp}
+                  variants={shouldStaggerList ? fadeUp : undefined}
                   transition={motionTransition}
                 >
                   <ReceivedQuoteCard

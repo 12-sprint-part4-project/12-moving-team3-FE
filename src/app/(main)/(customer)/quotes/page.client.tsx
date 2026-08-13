@@ -51,8 +51,8 @@ const CustomerQuotesPageClient = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeTab = parseCustomerQuotesTabId(searchParams.get('tab'));
-  /** 대기 중 목록 — 로드 완료 시에만 stagger (탭 슬라이드와 중첩 방지) */
-  const [pendingListAnim, setPendingListAnim] = useState({
+  /** 대기 중·받았던 견적 — 로드 완료 시에만 stagger (탭 슬라이드와 중첩 방지) */
+  const [listAnim, setListAnim] = useState({
     tab: activeTab,
     stagger: false,
     sawLoading: false,
@@ -80,26 +80,6 @@ const CustomerQuotesPageClient = () => {
     enabled: isCustomerReady && activeTab === 'pending',
   });
 
-  if (pendingListAnim.tab !== activeTab) {
-    setPendingListAnim({ tab: activeTab, stagger: false, sawLoading: false });
-  } else if (activeTab === 'pending') {
-    if (isPending && !pendingListAnim.sawLoading) {
-      setPendingListAnim({ ...pendingListAnim, sawLoading: true });
-    } else if (
-      !isPending &&
-      pendingListAnim.sawLoading &&
-      !pendingListAnim.stagger
-    ) {
-      setPendingListAnim({
-        tab: activeTab,
-        sawLoading: false,
-        stagger: true,
-      });
-    }
-  }
-
-  const staggerPendingList = pendingListAnim.stagger;
-
   const {
     groups,
     isEmpty: isPastEmpty,
@@ -114,6 +94,28 @@ const CustomerQuotesPageClient = () => {
     limit: PAST_QUOTE_GROUP_LIMIT,
     enabled: isCustomerReady && activeTab === 'received',
   });
+
+  const isActiveTabPending = activeTab === 'pending';
+  const isActiveTabLoading = isActiveTabPending ? isPending : isPastPending;
+
+  if (listAnim.tab !== activeTab) {
+    setListAnim({ tab: activeTab, stagger: false, sawLoading: false });
+  } else if (isActiveTabLoading && !listAnim.sawLoading) {
+    setListAnim({ ...listAnim, sawLoading: true });
+  } else if (
+    !isActiveTabLoading &&
+    listAnim.sawLoading &&
+    !listAnim.stagger
+  ) {
+    setListAnim({
+      tab: activeTab,
+      sawLoading: false,
+      stagger: true,
+    });
+  }
+
+  const staggerPendingList = isActiveTabPending && listAnim.stagger;
+  const staggerReceivedList = !isActiveTabPending && listAnim.stagger;
 
   const { ref: loadMoreRef, inView } = useInView({
     rootMargin: '200px',
@@ -311,6 +313,7 @@ const CustomerQuotesPageClient = () => {
             <ReceivedQuoteGroupSection
               key={group.estimateRequestId}
               group={group}
+              staggerOnEntrance={staggerReceivedList}
               onFavoriteClick={handleFavoriteClick}
               isMoverPending={isMoverPending}
             />

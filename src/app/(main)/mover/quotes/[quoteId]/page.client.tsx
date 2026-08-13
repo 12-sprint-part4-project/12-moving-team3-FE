@@ -13,8 +13,8 @@ import { ApiError } from '@/lib/apiClient';
 import {
   fadeIn,
   fadeUp,
+  getListStagger,
   getMotionTransition,
-  listStagger,
 } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
@@ -38,6 +38,7 @@ const MoverQuoteDetailPageClient = ({
 }: MoverQuoteDetailPageClientProps) => {
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
+  const listStaggerVariants = getListStagger(shouldReduceMotion);
   const { user } = useAuth();
   const numericQuoteId = parseQuoteId(quoteId);
   const { detail, isPending, isError, error, refetch } =
@@ -163,22 +164,28 @@ const MoverQuoteDetailPageClient = ({
       >
         {/* 본문 */}
         <motion.div
-          variants={listStagger}
+          variants={listStaggerVariants}
           initial="hidden"
           animate="show"
+          transition={motionTransition}
           className="col-start-1 flex w-full max-w-[59.6875rem] flex-col gap-6 md:gap-8 lg:gap-10"
         >
-          <motion.div variants={fadeUp}>
+          <motion.div variants={fadeUp} transition={motionTransition}>
             <QuoteDetailSummaryCard detail={detail} />
           </motion.div>
 
-          <motion.div variants={fadeUp} className="h-px w-full bg-line-100" />
+          <motion.div
+            variants={fadeUp}
+            transition={motionTransition}
+            className="h-px w-full bg-line-100"
+          />
 
           {/* 보낸 견적: 견적가 + 코멘트 / 반려: 반려 사유 */}
           {detail.isRejected ? (
             detail.rejectReason?.trim() ? (
               <motion.section
                 variants={fadeUp}
+                transition={motionTransition}
                 className="flex w-full flex-col gap-4 lg:gap-8"
               >
                 <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
@@ -193,6 +200,7 @@ const MoverQuoteDetailPageClient = ({
             <>
               <motion.section
                 variants={fadeUp}
+                transition={motionTransition}
                 className="flex w-full flex-col gap-4 lg:gap-8"
               >
                 <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
@@ -207,10 +215,12 @@ const MoverQuoteDetailPageClient = ({
                 <>
                   <motion.div
                     variants={fadeUp}
+                    transition={motionTransition}
                     className="h-px w-full bg-line-100"
                   />
                   <motion.section
                     variants={fadeUp}
+                    transition={motionTransition}
                     className="flex w-full flex-col gap-4 lg:gap-8"
                   >
                     <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
@@ -229,6 +239,7 @@ const MoverQuoteDetailPageClient = ({
           {!detail.isRejected ? (
             <motion.div
               variants={fadeUp}
+              transition={motionTransition}
               className="flex flex-col gap-6 lg:hidden"
             >
               <div className="h-px w-full bg-line-100" />
@@ -236,9 +247,13 @@ const MoverQuoteDetailPageClient = ({
             </motion.div>
           ) : null}
 
-          <motion.div variants={fadeUp} className="h-px w-full bg-line-100" />
+          <motion.div
+            variants={fadeUp}
+            transition={motionTransition}
+            className="h-px w-full bg-line-100"
+          />
 
-          <motion.div variants={fadeUp}>
+          <motion.div variants={fadeUp} transition={motionTransition}>
             <QuoteDetailInfoSection detail={detail} />
           </motion.div>
         </motion.div>
@@ -246,8 +261,12 @@ const MoverQuoteDetailPageClient = ({
         {/* 데스크톱: 우측 채팅 → 공유 */}
         {!detail.isRejected ? (
           <motion.aside
-            initial={{ opacity: 0, x: 12 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={
+              shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: 12 }
+            }
+            animate={
+              shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }
+            }
             transition={motionTransition}
             className="col-start-1 hidden w-full flex-col gap-10 lg:col-start-2 lg:row-span-1 lg:row-start-1 lg:flex"
           >

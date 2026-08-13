@@ -28,6 +28,19 @@ export const listStagger: Variants = {
   },
 };
 
+/** prefers-reduced-motion이면 stagger 없이 동시 전환 */
+export const getListStagger = (
+  shouldReduceMotion: boolean | null
+): Variants =>
+  shouldReduceMotion
+    ? {
+        hidden: {},
+        show: {
+          transition: { staggerChildren: 0, delayChildren: 0 },
+        },
+      }
+    : listStagger;
+
 export const cardExit: Variants = {
   exit: {
     opacity: 0,
