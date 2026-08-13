@@ -17,7 +17,7 @@ export interface MoverMyProfileCardData {
   regionsLabel: string;
 }
 
-export interface MoverMyProfileCardProps {
+interface MoverMyProfileCardProps {
   profile: MoverMyProfileCardData;
   onEditBasicInfo?: () => void;
   onEditProfile?: () => void;
@@ -29,11 +29,20 @@ interface ProfileAvatarProps {
   className?: string;
 }
 
+interface MoverMyProfileEditButtonsProps {
+  onEditBasicInfo?: () => void;
+  onEditProfile?: () => void;
+}
+
+const STAT_DIVIDER_CLASS = 'h-3.5 w-px bg-line-200';
+
 const ProfileAvatar = ({
   profileImageUrl,
   className = '',
 }: ProfileAvatarProps) => (
-  <div className={cn('relative shrink-0 overflow-hidden rounded-full', className)}>
+  <div
+    className={cn('relative shrink-0 overflow-hidden rounded-full', className)}
+  >
     {profileImageUrl ? (
       <Image
         src={profileImageUrl}
@@ -48,10 +57,59 @@ const ProfileAvatar = ({
   </div>
 );
 
-/**
- * 기사님 마이페이지 프로필 카드.
- * Figma Card-list/profile — Mobile(1:8552) · Tablet(1:8521) · Desktop(1:8536).
- */
+const MoverMyProfileEditButtonsMobile = ({
+  onEditBasicInfo,
+  onEditProfile,
+}: MoverMyProfileEditButtonsProps) => (
+  <div className="flex w-full flex-col gap-2 md:flex-row md:items-center md:justify-between lg:hidden">
+    <Button
+      type="button"
+      size="sm"
+      showIcon
+      onClick={onEditProfile}
+      className="w-full md:max-w-[18.5rem] md:min-w-0 md:flex-1"
+    >
+      내 프로필 수정
+    </Button>
+    <Button
+      type="button"
+      size="sm"
+      showIcon
+      onClick={onEditBasicInfo}
+      className="w-full border border-gray-200 bg-white text-gray-300 hover:bg-white md:max-w-[18.5rem] md:min-w-0 md:flex-1"
+    >
+      기본 정보 수정
+    </Button>
+  </div>
+);
+
+const MoverMyProfileEditButtonsDesktop = ({
+  onEditBasicInfo,
+  onEditProfile,
+}: MoverMyProfileEditButtonsProps) => (
+  <div className="hidden shrink-0 gap-4 lg:flex">
+    <Button
+      type="button"
+      size="md"
+      showIcon
+      onClick={onEditBasicInfo}
+      className="w-[17.5rem] border border-gray-200 bg-background-200 text-gray-300 hover:bg-background-200"
+    >
+      기본 정보 수정
+    </Button>
+    <Button
+      type="button"
+      size="md"
+      showIcon
+      onClick={onEditProfile}
+      className="w-[17.5rem]"
+    >
+      내 프로필 수정
+    </Button>
+  </div>
+);
+
+/** 기사님 마이페이지 프로필 카드 */
 export const MoverMyProfileCard = ({
   profile,
   onEditBasicInfo,
@@ -59,66 +117,15 @@ export const MoverMyProfileCard = ({
   className = '',
 }: MoverMyProfileCardProps) => {
   const ratingLabel =
-    profile.averageRating === null
-      ? '-'
-      : profile.averageRating.toFixed(1);
-  const careerLabel =
-    profile.career === null ? '-' : `${profile.career}년`;
+    profile.averageRating === null ? '-' : profile.averageRating.toFixed(1);
+  const careerLabel = profile.career === null ? '-' : `${profile.career}년`;
   const confirmedLabel =
-    profile.confirmedCount == null
-      ? '-'
-      : `${profile.confirmedCount}건`;
-
-  const editButtonsMobileAndTablet = (
-    <div className="flex w-full flex-col gap-2 md:flex-row md:items-center md:justify-between lg:hidden">
-      <Button
-        type="button"
-        size="sm"
-        showIcon
-        onClick={onEditProfile}
-        className="w-full md:min-w-0 md:flex-1 md:max-w-[18.5rem]"
-      >
-        내 프로필 수정
-      </Button>
-      <Button
-        type="button"
-        size="sm"
-        showIcon
-        onClick={onEditBasicInfo}
-        className="w-full border border-gray-200 bg-white text-gray-300 hover:bg-white md:min-w-0 md:flex-1 md:max-w-[18.5rem]"
-      >
-        기본 정보 수정
-      </Button>
-    </div>
-  );
-
-  const editButtonsDesktop = (
-    <div className="hidden shrink-0 gap-4 lg:flex">
-      <Button
-        type="button"
-        size="md"
-        showIcon
-        onClick={onEditBasicInfo}
-        className="w-[17.5rem] border border-gray-200 bg-background-200 text-gray-300 hover:bg-background-200"
-      >
-        기본 정보 수정
-      </Button>
-      <Button
-        type="button"
-        size="md"
-        showIcon
-        onClick={onEditProfile}
-        className="w-[17.5rem]"
-      >
-        내 프로필 수정
-      </Button>
-    </div>
-  );
+    profile.confirmedCount == null ? '-' : `${profile.confirmedCount}건`;
 
   return (
     <section className={cn('flex w-full flex-col gap-2.5 lg:gap-0', className)}>
       <div className="flex w-full flex-col gap-4 rounded-2xl border-[0.5px] border-gray-100 bg-background-100 px-3.5 py-4 md:gap-4 lg:gap-6 lg:p-6">
-        {/* Tablet · Mobile: 아바타 + 닉네임/소개 */}
+        {/* lg 미만: 아바타 + 닉네임 */}
         <div className="flex w-full items-center gap-4 lg:hidden">
           <ProfileAvatar
             profileImageUrl={profile.profileImageUrl}
@@ -134,7 +141,7 @@ export const MoverMyProfileCard = ({
           </div>
         </div>
 
-        {/* Desktop: 닉네임/소개 + 수정 버튼 */}
+        {/* Desktop: 닉네임 + 수정 버튼 */}
         <div className="hidden lg:flex lg:items-center lg:justify-between lg:gap-4">
           <div className="flex min-w-0 flex-col gap-2">
             <h2 className="text-2xl-semibold text-black-300">
@@ -144,10 +151,12 @@ export const MoverMyProfileCard = ({
               {profile.shortDescription}
             </p>
           </div>
-          {editButtonsDesktop}
+          <MoverMyProfileEditButtonsDesktop
+            onEditBasicInfo={onEditBasicInfo}
+            onEditProfile={onEditProfile}
+          />
         </div>
 
-        {/* 통계 · 서비스 · 지역 */}
         <div className="flex w-full flex-col gap-3.5 rounded-md border border-line-100 bg-background-100 p-2.5 shadow-request-card-body md:gap-3.5 lg:flex-row lg:items-center lg:gap-6 lg:border-line-200 lg:px-[1.125rem] lg:py-6">
           <ProfileAvatar
             profileImageUrl={profile.profileImageUrl}
@@ -164,12 +173,12 @@ export const MoverMyProfileCard = ({
                 <span className="text-black-300">{ratingLabel}</span>
                 <span className="text-gray-300">({profile.reviewCount})</span>
               </span>
-              <span aria-hidden className="h-3.5 w-px bg-line-200" />
+              <span aria-hidden className={STAT_DIVIDER_CLASS} />
               <span className="inline-flex items-center gap-1 lg:gap-1.5">
                 <span className="text-gray-300">경력</span>
                 <span className="text-black-300">{careerLabel}</span>
               </span>
-              <span aria-hidden className="h-3.5 w-px bg-line-200" />
+              <span aria-hidden className={STAT_DIVIDER_CLASS} />
               <span className="inline-flex items-center gap-1 lg:gap-1.5">
                 <span className="text-black-300">{confirmedLabel}</span>
                 <span className="text-gray-300">확정</span>
@@ -187,7 +196,7 @@ export const MoverMyProfileCard = ({
               </dl>
               <span
                 aria-hidden
-                className="hidden h-3.5 w-px bg-line-200 md:block lg:h-4"
+                className={cn(STAT_DIVIDER_CLASS, 'hidden md:block lg:h-4')}
               />
               <dl className="inline-flex items-center gap-2 lg:gap-3">
                 <dt className="inline-flex items-center rounded-sm border border-line-100 bg-background-200 px-1.5 py-0.5 text-md-medium text-gray-400 lg:py-1 lg:text-2lg-regular lg:text-gray-500">
@@ -202,7 +211,10 @@ export const MoverMyProfileCard = ({
         </div>
       </div>
 
-      {editButtonsMobileAndTablet}
+      <MoverMyProfileEditButtonsMobile
+        onEditBasicInfo={onEditBasicInfo}
+        onEditProfile={onEditProfile}
+      />
     </section>
   );
 };
