@@ -48,9 +48,9 @@ const FurnitureGridCardSkeleton = () => (
     aria-hidden
   >
     <div className="aspect-square w-full animate-pulse bg-background-200" />
-    <div className="flex flex-col gap-1.5 px-2.5 py-2 min-[46.5rem]:gap-2 min-[46.5rem]:px-3 min-[46.5rem]:py-2.5 xl:px-3.5 xl:py-3">
-      <div className="h-4 w-4/5 animate-pulse rounded bg-background-200 min-[46.5rem]:h-5" />
-      <div className="h-3 w-1/3 animate-pulse rounded bg-background-200 min-[46.5rem]:h-4" />
+    <div className="flex flex-col gap-0.5 px-2.5 py-2 min-[46.5rem]:gap-1 min-[46.5rem]:px-3 min-[46.5rem]:py-2.5 xl:px-3.5 xl:py-3">
+      <div className="h-6 w-4/5 animate-pulse rounded bg-background-200 min-[46.5rem]:h-[1.625rem] xl:h-8" />
+      <div className="h-[1.125rem] w-1/3 animate-pulse rounded bg-background-200 min-[46.5rem]:h-6" />
     </div>
   </div>
 );
