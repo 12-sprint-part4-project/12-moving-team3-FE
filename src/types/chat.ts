@@ -76,6 +76,10 @@ export interface ChatRoomDetailData {
   partnerLastReadMessageId: number | null;
   /** 상대방이 마지막으로 읽은 시각(ISO). 읽음 기록 없으면 null */
   partnerLastReadAt: string | null;
+  /** 상대가 채팅방을 나간 상태인지 (#275, BE #314) */
+  isPartnerLeft: boolean;
+  /** 상대가 나간 시각(ISO). isPartnerLeft가 false이면 null */
+  partnerLeftAt: string | null;
   updatedAt: string;
 }
 
@@ -247,6 +251,12 @@ export interface ChatSocketUnreadPayload {
   unreadCount: number;
   roomId?: number;
   roomUnreadCount?: number;
+}
+
+/** Socket: chat:partner-left (#275, BE #314) */
+export interface ChatSocketPartnerLeftPayload {
+  roomId: number;
+  leftAt: string;
 }
 
 export interface ChatSocketErrorPayload {

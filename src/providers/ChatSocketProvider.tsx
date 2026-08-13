@@ -17,6 +17,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import {
   applySocketMessageToCaches,
+  applySocketPartnerLeftToCaches,
   applySocketReadToCaches,
   applySocketUnreadToCaches,
 } from '@/lib/chatSocketCache';
@@ -33,6 +34,7 @@ import {
 import type {
   ChatSocketErrorPayload,
   ChatSocketMessagePayload,
+  ChatSocketPartnerLeftPayload,
   ChatSocketReadPayload,
   ChatSocketUnreadPayload,
 } from '@/types/chat';
@@ -55,6 +57,7 @@ interface ChatSocketProviderProps {
  * 전송·읽음·나가기는 REST 훅을 유지한다.
  * SUSPENDED는 Socket.IO가 거부되므로 연결하지 않는다.
  * `chat:read` 수신 시 방 상세·목록 캐시의 partner 읽음 커서를 전진 반영한다.
+ * `chat:partner-left` 수신 시 방 상세의 isPartnerLeft를 갱신한다.
  */
 export const ChatSocketProvider = ({ children }: ChatSocketProviderProps) => {
   const { user, isReady } = useAuth();
@@ -109,6 +112,10 @@ export const ChatSocketProvider = ({ children }: ChatSocketProviderProps) => {
       applySocketUnreadToCaches(queryClientRef.current, payload);
     };
 
+    const handlePartnerLeft = (payload: ChatSocketPartnerLeftPayload) => {
+      applySocketPartnerLeftToCaches(queryClientRef.current, payload);
+    };
+
     const handleError = (payload: ChatSocketErrorPayload) => {
       showToastRef.current({
         content: payload.message || '채팅 연결 오류가 발생했습니다.',
@@ -118,12 +125,14 @@ export const ChatSocketProvider = ({ children }: ChatSocketProviderProps) => {
     socket.on(CHAT_SOCKET_SERVER_EVENTS.MESSAGE, handleMessage);
     socket.on(CHAT_SOCKET_SERVER_EVENTS.READ, handleRead);
     socket.on(CHAT_SOCKET_SERVER_EVENTS.UNREAD, handleUnread);
+    socket.on(CHAT_SOCKET_SERVER_EVENTS.PARTNER_LEFT, handlePartnerLeft);
     socket.on(CHAT_SOCKET_SERVER_EVENTS.ERROR, handleError);
 
     return () => {
       socket.off(CHAT_SOCKET_SERVER_EVENTS.MESSAGE, handleMessage);
       socket.off(CHAT_SOCKET_SERVER_EVENTS.READ, handleRead);
       socket.off(CHAT_SOCKET_SERVER_EVENTS.UNREAD, handleUnread);
+      socket.off(CHAT_SOCKET_SERVER_EVENTS.PARTNER_LEFT, handlePartnerLeft);
       socket.off(CHAT_SOCKET_SERVER_EVENTS.ERROR, handleError);
       disconnectChatSocket();
     };

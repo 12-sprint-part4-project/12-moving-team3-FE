@@ -310,6 +310,7 @@ export const ChatRoomPage = ({
             partnerLastReadMessageId={
               room ? room.partnerLastReadMessageId : undefined
             }
+            isPartnerLeft={room?.isPartnerLeft ?? false}
             isPending={isMessagesPending}
             isError={isMessagesError}
             isFetchNextPageError={isFetchNextPageError}

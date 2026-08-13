@@ -33,6 +33,8 @@ export interface ChatMessageListProps {
    * `null`이면 상대 읽음 기록 없음 → 내 메시지 전부 `1`.
    */
   partnerLastReadMessageId?: number | null;
+  /** 상대가 채팅방을 나간 상태 (#275). 방 상세 미로드면 false로 취급 */
+  isPartnerLeft?: boolean;
   isPending: boolean;
   /** 초기 조회 실패(메시지 없음) */
   isError: boolean;
@@ -52,6 +54,9 @@ export interface ChatMessageListProps {
 
 const NEAR_TOP_PX = 80;
 const NEAR_BOTTOM_PX = 120;
+
+/** 상대 나감 시스템 문구 (#275) */
+const PARTNER_LEFT_MESSAGE = '상대방이 채팅을 나갔습니다.';
 
 /**
  * 같은 보낸이가 같은 분(분 단위)에 연속 메시지를 보내면
@@ -112,6 +117,7 @@ export const ChatMessageList = ({
   messages,
   currentUserId,
   partnerLastReadMessageId,
+  isPartnerLeft = false,
   isPending,
   isError,
   isFetchNextPageError = false,
@@ -416,7 +422,9 @@ export const ChatMessageList = ({
 
             {canRenderMessages && isEmpty ? (
               <p className="py-16 text-center text-lg-medium text-gray-300">
-                대화를 시작해 보세요
+                {isPartnerLeft
+                  ? PARTNER_LEFT_MESSAGE
+                  : '대화를 시작해 보세요'}
               </p>
             ) : null}
           </div>
@@ -471,6 +479,15 @@ export const ChatMessageList = ({
                 </Fragment>
               );
             })}
+
+          {canRenderMessages && !isEmpty && isPartnerLeft ? (
+            <p
+              role="status"
+              className="py-3 text-center text-xs-medium text-gray-300"
+            >
+              {PARTNER_LEFT_MESSAGE}
+            </p>
+          ) : null}
         </div>
       </div>
 

@@ -24,6 +24,7 @@ import {
 import type {
   ChatMessage,
   ChatMessagesResponse,
+  ChatRoomDetailResponse,
   ChatRoomListItem,
   ChatRoomListResponse,
   CreateChatRoomRequest,
@@ -247,6 +248,25 @@ const applySentMessageToCaches = (
   );
   const hasRoomInList = roomsCache?.data.rooms.some(
     (room) => room.roomId === roomId
+  );
+
+  // REST 전송만으로도 상대 재참여가 일어나므로 소켓 미연결 시에도 나감 표시를 해제한다.
+  queryClient.setQueryData<ChatRoomDetailResponse>(
+    chatQueryKeys.room(roomId),
+    (current) => {
+      if (!current?.data.isPartnerLeft) {
+        return current;
+      }
+
+      return {
+        ...current,
+        data: {
+          ...current.data,
+          isPartnerLeft: false,
+          partnerLeftAt: null,
+        },
+      };
+    }
   );
 
   // 목록에 아직 없는 방(생성 직후 등)은 캐시 패치 대신 목록 재조회로 동기화
