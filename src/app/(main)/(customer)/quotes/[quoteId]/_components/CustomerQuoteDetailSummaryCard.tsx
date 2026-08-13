@@ -36,6 +36,7 @@ export const CustomerQuoteDetailSummaryCard = ({
         moveType={detail.moveType}
         isDesignated={detail.isDesignated}
         size="sm"
+        statusLabel={detail.isConfirmed ? '견적 확정' : undefined}
       />
     </div>
 

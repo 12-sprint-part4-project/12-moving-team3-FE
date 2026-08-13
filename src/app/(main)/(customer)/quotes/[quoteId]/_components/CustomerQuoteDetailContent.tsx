@@ -37,6 +37,7 @@ interface CustomerQuoteDetailContentProps {
   quoteId: string;
   detail: CustomerQuoteDetailViewModel;
   actions: CustomerQuoteDetailContentActions;
+  className?: string;
 }
 
 /** 견적 상세 본문. 요약 카드, 견적가, 코멘트, 공유, 견적 정보, 데스크톱 CTA. */
@@ -44,6 +45,7 @@ export const CustomerQuoteDetailContent = ({
   quoteId,
   detail,
   actions,
+  className = '',
 }: CustomerQuoteDetailContentProps) => {
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
@@ -65,7 +67,8 @@ export const CustomerQuoteDetailContent = ({
     <div
       className={cn(
         'mx-auto grid w-full max-w-[1920px] flex-1 grid-cols-1 gap-6 py-6 md:gap-8 md:py-8 lg:grid-cols-[minmax(0,59.6875rem)_20.5rem] lg:items-start lg:justify-between lg:gap-10 lg:py-10',
-        CUSTOMER_QUOTE_DETAIL_PAGE_X_PADDING
+        CUSTOMER_QUOTE_DETAIL_PAGE_X_PADDING,
+        className
       )}
     >
       <motion.div

@@ -59,7 +59,7 @@ export const useListboxKeyboard = ({
   };
 
   const openListbox = () => {
-    setActiveIndex(selectedIndex);
+    setActiveIndex(Math.min(Math.max(selectedIndex, 0), lastIndex));
     setIsOpen(true);
   };
 

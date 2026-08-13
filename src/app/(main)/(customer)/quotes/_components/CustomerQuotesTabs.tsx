@@ -2,12 +2,8 @@ import {
   QuotesTabsShell,
   type QuotesTabItem,
 } from '@/components/quotes/QuotesTabsShell';
-import { cn } from '@/lib/utils';
 
-import {
-  CUSTOMER_QUOTES_DESKTOP_X,
-  CUSTOMER_QUOTES_SECTION_X,
-} from './customerQuotesLayout';
+import { CUSTOMER_QUOTES_PAGE_X_PADDING } from './customerQuotesLayout';
 
 export type CustomerQuotesTabId = 'pending' | 'received';
 
@@ -30,6 +26,6 @@ export const CustomerQuotesTabs = ({ activeTab }: CustomerQuotesTabsProps) => (
   <QuotesTabsShell
     tabs={TABS}
     activeTab={activeTab}
-    className={cn(CUSTOMER_QUOTES_SECTION_X, CUSTOMER_QUOTES_DESKTOP_X)}
+    className={CUSTOMER_QUOTES_PAGE_X_PADDING}
   />
 );

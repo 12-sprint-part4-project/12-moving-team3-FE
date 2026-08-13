@@ -15,16 +15,9 @@ export const CUSTOMER_QUOTES_DESKTOP_X = 'xl:px-16 min-[90rem]:px-65';
 /** 목록·이용 내역 좌우 패딩. SECTION_X + DESKTOP_X */
 export const CUSTOMER_QUOTES_PAGE_X_PADDING = `${CUSTOMER_QUOTES_SECTION_X} ${CUSTOMER_QUOTES_DESKTOP_X}`;
 
-/** 상세 Mobile 24px / Tablet 72px / Desktop 40px */
-export const CUSTOMER_QUOTE_DETAIL_SECTION_X =
-  'px-6 md:px-[4.5rem] lg:px-10';
-
-/** 상세 Desktop 64px / 260px */
-export const CUSTOMER_QUOTE_DETAIL_DESKTOP_X =
-  'xl:px-16 min-[90rem]:px-[16.25rem]';
-
-/** 상세 좌우 패딩. SECTION_X + DESKTOP_X */
-export const CUSTOMER_QUOTE_DETAIL_PAGE_X_PADDING = `${CUSTOMER_QUOTE_DETAIL_SECTION_X} ${CUSTOMER_QUOTE_DETAIL_DESKTOP_X}`;
+/** 상세 좌우 패딩. 목록과 동일 */
+export const CUSTOMER_QUOTE_DETAIL_PAGE_X_PADDING =
+  CUSTOMER_QUOTES_PAGE_X_PADDING;
 
 /** 페이지 타이틀 헤더 — 이용 내역·상세 */
 export const CUSTOMER_QUOTES_TITLE_HEADER_CLASS =
