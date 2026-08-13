@@ -1,5 +1,6 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 
 import { Button } from '@/components/Button/Button';
@@ -9,6 +10,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { useMoverQuoteDetail } from '@/hooks/useMoverQuoteDetail';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 import { ApiError } from '@/lib/apiClient';
+import {
+  fadeIn,
+  fadeUp,
+  getMotionTransition,
+  listStagger,
+} from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 import { MoverQuoteDetailActions } from './_components/MoverQuoteDetailActions';
@@ -29,6 +36,8 @@ const parseQuoteId = (value: string): number => {
 const MoverQuoteDetailPageClient = ({
   quoteId,
 }: MoverQuoteDetailPageClientProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const { user } = useAuth();
   const numericQuoteId = parseQuoteId(quoteId);
   const { detail, isPending, isError, error, refetch } =
@@ -44,7 +53,13 @@ const MoverQuoteDetailPageClient = ({
 
   if (!Number.isInteger(numericQuoteId)) {
     return (
-      <div className="flex min-h-full w-full flex-col items-center justify-center gap-4 bg-white py-16">
+      <motion.div
+        variants={fadeIn}
+        initial="hidden"
+        animate="show"
+        transition={motionTransition}
+        className="flex min-h-full w-full flex-col items-center justify-center gap-4 bg-white py-16"
+      >
         <p role="alert" className="text-lg-medium text-red-200">
           유효하지 않은 견적입니다.
         </p>
@@ -54,12 +69,21 @@ const MoverQuoteDetailPageClient = ({
         >
           내 견적 관리로 돌아가기
         </Link>
-      </div>
+      </motion.div>
     );
   }
 
   if (isPending) {
-    return <QuoteDetailContentSkeleton aside="share" />;
+    return (
+      <motion.div
+        variants={fadeIn}
+        initial="hidden"
+        animate="show"
+        transition={motionTransition}
+      >
+        <QuoteDetailContentSkeleton aside="share" />
+      </motion.div>
+    );
   }
 
   if (isError || !detail) {
@@ -69,7 +93,13 @@ const MoverQuoteDetailPageClient = ({
         : '견적 상세를 불러오지 못했습니다.';
 
     return (
-      <div className="flex min-h-full w-full flex-col items-center justify-center gap-4 bg-white py-16">
+      <motion.div
+        variants={fadeIn}
+        initial="hidden"
+        animate="show"
+        transition={motionTransition}
+        className="flex min-h-full w-full flex-col items-center justify-center gap-4 bg-white py-16"
+      >
         <p role="alert" className="text-center text-lg-medium text-red-200">
           {errorMessage}
         </p>
@@ -89,7 +119,7 @@ const MoverQuoteDetailPageClient = ({
         >
           내 견적 관리로 돌아가기
         </Link>
-      </div>
+      </motion.div>
     );
   }
 
@@ -132,45 +162,64 @@ const MoverQuoteDetailPageClient = ({
         )}
       >
         {/* 본문 */}
-        <div className="col-start-1 flex w-full max-w-[59.6875rem] flex-col gap-6 md:gap-8 lg:gap-10">
-          <QuoteDetailSummaryCard detail={detail} />
+        <motion.div
+          variants={listStagger}
+          initial="hidden"
+          animate="show"
+          className="col-start-1 flex w-full max-w-[59.6875rem] flex-col gap-6 md:gap-8 lg:gap-10"
+        >
+          <motion.div variants={fadeUp}>
+            <QuoteDetailSummaryCard detail={detail} />
+          </motion.div>
 
-          <div className="h-px w-full bg-line-100" />
+          <motion.div variants={fadeUp} className="h-px w-full bg-line-100" />
 
           {/* 보낸 견적: 견적가 + 코멘트 / 반려: 반려 사유 */}
           {detail.isRejected ? (
             detail.rejectReason?.trim() ? (
-              <section className="flex w-full flex-col gap-4 lg:gap-8">
+              <motion.section
+                variants={fadeUp}
+                className="flex w-full flex-col gap-4 lg:gap-8"
+              >
                 <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
                   반려 사유
                 </h2>
                 <p className="text-lg-regular whitespace-pre-wrap text-black-400 lg:text-2lg-regular">
                   {detail.rejectReason}
                 </p>
-              </section>
+              </motion.section>
             ) : null
           ) : (
             <>
-              <section className="flex w-full flex-col gap-4 lg:gap-8">
+              <motion.section
+                variants={fadeUp}
+                className="flex w-full flex-col gap-4 lg:gap-8"
+              >
                 <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
                   견적가
                 </h2>
                 <p className="text-2lg-bold text-black-400 lg:text-3xl-bold">
                   {detail.priceLabel}
                 </p>
-              </section>
+              </motion.section>
 
               {detail.comment?.trim() ? (
                 <>
-                  <div className="h-px w-full bg-line-100" />
-                  <section className="flex w-full flex-col gap-4 lg:gap-8">
+                  <motion.div
+                    variants={fadeUp}
+                    className="h-px w-full bg-line-100"
+                  />
+                  <motion.section
+                    variants={fadeUp}
+                    className="flex w-full flex-col gap-4 lg:gap-8"
+                  >
                     <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
                       코멘트
                     </h2>
                     <p className="text-lg-regular whitespace-pre-wrap text-black-400 lg:text-2lg-regular">
                       {detail.comment}
                     </p>
-                  </section>
+                  </motion.section>
                 </>
               ) : null}
             </>
@@ -178,31 +227,58 @@ const MoverQuoteDetailPageClient = ({
 
           {/* 모바일·태블릿: 본문 내 공유 (반려 제외) */}
           {!detail.isRejected ? (
-            <div className="flex flex-col gap-6 lg:hidden">
+            <motion.div
+              variants={fadeUp}
+              className="flex flex-col gap-6 lg:hidden"
+            >
               <div className="h-px w-full bg-line-100" />
               <QuoteShareButtons {...quoteShareProps} />
-            </div>
+            </motion.div>
           ) : null}
 
-          <div className="h-px w-full bg-line-100" />
+          <motion.div variants={fadeUp} className="h-px w-full bg-line-100" />
 
-          <QuoteDetailInfoSection detail={detail} />
-        </div>
+          <motion.div variants={fadeUp}>
+            <QuoteDetailInfoSection detail={detail} />
+          </motion.div>
+        </motion.div>
 
         {/* 데스크톱: 우측 채팅 → 공유 */}
         {!detail.isRejected ? (
-          <aside className="col-start-1 hidden w-full flex-col gap-10 lg:col-start-2 lg:row-span-1 lg:row-start-1 lg:flex">
-            <MoverQuoteDetailActions
-              variant="desktop"
-              canStartChat={detail.canStartChat}
-              isChatPending={isChatPending}
-              onChatClick={handleChatClick}
-            />
+          <motion.aside
+            initial={{ opacity: 0, x: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={motionTransition}
+            className="col-start-1 hidden w-full flex-col gap-10 lg:col-start-2 lg:row-span-1 lg:row-start-1 lg:flex"
+          >
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="show"
+              transition={motionTransition}
+            >
+              <MoverQuoteDetailActions
+                variant="desktop"
+                canStartChat={detail.canStartChat}
+                isChatPending={isChatPending}
+                onChatClick={handleChatClick}
+              />
+            </motion.div>
             {detail.canStartChat ? (
               <div className="h-px w-full bg-line-100" />
             ) : null}
-            <QuoteShareButtons {...quoteShareProps} />
-          </aside>
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="show"
+              transition={{
+                ...motionTransition,
+                delay: shouldReduceMotion ? 0 : 0.08,
+              }}
+            >
+              <QuoteShareButtons {...quoteShareProps} />
+            </motion.div>
+          </motion.aside>
         ) : null}
       </div>
 
