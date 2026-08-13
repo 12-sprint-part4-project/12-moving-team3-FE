@@ -8,26 +8,13 @@ export interface PendingRequestSubHeaderProps {
 /** 반응형 요청 견적 서브 헤더 */
 export const PendingRequestSubHeader = ({
   summary,
-}: PendingRequestSubHeaderProps) => {
-  const sharedProps = {
-    moveType: summary.serviceLabel,
-    requestedAt: summary.requestedAtLabel,
-    from: summary.from,
-    to: summary.to,
-    moveDate: summary.moveDateLabel,
-  };
-
-  return (
-    <>
-      <div className="md:hidden">
-        <SubHeader size="sm" {...sharedProps} />
-      </div>
-      <div className="hidden md:block lg:hidden">
-        <SubHeader size="md" {...sharedProps} />
-      </div>
-      <div className="hidden lg:block">
-        <SubHeader size="lg" {...sharedProps} />
-      </div>
-    </>
-  );
-};
+}: PendingRequestSubHeaderProps) => (
+  <SubHeader
+    size="responsive"
+    moveType={summary.serviceLabel}
+    requestedAt={summary.requestedAtLabel}
+    from={summary.from}
+    to={summary.to}
+    moveDate={summary.moveDateLabel}
+  />
+);

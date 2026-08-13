@@ -1,9 +1,11 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 
 import { MoverProfileBlock } from '@/components/movers/MoverProfileBlock';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
+import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
 import type { ReceivedQuoteCardModel } from '@/types/customerQuote';
@@ -30,12 +32,14 @@ export const ReceivedQuoteCard = ({
   isFavoritePending = false,
   className = '',
 }: ReceivedQuoteCardProps) => {
+  const shouldReduceMotion = useReducedMotion();
   const detailHref = `/quotes/${quote.quoteId}`;
 
   return (
-    <article
+    <motion.article
+      {...(shouldReduceMotion ? {} : cardHover)}
       className={cn(
-        'relative flex w-full flex-col gap-3.5 rounded-2xl border border-line-100 bg-white px-3.5 py-4 shadow-request-card transition-shadow hover:shadow-md lg:gap-4 lg:px-6 lg:py-5',
+        'relative flex w-full flex-col gap-3.5 rounded-2xl border border-line-100 bg-white px-3.5 py-4 shadow-request-card lg:gap-4 lg:px-6 lg:py-5',
         className
       )}
     >
@@ -97,6 +101,6 @@ export const ReceivedQuoteCard = ({
         className="absolute inset-0 z-0 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
         aria-label={`${quote.mover.name} 기사님 견적 상세보기`}
       />
-    </article>
+    </motion.article>
   );
 };

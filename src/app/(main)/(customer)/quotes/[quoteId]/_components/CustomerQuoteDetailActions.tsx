@@ -1,7 +1,10 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
+
 import { Button } from '@/components/Button/Button';
 import { FavoriteButton } from '@/components/Favorite';
+import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 export interface CustomerQuoteDetailActionsProps {
@@ -35,6 +38,9 @@ export const CustomerQuoteDetailActions = ({
   variant,
   className = '',
 }: CustomerQuoteDetailActionsProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
+
   if (variant === 'desktop') {
     if (!canConfirm && !canStartChat) {
       return null;
@@ -72,7 +78,11 @@ export const CustomerQuoteDetailActions = ({
   }
 
   return (
-    <div
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      animate="show"
+      transition={motionTransition}
       className={cn(
         'fixed inset-x-0 bottom-0 z-20 border-t border-line-100 bg-white px-6 py-2.5 md:px-[4.5rem] lg:hidden',
         className
@@ -120,6 +130,6 @@ export const CustomerQuoteDetailActions = ({
           </Button>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };

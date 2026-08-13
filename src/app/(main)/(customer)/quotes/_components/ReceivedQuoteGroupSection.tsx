@@ -1,7 +1,14 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { useState } from 'react';
 
+import {
+  fadeIn,
+  fadeUp,
+  getMotionTransition,
+  listStagger,
+} from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import type {
   CustomerPastQuoteFilter,
@@ -77,12 +84,10 @@ export const ReceivedQuoteGroupSection = ({
   isMoverPending,
   className = '',
 }: ReceivedQuoteGroupSectionProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const [filter, setFilter] = useState<CustomerPastQuoteFilter>('ALL');
-
-  const visibleQuotes = useMemo(
-    () => filterQuotesByStatus(group.quotes, filter),
-    [group.quotes, filter]
-  );
+  const visibleQuotes = filterQuotesByStatus(group.quotes, filter);
 
   return (
     <section
@@ -109,25 +114,47 @@ export const ReceivedQuoteGroupSection = ({
           견적서 목록
         </h2>
         <ReceivedQuotesFilter value={filter} onValueChange={setFilter} />
-        {visibleQuotes.length > 0 ? (
-          <ul className="flex w-full flex-col gap-6 lg:gap-8">
-            {visibleQuotes.map((quote) => (
-              <li key={quote.quoteId}>
-                <ReceivedQuoteCard
-                  quote={quote}
-                  onFavoriteClick={onFavoriteClick}
-                  isFavoritePending={isMoverPending?.(quote.mover.moverId)}
-                />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="py-10 text-center text-lg-regular text-gray-400">
-            {filter === 'CONFIRMED'
-              ? '확정한 견적서가 없어요.'
-              : '받은 견적서가 없어요.'}
-          </p>
-        )}
+        <AnimatePresence mode="wait" initial={false}>
+          {visibleQuotes.length > 0 ? (
+            <motion.ul
+              key={filter}
+              variants={listStagger}
+              initial="hidden"
+              animate="show"
+              exit={{ opacity: 0 }}
+              transition={motionTransition}
+              className="flex w-full flex-col gap-6 lg:gap-8"
+            >
+              {visibleQuotes.map((quote) => (
+                <motion.li
+                  key={quote.quoteId}
+                  variants={fadeUp}
+                  transition={motionTransition}
+                >
+                  <ReceivedQuoteCard
+                    quote={quote}
+                    onFavoriteClick={onFavoriteClick}
+                    isFavoritePending={isMoverPending?.(quote.mover.moverId)}
+                  />
+                </motion.li>
+              ))}
+            </motion.ul>
+          ) : (
+            <motion.p
+              key={`empty-${filter}`}
+              variants={fadeIn}
+              initial="hidden"
+              animate="show"
+              exit="exit"
+              transition={motionTransition}
+              className="py-10 text-center text-lg-regular text-gray-400"
+            >
+              {filter === 'CONFIRMED'
+                ? '확정한 견적서가 없어요.'
+                : '받은 견적서가 없어요.'}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );

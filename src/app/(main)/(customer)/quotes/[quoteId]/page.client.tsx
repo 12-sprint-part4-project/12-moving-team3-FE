@@ -1,5 +1,6 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -15,6 +16,12 @@ import { useCustomerQuoteDetail } from '@/hooks/useCustomerQuoteDetail';
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 import { ApiError } from '@/lib/apiClient';
+import {
+  fadeIn,
+  fadeUp,
+  getMotionTransition,
+  listStagger,
+} from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 import { ConfirmQuoteModal } from '../_components/ConfirmQuoteModal';
@@ -39,6 +46,8 @@ const parseQuoteId = (value: string): number => {
 const CustomerQuoteDetailPageClient = ({
   quoteId,
 }: CustomerQuoteDetailPageClientProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const router = useRouter();
   const numericQuoteId = parseQuoteId(quoteId);
   const {
@@ -67,7 +76,13 @@ const CustomerQuoteDetailPageClient = ({
 
   if (!Number.isInteger(numericQuoteId)) {
     return (
-      <div className="flex min-h-full w-full flex-col items-center justify-center gap-4 bg-white py-16">
+      <motion.div
+        variants={fadeIn}
+        initial="hidden"
+        animate="show"
+        transition={motionTransition}
+        className="flex min-h-full w-full flex-col items-center justify-center gap-4 bg-white py-16"
+      >
         <p role="alert" className="text-lg-medium text-red-200">
           유효하지 않은 견적입니다.
         </p>
@@ -77,12 +92,21 @@ const CustomerQuoteDetailPageClient = ({
         >
           내 견적 관리로 돌아가기
         </Link>
-      </div>
+      </motion.div>
     );
   }
 
   if (isPending) {
-    return <QuoteDetailContentSkeleton />;
+    return (
+      <motion.div
+        variants={fadeIn}
+        initial="hidden"
+        animate="show"
+        transition={motionTransition}
+      >
+        <QuoteDetailContentSkeleton />
+      </motion.div>
+    );
   }
 
   if (isError || !detail) {
@@ -92,7 +116,13 @@ const CustomerQuoteDetailPageClient = ({
         : '견적 상세를 불러오지 못했습니다.';
 
     return (
-      <div className="flex min-h-full w-full flex-col items-center justify-center gap-4 bg-white py-16">
+      <motion.div
+        variants={fadeIn}
+        initial="hidden"
+        animate="show"
+        transition={motionTransition}
+        className="flex min-h-full w-full flex-col items-center justify-center gap-4 bg-white py-16"
+      >
         <p role="alert" className="text-center text-lg-medium text-red-200">
           {errorMessage}
         </p>
@@ -112,7 +142,7 @@ const CustomerQuoteDetailPageClient = ({
         >
           내 견적 관리로 돌아가기
         </Link>
-      </div>
+      </motion.div>
     );
   }
 
@@ -153,82 +183,127 @@ const CustomerQuoteDetailPageClient = ({
         className={`mx-auto grid w-full max-w-[1920px] flex-1 grid-cols-1 gap-6 py-6 md:gap-8 md:py-8 lg:grid-cols-[minmax(0,59.6875rem)_20.5rem] lg:items-start lg:justify-between lg:gap-10 lg:py-10 ${PAGE_X_PADDING}`}
       >
         {/* 본문: 카드 → 견적가 → (모바일 공유) → 견적 정보 → 미확정 배너 */}
-        <div className="col-start-1 flex w-full max-w-[59.6875rem] flex-col gap-6 md:gap-8 lg:gap-10">
-          <CustomerQuoteDetailSummaryCard
-            detail={detail}
-            mover={detail.mover}
-            onFavoriteClick={handleFavoriteClick}
-            isFavoritePending={isMoverPending(detail.mover.moverId)}
-          />
+        <motion.div
+          variants={listStagger}
+          initial="hidden"
+          animate="show"
+          className="col-start-1 flex w-full max-w-[59.6875rem] flex-col gap-6 md:gap-8 lg:gap-10"
+        >
+          <motion.div variants={fadeUp}>
+            <CustomerQuoteDetailSummaryCard
+              detail={detail}
+              mover={detail.mover}
+              onFavoriteClick={handleFavoriteClick}
+              isFavoritePending={isMoverPending(detail.mover.moverId)}
+            />
+          </motion.div>
 
-          <div className="h-px w-full bg-line-100" />
+          <motion.div variants={fadeUp} className="h-px w-full bg-line-100" />
 
-          <section className="flex w-full flex-col gap-4 lg:gap-8">
+          <motion.section
+            variants={fadeUp}
+            className="flex w-full flex-col gap-4 lg:gap-8"
+          >
             <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
               견적가
             </h2>
             <p className="text-2lg-bold text-black-400 lg:text-3xl-bold">
               {detail.priceLabel}
             </p>
-          </section>
+          </motion.section>
 
           {detail.comment ? (
             <>
-              <div className="h-px w-full bg-line-100" />
-              <section className="flex w-full flex-col gap-4 lg:gap-8">
+              <motion.div
+                variants={fadeUp}
+                className="h-px w-full bg-line-100"
+              />
+              <motion.section
+                variants={fadeUp}
+                className="flex w-full flex-col gap-4 lg:gap-8"
+              >
                 <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
                   코멘트
                 </h2>
                 <p className="text-lg-regular whitespace-pre-wrap text-black-400 lg:text-2lg-regular">
                   {detail.comment}
                 </p>
-              </section>
+              </motion.section>
             </>
           ) : null}
 
           {/* 모바일·태블릿: 본문 내 공유 */}
-          <div className="flex flex-col gap-6 lg:hidden">
+          <motion.div
+            variants={fadeUp}
+            className="flex flex-col gap-6 lg:hidden"
+          >
             <div className="h-px w-full bg-line-100" />
             <QuoteShareButtons {...quoteShareProps} />
-          </div>
+          </motion.div>
 
-          <div className="h-px w-full bg-line-100" />
+          <motion.div variants={fadeUp} className="h-px w-full bg-line-100" />
 
-          <CustomerQuoteDetailInfoSection detail={detail} />
+          <motion.div variants={fadeUp}>
+            <CustomerQuoteDetailInfoSection detail={detail} />
+          </motion.div>
 
           {detail.showUnconfirmedBanner ? (
-            <Toast
-              icon={InfoIcon}
-              content="확정하지 않은 견적이에요!"
-              className="w-full justify-center"
-            />
+            <motion.div variants={fadeUp}>
+              <Toast
+                icon={InfoIcon}
+                content="확정하지 않은 견적이에요!"
+                className="w-full justify-center"
+              />
+            </motion.div>
           ) : null}
-        </div>
+        </motion.div>
 
         {/* 데스크톱: 우측 확정·채팅 CTA + 공유 */}
-        <aside className="col-start-1 hidden w-full flex-col gap-10 lg:col-start-2 lg:row-span-1 lg:row-start-1 lg:flex lg:w-[20.5rem]">
-          <CustomerQuoteDetailActions
-            variant="desktop"
-            canConfirm={detail.canConfirm}
-            canStartChat={detail.canStartChat}
-            isConfirming={isConfirming}
-            isChatPending={isChatPending}
-            isFavorited={detail.mover.isFavorited}
-            isFavoritePending={isMoverPending(detail.mover.moverId)}
-            onConfirm={() => openConfirmModal(detail.quoteId)}
-            onChatClick={handleChatClick}
-            onToggleFavorite={() =>
-              handleFavoriteClick(
-                detail.mover.moverId,
-                !detail.mover.isFavorited
-              )
-            }
-          />
+        <motion.aside
+          initial={{ opacity: 0, x: 12 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={motionTransition}
+          className="col-start-1 hidden w-full flex-col gap-10 lg:col-start-2 lg:row-span-1 lg:row-start-1 lg:flex lg:w-[20.5rem]"
+        >
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            transition={motionTransition}
+          >
+            <CustomerQuoteDetailActions
+              variant="desktop"
+              canConfirm={detail.canConfirm}
+              canStartChat={detail.canStartChat}
+              isConfirming={isConfirming}
+              isChatPending={isChatPending}
+              isFavorited={detail.mover.isFavorited}
+              isFavoritePending={isMoverPending(detail.mover.moverId)}
+              onConfirm={() => openConfirmModal(detail.quoteId)}
+              onChatClick={handleChatClick}
+              onToggleFavorite={() =>
+                handleFavoriteClick(
+                  detail.mover.moverId,
+                  !detail.mover.isFavorited
+                )
+              }
+            />
+          </motion.div>
           {detail.canConfirm || detail.canStartChat ? (
             <div className="h-px w-full bg-line-100" />
           ) : null}
-          <QuoteShareButtons {...quoteShareProps} />
-        </aside>
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            transition={{
+              ...motionTransition,
+              delay: shouldReduceMotion ? 0 : 0.08,
+            }}
+          >
+            <QuoteShareButtons {...quoteShareProps} />
+          </motion.div>
+        </motion.aside>
       </div>
 
       {/* 모바일·태블릿: 하단 고정 찜 + 확정 + 채팅 */}
