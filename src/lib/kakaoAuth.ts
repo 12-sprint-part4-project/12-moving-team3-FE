@@ -1,4 +1,4 @@
-import { API_ERROR_CODE, type ApiErrorCode } from '@/constants/errorCode';
+import { API_ERROR_CODE } from '@/constants/errorCode';
 import type { ApiUserType } from '@/types/auth';
 
 const KAKAO_AUTHORIZE_URL = 'https://kauth.kakao.com/oauth/authorize';
@@ -188,7 +188,7 @@ export const parseKakaoCallbackParams = (
   };
 };
 
-const KAKAO_LOGIN_ERROR_MESSAGES: Partial<Record<ApiErrorCode, string>> = {
+const KAKAO_LOGIN_ERROR_MESSAGES: Record<string, string> = {
   [API_ERROR_CODE.USER_TYPE_MISMATCH]:
     '이미 다른 회원 유형으로 가입된 카카오 계정입니다. 해당 유형으로 로그인해 주세요.',
   [API_ERROR_CODE.KAKAO_EMAIL_REQUIRED]:
