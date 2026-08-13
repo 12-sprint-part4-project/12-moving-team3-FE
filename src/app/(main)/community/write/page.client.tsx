@@ -23,6 +23,7 @@ import {
 import { marked } from 'marked';
 
 import { isHtmlContent } from '@/lib/communityPostContent';
+import { parsePositiveInt } from '@/lib/parsePositiveInt';
 import { cn } from '@/lib/utils';
 import type {
   CreatePostBody,
@@ -368,11 +369,10 @@ export const CommunityWritePageClient = () => {
     [searchParams]
   );
 
-  const editPostId = useMemo(() => {
-    const parsed = Number(searchParams.get('postId'));
-
-    return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
-  }, [searchParams]);
+  const editPostId = useMemo(
+    () => parsePositiveInt(searchParams.get('postId')),
+    [searchParams]
+  );
 
   const isEditMode = editPostId !== null;
 

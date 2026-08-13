@@ -1,20 +1,8 @@
+import { parsePositiveInt } from '@/lib/parsePositiveInt';
 import type {
   NotificationItem,
   NotificationRole,
 } from '@/types/notification';
-
-const toPositiveInt = (value: string | undefined): number | null => {
-  if (!value) {
-    return null;
-  }
-
-  const parsed = Number(value);
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    return null;
-  }
-
-  return parsed;
-};
 
 /**
  * 알림 클릭 시 이동 경로.
@@ -27,11 +15,11 @@ export const getNotificationHref = (
   switch (item.type) {
     case 'COMMUNITY_COMMENT':
     case 'COMMUNITY_REPLY': {
-      const postId = toPositiveInt(item.payload.postId);
+      const postId = parsePositiveInt(item.payload.postId);
       return postId != null ? `/community/${postId}` : '/community';
     }
     case 'CHAT_ROOM_OPENED': {
-      const roomId = toPositiveInt(item.payload.chatRoomId);
+      const roomId = parsePositiveInt(item.payload.chatRoomId);
       return roomId != null ? `/chat/${roomId}` : '/chat';
     }
     case 'POST_REMOVED_BY_REPORT':
