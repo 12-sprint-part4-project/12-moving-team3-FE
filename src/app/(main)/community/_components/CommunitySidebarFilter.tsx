@@ -21,6 +21,8 @@ interface CommunitySidebarFilterProps {
   onSearchChange: (value: string) => void;
   onSearch?: () => void;
   onReset: () => void;
+  onCategoryOpen?: () => void;
+  onRegionOpen?: () => void;
   className?: string;
 }
 
@@ -35,6 +37,8 @@ export const CommunitySidebarFilter = ({
   onSearchChange,
   onSearch,
   onReset,
+  onCategoryOpen,
+  onRegionOpen,
   className = '',
 }: CommunitySidebarFilterProps) => (
   <aside className={cn('w-[20.5rem] shrink-0', className)}>
@@ -60,6 +64,7 @@ export const CommunitySidebarFilter = ({
           options={BOARD_CATEGORY_FILTER_OPTIONS}
           value={categoryFilter}
           onValueChange={onCategoryChange}
+          onOpen={onCategoryOpen}
           size="desktop"
         />
       </section>
@@ -78,6 +83,7 @@ export const CommunitySidebarFilter = ({
         options={REGION_FILTER_OPTIONS}
         value={regionFilter}
         onValueChange={onRegionChange}
+        onOpen={onRegionOpen}
         listColumns={2}
         size="desktop"
       />

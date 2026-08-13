@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 
@@ -20,6 +20,7 @@ interface CommunitySelectDropdownProps {
   options: CommunitySelectOption[];
   value: string;
   onValueChange: (value: string) => void;
+  onOpen?: () => void;
   size?: CommunitySelectDropdownSize;
   listColumns?: 1 | 2;
   className?: string;
@@ -35,13 +36,21 @@ export const CommunitySelectDropdown = ({
   options,
   value,
   onValueChange,
+  onOpen,
   size = 'sm',
   listColumns = 1,
   className = '',
 }: CommunitySelectDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const selectedRef = useRef<HTMLButtonElement>(null);
   const isDesktop = size === 'desktop';
+
+  useEffect(() => {
+    if (isOpen) {
+      selectedRef.current?.scrollIntoView({ block: 'center' });
+    }
+  }, [isOpen]);
 
   const selected =
     options.find((option) => option.value === value) ?? options[0];
@@ -74,7 +83,11 @@ export const CommunitySelectDropdown = ({
         type="button"
         aria-expanded={isOpen}
         aria-label={`${label}: ${triggerText}`}
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => {
+          const next = !isOpen;
+          setIsOpen(next);
+          if (next) onOpen?.();
+        }}
         className={cn(
           'flex w-full cursor-pointer items-center justify-between border',
           isDesktop
@@ -131,6 +144,7 @@ export const CommunitySelectDropdown = ({
                   className={cn(isLeftColumn && 'border-r border-line-200')}
                 >
                   <button
+                    ref={isSelected ? selectedRef : undefined}
                     type="button"
                     onClick={() => handleSelect(option.value)}
                     className={cn(

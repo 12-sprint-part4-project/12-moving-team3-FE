@@ -270,6 +270,22 @@ export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps
     });
   };
 
+  const handleCategoryOpen = useCallback(() => {
+    BOARD_CATEGORY_FILTER_OPTIONS.forEach((option) => {
+      router.prefetch(
+        buildCommunityListHref({ ...localContext, categoryFilter: option.value })
+      );
+    });
+  }, [router, localContext]);
+
+  const handleRegionOpen = useCallback(() => {
+    REGION_FILTER_OPTIONS.forEach((option) => {
+      router.prefetch(
+        buildCommunityListHref({ ...localContext, regionFilter: option.value })
+      );
+    });
+  }, [router, localContext]);
+
   const handleRetry = () => {
     void refetch();
   };
@@ -307,6 +323,7 @@ export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps
               options={BOARD_CATEGORY_FILTER_OPTIONS}
               value={categoryFilter}
               onValueChange={handleCategoryFilterChange}
+              onOpen={handleCategoryOpen}
               className="w-[6.25rem] shrink-0"
             />
           ) : null}
@@ -316,6 +333,7 @@ export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps
             options={REGION_FILTER_OPTIONS}
             value={regionFilter}
             onValueChange={handleRegionFilterChange}
+            onOpen={handleRegionOpen}
             listColumns={2}
             className="shrink-0"
           />
@@ -367,6 +385,8 @@ export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps
           onSearchChange={handleSearchChange}
           onSearch={handleSearch}
           onReset={handleFilterReset}
+          onCategoryOpen={handleCategoryOpen}
+          onRegionOpen={handleRegionOpen}
           className="hidden xl:block"
         />
 
