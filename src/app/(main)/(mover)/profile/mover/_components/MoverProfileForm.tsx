@@ -74,11 +74,7 @@ const DESCRIPTION_FORMAT_ERROR_MESSAGE = `상세 설명은 ${DESCRIPTION_MIN}~${
 
 const toDigits = (value: string): string => value.replace(/\D/g, '');
 
-interface MoverProfileFormProps {
-  className?: string;
-}
-
-export const MoverProfileForm = ({ className = '' }: MoverProfileFormProps) => {
+export const MoverProfileForm = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -111,6 +107,7 @@ export const MoverProfileForm = ({ className = '' }: MoverProfileFormProps) => {
   const [selectedRegions, setSelectedRegions] = useState<RegionChipValue[]>([]);
   const [isPending, setIsPending] = useState(false);
 
+  // 세션 번호는 effect로 복사하지 않고, 미입력 시 표시값 fallback으로 사용
   const phoneNumber =
     phoneDraft ?? formatKrMobileSubscriberInput(user?.phoneNumber ?? '');
   const subscriberDigits = toKrMobileSubscriberDigits(phoneNumber);
@@ -253,7 +250,7 @@ export const MoverProfileForm = ({ className = '' }: MoverProfileFormProps) => {
         onSubmit={(event) => {
           void handleSubmit(event);
         }}
-        className={cn(FORM_CLASS, className)}
+        className={FORM_CLASS}
       >
         <header className="flex w-full flex-col items-start gap-4 lg:gap-8">
           <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
