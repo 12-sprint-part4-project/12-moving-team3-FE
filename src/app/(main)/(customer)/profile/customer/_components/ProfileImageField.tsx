@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import type { ChangeEvent, MouseEvent, ReactNode, RefObject } from 'react';
+import type { ChangeEvent, MouseEvent, RefObject } from 'react';
 
 import CloseIcon from '@/assets/icons/close.svg';
 import NoImageIcon from '@/assets/icons/no-image.svg';
@@ -12,8 +12,6 @@ interface ProfileImageFieldProps {
   imageInputRef: RefObject<HTMLInputElement | null>;
   displayImageUrl: string | null;
   labelClassName: string;
-  /** 라벨 옆 필수/선택 표시 */
-  labelExtra?: ReactNode;
   onImageChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onImageButtonClick: () => void;
   onImageClear: () => void;
@@ -29,7 +27,6 @@ export const ProfileImageField = ({
   imageInputRef,
   displayImageUrl,
   labelClassName,
-  labelExtra,
   onImageChange,
   onImageButtonClick,
   onImageClear,
@@ -45,10 +42,7 @@ export const ProfileImageField = ({
     <section
       className={cn('flex flex-col items-start gap-4 lg:gap-6', className)}
     >
-      <h2 className={cn(labelClassName, 'flex items-center gap-1.5')}>
-        프로필 이미지
-        {labelExtra}
-      </h2>
+      <h2 className={labelClassName}>프로필 이미지</h2>
       <input
         ref={imageInputRef}
         id={imageInputId}

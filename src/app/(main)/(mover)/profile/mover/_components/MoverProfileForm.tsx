@@ -6,7 +6,6 @@ import {
   useState,
   type ChangeEvent,
   type FormEvent,
-  type ReactNode,
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -16,6 +15,7 @@ import { useProfileImageCrop } from '@/app/(main)/(customer)/profile/customer/_l
 import { Button } from '@/components/Button/Button';
 import { RegionChip, ServiceChip } from '@/components/ui/Chip';
 import { TextArea, TextFieldOutlined } from '@/components/ui/Input';
+import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import {
   REGION_CHIP_OPTIONS,
   SERVICE_CHIP_OPTIONS,
@@ -68,46 +68,6 @@ const toggleChip = <T extends string>(values: T[], value: T): T[] =>
   values.includes(value)
     ? values.filter((item) => item !== value)
     : [...values, value];
-
-interface RequiredLabelProps {
-  htmlFor?: string;
-  children: ReactNode;
-  className?: string;
-}
-
-const RequiredLabel = ({
-  htmlFor,
-  children,
-  className,
-}: RequiredLabelProps) => {
-  const content = (
-    <>
-      <span>{children}</span>
-      <span className="text-blue-300" aria-hidden>
-        *
-      </span>
-    </>
-  );
-
-  if (htmlFor) {
-    return (
-      <label
-        htmlFor={htmlFor}
-        className={cn(LABEL_CLASSNAME, 'flex items-center gap-1', className)}
-      >
-        {content}
-      </label>
-    );
-  }
-
-  return (
-    <h2
-      className={cn(LABEL_CLASSNAME, 'flex items-center gap-1', className)}
-    >
-      {content}
-    </h2>
-  );
-};
 
 interface MoverProfileFormProps {
   className?: string;
