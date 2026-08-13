@@ -1,5 +1,6 @@
 'use client';
 
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
@@ -12,6 +13,10 @@ import {
 import { useControllableValue } from '@/hooks/useControllableValue';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
 import { useScrollbarGutterCompensation } from '@/hooks/useScrollbarGutterCompensation';
+import {
+  dropdownPanelVariants,
+  getMotionTransition,
+} from '@/lib/motionVariants';
 
 export type { DropdownOption, DropdownType } from '@/constants/dropdownOptions';
 export { REGION_OPTIONS, SERVICE_OPTIONS } from '@/constants/dropdownOptions';
@@ -77,6 +82,10 @@ export const Dropdown = ({
   disabled = false,
   className,
 }: DropdownProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion, {
+    duration: 0.16,
+  });
   const options = OPTIONS_BY_TYPE[type];
   const [selectedValue, setSelectedValue] = useControllableValue(
     value,
@@ -136,36 +145,73 @@ export const Dropdown = ({
         <span className="min-w-0 flex-1 truncate text-left">
           {selectedOption.label}
         </span>
-        <ChevronDownIcon
+        <motion.span
           aria-hidden
-          className={`shrink-0 ${sizeStyles.icon} ${isOpen ? 'rotate-180' : ''}`}
-        />
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={motionTransition}
+          className={`inline-flex shrink-0 ${sizeStyles.icon}`}
+        >
+          <ChevronDownIcon className="size-full" />
+        </motion.span>
       </button>
 
-      {isOpen ? (
-        <div
-          role="listbox"
-          aria-label={`${TYPE_LABELS[type]} 옵션`}
-          className={`absolute top-full left-0 z-10 ${LIST_WIDTH} ${sizeStyles.list}`}
-        >
-          {type === 'region' ? (
-            <div
-              ref={listRef}
-              className={`overflow-x-hidden overflow-y-auto ${sizeStyles.listMaxHeight}`}
-            >
-              <ul ref={regionGridRef} className="grid grid-cols-2">
-                {options.map((option, index) => {
+      <AnimatePresence>
+        {isOpen ? (
+          <motion.div
+            role="listbox"
+            aria-label={`${TYPE_LABELS[type]} 옵션`}
+            variants={dropdownPanelVariants}
+            initial="hidden"
+            animate="show"
+            exit="exit"
+            transition={motionTransition}
+            className={`absolute top-full left-0 z-10 ${LIST_WIDTH} ${sizeStyles.list}`}
+          >
+            {type === 'region' ? (
+              <div
+                ref={listRef}
+                className={`overflow-x-hidden overflow-y-auto ${sizeStyles.listMaxHeight}`}
+              >
+                <ul ref={regionGridRef} className="grid grid-cols-2">
+                  {options.map((option, index) => {
+                    const isSelected = option.value === selectedValue;
+                    const isLeftColumn = index % 2 === 0;
+
+                    return (
+                      <li
+                        key={option.value}
+                        role="presentation"
+                        className={`min-w-0 ${
+                          isLeftColumn ? 'border-r border-line-200' : ''
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          role="option"
+                          aria-selected={isSelected}
+                          onClick={() => handleSelect(option.value)}
+                          className={`flex w-full cursor-pointer items-center ${sizeStyles.option} ${
+                            isSelected
+                              ? 'bg-background-300'
+                              : 'hover:bg-background-300'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ) : (
+              <ul
+                className={`flex w-full flex-col overflow-y-auto ${sizeStyles.listMaxHeight}`}
+              >
+                {options.map((option) => {
                   const isSelected = option.value === selectedValue;
-                  const isLeftColumn = index % 2 === 0;
 
                   return (
-                    <li
-                      key={option.value}
-                      role="presentation"
-                      className={`min-w-0 ${
-                        isLeftColumn ? 'border-r border-line-200' : ''
-                      }`}
-                    >
+                    <li key={option.value} role="presentation">
                       <button
                         type="button"
                         role="option"
@@ -183,36 +229,10 @@ export const Dropdown = ({
                   );
                 })}
               </ul>
-            </div>
-          ) : (
-            <ul
-              className={`flex w-full flex-col overflow-y-auto ${sizeStyles.listMaxHeight}`}
-            >
-              {options.map((option) => {
-                const isSelected = option.value === selectedValue;
-
-                return (
-                  <li key={option.value} role="presentation">
-                    <button
-                      type="button"
-                      role="option"
-                      aria-selected={isSelected}
-                      onClick={() => handleSelect(option.value)}
-                      className={`flex w-full cursor-pointer items-center ${sizeStyles.option} ${
-                        isSelected
-                          ? 'bg-background-300'
-                          : 'hover:bg-background-300'
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-      ) : null}
+            )}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 };

@@ -37,6 +37,13 @@ export const cardExit: Variants = {
   },
 };
 
+/** 목록 아이템 entrance(fadeUp) + exit(cardExit) */
+export const listItemVariants: Variants = {
+  hidden: fadeUp.hidden,
+  show: fadeUp.show,
+  exit: cardExit.exit,
+};
+
 export const dimmerVariants: Variants = {
   hidden: { opacity: 0 },
   show: { opacity: 1 },
@@ -81,6 +88,13 @@ export const tabContentSlide: Variants = {
     opacity: 0,
     x: direction > 0 ? -16 : 16,
   }),
+};
+
+/** Sort·필터 등 트리거 아래 드롭다운 패널 */
+export const dropdownPanelVariants: Variants = {
+  hidden: { opacity: 0, y: -6 },
+  show: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -6 },
 };
 
 export const floatY = {

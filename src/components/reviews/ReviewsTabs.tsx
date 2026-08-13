@@ -47,5 +47,6 @@ export const ReviewsTabs = ({ activeTab }: ReviewsTabsProps) => (
     activeTab={activeTab}
     className={REVIEWS_PAGE_X_PADDING}
     ariaLabel="이사 리뷰 탭"
+    tabIdPrefix="reviews-tab"
   />
 );

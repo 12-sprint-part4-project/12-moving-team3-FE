@@ -12,11 +12,11 @@ const meta: Meta<typeof SubHeader> = {
   argTypes: {
     size: {
       control: 'select',
-      options: ['sm', 'md', 'lg'],
+      options: ['sm', 'md', 'lg', 'responsive'],
     },
   },
   args: {
-    size: 'lg',
+    size: 'responsive',
     moveType: '소형이사',
     requestedAt: '2024년 6월 24일',
     from: '서울시 중구',

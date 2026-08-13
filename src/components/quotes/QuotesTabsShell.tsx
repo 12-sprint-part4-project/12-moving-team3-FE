@@ -13,6 +13,7 @@ export interface QuotesTabsShellProps<T extends string> {
   activeTab: T;
   className?: string;
   ariaLabel?: string;
+  tabIdPrefix?: string;
 }
 
 /** searchParams.tab 단일 문자열로 정규화 */
@@ -34,6 +35,7 @@ export const QuotesTabsShell = <T extends string>({
   activeTab,
   className = '',
   ariaLabel = '내 견적 관리',
+  tabIdPrefix = 'quotes-tab',
 }: QuotesTabsShellProps<T>) => (
   <div
     className={cn(
@@ -47,6 +49,7 @@ export const QuotesTabsShell = <T extends string>({
         return (
           <Link
             key={tab.id}
+            id={`${tabIdPrefix}-${tab.id}`}
             href={tab.href}
             scroll={false}
             aria-current={active ? 'page' : undefined}
