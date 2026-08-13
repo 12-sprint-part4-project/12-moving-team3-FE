@@ -59,7 +59,7 @@ export interface TogglePostLikeVariables {
   nextLiked: boolean;
 }
 
-const getCursorNextPageParam = (lastPage: {
+export const getCursorNextPageParam = (lastPage: {
   meta: CommentListMeta;
 }): string | undefined =>
   lastPage.meta.hasNextPage
