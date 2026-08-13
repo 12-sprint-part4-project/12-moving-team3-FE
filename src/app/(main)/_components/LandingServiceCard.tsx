@@ -4,13 +4,12 @@ import { cn } from '@/lib/utils';
 
 export type LandingServiceCardVariant = 'tall' | 'wide';
 
-export interface LandingServiceCardProps {
+interface LandingServiceCardProps {
   title: string;
   description: string;
   imageSrc: string;
   imageAlt: string;
   variant: LandingServiceCardVariant;
-  /** 일러스트 위치·크기 (반응형 클래스 포함 가능) */
   imageClassName?: string;
   className?: string;
   /** above-the-fold LCP — Next.js preload (+ fetchPriority high) */
@@ -22,18 +21,15 @@ const VARIANT_STYLE: Record<LandingServiceCardVariant, string> = {
   wide: 'h-[15rem] w-full bg-white lg:h-[17.9375rem] lg:w-[47.75rem]',
 };
 
-/**
- * 랜딩 서비스 카드.
- * Figma img/landing sm(Mobile·Tablet) · md(Desktop).
- */
+/** 랜딩 서비스 카드 */
 export const LandingServiceCard = ({
   title,
   description,
   imageSrc,
   imageAlt,
   variant,
-  imageClassName,
-  className,
+  imageClassName = '',
+  className = '',
   preload = false,
 }: LandingServiceCardProps) => (
   <article
@@ -51,7 +47,6 @@ export const LandingServiceCard = ({
         {description}
       </p>
     </div>
-    {/* 정적 public PNG — LCP는 호출부에서 preload만 켠다 */}
     <Image
       src={imageSrc}
       alt={imageAlt}

@@ -11,8 +11,9 @@ const CTA_BASE_STYLE =
 /** 비로그인일 때만 랜딩 CTA(로그인·회원가입)를 노출한다. */
 export const LandingAuthCta = () => {
   const { user, isReady } = useAuth();
+  const showAuthCta = isReady && !user;
 
-  if (!isReady || user) return null;
+  if (!showAuthCta) return null;
 
   return (
     <div className="mt-11 flex w-full max-w-[20.4375rem] flex-col gap-2 lg:mt-12 lg:w-auto lg:max-w-none lg:flex-row lg:items-center lg:justify-center lg:gap-4">

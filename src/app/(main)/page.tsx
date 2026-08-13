@@ -1,5 +1,5 @@
-import { LandingAuthCta } from '@/app/(main)/_components/LandingAuthCta';
-import { LandingServiceCard } from '@/app/(main)/_components/LandingServiceCard';
+import { LandingAuthCta } from './_components/LandingAuthCta';
+import { LandingServiceCard } from './_components/LandingServiceCard';
 
 const LANDING_SERVICES = [
   {
@@ -31,12 +31,6 @@ const LANDING_SERVICES = [
   },
 ] as const;
 
-/**
- * 랜딩 페이지.
- * Figma Mobile(1:9767) · Tablet(1:9734) · Desktop(1:9758).
- * Mobile/Tablet은 동일 세로 스택(sm 카드), Desktop만 좌·우 그리드.
- * GNB는 루트 layout의 Header(GnbLanding sm|md|lg)를 재사용한다.
- */
 const HomePage = () => {
   const [smallMove, homeMove, officeMove] = LANDING_SERVICES;
 
@@ -48,7 +42,7 @@ const HomePage = () => {
         견적을 받아보세요
       </h1>
 
-      {/* Mobile · Tablet: 세로 스택 (Figma 1:9767 · 1:9734) */}
+      {/* lg 미만: 세로 스택 */}
       <div className="mt-11 flex w-full max-w-[20.4375rem] flex-col gap-9 lg:hidden">
         {/* 첫 카드만 LCP preload — 데스크톱 트리와 동일 src라 한쪽에만 */}
         <LandingServiceCard {...smallMove} preload />
@@ -56,7 +50,7 @@ const HomePage = () => {
         <LandingServiceCard {...officeMove} />
       </div>
 
-      {/* Desktop: 좌 tall + 우 wide 2단 (Figma 1:9758) */}
+      {/* Desktop: 좌 tall + 우 wide 2단 */}
       <div className="mt-12 hidden items-stretch gap-6 lg:flex">
         <LandingServiceCard {...smallMove} />
         <div className="flex flex-col gap-6">
