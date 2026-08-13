@@ -13,6 +13,8 @@ import { CommunitySelectDropdown } from './CommunitySelectDropdown';
 
 interface CommunitySidebarFilterProps {
   showCategoryFilter: boolean;
+  showHideCompleted?: boolean;
+  hideCompleted?: boolean;
   categoryFilter: PostCategory | 'ALL';
   regionFilter: RegionFilterValue;
   searchValue: string;
@@ -21,6 +23,7 @@ interface CommunitySidebarFilterProps {
   onSearchChange: (value: string) => void;
   onSearch?: () => void;
   onReset: () => void;
+  onHideCompletedChange?: (value: boolean) => void;
   onCategoryOpen?: () => void;
   onRegionOpen?: () => void;
   className?: string;
@@ -29,6 +32,8 @@ interface CommunitySidebarFilterProps {
 /** Figma Desktop left-filter-sidebar (15129:40993) — 328px */
 export const CommunitySidebarFilter = ({
   showCategoryFilter,
+  showHideCompleted = false,
+  hideCompleted = false,
   categoryFilter,
   regionFilter,
   searchValue,
@@ -37,6 +42,7 @@ export const CommunitySidebarFilter = ({
   onSearchChange,
   onSearch,
   onReset,
+  onHideCompletedChange,
   onCategoryOpen,
   onRegionOpen,
   className = '',
@@ -70,6 +76,29 @@ export const CommunitySidebarFilter = ({
       </section>
     ) : null}
 
+    {showHideCompleted ? (
+      <button
+        type="button"
+        onClick={() => onHideCompletedChange?.(!hideCompleted)}
+        className="mt-6 flex cursor-pointer items-center gap-1.5"
+      >
+        <span
+          className={cn(
+            'flex h-5 w-9 items-center rounded-full px-0.5 transition-colors',
+            hideCompleted ? 'bg-blue-300' : 'bg-gray-200'
+          )}
+        >
+          <span
+            className={cn(
+              'h-4 w-4 rounded-full bg-white shadow transition-transform',
+              hideCompleted ? 'translate-x-4' : 'translate-x-0'
+            )}
+          />
+        </span>
+        <span className="text-lg-medium text-black-400">나눔완료 제외</span>
+      </button>
+    ) : null}
+
     <section
       className={cn(
         'flex flex-col gap-4',
@@ -99,5 +128,6 @@ export const CommunitySidebarFilter = ({
         inputClassName="h-16 w-[20.5rem] max-w-none rounded-2xl bg-background-200"
       />
     </section>
+
   </aside>
 );

@@ -156,10 +156,11 @@ export const usePostList = ({
   region,
   sort,
   keyword,
+  hideCompleted,
 }: PostListParams = {}) => {
   const queryParams = useMemo(
-    () => ({ category, region, sort, keyword, limit }),
-    [category, region, sort, keyword, limit]
+    () => ({ category, region, sort, keyword, limit, hideCompleted }),
+    [category, region, sort, keyword, limit, hideCompleted]
   );
 
   const query = useInfiniteQuery({
@@ -417,11 +418,14 @@ export const useTogglePostLike = () => {
               ...page,
               data: {
                 ...page.data,
-                items: page.data.items.map((item) =>
-                  item.id === postId
-                    ? { ...item, isLiked: nextLiked, likeCount: item.likeCount + (nextLiked ? 1 : -1) }
-                    : item
-                ),
+                items: page.data.items.map((item) => {
+                  if (item.id !== postId) return item;
+                  const delta =
+                    typeof item.isLiked === 'boolean' && item.isLiked !== nextLiked
+                      ? nextLiked ? 1 : -1
+                      : 0;
+                  return { ...item, isLiked: nextLiked, likeCount: item.likeCount + delta };
+                }),
               },
             })),
           };
@@ -434,8 +438,33 @@ export const useTogglePostLike = () => {
       if (context?.previousDetail !== undefined) {
         queryClient.setQueryData(communityQueryKeys.detail(postId), context.previousDetail);
       }
-      for (const [key, data] of context?.previousLists ?? []) {
-        queryClient.setQueryData(key, data);
+
+      // 전체 목록 스냅샷 복원 대신 해당 게시글만 롤백 — 다른 mutation의 낙관적 업데이트 보존
+      const prevPost = context?.previousLists
+        ?.flatMap(([, data]) => data?.pages.flatMap((p) => p.data.items) ?? [])
+        .find((item) => item.id === postId);
+
+      if (prevPost) {
+        queryClient.setQueriesData<InfiniteData<PostListResponse>>(
+          { queryKey: communityQueryKeys.lists() },
+          (prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              pages: prev.pages.map((page) => ({
+                ...page,
+                data: {
+                  ...page.data,
+                  items: page.data.items.map((item) =>
+                    item.id === postId
+                      ? { ...item, isLiked: prevPost.isLiked, likeCount: prevPost.likeCount }
+                      : item
+                  ),
+                },
+              })),
+            };
+          }
+        );
       }
     },
     onSettled: () => {
