@@ -80,6 +80,7 @@ export const CommunitySidebarFilter = ({
       <button
         type="button"
         onClick={() => onHideCompletedChange?.(!hideCompleted)}
+        aria-pressed={hideCompleted}
         className="mt-6 flex cursor-pointer items-center gap-1.5"
       >
         <span
