@@ -1,6 +1,12 @@
 'use client';
 
-import type { ButtonHTMLAttributes, HTMLAttributes } from 'react';
+import { useReducedMotion } from 'framer-motion';
+import type {
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  RefObject,
+} from 'react';
+import { useEffect, useRef } from 'react';
 
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
@@ -20,15 +26,16 @@ import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 
   [props]
   - size: 'sm' | 'lg'
-  - page: number (1-based)
+  - page: number (1-based) — 요청 중에도 부모가 갱신한 값을 넘길 것
   - totalPages: number
   - onPageChange: (page: number) => void
+  - scrollOnPageChange: true(window 상단) | RefObject(해당 요소로 scrollIntoView)
   - className: string
 */
 
 type PaginationSize = 'sm' | 'lg';
 
-interface PaginationProps extends Omit<
+export interface PaginationProps extends Omit<
   HTMLAttributes<HTMLElement>,
   'onChange'
 > {
@@ -36,6 +43,13 @@ interface PaginationProps extends Omit<
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  /**
+   * 페이지 변경 시 스크롤.
+   * - true: window 최상단
+   * - RefObject: 해당 요소로 scrollIntoView({ block: 'start' })
+   * 클릭 직후 + page prop 반영 후(레이아웃 안정)에 한 번 더 스크롤한다.
+   */
+  scrollOnPageChange?: boolean | RefObject<Element | null>;
 }
 
 type PageItem = number | 'ellipsis';
@@ -159,14 +173,41 @@ const Ellipsis = ({ isActive = false }: { isActive?: boolean }) => {
   );
 };
 
+/** 페이지 변경 후 스크롤 대상 처리 */
+const scrollAfterPageChange = (
+  scrollOnPageChange: boolean | RefObject<Element | null> | undefined,
+  behavior: ScrollBehavior
+) => {
+  if (!scrollOnPageChange) {
+    return;
+  }
+
+  if (scrollOnPageChange === true) {
+    window.scrollTo({ top: 0, behavior });
+    return;
+  }
+
+  scrollOnPageChange.current?.scrollIntoView({
+    behavior,
+    block: 'start',
+  });
+};
+
 export const Pagination = ({
   size = 'sm',
   page,
   totalPages,
   onPageChange,
+  scrollOnPageChange,
   className = '',
   ...rest
 }: PaginationProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const scrollBehavior: ScrollBehavior = shouldReduceMotion ? 'auto' : 'smooth';
+  /** 사용자가 페이지를 바꾼 뒤에만 page 동기화 스크롤 (최초 마운트 제외) */
+  const hasUserChangedPageRef = useRef(false);
+  const prevPageRef = useRef(page);
+
   // 범위를 벗어나면 클램프해 잘못된 page prop에도 UI가 깨지지 않게 함
   const currentPage = Math.min(Math.max(page, 1), Math.max(totalPages, 1));
   const pageItems = getPageItems(currentPage, totalPages, size);
@@ -178,8 +219,28 @@ export const Pagination = ({
     if (nextPage < 1 || nextPage > totalPages || nextPage === currentPage) {
       return;
     }
+    hasUserChangedPageRef.current = true;
     onPageChange(nextPage);
+    // 즉시 스크롤 (체감 반응) — 목록 remount 후에는 effect가 한 번 더 맞춤
+    scrollAfterPageChange(scrollOnPageChange, scrollBehavior);
   };
+
+  // page prop 반영·레이아웃 안정 후 재스크롤 (placeholder/데이터 교체 대응)
+  useEffect(() => {
+    if (!scrollOnPageChange || !hasUserChangedPageRef.current) {
+      prevPageRef.current = page;
+      return;
+    }
+    if (prevPageRef.current === page) {
+      return;
+    }
+    prevPageRef.current = page;
+
+    const frameId = window.requestAnimationFrame(() => {
+      scrollAfterPageChange(scrollOnPageChange, scrollBehavior);
+    });
+    return () => window.cancelAnimationFrame(frameId);
+  }, [page, scrollOnPageChange, scrollBehavior]);
 
   return (
     <nav

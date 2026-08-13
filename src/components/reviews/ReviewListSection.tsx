@@ -154,6 +154,7 @@ export const ReviewListSection = <T,>({
                 page={page}
                 totalPages={Math.max(1, totalPages)}
                 onPageChange={onPageChange}
+                scrollOnPageChange
               />
             </div>
             <div className="hidden xl:contents">
@@ -162,6 +163,7 @@ export const ReviewListSection = <T,>({
                 page={page}
                 totalPages={Math.max(1, totalPages)}
                 onPageChange={onPageChange}
+                scrollOnPageChange
               />
             </div>
           </motion.div>
