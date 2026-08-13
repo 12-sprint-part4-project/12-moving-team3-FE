@@ -262,6 +262,18 @@ img {
   user-select: none;
 }
 
+button:not(:disabled),
+[type='button']:not(:disabled),
+[type='submit']:not(:disabled),
+[type='reset']:not(:disabled),
+[type='checkbox']:not(:disabled),
+[type='radio']:not(:disabled),
+[type='file']:not(:disabled),
+label:has([type='checkbox']:not(:disabled)),
+label:has([type='radio']:not(:disabled)) {
+  cursor: pointer;
+}
+
 /**
  * Tiptap(ProseMirror) 에디터 헤딩 크기.
  * [&_h1] Tailwind arbitrary variant보다 우선 적용된다.
