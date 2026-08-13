@@ -71,6 +71,37 @@ export const bottomSheetPanelVariants: Variants = {
   },
 };
 
+const SIDE_DRAWER_EASE_IN: [number, number, number, number] = [
+  0.32, 0.72, 0, 1,
+];
+const SIDE_DRAWER_EASE_OUT: [number, number, number, number] = [
+  0.4, 0, 1, 1,
+];
+
+export const sideDrawerDimmerVariants: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { duration: 0.28, ease: 'easeOut' },
+  },
+  exit: {
+    opacity: 0,
+    transition: { duration: 0.2, ease: 'easeIn' },
+  },
+};
+
+export const sideDrawerPanelVariants: Variants = {
+  hidden: { x: '100%' },
+  show: {
+    x: 0,
+    transition: { duration: 0.32, ease: SIDE_DRAWER_EASE_IN },
+  },
+  exit: {
+    x: '100%',
+    transition: { duration: 0.24, ease: SIDE_DRAWER_EASE_OUT },
+  },
+};
+
 export const tabContentSlide: Variants = {
   enter: (direction: number) => ({
     opacity: 0,
