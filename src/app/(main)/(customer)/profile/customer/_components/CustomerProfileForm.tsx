@@ -21,8 +21,11 @@ import { cn } from '@/lib/utils';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
+  getKrMobileSubscriberError,
   getPhoneNumberError,
   KR_MOBILE_PREFIX_LABEL,
+  KR_MOBILE_SUBSCRIBER_LENGTH,
+  toKrMobileSubscriberDigits,
   toPhoneDigits,
 } from '@/lib/phoneNumber';
 import { uploadProfileImage } from '@/lib/uploadProfileImage';
@@ -87,9 +90,12 @@ export const CustomerProfileForm = () => {
   // 세션 번호는 effect로 복사하지 않고, 미입력 시 표시값 fallback으로 사용
   const phoneNumber =
     phoneDraft ?? formatKrMobileSubscriberInput(user?.phoneNumber ?? '');
+  const subscriberDigits = toKrMobileSubscriberDigits(phoneNumber);
+  const phoneFieldError = getKrMobileSubscriberError(phoneNumber);
+  const isPhoneFormatError = Boolean(phoneFieldError);
 
   const isSubmitEnabled =
-    phoneNumber.length > 0 &&
+    subscriberDigits.length === KR_MOBILE_SUBSCRIBER_LENGTH &&
     selectedServices.length > 0 &&
     selectedRegion !== null &&
     !isPending;
@@ -100,7 +106,7 @@ export const CustomerProfileForm = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (isPending) return;
+    if (!isSubmitEnabled) return;
 
     const fullPhone = composeKrMobilePhone(phoneNumber);
     const phoneError = getPhoneNumberError(fullPhone);
@@ -219,6 +225,8 @@ export const CustomerProfileForm = () => {
                 placeholder="1234-5678"
                 value={formatKrMobileSubscriberInput(phoneNumber)}
                 onChange={handlePhoneChange}
+                isError={isPhoneFormatError}
+                errorMessage={phoneFieldError ?? undefined}
                 className={FIELD_CLASSNAME}
               />
             </section>
