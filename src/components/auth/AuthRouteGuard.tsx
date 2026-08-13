@@ -19,6 +19,7 @@ import {
   releaseLoginGate,
   suppressLoginGate,
 } from '@/lib/authLoginGate';
+import { getPostAuthRedirectPath } from '@/lib/getPostAuthRedirectPath';
 import { logout } from '@/services/authApi';
 import type { ApiUserType } from '@/types/auth';
 
@@ -71,7 +72,8 @@ const resolveAuthGate = (
 
 /**
  * 보호 경로에 비로그인·역할 불일치로 직접 진입 시 모달로 안내.
- * 로그인 사용자가 로그인·회원가입 경로에 들어오면 `/`로 보낸다.
+ * 로그인 사용자가 로그인·회원가입 경로에 들어오면
+ * 프로필 미등록 시 등록 페이지, 그 외는 redirect 또는 `/`로 보낸다.
  */
 const AuthRouteGuardInner = ({ children }: AuthRouteGuardProps) => {
   const router = useRouter();
@@ -97,9 +99,13 @@ const AuthRouteGuardInner = ({ children }: AuthRouteGuardProps) => {
     : { kind: 'none' };
 
   useEffect(() => {
-    if (gate.kind !== 'guestOnly') return;
-    router.replace('/');
-  }, [gate.kind, router]);
+    if (gate.kind !== 'guestOnly' || user == null) return;
+    router.replace(
+      getPostAuthRedirectPath(user, {
+        redirectTo: searchParams.get('redirect'),
+      })
+    );
+  }, [gate.kind, router, searchParams, user]);
 
   /**
    * 인증 준비 전에는 숨기지 않는다. (새로고침 빈 화면 방지)
