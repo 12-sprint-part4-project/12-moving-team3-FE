@@ -8,6 +8,7 @@ import type {
   ChatRoomListItem,
   ChatRoomListResponse,
   ChatSocketMessagePayload,
+  ChatSocketPartnerLeftPayload,
   ChatSocketReadPayload,
   ChatSocketUnreadPayload,
   ChatUnreadCountResponse,
@@ -66,6 +67,56 @@ const refetchRoomsList = (queryClient: QueryClient): void => {
     .finally(() => {
       roomsRefetchInFlight = null;
     });
+};
+
+/** 방 상세 상대 나감 캐시 패치 값 (#275) */
+interface PartnerLeftState {
+  isPartnerLeft: boolean;
+  partnerLeftAt: string | null;
+}
+
+/** 방 상세의 상대 나감 플래그를 갱신한다 (#275). */
+const patchRoomPartnerLeft = (
+  queryClient: QueryClient,
+  roomId: number,
+  next: PartnerLeftState,
+  /** 나감 해제 시, 이 시각 이후 나간 상태면 캐시를 유지한다 */
+  clearedAsOf?: string
+): void => {
+  queryClient.setQueryData<ChatRoomDetailResponse>(
+    chatQueryKeys.room(roomId),
+    (current) => {
+      if (!current) {
+        return current;
+      }
+
+      if (
+        !next.isPartnerLeft &&
+        clearedAsOf &&
+        current.data.isPartnerLeft &&
+        current.data.partnerLeftAt &&
+        Date.parse(current.data.partnerLeftAt) > Date.parse(clearedAsOf)
+      ) {
+        return current;
+      }
+
+      if (
+        current.data.isPartnerLeft === next.isPartnerLeft &&
+        current.data.partnerLeftAt === next.partnerLeftAt
+      ) {
+        return current;
+      }
+
+      return {
+        ...current,
+        data: {
+          ...current.data,
+          isPartnerLeft: next.isPartnerLeft,
+          partnerLeftAt: next.partnerLeftAt,
+        },
+      };
+    }
+  );
 };
 
 /**
@@ -171,6 +222,18 @@ export const applySocketMessageToCaches = (
   const { roomId, message } = payload;
 
   prependMessageToInfiniteCache(queryClient, roomId, message);
+
+  // 메시지 전송 시 BE가 나간 상대를 재참여시키므로 나감 표시를 해제한다.
+  // 전송 이후 상대가 다시 나간 최신 상태는 덮어쓰지 않는다.
+  patchRoomPartnerLeft(
+    queryClient,
+    roomId,
+    {
+      isPartnerLeft: false,
+      partnerLeftAt: null,
+    },
+    message.createdAt
+  );
 
   const isRoomVisible = syncRoomsListIfMissing(queryClient, roomId);
 
@@ -305,4 +368,17 @@ export const applySocketUnreadToCaches = (
       )
     );
   }
+};
+
+/**
+ * `chat:partner-left` — 방 상세 캐시에 상대 나감 상태를 반영한다 (#275).
+ */
+export const applySocketPartnerLeftToCaches = (
+  queryClient: QueryClient,
+  payload: ChatSocketPartnerLeftPayload
+): void => {
+  patchRoomPartnerLeft(queryClient, payload.roomId, {
+    isPartnerLeft: true,
+    partnerLeftAt: payload.leftAt,
+  });
 };

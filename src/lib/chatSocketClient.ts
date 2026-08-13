@@ -11,6 +11,7 @@ import type {
   ChatLeavePayload,
   ChatSocketErrorPayload,
   ChatSocketMessagePayload,
+  ChatSocketPartnerLeftPayload,
   ChatSocketReadPayload,
   ChatSocketUnreadPayload,
 } from '@/types/chat';
@@ -34,6 +35,9 @@ interface ChatServerToClientEvents {
   [CHAT_SOCKET_SERVER_EVENTS.READ]: (payload: ChatSocketReadPayload) => void;
   [CHAT_SOCKET_SERVER_EVENTS.UNREAD]: (
     payload: ChatSocketUnreadPayload
+  ) => void;
+  [CHAT_SOCKET_SERVER_EVENTS.PARTNER_LEFT]: (
+    payload: ChatSocketPartnerLeftPayload
   ) => void;
   [CHAT_SOCKET_SERVER_EVENTS.ERROR]: (payload: ChatSocketErrorPayload) => void;
 }
