@@ -1,11 +1,12 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { ProfileImageCropModal } from '@/app/(main)/(customer)/profile/customer/_components/ProfileImageCropModal';
 import { ProfileImageField } from '@/app/(main)/(customer)/profile/customer/_components/ProfileImageField';
+import { toggleService } from '@/app/(main)/(customer)/profile/customer/_lib/toggleService';
 import { useProfileImageCrop } from '@/app/(main)/(customer)/profile/customer/_lib/useProfileImageCrop';
 import { Button } from '@/components/Button/Button';
 import { RegionChip, ServiceChip } from '@/components/ui/Chip';
@@ -47,12 +48,18 @@ const FIELD_CLASSNAME =
 const TEXTAREA_CLASSNAME =
   'w-full [&_>div]:min-h-40 [&_>div]:w-full [&_>div]:max-w-full [&_textarea]:lg:text-xl-regular';
 
-/** Figma Mobile·Tablet: lg-semibold / Desktop(lg+): xl-semibold */
 const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
 
-/** Figma Mobile·Tablet chip sm / Desktop: md */
 const CHIP_CLASSNAME =
   'px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium';
+
+const DIVIDER_CLASS = 'h-px w-full bg-line-100';
+
+const FORM_CLASS =
+  'flex w-full max-w-[20.4375rem] flex-col items-stretch gap-6 lg:max-w-[87.5rem] lg:items-end lg:gap-12';
+
+const REGION_CHIP_WRAP_CLASS =
+  'flex flex-wrap gap-x-2 gap-y-3 lg:gap-x-3.5 lg:gap-y-[1.125rem]';
 
 const NICKNAME_MIN_LENGTH = 2;
 const NICKNAME_MAX_LENGTH = 20;
@@ -67,16 +74,11 @@ const DESCRIPTION_FORMAT_ERROR_MESSAGE = `상세 설명은 ${DESCRIPTION_MIN}~${
 
 const toDigits = (value: string): string => value.replace(/\D/g, '');
 
-const toggleChip = <T extends string>(values: T[], value: T): T[] =>
-  values.includes(value)
-    ? values.filter((item) => item !== value)
-    : [...values, value];
-
 interface MoverProfileFormProps {
   className?: string;
 }
 
-export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
+export const MoverProfileForm = ({ className = '' }: MoverProfileFormProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -251,10 +253,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
         onSubmit={(event) => {
           void handleSubmit(event);
         }}
-        className={cn(
-          'flex w-full max-w-[20.4375rem] flex-col items-stretch gap-6 lg:max-w-[87.5rem] lg:items-end lg:gap-12',
-          className
-        )}
+        className={cn(FORM_CLASS, className)}
       >
         <header className="flex w-full flex-col items-start gap-4 lg:gap-8">
           <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
@@ -263,7 +262,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
           <p className="text-xs-regular text-black-100 lg:text-xl-regular lg:text-black-200">
             추가 정보를 입력하여 회원가입을 완료해주세요.
           </p>
-          <div className="h-px w-full bg-line-100" aria-hidden />
+          <div className={DIVIDER_CLASS} aria-hidden />
         </header>
 
         <div className="flex w-full flex-col items-start gap-5 lg:flex-row lg:justify-between lg:gap-10">
@@ -278,7 +277,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
               onImageClear={handleImageClear}
             />
 
-            <div className="h-px w-full bg-line-100" aria-hidden />
+            <div className={DIVIDER_CLASS} aria-hidden />
 
             <section className="flex w-full flex-col items-start gap-4">
               <RequiredLabel htmlFor={phoneInputId}>전화번호</RequiredLabel>
@@ -299,7 +298,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
               />
             </section>
 
-            <div className="h-px w-full bg-line-100" aria-hidden />
+            <div className={DIVIDER_CLASS} aria-hidden />
 
             <section className="flex w-full flex-col items-start gap-4">
               <RequiredLabel htmlFor={careerInputId}>경력</RequiredLabel>
@@ -319,7 +318,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
               />
             </section>
 
-            <div className="h-px w-full bg-line-100" aria-hidden />
+            <div className={DIVIDER_CLASS} aria-hidden />
 
             <section className="flex w-full flex-col items-start gap-4">
               <RequiredLabel htmlFor={shortIntroInputId}>
@@ -343,7 +342,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
             </section>
           </div>
 
-          <div className="h-px w-full bg-line-100 lg:hidden" aria-hidden />
+          <div className={cn(DIVIDER_CLASS, 'lg:hidden')} aria-hidden />
 
           <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
             <section className="flex w-full flex-col items-start gap-4">
@@ -367,7 +366,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
               />
             </section>
 
-            <div className="h-px w-full bg-line-100" aria-hidden />
+            <div className={DIVIDER_CLASS} aria-hidden />
 
             <section className="flex w-full flex-col items-start gap-4">
               <RequiredLabel>제공 서비스</RequiredLabel>
@@ -379,7 +378,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
                     isSelected={selectedServices.includes(option.value)}
                     onClick={() =>
                       setSelectedServices((prev) =>
-                        toggleChip(prev, option.value)
+                        toggleService(prev, option.value)
                       )
                     }
                     className={CHIP_CLASSNAME}
@@ -390,11 +389,11 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
               </div>
             </section>
 
-            <div className="h-px w-full bg-line-100" aria-hidden />
+            <div className={DIVIDER_CLASS} aria-hidden />
 
             <section className="flex w-full flex-col items-start gap-4">
               <RequiredLabel>서비스 가능 지역</RequiredLabel>
-              <div className="flex flex-wrap gap-x-2 gap-y-3 lg:gap-x-3.5 lg:gap-y-[1.125rem]">
+              <div className={REGION_CHIP_WRAP_CLASS}>
                 {REGION_CHIP_OPTIONS.map((option) => (
                   <RegionChip
                     key={option.value}
@@ -402,7 +401,7 @@ export const MoverProfileForm = ({ className }: MoverProfileFormProps) => {
                     isSelected={selectedRegions.includes(option.value)}
                     onClick={() =>
                       setSelectedRegions((prev) =>
-                        toggleChip(prev, option.value)
+                        toggleService(prev, option.value)
                       )
                     }
                     className={CHIP_CLASSNAME}
