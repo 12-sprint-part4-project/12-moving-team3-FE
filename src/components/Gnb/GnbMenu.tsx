@@ -11,7 +11,6 @@ import {
   type GnbNavItem,
   type GnbNavRole,
 } from '@/components/Gnb/gnbNav';
-import { cn } from '@/lib/utils';
 
 export type GnbMenuType = GnbNavRole;
 
@@ -70,10 +69,7 @@ export const GnbMenu = ({
               href={item.href}
               onClick={onClose}
               aria-current={isActive ? 'page' : undefined}
-              className={cn(
-                'flex w-full items-center overflow-hidden bg-white px-5 py-6 text-lg-medium whitespace-nowrap',
-                isActive ? 'text-black-400' : 'text-gray-400'
-              )}
+              className="flex w-full items-center overflow-hidden bg-white px-5 py-6 text-lg-medium whitespace-nowrap text-black-400"
             >
               {item.label}
             </Link>

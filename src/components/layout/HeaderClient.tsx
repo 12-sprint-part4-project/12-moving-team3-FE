@@ -5,7 +5,7 @@ import { useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { GnbDefault } from '@/components/Gnb/GnbDefault';
-import { GnbMenu } from '@/components/Gnb/GnbMenu';
+import { GnbMenuOverlay } from '@/components/Gnb/GnbMenuOverlay';
 import { getGnbProfileMenuItems, type GnbNavItem } from '@/components/Gnb/gnbNav';
 import { GuestHeaderMenuProvider } from '@/components/layout/GuestHeaderMenuContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -101,22 +101,11 @@ export const HeaderClient = ({
         <div className="hidden min-[46.5rem]:block lg:hidden">{landingMd}</div>
         <div className="hidden lg:block">{landingLg}</div>
 
-        {isMenuOpen ? (
-          <div className="fixed inset-0 z-50 lg:hidden">
-            <button
-              type="button"
-              aria-label="메뉴 닫기"
-              className="absolute inset-0 bg-black-500/40"
-              onClick={handleMenuClose}
-            />
-            <div className="absolute inset-y-0 right-0 h-full">
-              <GnbMenu
-                navItems={LANDING_MENU_ITEMS}
-                onClose={handleMenuClose}
-              />
-            </div>
-          </div>
-        ) : null}
+        <GnbMenuOverlay
+          isOpen={isMenuOpen}
+          navItems={LANDING_MENU_ITEMS}
+          onClose={handleMenuClose}
+        />
       </GuestHeaderMenuProvider>
     );
   }
@@ -174,23 +163,12 @@ export const HeaderClient = ({
         />
       </div>
 
-      {isMenuOpen ? (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <button
-            type="button"
-            aria-label="메뉴 닫기"
-            className="absolute inset-0 bg-black-500/40"
-            onClick={handleMenuClose}
-          />
-          <div className="absolute inset-y-0 right-0 h-full">
-            <GnbMenu
-              type={navRole}
-              onClose={handleMenuClose}
-              onLogout={handleLogout}
-            />
-          </div>
-        </div>
-      ) : null}
+      <GnbMenuOverlay
+        isOpen={isMenuOpen}
+        type={navRole}
+        onClose={handleMenuClose}
+        onLogout={handleLogout}
+      />
     </>
   );
 };
