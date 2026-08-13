@@ -60,7 +60,6 @@ const MoverQuotesPageClient = () => {
   const {
     quotes,
     totalPages,
-    currentPage,
     isPending,
     isFetching,
     isError,
@@ -102,10 +101,7 @@ const MoverQuotesPageClient = () => {
 
     if (isError) {
       return (
-        <QuotesListErrorState
-          message={errorMessage}
-          onRetry={handleRetry}
-        />
+        <QuotesListErrorState message={errorMessage} onRetry={handleRetry} />
       );
     }
 
@@ -177,17 +173,19 @@ const MoverQuotesPageClient = () => {
             <div className="flex justify-center lg:hidden">
               <Pagination
                 size="sm"
-                page={currentPage}
+                page={page}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
+                scrollOnPageChange
               />
             </div>
             <div className="hidden justify-center lg:flex">
               <Pagination
                 size="lg"
-                page={currentPage}
+                page={page}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
+                scrollOnPageChange
               />
             </div>
           </motion.div>

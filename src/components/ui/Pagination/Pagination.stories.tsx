@@ -36,6 +36,11 @@ const meta: Meta<typeof Pagination> = {
       description: '총 페이지 수',
     },
     className: { control: 'text' },
+    scrollOnPageChange: {
+      control: false,
+      description:
+        '페이지 변경 시 스크롤. true=window 상단, RefObject=해당 요소로 scrollIntoView',
+    },
   },
 };
 export default meta;
