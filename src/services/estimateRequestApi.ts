@@ -7,6 +7,13 @@ import {
 } from '@/lib/apiClient';
 import { authFetch } from '@/lib/authFetch';
 import { formatMoveDateLabel, formatRelativeTime } from '@/lib/formatDate';
+import {
+  ALL_MOVE_TYPES,
+  API_MOVE_TYPE_TO_UI,
+  MOVE_TYPE_TO_API,
+  SORT_VALUE_TO_API,
+} from '@/types/estimateRequest';
+
 import type {
   EstimateRequestListItem,
   EstimateRequestListResponse,
@@ -15,12 +22,6 @@ import type {
   ReceivedRequestCardModel,
   RequestScopeFilterCounts,
   RequestsSortValue,
-} from '@/types/estimateRequest';
-import {
-  ALL_MOVE_TYPES,
-  API_MOVE_TYPE_TO_UI,
-  MOVE_TYPE_TO_API,
-  SORT_VALUE_TO_API,
 } from '@/types/estimateRequest';
 
 /** 주소 앞 2토큰으로 시·군·구 라벨 생성 (예: 서울 강남구) */
@@ -206,7 +207,11 @@ export const getReceivedEstimateRequests = async (
   const body: unknown = await response.json().catch(() => null);
 
   if (!isEstimateRequestListResponse(body)) {
-    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, API_ERROR_CODE.INVALID_RESPONSE);
+    throw new ApiError(
+      500,
+      DEFAULT_API_ERROR_MESSAGE,
+      API_ERROR_CODE.INVALID_RESPONSE
+    );
   }
 
   return body;

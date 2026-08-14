@@ -23,6 +23,7 @@ import {
   saveEstimateRequestStep,
   submitEstimateRequest,
 } from '@/services/customerEstimateRequestApi';
+
 import type {
   ActiveEstimateRequestSummary,
   CustomerEstimateRequestEntryStatus,
@@ -119,7 +120,10 @@ const bootstrapCustomerEstimateRequest =
       });
     } catch (error) {
       if (error instanceof ApiError) {
-        if (error.status === 401 || error.code === API_ERROR_CODE.UNAUTHORIZED) {
+        if (
+          error.status === 401 ||
+          error.code === API_ERROR_CODE.UNAUTHORIZED
+        ) {
           return makeBootstrapResult({
             status: 'unauthorized',
             error,

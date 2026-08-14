@@ -1,7 +1,7 @@
 'use client';
 
-import { Suspense } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 import { Button } from '@/components/Button/Button';
 import { Modal } from '@/components/ui/Modal/Modal';

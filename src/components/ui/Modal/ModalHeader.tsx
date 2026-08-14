@@ -3,7 +3,6 @@
 import { useId, type ReactNode } from 'react';
 
 import CloseIcon from '@/assets/icons/close.svg';
-
 import { cn } from '@/lib/utils';
 
 export interface ModalHeaderProps {

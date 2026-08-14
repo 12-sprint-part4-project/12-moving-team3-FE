@@ -15,6 +15,7 @@ import {
 import { formatReviewMoveDate } from '@/lib/reviewDisplay';
 import { cn } from '@/lib/utils';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
+
 import type { WritableQuoteItem } from '@/types/review';
 
 export interface WriteReviewModalProps {
@@ -48,8 +49,7 @@ export const WriteReviewModal = ({
   const [rating, setRating] = useState(0);
   const [content, setContent] = useState('');
 
-  const isSubmittable =
-    !isSubmitting && isReviewFormValid({ rating, content });
+  const isSubmittable = !isSubmitting && isReviewFormValid({ rating, content });
 
   const handleSubmit = () => {
     if (!isSubmittable) return;

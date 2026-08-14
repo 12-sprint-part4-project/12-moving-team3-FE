@@ -3,13 +3,14 @@ import { useMemo } from 'react';
 
 import { moverQueryKeys } from '@/constants/queryKey';
 import { getMovers, toMoverCardModelFromListItem } from '@/services/moversApi';
+import { SORT_VALUE_TO_API } from '@/types/mover';
+
 import type {
   ApiMoveType,
   ApiRegion,
   MoversListParams,
   MoversSortValue,
 } from '@/types/mover';
-import { SORT_VALUE_TO_API } from '@/types/mover';
 
 /** 필터 배열을 정렬해 queryKey·요청 파라미터를 안정화 */
 // 동일한 값의 배열이라도, 항상 같은 순서로 만들어지도록 해주는 제네릭 함수

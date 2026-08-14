@@ -3,6 +3,7 @@ import {
   formatPartnerReadReceiptLabel,
   formatRelativeTime,
 } from '@/lib/formatDate';
+
 import type { ChatRoomListItem } from '@/types/chat';
 
 /** 목록·GNB 미리보기용 마지막 메시지 상태 라벨 */

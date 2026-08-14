@@ -9,13 +9,14 @@ import {
   SERVICE_FILTER_OPTIONS,
 } from '@/types/mover';
 
+import { MoversSelectDropdown } from './MoversSelectDropdown';
+
 import type {
   MoversFilterActions,
   MoversFilters,
   MoversSearch,
   MoversSort,
 } from '../_lib/moversFilters';
-import { MoversSelectDropdown } from './MoversSelectDropdown';
 
 export interface MoversToolbarProps {
   filters: MoversFilters;

@@ -1,7 +1,8 @@
 'use client';
 
-import type { FC, ReactNode, SVGProps } from 'react';
 import CloseIcon from '@/assets/icons/close.svg';
+
+import type { FC, ReactNode, SVGProps } from 'react';
 
 /** SVGR로 import한 svg 아이콘 컴포넌트 타입 (`src/types/svg.d.ts` 선언과 동일한 형태) */
 export type ToastIconComponent = FC<SVGProps<SVGSVGElement>>;

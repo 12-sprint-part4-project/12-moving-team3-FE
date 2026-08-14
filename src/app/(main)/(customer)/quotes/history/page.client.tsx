@@ -15,14 +15,15 @@ import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 import { fadeUp, getMotionTransition, listStagger } from '@/lib/motionVariants';
 import { toStartEstimateChatParams } from '@/lib/startEstimateChat';
-import type { HistoryQuoteCardModel } from '@/types/customerQuote';
 
+import { CustomerQuotesEmptyState } from '../_components/CustomerQuotesEmptyState';
 import {
   CUSTOMER_QUOTES_CONTENT_CLASS,
   CUSTOMER_QUOTES_PAGE_X_PADDING,
 } from '../_components/customerQuotesLayout';
-import { CustomerQuotesEmptyState } from '../_components/CustomerQuotesEmptyState';
 import { HistoryQuoteCard } from './_components/HistoryQuoteCard';
+
+import type { HistoryQuoteCardModel } from '@/types/customerQuote';
 
 /** `/quotes/history` 클라이언트. - 확정 견적 목록 */
 const CustomerQuoteHistoryPageClient = () => {

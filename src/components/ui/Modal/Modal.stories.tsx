@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { Modal } from './Modal';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof Modal> = {
   title: 'UI/Modal/Modal',
@@ -42,8 +43,8 @@ export const Default: Story = {
         <main className="space-y-4">
           <p className="text-xl-semibold text-black-300">본문 콘텐츠</p>
           <p className="text-lg-regular text-black-200">
-            모달을 열면 이 영역이 Figma dimmer(#141414, opacity 50%)로 가려집니다.
-            dimmer 영역 클릭 또는 ESC로 닫을 수 있습니다.
+            모달을 열면 이 영역이 Figma dimmer(#141414, opacity 50%)로
+            가려집니다. dimmer 영역 클릭 또는 ESC로 닫을 수 있습니다.
           </p>
           <div className="grid gap-4 sm:grid-cols-2">
             {Array.from({ length: 4 }, (_, index) => (

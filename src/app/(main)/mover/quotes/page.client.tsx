@@ -5,8 +5,8 @@ import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 import { QuotesListErrorState } from '@/components/quotes/QuotesListErrorState';
-import { QuotesListSkeleton } from '@/components/ui/Skeleton';
 import { Pagination } from '@/components/ui/Pagination';
+import { QuotesListSkeleton } from '@/components/ui/Skeleton';
 import { useMoverQuotes } from '@/hooks/useMoverQuotes';
 import { ApiError } from '@/lib/apiClient';
 import {
@@ -16,20 +16,21 @@ import {
   listStagger,
   tabContentSlide,
 } from '@/lib/motionVariants';
-import type {
-  QuoteListStatus,
-  RejectedQuoteCardModel,
-  SentQuoteCardModel,
-} from '@/types/quote';
 
-import { QuotesEmptyState } from './_components/QuotesEmptyState';
 import {
   MOVER_QUOTES_PAGE_X_PADDING,
   parseMoverQuotesTabId,
   type MoverQuotesTabId,
 } from './_components/MoverQuotesTabs';
+import { QuotesEmptyState } from './_components/QuotesEmptyState';
 import { RejectedQuoteCard } from './_components/RejectedQuoteCard';
 import { SentQuoteCard } from './_components/SentQuoteCard';
+
+import type {
+  QuoteListStatus,
+  RejectedQuoteCardModel,
+  SentQuoteCardModel,
+} from '@/types/quote';
 
 const TAB_TO_STATUS: Record<MoverQuotesTabId, QuoteListStatus> = {
   sent: 'SENT',

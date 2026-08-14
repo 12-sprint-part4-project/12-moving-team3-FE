@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { AUTH_QUERY_KEYS } from '@/constants/queryKey';
 import { getMe } from '@/services/authApi';
+
 import type { AuthUser } from '@/types/auth';
 
 const normalizeAuthUser = (user: AuthUser): AuthUser => {

@@ -1,7 +1,11 @@
 import { reviewQueryKeys } from '@/constants/queryKey';
 import { useReviewPagedQuery } from '@/hooks/useReviewPagedQuery';
 import { getCustomerReviews } from '@/services/reviewsApi';
-import type { CustomerReviewItem, CustomerReviewsResponse } from '@/types/review';
+
+import type {
+  CustomerReviewItem,
+  CustomerReviewsResponse,
+} from '@/types/review';
 
 /**
  * 고객이 작성한 리뷰 목록 (페이지네이션).

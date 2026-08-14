@@ -1,9 +1,9 @@
 import { useState, type ComponentProps } from 'react';
-
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
 
 import { CheckBox } from './CheckBox';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof CheckBox> = {
   title: 'UI/CheckBox',

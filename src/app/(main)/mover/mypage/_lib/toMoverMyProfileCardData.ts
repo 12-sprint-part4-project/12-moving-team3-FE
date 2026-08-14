@@ -1,7 +1,7 @@
 import { REGION_LABELS, SERVICE_LABELS } from '@/types/mover';
-import type { MoverProfileMe } from '@/types/moverProfile';
 
 import type { MoverMyProfileCardData } from '../_components/MoverMyProfileCard';
+import type { MoverProfileMe } from '@/types/moverProfile';
 
 export interface MoverMyPageReviewSummary {
   averageRating: number | null;
@@ -19,9 +19,7 @@ export const toMoverMyProfileCardData = (
       : '서비스 미등록';
   const regionsLabel =
     profile.serviceRegions.length > 0
-      ? profile.serviceRegions
-          .map((region) => REGION_LABELS[region])
-          .join(', ')
+      ? profile.serviceRegions.map((region) => REGION_LABELS[region]).join(', ')
       : '지역 미등록';
 
   return {

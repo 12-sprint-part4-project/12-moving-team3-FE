@@ -1,6 +1,6 @@
-import type { HTMLAttributes, ReactNode } from 'react';
-
 import { cn } from '@/lib/utils';
+
+import type { HTMLAttributes, ReactNode } from 'react';
 
 /*
   TEXT FIELD CHAT
@@ -70,7 +70,7 @@ export const TextFieldChat = ({
       {...rest}
       className={cn(
         // w-fit: flex 부모 stretch에도 말풍선이 콘텐츠 폭만 유지
-        'inline-flex w-fit min-w-0 max-w-full px-5 py-3 drop-shadow-sm md:px-10 md:py-5',
+        'inline-flex w-fit max-w-full min-w-0 px-5 py-3 drop-shadow-sm md:px-10 md:py-5',
         colorStyles[color],
         typographyStyles[color],
         radiusStyles[color],

@@ -1,15 +1,12 @@
 'use client';
 
 import { useReducedMotion } from 'framer-motion';
-import type {
-  ButtonHTMLAttributes,
-  HTMLAttributes,
-  RefObject,
-} from 'react';
 import { useEffect, useRef } from 'react';
 
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
+
+import type { ButtonHTMLAttributes, HTMLAttributes, RefObject } from 'react';
 
 /*
   PAGINATION

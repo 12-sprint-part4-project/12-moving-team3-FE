@@ -1,9 +1,9 @@
-import type { HTMLAttributes, ReactNode } from 'react';
-
 import BoxFillIcon from '@/assets/icons/box-fill.svg';
 import DockFillIcon from '@/assets/icons/dock-fill.svg';
 import HomeFillIcon from '@/assets/icons/home-fill.svg';
 import OfficeFillIcon from '@/assets/icons/office-fill.svg';
+
+import type { HTMLAttributes, ReactNode } from 'react';
 
 /*
   MOVE TYPE CHIP
@@ -21,10 +21,7 @@ import OfficeFillIcon from '@/assets/icons/office-fill.svg';
 
 type IconMoveType = 'small' | 'home' | 'office' | 'designated';
 type StatusMoveType =
-  | 'quotePending'
-  | 'quoteConfirmed'
-  | 'quoteRejected'
-  | 'furnitureShare';
+  'quotePending' | 'quoteConfirmed' | 'quoteRejected' | 'furnitureShare';
 type MoveType = IconMoveType | StatusMoveType;
 type MoveTypeSize = 'xs' | 'sm' | 'md';
 type StatusMoveTypeSize = Exclude<MoveTypeSize, 'xs'>;

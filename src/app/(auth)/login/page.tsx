@@ -1,7 +1,7 @@
-import type { Metadata } from 'next';
-
 import { AUTH_PAGE_SECTION_CLASS } from '@/app/(auth)/_components/authStyles';
 import { LoginForm } from '@/app/(auth)/login/_components/LoginForm';
+
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: '로그인',

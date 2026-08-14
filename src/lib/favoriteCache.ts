@@ -1,10 +1,9 @@
-import type { InfiniteData, QueryClient, QueryKey } from '@tanstack/react-query';
-
 import {
   customerQuoteQueryKeys,
   favoriteQueryKeys,
   moverQueryKeys,
 } from '@/constants/queryKey';
+
 import type {
   CustomerPastQuotesResponse,
   CustomerPendingQuotesResponse,
@@ -20,6 +19,11 @@ import type {
   MoversListResponse,
 } from '@/types/mover';
 import type { ReviewStats } from '@/types/review';
+import type {
+  InfiniteData,
+  QueryClient,
+  QueryKey,
+} from '@tanstack/react-query';
 
 export interface ToggleFavoriteVariables {
   moverId: string;
@@ -348,9 +352,7 @@ export const applyOptimisticFavorite = (
         data: {
           ...old.data,
           isFavorited: nextFavorited,
-          ...(favoritedCount !== undefined
-            ? { favoritedCount }
-            : {}),
+          ...(favoritedCount !== undefined ? { favoritedCount } : {}),
         },
       };
     }

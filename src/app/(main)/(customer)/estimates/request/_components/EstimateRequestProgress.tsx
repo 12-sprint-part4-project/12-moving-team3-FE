@@ -1,6 +1,8 @@
-import { EstimateRequestPageHeader } from './EstimateRequestPageHeader';
 import { cn } from '@/lib/utils';
 import { TOTAL_PROGRESS_STEPS } from '@/types/customerEstimateRequest';
+
+import { EstimateRequestPageHeader } from './EstimateRequestPageHeader';
+
 import type { EstimateRequestVisualStep } from '@/types/customerEstimateRequest';
 
 interface EstimateRequestProgressProps {

@@ -10,12 +10,13 @@ import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 import { getMotionTransition, tabContentSlide } from '@/lib/motionVariants';
 import { toStartEstimateChatParams } from '@/lib/startEstimateChat';
-import type { PendingQuoteCardModel } from '@/types/customerQuote';
 
 import { ConfirmQuoteModal } from './_components/ConfirmQuoteModal';
 import { parseCustomerQuotesTabId } from './_components/CustomerQuotesTabs';
 import { PendingQuotesPanel } from './_components/PendingQuotesPanel';
 import { ReceivedQuotesPanel } from './_components/ReceivedQuotesPanel';
+
+import type { PendingQuoteCardModel } from '@/types/customerQuote';
 
 /** 탭 패널 공통 레이아웃 */
 const TAB_PANEL_CLASS = 'flex min-h-0 flex-1 flex-col';

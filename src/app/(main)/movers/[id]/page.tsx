@@ -1,8 +1,8 @@
-import type { Metadata } from 'next';
-
 import { getMoverDetail } from '@/services/moversApi';
 
 import { MoverDetailPageClient } from './page.client';
+
+import type { Metadata } from 'next';
 
 interface MoverDetailPageProps {
   params: Promise<{ id: string }>;

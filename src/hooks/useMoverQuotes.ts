@@ -7,6 +7,7 @@ import {
   toRejectedQuoteCardModel,
   toSentQuoteCardModel,
 } from '@/services/quoteApi';
+
 import type {
   QuoteListResponse,
   QuoteListStatus,

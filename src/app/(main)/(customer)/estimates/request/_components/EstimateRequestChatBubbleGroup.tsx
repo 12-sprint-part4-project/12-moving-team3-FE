@@ -1,9 +1,8 @@
-import type { HTMLAttributes, ReactNode } from 'react';
-
 import { cn } from '@/lib/utils';
 
-interface EstimateRequestChatBubbleGroupProps
-  extends HTMLAttributes<HTMLDivElement> {
+import type { HTMLAttributes, ReactNode } from 'react';
+
+interface EstimateRequestChatBubbleGroupProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   /**
    * 말풍선 정렬.

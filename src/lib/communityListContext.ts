@@ -6,6 +6,7 @@ import {
   type CommunityTabId,
   type RegionFilterValue,
 } from '@/constants/communityOptions';
+
 import type { PostCategory, PostListParams, PostSort } from '@/types/community';
 
 /** 게시글 카테고리 → 목록 탭 */
@@ -85,9 +86,7 @@ export const buildPostListContextSearchParams = (
   return params;
 };
 
-export const buildCommunityListHref = (
-  context: PostListContext
-): string => {
+export const buildCommunityListHref = (context: PostListContext): string => {
   const qs = buildPostListContextSearchParams(context).toString();
   return qs ? `/community?${qs}` : '/community';
 };

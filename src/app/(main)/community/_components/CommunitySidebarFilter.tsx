@@ -6,10 +6,11 @@ import {
   type RegionFilterValue,
 } from '@/constants/communityOptions';
 import { cn } from '@/lib/utils';
-import type { PostCategory } from '@/types/community';
 
 import { CommunitySearchField } from './CommunitySearchField';
 import { CommunitySelectDropdown } from './CommunitySelectDropdown';
+
+import type { PostCategory } from '@/types/community';
 
 interface CommunitySidebarFilterProps {
   showCategoryFilter: boolean;
@@ -129,6 +130,5 @@ export const CommunitySidebarFilter = ({
         inputClassName="h-16 w-[20.5rem] max-w-none rounded-2xl bg-background-200"
       />
     </section>
-
   </aside>
 );

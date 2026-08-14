@@ -19,6 +19,7 @@ import {
 import { cn } from '@/lib/utils';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
 import { API_MOVE_TYPE_TO_UI } from '@/types/estimateRequest';
+
 import type { CustomerReviewItem } from '@/types/review';
 
 export interface ReviewDetailModalProps {
@@ -108,7 +109,7 @@ export const ReviewDetailModal = ({
           <p className="text-lg-semibold text-black-300 sm:text-xl-semibold">
             상세 후기
           </p>
-          <p className="whitespace-pre-wrap rounded-2xl bg-background-200 px-4 py-3.5 text-lg-regular text-black-300 sm:text-xl-regular">
+          <p className="rounded-2xl bg-background-200 px-4 py-3.5 text-lg-regular whitespace-pre-wrap text-black-300 sm:text-xl-regular">
             {review.content}
           </p>
         </div>

@@ -1,7 +1,6 @@
 'use client';
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import type { ReactNode } from 'react';
 
 import { Pagination } from '@/components/ui/Pagination/Pagination';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
@@ -11,6 +10,8 @@ import {
   getMotionTransition,
   listStagger,
 } from '@/lib/motionVariants';
+
+import type { ReactNode } from 'react';
 
 export interface ReviewListStatus {
   isPending: boolean;

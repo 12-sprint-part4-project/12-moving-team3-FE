@@ -4,11 +4,12 @@ import { motion, useReducedMotion } from 'framer-motion';
 
 import StarIcon from '@/assets/icons/star.svg';
 import { getMotionTransition } from '@/lib/motionVariants';
-import { cn } from '@/lib/utils';
 import {
   getReviewScoreBreakdown,
   getReviewStatsTotalCount,
 } from '@/lib/reviewDisplay';
+import { cn } from '@/lib/utils';
+
 import type { ReviewRatingStatistics } from '@/types/review';
 
 export interface ReviewRatingChartProps {

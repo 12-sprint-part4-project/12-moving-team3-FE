@@ -1,7 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
 
 import { Sort, type SortOption } from './Sort';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const SORT_OPTIONS: SortOption[] = [
   { label: '리뷰 많은순', value: 'mostReviews' },

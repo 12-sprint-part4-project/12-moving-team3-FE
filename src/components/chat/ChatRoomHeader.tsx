@@ -1,12 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import MenuIcon from '@/assets/icons/menu.svg';
-
 import { Button } from '@/components/Button/Button';
 import { ChatAvatar } from '@/components/chat/ChatAvatar';
 import { ChatRoomStatusChip } from '@/components/chat/ChatRoomStatusChip';
@@ -17,6 +16,7 @@ import { useOutsideClick } from '@/hooks/useOutsideClick';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
+
 import type { ChatPartner, ChatRoomType } from '@/types/chat';
 import type { QuoteStatus } from '@/types/quote';
 
@@ -69,9 +69,7 @@ export const ChatRoomHeader = ({
       const result = await leaveMutation.mutateAsync(roomId);
       setIsLeaveModalOpen(false);
       showToast({
-        content: result
-          ? '채팅방에서 나갔습니다.'
-          : '이미 나간 채팅방입니다.',
+        content: result ? '채팅방에서 나갔습니다.' : '이미 나간 채팅방입니다.',
       });
       router.replace('/chat');
     } catch (error) {

@@ -1,8 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
 import { TextFieldSearch } from './TextFieldSearch';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof TextFieldSearch> = {
   title: 'UI/Input/TextFieldSearch',

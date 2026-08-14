@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 import AlarmIcon from '@/assets/icons/alarm.svg';
-
 import { ChatUnreadBadge } from '@/components/chat/ChatUnreadBadge';
 import { GnbNotificationDropdown } from '@/components/Gnb/GnbNotificationDropdown';
 import { useMarkNotificationAsRead } from '@/hooks/useMarkNotificationAsRead';
@@ -13,10 +12,8 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
 import { getNotificationHref } from '@/lib/getNotificationHref';
 import { cn } from '@/lib/utils';
-import type {
-  NotificationItem,
-  NotificationRole,
-} from '@/types/notification';
+
+import type { NotificationItem, NotificationRole } from '@/types/notification';
 
 export interface NotificationGnbButtonProps {
   /** 딥링크용 역할 (customer | mover) — 목록 API는 역할 분기 없음 */
@@ -118,9 +115,7 @@ export const NotificationGnbButton = ({
   };
 
   const ariaLabel =
-    unreadCount > 0
-      ? `알림, 읽지 않은 알림 ${unreadCount}개`
-      : '알림';
+    unreadCount > 0 ? `알림, 읽지 않은 알림 ${unreadCount}개` : '알림';
 
   return (
     <div
@@ -152,7 +147,10 @@ export const NotificationGnbButton = ({
             initial={{ opacity: 0, y: dropdownOffsetY }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: dropdownOffsetY }}
-            transition={{ duration: DROPDOWN_MOTION_DURATION_S, ease: 'easeOut' }}
+            transition={{
+              duration: DROPDOWN_MOTION_DURATION_S,
+              ease: 'easeOut',
+            }}
             className={cn(
               'z-50',
               'fixed top-12 right-5',

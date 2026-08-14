@@ -13,6 +13,7 @@ import {
   resolveFurnitureShareDetailAction,
   type FurnitureShareDetailAction,
 } from '@/lib/communityFurnitureShare';
+
 import type { AuthUser } from '@/types/auth';
 import type { PostDetail } from '@/types/community';
 
@@ -55,8 +56,7 @@ export const useCommunityFurnitureShareDetail = ({
   const isFurnitureShare =
     post !== undefined && isFurnitureSharePost(post.category);
   const isCompleted =
-    post !== undefined &&
-    resolveFurnitureShareCompleted(post.isCompleted);
+    post !== undefined && resolveFurnitureShareCompleted(post.isCompleted);
 
   const detailAction =
     post === undefined
@@ -135,7 +135,10 @@ export const useCommunityFurnitureShareDetail = ({
       },
       onError: (error) => {
         showToast({
-          content: resolveApiErrorMessage(error, '나눔 완료 처리에 실패했습니다.'),
+          content: resolveApiErrorMessage(
+            error,
+            '나눔 완료 처리에 실패했습니다.'
+          ),
         });
       },
     });

@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { MOVER_REVIEWS_PAGE_SIZE } from '@/hooks/reviewQueryKeys';
 import { getMoverAccessToken } from '@/services/moversAuth';
+
 import type { ReviewPaginationMeta } from '@/types/review';
 
 interface ReviewPagedResponseBase {
@@ -65,7 +66,6 @@ export const useReviewPagedQuery = <
     page,
     totalPages,
     setPage,
-    isEmpty:
-      !query.isPending && !query.isError && items.length === 0,
+    isEmpty: !query.isPending && !query.isError && items.length === 0,
   };
 };

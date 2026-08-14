@@ -28,12 +28,13 @@ import {
   validatePassword,
 } from '@/lib/validatePassword';
 import { updateMoverBasicInfo } from '@/services/moverProfileApi';
-import type { MoverProfileMe } from '@/types/moverProfile';
 
 import {
   buildMoverBasicInfoUpdateBody,
   getMoverBasicInfoUpdateError,
 } from '../_lib/moverBasicInfoUpdate';
+
+import type { MoverProfileMe } from '@/types/moverProfile';
 
 const FIELD_CLASSNAME =
   'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular';

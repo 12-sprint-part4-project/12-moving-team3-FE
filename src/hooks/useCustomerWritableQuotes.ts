@@ -1,10 +1,8 @@
 import { reviewQueryKeys } from '@/constants/queryKey';
 import { useReviewPagedQuery } from '@/hooks/useReviewPagedQuery';
 import { getCustomerWritableQuotes } from '@/services/reviewsApi';
-import type {
-  WritableQuoteItem,
-  WritableQuotesResponse,
-} from '@/types/review';
+
+import type { WritableQuoteItem, WritableQuotesResponse } from '@/types/review';
 
 /**
  * 리뷰 작성 가능한 견적 목록 (페이지네이션).

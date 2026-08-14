@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { favoriteQueryKeys } from '@/constants/queryKey';
-import { getMoverAccessToken } from '@/services/moversAuth';
 import {
   getFavoriteMovers,
   toMoverCardModelFromFavorite,
 } from '@/services/moversApi';
+import { getMoverAccessToken } from '@/services/moversAuth';
+
 import type { MoverCardModel } from '@/types/mover';
 
 const FAVORITE_PREVIEW_LIMIT = 3;

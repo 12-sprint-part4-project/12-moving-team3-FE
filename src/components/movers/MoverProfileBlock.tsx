@@ -2,13 +2,14 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import type { MouseEvent } from 'react';
 
 import ProfileIcon from '@/assets/icons/profile.svg';
 import StarIcon from '@/assets/icons/star.svg';
 import { FavoriteButton } from '@/components/Favorite';
 import { cn } from '@/lib/utils';
+
 import type { MoverCardModel } from '@/types/mover';
+import type { MouseEvent } from 'react';
 
 export interface MoverProfileBlockProps {
   mover: MoverCardModel;
