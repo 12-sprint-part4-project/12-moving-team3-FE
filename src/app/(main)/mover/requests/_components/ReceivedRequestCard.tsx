@@ -1,12 +1,7 @@
 'use client';
 
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
-import {
-  Button,
-  type ButtonSize,
-  type ButtonVariant,
-} from '@/components/Button/Button';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
 import {
@@ -14,9 +9,13 @@ import {
   fadeUp,
   getMotionTransition,
   listStagger,
-  tapScale,
 } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
+
+import {
+  RequestCardActionButton,
+  type RequestCardAction,
+} from './RequestCardActionButton';
 
 import type { ReceivedRequestCardModel } from '@/types/estimateRequest';
 
@@ -66,17 +65,8 @@ export const ReceivedRequestCard = ({
   const canStartChat =
     !request.isDesignated || request.designatedMoverId != null;
 
-  interface CardAction {
-    key: string;
-    label: string;
-    variant: ButtonVariant;
-    showIcon: boolean;
-    disabled?: boolean;
-    onClick: () => void;
-  }
-
   /** 지정 견적만 반려 가능 — 일반 요청은 견적 보내기만 표시 */
-  const rejectActions: CardAction[] = request.isDesignated
+  const rejectActions: RequestCardAction[] = request.isDesignated
     ? [
         {
           key: 'reject',
@@ -88,7 +78,7 @@ export const ReceivedRequestCard = ({
       ]
     : [];
 
-  const chatActions: CardAction[] = canStartChat
+  const chatActions: RequestCardAction[] = canStartChat
     ? [
         {
           key: 'chat',
@@ -101,7 +91,7 @@ export const ReceivedRequestCard = ({
       ]
     : [];
 
-  const CARD_ACTIONS: CardAction[] = [
+  const cardActions: RequestCardAction[] = [
     {
       key: 'send-quote',
       label: '견적 보내기',
@@ -112,45 +102,6 @@ export const ReceivedRequestCard = ({
     ...rejectActions,
     ...chatActions,
   ];
-
-  /** size별 액션 버튼 공통 렌더 */
-  const renderCardActions = (size: ButtonSize) =>
-    CARD_ACTIONS.map((action) => (
-      <motion.div
-        key={`${size}-${action.key}`}
-        className={
-          size === 'sm'
-            ? 'w-full min-w-0 lg:hidden'
-            : 'hidden w-full min-w-0 lg:block lg:flex-1'
-        }
-        {...(shouldReduceMotion ? {} : tapScale)}
-      >
-        <Button
-          size={size}
-          variant={action.variant}
-          showIcon={action.showIcon}
-          disabled={action.disabled}
-          onClick={action.onClick}
-          className="cursor-pointer"
-        >
-          {action.key === 'chat' ? (
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.span
-                key={action.label}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={motionTransition}
-              >
-                {action.label}
-              </motion.span>
-            </AnimatePresence>
-          ) : (
-            action.label
-          )}
-        </Button>
-      </motion.div>
-    ));
 
   return (
     <motion.article
@@ -304,8 +255,20 @@ export const ReceivedRequestCard = ({
           variants={fadeUp}
           className="flex w-full min-w-0 flex-col gap-2 lg:flex-row lg:items-stretch lg:gap-4"
         >
-          {renderCardActions('sm')}
-          {renderCardActions('md')}
+          {cardActions.map((action) => (
+            <RequestCardActionButton
+              key={`sm-${action.key}`}
+              size="sm"
+              action={action}
+            />
+          ))}
+          {cardActions.map((action) => (
+            <RequestCardActionButton
+              key={`md-${action.key}`}
+              size="md"
+              action={action}
+            />
+          ))}
         </motion.div>
       </motion.div>
     </motion.article>

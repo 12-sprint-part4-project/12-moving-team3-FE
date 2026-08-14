@@ -7,6 +7,8 @@ import { FilterButton } from '@/components/ui/Filter/FilterButton';
 import { TextFieldSearch } from '@/components/ui/Input/TextFieldSearch';
 import { Sort } from '@/components/ui/Sort/Sort';
 import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
+import { cn } from '@/lib/utils';
+import { ALL_MOVE_TYPES, ALL_SCOPES } from '@/types/estimateRequest';
 
 import { RequestsFilterResetButton } from './RequestsFilterResetButton';
 import {
@@ -32,10 +34,9 @@ export interface RequestsListToolbarProps {
   resetSignal?: number;
   totalCount: number;
   showListFetching: boolean;
-  sortValue: RequestsSortValue;
   onSortChange: (value: string) => void;
-  isFilterActive: boolean;
   onFilterOpen: () => void;
+  className?: string;
 }
 
 /**
@@ -49,13 +50,15 @@ export const RequestsListToolbar = ({
   resetSignal = 0,
   totalCount,
   showListFetching,
-  sortValue,
   onSortChange,
-  isFilterActive,
   onFilterOpen,
+  className = '',
 }: RequestsListToolbarProps) => {
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
+  const isFilterActive =
+    listFilters.moveTypes.length !== ALL_MOVE_TYPES.length ||
+    listFilters.scopes.length !== ALL_SCOPES.length;
 
   const {
     searchInputValue,
@@ -95,7 +98,7 @@ export const RequestsListToolbar = ({
       initial="hidden"
       animate="show"
       transition={motionTransition}
-      className="flex w-full flex-col gap-4 lg:gap-6"
+      className={cn('flex w-full flex-col gap-4 lg:gap-6', className)}
     >
       <TextFieldSearch
         size="sm"
@@ -152,7 +155,7 @@ export const RequestsListToolbar = ({
           <div className="flex items-center md:hidden">
             <Sort
               options={SORT_OPTIONS}
-              value={sortValue}
+              value={listFilters.sort}
               onValueChange={onSortChange}
               size="sm"
             />
@@ -160,7 +163,7 @@ export const RequestsListToolbar = ({
           <div className="hidden items-center md:flex">
             <Sort
               options={SORT_OPTIONS}
-              value={sortValue}
+              value={listFilters.sort}
               onValueChange={onSortChange}
               size="md"
             />
