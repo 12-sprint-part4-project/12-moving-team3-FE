@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import Image from 'next/image';
 
 import { Button } from '@/components/Button/Button';
 import { fadeIn, floatY, getMotionTransition } from '@/lib/motionVariants';

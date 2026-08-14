@@ -2,13 +2,15 @@
 
 import { useState } from 'react';
 
-import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGroup';
-import { EstimateRequestChatPanel } from '../EstimateRequestChatPanel';
-import { MoveTypeOptionField } from '../MoveTypeOptionField';
 import { Button } from '@/components/Button/Button';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 import { ApiError } from '@/lib/apiClient';
+
+import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGroup';
+import { EstimateRequestChatPanel } from '../EstimateRequestChatPanel';
+import { MoveTypeOptionField } from '../MoveTypeOptionField';
+
 import type { ApiMoveType } from '@/types/estimateRequest';
 
 /** Step1 옵션 — MoveTypeChip 라벨보다 설명형 문구를 사용 */

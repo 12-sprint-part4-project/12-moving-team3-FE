@@ -1,6 +1,7 @@
 import { API_BASE_URL } from '@/lib/apiClient';
 import { fetchAndValidate } from '@/services/moverApiResponse';
 import { assertMoverAccessToken } from '@/services/moversAuth';
+
 import type {
   FavoriteMoverListItem,
   FavoriteMoversParams,
@@ -100,9 +101,7 @@ const isMoversListResponse = (body: unknown): body is MoversListResponse => {
 };
 
 /** 상세 성공 응답 구조 검증 */
-const isMoverDetailResponse = (
-  body: unknown
-): body is MoverDetailResponse => {
+const isMoverDetailResponse = (body: unknown): body is MoverDetailResponse => {
   if (!body || typeof body !== 'object') {
     return false;
   }
@@ -174,7 +173,9 @@ const toCardModel = ({
   isDesignated,
 });
 
-type MoverServiceRegionLike = { region: MoverListItem['serviceRegions'][number]['region'] };
+type MoverServiceRegionLike = {
+  region: MoverListItem['serviceRegions'][number]['region'];
+};
 
 /** 목록 아이템 → 카드 UI 모델 */
 export const toMoverCardModelFromListItem = (
@@ -222,8 +223,7 @@ export const toMoverCardModelFromFavorite = (
     return null;
   }
 
-  const services =
-    item.service ?? item.mover.moverProfile?.service ?? [];
+  const services = item.service ?? item.mover.moverProfile?.service ?? [];
 
   return toCardModel({
     moverId: item.moverId,

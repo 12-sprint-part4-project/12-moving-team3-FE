@@ -1,5 +1,6 @@
 import { API_ERROR_CODE } from '@/constants/errorCode';
 import { getAuthSession } from '@/lib/authSession';
+
 import type { ApiErrorBody } from '@/types/api';
 
 export const API_BASE_URL =

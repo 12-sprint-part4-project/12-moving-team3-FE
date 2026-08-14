@@ -5,10 +5,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import CloseIcon from '@/assets/icons/close.svg';
-
 import { GnbNotificationItem } from '@/components/Gnb/GnbNotificationItem';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { cn } from '@/lib/utils';
+
 import type { NotificationItem } from '@/types/notification';
 
 export interface GnbNotificationDropdownProps {

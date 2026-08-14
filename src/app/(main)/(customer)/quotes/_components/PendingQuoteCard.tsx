@@ -10,6 +10,7 @@ import { QuoteStatusChipRow } from '@/components/quotes/QuoteStatusChips';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
 import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
+
 import type { PendingQuoteCardModel } from '@/types/customerQuote';
 import type { MoverCardModel } from '@/types/mover';
 

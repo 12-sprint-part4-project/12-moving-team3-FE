@@ -12,11 +12,12 @@ import {
   tapScale,
 } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
-import type { MoverCardModel } from '@/types/mover';
 import { REGION_FILTER_OPTIONS, SERVICE_FILTER_OPTIONS } from '@/types/mover';
 
-import type { MoversFilterActions, MoversFilters } from '../_lib/moversFilters';
 import { MoversSelectDropdown } from './MoversSelectDropdown';
+
+import type { MoversFilterActions, MoversFilters } from '../_lib/moversFilters';
+import type { MoverCardModel } from '@/types/mover';
 
 export interface MoversSidebarProps {
   filters: MoversFilters;

@@ -1,13 +1,14 @@
 'use client';
 
-import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 
 import { communityQueryKeys } from '@/constants/queryKey';
 import { getPosts } from '@/services/communityApi';
-import type { PostListParams } from '@/types/community';
 
 import { getCursorNextPageParam } from './useCommunity';
+
+import type { PostListParams } from '@/types/community';
 
 /** 커뮤니티 목록 쿼리 프리패치 — 탭·필터·정렬 hover 시 사용 */
 export const useCommunityPrefetch = () => {

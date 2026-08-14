@@ -1,6 +1,5 @@
-import type { Metadata } from 'next';
 import localFont from 'next/font/local';
-import './globals.css';
+
 import { AuthRouteGuard } from '@/components/auth/AuthRouteGuard';
 import { ProfileIncompleteRouteGuard } from '@/components/auth/ProfileIncompleteRouteGuard';
 import { SuspendedRouteGuard } from '@/components/auth/SuspendedRouteGuard';
@@ -11,6 +10,10 @@ import { ChatSocketProvider } from '@/providers/ChatSocketProvider';
 import { NotificationSseProvider } from '@/providers/NotificationSseProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { ToastProvider } from '@/providers/ToastProvider';
+
+import './globals.css';
+
+import type { Metadata } from 'next';
 
 const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',

@@ -1,12 +1,15 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, type ReactNode } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { GnbDefault } from '@/components/Gnb/GnbDefault';
 import { GnbMenuOverlay } from '@/components/Gnb/GnbMenuOverlay';
-import { getGnbProfileMenuItems, type GnbNavItem } from '@/components/Gnb/gnbNav';
+import {
+  getGnbProfileMenuItems,
+  type GnbNavItem,
+} from '@/components/Gnb/gnbNav';
 import { GuestHeaderMenuProvider } from '@/components/layout/GuestHeaderMenuContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useCustomerProfile } from '@/hooks/useCustomerProfile';
@@ -73,8 +76,7 @@ export const HeaderClient = ({
     }
 
     queryClient.clear();
-    const isProtectedPath =
-      getAuthRouteRequirement(pathname).kind !== 'public';
+    const isProtectedPath = getAuthRouteRequirement(pathname).kind !== 'public';
 
     if (isProtectedPath) {
       suppressLoginGate();

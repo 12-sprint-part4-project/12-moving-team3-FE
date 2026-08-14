@@ -4,12 +4,13 @@ import { Button } from '@/components/Button/Button';
 import { CommunityPostListSkeleton } from '@/components/ui/Skeleton';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { cn } from '@/lib/utils';
-import type { PostListContext } from '@/lib/communityListContext';
-import type { PostListItem } from '@/types/community';
 
 import { CommunityFurnitureGridCard } from './CommunityFurnitureGridCard';
-import { CommunityPostCard } from './CommunityPostCard';
 import { COMMUNITY_FURNITURE_GRID_CLASS } from './communityLayout';
+import { CommunityPostCard } from './CommunityPostCard';
+
+import type { PostListContext } from '@/lib/communityListContext';
+import type { PostListItem } from '@/types/community';
 
 type CommunityPostListVariant = 'list' | 'furniture-grid';
 
@@ -85,9 +86,12 @@ export const CommunityPostList = ({
       ) : null}
 
       {showPosts ? (
-        <ul className={cn('list-none p-0 m-0', resolvedListClassName)}>
+        <ul className={cn('m-0 list-none p-0', resolvedListClassName)}>
           {posts.map((post, index) => (
-            <li key={post.id} className={isFurnitureGrid ? 'min-w-0' : undefined}>
+            <li
+              key={post.id}
+              className={isFurnitureGrid ? 'min-w-0' : undefined}
+            >
               {isFurnitureGrid ? (
                 <CommunityFurnitureGridCard
                   post={post}

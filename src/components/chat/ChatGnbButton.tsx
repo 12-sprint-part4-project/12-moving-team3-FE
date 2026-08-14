@@ -3,7 +3,6 @@
 import { useRef, useState } from 'react';
 
 import ChatIcon from '@/assets/icons/chat.svg';
-
 import { ChatPreviewDropdown } from '@/components/chat/ChatPreviewDropdown';
 import { ChatUnreadBadge } from '@/components/chat/ChatUnreadBadge';
 import { useChatUnreadCount } from '@/hooks/useChat';
@@ -54,9 +53,7 @@ export const ChatGnbButton = ({
   const handleClose = () => setIsOpen(false);
 
   const ariaLabel =
-    unreadCount > 0
-      ? `채팅, 읽지 않은 메시지 ${unreadCount}개`
-      : '채팅';
+    unreadCount > 0 ? `채팅, 읽지 않은 메시지 ${unreadCount}개` : '채팅';
 
   return (
     <div

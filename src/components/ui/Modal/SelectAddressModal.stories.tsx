@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { Modal } from './Modal';
 import { SelectAddressModal, type AddressOption } from './SelectAddressModal';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const SAMPLE_ADDRESSES: AddressOption[] = [
   {

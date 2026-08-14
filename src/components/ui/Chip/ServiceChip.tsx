@@ -1,5 +1,6 @@
-import type { BaseChipProps } from './BaseChip';
 import { BaseChip } from './BaseChip';
+
+import type { BaseChipProps } from './BaseChip';
 
 /*
   SERVICE CHIP

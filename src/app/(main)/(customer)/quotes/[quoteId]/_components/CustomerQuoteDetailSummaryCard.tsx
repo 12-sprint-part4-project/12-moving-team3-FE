@@ -1,6 +1,7 @@
 import { MoverProfileBlock } from '@/components/movers/MoverProfileBlock';
 import { QuoteStatusChips } from '@/components/quotes/QuoteStatusChips';
 import { cn } from '@/lib/utils';
+
 import type { CustomerQuoteDetailViewModel } from '@/types/customerQuote';
 import type { MoverCardModel } from '@/types/mover';
 

@@ -1,12 +1,15 @@
 'use client';
 
-import { useMemo } from 'react';
 import DOMPurify from 'dompurify';
+import { useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkBreaks from 'remark-breaks';
 
-import { isHtmlContent, normalizeCommunityPostContentForRender } from '@/lib/communityPostContent';
+import {
+  isHtmlContent,
+  normalizeCommunityPostContentForRender,
+} from '@/lib/communityPostContent';
 import { cn } from '@/lib/utils';
 
 import {
@@ -46,14 +49,14 @@ export const CommunityPostDetailContent = ({
     COMMUNITY_DETAIL_READING_TEXT_CLASS,
     COMMUNITY_DETAIL_BODY_PROSE_CLASS,
     'px-1.5',
-    className,
+    className
   );
 
   if (isHtml && sanitizedHtml !== null) {
     return (
       <div
         className={cn(baseClass, '[&_p+p]:mt-2')}
-        // eslint-disable-next-line react/no-danger
+
         dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
       />
     );

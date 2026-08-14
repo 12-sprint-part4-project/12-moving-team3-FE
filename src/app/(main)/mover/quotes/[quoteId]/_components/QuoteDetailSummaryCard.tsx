@@ -1,6 +1,7 @@
-import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { QuoteCardInfo } from '@/components/quotes/QuoteCardInfo';
+import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { cn } from '@/lib/utils';
+
 import type { QuoteDetailViewModel } from '@/types/quote';
 
 export interface QuoteDetailSummaryCardProps {

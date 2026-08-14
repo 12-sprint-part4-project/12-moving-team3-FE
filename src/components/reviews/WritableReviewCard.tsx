@@ -11,6 +11,7 @@ import { formatReviewMoveDate } from '@/lib/reviewDisplay';
 import { cn } from '@/lib/utils';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
 import { API_MOVE_TYPE_TO_UI } from '@/types/estimateRequest';
+
 import type { WritableQuoteItem } from '@/types/review';
 
 export interface WritableReviewCardProps {

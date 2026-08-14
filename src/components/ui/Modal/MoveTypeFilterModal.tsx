@@ -3,7 +3,6 @@
 import { useId, useState } from 'react';
 
 import { FilterCheckBox } from '@/components/ui/Filter/FilterCheckBox';
-
 import { cn } from '@/lib/utils';
 
 import { ModalCtaButton } from './ModalCtaButton';

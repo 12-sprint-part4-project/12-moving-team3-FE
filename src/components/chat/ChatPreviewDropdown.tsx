@@ -3,7 +3,6 @@
 import Link from 'next/link';
 
 import CloseIcon from '@/assets/icons/close.svg';
-
 import { ChatRoomListItem } from '@/components/chat/ChatRoomListItem';
 import { useChatRooms } from '@/hooks/useChat';
 import { cn } from '@/lib/utils';

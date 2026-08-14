@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { Modal } from './Modal';
 import { ModalBasic } from './ModalBasic';
 import { ModalCtaButton } from './ModalCtaButton';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof ModalBasic> = {
   title: 'UI/Modal/ModalBasic',

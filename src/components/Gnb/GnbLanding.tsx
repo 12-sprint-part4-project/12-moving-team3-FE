@@ -1,8 +1,9 @@
-import type { ReactNode } from 'react';
 import Link from 'next/link';
 
 import { Logo } from '@/components/Logo/Logo';
 import { cn } from '@/lib/utils';
+
+import type { ReactNode } from 'react';
 
 export type GnbLandingSize = 'sm' | 'md' | 'lg';
 

@@ -3,7 +3,6 @@ import { useCallback, useMemo } from 'react';
 import { useDesignatedEstimateRequest } from '@/hooks/useDesignatedEstimateRequest';
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
-import type { MoverCardModel } from '@/types/mover';
 
 import type {
   MoverDetailChat,
@@ -11,6 +10,7 @@ import type {
   MoverDetailFavorite,
   MoverDetailShare,
 } from './moverDetailActions';
+import type { MoverCardModel } from '@/types/mover';
 
 /**
  * 기사 상세 — 찜·지정 견적·채팅 액션과 묶음 props.

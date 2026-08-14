@@ -1,9 +1,9 @@
 'use client';
 
-import type { MouseEvent } from 'react';
-
 import LikeActiveIcon from '@/assets/icons/like-active.svg';
 import { cn } from '@/lib/utils';
+
+import type { MouseEvent } from 'react';
 
 export type FavoriteButtonVariant = 'count' | 'labeled' | 'icon-only';
 

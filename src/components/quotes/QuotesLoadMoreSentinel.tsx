@@ -1,11 +1,12 @@
 'use client';
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import type { Ref } from 'react';
 
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { fadeIn, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
+
+import type { Ref } from 'react';
 
 export interface QuotesLoadMoreSentinelProps {
   loadMoreRef: Ref<HTMLDivElement>;

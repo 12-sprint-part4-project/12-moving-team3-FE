@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-
 import MenuIcon from '@/assets/icons/menu.svg';
 
-import { GnbLandingLoginButton } from './GnbLandingLoginButton';
 import { GnbLanding } from './GnbLanding';
+import { GnbLandingLoginButton } from './GnbLandingLoginButton';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof GnbLanding> = {
   title: 'UI/GnbLanding',

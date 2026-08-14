@@ -41,16 +41,17 @@ import {
   validatePassword,
 } from '@/lib/validatePassword';
 import { upsertCustomerProfile } from '@/services/customerProfileApi';
-import type { CustomerProfileMe } from '@/types/customerProfile';
 
+import { ProfileImageCropModal } from './ProfileImageCropModal';
+import { ProfileImageField } from './ProfileImageField';
 import {
   buildCustomerProfileUpdateBody,
   getCustomerProfileUpdateError,
 } from '../_lib/customerProfileUpdate';
 import { toggleService } from '../_lib/toggleService';
 import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
-import { ProfileImageCropModal } from './ProfileImageCropModal';
-import { ProfileImageField } from './ProfileImageField';
+
+import type { CustomerProfileMe } from '@/types/customerProfile';
 
 const FIELD_CLASSNAME =
   'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular';

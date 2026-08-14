@@ -1,6 +1,6 @@
-import type { ButtonHTMLAttributes } from 'react';
-
 import FilterIcon from '@/assets/icons/filter.svg';
+
+import type { ButtonHTMLAttributes } from 'react';
 
 export interface FilterButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /**

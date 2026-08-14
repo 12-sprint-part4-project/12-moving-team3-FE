@@ -1,12 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import {
-  useEffect,
-  useRef,
-  useState,
-  type TouchEvent,
-} from 'react';
+import { useEffect, useRef, useState, type TouchEvent } from 'react';
 
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
@@ -16,6 +11,7 @@ import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { formatChatMessageTime } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
+
 import type { ChatMessage } from '@/types/chat';
 
 export interface ChatMessageItemProps {
@@ -280,16 +276,14 @@ export const ChatMessageItem = ({
       color={isMine ? 'mePrimary' : 'incoming'}
       className="px-3.5 py-2.5 drop-shadow-none md:px-3.5 md:py-2.5"
     >
-      {message.messageType === 'IMAGE'
-        ? '사진'
-        : getTextMessageBody(message)}
+      {message.messageType === 'IMAGE' ? '사진' : getTextMessageBody(message)}
     </TextFieldChat>
   );
 
   const timeLabel = showTime ? (
     <time
       dateTime={message.createdAt}
-      className="whitespace-nowrap text-xs-medium text-gray-300"
+      className="text-xs-medium whitespace-nowrap text-gray-300"
     >
       {formatChatMessageTime(message.createdAt)}
     </time>
@@ -312,7 +306,7 @@ export const ChatMessageItem = ({
 
   const partnerMeta =
     !isMine && (onReport || timeLabel) ? (
-      <div className="flex shrink-0 flex-col items-start justify-end gap-0 self-end ml-0.5">
+      <div className="ml-0.5 flex shrink-0 flex-col items-start justify-end gap-0 self-end">
         {onReport ? (
           <ChatMessageMenu
             onReport={onReport}
@@ -323,7 +317,7 @@ export const ChatMessageItem = ({
         {timeLabel ??
           (onReport ? (
             <span
-              className="invisible whitespace-nowrap text-xs-medium"
+              className="invisible text-xs-medium whitespace-nowrap"
               aria-hidden
             >
               00:00

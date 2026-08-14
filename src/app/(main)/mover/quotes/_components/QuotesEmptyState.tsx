@@ -5,6 +5,7 @@ import Image from 'next/image';
 
 import { fadeIn, floatY, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
+
 import type { QuoteListStatus } from '@/types/quote';
 
 export interface QuotesEmptyStateProps {

@@ -1,9 +1,16 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react';
 
-import type { CommunityTabId } from '@/constants/communityOptions';
 import {
   WRITE_FAB_BOTTOM_CLASS,
   WRITE_FAB_BOTTOM_RAISED_CLASS,
@@ -20,6 +27,8 @@ import {
 import { CommunityTabBar } from './CommunityTabBar';
 import { CommunityWriteButton } from './CommunityWriteButton';
 
+import type { CommunityTabId } from '@/constants/communityOptions';
+
 interface TabOverrideState {
   tab: CommunityTabId;
   pathname: string;
@@ -29,9 +38,8 @@ interface CommunityTabBarContextValue {
   setActiveTabOverride: (tab: CommunityTabId | null) => void;
 }
 
-const CommunityTabBarContext = createContext<CommunityTabBarContextValue | null>(
-  null
-);
+const CommunityTabBarContext =
+  createContext<CommunityTabBarContextValue | null>(null);
 
 /** 상세에서 게시글 카테고리 기준 탭 활성화 override */
 export const useCommunityTabBarOverride = (): CommunityTabBarContextValue => {
@@ -88,15 +96,11 @@ export const CommunityLayoutClient = ({
   }, []);
 
   const activeTab =
-    activeTabOverride?.pathname === pathname
-      ? activeTabOverride.tab
-      : localTab;
+    activeTabOverride?.pathname === pathname ? activeTabOverride.tab : localTab;
 
   const setActiveTabOverride = useCallback(
     (tab: CommunityTabId | null) => {
-      setActiveTabOverrideState(
-        tab === null ? null : { tab, pathname }
-      );
+      setActiveTabOverrideState(tab === null ? null : { tab, pathname });
     },
     [pathname]
   );
@@ -133,8 +137,12 @@ export const CommunityLayoutClient = ({
     pathname.startsWith('/community/');
 
   const fabBottomClass = isDetailPage
-    ? (isScrolled ? WRITE_FAB_BOTTOM_RAISED_CLASS : WRITE_FAB_REST_BOTTOM_RAISED_CLASS)
-    : (isScrolled ? WRITE_FAB_BOTTOM_CLASS : WRITE_FAB_REST_BOTTOM_CLASS);
+    ? isScrolled
+      ? WRITE_FAB_BOTTOM_RAISED_CLASS
+      : WRITE_FAB_REST_BOTTOM_RAISED_CLASS
+    : isScrolled
+      ? WRITE_FAB_BOTTOM_CLASS
+      : WRITE_FAB_REST_BOTTOM_CLASS;
 
   return (
     <CommunityTabBarContext.Provider value={tabBarContextValue}>

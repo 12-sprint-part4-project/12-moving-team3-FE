@@ -8,6 +8,7 @@ import { QuotePriceRow } from '@/components/quotes/QuotePriceRow';
 import { QuoteStatusChipRow } from '@/components/quotes/QuoteStatusChips';
 import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
+
 import type { ReceivedQuoteCardModel } from '@/types/customerQuote';
 import type { MoverCardModel } from '@/types/mover';
 

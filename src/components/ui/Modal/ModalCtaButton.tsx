@@ -1,8 +1,8 @@
 'use client';
 
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
-
 import { cn } from '@/lib/utils';
+
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 export interface ModalCtaButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;

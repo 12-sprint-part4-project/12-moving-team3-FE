@@ -7,6 +7,7 @@ import { QuoteCardInfo } from '@/components/quotes/QuoteCardInfo';
 import { QuoteStatusChips } from '@/components/quotes/QuoteStatusChips';
 import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
+
 import type { RejectedQuoteCardModel } from '@/types/quote';
 
 export interface RejectedQuoteCardProps {

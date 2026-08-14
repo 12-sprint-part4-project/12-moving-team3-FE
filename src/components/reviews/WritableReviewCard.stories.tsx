@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import {
   SAMPLE_WRITABLE_QUOTE,
@@ -10,7 +9,9 @@ import {
 import { WritableReviewCard } from '@/components/reviews/WritableReviewCard';
 import { WriteReviewModal } from '@/components/reviews/WriteReviewModal';
 import { Modal } from '@/components/ui/Modal/Modal';
+
 import type { WritableQuoteItem } from '@/types/review';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof WritableReviewCard> = {
   title: 'Reviews/WritableReviewCard',

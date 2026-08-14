@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+
 import type { QuoteInfoViewModel } from '@/types/customerQuote';
 
 export type QuoteInfoRowsVariant = 'group' | 'customerDetail' | 'moverDetail';

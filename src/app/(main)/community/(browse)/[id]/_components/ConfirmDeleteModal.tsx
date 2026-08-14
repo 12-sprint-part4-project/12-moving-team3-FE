@@ -1,11 +1,11 @@
 'use client';
 
-import type { ReactNode } from 'react';
-
 import { Button } from '@/components/Button/Button';
 import { ModalBasic } from '@/components/ui/Modal/ModalBasic';
 import { MODAL_PANEL_BOTTOM_SHEET_CLASS } from '@/components/ui/Modal/modalPanel';
 import { cn } from '@/lib/utils';
+
+import type { ReactNode } from 'react';
 
 export interface ConfirmDeleteModalProps {
   title: string;

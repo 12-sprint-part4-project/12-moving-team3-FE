@@ -1,8 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
 
 import { withQueryClient } from '@/storybook/withQueryClient';
+
 import { GnbDefault } from './GnbDefault';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof GnbDefault> = {
   title: 'UI/GnbDefault',
@@ -159,19 +161,11 @@ export const AllVariants: Story = {
       </div>
       <div className="w-full min-w-[75rem]">
         <p className="mb-2 text-md-medium text-black-400">gnb / lg / 2-menu</p>
-        <GnbDefault
-          size="lg"
-          menu="twoMenu"
-          notificationRole="mover"
-        />
+        <GnbDefault size="lg" menu="twoMenu" notificationRole="mover" />
       </div>
       <div className="w-full min-w-[75rem]">
         <p className="mb-2 text-md-medium text-black-400">gnb / lg / 3-menu</p>
-        <GnbDefault
-          size="lg"
-          menu="threeMenu"
-          notificationRole="customer"
-        />
+        <GnbDefault size="lg" menu="threeMenu" notificationRole="customer" />
       </div>
     </div>
   ),

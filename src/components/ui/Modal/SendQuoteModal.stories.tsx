@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { Modal } from './Modal';
 import { SendQuoteModal } from './SendQuoteModal';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof SendQuoteModal> = {
   title: 'UI/Modal/SendQuoteModal',

@@ -2,7 +2,6 @@
 
 import EditIcon from '@/assets/icons/edit.svg';
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
-import type { CommunityTabId } from '@/constants/communityOptions';
 import {
   FLOATING_ACTION_BUTTON_SIZE_CLASS,
   FLOATING_ACTION_FIXED_CLASS,
@@ -16,6 +15,8 @@ import {
   useFloatingActionScrollVisibility,
 } from '@/hooks/useFloatingActionScrollVisibility';
 import { cn } from '@/lib/utils';
+
+import type { CommunityTabId } from '@/constants/communityOptions';
 
 type CommunityWriteButtonVariant = 'fab' | 'toolbar' | 'desktop';
 
@@ -44,7 +45,7 @@ const CommunityWriteFab = ({
         FLOATING_ACTION_BUTTON_SIZE_CLASS,
         FLOATING_ACTION_INSET_X_CLASS,
         bottomClass,
-        visibilityClass,
+        visibilityClass
       )}
     >
       <EditIcon

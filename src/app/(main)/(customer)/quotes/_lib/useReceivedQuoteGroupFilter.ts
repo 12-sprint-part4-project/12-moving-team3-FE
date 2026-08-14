@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 
+import { filterReceivedQuotesByStatus } from './filterReceivedQuotesByStatus';
+
 import type {
   CustomerPastQuoteFilter,
   ReceivedQuoteCardModel,
 } from '@/types/customerQuote';
-
-import { filterReceivedQuotesByStatus } from './filterReceivedQuotesByStatus';
 
 /** `/quotes?tab=received` 그룹 필터 훅. - 필터 값·목록·stagger 플래그. */
 export const useReceivedQuoteGroupFilter = (

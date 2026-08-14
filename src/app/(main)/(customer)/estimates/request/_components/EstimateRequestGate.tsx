@@ -2,10 +2,11 @@
 
 import { useRouter } from 'next/navigation';
 
-import { EstimateRequestChatBubbleGroup } from './EstimateRequestChatBubbleGroup';
-import { EstimateRequestChatPanel } from './EstimateRequestChatPanel';
 import { Button } from '@/components/Button/Button';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
+
+import { EstimateRequestChatBubbleGroup } from './EstimateRequestChatBubbleGroup';
+import { EstimateRequestChatPanel } from './EstimateRequestChatPanel';
 
 export type EstimateRequestGateKind = 'unauthorized' | 'profileIncomplete';
 

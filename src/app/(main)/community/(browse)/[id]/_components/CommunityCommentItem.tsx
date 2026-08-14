@@ -5,16 +5,17 @@ import { useState } from 'react';
 import { ChatAvatar } from '@/components/chat/ChatAvatar';
 import { formatRelativeTime } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
-import type { CommentItem, CommentWithReplies } from '@/types/community';
 
 import { CommunityCommentMoreMenu } from './CommunityCommentMoreMenu';
-import { CommunityPostAuthorBadge } from './CommunityPostAuthorBadge';
 import {
   COMMUNITY_COMMENT_REPLY_INDENT_CLASS,
   COMMUNITY_COMMENT_ROW_GAP_CLASS,
   COMMUNITY_DETAIL_COMMENT_INPUT,
   COMMUNITY_DETAIL_READING_TEXT_CLASS,
 } from './communityDetailStyles';
+import { CommunityPostAuthorBadge } from './CommunityPostAuthorBadge';
+
+import type { CommentItem, CommentWithReplies } from '@/types/community';
 
 interface CommunityCommentInteractionProps {
   postAuthorId?: string;
@@ -47,9 +48,7 @@ const isOwnComment = (
     return false;
   }
 
-  return (
-    currentUserId !== undefined && item.author.id === currentUserId
-  );
+  return currentUserId !== undefined && item.author.id === currentUserId;
 };
 
 /** Figma — Mobile 28px / Tablet 40px / Desktop 52px 아바타 */

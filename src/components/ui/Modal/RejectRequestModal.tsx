@@ -3,7 +3,6 @@
 import { useId, useMemo, useState, type ChangeEvent } from 'react';
 
 import { TextArea } from '@/components/ui/Input/TextArea';
-
 import {
   MAX_QUOTE_TEXT_LENGTH,
   MIN_QUOTE_TEXT_LENGTH,

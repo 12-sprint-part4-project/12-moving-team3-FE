@@ -2,13 +2,17 @@ import {
   COMMUNITY_POST_BADGE_FONT_CLASS,
   COMMUNITY_POST_BADGE_ROW_CLASS,
 } from '@/constants/communityCategoryStyles';
-import { isCommunityRegion, isFurnitureSharePost } from '@/constants/communityOptions';
+import {
+  isCommunityRegion,
+  isFurnitureSharePost,
+} from '@/constants/communityOptions';
 import { cn } from '@/lib/utils';
-import type { PostCategory, Region } from '@/types/community';
 
 import { CommunityCategoryBadge } from './CommunityCategoryBadge';
 import { CommunityFurnitureShareCompletedBadge } from './CommunityFurnitureShareCompletedBadge';
 import { CommunityRegionBadge } from './CommunityRegionBadge';
+
+import type { PostCategory, Region } from '@/types/community';
 
 const resolvePostRegion = (region: Region | null): Region | null =>
   region !== null && isCommunityRegion(region) ? region : null;
@@ -35,19 +39,14 @@ export const CommunityPostBadges = ({
 
   return (
     <div className={cn(COMMUNITY_POST_BADGE_ROW_CLASS, className)}>
-      <CommunityCategoryBadge
-        category={category}
-        className={fontClassName}
-      />
+      <CommunityCategoryBadge category={category} className={fontClassName} />
       {resolvedRegion ? (
         <CommunityRegionBadge
           region={resolvedRegion}
           className={fontClassName}
         />
       ) : null}
-      {showCompletedBadge ? (
-        <CommunityFurnitureShareCompletedBadge />
-      ) : null}
+      {showCompletedBadge ? <CommunityFurnitureShareCompletedBadge /> : null}
     </div>
   );
 };

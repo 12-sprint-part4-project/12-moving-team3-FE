@@ -3,18 +3,18 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 
-import type {
-  MoveTypeOption,
-  RequestScopeOption,
-  RequestsFilterState,
-} from '@/types/estimateRequest';
-
 import {
   buildRequestsListHref,
   DEFAULT_REQUESTS_LIST_URL_STATE,
   isRequestsSortValue,
   type RequestsListUrlState,
 } from './requestsListSearchParams';
+
+import type {
+  MoveTypeOption,
+  RequestScopeOption,
+  RequestsFilterState,
+} from '@/types/estimateRequest';
 
 interface UseRequestsListUrlStateResult {
   listFilters: RequestsListUrlState;

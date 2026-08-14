@@ -12,12 +12,13 @@ import { useListEntranceStagger } from '@/hooks/useListEntranceStagger';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 import { fadeUp, getMotionTransition, listStagger } from '@/lib/motionVariants';
 import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
-import type { PendingQuoteCardModel } from '@/types/customerQuote';
 
-import { CUSTOMER_QUOTES_CONTENT_CLASS } from './customerQuotesLayout';
 import { CustomerQuotesEmptyState } from './CustomerQuotesEmptyState';
+import { CUSTOMER_QUOTES_CONTENT_CLASS } from './customerQuotesLayout';
 import { PendingQuoteCard } from './PendingQuoteCard';
 import { PendingRequestSubHeader } from './PendingRequestSubHeader';
+
+import type { PendingQuoteCardModel } from '@/types/customerQuote';
 
 /** 대기 중인 견적 탭 패널 props */
 interface PendingQuotesPanelProps {

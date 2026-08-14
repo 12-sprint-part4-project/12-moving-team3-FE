@@ -7,7 +7,6 @@ import { useRef, useState } from 'react';
 
 import MenuIcon from '@/assets/icons/menu.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
-
 import { ChatGnbButton } from '@/components/chat/ChatGnbButton';
 import {
   GNB_NAV_BY_ROLE,
@@ -20,6 +19,7 @@ import { Logo } from '@/components/Logo/Logo';
 import { Tab } from '@/components/ui/Tab/Tab';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
 import { cn } from '@/lib/utils';
+
 import type { NotificationRole } from '@/types/notification';
 
 export type GnbDefaultSize = 'sm' | 'md' | 'lg';

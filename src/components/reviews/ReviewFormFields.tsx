@@ -1,6 +1,6 @@
 'use client';
 
-import type { ChangeEvent } from 'react';
+import { useRef, useState } from 'react';
 
 import { ReviewMoverSummaryCard } from '@/components/reviews/ReviewMoverSummaryCard';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
@@ -12,7 +12,8 @@ import {
   MAX_REVIEW_CONTENT_LENGTH,
   MIN_REVIEW_CONTENT_LENGTH,
 } from '@/types/review';
-import { useRef, useState } from 'react';
+
+import type { ChangeEvent } from 'react';
 
 export interface ReviewFormFieldsProps {
   moveType?: ApiMoveType | null;

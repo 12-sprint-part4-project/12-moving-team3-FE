@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { Modal } from './Modal';
 import { MoveTypeFilterModal } from './MoveTypeFilterModal';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof MoveTypeFilterModal> = {
   title: 'UI/Modal/MoveTypeFilterModal',

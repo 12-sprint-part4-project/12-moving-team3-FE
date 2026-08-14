@@ -1,5 +1,6 @@
 import { getPhoneNumberError, toPhoneDigits } from '@/lib/phoneNumber';
 import { validatePassword } from '@/lib/validatePassword';
+
 import type {
   MoverProfileMe,
   UpdateMoverBasicInfoRequest,
