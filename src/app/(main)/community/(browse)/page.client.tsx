@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
-import { CommunitySelectDropdown } from '../_components/CommunitySelectDropdown';
 import { Sort } from '@/components/ui/Sort/Sort';
 import {
   BOARD_CATEGORY_FILTER_OPTIONS,
@@ -23,24 +22,26 @@ import {
   buildPostListContextSearchParams,
   type PostListContext,
 } from '@/lib/communityListContext';
+import { hasStaleCommunityListPosts } from '@/lib/communityListStalePosts';
 import {
   COMMUNITY_SEARCH_DEBOUNCE_MS,
   getCommunitySearchKeyword,
 } from '@/lib/communitySearch';
-import { hasStaleCommunityListPosts } from '@/lib/communityListStalePosts';
 import { cn } from '@/lib/utils';
-import type { PostCategory, Region } from '@/types/community';
 
+import { CommunityFilterResetButton } from '../_components/CommunityFilterResetButton';
 import {
   COMMUNITY_DESKTOP_MAIN_GAP,
   COMMUNITY_DESKTOP_X,
   COMMUNITY_SECTION_X,
 } from '../_components/communityLayout';
-import { CommunityFilterResetButton } from '../_components/CommunityFilterResetButton';
 import { CommunityPostList } from '../_components/CommunityPostList';
 import { CommunitySearchField } from '../_components/CommunitySearchField';
+import { CommunitySelectDropdown } from '../_components/CommunitySelectDropdown';
 import { CommunitySidebarFilter } from '../_components/CommunitySidebarFilter';
 import { CommunityWriteButton } from '../_components/CommunityWriteButton';
+
+import type { PostCategory, Region } from '@/types/community';
 
 const SORT_CLASS =
   'w-[8.5rem] [&_button]:h-11 [&_button]:w-full [&_button]:justify-center [&_button]:shadow-none! [&_button]:text-2lg-medium! [&_span]:text-2lg-medium!';
@@ -54,12 +55,15 @@ interface CommunityPageClientProps {
 }
 
 /** 커뮤니티 게시글 목록 — Figma Mobile / Tablet / Desktop */
-export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps) => {
+export const CommunityPageClient = ({
+  initialContext,
+}: CommunityPageClientProps) => {
   const router = useRouter();
 
   const serverHref = buildCommunityListHref(initialContext);
   const [syncedServerHref, setSyncedServerHref] = useState(serverHref);
-  const [localContext, setLocalContext] = useState<PostListContext>(initialContext);
+  const [localContext, setLocalContext] =
+    useState<PostListContext>(initialContext);
 
   if (serverHref !== syncedServerHref) {
     setSyncedServerHref(serverHref);
@@ -107,12 +111,7 @@ export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps
     }
 
     return getCommunitySearchKeyword(debouncedSearch);
-  }, [
-    localContext.keyword,
-    searchDraft,
-    isSearchFlushed,
-    debouncedSearch,
-  ]);
+  }, [localContext.keyword, searchDraft, isSearchFlushed, debouncedSearch]);
 
   const listCategory = useMemo((): PostCategory | undefined => {
     if (activeTab === 'furniture') {
@@ -142,7 +141,14 @@ export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps
       keyword: listKeyword,
       hideCompleted: hideCompleted || undefined,
     }),
-    [activeTab, sortValue, categoryFilter, regionFilter, listKeyword, hideCompleted]
+    [
+      activeTab,
+      sortValue,
+      categoryFilter,
+      regionFilter,
+      listKeyword,
+      hideCompleted,
+    ]
   );
 
   const {
@@ -174,21 +180,14 @@ export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps
   const isRefetchingList = isFetching && !isFetchingNextPage;
 
   const showListSkeleton =
-    isPending ||
-    isPlaceholderData ||
-    (isRefetchingList && hasStalePosts);
+    isPending || isPlaceholderData || (isRefetchingList && hasStalePosts);
 
   const { ref: loadMoreRef, inView } = useInView({
     rootMargin: '200px',
   });
 
   useEffect(() => {
-    if (
-      inView &&
-      hasNextPage &&
-      !isFetchingNextPage &&
-      !isFetchNextPageError
-    ) {
+    if (inView && hasNextPage && !isFetchingNextPage && !isFetchNextPageError) {
       void fetchNextPage();
     }
   }, [
@@ -284,7 +283,10 @@ export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps
   const handleCategoryOpen = useCallback(() => {
     BOARD_CATEGORY_FILTER_OPTIONS.forEach((option) => {
       router.prefetch(
-        buildCommunityListHref({ ...localContext, categoryFilter: option.value })
+        buildCommunityListHref({
+          ...localContext,
+          categoryFilter: option.value,
+        })
       );
     });
   }, [router, localContext]);
@@ -364,7 +366,7 @@ export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps
 
       <div
         className={cn(
-          'bg-white pb-1 xl:hidden min-[46.5rem]:h-16 min-[46.5rem]:py-0.5',
+          'bg-white pb-1 min-[46.5rem]:h-16 min-[46.5rem]:py-0.5 xl:hidden',
           COMMUNITY_SECTION_X
         )}
       >
@@ -433,7 +435,6 @@ export const CommunityPageClient = ({ initialContext }: CommunityPageClientProps
           />
         </div>
       </div>
-
     </>
   );
 };

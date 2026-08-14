@@ -1,8 +1,8 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState, type ReactNode } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { RoleMismatchModal } from '@/components/auth/RoleMismatchModal';
@@ -10,17 +10,18 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import {
-  getAuthRouteRequirement,
-  isGuestOnlyPath,
-  LOGIN_HREF_BY_USER_TYPE,
-} from '@/lib/authRoutePaths';
-import {
   isLoginGateSuppressed,
   releaseLoginGate,
   suppressLoginGate,
 } from '@/lib/authLoginGate';
+import {
+  getAuthRouteRequirement,
+  isGuestOnlyPath,
+  LOGIN_HREF_BY_USER_TYPE,
+} from '@/lib/authRoutePaths';
 import { getPostAuthRedirectPath } from '@/lib/getPostAuthRedirectPath';
 import { logout } from '@/services/authApi';
+
 import type { ApiUserType } from '@/types/auth';
 
 interface AuthRouteGuardProps {

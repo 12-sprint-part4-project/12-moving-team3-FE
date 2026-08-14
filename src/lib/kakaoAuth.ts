@@ -1,4 +1,5 @@
 import { API_ERROR_CODE } from '@/constants/errorCode';
+
 import type { ApiUserType } from '@/types/auth';
 
 const KAKAO_AUTHORIZE_URL = 'https://kauth.kakao.com/oauth/authorize';
@@ -78,7 +79,9 @@ export const consumeKakaoOAuthState = (
     return null;
   }
 
-  const storedState = window.sessionStorage.getItem(KAKAO_OAUTH_STATE_STORAGE_KEY);
+  const storedState = window.sessionStorage.getItem(
+    KAKAO_OAUTH_STATE_STORAGE_KEY
+  );
 
   if (!storedState) {
     return null;

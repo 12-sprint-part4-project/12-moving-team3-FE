@@ -4,17 +4,21 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 
 import { API_ERROR_CODE } from '@/constants/errorCode';
-import { chatQueryKeys, designatedEstimateQueryKeys } from '@/constants/queryKey';
+import {
+  chatQueryKeys,
+  designatedEstimateQueryKeys,
+} from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
 import { useCustomerPendingQuotes } from '@/hooks/useCustomerPendingQuotes';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
-import type { DesignatedEstimateExistence } from '@/lib/designatedEstimateRequestSchema';
 import { getActiveEstimateRequest } from '@/services/customerEstimateRequestApi';
 import {
   createDesignatedEstimateRequest,
   getDesignatedEstimateExistence,
 } from '@/services/designatedEstimateRequestApi';
+
+import type { DesignatedEstimateExistence } from '@/lib/designatedEstimateRequestSchema';
 
 const NOT_DESIGNATED: DesignatedEstimateExistence = {
   exists: false,
@@ -34,10 +38,7 @@ const fetchDesignatedExistenceForMover = async (
       return NOT_DESIGNATED;
     }
 
-    return await getDesignatedEstimateExistence(
-      active.request.id,
-      moverId
-    );
+    return await getDesignatedEstimateExistence(active.request.id, moverId);
   } catch {
     return NOT_DESIGNATED;
   }
@@ -84,8 +85,7 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
     (quote) => quote.mover.moverId === moverId
   );
   /** 대기 견적 조회 실패 — 견적 수신 여부를 알 수 없으므로 요청 차단(fail-closed) */
-  const isQuoteStatusError =
-    canQueryExistence && pendingQuotesQuery.isError;
+  const isQuoteStatusError = canQueryExistence && pendingQuotesQuery.isError;
   const isStatusLoading =
     canQueryExistence &&
     (existenceQuery.isPending || pendingQuotesQuery.isPending);
@@ -173,7 +173,12 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
   });
 
   const requestDesignatedEstimate = useCallback(() => {
-    if (!moverId || mutation.isPending || isAlreadyDesignated || isStatusLoading) {
+    if (
+      !moverId ||
+      mutation.isPending ||
+      isAlreadyDesignated ||
+      isStatusLoading
+    ) {
       return;
     }
 

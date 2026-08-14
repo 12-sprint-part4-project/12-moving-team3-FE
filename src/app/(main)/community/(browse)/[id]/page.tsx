@@ -1,10 +1,10 @@
-import type { Metadata } from 'next';
-
 import { COMMUNITY_TABS } from '@/constants/communityOptions';
 import { getTabFromPostCategory } from '@/lib/communityListContext';
 import { getPostById } from '@/services/communityApi';
 
 import { CommunityPostDetailPageClient } from './page.client';
+
+import type { Metadata } from 'next';
 
 interface CommunityPostDetailPageProps {
   params: Promise<{ id: string }>;

@@ -3,6 +3,13 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { Calendar } from '@/components/ui/Calendar/Calendar';
+import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
+import { API_ERROR_CODE } from '@/constants/errorCode';
+import { useMoveInfoRevise } from '@/hooks/useMoveInfoRevise';
+import { ApiError } from '@/lib/apiClient';
+import { saveEstimateRequestStepBodySchema } from '@/lib/customerEstimateRequestSchema';
+
 import { AddressSelectCard } from '../AddressSelectCard';
 import {
   EstimateRequestAddressModal,
@@ -13,12 +20,7 @@ import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGrou
 import { EstimateRequestChatPanel } from '../EstimateRequestChatPanel';
 import { InlineErrorMessage } from '../InlineErrorMessage';
 import { MoveTypeRevisePanel } from '../MoveTypeRevisePanel';
-import { Calendar } from '@/components/ui/Calendar/Calendar';
-import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
-import { API_ERROR_CODE } from '@/constants/errorCode';
-import { useMoveInfoRevise } from '@/hooks/useMoveInfoRevise';
-import { ApiError } from '@/lib/apiClient';
-import { saveEstimateRequestStepBodySchema } from '@/lib/customerEstimateRequestSchema';
+
 import type { EstimateRequestVisualStep } from '@/types/customerEstimateRequest';
 
 /** 출발/도착 draft → Progress 채움 (미선택 2 → 한쪽만 3 → 둘 다 4, 선택 순서 무관) */

@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-
 import { TextFieldChat } from './TextFieldChat';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof TextFieldChat> = {
   title: 'UI/Input/TextFieldChat',

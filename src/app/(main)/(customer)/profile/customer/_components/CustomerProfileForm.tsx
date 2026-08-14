@@ -33,15 +33,16 @@ import {
   validateProfileImageFile,
 } from '@/lib/uploadProfileImage';
 import { upsertCustomerProfile } from '@/services/customerProfileApi';
+
+import { ProfileImageCropModal } from './ProfileImageCropModal';
+import { ProfileImageField } from './ProfileImageField';
+import { toggleService } from '../_lib/toggleService';
+import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
+
 import type {
   CustomerRegion,
   CustomerServiceType,
 } from '@/types/customerProfile';
-
-import { toggleService } from '../_lib/toggleService';
-import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
-import { ProfileImageCropModal } from './ProfileImageCropModal';
-import { ProfileImageField } from './ProfileImageField';
 
 const NICKNAME_MIN_LENGTH = 2;
 const NICKNAME_MAX_LENGTH = 20;

@@ -7,9 +7,10 @@ import {
   type PostListContext,
 } from '@/lib/communityListContext';
 import { cn } from '@/lib/utils';
-import type { PostNeighborSummary } from '@/types/community';
 
 import { COMMUNITY_DETAIL_DIVIDER } from './communityDetailStyles';
+
+import type { PostNeighborSummary } from '@/types/community';
 
 interface CommunityPostNavigationProps {
   prev: PostNeighborSummary | null;
@@ -18,8 +19,7 @@ interface CommunityPostNavigationProps {
   className?: string;
 }
 
-const NAV_LABEL_CLASS =
-  'text-md-medium text-gray-400 xl:text-lg-medium';
+const NAV_LABEL_CLASS = 'text-md-medium text-gray-400 xl:text-lg-medium';
 
 const NAV_TITLE_CLASS =
   'mt-1 w-full min-w-0 truncate text-md-semibold text-black-400 min-[46.5rem]:text-lg-semibold xl:text-2lg-semibold';
@@ -72,7 +72,11 @@ export const CommunityPostNavigation = ({
       >
         {prev ? (
           <div className="w-full min-w-0 px-1.5">
-            <NavItem direction="prev" neighbor={prev} listContext={listContext} />
+            <NavItem
+              direction="prev"
+              neighbor={prev}
+              listContext={listContext}
+            />
           </div>
         ) : null}
         {hasBoth ? (
@@ -80,7 +84,11 @@ export const CommunityPostNavigation = ({
         ) : null}
         {next ? (
           <div className="w-full min-w-0 px-1.5">
-            <NavItem direction="next" neighbor={next} listContext={listContext} />
+            <NavItem
+              direction="next"
+              neighbor={next}
+              listContext={listContext}
+            />
           </div>
         ) : null}
       </div>

@@ -1,4 +1,5 @@
 import { REGION_CHIP_OPTIONS } from '@/constants/commonOptions';
+
 import type { PostCategory, PostSort, Region } from '@/types/community';
 
 export type RegionFilterValue = Region | 'ALL';

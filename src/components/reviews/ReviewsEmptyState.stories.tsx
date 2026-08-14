@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-
 import { ReviewsEmptyState } from '@/components/reviews/ReviewsEmptyState';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof ReviewsEmptyState> = {
   title: 'Reviews/ReviewsEmptyState',

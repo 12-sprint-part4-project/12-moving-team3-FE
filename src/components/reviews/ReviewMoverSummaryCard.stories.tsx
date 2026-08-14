@@ -1,8 +1,8 @@
 'use client';
 
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-
 import { ReviewMoverSummaryCard } from '@/components/reviews/ReviewMoverSummaryCard';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof ReviewMoverSummaryCard> = {
   title: 'Reviews/ReviewMoverSummaryCard',

@@ -5,6 +5,7 @@ import { FavoriteButton } from '@/components/Favorite';
 import { cn } from '@/lib/utils';
 
 import { getDesignatedButtonLabel } from './getDesignatedButtonLabel';
+
 import type {
   MoverDetailChat,
   MoverDetailDesignated,

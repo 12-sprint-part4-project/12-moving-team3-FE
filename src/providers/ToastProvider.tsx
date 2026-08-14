@@ -1,5 +1,6 @@
 'use client';
 
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   createContext,
   useCallback,
@@ -10,7 +11,7 @@ import {
   type ReactNode,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+
 import { Toast, type ToastIconComponent } from '@/components/ui/Toast/Toast';
 
 /** 토스트가 화면에 머무는 기본 시간(ms). 별도 duration을 넘기지 않으면 이 값이 사용된다. */

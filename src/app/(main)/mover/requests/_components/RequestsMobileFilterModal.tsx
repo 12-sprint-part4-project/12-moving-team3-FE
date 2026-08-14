@@ -10,21 +10,12 @@ import {
   MODAL_PANEL_BOTTOM_SHEET_CLASS,
   MODAL_PANEL_CLASS,
 } from '@/components/ui/Modal/modalPanel';
-
 import {
   getMotionTransition,
   tabContentSlide,
   tapScale,
 } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
-
-import type {
-  MoveTypeFilterCounts,
-  MoveTypeOption,
-  RequestScopeFilterCounts,
-  RequestScopeOption,
-  RequestsFilterState,
-} from '@/types/estimateRequest';
 
 import {
   MOVE_TYPE_LABELS,
@@ -33,6 +24,14 @@ import {
   SCOPE_OPTIONS,
   formatFilterLabel,
 } from '../_lib/filterOptions';
+
+import type {
+  MoveTypeFilterCounts,
+  MoveTypeOption,
+  RequestScopeFilterCounts,
+  RequestScopeOption,
+  RequestsFilterState,
+} from '@/types/estimateRequest';
 
 export type RequestsMobileFilterTab = 'moveType' | 'scope';
 
@@ -135,10 +134,8 @@ export const RequestsMobileFilterModal = ({
     });
   };
 
-  const getTabId = (tab: RequestsMobileFilterTab) =>
-    `${tabsId}-tab-${tab}`;
-  const getPanelId = (tab: RequestsMobileFilterTab) =>
-    `${tabsId}-panel-${tab}`;
+  const getTabId = (tab: RequestsMobileFilterTab) => `${tabsId}-tab-${tab}`;
+  const getPanelId = (tab: RequestsMobileFilterTab) => `${tabsId}-panel-${tab}`;
 
   const renderTabButton = (tab: RequestsMobileFilterTab, label: string) => {
     const active = activeTab === tab;

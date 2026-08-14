@@ -1,8 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState, type ComponentProps } from 'react';
 import { fn } from 'storybook/test';
 
 import { PriceInput } from './PriceInput';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof PriceInput> = {
   title: 'UI/Input/PriceInput',

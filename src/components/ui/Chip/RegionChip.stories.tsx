@@ -1,8 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
 import { RegionChip } from './RegionChip';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof RegionChip> = {
   title: 'UI/Chip/RegionChip',
@@ -84,7 +85,7 @@ function InteractiveDemo() {
     setSelected((prev) =>
       prev.includes(region)
         ? prev.filter((r) => r !== region)
-        : [...prev, region],
+        : [...prev, region]
     );
   };
 

@@ -1,4 +1,3 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
 
 import { GnbNotificationDropdown } from './GnbNotificationDropdown';
@@ -6,6 +5,8 @@ import {
   NOTIFICATION_FIXTURES,
   NOTIFICATION_LIST_FIXTURE,
 } from './notificationFixtures';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof GnbNotificationDropdown> = {
   title: 'UI/GnbNotificationDropdown',

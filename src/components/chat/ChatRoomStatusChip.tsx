@@ -2,6 +2,7 @@
 
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { cn } from '@/lib/utils';
+
 import type { ChatRoomType } from '@/types/chat';
 import type { QuoteStatus } from '@/types/quote';
 

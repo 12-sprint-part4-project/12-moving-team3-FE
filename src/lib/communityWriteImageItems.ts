@@ -1,4 +1,8 @@
-import { POST_IMAGE_S3_KEY_PREFIX, uploadPostImage } from '@/lib/uploadPostImage';
+import {
+  POST_IMAGE_S3_KEY_PREFIX,
+  uploadPostImage,
+} from '@/lib/uploadPostImage';
+
 import type { PostImage } from '@/types/community';
 
 const POST_IMAGE_PREFIX = POST_IMAGE_S3_KEY_PREFIX;
@@ -8,7 +12,9 @@ export type WriteImageItem =
   | { kind: 'existing'; s3Key: string; previewUrl: string }
   | { kind: 'unresolved'; previewUrl: string };
 
-const normalizePostImageKey = (value: string | null | undefined): string | null => {
+const normalizePostImageKey = (
+  value: string | null | undefined
+): string | null => {
   if (value == null || value.trim() === '') {
     return null;
   }
@@ -28,9 +34,7 @@ export const extractPostImageS3KeyFromUrl = (
 ): string | null => {
   try {
     const url = new URL(imageUrl);
-    const pathnameKey = normalizePostImageKey(
-      decodeURIComponent(url.pathname)
-    );
+    const pathnameKey = normalizePostImageKey(decodeURIComponent(url.pathname));
 
     if (pathnameKey !== null) {
       return pathnameKey;
@@ -66,9 +70,7 @@ const resolveExistingImageS3Key = (image: PostImage): string | null => {
   return extractPostImageS3KeyFromUrl(image.imageUrl);
 };
 
-export const createPendingWriteImageItems = (
-  files: File[]
-): WriteImageItem[] =>
+export const createPendingWriteImageItems = (files: File[]): WriteImageItem[] =>
   files.map((file) => ({
     kind: 'pending',
     file,
@@ -108,8 +110,9 @@ export const createExistingWriteImageItems = (
 export const getWriteImagePreviewUrls = (items: WriteImageItem[]): string[] =>
   items.map((item) => item.previewUrl);
 
-export const hasUnresolvedWriteImageItems = (items: WriteImageItem[]): boolean =>
-  items.some((item) => item.kind === 'unresolved');
+export const hasUnresolvedWriteImageItems = (
+  items: WriteImageItem[]
+): boolean => items.some((item) => item.kind === 'unresolved');
 
 export const revokePendingWriteImageItems = (items: WriteImageItem[]) => {
   items.forEach((item) => {

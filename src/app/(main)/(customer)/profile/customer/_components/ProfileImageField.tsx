@@ -1,11 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import type { ChangeEvent, MouseEvent, RefObject } from 'react';
 
 import CloseIcon from '@/assets/icons/close.svg';
 import NoImageIcon from '@/assets/icons/no-image.svg';
 import { cn } from '@/lib/utils';
+
+import type { ChangeEvent, MouseEvent, RefObject } from 'react';
 
 interface ProfileImageFieldProps {
   imageInputId: string;

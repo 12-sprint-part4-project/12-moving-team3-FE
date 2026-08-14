@@ -1,8 +1,7 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
-
 import EditIcon from '@/assets/icons/edit.svg';
-
 import { cn } from '@/lib/utils';
+
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 export type ButtonSize = 'sm' | 'md';
 export type ButtonVariant = 'solid' | 'outlined';

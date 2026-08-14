@@ -1,12 +1,12 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import {
   createContext,
   useEffect,
   useSyncExternalStore,
   type ReactNode,
 } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { AUTH_QUERY_KEYS } from '@/constants/queryKey';
 import { useAuthMe } from '@/hooks/useAuthMe';
@@ -18,6 +18,7 @@ import {
   subscribeAuthSession,
   type AuthSession,
 } from '@/lib/authSession';
+
 import type { AuthUser } from '@/types/auth';
 
 export interface AuthContextValue {

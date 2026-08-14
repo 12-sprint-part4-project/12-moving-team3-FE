@@ -4,11 +4,11 @@ import { useState } from 'react';
 
 import MenuIcon from '@/assets/icons/menu.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
-
 import { ChatGnbButton } from '@/components/chat/ChatGnbButton';
 import { NotificationGnbButton } from '@/components/Gnb/NotificationGnbButton';
 import { Logo } from '@/components/Logo/Logo';
 import { Tab } from '@/components/ui/Tab/Tab';
+
 import type { NotificationRole } from '@/types/notification';
 
 export type Gnb2DepthSize = 'sm' | 'md' | 'lg';

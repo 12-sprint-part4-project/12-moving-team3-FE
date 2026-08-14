@@ -1,9 +1,10 @@
-import { POST_CATEGORY_LABEL } from '@/constants/communityOptions';
 import {
   getPostCategoryBadgeClassName,
   POST_CATEGORY_CHIP_LAYOUT_CLASS,
 } from '@/constants/communityCategoryStyles';
+import { POST_CATEGORY_LABEL } from '@/constants/communityOptions';
 import { cn } from '@/lib/utils';
+
 import type { PostCategory } from '@/types/community';
 
 interface CommunityCategoryBadgeProps {

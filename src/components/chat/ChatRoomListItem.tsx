@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { getChatListStatusLabel } from '@/lib/chatListStatusLabel';
 import { getChatLastMessagePreview } from '@/lib/chatMessagePreview';
 import { cn } from '@/lib/utils';
+
 import type { ChatRoomListItem as ChatRoomListItemData } from '@/types/chat';
 
 export interface ChatRoomListItemProps {
@@ -30,8 +31,7 @@ export const ChatRoomListItem = ({
   const preview = getChatLastMessagePreview(room.lastMessage);
   const hasUnread = room.unreadCount > 0;
 
-  const statusLabel =
-    user != null ? getChatListStatusLabel(room, user.id) : '';
+  const statusLabel = user != null ? getChatListStatusLabel(room, user.id) : '';
 
   useEffect(() => {
     if (!room.lastMessage) {

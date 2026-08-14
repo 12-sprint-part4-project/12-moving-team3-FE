@@ -29,34 +29,34 @@ import {
   parsePostListContextFromSearchParams,
   postListContextToParams,
 } from '@/lib/communityListContext';
-import { formatDotDateLabel } from '@/lib/formatDate';
 import { stripCommunityPostContent } from '@/lib/communityPostContent';
+import { formatDotDateLabel } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
 
-import { CommunityPostBadges } from '../../_components/CommunityPostBadges';
-import { useCommunityTabBarOverride } from '../../_components/CommunityLayoutClient';
-import {
-  COMMUNITY_DESKTOP_X,
-  COMMUNITY_DETAIL_MAX_W,
-  COMMUNITY_DETAIL_MOBILE_BOTTOM_PAD,
-  COMMUNITY_SECTION_X,
-} from '../../_components/communityLayout';
 import { CommunityCommentList } from './_components/CommunityCommentList';
-import { CommunityFurnitureShareDetailActions } from './_components/CommunityFurnitureShareDetailActions';
-import { CommunityPostDetailContent } from './_components/CommunityPostDetailContent';
-import { ConfirmDeleteModal } from './_components/ConfirmDeleteModal';
 import {
   COMMUNITY_DETAIL_DIVIDER,
   COMMUNITY_DETAIL_META_DATE,
   COMMUNITY_DETAIL_META_NICKNAME,
   COMMUNITY_POST_ICON_GROUP_GAP_CLASS,
 } from './_components/communityDetailStyles';
+import { CommunityFurnitureShareDetailActions } from './_components/CommunityFurnitureShareDetailActions';
+import { CommunityPostDetailContent } from './_components/CommunityPostDetailContent';
 import { CommunityPostDetailImages } from './_components/CommunityPostDetailImages';
 import { CommunityPostEngagementBar } from './_components/CommunityPostEngagementBar';
 import { CommunityPostMoreMenu } from './_components/CommunityPostMoreMenu';
 import { CommunityPostNavigation } from './_components/CommunityPostNavigation';
 import { CommunityPostShareButtons } from './_components/CommunityPostShareButtons';
+import { ConfirmDeleteModal } from './_components/ConfirmDeleteModal';
 import { useCommunityFurnitureShareDetail } from './_lib/useCommunityFurnitureShareDetail';
+import {
+  COMMUNITY_DESKTOP_X,
+  COMMUNITY_DETAIL_MAX_W,
+  COMMUNITY_DETAIL_MOBILE_BOTTOM_PAD,
+  COMMUNITY_SECTION_X,
+} from '../../_components/communityLayout';
+import { useCommunityTabBarOverride } from '../../_components/CommunityLayoutClient';
+import { CommunityPostBadges } from '../../_components/CommunityPostBadges';
 
 type AuthModalKind = 'login' | 'profile';
 
@@ -237,7 +237,14 @@ export const CommunityPostDetailPageClient = ({
         showMutationError(error, '좋아요 처리에 실패했습니다.');
       },
     });
-  }, [ensureProfileReady, post, postId, togglePostLike, showToast, showMutationError]);
+  }, [
+    ensureProfileReady,
+    post,
+    postId,
+    togglePostLike,
+    showToast,
+    showMutationError,
+  ]);
 
   const handleReplySubmit = useCallback(
     (commentId: number, content: string) => {
@@ -361,7 +368,14 @@ export const CommunityPostDetailPageClient = ({
         showMutationError(error, '게시글 삭제에 실패했습니다.');
       },
     });
-  }, [deletePostMutate, isDeletePostPending, postId, router, showToast, showMutationError]);
+  }, [
+    deletePostMutate,
+    isDeletePostPending,
+    postId,
+    router,
+    showToast,
+    showMutationError,
+  ]);
 
   useEffect(() => {
     if (
@@ -402,9 +416,7 @@ export const CommunityPostDetailPageClient = ({
   if (isNotFound) {
     return (
       <div className={DETAIL_STATE_MESSAGE_CLASS}>
-        <p className="text-lg-medium text-gray-400">
-          게시글을 찾을 수 없어요.
-        </p>
+        <p className="text-lg-medium text-gray-400">게시글을 찾을 수 없어요.</p>
       </div>
     );
   }
@@ -480,10 +492,7 @@ export const CommunityPostDetailPageClient = ({
                 </span>
                 {postDateLabel ? (
                   <>
-                    <span
-                      className={COMMUNITY_DETAIL_META_DATE}
-                      aria-hidden
-                    >
+                    <span className={COMMUNITY_DETAIL_META_DATE} aria-hidden>
                       ·
                     </span>
                     <span className={COMMUNITY_DETAIL_META_DATE}>
@@ -593,7 +602,7 @@ export const CommunityPostDetailPageClient = ({
             onCommentChange={setCommentDraft}
             onCommentSubmit={handleCommentSubmit}
             onCommentFocus={handleCommentInputFocus}
-            className="max-[46.4375rem]:mt-0 mt-6 min-[46.5rem]:mt-8 xl:mt-10"
+            className="mt-6 max-[46.4375rem]:mt-0 min-[46.5rem]:mt-8 xl:mt-10"
           />
 
           <CommunityPostNavigation
@@ -604,7 +613,10 @@ export const CommunityPostDetailPageClient = ({
         </div>
       </article>
 
-      <LoginRequiredModal open={authModalKind === 'login'} onClose={closeLoginModal} />
+      <LoginRequiredModal
+        open={authModalKind === 'login'}
+        onClose={closeLoginModal}
+      />
       <ProfileRequiredModal
         open={authModalKind === 'profile'}
         onClose={closeProfileModal}

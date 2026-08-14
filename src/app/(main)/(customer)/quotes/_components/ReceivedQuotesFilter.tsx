@@ -4,7 +4,6 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useId, useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
-
 import { useListboxKeyboard } from '@/hooks/useListboxKeyboard';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
 import {
@@ -12,6 +11,7 @@ import {
   getMotionTransition,
 } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
+
 import type { CustomerPastQuoteFilter } from '@/types/customerQuote';
 
 export interface ReceivedQuotesFilterProps {

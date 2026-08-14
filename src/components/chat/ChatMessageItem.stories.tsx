@@ -1,10 +1,11 @@
 'use client';
 
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
 
 import { ChatMessageItem } from '@/components/chat/ChatMessageItem';
+
 import type { ChatMessage } from '@/types/chat';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const TEXT_PARTNER_MESSAGE: ChatMessage = {
   messageId: 101,

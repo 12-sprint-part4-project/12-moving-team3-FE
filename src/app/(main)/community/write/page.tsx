@@ -1,5 +1,7 @@
 import { Suspense } from 'react';
+
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+
 import { CommunityWritePageClient } from './page.client';
 
 import type { Metadata } from 'next';

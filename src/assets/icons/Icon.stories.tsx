@@ -1,5 +1,3 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-
 import AlarmIcon from './alarm.svg';
 import ArrowRightIcon from './arrow-right.svg';
 import BoxFillIcon from './box-fill.svg';
@@ -28,6 +26,8 @@ import SymbolFacebookIcon from './symbol-facebook.svg';
 import SymbolKakaoIcon from './symbol-kakao.svg';
 import VisibilityOffIcon from './visibility-off.svg';
 import VisibilityOnIcon from './visibility-on.svg';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 /**
  * `assets/icons`의 svg는 전부 SVGR(Next.js: @svgr/webpack, Storybook: vite-plugin-svgr)로
@@ -91,7 +91,9 @@ const IconGallery = ({ className, solid = false }: IconGalleryProps) => (
     {(solid ? SOLID_ICONS : MONO_ICONS).map(([name, Icon]) => (
       <figure key={name} className="flex flex-col items-center gap-2">
         <Icon className={className} />
-        <figcaption className="text-xs-regular text-black-100">{name}</figcaption>
+        <figcaption className="text-xs-regular text-black-100">
+          {name}
+        </figcaption>
       </figure>
     ))}
   </div>
@@ -187,12 +189,16 @@ export const ColorWithTextClass: Story = {
 export const SizeWithWidthHeightClass: Story = {
   render: () => (
     <div className="flex flex-wrap items-end gap-8 p-4">
-      {(['w-4 h-4', 'w-8 h-8', 'w-12 h-12', 'w-16 h-16'] as const).map((size) => (
-        <figure key={size} className="flex flex-col items-center gap-2">
-          <StarIcon className={`text-yellow-100 ${size}`} />
-          <figcaption className="text-xs-regular text-black-100">{size}</figcaption>
-        </figure>
-      ))}
+      {(['w-4 h-4', 'w-8 h-8', 'w-12 h-12', 'w-16 h-16'] as const).map(
+        (size) => (
+          <figure key={size} className="flex flex-col items-center gap-2">
+            <StarIcon className={`text-yellow-100 ${size}`} />
+            <figcaption className="text-xs-regular text-black-100">
+              {size}
+            </figcaption>
+          </figure>
+        )
+      )}
     </div>
   ),
   parameters: {
@@ -242,7 +248,7 @@ export const InfoIconColorSlots: Story = {
         </figcaption>
       </figure>
       <figure className="flex flex-col items-center gap-2">
-        <InfoIcon className="[--ic-bg:var(--color-blue-300)] [--ic-stroke:var(--color-red-200)] size-10" />
+        <InfoIcon className="size-10 [--ic-bg:var(--color-blue-300)] [--ic-stroke:var(--color-red-200)]" />
         <figcaption className="text-xs-regular text-black-100">
           --ic-bg / --ic-stroke 오버라이드
         </figcaption>
@@ -281,7 +287,7 @@ export const ProfileIconColorSlots: Story = {
         </figcaption>
       </figure>
       <figure className="flex flex-col items-center gap-2">
-        <ProfileIcon className="[--ic-bg:var(--color-blue-100)] [--ic-stroke:var(--color-blue-300)] size-10" />
+        <ProfileIcon className="size-10 [--ic-bg:var(--color-blue-100)] [--ic-stroke:var(--color-blue-300)]" />
         <figcaption className="text-xs-regular text-black-100">
           --ic-bg / --ic-stroke 오버라이드
         </figcaption>
@@ -320,7 +326,7 @@ export const HeartIconColorSlots: Story = {
         </figcaption>
       </figure>
       <figure className="flex flex-col items-center gap-2">
-        <HeartIcon className="[--ic-bg:currentColor] size-9 text-blue-400" />
+        <HeartIcon className="size-9 text-blue-400 [--ic-bg:currentColor]" />
         <figcaption className="text-xs-regular text-black-100">
           --ic-bg:currentColor 오버라이드 — 활성
         </figcaption>
