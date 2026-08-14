@@ -1,3 +1,4 @@
+import { API_PATH } from '@/constants/apiPaths';
 import { API_ERROR_CODE } from '@/constants/errorCode';
 import {
   API_BASE_URL,
@@ -23,7 +24,7 @@ export const getPresignedUploadUrl = async (
   });
 
   const response = await authFetch(
-    `${API_BASE_URL}/api/presigned-upload-url?${searchParams.toString()}`,
+    `${API_BASE_URL}${API_PATH.PRESIGNED_UPLOAD_URL}?${searchParams.toString()}`,
     {
       method: 'GET',
       signal: createApiTimeoutSignal(),

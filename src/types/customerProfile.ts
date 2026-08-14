@@ -9,7 +9,8 @@ export type CustomerRegion = RegionChipValue;
 
 export interface UpsertCustomerProfileRequest {
   name?: string;
-  nickname: string;
+  /** 수정 시 전송. 등록은 회원가입 값을 쓰므로 생략 */
+  nickname?: string;
   /** 숫자 11자리. 등록·수정 모두 필수 */
   phoneNumber: string;
   currentPassword?: string;

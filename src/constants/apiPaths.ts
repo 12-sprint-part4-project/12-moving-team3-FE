@@ -6,4 +6,8 @@ export const API_PATH = {
   AUTH_REFRESH: '/api/auth/refresh',
   AUTH_LOGOUT: '/api/auth/logout',
   AUTH_ME: '/api/auth/me',
+  CUSTOMER_PROFILE: '/api/users/customers/profile',
+  MOVER_PROFILE: '/api/users/movers/profile',
+  MOVER_BASIC_INFO: '/api/users/movers/basic-info',
+  PRESIGNED_UPLOAD_URL: '/api/presigned-upload-url',
 } as const;

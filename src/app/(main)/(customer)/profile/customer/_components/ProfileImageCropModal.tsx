@@ -13,6 +13,7 @@ interface ProfileImageCropModalProps {
   onCropComplete: (blob: Blob) => void;
 }
 
+/** 프로필 이미지 1:1 크롭 모달. 적용 시 blob을 반환한다. */
 export const ProfileImageCropModal = ({
   imageSrc,
   onClose,
@@ -22,6 +23,7 @@ export const ProfileImageCropModal = ({
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [isPending, setIsPending] = useState(false);
+  const submitLabel = isPending ? '적용 중...' : '적용하기';
 
   const handleCropComplete = (
     _croppedArea: Area,
@@ -54,7 +56,7 @@ export const ProfileImageCropModal = ({
             }}
             disabled={!croppedAreaPixels || isPending}
           >
-            {isPending ? '적용 중...' : '적용하기'}
+            {submitLabel}
           </ModalCtaButton>
         }
       >
