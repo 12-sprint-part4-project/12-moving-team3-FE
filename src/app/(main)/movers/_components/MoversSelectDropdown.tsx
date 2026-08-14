@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
@@ -41,17 +41,10 @@ export const MoversSelectDropdown = ({
 }: MoversSelectDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const selectedRef = useRef<HTMLButtonElement>(null);
   const selected =
     options.find((option) => option.value === value) ?? options[0];
 
   useOutsideClick(containerRef, isOpen, setIsOpen);
-
-  useEffect(() => {
-    if (isOpen) {
-      selectedRef.current?.scrollIntoView({ block: 'center' });
-    }
-  }, [isOpen]);
 
   if (!selected) {
     return null;
@@ -127,7 +120,6 @@ export const MoversSelectDropdown = ({
                   className={cn(isLeftColumn && 'border-r border-line-200')}
                 >
                   <button
-                    ref={isSelected ? selectedRef : undefined}
                     type="button"
                     role="option"
                     aria-selected={isSelected}
