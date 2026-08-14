@@ -1,9 +1,15 @@
-/** 서비스(이사 유형) — 칩/폼용 (전체 없음) */
-export const SERVICE_CHIP_OPTIONS = [
-  { label: '소형이사', value: 'SMALL' },
-  { label: '가정이사', value: 'HOME' },
-  { label: '사무실이사', value: 'OFFICE' },
-] as const;
+import type { ApiMoveType } from '@/types/estimateRequest';
+
+/** 서비스(이사 유형) — 칩/폼용 (전체 없음). `detail`은 견적요청 Step1~3 질문에서만 라벨에 덧붙여 쓴다 */
+export const SERVICE_CHIP_OPTIONS: ReadonlyArray<{
+  label: string;
+  value: ApiMoveType;
+  detail: string;
+}> = [
+  { label: '소형이사', value: 'SMALL', detail: '(원룸, 투룸, 20평대 미만)' },
+  { label: '가정이사', value: 'HOME', detail: '(쓰리룸, 20평대 이상)' },
+  { label: '사무실이사', value: 'OFFICE', detail: '(사무실, 상업공간)' },
+];
 
 /** 지역 — 칩/폼용 (전체 없음) */
 export const REGION_CHIP_OPTIONS = [
@@ -25,5 +31,5 @@ export const REGION_CHIP_OPTIONS = [
   { label: '제주', value: 'JEJU' },
 ] as const;
 
-export type ServiceChipValue = (typeof SERVICE_CHIP_OPTIONS)[number]['value'];
+export type ServiceChipValue = ApiMoveType;
 export type RegionChipValue = (typeof REGION_CHIP_OPTIONS)[number]['value'];
