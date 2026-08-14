@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import { API_ERROR_CODE } from '@/constants/errorCode';
 import {
   API_BASE_URL,
@@ -80,12 +82,10 @@ const communityFetch = async (
 };
 
 /** safeParse 실패 시 INVALID_RESPONSE 에러 */
-const parseOrThrow = <T>(
-  schema: { safeParse: (data: unknown) => { success: true; data: T } | { success: false } },
-  body: unknown
-): T => {
+const parseOrThrow = <T>(schema: z.ZodType<T>, body: unknown): T => {
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
+    console.error('[communityApi] 응답 스키마 검증 실패', z.treeifyError(parsed.error));
     throw new ApiError(
       500,
       DEFAULT_API_ERROR_MESSAGE,
