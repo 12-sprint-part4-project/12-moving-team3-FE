@@ -1,48 +1,39 @@
 'use client';
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useInView } from 'react-intersection-observer';
+import { useCallback, useState } from 'react';
 
-import { Button } from '@/components/Button/Button';
+import { QuotesListErrorState } from '@/components/quotes/QuotesListErrorState';
+import { QuotesLoadMoreSentinel } from '@/components/quotes/QuotesLoadMoreSentinel';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { RejectRequestModal } from '@/components/ui/Modal/RejectRequestModal';
 import { SendQuoteModal } from '@/components/ui/Modal/SendQuoteModal';
 import { RequestsListSkeleton } from '@/components/ui/Skeleton';
-import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
-import { useDebouncedValue } from '@/hooks/useDebouncedValue';
-import { useQuoteSubmission } from '@/hooks/useQuoteSubmission';
-import { useReceivedEstimateRequests } from '@/hooks/useReceivedEstimateRequests';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
-import { ApiError } from '@/lib/apiClient';
 import {
-  fadeIn,
+  getFadeInPresenceProps,
   getMotionTransition,
-  listItemVariants,
   listStagger,
 } from '@/lib/motionVariants';
-import {
-  ALL_MOVE_TYPES,
-  ALL_SCOPES,
-  type ReceivedRequestCardModel,
-  type RequestsFilterState,
-} from '@/types/estimateRequest';
 
-import { ReceivedRequestCard } from './_components/ReceivedRequestCard';
+import { MOVER_REQUESTS_LAYOUT_CLASS } from './_components/moverRequestsStyles';
+import { ReceivedRequestListItem } from './_components/ReceivedRequestListItem';
 import { RequestsEmptyState } from './_components/RequestsEmptyState';
 import { RequestsListToolbar } from './_components/RequestsListToolbar';
 import { RequestsMobileFilterModal } from './_components/RequestsMobileFilterModal';
 import { RequestsSidebarFilter } from './_components/RequestsSidebarFilter';
-import {
-  isDefaultRequestsListUrlState,
-  type RequestsListUrlState,
-} from './_lib/requestsListSearchParams';
-import { useFocusRequestInList } from './_lib/useFocusRequestInList';
+import { useRequestsCardExit } from './_lib/useRequestsCardExit';
 import { useRequestsListUrlState } from './_lib/useRequestsListUrlState';
+import { useRequestsReceivedList } from './_lib/useRequestsReceivedList';
+import { useRequestsRejectModal } from './_lib/useRequestsRejectModal';
+import { useRequestsSendQuoteModal } from './_lib/useRequestsSendQuoteModal';
 
-/** 데스크톱 필터 변경 API 조회 디바운스 지연(ms) */
-const FILTER_DEBOUNCE_MS = 200;
+import type { RequestsListUrlState } from './_lib/requestsListSearchParams';
+import type {
+  ReceivedRequestCardModel,
+  RequestsFilterState,
+} from '@/types/estimateRequest';
 
 export interface MoverRequestsPageClientProps {
   /** 서버 page searchParams에서 파싱한 초기 URL 상태 */
@@ -51,22 +42,18 @@ export interface MoverRequestsPageClientProps {
   focusRequestId?: number | null;
 }
 
-/** 받은 요청 페이지 클라이언트 — 검색·정렬·필터·목록 조회 */
+/** `/mover/requests` 클라이언트. - 검색·정렬·필터·목록·모달 오케스트레이션 */
 const MoverRequestsPageClient = ({
   initialUrlState,
   focusRequestId = null,
 }: MoverRequestsPageClientProps) => {
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
-  const { user } = useAuth();
-  const { startEstimateChat, isChatPending, pendingChatTargetId } =
-    useStartEstimateChat();
 
   const {
     listFilters,
     selectedMoveTypes,
     selectedScopes,
-    sortValue,
     commitSearchKeyword,
     handleMoveTypesChange,
     handleScopesChange,
@@ -78,147 +65,71 @@ const MoverRequestsPageClient = ({
   const [queryKeyword, setQueryKeyword] = useState(initialUrlState.keyword);
   const [resetSignal, setResetSignal] = useState(0);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [sendQuoteTarget, setSendQuoteTarget] =
-    useState<ReceivedRequestCardModel | null>(null);
-  const [rejectTarget, setRejectTarget] =
-    useState<ReceivedRequestCardModel | null>(null);
-  const [exitingIds, setExitingIds] = useState<Set<number>>(() => new Set());
 
-  const handleQueryChange = useCallback((keyword: string) => {
-    setQueryKeyword(keyword);
-  }, []);
+  const { user } = useAuth();
+  const { startEstimateChatFromSource, pendingChatTargetId } =
+    useStartEstimateChat();
 
-  const debouncedMoveTypes = useDebouncedValue(
-    selectedMoveTypes,
-    FILTER_DEBOUNCE_MS
-  );
-  const debouncedScopes = useDebouncedValue(selectedScopes, FILTER_DEBOUNCE_MS);
-
-  /** 정렬·필터 변경 시에만 목록 entrance 애니메이션 (검색어 제외) */
-  const listAnimationKey = useMemo(
-    () =>
-      [sortValue, debouncedMoveTypes.join(','), debouncedScopes.join(',')].join(
-        '|'
-      ),
-    [sortValue, debouncedMoveTypes, debouncedScopes]
-  );
-
-  const handleExitComplete = (id: number) => {
-    setExitingIds((prev) => {
-      if (!prev.has(id)) return prev;
-      const next = new Set(prev);
-      next.delete(id);
-      return next;
-    });
-  };
-
-  const handleProposalSuccess = () => {
-    setSendQuoteTarget((target) => {
-      if (target) {
-        setExitingIds((prev) => new Set(prev).add(target.id));
-      }
-      return null;
-    });
-  };
-
-  const handleRejectionSuccess = () => {
-    setRejectTarget((target) => {
-      if (target) {
-        setExitingIds((prev) => new Set(prev).add(target.id));
-      }
-      return null;
-    });
-  };
-
+  const { exitingIds, handleExitComplete, markExiting } =
+    useRequestsCardExit();
   const {
-    submitErrorMessage,
-    clearSubmitError,
-    proposalMutation,
-    rejectionMutation,
-  } = useQuoteSubmission({
-    onProposalSuccess: handleProposalSuccess,
-    onRejectionSuccess: handleRejectionSuccess,
-  });
+    sendQuoteTarget,
+    sendQuoteErrorMessage,
+    isProposalPending,
+    handleOpenSendQuoteModal,
+    handleCloseSendQuoteModal,
+    handleSendQuoteSubmit,
+  } = useRequestsSendQuoteModal(markExiting);
+  const {
+    rejectTarget,
+    rejectErrorMessage,
+    isRejectionPending,
+    handleOpenRejectModal,
+    handleCloseRejectModal,
+    handleRejectSubmit,
+  } = useRequestsRejectModal(markExiting);
 
-  /** 받은 요청 목록·필터 건수 조회 */
+  /** `/mover/requests` — 로그인 기사 id로 고객과 1:1 방 생성 후 채팅 이동 */
+  const handleChatClick = (request: ReceivedRequestCardModel) => {
+    startEstimateChatFromSource(
+      {
+        isDesignated: request.isDesignated,
+        estimateRequestId: request.id,
+        designatedMoverId: request.designatedMoverId,
+      },
+      user?.id,
+      request.id
+    );
+  };
+
   const {
     requests,
+    displayRequests,
     totalCount,
     moveTypeCounts,
     scopeCounts,
     isPending,
-    isFetching,
     isFetchingNextPage,
     isError,
-    error,
-    hasNextPage,
-    fetchNextPage,
-    refetch,
     isEmpty,
-  } = useReceivedEstimateRequests({
-    keyword: queryKeyword,
-    moveTypes: debouncedMoveTypes,
-    scopes: debouncedScopes,
-    sort: sortValue,
-  });
-
-  const displayRequests = useMemo(
-    () => requests.filter((request) => !exitingIds.has(request.id)),
-    [exitingIds, requests]
-  );
-
-  const { ref: loadMoreRef, inView } = useInView({
-    rootMargin: '200px 0px',
-  });
-
-  /** 하단 진입 시 다음 페이지 요청 */
-  useEffect(() => {
-    if (!inView || !hasNextPage || isFetchingNextPage) {
-      return;
-    }
-    void fetchNextPage();
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  // 알림 `?focus=` — 대상 카드가 보일 때까지 페이지 로드 후 스크롤
-  useFocusRequestInList({
+    isFilteredEmpty,
+    hasNextPage,
+    loadMoreRef,
+    listAnimationKey,
+    errorMessage,
+    showListFetching,
+    shouldAnimateList,
+    handleRetry,
+  } = useRequestsReceivedList({
+    listFilters,
+    queryKeyword,
     focusRequestId,
-    requests,
-    isPending,
-    isFetchingNextPage,
-    hasNextPage: Boolean(hasNextPage),
-    fetchNextPage,
-    listFilters: {
-      ...listFilters,
-      keyword: queryKeyword,
-    },
+    exitingIds,
   });
 
-  /** 필터 버튼 활성 여부 판별 */
-  const isFilterActive =
-    selectedMoveTypes.length !== ALL_MOVE_TYPES.length ||
-    selectedScopes.length !== ALL_SCOPES.length;
-
-  const isFilteredEmpty =
-    isEmpty &&
-    (!isDefaultRequestsListUrlState({
-      ...listFilters,
-      keyword: queryKeyword,
-      moveTypes: debouncedMoveTypes,
-      scopes: debouncedScopes,
-    }) ||
-      debouncedMoveTypes.length === 0);
-
-  const showListFetching = isFetching && !isPending && !isFetchingNextPage;
-  /**
-   * 목록 entrance/stagger 애니메이션은 "펜딩 중(=기존 data 유지 + isFetching=true)"에는
-   * 실행하지 않는다. 타이핑/필터 변경 시 목록이 계속 흔들리는 현상을 막기 위함이다.
-   */
-  const shouldAnimateList = !showListFetching;
-
-  const errorMessage =
-    error instanceof ApiError
-      ? error.message
-      : '받은 요청 목록을 불러오지 못했습니다.';
+  const handleQueryChange = useCallback((keyword: string) => {
+    setQueryKeyword(keyword);
+  }, []);
 
   /** 검색·이사유형·필터·정렬 전체 초기화 */
   const handleResetAll = () => {
@@ -238,93 +149,11 @@ const MoverRequestsPageClient = ({
     setIsFilterModalOpen(false);
   };
 
-  /** 견적 보내기 모달 열기 */
-  const handleOpenSendQuoteModal = (request: ReceivedRequestCardModel) => {
-    clearSubmitError();
-    setSendQuoteTarget(request);
-  };
-
-  /** 반려 모달 열기 — 지정 견적 요청만 허용 */
-  const handleOpenRejectModal = (request: ReceivedRequestCardModel) => {
-    if (!request.isDesignated) {
-      return;
-    }
-    clearSubmitError();
-    setRejectTarget(request);
-  };
-
-  /** `/mover/requests` — 로그인 기사 id로 고객과 1:1 방 생성 후 채팅 이동 */
-  const handleChatClick = (request: ReceivedRequestCardModel) => {
-    if (!user?.id) {
-      return;
-    }
-
-    startEstimateChat(
-      {
-        moverId: user.id,
-        isDesignated: request.isDesignated,
-        estimateRequestId: request.id,
-        designatedMoverId: request.designatedMoverId,
-      },
-      request.id
-    );
-  };
-
-  /** 견적 보내기 모달 닫기 */
-  const handleCloseSendQuoteModal = () => {
-    if (proposalMutation.isPending) {
-      return;
-    }
-    clearSubmitError();
-    setSendQuoteTarget(null);
-  };
-
-  /** 반려 모달 닫기 */
-  const handleCloseRejectModal = () => {
-    if (rejectionMutation.isPending) {
-      return;
-    }
-    clearSubmitError();
-    setRejectTarget(null);
-  };
-
-  /** 견적 보내기 API 요청 */
-  const handleSendQuoteSubmit = (quote: { price: string; comment: string }) => {
-    if (!sendQuoteTarget || proposalMutation.isPending) {
-      return;
-    }
-
-    clearSubmitError();
-    proposalMutation.mutate({
-      estimateRequestId: sendQuoteTarget.id,
-      price: Number(quote.price),
-      comment: quote.comment,
-    });
-  };
-
-  /** 반려 API 요청 */
-  const handleRejectSubmit = (payload: { reason: string }) => {
-    if (!rejectTarget || rejectionMutation.isPending) {
-      return;
-    }
-
-    clearSubmitError();
-    rejectionMutation.mutate({
-      estimateRequestId: rejectTarget.id,
-      rejectReason: payload.reason,
-    });
-  };
-
-  /** 목록 재조회 */
-  const handleRetry = () => {
-    void refetch();
-  };
-
   return (
     <>
       {/* 사이드 필터 + 목록 레이아웃 */}
-      <div className="mx-auto flex w-full max-w-[1920px] flex-col gap-6 px-6 py-6 md:px-[4.5rem] md:py-8 lg:px-10 xl:flex-row xl:items-start xl:gap-8 xl:px-16 min-[90rem]:gap-12 min-[90rem]:px-[16.25rem]">
-        {/* 데스크톱 사이드 필터 렌더 */}
+      <div className={MOVER_REQUESTS_LAYOUT_CLASS}>
+        {/* 데스크톱 사이드 필터 */}
         <RequestsSidebarFilter
           className="hidden w-full max-w-[20.5rem] shrink-0 xl:flex"
           selectedMoveTypes={selectedMoveTypes}
@@ -336,7 +165,7 @@ const MoverRequestsPageClient = ({
         />
 
         <div className="flex min-w-0 flex-1 flex-col gap-6 lg:gap-8">
-          {/* 검색·건수·정렬 툴바 렌더 */}
+          {/* 검색·건수·정렬 툴바 */}
           <RequestsListToolbar
             listFilters={listFilters}
             onCommitKeyword={commitSearchKeyword}
@@ -345,47 +174,29 @@ const MoverRequestsPageClient = ({
             resetSignal={resetSignal}
             totalCount={totalCount}
             showListFetching={showListFetching}
-            sortValue={sortValue}
             onSortChange={handleSortChange}
-            isFilterActive={isFilterActive}
             onFilterOpen={() => setIsFilterModalOpen(true)}
           />
-          {/* 로딩·에러·빈목록·목록 상태 분기 */}
+          {/* 로딩·에러·빈목록·목록 */}
           {isPending && requests.length === 0 ? (
             <RequestsListSkeleton />
           ) : isError && requests.length === 0 ? (
-            <div className="flex flex-col items-center gap-4 py-16">
-              <p
-                role="alert"
-                className="text-center text-lg-medium text-red-200"
-              >
-                {errorMessage}
-              </p>
-              <Button
-                size="sm"
-                variant="outlined"
-                className="max-w-[10rem]"
-                onClick={handleRetry}
-              >
-                다시 시도
-              </Button>
-            </div>
+            <QuotesListErrorState
+              message={errorMessage}
+              onRetry={handleRetry}
+              withMotion={false}
+            />
           ) : isEmpty ? (
             <RequestsEmptyState
               variant={isFilteredEmpty ? 'filtered' : 'initial'}
               onReset={isFilteredEmpty ? handleResetAll : undefined}
             />
           ) : (
-            // 요청 카드 목록 렌더
             <div className="relative">
               <AnimatePresence>
                 {showListFetching ? (
                   <motion.div
-                    variants={fadeIn}
-                    initial="hidden"
-                    animate="show"
-                    exit="exit"
-                    transition={motionTransition}
+                    {...getFadeInPresenceProps(motionTransition)}
                     className="pointer-events-none absolute inset-0 z-10 rounded-2xl bg-white/40"
                     aria-hidden
                   />
@@ -402,79 +213,47 @@ const MoverRequestsPageClient = ({
                 {shouldAnimateList ? (
                   <AnimatePresence mode="popLayout">
                     {displayRequests.map((request) => (
-                      <motion.li
+                      <ReceivedRequestListItem
                         key={request.id}
-                        layout
-                        variants={listItemVariants}
-                        initial={false}
-                        animate="show"
-                        exit="exit"
-                        transition={motionTransition}
-                        onAnimationComplete={(definition) => {
-                          if (definition === 'exit') {
-                            handleExitComplete(request.id);
-                          }
-                        }}
-                        data-request-id={request.id}
-                        className="overflow-hidden"
-                      >
-                        <ReceivedRequestCard
-                          request={request}
-                          onSendQuote={handleOpenSendQuoteModal}
-                          onReject={handleOpenRejectModal}
-                          onChatClick={handleChatClick}
-                          isChatPending={pendingChatTargetId === request.id}
-                        />
-                      </motion.li>
-                    ))}
-                  </AnimatePresence>
-                ) : (
-                  displayRequests.map((request) => (
-                    <motion.li
-                      key={request.id}
-                      layout={false}
-                      data-request-id={request.id}
-                      className="overflow-hidden"
-                    >
-                      <ReceivedRequestCard
                         request={request}
+                        shouldAnimate
                         onSendQuote={handleOpenSendQuoteModal}
                         onReject={handleOpenRejectModal}
                         onChatClick={handleChatClick}
                         isChatPending={pendingChatTargetId === request.id}
+                        onExitComplete={handleExitComplete}
                       />
-                    </motion.li>
+                    ))}
+                  </AnimatePresence>
+                ) : (
+                  displayRequests.map((request) => (
+                    <ReceivedRequestListItem
+                      key={request.id}
+                      request={request}
+                      shouldAnimate={false}
+                      onSendQuote={handleOpenSendQuoteModal}
+                      onReject={handleOpenRejectModal}
+                      onChatClick={handleChatClick}
+                      isChatPending={pendingChatTargetId === request.id}
+                      onExitComplete={handleExitComplete}
+                    />
                   ))
                 )}
               </motion.ul>
-              {/* 무한 스크롤 감지 영역 렌더 */}
+
               {hasNextPage || isFetchingNextPage ? (
-                <div
-                  ref={loadMoreRef}
-                  className="flex w-full justify-center py-6"
-                >
-                  <AnimatePresence>
-                    {isFetchingNextPage ? (
-                      <motion.div
-                        variants={fadeIn}
-                        initial="hidden"
-                        animate="show"
-                        exit="exit"
-                        transition={motionTransition}
-                      >
-                        <Spinner message="더 불러오는 중..." className="py-4" />
-                      </motion.div>
-                    ) : (
-                      <span className="sr-only">스크롤하여 더 보기</span>
-                    )}
-                  </AnimatePresence>
-                </div>
+                <QuotesLoadMoreSentinel
+                  loadMoreRef={loadMoreRef}
+                  isFetchingNextPage={isFetchingNextPage}
+                  className="py-6"
+                />
               ) : null}
             </div>
           )}
         </div>
       </div>
-      {/* 모바일 필터 모달 렌더 */}
+
+      {/* 모바일 필터 모달 */}
       <Modal
         isOpen={isFilterModalOpen}
         placement="bottom"
@@ -489,7 +268,8 @@ const MoverRequestsPageClient = ({
           scopeCounts={scopeCounts}
         />
       </Modal>
-      {/* 견적 보내기 모달 렌더 */}
+
+      {/* 견적 보내기 모달 */}
       <Modal
         isOpen={Boolean(sendQuoteTarget)}
         placement="bottom"
@@ -505,12 +285,13 @@ const MoverRequestsPageClient = ({
             moveDate={sendQuoteTarget.moveDate}
             departure={sendQuoteTarget.departure}
             arrival={sendQuoteTarget.arrival}
-            isSubmitting={proposalMutation.isPending}
-            errorMessage={submitErrorMessage ?? undefined}
+            isSubmitting={isProposalPending}
+            errorMessage={sendQuoteErrorMessage ?? undefined}
           />
         ) : null}
       </Modal>
-      {/* 반려 모달 렌더 */}
+
+      {/* 반려 모달 */}
       <Modal
         isOpen={Boolean(rejectTarget)}
         placement="bottom"
@@ -526,8 +307,8 @@ const MoverRequestsPageClient = ({
             moveDate={rejectTarget.moveDate}
             departure={rejectTarget.departure}
             arrival={rejectTarget.arrival}
-            isSubmitting={rejectionMutation.isPending}
-            errorMessage={submitErrorMessage ?? undefined}
+            isSubmitting={isRejectionPending}
+            errorMessage={rejectErrorMessage ?? undefined}
           />
         ) : null}
       </Modal>

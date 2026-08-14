@@ -10,7 +10,7 @@ import {
 import { useCustomerPendingQuotes } from '@/hooks/useCustomerPendingQuotes';
 import { useListEntranceStagger } from '@/hooks/useListEntranceStagger';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
-import { fadeUp, getMotionTransition, listStagger } from '@/lib/motionVariants';
+import { getFadeUpMotionProps, getMotionTransition, listStagger } from '@/lib/motionVariants';
 
 import { CustomerQuotesEmptyState } from './CustomerQuotesEmptyState';
 import { CUSTOMER_QUOTES_CONTENT_CLASS } from './customerQuotesStyles';
@@ -57,6 +57,7 @@ export const PendingQuotesPanel = ({
   const staggerPendingList = useListEntranceStagger(isPending);
 
   const motionTransition = getMotionTransition(shouldReduceMotion);
+  const fadeUpMotion = getFadeUpMotionProps(motionTransition);
   const errorMessage = resolveApiErrorMessage(
     error,
     '견적 목록을 불러오지 못했습니다.'
@@ -112,11 +113,7 @@ export const PendingQuotesPanel = ({
                 className="grid w-full grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-x-6 lg:gap-y-8"
               >
                 {quotes.map((quote) => (
-                  <motion.li
-                    key={quote.quoteId}
-                    variants={fadeUp}
-                    transition={motionTransition}
-                  >
+                  <motion.li key={quote.quoteId} {...fadeUpMotion}>
                     <PendingQuoteCard
                       quote={quote}
                       isConfirming={isConfirming}

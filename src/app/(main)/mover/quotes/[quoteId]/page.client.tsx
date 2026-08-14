@@ -3,44 +3,45 @@
 import { motion, useReducedMotion } from 'framer-motion';
 
 import { QuoteDetailErrorState } from '@/components/quotes/QuoteDetailErrorState';
-import { QuoteInfoSection } from '@/components/quotes/QuoteInfoRows';
-import { QuoteShareButtons } from '@/components/QuoteShareButtons/QuoteShareButtons';
 import { QuoteDetailContentSkeleton } from '@/components/ui/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useMoverQuoteDetail } from '@/hooks/useMoverQuoteDetail';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
-import { ApiError } from '@/lib/apiClient';
-import { fadeIn, fadeUp, getListStagger, getMotionTransition } from '@/lib/motionVariants';
+import { resolveApiErrorMessage } from '@/lib/apiClient';
+import { getFadeInMotionProps, getMotionTransition } from '@/lib/motionVariants';
 import { parsePositiveInt } from '@/lib/parsePositiveInt';
 import { cn } from '@/lib/utils';
 
 import { MoverQuoteDetailActions } from './_components/MoverQuoteDetailActions';
-import { QuoteDetailSummaryCard } from './_components/QuoteDetailSummaryCard';
+import { MoverQuoteDetailContent } from './_components/MoverQuoteDetailContent';
 
 export interface MoverQuoteDetailPageClientProps {
   quoteId: string;
 }
 
-/** 기사님 견적 상세 페이지 클라이언트 */
+/** `/mover/quotes/[quoteId]` 클라이언트. - 견적 상세 페이지 */
 const MoverQuoteDetailPageClient = ({
   quoteId,
 }: MoverQuoteDetailPageClientProps) => {
   const shouldReduceMotion = useReducedMotion();
-  const motionTransition = getMotionTransition(shouldReduceMotion);
-  const listStaggerVariants = getListStagger(shouldReduceMotion);
-  const { user } = useAuth();
+
   const numericQuoteId = parsePositiveInt(quoteId);
+  const { user } = useAuth();
   const { detail, isPending, isError, error, refetch } =
     useMoverQuoteDetail(numericQuoteId ?? 0);
-  /**
-   * `/mover/quotes/[quoteId]` — 견적 보냄~확정 공통.
-   * 데스크톱: 공유 위 `채팅하기` / 모바일·태블릿: 하단바 (닫힌·반려면 숨김).
-   */
-  const { startEstimateChat, isChatPending } = useStartEstimateChat();
-  /** 페이지 가로 패딩 클래스 정의 */
-  const pageXPadding =
-    'px-6 md:px-[4.5rem] lg:px-10 xl:px-16 min-[90rem]:px-[16.25rem]';
+  const { startEstimateChatFromSource, isChatPending } = useStartEstimateChat();
 
+  const motionTransition = getMotionTransition(shouldReduceMotion);
+  const errorMessage = resolveApiErrorMessage(
+    error,
+    '견적 상세를 불러오지 못했습니다.'
+  );
+
+  const handleRetry = () => {
+    void refetch();
+  };
+
+  // 잘못된 quoteId — 안내 + 목록 복귀 링크
   if (numericQuoteId == null) {
     return (
       <QuoteDetailErrorState
@@ -50,60 +51,43 @@ const MoverQuoteDetailPageClient = ({
     );
   }
 
+  // 로딩 — 상세 스켈레톤
   if (isPending) {
     return (
-      <motion.div
-        variants={fadeIn}
-        initial="hidden"
-        animate="show"
-        transition={motionTransition}
-      >
+      <motion.div {...getFadeInMotionProps(motionTransition)}>
         <QuoteDetailContentSkeleton aside="share" />
       </motion.div>
     );
   }
 
+  // 에러 — 재시도 + 목록 복귀
   if (isError || !detail) {
-    const errorMessage =
-      error instanceof ApiError
-        ? error.message
-        : '견적 상세를 불러오지 못했습니다.';
-
     return (
       <QuoteDetailErrorState
         message={errorMessage}
         backHref="/mover/quotes"
-        onRetry={() => {
-          void refetch();
-        }}
+        onRetry={handleRetry}
       />
     );
   }
 
   /** 보낸 견적 상세 → 해당 고객과 방 열고 `/chat/{roomId}` */
   const handleChatClick = () => {
-    if (!user?.id) {
-      return;
-    }
-
-    startEstimateChat({
-      moverId: user.id,
-      isDesignated: detail.isDesignated,
-      estimateRequestId: detail.estimateRequestId,
-      designatedMoverId: detail.designatedMoverId,
-      quoteId: detail.id,
-    });
+    startEstimateChatFromSource(
+      {
+        isDesignated: detail.isDesignated,
+        estimateRequestId: detail.estimateRequestId,
+        designatedMoverId: detail.designatedMoverId,
+        quoteId: detail.id,
+      },
+      user?.id
+    );
   };
 
-  const quoteShareProps = {
-    sharePath: `/mover/quotes/${quoteId}`,
-    shareTitle: `${detail.customerName} 고객님 견적서`,
-    shareDescription:
-      detail.comment?.trim() || `${detail.serviceLabel} · ${detail.priceLabel}`,
-  };
-
+  /** 채팅 CTA가 있으면 모바일 하단 고정바 + 본문 패딩 */
   const showMobileActionBar = detail.canStartChat;
 
+  // 본문 + 모바일 하단 CTA
   return (
     <div
       className={cn(
@@ -111,153 +95,16 @@ const MoverQuoteDetailPageClient = ({
         showMobileActionBar && 'pb-[4.625rem] lg:pb-0'
       )}
     >
-      <div
-        className={cn(
-          'mx-auto grid w-full max-w-[1920px] flex-1 grid-cols-1 gap-6 py-6 md:gap-8 md:py-8 lg:items-start lg:justify-between lg:gap-10 lg:py-10',
-          detail.isRejected ? '' : 'lg:grid-cols-[minmax(0,59.6875rem)_auto]',
-          pageXPadding
-        )}
-      >
-        {/* 본문 */}
-        <motion.div
-          variants={listStaggerVariants}
-          initial="hidden"
-          animate="show"
-          transition={motionTransition}
-          className="col-start-1 flex w-full max-w-[59.6875rem] flex-col gap-6 md:gap-8 lg:gap-10"
-        >
-          <motion.div variants={fadeUp} transition={motionTransition}>
-            <QuoteDetailSummaryCard detail={detail} />
-          </motion.div>
+      {/* 상세 본문(요약·견적가·공유·정보·데스크톱 CTA) */}
+      <MoverQuoteDetailContent
+        detail={detail}
+        actions={{
+          isChatPending,
+          onChatClick: handleChatClick,
+        }}
+      />
 
-          <motion.div
-            variants={fadeUp}
-            transition={motionTransition}
-            className="h-px w-full bg-line-100"
-          />
-
-          {/* 보낸 견적: 견적가 + 코멘트 / 반려: 반려 사유 */}
-          {detail.isRejected ? (
-            detail.rejectReason?.trim() ? (
-              <motion.section
-                variants={fadeUp}
-                transition={motionTransition}
-                className="flex w-full flex-col gap-4 lg:gap-8"
-              >
-                <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
-                  반려 사유
-                </h2>
-                <p className="text-lg-regular whitespace-pre-wrap text-black-400 lg:text-2lg-regular">
-                  {detail.rejectReason}
-                </p>
-              </motion.section>
-            ) : null
-          ) : (
-            <>
-              <motion.section
-                variants={fadeUp}
-                transition={motionTransition}
-                className="flex w-full flex-col gap-4 lg:gap-8"
-              >
-                <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
-                  견적가
-                </h2>
-                <p className="text-2lg-bold text-black-400 lg:text-3xl-bold">
-                  {detail.priceLabel}
-                </p>
-              </motion.section>
-
-              {detail.comment?.trim() ? (
-                <>
-                  <motion.div
-                    variants={fadeUp}
-                    transition={motionTransition}
-                    className="h-px w-full bg-line-100"
-                  />
-                  <motion.section
-                    variants={fadeUp}
-                    transition={motionTransition}
-                    className="flex w-full flex-col gap-4 lg:gap-8"
-                  >
-                    <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
-                      코멘트
-                    </h2>
-                    <p className="text-lg-regular whitespace-pre-wrap text-black-400 lg:text-2lg-regular">
-                      {detail.comment}
-                    </p>
-                  </motion.section>
-                </>
-              ) : null}
-            </>
-          )}
-
-          {/* 모바일·태블릿: 본문 내 공유 (반려 제외) */}
-          {!detail.isRejected ? (
-            <motion.div
-              variants={fadeUp}
-              transition={motionTransition}
-              className="flex flex-col gap-6 lg:hidden"
-            >
-              <div className="h-px w-full bg-line-100" />
-              <QuoteShareButtons {...quoteShareProps} />
-            </motion.div>
-          ) : null}
-
-          <motion.div
-            variants={fadeUp}
-            transition={motionTransition}
-            className="h-px w-full bg-line-100"
-          />
-
-          <motion.div variants={fadeUp} transition={motionTransition}>
-            <QuoteInfoSection info={detail} variant="moverDetail" />
-          </motion.div>
-        </motion.div>
-
-        {/* 데스크톱: 우측 채팅 → 공유 */}
-        {!detail.isRejected ? (
-          <motion.aside
-            initial={
-              shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: 12 }
-            }
-            animate={
-              shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }
-            }
-            transition={motionTransition}
-            className="col-start-1 hidden w-full flex-col gap-10 lg:col-start-2 lg:row-span-1 lg:row-start-1 lg:flex"
-          >
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="show"
-              transition={motionTransition}
-            >
-              <MoverQuoteDetailActions
-                variant="desktop"
-                canStartChat={detail.canStartChat}
-                isChatPending={isChatPending}
-                onChatClick={handleChatClick}
-              />
-            </motion.div>
-            {detail.canStartChat ? (
-              <div className="h-px w-full bg-line-100" />
-            ) : null}
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="show"
-              transition={{
-                ...motionTransition,
-                delay: shouldReduceMotion ? 0 : 0.08,
-              }}
-            >
-              <QuoteShareButtons {...quoteShareProps} />
-            </motion.div>
-          </motion.aside>
-        ) : null}
-      </div>
-
-      {/* 모바일·태블릿: 하단 고정 채팅하기 */}
+      {/* 모바일 하단 고정 액션바 */}
       <MoverQuoteDetailActions
         variant="mobile"
         canStartChat={detail.canStartChat}

@@ -1,10 +1,6 @@
-import { Suspense } from 'react';
-
-import { QuotesPageContentSkeleton } from '@/components/ui/Skeleton';
 import { resolveTabSearchParam } from '@/lib/resolveTabSearchParam';
 
 import {
-  MOVER_QUOTES_PAGE_X_PADDING,
   MoverQuotesTabs,
   parseMoverQuotesTabId,
 } from './_components/MoverQuotesTabs';
@@ -20,26 +16,18 @@ export interface MoverQuotesPageProps {
   searchParams: Promise<{ tab?: string | string[] }>;
 }
 
-/**
- * 기사님 내 견적 관리 페이지
- */
+/** `/mover/quotes` 서버 페이지. - 기사 내 견적 관리 페이지. */
 const MoverQuotesPage = async ({ searchParams }: MoverQuotesPageProps) => {
   const params = await searchParams;
   const activeTab = parseMoverQuotesTabId(resolveTabSearchParam(params.tab));
 
+  // 탭 바 + 활성 탭 패널
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden">
+      {/* 보낸 견적 / 반려 요청 탭 */}
       <MoverQuotesTabs activeTab={activeTab} />
-      <Suspense
-        fallback={
-          <QuotesPageContentSkeleton
-            className={MOVER_QUOTES_PAGE_X_PADDING}
-            withTabs={false}
-          />
-        }
-      >
-        <MoverQuotesPageClient />
-      </Suspense>
+      {/* 활성 탭 패널 */}
+      <MoverQuotesPageClient activeTab={activeTab} />
     </div>
   );
 };

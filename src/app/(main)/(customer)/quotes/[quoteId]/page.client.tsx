@@ -11,9 +11,8 @@ import { useCustomerQuoteDetail } from '@/hooks/useCustomerQuoteDetail';
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
-import { fadeIn, getMotionTransition } from '@/lib/motionVariants';
+import { getFadeInMotionProps, getMotionTransition } from '@/lib/motionVariants';
 import { parsePositiveInt } from '@/lib/parsePositiveInt';
-import { toStartEstimateChatParams } from '@/lib/startEstimateChat';
 import { cn } from '@/lib/utils';
 
 import { ConfirmQuoteModal } from '../_components/ConfirmQuoteModal';
@@ -47,7 +46,7 @@ const CustomerQuoteDetailPageClient = ({
     closeConfirmModal,
     submitConfirm,
   } = useConfirmQuoteModal(goToHistory);
-  const { startEstimateChat, isChatPending } = useStartEstimateChat();
+  const { startEstimateChatFromSource, isChatPending } = useStartEstimateChat();
 
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const errorMessage = resolveApiErrorMessage(
@@ -72,12 +71,7 @@ const CustomerQuoteDetailPageClient = ({
   // 로딩 — 상세 스켈레톤
   if (isPending) {
     return (
-      <motion.div
-        variants={fadeIn}
-        initial="hidden"
-        animate="show"
-        transition={motionTransition}
-      >
+      <motion.div {...getFadeInMotionProps(motionTransition)}>
         <QuoteDetailContentSkeleton />
       </motion.div>
     );
@@ -96,7 +90,7 @@ const CustomerQuoteDetailPageClient = ({
 
   /** 상세 채팅하기 — 방 생성 후 `/chat/{roomId}` 이동 */
   const handleChatClick = () => {
-    startEstimateChat(toStartEstimateChatParams(detail, detail.mover.moverId));
+    startEstimateChatFromSource(detail, detail.mover.moverId);
   };
 
   /** 확정 CTA → 재확인 모달 오픈 */

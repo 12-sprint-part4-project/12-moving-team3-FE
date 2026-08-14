@@ -18,7 +18,7 @@ const EMPTY_MESSAGE: Record<QuoteListStatus, string> = {
   REJECTED: '아직 반려한 요청이 없어요!',
 };
 
-/** 내 견적 관리 빈 목록 안내 표시 */
+/** `/mover/quotes` 빈 목록 안내. - status별 문구. */
 export const QuotesEmptyState = ({
   status,
   className = '',

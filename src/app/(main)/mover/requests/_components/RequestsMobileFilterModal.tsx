@@ -12,11 +12,12 @@ import {
 } from '@/components/ui/Modal/modalPanel';
 import {
   getMotionTransition,
-  tabContentSlide,
+  getTabPanelMotionProps,
   tapScale,
 } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
+import { RequestsMobileFilterTabButton } from './RequestsMobileFilterTabButton';
 import {
   MOVE_TYPE_LABELS,
   MOVE_TYPE_OPTIONS,
@@ -25,6 +26,7 @@ import {
   formatFilterLabel,
 } from '../_lib/filterOptions';
 
+import type { RequestsMobileFilterTab } from './RequestsMobileFilterTabButton';
 import type {
   MoveTypeFilterCounts,
   MoveTypeOption,
@@ -32,8 +34,6 @@ import type {
   RequestScopeOption,
   RequestsFilterState,
 } from '@/types/estimateRequest';
-
-export type RequestsMobileFilterTab = 'moveType' | 'scope';
 
 export interface RequestsMobileFilterModalProps {
   onClose: () => void;
@@ -62,6 +62,7 @@ export const RequestsMobileFilterModal = ({
   const [activeTab, setActiveTab] =
     useState<RequestsMobileFilterTab>('moveType');
   const [tabDirection, setTabDirection] = useState(1);
+  const tabPanelMotion = getTabPanelMotionProps(tabDirection, motionTransition);
   const [selectedMoveTypes, setSelectedMoveTypes] = useState<
     Set<MoveTypeOption>
   >(() => new Set(defaultMoveTypes));
@@ -137,40 +138,6 @@ export const RequestsMobileFilterModal = ({
   const getTabId = (tab: RequestsMobileFilterTab) => `${tabsId}-tab-${tab}`;
   const getPanelId = (tab: RequestsMobileFilterTab) => `${tabsId}-panel-${tab}`;
 
-  const renderTabButton = (tab: RequestsMobileFilterTab, label: string) => {
-    const active = activeTab === tab;
-    const tabId = getTabId(tab);
-    const panelId = getPanelId(tab);
-
-    return (
-      <button
-        type="button"
-        onClick={() => handleTabChange(tab)}
-        id={tabId}
-        role="tab"
-        className={cn(
-          'relative cursor-pointer pb-1 text-2lg-semibold transition-colors',
-          active ? 'text-black-400' : 'text-gray-300'
-        )}
-        aria-selected={active}
-        aria-controls={panelId}
-      >
-        {label}
-        {active ? (
-          <motion.span
-            layoutId="requests-mobile-filter-tab-indicator"
-            className="absolute right-0 -bottom-0.5 left-0 h-0.5 bg-black-400"
-            transition={
-              shouldReduceMotion
-                ? { duration: 0 }
-                : { type: 'spring', stiffness: 400, damping: 30 }
-            }
-          />
-        ) : null}
-      </button>
-    );
-  };
-
   return (
     <section
       role="dialog"
@@ -192,8 +159,22 @@ export const RequestsMobileFilterModal = ({
               className="flex items-center gap-6"
               aria-label="필터 탭"
             >
-              {renderTabButton('moveType', '이사 유형')}
-              {renderTabButton('scope', '필터')}
+              <RequestsMobileFilterTabButton
+                tab="moveType"
+                label="이사 유형"
+                isActive={activeTab === 'moveType'}
+                tabId={getTabId('moveType')}
+                panelId={getPanelId('moveType')}
+                onSelect={handleTabChange}
+              />
+              <RequestsMobileFilterTabButton
+                tab="scope"
+                label="필터"
+                isActive={activeTab === 'scope'}
+                tabId={getTabId('scope')}
+                panelId={getPanelId('scope')}
+                onSelect={handleTabChange}
+              />
             </span>
           }
           titleClassName="text-inherit sm:text-inherit"
@@ -205,12 +186,7 @@ export const RequestsMobileFilterModal = ({
           {activeTab === 'moveType' ? (
             <motion.div
               key="moveType"
-              custom={tabDirection}
-              variants={tabContentSlide}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={motionTransition}
+              {...tabPanelMotion}
               className="flex w-full flex-col gap-2"
               role="tabpanel"
               id={getPanelId('moveType')}
@@ -252,12 +228,7 @@ export const RequestsMobileFilterModal = ({
           ) : (
             <motion.div
               key="scope"
-              custom={tabDirection}
-              variants={tabContentSlide}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={motionTransition}
+              {...tabPanelMotion}
               className="flex w-full flex-col gap-2"
               role="tabpanel"
               id={getPanelId('scope')}

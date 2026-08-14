@@ -134,6 +134,43 @@ export const tabContentSlide: Variants = {
   }),
 };
 
+/** 탭 패널 `motion.div` 공통 props. AnimatePresence 직계 자식은 그대로 `motion.div`로 둔다. */
+export const getTabPanelMotionProps = (
+  direction: number,
+  transition: Transition
+) =>
+  ({
+    custom: direction,
+    variants: tabContentSlide,
+    initial: 'enter',
+    animate: 'center',
+    exit: 'exit',
+    transition,
+  }) satisfies HTMLMotionProps<'div'>;
+
+/** fadeIn enter. AnimatePresence 밖 로딩·페이지네이션용 */
+export const getFadeInMotionProps = (transition: Transition) =>
+  ({
+    variants: fadeIn,
+    initial: 'hidden',
+    animate: 'show',
+    transition,
+  }) satisfies HTMLMotionProps<'div'>;
+
+/** fadeIn enter + exit. AnimatePresence 안 오버레이용 */
+export const getFadeInPresenceProps = (transition: Transition) =>
+  ({
+    ...getFadeInMotionProps(transition),
+    exit: 'exit',
+  }) satisfies HTMLMotionProps<'div'>;
+
+/** fadeUp + transition. 상세 섹션·카드 리스트 아이템용 */
+export const getFadeUpMotionProps = (transition: Transition) =>
+  ({
+    variants: fadeUp,
+    transition,
+  }) satisfies Pick<HTMLMotionProps<'div'>, 'variants' | 'transition'>;
+
 /** Sort·필터 등 트리거 아래 드롭다운 패널 */
 export const dropdownPanelVariants: Variants = {
   hidden: { opacity: 0, y: -6 },

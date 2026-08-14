@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 
-import { Pagination } from '@/components/ui/Pagination/Pagination';
+import { ResponsivePagination } from '@/components/ui/Pagination';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import {
   fadeIn,
@@ -149,24 +149,13 @@ export const ReviewListSection = <T,>({
             transition={motionTransition}
             className="mt-auto flex justify-center pt-6"
           >
-            <div className="contents xl:hidden">
-              <Pagination
-                size="sm"
-                page={page}
-                totalPages={Math.max(1, totalPages)}
-                onPageChange={onPageChange}
-                scrollOnPageChange
-              />
-            </div>
-            <div className="hidden xl:contents">
-              <Pagination
-                size="lg"
-                page={page}
-                totalPages={Math.max(1, totalPages)}
-                onPageChange={onPageChange}
-                scrollOnPageChange
-              />
-            </div>
+            <ResponsivePagination
+              breakpoint="xl"
+              page={page}
+              totalPages={Math.max(1, totalPages)}
+              onPageChange={onPageChange}
+              scrollOnPageChange
+            />
           </motion.div>
         </>
       ) : null}

@@ -1,14 +1,16 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { useCreateChatRoom } from '@/hooks/useChat';
 import { useToast } from '@/hooks/useToast';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 import {
   buildEstimateChatRoomBody,
+  toStartEstimateChatParams,
   type BuildEstimateChatRoomBodyParams,
+  type StartEstimateChatSource,
 } from '@/lib/startEstimateChat';
 
 export type StartEstimateChatParams = BuildEstimateChatRoomBodyParams;
@@ -30,12 +32,6 @@ export const useStartEstimateChat = () => {
   const [pendingChatTargetId, setPendingChatTargetId] = useState<number | null>(
     null
   );
-
-  useEffect(() => {
-    if (!isChatPending) {
-      setPendingChatTargetId(null);
-    }
-  }, [isChatPending]);
 
   const startEstimateChat = useCallback(
     (params: StartEstimateChatParams, targetId?: number) => {
@@ -63,13 +59,33 @@ export const useStartEstimateChat = () => {
             content: resolveApiErrorMessage(error, '채팅방을 열지 못했습니다.'),
           });
         },
+        onSettled: () => {
+          setPendingChatTargetId(null);
+        },
       });
     },
     [createChatRoom, isChatPending, router, showToast]
   );
 
+  /** 견적·요청 모델 + moverId로 채팅 시작. moverId가 없으면 no-op */
+  const startEstimateChatFromSource = useCallback(
+    (
+      source: StartEstimateChatSource,
+      moverId: string | null | undefined,
+      targetId?: number
+    ) => {
+      if (!moverId) {
+        return;
+      }
+
+      startEstimateChat(toStartEstimateChatParams(source, moverId), targetId);
+    },
+    [startEstimateChat]
+  );
+
   return {
     startEstimateChat,
+    startEstimateChatFromSource,
     isChatPending,
     pendingChatTargetId,
   };

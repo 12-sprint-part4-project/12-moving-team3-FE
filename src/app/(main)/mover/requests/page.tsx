@@ -1,3 +1,5 @@
+import { MOVER_REQUESTS_PAGE_X_PADDING } from './_components/moverRequestsStyles';
+import { MoverRequestsTitleHeader } from './_components/MoverRequestsTitleHeader';
 import {
   DEFAULT_REQUESTS_LIST_URL_STATE,
   parseFocusRequestId,
@@ -22,7 +24,7 @@ export interface MoverRequestsPageProps {
 }
 
 /**
- * 기사님 받은 요청 페이지.
+ * `/mover/requests` 서버 페이지. - 기사님 받은 요청.
  * `?focus=` 알림 딥링크 시 필터는 기본값으로 열어 대상 카드가 목록에 나올 수 있게 한다.
  */
 const MoverRequestsPage = async ({ searchParams }: MoverRequestsPageProps) => {
@@ -33,14 +35,13 @@ const MoverRequestsPage = async ({ searchParams }: MoverRequestsPageProps) => {
       ? DEFAULT_REQUESTS_LIST_URL_STATE
       : parseRequestsListSearchParamsRecord(params);
 
+  // 타이틀 + 목록 본문
   return (
     <div className="flex w-full flex-col overflow-x-hidden bg-white">
-      <div className="border-b border-line-100 bg-white px-6 py-4 shadow-page-title md:px-[4.5rem] md:py-6 lg:px-10 lg:py-8 xl:px-16 min-[90rem]:px-[16.25rem]">
-        <h1 className="text-2lg-semibold text-black-400 lg:text-2xl-semibold">
-          받은 요청
-        </h1>
-      </div>
-
+      <MoverRequestsTitleHeader
+        title="받은 요청"
+        paddingClassName={MOVER_REQUESTS_PAGE_X_PADDING}
+      />
       <MoverRequestsPageClient
         initialUrlState={initialUrlState}
         focusRequestId={focusRequestId}

@@ -11,7 +11,7 @@ import {
 } from '@/hooks/useCustomerPastQuotes';
 import { useLoadMoreOnView } from '@/hooks/useLoadMoreOnView';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
-import { fadeUp, getListStagger, getMotionTransition } from '@/lib/motionVariants';
+import { getFadeUpMotionProps, getListStagger, getMotionTransition } from '@/lib/motionVariants';
 
 import { HistoryQuoteCard } from './HistoryQuoteCard';
 import { CustomerQuotesEmptyState } from '../../_components/CustomerQuotesEmptyState';
@@ -60,6 +60,7 @@ export const HistoryQuotesPanel = ({
 
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const listStaggerVariants = getListStagger(shouldReduceMotion);
+  const fadeUpMotion = getFadeUpMotionProps(motionTransition);
   const errorMessage = resolveApiErrorMessage(
     error,
     '이용 내역을 불러오지 못했습니다.'
@@ -104,11 +105,7 @@ export const HistoryQuotesPanel = ({
               className="grid w-full grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-x-6 lg:gap-y-12"
             >
               {historyCards.map((quote) => (
-                <motion.li
-                  key={quote.quoteId}
-                  variants={fadeUp}
-                  transition={motionTransition}
-                >
+                <motion.li key={quote.quoteId} {...fadeUpMotion}>
                   <HistoryQuoteCard
                     quote={quote}
                     pendingChatQuoteId={pendingChatQuoteId}
