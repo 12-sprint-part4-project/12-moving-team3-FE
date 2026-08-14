@@ -44,7 +44,6 @@ export interface CustomerEstimateRequestBootstrap {
   visualStep: EstimateRequestVisualStep;
   error: ApiError | null;
   isBootstrapping: boolean;
-  refetch: () => Promise<void>;
 }
 
 type BootstrapResultOverrides = Partial<
@@ -52,10 +51,7 @@ type BootstrapResultOverrides = Partial<
 > &
   Pick<CustomerEstimateRequestBootstrap, 'status'>;
 
-/**
- * bootstrap 분기 공통 결과 팩토리.
- * queryFn 쪽 refetch placeholder는 훅에서 실제 refetch로 덮어쓴다.
- */
+/** bootstrap 분기 공통 결과 팩토리. */
 const makeBootstrapResult = (
   overrides: BootstrapResultOverrides
 ): CustomerEstimateRequestBootstrap => ({
@@ -64,7 +60,6 @@ const makeBootstrapResult = (
   visualStep: 1,
   error: null,
   isBootstrapping: false,
-  refetch: async () => undefined,
   ...overrides,
 });
 
@@ -87,7 +82,7 @@ const bootstrapCustomerEstimateRequest =
     }
 
     try {
-      const active = await getActiveEstimateRequest();
+      const active = await getActiveEstimateRequest(); // 활성 요청 건이 존재하는지 조회 hasActiveRequest(존재여부 true/false), request(활성 요청 건 데이터)
 
       // 활성 요청 없음 → DRAFT 생성
       if (!active.hasActiveRequest || !active.request) {
@@ -223,12 +218,11 @@ export const useCustomerEstimateRequest = () => {
       return makeBootstrapResult({
         status: 'loading',
         isBootstrapping: true,
-        refetch,
       });
     }
 
     if (bootstrapQuery.data) {
-      return { ...bootstrapQuery.data, refetch };
+      return bootstrapQuery.data;
     }
 
     return makeBootstrapResult({
@@ -241,14 +235,8 @@ export const useCustomerEstimateRequest = () => {
               '요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도합니다.',
               API_ERROR_CODE.UNKNOWN_ERROR
             ),
-      refetch,
     });
-  }, [
-    bootstrapQuery.isPending,
-    bootstrapQuery.data,
-    bootstrapQuery.error,
-    refetch,
-  ]);
+  }, [bootstrapQuery.isPending, bootstrapQuery.data, bootstrapQuery.error]);
 
   // 일반 에러: 풀페이지 대신 토스트 1회 + 자동 재조회 (성공/의도된 분기 복귀 시 토스트 플래그 리셋)
   useEffect(() => {
