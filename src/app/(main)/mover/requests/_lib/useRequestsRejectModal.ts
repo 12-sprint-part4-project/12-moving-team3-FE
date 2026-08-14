@@ -17,12 +17,10 @@ export const useRequestsRejectModal = (
     useState<ReceivedRequestCardModel | null>(null);
 
   const handleRejectionSuccess = () => {
-    setRejectTarget((target) => {
-      if (target) {
-        onRejected(target.id);
-      }
-      return null;
-    });
+    if (rejectTarget) {
+      onRejected(rejectTarget.id);
+    }
+    setRejectTarget(null);
   };
 
   const { submitErrorMessage, clearSubmitError, rejectionMutation } =

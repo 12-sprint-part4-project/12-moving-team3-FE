@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { QuotesListErrorState } from '@/components/quotes/QuotesListErrorState';
 import { ResponsivePagination } from '@/components/ui/Pagination';
@@ -12,8 +12,8 @@ import {
   getFadeInMotionProps,
   getFadeInPresenceProps,
   getFadeUpMotionProps,
+  getListStagger,
   getMotionTransition,
-  listStagger,
 } from '@/lib/motionVariants';
 
 import { MOVER_QUOTES_CONTENT_CLASS } from './moverQuotesStyles';
@@ -54,6 +54,7 @@ export const MoverQuotesListPanel = ({ status }: MoverQuotesListPanelProps) => {
   const fadeInMotion = getFadeInMotionProps(motionTransition);
   const fadeInPresence = getFadeInPresenceProps(motionTransition);
   const fadeUpMotion = getFadeUpMotionProps(motionTransition);
+  const listStaggerVariants = getListStagger(shouldReduceMotion);
   const errorMessage = resolveApiErrorMessage(
     error,
     '견적 목록을 불러오지 못했습니다.'
@@ -62,10 +63,15 @@ export const MoverQuotesListPanel = ({ status }: MoverQuotesListPanelProps) => {
   const showListFetching = isFetching && !isPending;
   const shouldAnimateList = staggerOnPageChange && !showListFetching;
 
-  /** 총 페이지 감소 시 현재 페이지를 범위 안으로 보정 */
-  if (totalPages > 0 && page > totalPages) {
-    setPage(totalPages);
-  }
+  /** 총 페이지 감소 시 표시·페이지네이션은 범위 안 값을 쓰고, 상태는 effect에서 맞춤 */
+  const effectivePage = totalPages > 0 && page > totalPages ? totalPages : page;
+
+  useEffect(() => {
+    if (totalPages > 0 && page > totalPages) {
+      // 렌더 중 setState 대신 총 페이지 감소 시에만 page를 범위 안으로 맞춤
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   const handlePageChange = (nextPage: number) => {
     setStaggerOnPageChange(true);
@@ -122,10 +128,10 @@ export const MoverQuotesListPanel = ({ status }: MoverQuotesListPanelProps) => {
             <motion.ul
               key={
                 shouldAnimateList
-                  ? `${status}-${page}`
-                  : `static-${status}-${page}`
+                  ? `${status}-${effectivePage}`
+                  : `static-${status}-${effectivePage}`
               }
-              variants={shouldAnimateList ? listStagger : undefined}
+              variants={shouldAnimateList ? listStaggerVariants : undefined}
               initial={shouldAnimateList ? 'hidden' : false}
               animate={shouldAnimateList ? 'show' : undefined}
               className="grid w-full grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-x-6 lg:gap-y-12"
@@ -150,7 +156,7 @@ export const MoverQuotesListPanel = ({ status }: MoverQuotesListPanelProps) => {
               className="flex w-full flex-col items-center"
             >
               <ResponsivePagination
-                page={page}
+                page={effectivePage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
                 scrollOnPageChange

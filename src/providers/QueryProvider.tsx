@@ -12,9 +12,9 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 60 * 1000,
+        staleTime: 0,
         refetchOnWindowFocus: false,
-        retry: 1,
+        retry: 3,
       },
     },
   });

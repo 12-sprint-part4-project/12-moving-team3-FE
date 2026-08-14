@@ -2,7 +2,10 @@
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 
-import { getMotionTransition, getTabPanelMotionProps } from '@/lib/motionVariants';
+import {
+  getMotionTransition,
+  getTabPanelMotionProps,
+} from '@/lib/motionVariants';
 
 import { MoverQuotesListPanel } from './_components/MoverQuotesListPanel';
 import { MOVER_QUOTES_TAB_PANEL_CLASS } from './_components/moverQuotesStyles';

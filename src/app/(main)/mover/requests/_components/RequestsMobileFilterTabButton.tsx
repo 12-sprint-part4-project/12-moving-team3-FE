@@ -13,6 +13,7 @@ export interface RequestsMobileFilterTabButtonProps {
   tabId: string;
   panelId: string;
   onSelect: (tab: RequestsMobileFilterTab) => void;
+  className?: string;
 }
 
 /** 모바일 필터 모달 탭 버튼 — 활성 탭 밑줄 인디케이터 */
@@ -23,6 +24,7 @@ export const RequestsMobileFilterTabButton = ({
   tabId,
   panelId,
   onSelect,
+  className,
 }: RequestsMobileFilterTabButtonProps) => {
   const shouldReduceMotion = useReducedMotion();
 
@@ -34,7 +36,8 @@ export const RequestsMobileFilterTabButton = ({
       role="tab"
       className={cn(
         'relative cursor-pointer pb-1 text-2lg-semibold transition-colors',
-        isActive ? 'text-black-400' : 'text-gray-300'
+        isActive ? 'text-black-400' : 'text-gray-300',
+        className
       )}
       aria-selected={isActive}
       aria-controls={panelId}

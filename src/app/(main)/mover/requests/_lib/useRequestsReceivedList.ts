@@ -42,6 +42,9 @@ export const useRequestsReceivedList = ({
     FILTER_DEBOUNCE_MS
   );
 
+  /** 딥링크 중에는 디바운스된 이전 필터·검색어로 조회하면 대상 카드가 빠진다 */
+  const isFocusing = focusRequestId != null;
+
   const {
     requests,
     totalCount,
@@ -57,9 +60,9 @@ export const useRequestsReceivedList = ({
     refetch,
     isEmpty,
   } = useReceivedEstimateRequests({
-    keyword: queryKeyword,
-    moveTypes: debouncedMoveTypes,
-    scopes: debouncedScopes,
+    keyword: isFocusing ? listFilters.keyword : queryKeyword,
+    moveTypes: isFocusing ? listFilters.moveTypes : debouncedMoveTypes,
+    scopes: isFocusing ? listFilters.scopes : debouncedScopes,
     sort: listFilters.sort,
   });
 
@@ -74,12 +77,14 @@ export const useRequestsReceivedList = ({
     focusRequestId,
     requests,
     isPending,
+    isFetching,
     isFetchingNextPage,
     hasNextPage: Boolean(hasNextPage),
     fetchNextPage,
+    refetch,
     listFilters: {
       ...listFilters,
-      keyword: queryKeyword,
+      keyword: isFocusing ? listFilters.keyword : queryKeyword,
     },
   });
 

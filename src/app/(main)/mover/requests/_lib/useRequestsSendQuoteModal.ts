@@ -15,12 +15,10 @@ export const useRequestsSendQuoteModal = (onSent: (requestId: number) => void) =
     useState<ReceivedRequestCardModel | null>(null);
 
   const handleProposalSuccess = () => {
-    setSendQuoteTarget((target) => {
-      if (target) {
-        onSent(target.id);
-      }
-      return null;
-    });
+    if (sendQuoteTarget) {
+      onSent(sendQuoteTarget.id);
+    }
+    setSendQuoteTarget(null);
   };
 
   const { submitErrorMessage, clearSubmitError, proposalMutation } =
