@@ -2,7 +2,6 @@
 
 import ChatIcon from '@/assets/icons/chat.svg';
 import CheckIcon from '@/assets/icons/check.svg';
-
 import { cn } from '@/lib/utils';
 
 import {
@@ -65,9 +64,7 @@ export const CommunityFurnitureShareCtaAction = ({
   const content = (
     <>
       {icon}
-      <span className={COMMUNITY_FURNITURE_SHARE_CTA_LABEL_CLASS}>
-        {label}
-      </span>
+      <span className={COMMUNITY_FURNITURE_SHARE_CTA_LABEL_CLASS}>{label}</span>
     </>
   );
 

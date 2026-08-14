@@ -6,6 +6,7 @@ import {
   throwApiError,
 } from '@/lib/apiClient';
 import { authFetch } from '@/lib/authFetch';
+
 import type {
   CommentListQuery,
   CommentListResponse,
@@ -62,7 +63,11 @@ const communityFetch = async <T>(
   try {
     return (await response.json()) as T;
   } catch {
-    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, API_ERROR_CODE.INVALID_RESPONSE);
+    throw new ApiError(
+      500,
+      DEFAULT_API_ERROR_MESSAGE,
+      API_ERROR_CODE.INVALID_RESPONSE
+    );
   }
 };
 

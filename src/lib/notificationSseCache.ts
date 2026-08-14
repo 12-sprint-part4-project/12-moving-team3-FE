@@ -1,11 +1,11 @@
-import type { QueryClient } from '@tanstack/react-query';
-
 import { chatQueryKeys, notificationQueryKeys } from '@/constants/queryKey';
+
 import type {
   NotificationItem,
   NotificationListResponse,
   NotificationType,
 } from '@/types/notification';
+import type { QueryClient } from '@tanstack/react-query';
 
 /** BE 드롭다운과 동일하게 최신 최대 10개만 유지 */
 const NOTIFICATION_LIST_LIMIT = 10;
@@ -76,9 +76,7 @@ export const invalidateChatQueriesForNotification = (
 };
 
 /** SSE `unread-count` 안전망 — 목록을 다시 맞춰 unread 파생값을 갱신한다. */
-export const invalidateNotificationList = (
-  queryClient: QueryClient
-): void => {
+export const invalidateNotificationList = (queryClient: QueryClient): void => {
   void queryClient.invalidateQueries({
     queryKey: notificationQueryKeys.list(),
   });

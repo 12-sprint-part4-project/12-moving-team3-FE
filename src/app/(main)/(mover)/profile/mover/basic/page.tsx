@@ -1,6 +1,6 @@
-import type { Metadata } from 'next';
-
 import { MoverBasicInfoEditForm } from '../_components/MoverBasicInfoEditForm';
+
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: '기본정보 수정',

@@ -15,6 +15,7 @@ import {
 import { formatReviewMoveDate } from '@/lib/reviewDisplay';
 import { cn } from '@/lib/utils';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
+
 import type { CustomerReviewItem } from '@/types/review';
 
 export interface EditReviewModalProps {
@@ -51,9 +52,7 @@ export const EditReviewModal = ({
   const isUnchanged =
     rating === review.rating && content.trim() === review.content.trim();
   const isSubmittable =
-    !isSubmitting &&
-    !isUnchanged &&
-    isReviewFormValid({ rating, content });
+    !isSubmitting && !isUnchanged && isReviewFormValid({ rating, content });
 
   const handleSubmit = () => {
     if (!isSubmittable) return;

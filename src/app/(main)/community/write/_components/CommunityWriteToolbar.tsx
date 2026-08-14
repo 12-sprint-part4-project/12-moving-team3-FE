@@ -1,6 +1,5 @@
 'use client';
 
-import type { Editor } from '@tiptap/react';
 import { useEffect, useState } from 'react';
 
 import { cn } from '@/lib/utils';
@@ -17,12 +16,16 @@ import {
   COMMUNITY_WRITE_TOOLBAR_CLASS,
 } from './communityWriteStyles';
 
+import type { Editor } from '@tiptap/react';
+
 interface CommunityWriteToolbarProps {
   editor: Editor;
 }
 
 /** 게시글 작성 본문 서식 툴바 */
-export const CommunityWriteToolbar = ({ editor }: CommunityWriteToolbarProps) => {
+export const CommunityWriteToolbar = ({
+  editor,
+}: CommunityWriteToolbarProps) => {
   const [, setToolbarRevision] = useState(0);
 
   useEffect(() => {

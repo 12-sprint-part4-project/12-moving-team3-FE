@@ -3,9 +3,10 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 import { toStartEstimateChatParams } from '@/lib/startEstimateChat';
-import type { HistoryQuoteCardModel } from '@/types/customerQuote';
 
 import { HistoryQuotesPanel } from './_components/HistoryQuotesPanel';
+
+import type { HistoryQuoteCardModel } from '@/types/customerQuote';
 
 /** `/quotes/history` 클라이언트. - 이용 내역 본문 */
 const CustomerQuoteHistoryPageClient = () => {

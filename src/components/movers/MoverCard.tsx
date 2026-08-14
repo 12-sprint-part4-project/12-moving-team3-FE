@@ -3,18 +3,18 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { MouseEvent } from 'react';
 
 import ProfileIcon from '@/assets/icons/profile.svg';
 import StarIcon from '@/assets/icons/star.svg';
 import { FavoriteButton } from '@/components/Favorite';
 import { ReportAction } from '@/components/reports';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
-
 import { cardHover, fadeUp, listStagger, tapScale } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import { API_MOVE_TYPE_TO_UI } from '@/types/estimateRequest';
+
 import type { ApiMoveType, MoverCardModel } from '@/types/mover';
+import type { MouseEvent } from 'react';
 
 export type MoverCardSize = 'lg' | 'sm';
 export type MoverCardVariant = 'default' | 'favorite';

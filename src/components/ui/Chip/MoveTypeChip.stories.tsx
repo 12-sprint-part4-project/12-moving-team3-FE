@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-
 import { MoveTypeChip } from './MoveTypeChip';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof MoveTypeChip> = {
   title: 'UI/Chip/MoveTypeChip',

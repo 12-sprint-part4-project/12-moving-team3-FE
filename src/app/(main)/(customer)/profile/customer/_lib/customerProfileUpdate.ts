@@ -1,9 +1,10 @@
+import { getPhoneNumberError, toPhoneDigits } from '@/lib/phoneNumber';
+import { validatePassword } from '@/lib/validatePassword';
+
 import type {
   RegionChipValue,
   ServiceChipValue,
 } from '@/constants/commonOptions';
-import { getPhoneNumberError, toPhoneDigits } from '@/lib/phoneNumber';
-import { validatePassword } from '@/lib/validatePassword';
 import type {
   CustomerProfileMe,
   UpsertCustomerProfileRequest,

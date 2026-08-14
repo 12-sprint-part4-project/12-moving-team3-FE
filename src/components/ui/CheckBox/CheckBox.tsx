@@ -1,18 +1,17 @@
 'use client';
 
-import type { ChangeEvent, InputHTMLAttributes } from 'react';
-
 import CheckIcon from '@/assets/icons/check.svg';
+
+import type { ChangeEvent, InputHTMLAttributes } from 'react';
 
 export type CheckBoxSize = 'sm' | 'md';
 /** Figma `sort` 속성 — round=원형, square=사각 */
 export type CheckBoxShape = 'round' | 'square';
 
-export interface CheckBoxProps
-  extends Omit<
-    InputHTMLAttributes<HTMLInputElement>,
-    'size' | 'type' | 'onChange' | 'checked'
-  > {
+export interface CheckBoxProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'size' | 'type' | 'onChange' | 'checked'
+> {
   /** 체크 여부 (Figma Property 1: active / default) */
   checked: boolean;
   /** 체크 상태 변경 시 호출되는 콜백 */

@@ -13,12 +13,13 @@ import {
 } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
-import type { CustomerQuoteDetailViewModel } from '@/types/customerQuote';
 
-import { CUSTOMER_QUOTE_DETAIL_PAGE_X_PADDING } from '../../_components/customerQuotesLayout';
 import { CustomerQuoteDetailActions } from './CustomerQuoteDetailActions';
-import { CustomerQuoteDetailSummaryCard } from './CustomerQuoteDetailSummaryCard';
 import { CUSTOMER_QUOTE_DETAIL_DIVIDER_CLASS } from './customerQuoteDetailStyles';
+import { CustomerQuoteDetailSummaryCard } from './CustomerQuoteDetailSummaryCard';
+import { CUSTOMER_QUOTE_DETAIL_PAGE_X_PADDING } from '../../_components/customerQuotesLayout';
+
+import type { CustomerQuoteDetailViewModel } from '@/types/customerQuote';
 
 const SECTION_CLASS = 'flex w-full flex-col gap-4 lg:gap-8';
 const SECTION_TITLE_CLASS =

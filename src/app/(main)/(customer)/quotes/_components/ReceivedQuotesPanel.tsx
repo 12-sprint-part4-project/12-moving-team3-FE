@@ -11,8 +11,8 @@ import { useListEntranceStagger } from '@/hooks/useListEntranceStagger';
 import { useLoadMoreOnView } from '@/hooks/useLoadMoreOnView';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 
-import { CUSTOMER_QUOTES_CONTENT_CLASS } from './customerQuotesLayout';
 import { CustomerQuotesEmptyState } from './CustomerQuotesEmptyState';
+import { CUSTOMER_QUOTES_CONTENT_CLASS } from './customerQuotesLayout';
 import { ReceivedQuoteGroupSection } from './ReceivedQuoteGroupSection';
 
 /** 받았던 견적 탭 패널 props */

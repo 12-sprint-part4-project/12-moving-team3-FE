@@ -23,6 +23,7 @@ import {
   markChatRoomAsRead,
   sendChatMessage,
 } from '@/services/chatApi';
+
 import type {
   ChatMessage,
   ChatMessagesResponse,
@@ -363,7 +364,9 @@ export const useLeaveChatRoom = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (roomId: number): Promise<LeaveChatRoomResponse | null> => {
+    mutationFn: async (
+      roomId: number
+    ): Promise<LeaveChatRoomResponse | null> => {
       try {
         return await leaveChatRoom(roomId);
       } catch (error) {

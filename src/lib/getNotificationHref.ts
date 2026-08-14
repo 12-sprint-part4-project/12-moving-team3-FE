@@ -1,8 +1,6 @@
 import { parsePositiveInt } from '@/lib/parsePositiveInt';
-import type {
-  NotificationItem,
-  NotificationRole,
-} from '@/types/notification';
+
+import type { NotificationItem, NotificationRole } from '@/types/notification';
 
 /**
  * 알림 클릭 시 이동 경로.

@@ -1,10 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useRef } from 'react';
+
 import AlarmIcon from '@/assets/icons/alarm.svg';
 import StarIcon from '@/assets/icons/star.svg';
-import { Toast } from './Toast';
-import { ToastProvider } from '@/providers/ToastProvider';
 import { useToast } from '@/hooks/useToast';
+import { ToastProvider } from '@/providers/ToastProvider';
+
+import { Toast } from './Toast';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof Toast> = {
   title: 'UI/Toast',

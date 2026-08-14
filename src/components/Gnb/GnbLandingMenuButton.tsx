@@ -1,7 +1,6 @@
 'use client';
 
 import MenuIcon from '@/assets/icons/menu.svg';
-
 import { useGuestHeaderMenu } from '@/components/layout/GuestHeaderMenuContext';
 
 export const GnbLandingMenuButton = () => {

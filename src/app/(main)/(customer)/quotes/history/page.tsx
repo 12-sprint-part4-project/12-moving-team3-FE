@@ -1,9 +1,9 @@
-import { CustomerQuotesTitleHeader } from '../_components/CustomerQuotesTitleHeader';
+import CustomerQuoteHistoryPageClient from './page.client';
 import {
   CUSTOMER_QUOTES_PAGE_SHELL_CLASS,
   CUSTOMER_QUOTES_PAGE_X_PADDING,
 } from '../_components/customerQuotesLayout';
-import CustomerQuoteHistoryPageClient from './page.client';
+import { CustomerQuotesTitleHeader } from '../_components/CustomerQuotesTitleHeader';
 
 import type { Metadata } from 'next';
 

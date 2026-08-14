@@ -22,6 +22,7 @@ import {
   isSameLocalMinute,
 } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
+
 import type { ChatMessage } from '@/types/chat';
 import type { ReportCategory } from '@/types/report';
 
@@ -321,8 +322,7 @@ export const ChatMessageList = ({
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     const el = event.currentTarget;
-    const distanceFromBottom =
-      el.scrollHeight - el.scrollTop - el.clientHeight;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
     const isNearBottom = distanceFromBottom <= NEAR_BOTTOM_PX;
 
     if (didInitialScrollRef.current && !isProgrammaticScrollRef.current) {
@@ -422,9 +422,7 @@ export const ChatMessageList = ({
 
             {canRenderMessages && isEmpty ? (
               <p className="py-16 text-center text-lg-medium text-gray-300">
-                {isPartnerLeft
-                  ? PARTNER_LEFT_MESSAGE
-                  : '대화를 시작해 보세요'}
+                {isPartnerLeft ? PARTNER_LEFT_MESSAGE : '대화를 시작해 보세요'}
               </p>
             ) : null}
           </div>
@@ -441,12 +439,13 @@ export const ChatMessageList = ({
                 : '';
               const isMine = message.senderId === currentUserId;
               const showTime = shouldShowMessageTime(message, next);
-              const { showUnreadCount, showReadLabel } = getMineReadReceiptFlags(
-                message,
-                currentUserId,
-                partnerLastReadMessageId,
-                myLastMessageId
-              );
+              const { showUnreadCount, showReadLabel } =
+                getMineReadReceiptFlags(
+                  message,
+                  currentUserId,
+                  partnerLastReadMessageId,
+                  myLastMessageId
+                );
 
               return (
                 <Fragment key={message.messageId}>

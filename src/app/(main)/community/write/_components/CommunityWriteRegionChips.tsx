@@ -2,7 +2,6 @@
 
 import { WRITE_REGION_OPTIONS } from '@/constants/communityOptions';
 import { cn } from '@/lib/utils';
-import type { Region } from '@/types/community';
 
 import {
   COMMUNITY_WRITE_CHIP_BASE_CLASS,
@@ -15,6 +14,8 @@ import {
   COMMUNITY_WRITE_LABEL_ROW_CLASS,
   COMMUNITY_WRITE_REGION_CHIP_SELECTED_CLASS,
 } from './communityWriteStyles';
+
+import type { Region } from '@/types/community';
 
 interface CommunityWriteRegionChipsProps {
   value: Region | null;

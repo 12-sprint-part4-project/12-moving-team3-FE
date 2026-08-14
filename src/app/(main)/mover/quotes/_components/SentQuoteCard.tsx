@@ -1,7 +1,8 @@
 'use client';
 
-import { QuoteListCard } from '@/components/quotes/QuoteListCard';
 import { getClosedQuoteOverlayMessage } from '@/components/quotes/closedQuoteOverlay';
+import { QuoteListCard } from '@/components/quotes/QuoteListCard';
+
 import type { SentQuoteCardModel } from '@/types/quote';
 
 export interface SentQuoteCardProps {

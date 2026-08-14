@@ -2,14 +2,16 @@
 
 import { useEffect, useState } from 'react';
 
+import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
+
 import { EstimateRequestBlocked } from './_components/EstimateRequestBlocked';
 import { EstimateRequestGate } from './_components/EstimateRequestGate';
 import { EstimateRequestShell } from './_components/EstimateRequestShell';
 import { AddressStep } from './_components/steps/AddressStep';
 import { MoveDateStep } from './_components/steps/MoveDateStep';
 import { MoveTypeStep } from './_components/steps/MoveTypeStep';
-import { Spinner } from '@/components/ui/Spinner/Spinner';
-import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
+
 import type { EstimateRequestVisualStep } from '@/types/customerEstimateRequest';
 
 /** step별 탭 타이틀 — 절대 문자열(| 무빙 포함, 루트 template 이중 적용 방지) */

@@ -1,4 +1,3 @@
-import type { QueryKey } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef, useState } from 'react';
 
@@ -16,6 +15,8 @@ import {
   type ToggleFavoriteVariables,
 } from '@/lib/favoriteCache';
 import { addFavorite, removeFavorite } from '@/services/favoritesApi';
+
+import type { QueryKey } from '@tanstack/react-query';
 
 export type { ToggleFavoriteVariables };
 

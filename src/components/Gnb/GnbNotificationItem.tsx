@@ -1,6 +1,7 @@
 import { NotificationHighlightedContent } from '@/components/Gnb/NotificationHighlightedContent';
 import { formatRelativeTime } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
+
 import type { NotificationItem } from '@/types/notification';
 
 export interface GnbNotificationItemProps {
@@ -34,7 +35,7 @@ export const GnbNotificationItem = ({
     >
       <p
         className={cn(
-          'w-full break-words text-md-medium md:text-lg-medium',
+          'w-full text-md-medium break-words md:text-lg-medium',
           isRead ? 'text-gray-300' : 'text-black-400'
         )}
       >

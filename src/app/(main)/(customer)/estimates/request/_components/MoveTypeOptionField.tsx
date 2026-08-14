@@ -1,8 +1,8 @@
 'use client';
 
 import CheckIcon from '@/assets/icons/check.svg';
-
 import { cn } from '@/lib/utils';
+
 import type { ApiMoveType } from '@/types/estimateRequest';
 
 interface MoveTypeOptionFieldProps {

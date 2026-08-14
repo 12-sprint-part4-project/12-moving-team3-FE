@@ -11,11 +11,12 @@ import {
 } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
-import type { ReceivedQuoteGroupModel } from '@/types/customerQuote';
 
-import { useReceivedQuoteGroupFilter } from '../_lib/useReceivedQuoteGroupFilter';
 import { ReceivedQuoteCard } from './ReceivedQuoteCard';
 import { ReceivedQuotesFilter } from './ReceivedQuotesFilter';
+import { useReceivedQuoteGroupFilter } from '../_lib/useReceivedQuoteGroupFilter';
+
+import type { ReceivedQuoteGroupModel } from '@/types/customerQuote';
 
 export interface ReceivedQuoteGroupSectionProps {
   group: ReceivedQuoteGroupModel;

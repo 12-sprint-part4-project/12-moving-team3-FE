@@ -7,6 +7,7 @@ import {
   searchJusoAddresses,
   searchJusoMockAddresses,
 } from '@/lib/jusoAddressSearch';
+
 import type { AddressSearchResult } from '@/types/addressSearch';
 
 /** 검색어 최소 길이 — 1자 요청으로 행안부 부하·차단 완화 */
@@ -22,8 +23,7 @@ const ADDRESS_SEARCH_ERRORS = {
   ADDRESS_SEARCH_FAILED: {
     code: API_ERROR_CODE.ADDRESS_SEARCH_FAILED,
     status: 502,
-    message:
-      '주소 검색 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+    message: '주소 검색 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
   },
 } as const;
 

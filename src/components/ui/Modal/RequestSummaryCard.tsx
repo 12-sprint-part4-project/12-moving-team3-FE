@@ -2,7 +2,6 @@
 
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
-
 import { cn } from '@/lib/utils';
 
 import { MOVE_TYPE_CHIP_RESPONSIVE_CLASS } from './modalPanel';

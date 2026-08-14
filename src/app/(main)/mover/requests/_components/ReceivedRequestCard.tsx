@@ -9,7 +9,6 @@ import {
 } from '@/components/Button/Button';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
-
 import {
   cardHover,
   fadeUp,

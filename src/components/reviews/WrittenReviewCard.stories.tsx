@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import {
   SAMPLE_CUSTOMER_REVIEW,
@@ -12,7 +11,9 @@ import { EditReviewModal } from '@/components/reviews/EditReviewModal';
 import { ReviewDetailModal } from '@/components/reviews/ReviewDetailModal';
 import { WrittenReviewCard } from '@/components/reviews/WrittenReviewCard';
 import { Modal } from '@/components/ui/Modal/Modal';
+
 import type { CustomerReviewItem } from '@/types/review';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof WrittenReviewCard> = {
   title: 'Reviews/WrittenReviewCard',
@@ -78,11 +79,7 @@ export const ListWithDetailModal: Story = {
       <div className="min-h-screen bg-background-200 p-6 xl:px-16">
         <div className="mx-auto grid max-w-[87.5rem] grid-cols-1 gap-8 xl:grid-cols-2">
           {SAMPLE_CUSTOMER_REVIEWS.map((item) => (
-            <WrittenReviewCard
-              key={item.id}
-              item={item}
-              onClick={openDetail}
-            />
+            <WrittenReviewCard key={item.id} item={item} onClick={openDetail} />
           ))}
         </div>
 
@@ -110,10 +107,7 @@ export const ListWithDetailModal: Story = {
 
         {selected && flow === 'delete' ? (
           <Modal placement="bottom" onClose={closeAll}>
-            <DeleteReviewConfirmModal
-              onClose={closeAll}
-              onConfirm={closeAll}
-            />
+            <DeleteReviewConfirmModal onClose={closeAll} onConfirm={closeAll} />
           </Modal>
         ) : null}
       </div>

@@ -1,10 +1,11 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import type { ReactNode } from 'react';
 
 import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
+
+import type { ReactNode } from 'react';
 
 export interface QuoteDetailMobileActionBarProps {
   children: ReactNode;

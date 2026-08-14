@@ -1,7 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
 
 import { GnbProfileDropdown } from './GnbProfileDropdown';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof GnbProfileDropdown> = {
   title: 'UI/GnbProfileDropdown',

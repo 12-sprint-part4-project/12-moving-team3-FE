@@ -1,6 +1,6 @@
-import type { Metadata } from 'next';
-
 import { MoverProfileEditForm } from '../_components/MoverProfileEditForm';
+
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: '프로필 수정',

@@ -1,8 +1,8 @@
 'use client';
 
-import type { FurnitureShareDetailAction } from '@/lib/communityFurnitureShare';
-
 import { CommunityFurnitureShareCtaAction } from './CommunityFurnitureShareCtaAction';
+
+import type { FurnitureShareDetailAction } from '@/lib/communityFurnitureShare';
 
 interface CommunityFurnitureShareDetailActionsProps {
   action: FurnitureShareDetailAction | null;

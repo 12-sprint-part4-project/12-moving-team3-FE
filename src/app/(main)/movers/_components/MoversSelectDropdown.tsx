@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
-
 import { useOutsideClick } from '@/hooks/useOutsideClick';
 import { cn } from '@/lib/utils';
 
@@ -115,9 +114,7 @@ export const MoversSelectDropdown = ({
         >
           <ul
             role="presentation"
-            className={cn(
-              isTwoColumn ? 'grid grid-cols-2' : 'flex flex-col'
-            )}
+            className={cn(isTwoColumn ? 'grid grid-cols-2' : 'flex flex-col')}
           >
             {options.map((option, index) => {
               const isSelected = option.value === value;
@@ -127,9 +124,7 @@ export const MoversSelectDropdown = ({
                 <li
                   key={option.value}
                   role="presentation"
-                  className={cn(
-                    isLeftColumn && 'border-r border-line-200'
-                  )}
+                  className={cn(isLeftColumn && 'border-r border-line-200')}
                 >
                   <button
                     ref={isSelected ? selectedRef : undefined}

@@ -12,14 +12,15 @@ import {
 import { useLoadMoreOnView } from '@/hooks/useLoadMoreOnView';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 import { fadeUp, getMotionTransition, listStagger } from '@/lib/motionVariants';
-import type { HistoryQuoteCardModel } from '@/types/customerQuote';
 
+import { HistoryQuoteCard } from './HistoryQuoteCard';
+import { CustomerQuotesEmptyState } from '../../_components/CustomerQuotesEmptyState';
 import {
   CUSTOMER_QUOTES_CONTENT_CLASS,
   CUSTOMER_QUOTES_PAGE_X_PADDING,
 } from '../../_components/customerQuotesLayout';
-import { CustomerQuotesEmptyState } from '../../_components/CustomerQuotesEmptyState';
-import { HistoryQuoteCard } from './HistoryQuoteCard';
+
+import type { HistoryQuoteCardModel } from '@/types/customerQuote';
 
 /** 이용 내역 패널 props */
 interface HistoryQuotesPanelProps {

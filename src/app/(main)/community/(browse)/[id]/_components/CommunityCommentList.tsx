@@ -1,14 +1,14 @@
 'use client';
 
-import type { ReactNode } from 'react';
-
 import { Button } from '@/components/Button/Button';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { cn } from '@/lib/utils';
-import type { CommentWithReplies } from '@/types/community';
 
 import { CommunityCommentItem } from './CommunityCommentItem';
 import { COMMUNITY_DETAIL_DIVIDER } from './communityDetailStyles';
+
+import type { CommentWithReplies } from '@/types/community';
+import type { ReactNode } from 'react';
 
 interface CommunityCommentListProps {
   comments: CommentWithReplies[];
@@ -56,16 +56,16 @@ export const CommunityCommentList = ({
   className = '',
 }: CommunityCommentListProps) => {
   const isInitialError = isError && comments.length === 0;
-  const showEmpty =
-    !isPending && !isInitialError && comments.length === 0;
+  const showEmpty = !isPending && !isInitialError && comments.length === 0;
   const showComments = !isPending && !isInitialError && comments.length > 0;
 
-  const commentAreaPadding =
-    'pt-6 min-[46.5rem]:pt-7 xl:pt-8';
+  const commentAreaPadding = 'pt-6 min-[46.5rem]:pt-7 xl:pt-8';
 
   return (
     <section className={className} aria-label="댓글">
-      {beforeHeader ? <div className="mb-10 min-[46.5rem]:mb-12 xl:mb-16">{beforeHeader}</div> : null}
+      {beforeHeader ? (
+        <div className="mb-10 min-[46.5rem]:mb-12 xl:mb-16">{beforeHeader}</div>
+      ) : null}
 
       <div className="flex items-end justify-between gap-3">
         <h2 className="text-lg-semibold text-black-400 min-[46.5rem]:text-2lg-regular xl:text-xl-bold">
@@ -75,7 +75,9 @@ export const CommunityCommentList = ({
           <div className="shrink-0 self-start">{headerAction}</div>
         ) : null}
       </div>
-      <div className={cn(COMMUNITY_DETAIL_DIVIDER, 'mt-1 min-[46.5rem]:mt-1.5')} />
+      <div
+        className={cn(COMMUNITY_DETAIL_DIVIDER, 'mt-1 min-[46.5rem]:mt-1.5')}
+      />
 
       <div className={commentAreaPadding}>
         {isPending ? (

@@ -6,6 +6,7 @@ import { Button, getButtonClassName } from '@/components/Button/Button';
 import { getClosedQuoteOverlayMessage } from '@/components/quotes/closedQuoteOverlay';
 import { QuoteListCard } from '@/components/quotes/QuoteListCard';
 import { cn } from '@/lib/utils';
+
 import type { HistoryQuoteCardModel } from '@/types/customerQuote';
 
 export interface HistoryQuoteCardProps {

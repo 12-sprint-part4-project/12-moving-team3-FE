@@ -6,7 +6,11 @@ import {
   throwApiError,
 } from '@/lib/apiClient';
 import { authFetch } from '@/lib/authFetch';
-import { formatMoveDateLabel, formatRelativeTime, formatShortDateLabel } from '@/lib/formatDate';
+import {
+  formatMoveDateLabel,
+  formatRelativeTime,
+  formatShortDateLabel,
+} from '@/lib/formatDate';
 import {
   quoteListResponseSchema,
   quoteSubmitResponseSchema,
@@ -14,6 +18,7 @@ import {
 import { isEstimateRequestClosedForChat } from '@/lib/startEstimateChat';
 import { formatDistrictLabel } from '@/services/estimateRequestApi';
 import { API_MOVE_TYPE_TO_UI, MOVE_TYPE_LABELS } from '@/types/estimateRequest';
+
 import type {
   MoverQuotesParams,
   ProposalQuoteBody,
@@ -157,7 +162,11 @@ const submitQuote = async (
   const parsed = quoteSubmitResponseSchema.safeParse(responseBody);
 
   if (!parsed.success) {
-    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, API_ERROR_CODE.INVALID_RESPONSE);
+    throw new ApiError(
+      500,
+      DEFAULT_API_ERROR_MESSAGE,
+      API_ERROR_CODE.INVALID_RESPONSE
+    );
   }
 
   return parsed.data;
@@ -224,7 +233,11 @@ export async function getMoverQuotes(
   const parsed = quoteListResponseSchema.safeParse(body);
 
   if (!parsed.success) {
-    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, API_ERROR_CODE.INVALID_RESPONSE);
+    throw new ApiError(
+      500,
+      DEFAULT_API_ERROR_MESSAGE,
+      API_ERROR_CODE.INVALID_RESPONSE
+    );
   }
 
   return parsed.data as QuoteListResponse;

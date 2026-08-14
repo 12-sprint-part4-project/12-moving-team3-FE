@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { SAMPLE_WRITABLE_QUOTE } from '@/components/reviews/_fixtures/reviewFixtures';
 import { WriteReviewModal } from '@/components/reviews/WriteReviewModal';
 import { Modal } from '@/components/ui/Modal/Modal';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof WriteReviewModal> = {
   title: 'Reviews/WriteReviewModal',

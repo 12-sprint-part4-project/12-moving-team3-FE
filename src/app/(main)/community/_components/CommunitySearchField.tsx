@@ -1,9 +1,9 @@
 'use client';
 
-import type { ChangeEvent } from 'react';
-
 import { TextFieldSearch } from '@/components/ui/Input/TextFieldSearch';
 import { cn } from '@/lib/utils';
+
+import type { ChangeEvent } from 'react';
 
 interface CommunitySearchFieldProps {
   value: string;

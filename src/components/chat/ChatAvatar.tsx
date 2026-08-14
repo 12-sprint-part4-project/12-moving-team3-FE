@@ -1,7 +1,6 @@
 import Image from 'next/image';
 
 import ProfileIcon from '@/assets/icons/profile.svg';
-
 import { cn } from '@/lib/utils';
 
 export interface ChatAvatarProps {
@@ -11,11 +10,7 @@ export interface ChatAvatarProps {
 }
 
 /** 채팅 상대/본인 아바타 (GNB·MoverCard와 동일 rounded-full 패턴) */
-export const ChatAvatar = ({
-  src,
-  alt = '',
-  className,
-}: ChatAvatarProps) => {
+export const ChatAvatar = ({ src, alt = '', className }: ChatAvatarProps) => {
   if (src) {
     return (
       <span
