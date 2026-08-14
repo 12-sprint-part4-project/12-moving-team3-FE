@@ -1,7 +1,7 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import { AuthBrand, AuthHelperText } from '@/app/(auth)/_components/AuthBrand';
 import { AuthEmailField } from '@/app/(auth)/_components/AuthEmailField';
@@ -29,6 +29,7 @@ import type { ChangeEvent, FormEvent } from 'react';
 
 interface LoginFormProps {
   role: AuthRole;
+  redirectTo?: string | null;
 }
 
 interface LoginFormValues {
@@ -42,9 +43,8 @@ const INITIAL_VALUES: LoginFormValues = {
 };
 
 /** 이메일·비밀번호·카카오 로그인 폼 */
-const LoginFormInner = ({ role }: LoginFormProps) => {
+export const LoginForm = ({ role, redirectTo = null }: LoginFormProps) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { showToast } = useToast();
   const { setSession } = useAuth();
   const [values, setValues] = useState<LoginFormValues>(INITIAL_VALUES);
@@ -52,7 +52,6 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
 
   const roleSwitch = getAuthRoleSwitch('login', role);
   const userType = USER_TYPE_BY_ROLE[role];
-  const redirectTo = searchParams.get('redirect');
   const trimmedEmail = values.email.trim();
   const isSubmittable =
     trimmedEmail.length > 0 && values.password.length > 0 && !isPending;
@@ -166,14 +165,5 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
         />
       </div>
     </div>
-  );
-};
-
-/** useSearchParams용 Suspense 경계 */
-export const LoginForm = ({ role }: LoginFormProps) => {
-  return (
-    <Suspense fallback={null}>
-      <LoginFormInner role={role} />
-    </Suspense>
   );
 };
