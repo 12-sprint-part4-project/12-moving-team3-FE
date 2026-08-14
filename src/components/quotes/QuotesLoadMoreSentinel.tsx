@@ -3,7 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 
 import { Spinner } from '@/components/ui/Spinner/Spinner';
-import { fadeIn, getMotionTransition } from '@/lib/motionVariants';
+import { getFadeInPresenceProps, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 import type { Ref } from 'react';
@@ -32,13 +32,7 @@ export const QuotesLoadMoreSentinel = ({
     >
       <AnimatePresence>
         {isFetchingNextPage ? (
-          <motion.div
-            variants={fadeIn}
-            initial="hidden"
-            animate="show"
-            exit="exit"
-            transition={motionTransition}
-          >
+          <motion.div {...getFadeInPresenceProps(motionTransition)}>
             <Spinner message={message} />
           </motion.div>
         ) : null}
