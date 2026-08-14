@@ -5,7 +5,6 @@ import { EstimateRequestChatBubbleGroup } from './EstimateRequestChatBubbleGroup
 import { MoveTypeRevisePanel } from './MoveTypeRevisePanel';
 
 import type { ApiMoveType } from '@/types/estimateRequest';
-import type { ReactNode } from 'react';
 
 const INTRO_MESSAGE =
   '몇 가지 정보만 알려주시면 최대 5개의 견적을 받을 수 있어요 :)';
@@ -34,20 +33,18 @@ interface MoveTypeAnswerSectionProps {
   isSubmitting: boolean;
   isRevisingField: boolean;
   errorMessage: string | null;
-  /** 수정 모드가 아닐 때 이 자리에 이어서 렌더할 다음 질문 블록 */
-  children: ReactNode;
 }
 
 /**
  * Step2·3 공용 — 안내+이사종류 질문, 답변+수정하기, 수정 패널.
  * AddressStep·MoveDateStep에 거의 동일하게 중복돼 있던 블록을 추출.
+ * 다음 질문은 이 컴포넌트가 감싸지 않는다 — 호출부가 `!moveType.isRevising` 가드로 형제로 이어붙인다.
  */
 export const MoveTypeAnswerSection = ({
   moveType,
   isSubmitting,
   isRevisingField,
   errorMessage,
-  children,
 }: MoveTypeAnswerSectionProps) => {
   return (
     <>
@@ -87,9 +84,7 @@ export const MoveTypeAnswerSection = ({
             void moveType.confirm();
           }}
         />
-      ) : (
-        children
-      )}
+      ) : null}
     </>
   );
 };

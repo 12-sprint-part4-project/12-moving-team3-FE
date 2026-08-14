@@ -29,28 +29,32 @@ export const MoveDateStep = () => {
         isSubmitting={isSubmitting}
         isRevisingField={isRevisingField}
         errorMessage={errorMessage}
-      >
-        {/* 시스템: 날짜 선택 프롬프트 */}
-        <EstimateRequestChatBubbleGroup>
-          <TextFieldChat>{MOVE_DATE_PROMPT}</TextFieldChat>
-        </EstimateRequestChatBubbleGroup>
+      />
 
-        {/* Calendar 자체 카드 — ChatPanel로 감싸지 않음, md+ 우측 정렬 */}
-        <div className="flex w-full flex-col gap-2 md:items-end">
-          <Calendar
-            className="max-w-[20.4375rem] md:max-w-[40rem]"
-            value={moveDate.draft}
-            onValueChange={moveDate.setDraft}
-            minDate={moveDate.min}
-            confirmDisabled={isSubmitting || detail == null}
-            confirmLabel={isSubmitting ? '저장 중…' : '선택완료'}
-            onConfirm={(date) => {
-              void moveDate.confirmSave(date);
-            }}
-          />
-          <InlineErrorMessage message={errorMessage} />
-        </div>
-      </MoveTypeAnswerSection>
+      {!moveType.isRevising && (
+        <>
+          {/* 시스템: 날짜 선택 프롬프트 */}
+          <EstimateRequestChatBubbleGroup>
+            <TextFieldChat>{MOVE_DATE_PROMPT}</TextFieldChat>
+          </EstimateRequestChatBubbleGroup>
+
+          {/* Calendar 자체 카드 — ChatPanel로 감싸지 않음, md+ 우측 정렬 */}
+          <div className="flex w-full flex-col gap-2 md:items-end">
+            <Calendar
+              className="max-w-[20.4375rem] md:max-w-[40rem]"
+              value={moveDate.draft}
+              onValueChange={moveDate.setDraft}
+              minDate={moveDate.min}
+              confirmDisabled={isSubmitting || detail == null}
+              confirmLabel={isSubmitting ? '저장 중…' : '선택완료'}
+              onConfirm={(date) => {
+                void moveDate.confirmSave(date);
+              }}
+            />
+            <InlineErrorMessage message={errorMessage} />
+          </div>
+        </>
+      )}
     </section>
   );
 };

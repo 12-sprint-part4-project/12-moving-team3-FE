@@ -3,18 +3,22 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { Calendar } from '@/components/ui/Calendar/Calendar';
+import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { API_ERROR_CODE } from '@/constants/errorCode';
 import { useMoveInfoRevise } from '@/hooks/useMoveInfoRevise';
 import { ApiError } from '@/lib/apiClient';
 import { saveEstimateRequestStepBodySchema } from '@/lib/customerEstimateRequestSchema';
 
-import { AddressSelectSection } from '../AddressSelectSection';
+import { AddressSelectCard } from '../AddressSelectCard';
 import {
   EstimateRequestAddressModal,
   type AddressDraft,
   type AddressSide,
 } from '../EstimateRequestAddressModal';
-import { MoveDateAnswerSection } from '../MoveDateAnswerSection';
+import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGroup';
+import { EstimateRequestChatPanel } from '../EstimateRequestChatPanel';
+import { InlineErrorMessage } from '../InlineErrorMessage';
 import { MoveTypeAnswerSection } from '../MoveTypeAnswerSection';
 
 import type { EstimateRequestVisualStep } from '@/types/customerEstimateRequest';
@@ -36,6 +40,9 @@ const toAddressProgressFill = (
 interface AddressStepProps {
   onProgressFillChange?: (fill: EstimateRequestVisualStep) => void;
 }
+
+const MOVE_DATE_PROMPT = '이사 예정일을 선택해주세요.';
+const ADDRESS_PROMPT = '이사 지역을 선택해주세요.';
 
 /** detail에 저장된 주소가 있으면 draft로 복원 */
 const toDraftFromDetail = (
@@ -189,35 +196,81 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
         isSubmitting={isSubmitting}
         isRevisingField={isRevisingField}
         errorMessage={errorMessage}
-      >
-        <MoveDateAnswerSection
-          moveDate={moveDate}
-          isSubmitting={isSubmitting}
-          dateConfirmDisabled={isSubmitting || detail == null}
-          errorMessage={errorMessage}
-        >
-          <AddressSelectSection
-            departure={departure}
-            arrival={arrival}
-            selectDisabled={isSubmitting}
-            confirmDisabled={!canConfirmAddress || isConfirmBusy}
-            confirmBusy={isConfirmBusy}
-            confirmLabel={confirmLabel}
-            errorMessage={errorMessage}
-            onSelectDeparture={() => {
-              setErrorMessage(null);
-              setActiveSide('departure');
-            }}
-            onSelectArrival={() => {
-              setErrorMessage(null);
-              setActiveSide('arrival');
-            }}
-            onConfirm={() => {
-              void handleConfirmBoth();
-            }}
-          />
-        </MoveDateAnswerSection>
-      </MoveTypeAnswerSection>
+      />
+
+      {!moveType.isRevising && (
+        <>
+          {/* 시스템: 날짜 프롬프트 */}
+          <EstimateRequestChatBubbleGroup>
+            <TextFieldChat>{MOVE_DATE_PROMPT}</TextFieldChat>
+          </EstimateRequestChatBubbleGroup>
+
+          {/* 유저: 날짜 답변 + 수정하기 (날짜 수정 모드 중에는 숨김) */}
+          {moveDate.label && !moveDate.isRevising ? (
+            <EstimateRequestChatBubbleGroup align="end">
+              <TextFieldChat color="mePrimary">{moveDate.label}</TextFieldChat>
+              <button
+                type="button"
+                className="pr-2 text-xs-medium text-gray-500 underline md:text-lg-medium"
+                disabled={isSubmitting}
+                onClick={moveDate.start}
+              >
+                수정하기
+              </button>
+            </EstimateRequestChatBubbleGroup>
+          ) : null}
+
+          {moveDate.isRevising ? (
+            <div className="flex w-full flex-col gap-2 md:items-end">
+              <Calendar
+                className="max-w-[20.4375rem] md:max-w-[40rem]"
+                value={moveDate.draft}
+                onValueChange={moveDate.setDraft}
+                minDate={moveDate.min}
+                confirmDisabled={isSubmitting || detail == null}
+                confirmLabel={isSubmitting ? '저장 중…' : '선택완료'}
+                onConfirm={(date) => {
+                  void moveDate.confirmRevise(date);
+                }}
+              />
+              <InlineErrorMessage message={errorMessage} />
+            </div>
+          ) : null}
+        </>
+      )}
+
+      {!moveType.isRevising && !moveDate.isRevising && (
+        <>
+          {/* 시스템: 지역 선택 프롬프트 */}
+          <EstimateRequestChatBubbleGroup>
+            <TextFieldChat>{ADDRESS_PROMPT}</TextFieldChat>
+          </EstimateRequestChatBubbleGroup>
+
+          {/* 출발/도착 선택 카드 + 견적 확정(저장·제출) CTA */}
+          <EstimateRequestChatPanel>
+            <AddressSelectCard
+              departure={departure}
+              arrival={arrival}
+              selectDisabled={isSubmitting}
+              confirmDisabled={!canConfirmAddress || isConfirmBusy}
+              confirmBusy={isConfirmBusy}
+              confirmLabel={confirmLabel}
+              onSelectDeparture={() => {
+                setErrorMessage(null);
+                setActiveSide('departure');
+              }}
+              onSelectArrival={() => {
+                setErrorMessage(null);
+                setActiveSide('arrival');
+              }}
+              onConfirm={() => {
+                void handleConfirmBoth();
+              }}
+            />
+            <InlineErrorMessage message={errorMessage} />
+          </EstimateRequestChatPanel>
+        </>
+      )}
 
       {activeSide && !isSubmitting && !isInReviseMode ? (
         <EstimateRequestAddressModal
