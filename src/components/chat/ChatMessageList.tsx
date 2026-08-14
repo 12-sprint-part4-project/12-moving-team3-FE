@@ -176,19 +176,39 @@ export const ChatMessageList = ({
     [onNearBottomChange]
   );
 
-  const scrollToBottom = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) {
-      return;
-    }
+  const scrollToBottom = useCallback(
+    (options?: { retry?: boolean }) => {
+      const el = scrollRef.current;
+      if (!el) {
+        return;
+      }
 
-    isProgrammaticScrollRef.current = true;
-    el.scrollTop = el.scrollHeight;
-    reportNearBottom(true);
-    requestAnimationFrame(() => {
-      isProgrammaticScrollRef.current = false;
-    });
-  }, [reportNearBottom]);
+      const run = () => {
+        const target = scrollRef.current;
+        if (!target) {
+          return;
+        }
+        isProgrammaticScrollRef.current = true;
+        target.scrollTop = target.scrollHeight;
+        reportNearBottom(true);
+        requestAnimationFrame(() => {
+          isProgrammaticScrollRef.current = false;
+        });
+      };
+
+      run();
+
+      // 키보드 resize·레이아웃 안정화 후 재정렬 (모바일 인앱/iOS) (#279)
+      if (options?.retry) {
+        requestAnimationFrame(() => {
+          run();
+          window.setTimeout(run, 100);
+          window.setTimeout(run, 280);
+        });
+      }
+    },
+    [reportNearBottom]
+  );
 
   const scrollToBottomRef = useRef(scrollToBottom);
 
@@ -279,7 +299,7 @@ export const ChatMessageList = ({
     }
 
     if (nextCount > prevCount && shouldStickToBottomRef.current) {
-      scrollToBottom();
+      scrollToBottom({ retry: true });
     }
   }, [messages, isPending, scrollToBottom]);
 
@@ -290,8 +310,29 @@ export const ChatMessageList = ({
     }
 
     shouldStickToBottomRef.current = true;
-    scrollToBottomRef.current();
+    scrollToBottomRef.current({ retry: true });
   }, [scrollToBottomSignal]);
+
+  // 키보드로 visualViewport가 줄어도 하단 고정 중이면 따라감 (#279)
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) {
+      return;
+    }
+
+    const handleViewportResize = () => {
+      if (!didInitialScrollRef.current || !shouldStickToBottomRef.current) {
+        return;
+      }
+      if (scrollAnchorRef.current != null) {
+        return;
+      }
+      scrollToBottomRef.current();
+    };
+
+    vv.addEventListener('resize', handleViewportResize);
+    return () => vv.removeEventListener('resize', handleViewportResize);
+  }, []);
 
   // 이미지 등으로 콘텐츠 높이가 늘어나도 하단 고정 중이면 따라감
   useEffect(() => {
@@ -381,7 +422,7 @@ export const ChatMessageList = ({
         ref={scrollRef}
         onScroll={handleScroll}
         className={cn(
-          'min-h-0 flex-1 overflow-y-auto bg-background-200 px-4 py-5 md:px-6',
+          'min-h-0 flex-1 overflow-y-auto overscroll-contain bg-background-200 px-4 py-5 md:px-6',
           className
         )}
       >

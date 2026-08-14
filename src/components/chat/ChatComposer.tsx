@@ -67,7 +67,6 @@ export const ChatComposer = ({
   onScrollChipClick,
   className,
 }: ChatComposerProps) => {
-  const composerRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [value, setValue] = useState('');
   const [pendingImages, setPendingImages] = useState<PendingImageFile[]>([]);
@@ -214,7 +213,7 @@ export const ChatComposer = ({
     }
 
     requestAnimationFrame(() => {
-      inputRef.current?.focus();
+      inputRef.current?.focus({ preventScroll: true });
     });
   };
 
@@ -235,22 +234,12 @@ export const ChatComposer = ({
   );
 
   useEffect(() => {
-    if (pendingImages.length === 0) {
-      return;
-    }
-
-    composerRef.current?.scrollIntoView({
-      block: 'end',
-      inline: 'nearest',
-    });
-  }, [pendingImages.length]);
-
-  useEffect(() => {
     if (focusInputSignal === 0 || isBusy) {
       return;
     }
 
-    inputRef.current?.focus();
+    // 문서 스크롤을 유발하지 않도록 preventScroll (#279)
+    inputRef.current?.focus({ preventScroll: true });
   }, [focusInputSignal, isBusy]);
 
   return (
@@ -281,7 +270,6 @@ export const ChatComposer = ({
         </div>
       ) : null}
       <form
-        ref={composerRef}
         onSubmit={handleSubmit}
         className="flex flex-col gap-2 border-t border-line-100 bg-white px-4 py-3 md:px-6"
       >
@@ -375,6 +363,7 @@ export const ChatComposer = ({
           onChange={handleValueChange}
           onKeyDown={handleKeyDown}
           disabled={isBusy}
+          enterKeyHint="send"
           placeholder={
             disabled && disabledReason
               ? '메시지를 보낼 수 없습니다'

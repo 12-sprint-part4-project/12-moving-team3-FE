@@ -111,6 +111,12 @@
   --height-gnb: 3.375rem;
   --height-gnb-lg: 5.5rem;
 
+  /**
+   * Layout — visualViewport 높이 (채팅방 등).
+   * useVisualViewportHeight가 px로 덮어씀. 미설정 시 100dvh fallback.
+   */
+  --visual-viewport-height: 100dvh;
+
   /** Breakpoint — Tablet 744px (Figma community) */
   --breakpoint-tablet: 46.5rem;
 
@@ -255,9 +261,12 @@ body {
   @apply mx-auto flex w-full max-w-chat flex-col px-6 py-10;
 }
 
-/** 채팅방(상세) 공통 래퍼 — 높이는 ChatRoomPage에서 뷰포트 기준으로 고정, 내부만 스크롤 */
+/**
+ * 채팅방(상세) 공통 래퍼 —
+ * 높이는 ChatRoomPage에서 visualViewport(—visual-viewport-height) − GNB로 고정, 내부만 스크롤.
+ */
 @utility chat-room-content {
-  @apply mx-auto flex w-full max-w-chat flex-col overflow-hidden;
+  @apply mx-auto flex w-full max-w-chat flex-col overflow-hidden overscroll-none;
 }
 
 /** 이미지 드래그 방지 */

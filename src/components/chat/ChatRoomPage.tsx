@@ -10,6 +10,7 @@ import { ChatMessageList } from '@/components/chat/ChatMessageList';
 import { ChatRoomHeader } from '@/components/chat/ChatRoomHeader';
 import { ChatRoomHeaderPlaceholder } from '@/components/chat/ChatRoomHeaderPlaceholder';
 import { useAuth } from '@/hooks/useAuth';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import {
   useChatMessages,
   useChatRoom,
@@ -18,6 +19,7 @@ import {
 } from '@/hooks/useChat';
 import { useChatSocketRoom } from '@/hooks/useChatSocketRoom';
 import { useToast } from '@/hooks/useToast';
+import { useVisualViewportHeight } from '@/hooks/useVisualViewportHeight';
 import { ApiError } from '@/lib/apiClient';
 import {
   CHAT_PAGE_DOCUMENT_TITLE,
@@ -79,6 +81,10 @@ export const ChatRoomPage = ({
   }
 
   useChatSocketRoom(enabled ? roomId : 0);
+
+  // 모바일 키보드 — visualViewport 높이 + 문서 스크롤 잠금 (#279)
+  useVisualViewportHeight(enabled);
+  useBodyScrollLock(enabled);
 
   // SEO 탭 타이틀 — auth(localStorage)라 generateMetadata 불가, room 로드 후 absolute로 설정
   useEffect(() => {
@@ -179,6 +185,7 @@ export const ChatRoomPage = ({
         messageType: 'TEXT',
         content,
       });
+      // 하단 스크롤을 먼저 요청한 뒤, preventScroll 포커스로 문서 밀림을 막는다 (#279)
       handleScrollToBottom();
       setFocusInputSignal((current) => current + 1);
     } catch (error) {
@@ -261,7 +268,7 @@ export const ChatRoomPage = ({
   return (
     <div
       className={cn(
-        'chat-room-content h-[calc(100dvh-var(--height-gnb))] max-h-[calc(100dvh-var(--height-gnb))] lg:h-[calc(100dvh-var(--height-gnb-lg))] lg:max-h-[calc(100dvh-var(--height-gnb-lg))]',
+        'chat-room-content h-[calc(var(--visual-viewport-height,100dvh)-var(--height-gnb))] max-h-[calc(var(--visual-viewport-height,100dvh)-var(--height-gnb))] lg:h-[calc(var(--visual-viewport-height,100dvh)-var(--height-gnb-lg))] lg:max-h-[calc(var(--visual-viewport-height,100dvh)-var(--height-gnb-lg))]',
         className
       )}
     >

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 import { AuthRouteGuard } from '@/components/auth/AuthRouteGuard';
@@ -25,6 +25,13 @@ export const metadata: Metadata = {
     template: '%s | 무빙',
   },
   description: '원하는 이사 서비스를 요청하고 견적을 받아보세요',
+};
+
+/** Android Chrome 등 — 가상 키보드가 layout viewport를 줄이도록 (채팅 입력 UX) */
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  interactiveWidget: 'resizes-content',
 };
 
 export default function RootLayout({
