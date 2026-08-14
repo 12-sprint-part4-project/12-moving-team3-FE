@@ -10,7 +10,6 @@ import {
   listStagger,
 } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
-import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
 
 import { ReceivedQuoteCard } from './ReceivedQuoteCard';
 import { ReceivedQuotesFilter } from './ReceivedQuotesFilter';
@@ -36,10 +35,12 @@ export const ReceivedQuoteGroupSection = ({
   className = '',
 }: ReceivedQuoteGroupSectionProps) => {
   const shouldReduceMotion = useReducedMotion();
-  const motionTransition = getMotionTransition(shouldReduceMotion);
+
   /** 그룹 로컬 필터·필터 변경 stagger */
   const { filter, visibleQuotes, shouldStaggerList, handleFilterChange } =
     useReceivedQuoteGroupFilter(group.quotes, staggerOnEntrance);
+
+  const motionTransition = getMotionTransition(shouldReduceMotion);
 
   // 견적 정보 + 그룹 필터 + 견적서 카드(또는 필터 빈 문구)
   return (
@@ -89,9 +90,8 @@ export const ReceivedQuoteGroupSection = ({
                 >
                   <ReceivedQuoteCard
                     quote={quote}
-                    mover={toMoverCardModelFromCustomerQuoteMover(quote.mover)}
                     onFavoriteClick={onFavoriteClick}
-                    isFavoritePending={isMoverPending?.(quote.mover.moverId)}
+                    isMoverPending={isMoverPending}
                   />
                 </motion.li>
               ))}

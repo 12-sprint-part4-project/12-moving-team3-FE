@@ -7,28 +7,30 @@ import { getClosedQuoteOverlayMessage } from '@/components/quotes/closedQuoteOve
 import { QuoteListCard } from '@/components/quotes/QuoteListCard';
 import { cn } from '@/lib/utils';
 
+import { HISTORY_QUOTE_CTA_CLASS } from '../../_components/customerQuotesStyles';
+
 import type { HistoryQuoteCardModel } from '@/types/customerQuote';
 
 export interface HistoryQuoteCardProps {
   quote: HistoryQuoteCardModel;
-  isChatPending?: boolean;
+  /** 채팅방 생성 중인 견적 id */
+  pendingChatQuoteId?: number | null;
   onChatClick?: () => void;
   className?: string;
 }
 
-const CTA_CLASS =
-  'h-12 w-full rounded-lg text-lg-semibold md:flex-1 lg:h-14 lg:rounded-2xl lg:text-xl-semibold';
-
 /** `/quotes/history` 이용 내역 카드. - 상세·채팅 CTA / 닫힌 요청은 오버레이. */
 export const HistoryQuoteCard = ({
   quote,
-  isChatPending = false,
+  pendingChatQuoteId = null,
   onChatClick,
   className = '',
 }: HistoryQuoteCardProps) => {
   const detailHref = `/quotes/${quote.quoteId}`;
+
   /** COMPLETED·EXPIRED·CANCELED면 오버레이만 노출 */
   const isClosedCard = quote.isMoveCompleted;
+  const isChatPending = pendingChatQuoteId === quote.quoteId;
 
   // QuoteListCard — 열린 카드는 상세/채팅 CTA, 닫힌 카드는 오버레이만
   return (
@@ -61,7 +63,7 @@ export const HistoryQuoteCard = ({
                 size: 'md',
                 variant: 'outlined',
                 className: cn(
-                  CTA_CLASS,
+                  HISTORY_QUOTE_CTA_CLASS,
                   'focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:outline-none'
                 ),
               })}
@@ -73,7 +75,7 @@ export const HistoryQuoteCard = ({
               <Button
                 size="md"
                 variant="solid"
-                className={CTA_CLASS}
+                className={HISTORY_QUOTE_CTA_CLASS}
                 disabled={isChatPending}
                 onClick={onChatClick}
                 aria-label={`${quote.moverName} 기사님과 채팅하기`}

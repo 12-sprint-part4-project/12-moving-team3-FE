@@ -17,7 +17,9 @@ export const useReceivedQuoteGroupFilter = (
   const [filter, setFilter] = useState<CustomerPastQuoteFilter>('ALL');
   /** 필터 변경으로 remount된 목록만 stagger */
   const [staggerOnFilter, setStaggerOnFilter] = useState(false);
+
   const visibleQuotes = filterReceivedQuotesByStatus(quotes, filter);
+
   const shouldStaggerList = staggerOnEntrance || staggerOnFilter;
 
   const handleFilterChange = (next: CustomerPastQuoteFilter) => {
