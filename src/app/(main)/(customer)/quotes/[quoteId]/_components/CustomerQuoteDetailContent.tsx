@@ -8,6 +8,7 @@ import { QuoteShareButtons } from '@/components/QuoteShareButtons/QuoteShareButt
 import { Toast } from '@/components/ui/Toast/Toast';
 import {
   fadeUp,
+  getFadeUpMotionProps,
   getListStagger,
   getMotionTransition,
 } from '@/lib/motionVariants';
@@ -54,6 +55,7 @@ export const CustomerQuoteDetailContent = ({
 
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const listStaggerVariants = getListStagger(shouldReduceMotion);
+  const fadeUpMotion = getFadeUpMotionProps(motionTransition);
 
   const showComment = Boolean(detail.comment);
   const showUnconfirmedBanner = detail.showUnconfirmedBanner;
@@ -90,7 +92,7 @@ export const CustomerQuoteDetailContent = ({
         transition={motionTransition}
         className="col-start-1 flex w-full max-w-[59.6875rem] flex-col gap-6 md:gap-8 lg:gap-10"
       >
-        <motion.div variants={fadeUp} transition={motionTransition}>
+        <motion.div {...fadeUpMotion}>
           <CustomerQuoteDetailSummaryCard
             detail={detail}
             mover={moverCard}
@@ -100,15 +102,13 @@ export const CustomerQuoteDetailContent = ({
         </motion.div>
 
         <motion.div
-          variants={fadeUp}
-          transition={motionTransition}
+          {...fadeUpMotion}
           className={CUSTOMER_QUOTE_DETAIL_DIVIDER_CLASS}
         />
 
         {/* 견적가 */}
         <motion.section
-          variants={fadeUp}
-          transition={motionTransition}
+          {...fadeUpMotion}
           className={CUSTOMER_QUOTE_DETAIL_SECTION_CLASS}
         >
           <h2 className={CUSTOMER_QUOTE_DETAIL_SECTION_TITLE_CLASS}>견적가</h2>
@@ -120,14 +120,12 @@ export const CustomerQuoteDetailContent = ({
         {showComment ? (
           <>
             <motion.div
-              variants={fadeUp}
-              transition={motionTransition}
+              {...fadeUpMotion}
               className={CUSTOMER_QUOTE_DETAIL_DIVIDER_CLASS}
             />
             {/* 코멘트 */}
             <motion.section
-              variants={fadeUp}
-              transition={motionTransition}
+              {...fadeUpMotion}
               className={CUSTOMER_QUOTE_DETAIL_SECTION_CLASS}
             >
               <h2 className={CUSTOMER_QUOTE_DETAIL_SECTION_TITLE_CLASS}>코멘트</h2>
@@ -140,8 +138,7 @@ export const CustomerQuoteDetailContent = ({
 
         {/* 공유 — 모바일만 */}
         <motion.div
-          variants={fadeUp}
-          transition={motionTransition}
+          {...fadeUpMotion}
           className="flex flex-col gap-6 lg:hidden"
         >
           <div className={CUSTOMER_QUOTE_DETAIL_DIVIDER_CLASS} />
@@ -149,18 +146,17 @@ export const CustomerQuoteDetailContent = ({
         </motion.div>
 
         <motion.div
-          variants={fadeUp}
-          transition={motionTransition}
+          {...fadeUpMotion}
           className={CUSTOMER_QUOTE_DETAIL_DIVIDER_CLASS}
         />
 
         {/* 견적 정보 */}
-        <motion.div variants={fadeUp} transition={motionTransition}>
+        <motion.div {...fadeUpMotion}>
           <QuoteInfoSection info={detail} variant="customerDetail" />
         </motion.div>
 
         {showUnconfirmedBanner ? (
-          <motion.div variants={fadeUp} transition={motionTransition}>
+          <motion.div {...fadeUpMotion}>
             <Toast
               icon={InfoIcon}
               content="확정하지 않은 견적이에요!"

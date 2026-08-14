@@ -8,8 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useConfirmQuoteModal } from '@/hooks/useConfirmQuoteModal';
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
-import { getMotionTransition, tabContentSlide } from '@/lib/motionVariants';
-import { toStartEstimateChatParams } from '@/lib/startEstimateChat';
+import { getMotionTransition, getTabPanelMotionProps } from '@/lib/motionVariants';
 
 import { ConfirmQuoteModal } from './_components/ConfirmQuoteModal';
 import { CUSTOMER_QUOTES_TAB_PANEL_CLASS } from './_components/customerQuotesStyles';
@@ -32,7 +31,8 @@ const CustomerQuotesPageClient = ({
 
   const { user, isReady } = useAuth();
   const { handleFavoriteClick, isMoverPending } = useFavoriteAction();
-  const { startEstimateChat, pendingChatTargetId } = useStartEstimateChat();
+  const { startEstimateChatFromSource, pendingChatTargetId } =
+    useStartEstimateChat();
   const goToHistory = useCallback(() => {
     router.replace('/quotes/history');
   }, [router]);
@@ -45,20 +45,19 @@ const CustomerQuotesPageClient = ({
     submitConfirm,
   } = useConfirmQuoteModal(goToHistory);
 
-  const motionTransition = getMotionTransition(shouldReduceMotion);
-
   const isCustomerReady = isReady && user?.userType === 'CUSTOMER';
   const isActiveTabPending = activeTab === 'pending';
 
   /** 탭 슬라이드 방향 (received 진입 +1, pending 복귀 -1) */
   const tabDirection = activeTab === 'received' ? 1 : -1;
+  const tabPanelMotion = getTabPanelMotionProps(
+    tabDirection,
+    getMotionTransition(shouldReduceMotion)
+  );
 
   /** 대기 카드 채팅하기 — 방 생성 후 `/chat/{roomId}` 이동 */
   const handleChatClick = (quote: PendingQuoteCardModel) => {
-    startEstimateChat(
-      toStartEstimateChatParams(quote, quote.mover.moverId),
-      quote.quoteId
-    );
+    startEstimateChatFromSource(quote, quote.mover.moverId, quote.quoteId);
   };
 
   // 활성 탭 패널 + 견적 확정 모달
@@ -69,12 +68,7 @@ const CustomerQuotesPageClient = ({
           {isActiveTabPending ? (
             <motion.div
               key="pending"
-              custom={tabDirection}
-              variants={tabContentSlide}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={motionTransition}
+              {...tabPanelMotion}
               role="tabpanel"
               id="quotes-panel-pending"
               aria-labelledby="quotes-tab-pending"
@@ -95,12 +89,7 @@ const CustomerQuotesPageClient = ({
           ) : (
             <motion.div
               key="received"
-              custom={tabDirection}
-              variants={tabContentSlide}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={motionTransition}
+              {...tabPanelMotion}
               role="tabpanel"
               id="quotes-panel-received"
               aria-labelledby="quotes-tab-received"
