@@ -180,7 +180,6 @@ export const MoverReviewSection = ({
               page={page}
               totalPages={Math.max(1, totalPages)}
               onPageChange={onPageChange}
-              scrollOnPageChange
             />
           </motion.div>
         </div>

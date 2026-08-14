@@ -48,7 +48,6 @@ export const MoversToolbar = ({
 
   return (
     <div className="flex w-full flex-col gap-4">
-      {/* Tablet / Mobile: 지역·서비스 + 정렬 */}
       <div className="flex items-center justify-between gap-3 xl:hidden">
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           <MoversSelectDropdown
@@ -76,7 +75,6 @@ export const MoversToolbar = ({
         />
       </div>
 
-      {/* Desktop: 정렬만 (필터는 사이드바) */}
       <div className="hidden justify-end xl:flex">
         <Sort
           options={MOVERS_SORT_OPTIONS}

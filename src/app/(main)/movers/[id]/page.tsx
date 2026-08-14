@@ -1,10 +1,10 @@
 import { getMoverDetail } from '@/services/moversApi';
 
-import { MoverDetailPageClient } from './page.client';
+import MoverDetailPageClient from './page.client';
 
 import type { Metadata } from 'next';
 
-interface MoverDetailPageProps {
+export interface MoverDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
@@ -25,9 +25,11 @@ export async function generateMetadata({
   return { title: '기사님 상세' };
 }
 
-/** 기사님 상세 페이지 */
-const MoverDetailPage = () => {
-  return <MoverDetailPageClient />;
+/** `/movers/[id]` 서버 페이지. - route id를 Client에 넘긴다. */
+const MoverDetailPage = async ({ params }: MoverDetailPageProps) => {
+  const { id } = await params;
+
+  return <MoverDetailPageClient moverId={id} />;
 };
 
 export default MoverDetailPage;

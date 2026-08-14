@@ -6,6 +6,7 @@ import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 import { MoverDetailCtaButtons } from './MoverDetailCtaButtons';
+import { MOVERS_DETAIL_BOTTOM_BAR_CLASS } from '../../_components/moversLayout';
 
 import type {
   MoverDetailChat,
@@ -36,10 +37,7 @@ export const MoverDetailBottomBar = ({
       initial="hidden"
       animate="show"
       transition={motionTransition}
-      className={cn(
-        'fixed inset-x-0 bottom-0 z-40 border-t border-line-100 bg-white px-6 py-2.5 md:px-[4.5rem] xl:hidden',
-        className
-      )}
+      className={cn(MOVERS_DETAIL_BOTTOM_BAR_CLASS, className)}
     >
       <div className="mx-auto flex w-full max-w-[37.5rem] items-center gap-2">
         <MoverDetailCtaButtons

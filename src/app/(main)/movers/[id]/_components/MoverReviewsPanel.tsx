@@ -4,16 +4,16 @@ import { MoverReviewSection } from '@/components/reviews/MoverReviewSection';
 import { useMoverReviews } from '@/hooks/useMoverReviews';
 import { cn } from '@/lib/utils';
 
-export interface MoverReviewsProps {
+export interface MoverReviewsPanelProps {
   moverId: string;
   className?: string;
 }
 
-/**
- * 기사님 상세 공개 리뷰 영역.
- * GET /api/movers/:id/reviews — 통계·목록·페이지네이션.
- */
-export const MoverReviews = ({ moverId, className }: MoverReviewsProps) => {
+/** `/movers/[id]` 리뷰 패널. Query·통계·목록·페이지네이션. */
+export const MoverReviewsPanel = ({
+  moverId,
+  className,
+}: MoverReviewsPanelProps) => {
   const {
     reviews,
     ratingStatistics,
