@@ -8,6 +8,7 @@ interface AuthKakaoSectionProps {
   className?: string;
 }
 
+/** 로그인·회원가입 공통 카카오 버튼 */
 export const AuthKakaoSection = ({
   ariaLabel,
   disabled = false,

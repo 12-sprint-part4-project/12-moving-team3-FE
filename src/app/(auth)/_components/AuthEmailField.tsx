@@ -10,7 +10,6 @@ interface AuthEmailFieldProps {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   isError?: boolean;
   errorMessage?: string;
-  className?: string;
 }
 
 /** 로그인·회원가입 공통 이메일 필드 */
@@ -20,7 +19,6 @@ export const AuthEmailField = ({
   onChange,
   isError,
   errorMessage,
-  className,
 }: AuthEmailFieldProps) => {
   return (
     <AuthField
@@ -35,7 +33,6 @@ export const AuthEmailField = ({
       onChange={onChange}
       isError={isError}
       errorMessage={errorMessage}
-      className={className}
     />
   );
 };

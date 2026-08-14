@@ -3,12 +3,12 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { AuthBrand, AuthHelperText } from '@/app/(auth)/_components/AuthBrand';
+import { AuthBrand } from '@/app/(auth)/_components/AuthBrand';
 import { AuthEmailField } from '@/app/(auth)/_components/AuthEmailField';
+import { AuthHelperText } from '@/app/(auth)/_components/AuthHelperText';
 import { AuthKakaoSection } from '@/app/(auth)/_components/AuthKakaoSection';
 import { AuthPasswordField } from '@/app/(auth)/_components/AuthPasswordField';
 import {
-  AUTH_PATH,
   USER_TYPE_BY_ROLE,
   getAuthRoleSwitch,
 } from '@/app/(auth)/_components/authRole';
@@ -16,16 +16,14 @@ import { Button } from '@/components/Button/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { SIGNUP_HREF_BY_USER_TYPE } from '@/lib/authRoutePaths';
 import { getPostAuthRedirectPath } from '@/lib/getPostAuthRedirectPath';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
-import {
-  EMAIL_FORMAT_ERROR_MESSAGE,
-  validateEmail,
-} from '@/lib/validateEmail';
+import { validateEmail } from '@/lib/validateEmail';
 import { login } from '@/services/authApi';
 
 import type { AuthRole } from '@/app/(auth)/_components/authRole';
-import type { ChangeEvent, FormEvent } from 'react';
+import type { ChangeEvent, SubmitEvent } from 'react';
 
 interface LoginFormProps {
   role: AuthRole;
@@ -64,12 +62,13 @@ export const LoginForm = ({ role, redirectTo = null }: LoginFormProps) => {
     };
 
   /** 이메일 형식 검사 후 로그인하고 역할별 경로로 이동한다 */
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isSubmittable) return;
 
-    if (validateEmail(trimmedEmail)) {
-      showToast({ content: EMAIL_FORMAT_ERROR_MESSAGE });
+    const emailError = validateEmail(trimmedEmail);
+    if (emailError) {
+      showToast({ content: emailError });
       return;
     }
 
@@ -154,7 +153,7 @@ export const LoginForm = ({ role, redirectTo = null }: LoginFormProps) => {
           <AuthHelperText
             prompt="아직 무빙 회원이 아니신가요?"
             linkLabel="이메일로 회원가입하기"
-            href={AUTH_PATH.signup[role]}
+            href={SIGNUP_HREF_BY_USER_TYPE[userType]}
           />
         </form>
 

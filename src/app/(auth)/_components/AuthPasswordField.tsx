@@ -13,7 +13,6 @@ interface AuthPasswordFieldProps {
   maxLength?: number;
   isError?: boolean;
   errorMessage?: string;
-  className?: string;
 }
 
 /** 로그인·회원가입 공통 비밀번호 필드 */
@@ -28,7 +27,6 @@ export const AuthPasswordField = ({
   maxLength,
   isError,
   errorMessage,
-  className,
 }: AuthPasswordFieldProps) => {
   return (
     <AuthField
@@ -44,7 +42,6 @@ export const AuthPasswordField = ({
       onChange={onChange}
       isError={isError}
       errorMessage={errorMessage}
-      className={className}
     />
   );
 };

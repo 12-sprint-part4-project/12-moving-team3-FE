@@ -3,13 +3,13 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { AuthBrand, AuthHelperText } from '@/app/(auth)/_components/AuthBrand';
+import { AuthBrand } from '@/app/(auth)/_components/AuthBrand';
 import { AuthEmailField } from '@/app/(auth)/_components/AuthEmailField';
 import { AuthField } from '@/app/(auth)/_components/AuthField';
+import { AuthHelperText } from '@/app/(auth)/_components/AuthHelperText';
 import { AuthKakaoSection } from '@/app/(auth)/_components/AuthKakaoSection';
 import { AuthPasswordField } from '@/app/(auth)/_components/AuthPasswordField';
 import {
-  AUTH_PATH,
   USER_TYPE_BY_ROLE,
   getAuthRoleSwitch,
 } from '@/app/(auth)/_components/authRole';
@@ -17,6 +17,7 @@ import { Button } from '@/components/Button/Button';
 import { API_ERROR_CODE } from '@/constants/errorCode';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { LOGIN_HREF_BY_USER_TYPE } from '@/lib/authRoutePaths';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
 import { validateEmail } from '@/lib/validateEmail';
 import {
@@ -28,7 +29,7 @@ import {
 import { signup } from '@/services/authApi';
 
 import type { AuthRole } from '@/app/(auth)/_components/authRole';
-import type { ChangeEvent, FormEvent } from 'react';
+import type { ChangeEvent, SubmitEvent } from 'react';
 
 interface SignupFormProps {
   role: AuthRole;
@@ -60,7 +61,7 @@ const INITIAL_VALUES: SignupFormValues = {
   passwordConfirm: '',
 };
 
-/** 전화번호는 프로필 등록에서 받는다. */
+/** 이메일·카카오 회원가입 폼. 전화번호는 프로필 등록에서 받는다. */
 export const SignupForm = ({ role }: SignupFormProps) => {
   const router = useRouter();
   const { showToast } = useToast();
@@ -109,7 +110,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
       setValues((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isSubmittable) return;
 
@@ -127,7 +128,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
 
       // 이메일 가입은 로그인 페이지로, 카카오는 콜백에서 바로 로그인
       showToast({ content: '회원가입이 완료되었습니다. 로그인해 주세요.' });
-      router.replace(AUTH_PATH.login[role]);
+      router.replace(LOGIN_HREF_BY_USER_TYPE[userType]);
     } catch (error) {
       if (
         error instanceof ApiError &&
@@ -239,7 +240,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
           <AuthHelperText
             prompt="이미 무빙 회원이신가요?"
             linkLabel="로그인"
-            href={AUTH_PATH.login[role]}
+            href={LOGIN_HREF_BY_USER_TYPE[userType]}
           />
         </form>
 

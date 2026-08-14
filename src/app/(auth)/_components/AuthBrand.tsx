@@ -3,43 +3,22 @@ import Link from 'next/link';
 import TextLogoIcon from '@/assets/icons/text-logo.svg';
 import { cn } from '@/lib/utils';
 
-interface AuthPromptLinkProps {
+import { AuthHelperText } from './AuthHelperText';
+
+interface AuthBrandProps {
   prompt: string;
   linkLabel: string;
   href: string;
   className?: string;
 }
 
-export const AuthHelperText = ({
-  prompt,
-  linkLabel,
-  href,
-  className = '',
-}: AuthPromptLinkProps) => {
-  return (
-    <p
-      className={cn(
-        'flex items-center justify-center gap-1 whitespace-nowrap text-xs-regular lg:gap-2 lg:text-xl-regular',
-        className
-      )}
-    >
-      <span className="text-black-100 lg:text-black-200">{prompt}</span>
-      <Link
-        href={href}
-        className="text-xs-semibold text-blue-300 underline lg:text-xl-semibold"
-      >
-        {linkLabel}
-      </Link>
-    </p>
-  );
-};
-
+/** 로그인·회원가입 상단 로고와 역할 전환 문구 */
 export const AuthBrand = ({
   prompt,
   linkLabel,
   href,
   className = '',
-}: AuthPromptLinkProps) => {
+}: AuthBrandProps) => {
   return (
     <div className={cn('flex flex-col items-center lg:gap-2', className)}>
       <Link
