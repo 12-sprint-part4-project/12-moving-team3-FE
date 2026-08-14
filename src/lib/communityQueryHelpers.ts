@@ -82,6 +82,18 @@ export const markPostCompletedInCache = (
   );
 };
 
+export const removePostFromCache = (
+  queryClient: QueryClient,
+  postId: number
+) => {
+  queryClient.removeQueries({
+    queryKey: communityQueryKeys.detail(postId),
+  });
+  queryClient.removeQueries({
+    queryKey: [...communityQueryKeys.neighborLists(), postId],
+  });
+};
+
 export const rollbackCommentQueries = (
   queryClient: QueryClient,
   previousComments: [QueryKey, InfiniteData<CommentListResponse> | undefined][]

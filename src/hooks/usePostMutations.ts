@@ -6,6 +6,7 @@ import { communityQueryKeys } from '@/constants/queryKey';
 import {
   invalidatePostSummary,
   markPostCompletedInCache,
+  removePostFromCache,
 } from '@/lib/communityQueryHelpers';
 import { uploadPostImage } from '@/lib/uploadPostImage';
 import {
@@ -54,7 +55,10 @@ export const useDeletePost = () => {
   return useMutation({
     mutationFn: (postId: number) => deletePost(postId),
     onSuccess: async (_data, postId) => {
-      await invalidatePostSummary(queryClient, postId);
+      removePostFromCache(queryClient, postId);
+      await queryClient.invalidateQueries({
+        queryKey: communityQueryKeys.lists(),
+      });
     },
   });
 };
