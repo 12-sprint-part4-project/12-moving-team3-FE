@@ -10,6 +10,7 @@ interface AddressSideFieldProps {
   disabled?: boolean;
   onSelect?: () => void;
   onRevise?: () => void;
+  className?: string;
 }
 
 /** 한쪽(출발/도착) 라벨 + outlined CTA + 수정하기 */
@@ -20,6 +21,7 @@ export const AddressSideField = ({
   disabled = false,
   onSelect,
   onRevise,
+  className,
 }: AddressSideFieldProps) => {
   const isFilled = Boolean(draft?.address);
 
@@ -27,7 +29,8 @@ export const AddressSideField = ({
     <div
       className={cn(
         'flex w-full flex-col',
-        isFilled ? 'gap-2' : 'gap-2 md:gap-4'
+        isFilled ? 'gap-2' : 'gap-2 md:gap-4',
+        className
       )}
     >
       <div className="flex w-full flex-col gap-2 md:gap-4">
