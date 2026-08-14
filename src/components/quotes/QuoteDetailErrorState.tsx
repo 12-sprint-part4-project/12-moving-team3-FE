@@ -46,7 +46,7 @@ export const QuoteDetailErrorState = ({
         <Button
           size="sm"
           variant="outlined"
-          className="max-w-[10rem]"
+          className="max-w-40"
           onClick={onRetry}
         >
           다시 시도
