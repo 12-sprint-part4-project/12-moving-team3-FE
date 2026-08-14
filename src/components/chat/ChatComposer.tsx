@@ -346,7 +346,7 @@ export const ChatComposer = ({
             disabled={isBusy || !onSendImages}
             onClick={handleClipClick}
             className={cn(
-              'inline-flex size-9 shrink-0 items-center justify-center transition-colors',
+              'inline-flex size-11 shrink-0 items-center justify-center transition-colors',
               isBusy || !onSendImages
                 ? 'cursor-not-allowed text-gray-200'
                 : 'cursor-pointer text-gray-300 hover:text-blue-300'
@@ -392,10 +392,7 @@ export const ChatComposer = ({
                 : 'cursor-not-allowed text-gray-200'
             )}
           >
-            <SendIcon
-              className="size-9 translate-x-px -translate-y-px"
-              aria-hidden
-            />
+            <SendIcon className="size-9"  aria-hidden />
           </button>
         </div>
       </form>
