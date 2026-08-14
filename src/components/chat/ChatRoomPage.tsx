@@ -17,6 +17,7 @@ import {
   useSendChatMessage,
 } from '@/hooks/useChat';
 import { useChatSocketRoom } from '@/hooks/useChatSocketRoom';
+import { useIsMobileViewport } from '@/hooks/useIsMobileViewport';
 import { useToast } from '@/hooks/useToast';
 import { useVisualViewportHeight } from '@/hooks/useVisualViewportHeight';
 import { ApiError } from '@/lib/apiClient';
@@ -82,10 +83,13 @@ export const ChatRoomPage = ({
 
   useChatSocketRoom(enabled ? roomId : 0);
 
-  // 모바일 키보드 — 문서 잠금 후 visualViewport에 body 고정 (#279)
-  // scrollY 보존을 위해 lock을 먼저 호출 (CodeRabbit)
-  useBodyScrollLock(enabled);
-  useVisualViewportHeight(enabled);
+  // 모바일만: 페이지(문서) 스크롤 잠금 + 키보드 시 채팅방 높이 축소 (#279)
+  // 데스크톱은 기존처럼 메시지 리스트만 스크롤·전송 시 하단 이동
+  // scrollY 보존을 위해 lock을 먼저 호출
+  const isMobileViewport = useIsMobileViewport();
+  const lockMobilePageScroll = enabled && isMobileViewport;
+  useBodyScrollLock(lockMobilePageScroll);
+  useVisualViewportHeight(lockMobilePageScroll);
 
   // SEO 탭 타이틀 — auth(localStorage)라 generateMetadata 불가, room 로드 후 absolute로 설정
   useEffect(() => {
@@ -267,7 +271,12 @@ export const ChatRoomPage = ({
   }
 
   return (
-    <div className={cn('chat-room-content', className)}>
+    <div
+      className={cn(
+        'chat-room-content h-[calc(var(--visual-viewport-height,100dvh)-var(--height-gnb))] max-h-[calc(var(--visual-viewport-height,100dvh)-var(--height-gnb))] lg:h-[calc(100dvh-var(--height-gnb-lg))] lg:max-h-[calc(100dvh-var(--height-gnb-lg))]',
+        className
+      )}
+    >
       {isRoomPending ? (
         <ChatRoomHeaderPlaceholder
           title="불러오는 중…"

@@ -10,8 +10,6 @@ interface BodyScrollLockSnapshot {
   bodyLeft: string;
   bodyRight: string;
   bodyWidth: string;
-  bodyHeight: string;
-  bodyMaxHeight: string;
   bodyMinHeight: string;
   htmlOverflow: string;
   htmlOverscrollBehavior: string;
@@ -19,11 +17,10 @@ interface BodyScrollLockSnapshot {
 }
 
 /**
- * 채팅방 등에서 문서 스크롤을 잠근다.
- * iOS/인앱은 overflow:hidden만으로 키보드 포커스 스크롤을 막지 못해
- * body를 position:fixed로 고정한다 (#279).
+ * 모바일 채팅방에서만 문서(페이지) 스크롤을 잠근다.
+ * 메시지 목록(`overflow-y-auto`) 스크롤은 건드리지 않는다 (#279).
  *
- * `useVisualViewportHeight`보다 먼저 호출해, 진입 시점의 scrollY를 보존한다.
+ * `useVisualViewportHeight`보다 먼저 호출해 진입 시점 scrollY를 보존한다.
  */
 export const useBodyScrollLock = (enabled = true) => {
   const snapshotRef = useRef<BodyScrollLockSnapshot | null>(null);
@@ -44,8 +41,6 @@ export const useBodyScrollLock = (enabled = true) => {
       bodyLeft: body.style.left,
       bodyRight: body.style.right,
       bodyWidth: body.style.width,
-      bodyHeight: body.style.height,
-      bodyMaxHeight: body.style.maxHeight,
       bodyMinHeight: body.style.minHeight,
       htmlOverflow: html.style.overflow,
       htmlOverscrollBehavior: html.style.overscrollBehavior,
@@ -61,7 +56,7 @@ export const useBodyScrollLock = (enabled = true) => {
     body.style.left = '0';
     body.style.right = '0';
     body.style.width = '100%';
-    // Tailwind min-h-full이 visualViewport보다 커지는 것 방지
+    // min-h-full이 레이아웃 뷰포트만큼 커져 키보드 아래 흰 여백이 생기는 것 방지
     body.style.minHeight = '0';
 
     return () => {
@@ -77,8 +72,6 @@ export const useBodyScrollLock = (enabled = true) => {
       body.style.left = snapshot.bodyLeft;
       body.style.right = snapshot.bodyRight;
       body.style.width = snapshot.bodyWidth;
-      body.style.height = snapshot.bodyHeight;
-      body.style.maxHeight = snapshot.bodyMaxHeight;
       body.style.minHeight = snapshot.bodyMinHeight;
       html.style.overflow = snapshot.htmlOverflow;
       html.style.overscrollBehavior = snapshot.htmlOverscrollBehavior;

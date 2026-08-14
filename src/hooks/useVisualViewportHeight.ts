@@ -4,13 +4,13 @@ import { useEffect } from 'react';
 
 /** globals.css / ChatRoomPage 높이 calc와 동기화 */
 export const VISUAL_VIEWPORT_HEIGHT_VAR = '--visual-viewport-height';
-export const VISUAL_VIEWPORT_OFFSET_TOP_VAR = '--visual-viewport-offset-top';
 
 /**
- * `visualViewport` 높이를 CSS 변수로 반영하고,
- * 잠긴 body를 가시 영역(키보드 위)에 맞춰 top/height로 고정한다 (#279).
+ * 모바일에서 `visualViewport` 높이를 CSS 변수로만 반영한다.
+ * 키보드가 열리면 값이 줄어들고, 채팅방 `calc(var(--visual-viewport-height) - GNB)`가
+ * 같이 줄어든다. body 크기를 바꾸지 않아 메시지 리스트 스크롤은 유지된다 (#279).
  *
- * `useBodyScrollLock` 이후에 호출해야 진입 전 scrollY가 보존된다.
+ * `useBodyScrollLock` 이후에 호출한다.
  */
 export const useVisualViewportHeight = (enabled = true) => {
   useEffect(() => {
@@ -19,22 +19,12 @@ export const useVisualViewportHeight = (enabled = true) => {
     }
 
     const root = document.documentElement;
-    const { body } = document;
 
     const sync = () => {
-      const vv = window.visualViewport;
-      const height = vv?.height ?? window.innerHeight;
-      const offsetTop = vv?.offsetTop ?? 0;
-
+      const height = window.visualViewport?.height ?? window.innerHeight;
       root.style.setProperty(VISUAL_VIEWPORT_HEIGHT_VAR, `${height}px`);
-      root.style.setProperty(VISUAL_VIEWPORT_OFFSET_TOP_VAR, `${offsetTop}px`);
 
-      // 가시 영역에 body를 고정 → 문서가 밀려 흰 화면으로 떨어지는 것 방지
-      body.style.top = `${offsetTop}px`;
-      body.style.height = `${height}px`;
-      body.style.maxHeight = `${height}px`;
-      body.style.minHeight = `${height}px`;
-
+      // 페이지(문서)가 포커스로 밀린 경우만 보정 — 리스트 스크롤과 무관
       if (window.scrollY !== 0) {
         window.scrollTo(0, 0);
       }
@@ -52,7 +42,6 @@ export const useVisualViewportHeight = (enabled = true) => {
       vv?.removeEventListener('scroll', sync);
       window.removeEventListener('resize', sync);
       root.style.removeProperty(VISUAL_VIEWPORT_HEIGHT_VAR);
-      root.style.removeProperty(VISUAL_VIEWPORT_OFFSET_TOP_VAR);
     };
   }, [enabled]);
 };
