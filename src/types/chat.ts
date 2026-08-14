@@ -43,6 +43,8 @@ export interface ChatRoomListItem {
   quoteStatus: QuoteStatus | null;
   partner: ChatPartner;
   lastMessage: ChatLastMessage | null;
+  /** 사용자 관점 마지막 활동 시각(방 생성·재참여·메시지 중 최신, ISO) */
+  lastActivityAt: string;
   partnerLastReadMessageId: number | null;
   partnerLastReadAt: string | null;
   unreadCount: number;

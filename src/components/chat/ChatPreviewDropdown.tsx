@@ -1,10 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { useMemo } from 'react';
 
 import CloseIcon from '@/assets/icons/close.svg';
 import { ChatRoomListItem } from '@/components/chat/ChatRoomListItem';
 import { useChatRooms } from '@/hooks/useChat';
+import { sortChatRoomsForGnbPreview } from '@/lib/chatRoomListSort';
 import { cn } from '@/lib/utils';
 
 const PREVIEW_LIMIT = 3;
@@ -20,7 +22,10 @@ export const ChatPreviewDropdown = ({
   className,
 }: ChatPreviewDropdownProps) => {
   const { rooms, isPending, isError, isEmpty } = useChatRooms();
-  const previewRooms = rooms.slice(0, PREVIEW_LIMIT);
+  const previewRooms = useMemo(
+    () => sortChatRoomsForGnbPreview(rooms).slice(0, PREVIEW_LIMIT),
+    [rooms]
+  );
   const showViewAllLink = rooms.length > PREVIEW_LIMIT;
 
   return (

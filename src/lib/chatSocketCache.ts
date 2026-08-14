@@ -1,4 +1,5 @@
 import { chatQueryKeys } from '@/constants/queryKey';
+import { applyLastMessageToChatRoomsList } from '@/lib/chatRoomListSort';
 
 import type {
   ChatMessage,
@@ -249,15 +250,9 @@ export const applySocketMessageToCaches = (
     createdAt: message.createdAt,
   };
 
-  updateRoomsListCache(queryClient, (rooms) => {
-    const target = rooms.find((room) => room.roomId === roomId);
-    if (!target) {
-      return rooms;
-    }
-
-    const others = rooms.filter((room) => room.roomId !== roomId);
-    return [{ ...target, lastMessage }, ...others];
-  });
+  updateRoomsListCache(queryClient, (rooms) =>
+    applyLastMessageToChatRoomsList(rooms, roomId, lastMessage)
+  );
 };
 
 /**
