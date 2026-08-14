@@ -13,6 +13,7 @@ import { useMemo } from 'react';
 import { API_ERROR_CODE } from '@/constants/errorCode';
 import { chatQueryKeys } from '@/constants/queryKey';
 import { ApiError } from '@/lib/apiClient';
+import { applyLastMessageToChatRoomsList } from '@/lib/chatRoomListSort';
 import {
   createChatRoom,
   getChatMessages,
@@ -286,15 +287,9 @@ const applySentMessageToCaches = (
     createdAt: message.createdAt,
   };
 
-  updateRoomsListCache(queryClient, (rooms) => {
-    const target = rooms.find((room) => room.roomId === roomId);
-    if (!target) {
-      return rooms;
-    }
-
-    const others = rooms.filter((room) => room.roomId !== roomId);
-    return [{ ...target, lastMessage }, ...others];
-  });
+  updateRoomsListCache(queryClient, (rooms) =>
+    applyLastMessageToChatRoomsList(rooms, roomId, lastMessage)
+  );
 };
 
 /** POST /api/chat/rooms/:roomId/messages — TEXT/IMAGE 전송 */
