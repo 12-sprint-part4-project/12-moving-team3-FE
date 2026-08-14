@@ -19,10 +19,11 @@ export const useVisualViewportHeight = (enabled = true) => {
     const root = document.documentElement;
 
     const sync = () => {
-      const height = window.visualViewport?.height ?? window.innerHeight;
+      const vv = window.visualViewport;
+      const height = vv?.height ?? window.innerHeight;
       root.style.setProperty(VISUAL_VIEWPORT_HEIGHT_VAR, `${height}px`);
 
-      // 입력 포커스 시 브라우저가 문서를 밀어 올리는 보정 (iOS·인앱 WebView)
+      // fixed body lock과 함께, 포커스 스크롤·visualViewport offset 잔여를 보정
       if (window.scrollY !== 0) {
         window.scrollTo(0, 0);
       }

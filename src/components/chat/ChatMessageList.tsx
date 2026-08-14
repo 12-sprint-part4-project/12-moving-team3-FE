@@ -152,6 +152,9 @@ export const ChatMessageList = ({
   /** 방 진입 후 첫 하단 정렬이 끝났는지 */
   const didInitialScrollRef = useRef(false);
   const isProgrammaticScrollRef = useRef(false);
+  /** 지연 retry 무효화 — 새 하단 이동 요청 또는 언마운트 시 증가 */
+  const scrollRetryGenerationRef = useRef(0);
+  const scrollRetryTimeoutIdsRef = useRef<number[]>([]);
 
   const isInitialError = isError && messages.length === 0;
   const canRenderMessages = !isPending && !isInitialError;
@@ -164,6 +167,13 @@ export const ChatMessageList = ({
     }
     return null;
   })();
+
+  const clearScrollRetries = useCallback(() => {
+    for (const timeoutId of scrollRetryTimeoutIdsRef.current) {
+      window.clearTimeout(timeoutId);
+    }
+    scrollRetryTimeoutIdsRef.current = [];
+  }, []);
 
   const reportNearBottom = useCallback(
     (isNearBottom: boolean) => {
@@ -184,7 +194,18 @@ export const ChatMessageList = ({
         return;
       }
 
-      const run = () => {
+      clearScrollRetries();
+      scrollRetryGenerationRef.current += 1;
+      const generation = scrollRetryGenerationRef.current;
+
+      const run = (options?: { force?: boolean }) => {
+        if (scrollRetryGenerationRef.current !== generation) {
+          return;
+        }
+        if (!options?.force && !shouldStickToBottomRef.current) {
+          return;
+        }
+
         const target = scrollRef.current;
         if (!target) {
           return;
@@ -197,18 +218,31 @@ export const ChatMessageList = ({
         });
       };
 
-      run();
+      // 호출 직후 1회는 강제 정렬 (전송·칩·최초 진입)
+      run({ force: true });
 
       // 키보드 resize·레이아웃 안정화 후 재정렬 (모바일 인앱/iOS) (#279)
       if (options?.retry) {
-        requestAnimationFrame(() => {
+        const retry = () => {
+          if (scrollRetryGenerationRef.current !== generation) {
+            return;
+          }
+          if (!shouldStickToBottomRef.current) {
+            return;
+          }
           run();
-          window.setTimeout(run, 100);
-          window.setTimeout(run, 280);
+        };
+
+        requestAnimationFrame(() => {
+          retry();
+          scrollRetryTimeoutIdsRef.current.push(
+            window.setTimeout(retry, 100),
+            window.setTimeout(retry, 280)
+          );
         });
       }
     },
-    [reportNearBottom]
+    [clearScrollRetries, reportNearBottom]
   );
 
   const scrollToBottomRef = useRef(scrollToBottom);
@@ -216,6 +250,14 @@ export const ChatMessageList = ({
   useLayoutEffect(() => {
     scrollToBottomRef.current = scrollToBottom;
   }, [scrollToBottom]);
+
+  useEffect(
+    () => () => {
+      clearScrollRetries();
+      scrollRetryGenerationRef.current += 1;
+    },
+    [clearScrollRetries]
+  );
 
   // 이전 메시지 prepend 시에만 스크롤 복원 (앵커 스냅샷은 로드 중 유지)
   useLayoutEffect(() => {
@@ -234,6 +276,8 @@ export const ChatMessageList = ({
       return;
     }
 
+    clearScrollRetries();
+    scrollRetryGenerationRef.current += 1;
     isProgrammaticScrollRef.current = true;
     el.scrollTop = anchor.top + (el.scrollHeight - anchor.height);
     scrollAnchorRef.current = null;
@@ -242,7 +286,7 @@ export const ChatMessageList = ({
     requestAnimationFrame(() => {
       isProgrammaticScrollRef.current = false;
     });
-  }, [messages, reportNearBottom]);
+  }, [messages, reportNearBottom, clearScrollRetries]);
 
   // 이전 페이지 요청이 끝나도 oldest가 그대로면(실패·빈 페이지) 앵커 해제 → 재시도 가능
   useEffect(() => {
@@ -270,6 +314,7 @@ export const ChatMessageList = ({
       return;
     }
 
+    shouldStickToBottomRef.current = true;
     scrollToBottom();
     didInitialScrollRef.current = true;
     prevMessageCountRef.current = messages.length;
@@ -322,13 +367,16 @@ export const ChatMessageList = ({
     }
 
     const handleViewportResize = () => {
-      if (!didInitialScrollRef.current || !shouldStickToBottomRef.current) {
-        return;
-      }
-      if (scrollAnchorRef.current != null) {
-        return;
-      }
-      scrollToBottomRef.current();
+      // CSS 변수·레이아웃 반영 후 정렬 (동일 프레임 선실행 방지)
+      requestAnimationFrame(() => {
+        if (!didInitialScrollRef.current || !shouldStickToBottomRef.current) {
+          return;
+        }
+        if (scrollAnchorRef.current != null) {
+          return;
+        }
+        scrollToBottomRef.current();
+      });
     };
 
     vv.addEventListener('resize', handleViewportResize);
@@ -368,6 +416,11 @@ export const ChatMessageList = ({
 
     if (didInitialScrollRef.current && !isProgrammaticScrollRef.current) {
       reportNearBottom(isNearBottom);
+      // 수동으로 하단을 벗어나면 예약된 retry가 끌어내리지 않도록 무효화
+      if (!isNearBottom) {
+        clearScrollRetries();
+        scrollRetryGenerationRef.current += 1;
+      }
     }
 
     const oldestMessageId = messages[0]?.messageId;
