@@ -141,9 +141,6 @@ export const useTogglePostLike = () => {
         );
       }
     },
-    onSettled: () => {
-      // 낙관적 업데이트 + onError 롤백으로 처리 — 추가 재조회 불필요
-    },
   });
 
   const togglePostLike = (

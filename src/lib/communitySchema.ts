@@ -1,14 +1,8 @@
 import { z } from 'zod';
 
-import {
-  REGION_CHIP_OPTIONS,
-  type RegionChipValue,
-} from '@/constants/commonOptions';
+import { REGION_CHIP_OPTIONS } from '@/constants/commonOptions';
 
-const REGION_VALUES = REGION_CHIP_OPTIONS.map((o) => o.value) as [
-  RegionChipValue,
-  ...RegionChipValue[],
-];
+const REGION_VALUES = REGION_CHIP_OPTIONS.map((o) => o.value);
 
 export const postCategorySchema = z.enum([
   'MOVING_TIP',
