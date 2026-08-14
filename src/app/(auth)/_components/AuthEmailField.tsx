@@ -1,8 +1,8 @@
-import { type ChangeEvent } from 'react';
-
 import { EMAIL_MAX_LENGTH } from '@/lib/validateEmail';
 
 import { AuthField } from './AuthField';
+
+import type { ChangeEvent } from 'react';
 
 interface AuthEmailFieldProps {
   id: string;

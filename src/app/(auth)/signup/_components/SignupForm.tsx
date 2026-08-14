@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, type ChangeEvent, type FormEvent } from 'react';
+import { useState } from 'react';
 
 import { AuthBrand, AuthHelperText } from '@/app/(auth)/_components/AuthBrand';
 import { AuthEmailField } from '@/app/(auth)/_components/AuthEmailField';
@@ -12,7 +12,6 @@ import {
   AUTH_PATH,
   USER_TYPE_BY_ROLE,
   getAuthRoleSwitch,
-  type AuthRole,
 } from '@/app/(auth)/_components/authRole';
 import {
   AUTH_FIELDS_AND_SUBMIT_CLASS,
@@ -33,6 +32,9 @@ import {
   validatePassword,
 } from '@/lib/validatePassword';
 import { signup } from '@/services/authApi';
+
+import type { AuthRole } from '@/app/(auth)/_components/authRole';
+import type { ChangeEvent, FormEvent } from 'react';
 
 interface SignupFormProps {
   role: AuthRole;

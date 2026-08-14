@@ -1,5 +1,3 @@
-import { type ChangeEvent } from 'react';
-
 import { TextFieldOutlined } from '@/components/ui/Input';
 import { cn } from '@/lib/utils';
 
@@ -8,6 +6,8 @@ import {
   AUTH_FIELD_GROUP_CLASS,
   AUTH_LABEL_CLASS,
 } from './authStyles';
+
+import type { ChangeEvent } from 'react';
 
 interface AuthFieldProps {
   id: string;

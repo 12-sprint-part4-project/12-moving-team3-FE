@@ -1,23 +1,20 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useState, type ChangeEvent, type FormEvent } from 'react';
+import { Suspense, useState } from 'react';
 
 import { AuthBrand, AuthHelperText } from '@/app/(auth)/_components/AuthBrand';
 import { AuthEmailField } from '@/app/(auth)/_components/AuthEmailField';
 import { AuthKakaoSection } from '@/app/(auth)/_components/AuthKakaoSection';
 import { AuthPasswordField } from '@/app/(auth)/_components/AuthPasswordField';
-import { Button } from '@/components/Button/Button';
-
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/useToast';
-
 import {
   AUTH_PATH,
   USER_TYPE_BY_ROLE,
   getAuthRoleSwitch,
-  type AuthRole,
 } from '@/app/(auth)/_components/authRole';
+import { Button } from '@/components/Button/Button';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { getPostAuthRedirectPath } from '@/lib/getPostAuthRedirectPath';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
@@ -26,6 +23,9 @@ import {
   validateEmail,
 } from '@/lib/validateEmail';
 import { login } from '@/services/authApi';
+
+import type { AuthRole } from '@/app/(auth)/_components/authRole';
+import type { ChangeEvent, FormEvent } from 'react';
 
 interface LoginFormProps {
   role: AuthRole;

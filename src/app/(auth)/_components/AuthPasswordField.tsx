@@ -1,6 +1,6 @@
-import { type ChangeEvent } from 'react';
-
 import { AuthField } from './AuthField';
+
+import type { ChangeEvent } from 'react';
 
 interface AuthPasswordFieldProps {
   id: string;
