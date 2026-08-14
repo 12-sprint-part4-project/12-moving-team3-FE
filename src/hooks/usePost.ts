@@ -10,6 +10,7 @@ import {
   markPostViewRecordedInSession,
 } from '@/lib/postViewTracking';
 import { getPostById, getPostNeighbors, recordPostView } from '@/services/communityApi';
+
 import type { PostListParams } from '@/types/community';
 
 /** 게시글 상세 조회 */

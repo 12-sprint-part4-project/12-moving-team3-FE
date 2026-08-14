@@ -9,6 +9,7 @@ import { useRef } from 'react';
 
 import { communityQueryKeys } from '@/constants/queryKey';
 import { likePost, unlikePost } from '@/services/communityApi';
+
 import type {
   PostDetailResponse,
   PostListResponse,

@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import { communityQueryKeys } from '@/constants/queryKey';
 import { getCursorNextPageParam } from '@/lib/communityQueryHelpers';
 import { getPosts } from '@/services/communityApi';
+
 import type { PostListParams } from '@/types/community';
 
 /** 게시글 목록 무한스크롤 조회 */

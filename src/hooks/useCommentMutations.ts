@@ -7,16 +7,17 @@ import {
 } from '@tanstack/react-query';
 
 import { communityQueryKeys } from '@/constants/queryKey';
+import { useAuth } from '@/hooks/useAuth';
 import {
   invalidatePostEngagement,
   rollbackCommentQueries,
 } from '@/lib/communityQueryHelpers';
-import { useAuth } from '@/hooks/useAuth';
 import {
   createComment,
   createReply,
   deleteComment,
 } from '@/services/communityApi';
+
 import type {
   CommentItem,
   CommentListResponse,
