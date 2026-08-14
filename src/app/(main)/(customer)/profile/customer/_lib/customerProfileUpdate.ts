@@ -30,6 +30,7 @@ interface BuildCustomerProfileUpdateBodyParams {
   hasImageChange?: boolean;
 }
 
+/** 서비스 배열이 같은 값으로 구성됐는지 비교한다 */
 const areServicesEqual = (
   left: ServiceChipValue[],
   right: ServiceChipValue[]

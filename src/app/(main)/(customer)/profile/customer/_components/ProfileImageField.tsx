@@ -12,24 +12,26 @@ interface ProfileImageFieldProps {
   imageInputId: string;
   imageInputRef: RefObject<HTMLInputElement | null>;
   displayImageUrl: string | null;
-  labelClassName: string;
   onImageChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onImageButtonClick: () => void;
   onImageClear: () => void;
+  labelClassName?: string;
   className?: string;
 }
 
+/** blob/data URL은 next/image가 다루지 못해 img로 미리본다 */
 const isLocalPreviewUrl = (url: string): boolean =>
   url.startsWith('blob:') || url.startsWith('data:');
 
+/** 프로필 이미지 업로드·미리보기·제거 필드 */
 export const ProfileImageField = ({
   imageInputId,
   imageInputRef,
   displayImageUrl,
-  labelClassName,
   onImageChange,
   onImageButtonClick,
   onImageClear,
+  labelClassName = '',
   className = '',
 }: ProfileImageFieldProps) => {
   const handleClearClick = (event: MouseEvent<HTMLButtonElement>) => {
@@ -42,7 +44,14 @@ export const ProfileImageField = ({
     <section
       className={cn('flex flex-col items-start gap-4 lg:gap-6', className)}
     >
-      <h2 className={labelClassName}>프로필 이미지</h2>
+      <h2
+        className={cn(
+          'text-lg-semibold text-black-300 lg:text-xl-semibold',
+          labelClassName
+        )}
+      >
+        프로필 이미지
+      </h2>
       <input
         ref={imageInputRef}
         id={imageInputId}

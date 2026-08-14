@@ -13,6 +13,7 @@ interface ProfileImageCropModalProps {
   onCropComplete: (blob: Blob) => void;
 }
 
+/** 프로필 이미지 1:1 크롭 모달. 적용 시 blob을 반환한다. */
 export const ProfileImageCropModal = ({
   imageSrc,
   onClose,
