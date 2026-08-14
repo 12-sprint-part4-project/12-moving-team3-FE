@@ -32,25 +32,17 @@ export const ReceivedQuotesFilter = ({
   className = '',
 }: ReceivedQuotesFilterProps) => {
   const shouldReduceMotion = useReducedMotion();
-  const motionTransition = getMotionTransition(shouldReduceMotion, {
-    duration: 0.16,
-  });
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const optionRefs = useRef<Array<HTMLElement | null>>([]);
   const listboxId = useId();
-  useOutsideClick(containerRef, isOpen, setIsOpen);
 
+  useOutsideClick(containerRef, isOpen, setIsOpen);
   const selectedIndex = Math.max(
     0,
     FILTER_OPTIONS.findIndex((option) => option.value === value)
   );
-  const selected = FILTER_OPTIONS[selectedIndex] ?? FILTER_OPTIONS[0];
-  const triggerStateClass = isOpen
-    ? 'border-blue-300 bg-blue-50 text-blue-300 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-blue/10 [&_path]:stroke-blue-300'
-    : 'border-line-200 bg-white text-black-400 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-gray-100/10 [&_path]:stroke-black-100';
-
   const {
     activeIndex,
     closeAndRestoreFocus,
@@ -72,6 +64,14 @@ export const ReceivedQuotesFilter = ({
       onValueChange(option.value);
     },
   });
+
+  const motionTransition = getMotionTransition(shouldReduceMotion, {
+    duration: 0.16,
+  });
+  const selected = FILTER_OPTIONS[selectedIndex] ?? FILTER_OPTIONS[0];
+  const triggerStateClass = isOpen
+    ? 'border-blue-300 bg-blue-50 text-blue-300 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-blue/10 [&_path]:stroke-blue-300'
+    : 'border-line-200 bg-white text-black-400 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-gray-100/10 [&_path]:stroke-black-100';
 
   const handleSelect = (nextValue: CustomerPastQuoteFilter) => {
     onValueChange(nextValue);

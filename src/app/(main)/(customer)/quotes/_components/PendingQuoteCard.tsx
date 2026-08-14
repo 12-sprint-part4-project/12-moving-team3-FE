@@ -10,49 +10,51 @@ import { QuoteStatusChipRow } from '@/components/quotes/QuoteStatusChips';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
 import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
+import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
+
+import {
+  PENDING_QUOTE_CTA_CLASS,
+  PENDING_QUOTE_FIELD_LABEL_CLASS,
+  PENDING_QUOTE_FIELD_VALUE_CLASS,
+} from './customerQuotesStyles';
 
 import type { PendingQuoteCardModel } from '@/types/customerQuote';
-import type { MoverCardModel } from '@/types/mover';
 
 export interface PendingQuoteCardProps {
   quote: PendingQuoteCardModel;
-  /** MoverProfileBlock용으로 변환된 기사 카드 모델 */
-  mover: MoverCardModel;
   /** 다른 카드 포함 확정 요청 진행 중 */
   isConfirming?: boolean;
-  /** 이 카드의 확정 요청 진행 중 */
-  isConfirmingThis?: boolean;
-  /** 채팅방 생성 진행 중 */
-  isChatPending?: boolean;
+  /** 확정 요청 중인 견적 id */
+  confirmingQuoteId?: number | null;
+  /** 채팅방 생성 중인 견적 id */
+  pendingChatQuoteId?: number | null;
   onConfirm?: (quoteId: number) => void;
   onChatClick?: (quote: PendingQuoteCardModel) => void;
   onFavoriteClick?: (moverId: string, nextFavorited: boolean) => void;
-  isFavoritePending?: boolean;
+  isMoverPending?: (moverId: string) => boolean;
   className?: string;
 }
-
-const FIELD_LABEL_CLASS =
-  'px-1.5 py-0.5 text-md-medium text-gray-400 lg:py-1 lg:text-2lg-regular lg:text-gray-500';
-const FIELD_VALUE_CLASS = 'text-md-medium text-black-300 lg:text-2lg-medium';
-
-const CTA_CLASS =
-  'h-12 min-w-0 flex-1 rounded-lg text-lg-semibold lg:h-16 lg:rounded-2xl lg:text-xl-semibold';
 
 /** `/quotes` 대기 견적 카드. - 확정·채팅·상세보기 CTA. */
 export const PendingQuoteCard = ({
   quote,
-  mover,
   isConfirming = false,
-  isConfirmingThis = false,
-  isChatPending = false,
+  confirmingQuoteId = null,
+  pendingChatQuoteId = null,
   onConfirm,
   onChatClick,
   onFavoriteClick,
-  isFavoritePending = false,
+  isMoverPending,
   className = '',
 }: PendingQuoteCardProps) => {
   const shouldReduceMotion = useReducedMotion();
+
+  const mover = toMoverCardModelFromCustomerQuoteMover(quote.mover);
   const detailHref = `/quotes/${quote.quoteId}`;
+
+  const isConfirmingThis = confirmingQuoteId === quote.quoteId;
+  const isChatPending = pendingChatQuoteId === quote.quoteId;
+  const isFavoritePending = isMoverPending?.(quote.mover.moverId) ?? false;
 
   const handleConfirm = () => {
     onConfirm?.(quote.quoteId);
@@ -95,8 +97,11 @@ export const PendingQuoteCard = ({
               value={quote.moveDate}
               color="neutral"
               className="min-w-0 gap-2 lg:gap-3"
-              labelClassName={FIELD_LABEL_CLASS}
-              valueClassName={cn(FIELD_VALUE_CLASS, 'min-w-0 break-keep')}
+              labelClassName={PENDING_QUOTE_FIELD_LABEL_CLASS}
+              valueClassName={cn(
+                PENDING_QUOTE_FIELD_VALUE_CLASS,
+                'min-w-0 break-keep'
+              )}
             />
             <span
               aria-hidden
@@ -108,8 +113,11 @@ export const PendingQuoteCard = ({
                 value={quote.departure}
                 color="neutral"
                 className="min-w-0 gap-2 lg:gap-3"
-                labelClassName={FIELD_LABEL_CLASS}
-                valueClassName={cn(FIELD_VALUE_CLASS, 'min-w-0 break-keep')}
+                labelClassName={PENDING_QUOTE_FIELD_LABEL_CLASS}
+                valueClassName={cn(
+                  PENDING_QUOTE_FIELD_VALUE_CLASS,
+                  'min-w-0 break-keep'
+                )}
               />
               <span
                 aria-hidden
@@ -120,8 +128,11 @@ export const PendingQuoteCard = ({
                 value={quote.arrival}
                 color="neutral"
                 className="min-w-0 gap-2 lg:gap-3"
-                labelClassName={FIELD_LABEL_CLASS}
-                valueClassName={cn(FIELD_VALUE_CLASS, 'min-w-0 break-keep')}
+                labelClassName={PENDING_QUOTE_FIELD_LABEL_CLASS}
+                valueClassName={cn(
+                  PENDING_QUOTE_FIELD_VALUE_CLASS,
+                  'min-w-0 break-keep'
+                )}
               />
             </div>
           </div>
@@ -136,7 +147,7 @@ export const PendingQuoteCard = ({
           <Button
             size="md"
             variant="solid"
-            className={CTA_CLASS}
+            className={PENDING_QUOTE_CTA_CLASS}
             disabled={isConfirming}
             onClick={handleConfirm}
             aria-label={`${mover.name} 기사님 견적 확정하기`}
@@ -147,7 +158,7 @@ export const PendingQuoteCard = ({
             <Button
               size="md"
               variant="outlined"
-              className={CTA_CLASS}
+              className={PENDING_QUOTE_CTA_CLASS}
               disabled={isConfirming || isChatPending}
               onClick={handleChatClick}
               aria-label={`${mover.name} 기사님과 채팅하기`}
