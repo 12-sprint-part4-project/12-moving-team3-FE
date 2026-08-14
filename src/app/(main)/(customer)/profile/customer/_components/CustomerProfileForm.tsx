@@ -4,8 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { Button } from '@/components/Button/Button';
-import { TextFieldOutlined } from '@/components/ui/Input';
-import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { useAuth } from '@/hooks/useAuth';
 import { useUpsertCustomerProfile } from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
@@ -13,13 +11,13 @@ import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
   getKrMobileSubscriberError,
-  KR_MOBILE_PREFIX_LABEL,
   KR_MOBILE_SUBSCRIBER_LENGTH,
   toKrMobileSubscriberDigits,
   toPhoneDigits,
 } from '@/lib/phoneNumber';
 import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 
+import { CustomerProfilePhoneField } from './CustomerProfilePhoneField';
 import { CustomerProfileRegionField } from './CustomerProfileRegionField';
 import { CustomerProfileServiceField } from './CustomerProfileServiceField';
 import { ProfileImageCropModal } from './ProfileImageCropModal';
@@ -169,24 +167,13 @@ export const CustomerProfileForm = () => {
 
             <div className="h-px w-full bg-line-100" aria-hidden />
 
-            <section className="flex w-full flex-col items-start gap-4 lg:gap-6">
-              <RequiredLabel htmlFor={phoneInputId}>전화번호</RequiredLabel>
-              <TextFieldOutlined
-                id={phoneInputId}
-                size="sm"
-                type="tel"
-                name="phone"
-                inputMode="numeric"
-                autoComplete="tel"
-                leftAddon={KR_MOBILE_PREFIX_LABEL}
-                placeholder="1234-5678"
-                value={formatKrMobileSubscriberInput(phoneNumber)}
-                onChange={handlePhoneChange}
-                isError={isPhoneFormatError}
-                errorMessage={phoneFieldError ?? undefined}
-                className="w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular"
-              />
-            </section>
+            <CustomerProfilePhoneField
+              id={phoneInputId}
+              value={phoneNumber}
+              errorMessage={phoneFieldError ?? undefined}
+              onChange={handlePhoneChange}
+              className="lg:gap-6"
+            />
 
             <div className="h-px w-full bg-line-100" aria-hidden />
 

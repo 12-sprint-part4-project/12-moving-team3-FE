@@ -4,7 +4,6 @@ import { redirect, useRouter } from 'next/navigation';
 import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { Button } from '@/components/Button/Button';
-import { TextFieldOutlined } from '@/components/ui/Input';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import {
@@ -17,7 +16,6 @@ import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
   getKrMobileSubscriberError,
-  KR_MOBILE_PREFIX_LABEL,
   KR_MOBILE_SUBSCRIBER_LENGTH,
   toKrMobileSubscriberDigits,
 } from '@/lib/phoneNumber';
@@ -28,8 +26,10 @@ import {
   validatePassword,
 } from '@/lib/validatePassword';
 
+import { CustomerProfilePhoneField } from './CustomerProfilePhoneField';
 import { CustomerProfileRegionField } from './CustomerProfileRegionField';
 import { CustomerProfileServiceField } from './CustomerProfileServiceField';
+import { CustomerProfileTextField } from './CustomerProfileTextField';
 import { ProfileImageCropModal } from './ProfileImageCropModal';
 import { ProfileImageField } from './ProfileImageField';
 import {
@@ -93,9 +93,8 @@ const CustomerProfilePasswordFields = ({
         >
           현재 비밀번호
         </label>
-        <TextFieldOutlined
+        <CustomerProfileTextField
           id={currentPasswordId}
-          size="sm"
           type="password"
           name="currentPassword"
           autoComplete="new-password"
@@ -103,7 +102,6 @@ const CustomerProfilePasswordFields = ({
           showVisibilityToggle
           value={currentPassword}
           onChange={onCurrentPasswordChange}
-          className="w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular"
         />
       </section>
 
@@ -116,9 +114,8 @@ const CustomerProfilePasswordFields = ({
         >
           새 비밀번호
         </label>
-        <TextFieldOutlined
+        <CustomerProfileTextField
           id={newPasswordId}
-          size="sm"
           type="password"
           name="newPassword"
           autoComplete="new-password"
@@ -133,7 +130,6 @@ const CustomerProfilePasswordFields = ({
               ? PASSWORD_FORMAT_FIELD_ERROR_MESSAGE
               : undefined
           }
-          className="w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular"
         />
       </section>
 
@@ -146,9 +142,8 @@ const CustomerProfilePasswordFields = ({
         >
           새 비밀번호 확인
         </label>
-        <TextFieldOutlined
+        <CustomerProfileTextField
           id={confirmPasswordId}
-          size="sm"
           type="password"
           name="confirmPassword"
           autoComplete="new-password"
@@ -163,7 +158,6 @@ const CustomerProfilePasswordFields = ({
               ? PASSWORD_MISMATCH_ERROR_MESSAGE
               : undefined
           }
-          className="w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular"
         />
       </section>
     </>
@@ -348,9 +342,8 @@ const CustomerProfileEditFields = ({
             <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
               <section className="flex w-full flex-col items-start gap-4">
                 <RequiredLabel htmlFor={nameInputId}>이름</RequiredLabel>
-                <TextFieldOutlined
+                <CustomerProfileTextField
                   id={nameInputId}
-                  size="sm"
                   name="name"
                   autoComplete="name"
                   value={name}
@@ -359,7 +352,6 @@ const CustomerProfileEditFields = ({
                   errorMessage={
                     isNameFormatError ? NAME_FORMAT_ERROR_MESSAGE : undefined
                   }
-                  className="w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular"
                 />
               </section>
 
@@ -367,9 +359,8 @@ const CustomerProfileEditFields = ({
 
               <section className="flex w-full flex-col items-start gap-4">
                 <RequiredLabel htmlFor={nicknameInputId}>닉네임</RequiredLabel>
-                <TextFieldOutlined
+                <CustomerProfileTextField
                   id={nicknameInputId}
-                  size="sm"
                   name="nickname"
                   autoComplete="nickname"
                   placeholder="닉네임을 입력해 주세요"
@@ -381,7 +372,6 @@ const CustomerProfileEditFields = ({
                       ? NICKNAME_FORMAT_ERROR_MESSAGE
                       : undefined
                   }
-                  className="w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular"
                 />
               </section>
 
@@ -394,41 +384,29 @@ const CustomerProfileEditFields = ({
                 >
                   이메일
                 </label>
-                <TextFieldOutlined
+                <CustomerProfileTextField
                   id={emailInputId}
-                  size="sm"
                   type="email"
                   name="email"
                   autoComplete="off"
                   value={email}
                   readOnly
-                  className="w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular [&_input]:!text-gray-300"
+                  className="[&_input]:!text-gray-300"
                 />
               </section>
 
               <div className="h-px w-full bg-line-100" aria-hidden />
 
-              <section className="flex w-full flex-col items-start gap-4">
-                <RequiredLabel htmlFor={phoneInputId}>전화번호</RequiredLabel>
-                <TextFieldOutlined
-                  id={phoneInputId}
-                  size="sm"
-                  type="tel"
-                  name="phone"
-                  autoComplete="tel"
-                  leftAddon={KR_MOBILE_PREFIX_LABEL}
-                  placeholder="1234-5678"
-                  value={formatKrMobileSubscriberInput(phoneNumber)}
-                  onChange={(event) =>
-                    setPhoneNumber(
-                      formatKrMobileSubscriberInput(event.target.value)
-                    )
-                  }
-                  isError={isPhoneFormatError}
-                  errorMessage={phoneFieldError ?? undefined}
-                  className="w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular"
-                />
-              </section>
+              <CustomerProfilePhoneField
+                id={phoneInputId}
+                value={phoneNumber}
+                errorMessage={phoneFieldError ?? undefined}
+                onChange={(event) =>
+                  setPhoneNumber(
+                    formatKrMobileSubscriberInput(event.target.value)
+                  )
+                }
+              />
 
               {showPasswordFields ? (
                 <CustomerProfilePasswordFields
