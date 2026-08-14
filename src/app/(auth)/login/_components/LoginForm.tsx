@@ -6,21 +6,17 @@ import { Suspense, useState, type ChangeEvent, type FormEvent } from 'react';
 import { AuthBrand, AuthHelperText } from '@/app/(auth)/_components/AuthBrand';
 import { AuthField } from '@/app/(auth)/_components/AuthField';
 import { AuthKakaoSection } from '@/app/(auth)/_components/AuthKakaoSection';
+import { Button } from '@/components/Button/Button';
+
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
+
 import {
   AUTH_PATH,
   USER_TYPE_BY_ROLE,
   getAuthRoleSwitch,
   type AuthRole,
 } from '@/app/(auth)/_components/authRole';
-import {
-  AUTH_FIELDS_AND_SUBMIT_CLASS,
-  AUTH_FIELDS_CLASS,
-  AUTH_FORM_CLASS,
-  AUTH_SUBMIT_CLASS,
-} from '@/app/(auth)/_components/authStyles';
-import { Button } from '@/components/Button/Button';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { getPostAuthRedirectPath } from '@/lib/getPostAuthRedirectPath';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
@@ -40,17 +36,12 @@ interface LoginFormValues {
   password: string;
 }
 
-const LOGIN_STACK_CLASS =
-  'flex w-full flex-col items-center gap-10 lg:gap-[4.5rem]';
-
-const LOGIN_FORM_SNS_WRAP_CLASS =
-  'flex w-full flex-col items-center gap-12 md:gap-10 lg:contents';
-
 const INITIAL_VALUES: LoginFormValues = {
   email: '',
   password: '',
 };
 
+/** 이메일·비밀번호·카카오 로그인 폼 */
 const LoginFormInner = ({ role }: LoginFormProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -73,6 +64,7 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
       setValues((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
+  /** 이메일 형식 검사 후 로그인하고 역할별 경로로 이동한다 */
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isSubmittable) return;
@@ -122,17 +114,21 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
   };
 
   return (
-    <div className={LOGIN_STACK_CLASS}>
+    <div className="flex w-full flex-col items-center gap-10 lg:gap-[4.5rem]">
       <AuthBrand
         prompt={roleSwitch.prompt}
         linkLabel={roleSwitch.linkLabel}
         href={roleSwitch.href}
       />
 
-      <div className={LOGIN_FORM_SNS_WRAP_CLASS}>
-        <form noValidate onSubmit={handleSubmit} className={AUTH_FORM_CLASS}>
-          <div className={AUTH_FIELDS_AND_SUBMIT_CLASS}>
-            <div className={AUTH_FIELDS_CLASS}>
+      <div className="flex w-full flex-col items-center gap-12 md:gap-10 lg:contents">
+        <form
+          noValidate
+          onSubmit={handleSubmit}
+          className="flex w-full max-w-[20.4375rem] flex-col items-center gap-4 lg:max-w-[40rem] lg:gap-6"
+        >
+          <div className="flex w-full flex-col gap-8 lg:gap-14">
+            <div className="flex w-full flex-col gap-4 lg:gap-8">
               <AuthField
                 id="login-email"
                 label="이메일"
@@ -162,7 +158,7 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
               variant="solid"
               size="sm"
               disabled={!isSubmittable}
-              className={AUTH_SUBMIT_CLASS}
+              className="lg:h-16 lg:gap-2 lg:text-xl-semibold"
             >
               {submitLabel}
             </Button>
