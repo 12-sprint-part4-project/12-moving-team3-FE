@@ -1,8 +1,8 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { redirect, useRouter } from 'next/navigation';
 import { useId, useState, type FormEvent } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/Button/Button';
 import { TextFieldOutlined } from '@/components/ui/Input';
@@ -38,9 +38,17 @@ import {
 const FIELD_CLASSNAME =
   'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular';
 
-const READONLY_FIELD_CLASSNAME = `${FIELD_CLASSNAME} [&_input]:!text-gray-300`;
+const READONLY_FIELD_CLASSNAME = cn(
+  FIELD_CLASSNAME,
+  '[&_input]:!text-gray-300'
+);
 
 const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
+
+const DIVIDER_CLASS = 'h-px w-full bg-line-100';
+
+const FORM_CLASS =
+  'flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 bg-white lg:max-w-[87.5rem] lg:gap-16 lg:rounded-[2rem] lg:px-6 lg:pt-8 lg:pb-10';
 
 const NAME_MIN_LENGTH = 2;
 const NAME_MAX_LENGTH = 20;
@@ -50,13 +58,11 @@ const PASSWORD_FORMAT_FIELD_ERROR_MESSAGE = '비밀번호가 올바르지 않습
 
 interface MoverBasicInfoEditFieldsProps {
   profile: MoverProfileMe;
-  className?: string;
 }
 
-/** 기본정보 수정 폼 (프로필 조회로 초기화) */
+/** profile이 있을 때만 마운트한다. key로 리마운트한다. */
 const MoverBasicInfoEditFields = ({
   profile,
-  className,
 }: MoverBasicInfoEditFieldsProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -88,6 +94,7 @@ const MoverBasicInfoEditFields = ({
   const subscriberDigits = toKrMobileSubscriberDigits(phoneNumber);
   const phoneFieldError = getKrMobileSubscriberError(phoneNumber);
   const isPhoneFormatError = Boolean(phoneFieldError);
+  const showPasswordFields = profile.hasPassword;
 
   const isNameFormatError =
     trimmedName.length > 0 &&
@@ -174,17 +181,14 @@ const MoverBasicInfoEditFields = ({
       onSubmit={(event) => {
         void handleSubmit(event);
       }}
-      className={cn(
-        'flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 bg-white lg:max-w-[87.5rem] lg:gap-16 lg:rounded-[2rem] lg:px-6 lg:pt-8 lg:pb-10',
-        className
-      )}
+      className={FORM_CLASS}
     >
       <div className="flex w-full flex-col items-stretch gap-5 lg:gap-10">
         <header className="flex w-full flex-col items-start gap-4 lg:gap-10">
           <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
             기본정보 수정
           </h1>
-          <div className="h-px w-full bg-line-100" aria-hidden />
+          <div className={DIVIDER_CLASS} aria-hidden />
         </header>
 
         <div className="flex w-full flex-col items-stretch gap-5 lg:flex-row lg:items-start lg:justify-between lg:gap-10">
@@ -206,7 +210,7 @@ const MoverBasicInfoEditFields = ({
               />
             </section>
 
-            <div className="h-px w-full bg-line-100" aria-hidden />
+            <div className={DIVIDER_CLASS} aria-hidden />
 
             <section className="flex w-full flex-col items-start gap-4">
               <label htmlFor={emailInputId} className={LABEL_CLASSNAME}>
@@ -224,7 +228,7 @@ const MoverBasicInfoEditFields = ({
               />
             </section>
 
-            <div className="h-px w-full bg-line-100" aria-hidden />
+            <div className={DIVIDER_CLASS} aria-hidden />
 
             <section className="flex w-full flex-col items-start gap-4">
               <RequiredLabel htmlFor={phoneInputId}>전화번호</RequiredLabel>
@@ -250,9 +254,9 @@ const MoverBasicInfoEditFields = ({
             </section>
           </div>
 
-          {profile.hasPassword ? (
+          {showPasswordFields ? (
             <>
-              <div className="h-px w-full bg-line-100 lg:hidden" aria-hidden />
+              <div className={cn(DIVIDER_CLASS, 'lg:hidden')} aria-hidden />
 
               <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
                 <section className="flex w-full flex-col items-start gap-4">
@@ -271,16 +275,14 @@ const MoverBasicInfoEditFields = ({
                     placeholder="현재 비밀번호를 입력해주세요"
                     showVisibilityToggle
                     value={currentPassword}
-                    onChange={(event) =>
-                      setCurrentPassword(event.target.value)
-                    }
+                    onChange={(event) => setCurrentPassword(event.target.value)}
                     className={FIELD_CLASSNAME}
                   />
                 </section>
 
                 {/* lg 미만: 현재↔새 비밀번호 구분선 없음 */}
                 <div
-                  className="hidden h-px w-full bg-line-100 lg:block"
+                  className={cn(DIVIDER_CLASS, 'hidden lg:block')}
                   aria-hidden
                 />
 
@@ -309,7 +311,7 @@ const MoverBasicInfoEditFields = ({
                   />
                 </section>
 
-                <div className="h-px w-full bg-line-100" aria-hidden />
+                <div className={DIVIDER_CLASS} aria-hidden />
 
                 <section className="flex w-full flex-col items-start gap-4">
                   <label
@@ -328,9 +330,7 @@ const MoverBasicInfoEditFields = ({
                     showVisibilityToggle
                     maxLength={PASSWORD_MAX_LENGTH}
                     value={confirmPassword}
-                    onChange={(event) =>
-                      setConfirmPassword(event.target.value)
-                    }
+                    onChange={(event) => setConfirmPassword(event.target.value)}
                     isError={isPasswordMismatchError}
                     errorMessage={
                       isPasswordMismatchError
@@ -362,7 +362,7 @@ const MoverBasicInfoEditFields = ({
           size="sm"
           onClick={handleCancel}
           disabled={isSubmitting}
-          className="order-2 border-gray-200 text-gray-300 shadow-cta hover:border-gray-200 hover:bg-transparent hover:text-gray-300 hover:shadow-cta lg:order-1 lg:h-16 lg:max-w-[41.25rem] lg:border-blue-300 lg:text-blue-300 lg:text-xl-semibold lg:hover:border-blue-300 lg:hover:bg-blue-50 lg:hover:text-blue-300"
+          className="order-2 border-gray-200 text-gray-300 shadow-cta hover:border-gray-200 hover:bg-transparent hover:text-gray-300 hover:shadow-cta lg:order-1 lg:h-16 lg:max-w-[41.25rem] lg:border-blue-300 lg:text-xl-semibold lg:text-blue-300 lg:hover:border-blue-300 lg:hover:bg-blue-50 lg:hover:text-blue-300"
         >
           취소
         </Button>
@@ -371,14 +371,7 @@ const MoverBasicInfoEditFields = ({
   );
 };
 
-interface MoverBasicInfoEditFormProps {
-  className?: string;
-}
-
-/** 기사님 기본정보 수정 */
-export const MoverBasicInfoEditForm = ({
-  className,
-}: MoverBasicInfoEditFormProps) => {
+export const MoverBasicInfoEditForm = () => {
   const {
     data: profile,
     isPending,
@@ -419,11 +412,5 @@ export const MoverBasicInfoEditForm = ({
     redirect('/profile/mover');
   }
 
-  return (
-    <MoverBasicInfoEditFields
-      key={profile.updatedAt}
-      profile={profile}
-      className={className}
-    />
-  );
+  return <MoverBasicInfoEditFields key={profile.updatedAt} profile={profile} />;
 };

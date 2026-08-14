@@ -21,7 +21,6 @@ interface ProfileImageFieldProps {
 const isLocalPreviewUrl = (url: string): boolean =>
   url.startsWith('blob:') || url.startsWith('data:');
 
-/** 프로필 이미지 업로드·미리보기·제거 UI */
 export const ProfileImageField = ({
   imageInputId,
   imageInputRef,
@@ -30,7 +29,7 @@ export const ProfileImageField = ({
   onImageChange,
   onImageButtonClick,
   onImageClear,
-  className,
+  className = '',
 }: ProfileImageFieldProps) => {
   const handleClearClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();

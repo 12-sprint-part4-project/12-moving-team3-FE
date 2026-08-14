@@ -1,11 +1,12 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { redirect, useRouter } from 'next/navigation';
 import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { ProfileImageCropModal } from '@/app/(main)/(customer)/profile/customer/_components/ProfileImageCropModal';
 import { ProfileImageField } from '@/app/(main)/(customer)/profile/customer/_components/ProfileImageField';
+import { toggleService } from '@/app/(main)/(customer)/profile/customer/_lib/toggleService';
 import { useProfileImageCrop } from '@/app/(main)/(customer)/profile/customer/_lib/useProfileImageCrop';
 import { Button } from '@/components/Button/Button';
 import { RegionChip, ServiceChip } from '@/components/ui/Chip';
@@ -31,19 +32,24 @@ import { cn } from '@/lib/utils';
 import { upsertMoverProfile } from '@/services/moverProfileApi';
 import type { MoverProfileMe } from '@/types/moverProfile';
 
-/** Figma Mobile·Tablet: input sm / Desktop(lg+): md 높이·텍스트 */
 const FIELD_CLASSNAME =
   'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular';
 
 const TEXTAREA_CLASSNAME =
   'w-full [&_>div]:min-h-40 [&_>div]:w-full [&_>div]:max-w-full [&_textarea]:lg:text-xl-regular';
 
-/** Figma Mobile·Tablet: lg-semibold / Desktop(lg+): xl-semibold */
 const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
 
-/** Figma Mobile·Tablet chip sm / Desktop: md */
 const CHIP_CLASSNAME =
   'px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium';
+
+const DIVIDER_CLASS = 'h-px w-full bg-line-100';
+
+const FORM_CLASS =
+  'flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 bg-white lg:max-w-[87.5rem] lg:gap-16 lg:rounded-[2rem] lg:px-6 lg:pt-8 lg:pb-10';
+
+const REGION_CHIP_WRAP_CLASS =
+  'flex flex-wrap gap-x-2 gap-y-3 lg:gap-x-3.5 lg:gap-y-[1.125rem]';
 
 const NICKNAME_MIN_LENGTH = 2;
 const NICKNAME_MAX_LENGTH = 20;
@@ -66,21 +72,12 @@ const areSortedEqual = (left: string[], right: string[]): boolean => {
   return sortedLeft.every((value, index) => value === sortedRight[index]);
 };
 
-const toggleChip = <T extends string>(values: T[], value: T): T[] =>
-  values.includes(value)
-    ? values.filter((item) => item !== value)
-    : [...values, value];
-
 interface MoverProfileEditFieldsProps {
   profile: MoverProfileMe;
-  className?: string;
 }
 
-/** 쿼리 데이터로 초기화된 수정 폼. 마운트 시점에 profile이 이미 존재한다. */
-const MoverProfileEditFields = ({
-  profile,
-  className,
-}: MoverProfileEditFieldsProps) => {
+/** profile이 있을 때만 마운트한다. key로 리마운트한다. */
+const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
@@ -95,6 +92,7 @@ const MoverProfileEditFields = ({
     displayImageUrl,
     cropImageSrc,
     profileImageFile,
+    hasImageChange,
     isImageCleared,
     handleImageChange,
     handleImageButtonClick,
@@ -115,7 +113,7 @@ const MoverProfileEditFields = ({
   const [selectedRegions, setSelectedRegions] = useState<RegionChipValue[]>([
     ...profile.serviceRegions,
   ]);
-  const [isPending, setIsPending] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const phoneNumber = profile.phoneNumber ?? '';
   const trimmedNickname = nickname.trim();
@@ -150,7 +148,7 @@ const MoverProfileEditFields = ({
     trimmedDescription.length <= DESCRIPTION_MAX &&
     selectedServices.length > 0 &&
     selectedRegions.length > 0 &&
-    !isPending;
+    !isSubmitting;
 
   const handleCancel = () => {
     router.back();
@@ -202,7 +200,6 @@ const MoverProfileEditFields = ({
       return;
     }
 
-    const hasImageChange = Boolean(profileImageFile) || isImageCleared;
     const hasFieldChange =
       trimmedNickname !== profile.nickname ||
       careerValue !== profile.career ||
@@ -219,7 +216,7 @@ const MoverProfileEditFields = ({
 
     if (careerValue === null) return;
 
-    setIsPending(true);
+    setIsSubmitting(true);
 
     try {
       let s3Key: string | null | undefined;
@@ -253,7 +250,7 @@ const MoverProfileEditFields = ({
           : '프로필 수정에 실패했습니다. 잠시 후 다시 시도해 주세요.';
       showToast({ content: message });
     } finally {
-      setIsPending(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -263,24 +260,17 @@ const MoverProfileEditFields = ({
         onSubmit={(event) => {
           void handleSubmit(event);
         }}
-        className={cn(
-          'flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 bg-white lg:max-w-[87.5rem] lg:gap-16 lg:rounded-[2rem] lg:px-6 lg:pt-8 lg:pb-10',
-          className
-        )}
+        className={FORM_CLASS}
       >
         <div className="flex w-full flex-col items-stretch gap-4 lg:gap-10">
           <header className="flex w-full flex-col items-start gap-4 lg:gap-10">
             <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
               프로필 수정
             </h1>
-            <div className="h-px w-full bg-line-100" aria-hidden />
+            <div className={DIVIDER_CLASS} aria-hidden />
           </header>
 
-          {/*
-            Mobile(1:11040)·Tablet(1:10785): 단일 컬럼
-            — 닉네임→이미지→경력→한줄소개→서비스→지역→상세설명
-            Desktop(1:10909): 2열 — 좌(닉네임~상세설명) / 우(서비스·지역)
-          */}
+          {/* Desktop 2열: 좌 필드 / 우 서비스·지역 */}
           <div className="grid w-full grid-cols-1 gap-5 lg:grid-cols-2 lg:items-start lg:gap-x-10 lg:gap-y-8">
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
               <RequiredLabel htmlFor={nicknameInputId}>닉네임</RequiredLabel>
@@ -303,7 +293,7 @@ const MoverProfileEditFields = ({
             </section>
 
             <div className="flex w-full flex-col items-start gap-4 lg:col-start-1">
-              <div className="h-px w-full bg-line-100" aria-hidden />
+              <div className={DIVIDER_CLASS} aria-hidden />
               <ProfileImageField
                 imageInputId={imageInputId}
                 imageInputRef={imageInputRef}
@@ -316,7 +306,7 @@ const MoverProfileEditFields = ({
             </div>
 
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
-              <div className="h-px w-full bg-line-100" aria-hidden />
+              <div className={DIVIDER_CLASS} aria-hidden />
               <RequiredLabel htmlFor={careerInputId}>경력</RequiredLabel>
               <TextFieldOutlined
                 id={careerInputId}
@@ -335,7 +325,7 @@ const MoverProfileEditFields = ({
             </section>
 
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
-              <div className="h-px w-full bg-line-100" aria-hidden />
+              <div className={DIVIDER_CLASS} aria-hidden />
               <RequiredLabel htmlFor={shortIntroInputId}>
                 한 줄 소개
               </RequiredLabel>
@@ -357,7 +347,7 @@ const MoverProfileEditFields = ({
             </section>
 
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-2 lg:row-start-1">
-              <div className="h-px w-full bg-line-100 lg:hidden" aria-hidden />
+              <div className={cn(DIVIDER_CLASS, 'lg:hidden')} aria-hidden />
               <RequiredLabel>제공 서비스</RequiredLabel>
               <div className="flex flex-wrap gap-1.5 lg:gap-3">
                 {SERVICE_CHIP_OPTIONS.map((option) => (
@@ -367,7 +357,7 @@ const MoverProfileEditFields = ({
                     isSelected={selectedServices.includes(option.value)}
                     onClick={() =>
                       setSelectedServices((prev) =>
-                        toggleChip(prev, option.value)
+                        toggleService(prev, option.value)
                       )
                     }
                     className={CHIP_CLASSNAME}
@@ -379,9 +369,9 @@ const MoverProfileEditFields = ({
             </section>
 
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-2 lg:row-start-2">
-              <div className="h-px w-full bg-line-100" aria-hidden />
+              <div className={DIVIDER_CLASS} aria-hidden />
               <RequiredLabel>서비스 가능 지역</RequiredLabel>
-              <div className="flex flex-wrap gap-x-2 gap-y-3 lg:gap-x-3.5 lg:gap-y-[1.125rem]">
+              <div className={REGION_CHIP_WRAP_CLASS}>
                 {REGION_CHIP_OPTIONS.map((option) => (
                   <RegionChip
                     key={option.value}
@@ -389,7 +379,7 @@ const MoverProfileEditFields = ({
                     isSelected={selectedRegions.includes(option.value)}
                     onClick={() =>
                       setSelectedRegions((prev) =>
-                        toggleChip(prev, option.value)
+                        toggleService(prev, option.value)
                       )
                     }
                     className={CHIP_CLASSNAME}
@@ -401,7 +391,7 @@ const MoverProfileEditFields = ({
             </section>
 
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
-              <div className="h-px w-full bg-line-100" aria-hidden />
+              <div className={DIVIDER_CLASS} aria-hidden />
               <RequiredLabel htmlFor={descriptionInputId}>
                 상세 설명
               </RequiredLabel>
@@ -432,14 +422,14 @@ const MoverProfileEditFields = ({
             disabled={!isSubmitEnabled}
             className="order-1 lg:order-2 lg:h-16 lg:max-w-[41.25rem] lg:text-xl-semibold"
           >
-            {isPending ? '수정 중...' : '수정하기'}
+            {isSubmitting ? '수정 중...' : '수정하기'}
           </Button>
           <Button
             type="button"
             variant="outlined"
             size="sm"
             onClick={handleCancel}
-            disabled={isPending}
+            disabled={isSubmitting}
             className="order-2 border-gray-200 text-gray-300 shadow-cta hover:border-gray-200 hover:bg-transparent hover:text-gray-300 hover:shadow-cta lg:order-1 lg:h-16 lg:max-w-[41.25rem] lg:text-xl-semibold"
           >
             취소
@@ -458,14 +448,7 @@ const MoverProfileEditFields = ({
   );
 };
 
-interface MoverProfileEditFormProps {
-  className?: string;
-}
-
-/** 기사님 프로필 수정. useMoverProfile로 조회 후 폼에 전달 */
-export const MoverProfileEditForm = ({
-  className,
-}: MoverProfileEditFormProps) => {
+export const MoverProfileEditForm = () => {
   const {
     data: profile,
     isPending,
@@ -506,11 +489,5 @@ export const MoverProfileEditForm = ({
     redirect('/profile/mover');
   }
 
-  return (
-    <MoverProfileEditFields
-      key={profile.updatedAt}
-      profile={profile}
-      className={className}
-    />
-  );
+  return <MoverProfileEditFields key={profile.updatedAt} profile={profile} />;
 };

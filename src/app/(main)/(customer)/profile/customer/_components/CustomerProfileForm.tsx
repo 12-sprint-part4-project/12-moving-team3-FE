@@ -1,8 +1,8 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/Button/Button';
 import { RegionChip, ServiceChip } from '@/components/ui/Chip';
@@ -12,7 +12,10 @@ import {
   REGION_CHIP_OPTIONS,
   SERVICE_CHIP_OPTIONS,
 } from '@/constants/commonOptions';
-import { AUTH_QUERY_KEYS, customerProfileQueryKeys } from '@/constants/queryKey';
+import {
+  AUTH_QUERY_KEYS,
+  customerProfileQueryKeys,
+} from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
@@ -46,12 +49,18 @@ const NICKNAME_MAX_LENGTH = 20;
 const FIELD_CLASSNAME =
   'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular';
 
-/** Figma Mobile·Tablet: lg-semibold / Desktop(lg+): xl-semibold */
 const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
 
-/** Figma Mobile·Tablet chip sm / Desktop: md */
 const CHIP_CLASSNAME =
   'px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium';
+
+const DIVIDER_CLASS = 'h-px w-full bg-line-100';
+
+const FORM_CLASS =
+  'flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 lg:max-w-[40rem] lg:gap-14';
+
+const REGION_CHIP_WRAP_CLASS =
+  'flex flex-wrap gap-x-2 gap-y-3 lg:gap-x-3.5 lg:gap-y-[1.125rem]';
 
 export const CustomerProfileForm = () => {
   const router = useRouter();
@@ -99,9 +108,7 @@ export const CustomerProfileForm = () => {
     setPhoneDraft(formatKrMobileSubscriberInput(event.target.value));
   };
 
-  const handleValidatedImageChange = (
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleValidatedImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const imageError = validateProfileImageFile(file);
@@ -173,7 +180,7 @@ export const CustomerProfileForm = () => {
         onSubmit={(event) => {
           void handleSubmit(event);
         }}
-        className="flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 lg:max-w-[40rem] lg:gap-14"
+        className={FORM_CLASS}
       >
         <div className="flex w-full flex-col items-stretch gap-4 lg:gap-16">
           <header className="flex w-full flex-col items-start gap-4 lg:gap-8">
@@ -183,7 +190,7 @@ export const CustomerProfileForm = () => {
             <p className="text-xs-regular text-black-100 lg:text-xl-regular lg:text-black-200">
               추가 정보를 입력하여 회원가입을 완료해주세요.
             </p>
-            <div className="h-px w-full bg-line-100" aria-hidden />
+            <div className={DIVIDER_CLASS} aria-hidden />
           </header>
 
           <div className="flex w-full flex-col items-start gap-5 lg:gap-8">
@@ -197,7 +204,7 @@ export const CustomerProfileForm = () => {
               onImageClear={handleImageClear}
             />
 
-            <div className="h-px w-full bg-line-100" aria-hidden />
+            <div className={DIVIDER_CLASS} aria-hidden />
 
             <section className="flex w-full flex-col items-start gap-4 lg:gap-6">
               <RequiredLabel htmlFor={phoneInputId}>전화번호</RequiredLabel>
@@ -218,7 +225,7 @@ export const CustomerProfileForm = () => {
               />
             </section>
 
-            <div className="h-px w-full bg-line-100" aria-hidden />
+            <div className={DIVIDER_CLASS} aria-hidden />
 
             <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
               <div className="flex flex-col items-start gap-2">
@@ -246,7 +253,7 @@ export const CustomerProfileForm = () => {
               </div>
             </section>
 
-            <div className="h-px w-full bg-line-100" aria-hidden />
+            <div className={DIVIDER_CLASS} aria-hidden />
 
             <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
               <div className="flex w-full flex-col items-start gap-2">
@@ -255,7 +262,7 @@ export const CustomerProfileForm = () => {
                   내가 사는 지역은 언제든 수정 가능해요!
                 </p>
               </div>
-              <div className="flex flex-wrap gap-x-2 gap-y-3 lg:gap-x-3.5 lg:gap-y-[1.125rem]">
+              <div className={REGION_CHIP_WRAP_CLASS}>
                 {REGION_CHIP_OPTIONS.map((option) => (
                   <RegionChip
                     key={option.value}

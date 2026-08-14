@@ -15,11 +15,7 @@ import {
 } from '@/lib/kakaoAuth';
 import { kakaoLogin } from '@/services/authApi';
 
-/**
- * 카카오 OAuth 콜백:
- * code / userType 파싱 → BE 로그인 → 세션 저장 → 홈 이동
- * 화면 문구 없이 토스트로만 결과를 안내한다.
- */
+/** 카카오 OAuth 콜백. 토스트만 보여주고 세션 저장 후 이동한다. */
 export const KakaoCallbackClient = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
