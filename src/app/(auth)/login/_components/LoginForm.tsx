@@ -4,8 +4,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { AuthBrand, AuthHelperText } from '@/app/(auth)/_components/AuthBrand';
-import { AuthField } from '@/app/(auth)/_components/AuthField';
+import { AuthEmailField } from '@/app/(auth)/_components/AuthEmailField';
 import { AuthKakaoSection } from '@/app/(auth)/_components/AuthKakaoSection';
+import { AuthPasswordField } from '@/app/(auth)/_components/AuthPasswordField';
 import { Button } from '@/components/Button/Button';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -22,7 +23,6 @@ import { getPostAuthRedirectPath } from '@/lib/getPostAuthRedirectPath';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
 import {
   EMAIL_FORMAT_ERROR_MESSAGE,
-  EMAIL_MAX_LENGTH,
   validateEmail,
 } from '@/lib/validateEmail';
 import { login } from '@/services/authApi';
@@ -129,25 +129,13 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
         >
           <div className="flex w-full flex-col gap-8 lg:gap-14">
             <div className="flex w-full flex-col gap-4 lg:gap-8">
-              <AuthField
+              <AuthEmailField
                 id="login-email"
-                label="이메일"
-                name="email"
-                type="email"
-                autoComplete="email"
-                maxLength={EMAIL_MAX_LENGTH}
-                placeholder="이메일을 입력해 주세요"
                 value={values.email}
                 onChange={handleChange('email')}
               />
-              <AuthField
+              <AuthPasswordField
                 id="login-password"
-                label="비밀번호"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                showVisibilityToggle
-                placeholder="비밀번호를 입력해 주세요"
                 value={values.password}
                 onChange={handleChange('password')}
               />

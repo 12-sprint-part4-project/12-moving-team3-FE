@@ -4,8 +4,10 @@ import { useRouter } from 'next/navigation';
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { AuthBrand, AuthHelperText } from '@/app/(auth)/_components/AuthBrand';
+import { AuthEmailField } from '@/app/(auth)/_components/AuthEmailField';
 import { AuthField } from '@/app/(auth)/_components/AuthField';
 import { AuthKakaoSection } from '@/app/(auth)/_components/AuthKakaoSection';
+import { AuthPasswordField } from '@/app/(auth)/_components/AuthPasswordField';
 import {
   AUTH_PATH,
   USER_TYPE_BY_ROLE,
@@ -23,7 +25,7 @@ import { API_ERROR_CODE } from '@/constants/errorCode';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
-import { EMAIL_MAX_LENGTH, validateEmail } from '@/lib/validateEmail';
+import { validateEmail } from '@/lib/validateEmail';
 import {
   PASSWORD_FORMAT_ERROR_MESSAGE,
   PASSWORD_MAX_LENGTH,
@@ -187,14 +189,8 @@ export const SignupForm = ({ role }: SignupFormProps) => {
                 isError={isNameFormatError}
                 errorMessage={NAME_FORMAT_ERROR_MESSAGE}
               />
-              <AuthField
+              <AuthEmailField
                 id="signup-email"
-                label="이메일"
-                name="email"
-                type="email"
-                autoComplete="email"
-                maxLength={EMAIL_MAX_LENGTH}
-                placeholder="이메일을 입력해 주세요"
                 value={values.email}
                 onChange={handleChange('email')}
                 isError={isEmailFormatError}
@@ -211,27 +207,20 @@ export const SignupForm = ({ role }: SignupFormProps) => {
                 isError={isNicknameFormatError}
                 errorMessage={NICKNAME_FORMAT_ERROR_MESSAGE}
               />
-              <AuthField
+              <AuthPasswordField
                 id="signup-password"
-                label="비밀번호"
-                name="password"
-                type="password"
                 autoComplete="new-password"
-                showVisibilityToggle
                 maxLength={PASSWORD_MAX_LENGTH}
-                placeholder="비밀번호를 입력해 주세요"
                 value={values.password}
                 onChange={handleChange('password')}
                 isError={isPasswordFormatError}
                 errorMessage={PASSWORD_FORMAT_FIELD_ERROR_MESSAGE}
               />
-              <AuthField
+              <AuthPasswordField
                 id="signup-password-confirm"
-                label="비밀번호 확인"
                 name="passwordConfirm"
-                type="password"
+                label="비밀번호 확인"
                 autoComplete="new-password"
-                showVisibilityToggle
                 maxLength={PASSWORD_MAX_LENGTH}
                 placeholder="비밀번호를 다시 한번 입력해 주세요"
                 value={values.passwordConfirm}
