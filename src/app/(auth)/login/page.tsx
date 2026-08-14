@@ -1,4 +1,3 @@
-import { AUTH_PAGE_SECTION_CLASS } from '@/app/(auth)/_components/authStyles';
 import { LoginForm } from '@/app/(auth)/login/_components/LoginForm';
 import { resolveTabSearchParam } from '@/lib/resolveTabSearchParam';
 
@@ -18,7 +17,7 @@ const LoginPage = async ({ searchParams }: LoginPageProps) => {
   const redirectTo = resolveTabSearchParam(params.redirect);
 
   return (
-    <section className={AUTH_PAGE_SECTION_CLASS}>
+    <section className="flex min-h-full w-full flex-col items-center overflow-x-clip bg-white px-6 py-8 lg:px-0 lg:py-16">
       <LoginForm role="customer" redirectTo={redirectTo} />
     </section>
   );

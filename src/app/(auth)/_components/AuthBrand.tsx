@@ -3,15 +3,6 @@ import Link from 'next/link';
 import TextLogoIcon from '@/assets/icons/text-logo.svg';
 import { cn } from '@/lib/utils';
 
-import {
-  AUTH_BRAND_CLASS,
-  AUTH_HELPER_LINK_CLASS,
-  AUTH_HELPER_MUTED_CLASS,
-  AUTH_HELPER_TEXT_CLASS,
-  AUTH_LOGO_ICON_CLASS,
-  AUTH_LOGO_LINK_CLASS,
-} from './authStyles';
-
 interface AuthPromptLinkProps {
   prompt: string;
   linkLabel: string;
@@ -26,9 +17,17 @@ export const AuthHelperText = ({
   className = '',
 }: AuthPromptLinkProps) => {
   return (
-    <p className={cn(AUTH_HELPER_TEXT_CLASS, className)}>
-      <span className={AUTH_HELPER_MUTED_CLASS}>{prompt}</span>
-      <Link href={href} className={AUTH_HELPER_LINK_CLASS}>
+    <p
+      className={cn(
+        'flex items-center justify-center gap-1 whitespace-nowrap text-xs-regular lg:gap-2 lg:text-xl-regular',
+        className
+      )}
+    >
+      <span className="text-black-100 lg:text-black-200">{prompt}</span>
+      <Link
+        href={href}
+        className="text-xs-semibold text-blue-300 underline lg:text-xl-semibold"
+      >
         {linkLabel}
       </Link>
     </p>
@@ -42,10 +41,14 @@ export const AuthBrand = ({
   className = '',
 }: AuthPromptLinkProps) => {
   return (
-    <div className={cn(AUTH_BRAND_CLASS, className)}>
-      <Link href="/" aria-label="무빙" className={AUTH_LOGO_LINK_CLASS}>
+    <div className={cn('flex flex-col items-center lg:gap-2', className)}>
+      <Link
+        href="/"
+        aria-label="무빙"
+        className="flex w-full max-w-[20.4375rem] flex-col items-center justify-center p-2.5 lg:max-w-[40rem]"
+      >
         <TextLogoIcon
-          className={AUTH_LOGO_ICON_CLASS}
+          className="h-16 w-[7rem] lg:h-20 lg:w-[8.75rem]"
           aria-hidden
           focusable="false"
         />

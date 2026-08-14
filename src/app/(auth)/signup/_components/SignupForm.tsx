@@ -13,12 +13,6 @@ import {
   USER_TYPE_BY_ROLE,
   getAuthRoleSwitch,
 } from '@/app/(auth)/_components/authRole';
-import {
-  AUTH_FIELDS_AND_SUBMIT_CLASS,
-  AUTH_FIELDS_CLASS,
-  AUTH_FORM_CLASS,
-  AUTH_SUBMIT_CLASS,
-} from '@/app/(auth)/_components/authStyles';
 import { Button } from '@/components/Button/Button';
 import { API_ERROR_CODE } from '@/constants/errorCode';
 import { useToast } from '@/hooks/useToast';
@@ -57,11 +51,6 @@ const NAME_FORMAT_ERROR_MESSAGE = `이름은 ${NAME_MIN_LENGTH}~${NAME_MAX_LENGT
 const NICKNAME_FORMAT_ERROR_MESSAGE = `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`;
 const EMAIL_FORMAT_FIELD_ERROR_MESSAGE = '이메일 형식이 아닙니다.';
 const PASSWORD_FORMAT_FIELD_ERROR_MESSAGE = '비밀번호가 올바르지 않습니다.';
-
-const SIGNUP_STACK_CLASS = 'flex w-full flex-col items-center gap-8 lg:gap-14';
-
-const SIGNUP_FORM_SNS_WRAP_CLASS =
-  'flex w-full flex-col items-center gap-12 lg:gap-[4.5rem]';
 
 const INITIAL_VALUES: SignupFormValues = {
   name: '',
@@ -169,17 +158,21 @@ export const SignupForm = ({ role }: SignupFormProps) => {
   };
 
   return (
-    <div className={SIGNUP_STACK_CLASS}>
+    <div className="flex w-full flex-col items-center gap-8 lg:gap-14">
       <AuthBrand
         prompt={roleSwitch.prompt}
         linkLabel={roleSwitch.linkLabel}
         href={roleSwitch.href}
       />
 
-      <div className={SIGNUP_FORM_SNS_WRAP_CLASS}>
-        <form noValidate onSubmit={handleSubmit} className={AUTH_FORM_CLASS}>
-          <div className={AUTH_FIELDS_AND_SUBMIT_CLASS}>
-            <div className={AUTH_FIELDS_CLASS}>
+      <div className="flex w-full flex-col items-center gap-12 lg:gap-[4.5rem]">
+        <form
+          noValidate
+          onSubmit={handleSubmit}
+          className="flex w-full max-w-[20.4375rem] flex-col items-center gap-4 lg:max-w-[40rem] lg:gap-6"
+        >
+          <div className="flex w-full flex-col gap-8 lg:gap-14">
+            <div className="flex w-full flex-col gap-4 lg:gap-8">
               <AuthField
                 id="signup-name"
                 label="이름"
@@ -237,7 +230,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
               variant="solid"
               size="sm"
               disabled={!isSubmittable}
-              className={AUTH_SUBMIT_CLASS}
+              className="lg:h-16 lg:gap-2 lg:text-xl-semibold"
             >
               {submitLabel}
             </Button>
