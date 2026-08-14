@@ -4,6 +4,11 @@ import { useState } from 'react';
 
 import { Button } from '@/components/Button/Button';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
+import {
+  ESTIMATE_REQUEST_INTRO_MESSAGE,
+  MOVE_TYPE_PROMPT_DESKTOP,
+  MOVE_TYPE_PROMPT_MOBILE,
+} from '@/constants/estimateRequestMessages';
 import { MOVE_TYPE_OPTIONS } from '@/constants/estimateRequestOptions';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
@@ -13,11 +18,6 @@ import { EstimateRequestChatPanel } from '../EstimateRequestChatPanel';
 import { MoveTypeOptionField } from '../MoveTypeOptionField';
 
 import type { ApiMoveType } from '@/types/estimateRequest';
-
-const INTRO_MESSAGE =
-  '몇 가지 정보만 알려주시면 최대 5개의 견적을 받을 수 있어요 :)';
-const PROMPT_MESSAGE_MOBILE = '이사 종류를 알려주세요.';
-const PROMPT_MESSAGE_DESKTOP = '이사 종류를 선택해 주세요.';
 
 /**
  * 스텝1 — 이사종류 선택.
@@ -64,9 +64,9 @@ export const MoveTypeStep = () => {
     >
       {/* 시스템 연속 발화 — 한 턴으로 묶어 좌측 정렬 */}
       <EstimateRequestChatBubbleGroup>
-        <TextFieldChat>{INTRO_MESSAGE}</TextFieldChat>
-        <TextFieldChat desktopChildren={PROMPT_MESSAGE_DESKTOP}>
-          {PROMPT_MESSAGE_MOBILE}
+        <TextFieldChat>{ESTIMATE_REQUEST_INTRO_MESSAGE}</TextFieldChat>
+        <TextFieldChat desktopChildren={MOVE_TYPE_PROMPT_DESKTOP}>
+          {MOVE_TYPE_PROMPT_MOBILE}
         </TextFieldChat>
       </EstimateRequestChatBubbleGroup>
 
