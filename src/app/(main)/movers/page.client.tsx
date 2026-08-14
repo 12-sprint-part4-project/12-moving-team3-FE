@@ -30,7 +30,6 @@ import { useMoversFilters } from './_lib/useMoversFilters';
 
 /** `/movers` 클라이언트. - 필터 Query, 무한스크롤, 찜 오케스트레이션. */
 const MoversPageClient = () => {
-  // [리팩터][7] 훅 → 훅 인자 파생 → 나머지 파생 → 핸들러 → JSX → 모달
   const shouldReduceMotion = useReducedMotion();
   const { user } = useAuth();
   const isLoggedIn = Boolean(user);
@@ -75,7 +74,6 @@ const MoversPageClient = () => {
 
   const { favorites } = useFavoriteMoversPreview(canUseFavorites);
 
-  /** [리팩터][5] useInView+useEffect → useLoadMoreOnView. rootMargin 200px 유지. */
   const loadMoreRef = useLoadMoreOnView({
     hasNextPage,
     isFetchingNextPage,
@@ -103,7 +101,6 @@ const MoversPageClient = () => {
       filters.regionValue !== 'ALL' ||
       filters.serviceValue !== 'ALL');
 
-  /** [리팩터][6] fallback 문구 유지. ApiError·Error 메시지 추출만 헬퍼로. */
   const errorMessage = resolveApiErrorMessage(
     error,
     '기사님 목록을 불러오지 못했습니다.'
@@ -113,10 +110,8 @@ const MoversPageClient = () => {
     void refetch();
   };
 
-  // [리팩터][4] 타이틀·바깥 bg-white 래퍼 제거. 셸은 page.tsx.
   return (
     <>
-      {/* [리팩터][8] 본문 좌우 패딩은 moversLayout에서 직접 import. */}
       <div
         className={cn(
           'mx-auto flex w-full max-w-[1920px] flex-col gap-6 py-6 md:py-8 xl:flex-row xl:items-start xl:gap-8 min-[90rem]:gap-12',
@@ -148,7 +143,6 @@ const MoversPageClient = () => {
             />
           </motion.div>
 
-          {/* [리팩터][9] 목록 칸만 배타 분기. 사이드바·툴바·센티널은 이 분기 밖(기존과 동일). */}
           {isPending ? (
             <motion.div
               variants={fadeIn}
@@ -246,7 +240,6 @@ const MoversPageClient = () => {
         </div>
       </div>
 
-      {/* [리팩터][10] 찜 가드 모달. 탭과 무관하므로 페이지 레벨에 둔다. */}
       <LoginRequiredModal open={isLoginModalOpen} onClose={closeAuthModal} />
       <ProfileRequiredModal
         open={isProfileModalOpen}
@@ -256,5 +249,4 @@ const MoversPageClient = () => {
   );
 };
 
-/** [리팩터][3] page.client는 default export. */
 export default MoversPageClient;

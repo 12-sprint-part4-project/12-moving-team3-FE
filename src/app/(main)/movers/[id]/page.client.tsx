@@ -1,7 +1,6 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { useParams } from 'next/navigation';
 
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
@@ -9,7 +8,7 @@ import { MoverCard } from '@/components/movers/MoverCard';
 import { MoverReviews } from '@/components/movers/MoverReviews';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useMoverDetail } from '@/hooks/useMoverDetail';
-import { ApiError } from '@/lib/apiClient';
+import { resolveApiErrorMessage } from '@/lib/apiClient';
 import {
   fadeIn,
   fadeUp,
@@ -18,6 +17,7 @@ import {
 } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
+import { MOVERS_PAGE_X_PADDING } from '../_components/moversLayout';
 import { AlreadyDesignatedModal } from './_components/AlreadyDesignatedModal';
 import { MoverDetailBottomBar } from './_components/MoverDetailBottomBar';
 import { MoverDetailSections } from './_components/MoverDetailSections';
@@ -26,12 +26,14 @@ import { MoverDetailSidebar } from './_components/MoverDetailSidebar';
 import { NeedGeneralEstimateModal } from './_components/NeedGeneralEstimateModal';
 import { useMoverDetailActions } from './_lib/useMoverDetailActions';
 
-/** 기사님 상세 페이지 클라이언트 */
-export const MoverDetailPageClient = () => {
+export interface MoverDetailPageClientProps {
+  moverId: string;
+}
+
+/** `/movers/[id]` 클라이언트. - 상세 Query, 찜·지정·채팅 오케스트레이션. */
+const MoverDetailPageClient = ({ moverId }: MoverDetailPageClientProps) => {
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
-  const params = useParams();
-  const moverId = typeof params.id === 'string' ? params.id : '';
 
   const { mover, isPending, isError, error, isNotFound, refetch } =
     useMoverDetail(moverId);
@@ -52,12 +54,14 @@ export const MoverDetailPageClient = () => {
     closeAlreadyDesignatedModal,
   } = useMoverDetailActions(moverId, mover ?? null);
 
+  const errorMessage = resolveApiErrorMessage(
+    error,
+    '기사님 정보를 불러오지 못했습니다.'
+  );
+
   const handleRetry = () => {
     void refetch();
   };
-
-  const pageXPadding =
-    'px-6 md:px-[4.5rem] lg:px-10 xl:px-16 min-[90rem]:px-[16.25rem]';
 
   if (isNotFound) {
     return (
@@ -88,11 +92,6 @@ export const MoverDetailPageClient = () => {
   }
 
   if (isError || !mover || !share) {
-    const errorMessage =
-      error instanceof ApiError
-        ? error.message
-        : (error?.message ?? '기사님 정보를 불러오지 못했습니다.');
-
     return (
       <motion.div
         variants={fadeIn}
@@ -118,7 +117,7 @@ export const MoverDetailPageClient = () => {
       <div
         className={cn(
           'mx-auto flex w-full max-w-[1920px] flex-col gap-0 py-6 md:py-8 xl:flex-row xl:items-start xl:gap-[7.6875rem] xl:py-9',
-          pageXPadding
+          MOVERS_PAGE_X_PADDING
         )}
       >
         <motion.div
@@ -187,3 +186,5 @@ export const MoverDetailPageClient = () => {
     </div>
   );
 };
+
+export default MoverDetailPageClient;
