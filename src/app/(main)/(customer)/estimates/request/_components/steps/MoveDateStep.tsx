@@ -7,6 +7,7 @@ import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { useMoveInfoRevise } from '@/hooks/useMoveInfoRevise';
 import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 
+import { useScrollToActiveSection } from '../../_lib/useScrollToActiveSection';
 import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGroup';
 import { InlineErrorMessage } from '../InlineErrorMessage';
 import { MoveTypeAnswerSection } from '../MoveTypeAnswerSection';
@@ -22,6 +23,11 @@ export const MoveDateStep = () => {
   const { detail, errorMessage, isSubmitting, isRevisingField, moveType, moveDate } =
     useMoveInfoRevise();
   const shouldReduceMotion = useReducedMotion();
+  // 스텝 진입·"수정하기" 토글로 활성 섹션이 바뀔 때마다 그 위치로 스크롤
+  const bottomRef = useScrollToActiveSection(
+    String(moveType.isRevising),
+    shouldReduceMotion
+  );
 
   return (
     <section
@@ -65,6 +71,8 @@ export const MoveDateStep = () => {
           </motion.div>
         </>
       )}
+
+      <div ref={bottomRef} aria-hidden />
     </section>
   );
 };

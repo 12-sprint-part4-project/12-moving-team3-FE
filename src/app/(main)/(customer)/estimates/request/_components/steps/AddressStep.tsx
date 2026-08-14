@@ -12,6 +12,7 @@ import { ApiError, resolveApiErrorMessage } from '@/lib/apiClient';
 import { saveEstimateRequestStepBodySchema } from '@/lib/customerEstimateRequestSchema';
 import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 
+import { useScrollToActiveSection } from '../../_lib/useScrollToActiveSection';
 import { AddressSelectCard } from '../AddressSelectCard';
 import {
   EstimateRequestAddressModal,
@@ -84,6 +85,12 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
   } = useMoveInfoRevise({
     onBeforeStartRevise: () => setActiveSide(null),
   });
+
+  // 스텝 진입·"수정하기" 토글로 활성 섹션이 바뀔 때마다 그 위치로 스크롤
+  const bottomRef = useScrollToActiveSection(
+    `${moveType.isRevising}:${moveDate.isRevising}`,
+    shouldReduceMotion
+  );
 
   // 주소 저장·제출 중 CTA busy — 라벨은 단계별로 구분
   const isConfirmBusy = isSavingStep || isSubmittingRequest;
@@ -287,6 +294,8 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
           onConfirm={handleConfirmDraft}
         />
       ) : null}
+
+      <div ref={bottomRef} aria-hidden />
     </section>
   );
 };
