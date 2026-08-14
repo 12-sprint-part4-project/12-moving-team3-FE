@@ -50,12 +50,19 @@ export const useTogglePostLike = () => {
         communityQueryKeys.detail(postId),
         (prev) => {
           if (!prev?.data) return prev;
+          const delta =
+            typeof prev.data.isLiked === 'boolean' &&
+            prev.data.isLiked !== nextLiked
+              ? nextLiked
+                ? 1
+                : -1
+              : 0;
           return {
             ...prev,
             data: {
               ...prev.data,
               isLiked: nextLiked,
-              likeCount: prev.data.likeCount + (nextLiked ? 1 : -1),
+              likeCount: prev.data.likeCount + delta,
             },
           };
         }
