@@ -1,80 +1,46 @@
 'use client';
 
-import { useQueryClient } from '@tanstack/react-query';
 import { redirect, useRouter } from 'next/navigation';
 import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { Button } from '@/components/Button/Button';
-import { RegionChip, ServiceChip } from '@/components/ui/Chip';
-import { TextFieldOutlined } from '@/components/ui/Input';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import {
-  REGION_CHIP_OPTIONS,
-  SERVICE_CHIP_OPTIONS,
-  type RegionChipValue,
-  type ServiceChipValue,
-} from '@/constants/commonOptions';
-import {
-  AUTH_QUERY_KEYS,
-  customerProfileQueryKeys,
-} from '@/constants/queryKey';
-import { useCustomerProfile } from '@/hooks/useCustomerProfile';
+  useCustomerProfile,
+  useUpsertCustomerProfile,
+} from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
   getKrMobileSubscriberError,
-  KR_MOBILE_PREFIX_LABEL,
   KR_MOBILE_SUBSCRIBER_LENGTH,
   toKrMobileSubscriberDigits,
 } from '@/lib/phoneNumber';
-import {
-  uploadProfileImage,
-  validateProfileImageFile,
-} from '@/lib/uploadProfileImage';
-import { cn } from '@/lib/utils';
+import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MISMATCH_ERROR_MESSAGE,
   validatePassword,
 } from '@/lib/validatePassword';
-import { upsertCustomerProfile } from '@/services/customerProfileApi';
 
+import { CustomerProfilePhoneField } from './CustomerProfilePhoneField';
+import { CustomerProfileRegionField } from './CustomerProfileRegionField';
+import { CustomerProfileServiceField } from './CustomerProfileServiceField';
+import { CustomerProfileTextField } from './CustomerProfileTextField';
 import { ProfileImageCropModal } from './ProfileImageCropModal';
 import { ProfileImageField } from './ProfileImageField';
-import {
-  buildCustomerProfileUpdateBody,
-  getCustomerProfileUpdateError,
-} from '../_lib/customerProfileUpdate';
+import { buildCustomerProfileUpdateBody } from '../_lib/customerProfileUpdate';
 import { toggleService } from '../_lib/toggleService';
 import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
 
-import type { CustomerProfileMe } from '@/types/customerProfile';
-
-const FIELD_CLASSNAME =
-  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular';
-
-const READONLY_FIELD_CLASSNAME = cn(
-  FIELD_CLASSNAME,
-  '[&_input]:!text-gray-300'
-);
-
-const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
-
-const CHIP_CLASSNAME =
-  'px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium';
-
-const HELPER_CLASSNAME = 'text-xs-regular text-gray-400 lg:text-lg-regular';
-
-const DIVIDER_CLASS = 'h-px w-full bg-line-100';
-
-const FORM_CLASS =
-  'flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 bg-white lg:max-w-[87.5rem] lg:gap-16 lg:rounded-[2rem] lg:px-6 lg:pt-8 lg:pb-10';
-
-const REGION_CHIP_WRAP_CLASS =
-  'flex flex-wrap gap-x-2 gap-y-3 lg:gap-x-3.5 lg:gap-y-[1.125rem]';
+import type {
+  CustomerProfileMe,
+  CustomerRegion,
+  CustomerServiceType,
+} from '@/types/customerProfile';
 
 const NAME_MIN_LENGTH = 2;
 const NAME_MAX_LENGTH = 20;
@@ -85,6 +51,116 @@ const NAME_FORMAT_ERROR_MESSAGE = `이름은 ${NAME_MIN_LENGTH}~${NAME_MAX_LENGT
 const NICKNAME_FORMAT_ERROR_MESSAGE = `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`;
 const PASSWORD_FORMAT_FIELD_ERROR_MESSAGE = '비밀번호가 올바르지 않습니다.';
 
+interface CustomerProfilePasswordFieldsProps {
+  currentPasswordId: string;
+  newPasswordId: string;
+  confirmPasswordId: string;
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+  isPasswordFormatError: boolean;
+  isPasswordMismatchError: boolean;
+  onCurrentPasswordChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onNewPasswordChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onConfirmPasswordChange: (event: ChangeEvent<HTMLInputElement>) => void;
+}
+
+/** LOCAL 계정 전용 비밀번호 변경 필드 */
+const CustomerProfilePasswordFields = ({
+  currentPasswordId,
+  newPasswordId,
+  confirmPasswordId,
+  currentPassword,
+  newPassword,
+  confirmPassword,
+  isPasswordFormatError,
+  isPasswordMismatchError,
+  onCurrentPasswordChange,
+  onNewPasswordChange,
+  onConfirmPasswordChange,
+}: CustomerProfilePasswordFieldsProps) => {
+  return (
+    <>
+      <div className="h-px w-full bg-line-100" aria-hidden />
+
+      <section className="flex w-full flex-col items-start gap-4">
+        <label
+          htmlFor={currentPasswordId}
+          className="text-lg-semibold text-black-300 lg:text-xl-semibold"
+        >
+          현재 비밀번호
+        </label>
+        <CustomerProfileTextField
+          id={currentPasswordId}
+          type="password"
+          name="currentPassword"
+          autoComplete="new-password"
+          placeholder="현재 비밀번호를 입력해주세요"
+          showVisibilityToggle
+          value={currentPassword}
+          onChange={onCurrentPasswordChange}
+        />
+      </section>
+
+      <div className="h-px w-full bg-line-100" aria-hidden />
+
+      <section className="flex w-full flex-col items-start gap-4">
+        <label
+          htmlFor={newPasswordId}
+          className="text-lg-semibold text-black-300 lg:text-xl-semibold"
+        >
+          새 비밀번호
+        </label>
+        <CustomerProfileTextField
+          id={newPasswordId}
+          type="password"
+          name="newPassword"
+          autoComplete="new-password"
+          placeholder="새 비밀번호를 입력해주세요"
+          showVisibilityToggle
+          maxLength={PASSWORD_MAX_LENGTH}
+          value={newPassword}
+          onChange={onNewPasswordChange}
+          isError={isPasswordFormatError}
+          errorMessage={
+            isPasswordFormatError
+              ? PASSWORD_FORMAT_FIELD_ERROR_MESSAGE
+              : undefined
+          }
+        />
+      </section>
+
+      <div className="h-px w-full bg-line-100" aria-hidden />
+
+      <section className="flex w-full flex-col items-start gap-4">
+        <label
+          htmlFor={confirmPasswordId}
+          className="text-lg-semibold text-black-300 lg:text-xl-semibold"
+        >
+          새 비밀번호 확인
+        </label>
+        <CustomerProfileTextField
+          id={confirmPasswordId}
+          type="password"
+          name="confirmPassword"
+          autoComplete="new-password"
+          placeholder="새 비밀번호를 다시 한번 입력해주세요"
+          showVisibilityToggle
+          maxLength={PASSWORD_MAX_LENGTH}
+          value={confirmPassword}
+          onChange={onConfirmPasswordChange}
+          isError={isPasswordMismatchError}
+          errorMessage={
+            isPasswordMismatchError
+              ? PASSWORD_MISMATCH_ERROR_MESSAGE
+              : undefined
+          }
+        />
+      </section>
+    </>
+  );
+};
+
 interface CustomerProfileEditFieldsProps {
   profile: CustomerProfileMe;
 }
@@ -94,8 +170,12 @@ const CustomerProfileEditFields = ({
   profile,
 }: CustomerProfileEditFieldsProps) => {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const { mutate: upsertProfile, isPending } = useUpsertCustomerProfile({
+    successMessage: '프로필이 수정되었습니다.',
+    errorFallbackMessage:
+      '프로필 수정에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+  });
   const imageInputId = useId();
   const nameInputId = useId();
   const nicknameInputId = useId();
@@ -127,13 +207,12 @@ const CustomerProfileEditFields = ({
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [selectedServices, setSelectedServices] = useState<ServiceChipValue[]>([
-    ...profile.service,
-  ]);
-  const [selectedRegion, setSelectedRegion] = useState<RegionChipValue | null>(
+  const [selectedServices, setSelectedServices] = useState<
+    CustomerServiceType[]
+  >([...profile.service]);
+  const [selectedRegion, setSelectedRegion] = useState<CustomerRegion | null>(
     profile.region
   );
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const trimmedName = name.trim();
   const trimmedNickname = nickname.trim();
@@ -141,7 +220,6 @@ const CustomerProfileEditFields = ({
   const phoneFieldError = getKrMobileSubscriberError(phoneNumber);
   const isPhoneFormatError = Boolean(phoneFieldError);
   const showPasswordFields = profile.hasPassword;
-
   const isNameFormatError =
     trimmedName.length > 0 &&
     (trimmedName.length < NAME_MIN_LENGTH ||
@@ -150,7 +228,6 @@ const CustomerProfileEditFields = ({
     trimmedNickname.length > 0 &&
     (trimmedNickname.length < NICKNAME_MIN_LENGTH ||
       trimmedNickname.length > NICKNAME_MAX_LENGTH);
-
   const hasPasswordInput =
     currentPassword.length > 0 ||
     newPassword.length > 0 ||
@@ -164,7 +241,6 @@ const CustomerProfileEditFields = ({
     (currentPassword.length === 0 ||
       newPassword.length === 0 ||
       confirmPassword.length === 0);
-
   const isSubmitEnabled =
     trimmedName.length >= NAME_MIN_LENGTH &&
     trimmedName.length <= NAME_MAX_LENGTH &&
@@ -177,7 +253,8 @@ const CustomerProfileEditFields = ({
     !isPasswordFormatError &&
     !isPasswordMismatchError &&
     !isPasswordIncomplete &&
-    !isSubmitting;
+    !isPending;
+  const submitLabel = isPending ? '수정 중...' : '수정하기';
 
   const handleCancel = () => {
     router.back();
@@ -196,11 +273,20 @@ const CustomerProfileEditFields = ({
     handleImageChange(event);
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleServiceToggle = (value: CustomerServiceType) => {
+    setSelectedServices((prev) => toggleService(prev, value));
+  };
+
+  const handleRegionSelect = (value: CustomerRegion) => {
+    setSelectedRegion((prev) => (prev === value ? null : value));
+  };
+
+  /** 변경분만 제출한다. 변경이 없으면 토스트를 띄운다 */
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isSubmitEnabled) return;
 
-    const updateParams = {
+    const body = buildCustomerProfileUpdateBody({
       profile,
       name,
       nickname,
@@ -211,77 +297,40 @@ const CustomerProfileEditFields = ({
       newPassword,
       confirmPassword,
       hasImageChange,
-    };
+      s3Key: isImageCleared && !profileImageFile ? null : undefined,
+    });
 
-    const validationError = getCustomerProfileUpdateError(updateParams);
-    if (validationError) {
-      showToast({ content: validationError });
+    if (!body) {
+      showToast({ content: '변경된 내용이 없습니다.' });
       return;
     }
 
-    setIsSubmitting(true);
-
-    try {
-      let s3Key: string | null | undefined;
-
-      if (profileImageFile) {
-        s3Key = await uploadProfileImage(profileImageFile);
-      } else if (isImageCleared) {
-        s3Key = null;
-      }
-
-      const body = buildCustomerProfileUpdateBody({
-        ...updateParams,
-        s3Key,
-      });
-
-      if (!body) {
-        showToast({ content: '변경된 내용이 없습니다.' });
-        return;
-      }
-
-      await upsertCustomerProfile(body);
-
-      await queryClient.invalidateQueries({
-        queryKey: customerProfileQueryKeys.all,
-      });
-      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me() });
-
-      showToast({ content: '프로필이 수정되었습니다.' });
-    } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : '프로필 수정에 실패했습니다. 잠시 후 다시 시도해 주세요.';
-      showToast({ content: message });
-    } finally {
-      setIsSubmitting(false);
-    }
+    upsertProfile({
+      body,
+      imageFile: profileImageFile,
+    });
   };
 
   return (
     <>
       <form
-        onSubmit={(event) => {
-          void handleSubmit(event);
-        }}
-        className={FORM_CLASS}
+        onSubmit={handleSubmit}
+        className="flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 bg-white lg:max-w-[87.5rem] lg:gap-16 lg:rounded-[2rem] lg:px-6 lg:pt-8 lg:pb-10"
       >
         <div className="flex w-full flex-col items-stretch gap-5 lg:gap-10">
           <header className="flex w-full flex-col items-start gap-8 lg:gap-10">
             <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
               프로필 수정
             </h1>
-            <div className={DIVIDER_CLASS} aria-hidden />
+            <div className="h-px w-full bg-line-100" aria-hidden />
           </header>
 
           <div className="flex w-full flex-col items-stretch gap-5 lg:flex-row lg:items-start lg:justify-between lg:gap-10">
             <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
               <section className="flex w-full flex-col items-start gap-4">
                 <RequiredLabel htmlFor={nameInputId}>이름</RequiredLabel>
-                <TextFieldOutlined
+                <CustomerProfileTextField
                   id={nameInputId}
-                  size="sm"
                   name="name"
                   autoComplete="name"
                   value={name}
@@ -290,17 +339,15 @@ const CustomerProfileEditFields = ({
                   errorMessage={
                     isNameFormatError ? NAME_FORMAT_ERROR_MESSAGE : undefined
                   }
-                  className={FIELD_CLASSNAME}
                 />
               </section>
 
-              <div className={DIVIDER_CLASS} aria-hidden />
+              <div className="h-px w-full bg-line-100" aria-hidden />
 
               <section className="flex w-full flex-col items-start gap-4">
                 <RequiredLabel htmlFor={nicknameInputId}>닉네임</RequiredLabel>
-                <TextFieldOutlined
+                <CustomerProfileTextField
                   id={nicknameInputId}
-                  size="sm"
                   name="nickname"
                   autoComplete="nickname"
                   placeholder="닉네임을 입력해 주세요"
@@ -312,209 +359,92 @@ const CustomerProfileEditFields = ({
                       ? NICKNAME_FORMAT_ERROR_MESSAGE
                       : undefined
                   }
-                  className={FIELD_CLASSNAME}
                 />
               </section>
 
-              <div className={DIVIDER_CLASS} aria-hidden />
+              <div className="h-px w-full bg-line-100" aria-hidden />
 
               <section className="flex w-full flex-col items-start gap-4">
-                <label htmlFor={emailInputId} className={LABEL_CLASSNAME}>
+                <label
+                  htmlFor={emailInputId}
+                  className="text-lg-semibold text-black-300 lg:text-xl-semibold"
+                >
                   이메일
                 </label>
-                <TextFieldOutlined
+                <CustomerProfileTextField
                   id={emailInputId}
-                  size="sm"
                   type="email"
                   name="email"
                   autoComplete="off"
                   value={email}
                   readOnly
-                  className={READONLY_FIELD_CLASSNAME}
+                  className="[&_input]:!text-gray-300"
                 />
               </section>
 
-              <div className={DIVIDER_CLASS} aria-hidden />
+              <div className="h-px w-full bg-line-100" aria-hidden />
 
-              <section className="flex w-full flex-col items-start gap-4">
-                <RequiredLabel htmlFor={phoneInputId}>전화번호</RequiredLabel>
-                <TextFieldOutlined
-                  id={phoneInputId}
-                  size="sm"
-                  type="tel"
-                  name="phone"
-                  autoComplete="tel"
-                  leftAddon={KR_MOBILE_PREFIX_LABEL}
-                  placeholder="1234-5678"
-                  value={formatKrMobileSubscriberInput(phoneNumber)}
-                  onChange={(event) =>
-                    setPhoneNumber(
-                      formatKrMobileSubscriberInput(event.target.value)
-                    )
-                  }
-                  isError={isPhoneFormatError}
-                  errorMessage={phoneFieldError ?? undefined}
-                  className={FIELD_CLASSNAME}
-                />
-              </section>
+              <CustomerProfilePhoneField
+                id={phoneInputId}
+                value={phoneNumber}
+                errorMessage={phoneFieldError ?? undefined}
+                onChange={(event) =>
+                  setPhoneNumber(
+                    formatKrMobileSubscriberInput(event.target.value)
+                  )
+                }
+              />
 
               {showPasswordFields ? (
-                <>
-                  <div className={DIVIDER_CLASS} aria-hidden />
-
-                  <section className="flex w-full flex-col items-start gap-4">
-                    <label
-                      htmlFor={currentPasswordId}
-                      className={LABEL_CLASSNAME}
-                    >
-                      현재 비밀번호
-                    </label>
-                    <TextFieldOutlined
-                      id={currentPasswordId}
-                      size="sm"
-                      type="password"
-                      name="currentPassword"
-                      autoComplete="new-password"
-                      placeholder="현재 비밀번호를 입력해주세요"
-                      showVisibilityToggle
-                      value={currentPassword}
-                      onChange={(event) =>
-                        setCurrentPassword(event.target.value)
-                      }
-                      className={FIELD_CLASSNAME}
-                    />
-                  </section>
-
-                  <div className={DIVIDER_CLASS} aria-hidden />
-
-                  <section className="flex w-full flex-col items-start gap-4">
-                    <label htmlFor={newPasswordId} className={LABEL_CLASSNAME}>
-                      새 비밀번호
-                    </label>
-                    <TextFieldOutlined
-                      id={newPasswordId}
-                      size="sm"
-                      type="password"
-                      name="newPassword"
-                      autoComplete="new-password"
-                      placeholder="새 비밀번호를 입력해주세요"
-                      showVisibilityToggle
-                      maxLength={PASSWORD_MAX_LENGTH}
-                      value={newPassword}
-                      onChange={(event) => setNewPassword(event.target.value)}
-                      isError={isPasswordFormatError}
-                      errorMessage={
-                        isPasswordFormatError
-                          ? PASSWORD_FORMAT_FIELD_ERROR_MESSAGE
-                          : undefined
-                      }
-                      className={FIELD_CLASSNAME}
-                    />
-                  </section>
-
-                  <div className={DIVIDER_CLASS} aria-hidden />
-
-                  <section className="flex w-full flex-col items-start gap-4">
-                    <label
-                      htmlFor={confirmPasswordId}
-                      className={LABEL_CLASSNAME}
-                    >
-                      새 비밀번호 확인
-                    </label>
-                    <TextFieldOutlined
-                      id={confirmPasswordId}
-                      size="sm"
-                      type="password"
-                      name="confirmPassword"
-                      autoComplete="new-password"
-                      placeholder="새 비밀번호를 다시 한번 입력해주세요"
-                      showVisibilityToggle
-                      maxLength={PASSWORD_MAX_LENGTH}
-                      value={confirmPassword}
-                      onChange={(event) =>
-                        setConfirmPassword(event.target.value)
-                      }
-                      isError={isPasswordMismatchError}
-                      errorMessage={
-                        isPasswordMismatchError
-                          ? PASSWORD_MISMATCH_ERROR_MESSAGE
-                          : undefined
-                      }
-                      className={FIELD_CLASSNAME}
-                    />
-                  </section>
-                </>
+                <CustomerProfilePasswordFields
+                  currentPasswordId={currentPasswordId}
+                  newPasswordId={newPasswordId}
+                  confirmPasswordId={confirmPasswordId}
+                  currentPassword={currentPassword}
+                  newPassword={newPassword}
+                  confirmPassword={confirmPassword}
+                  isPasswordFormatError={isPasswordFormatError}
+                  isPasswordMismatchError={isPasswordMismatchError}
+                  onCurrentPasswordChange={(event) =>
+                    setCurrentPassword(event.target.value)
+                  }
+                  onNewPasswordChange={(event) =>
+                    setNewPassword(event.target.value)
+                  }
+                  onConfirmPasswordChange={(event) =>
+                    setConfirmPassword(event.target.value)
+                  }
+                />
               ) : null}
             </div>
 
-            <div className={cn(DIVIDER_CLASS, 'lg:hidden')} aria-hidden />
+            <div className="h-px w-full bg-line-100 lg:hidden" aria-hidden />
 
             <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
               <ProfileImageField
                 imageInputId={imageInputId}
                 imageInputRef={imageInputRef}
                 displayImageUrl={displayImageUrl}
-                labelClassName={LABEL_CLASSNAME}
                 onImageChange={handleValidatedImageChange}
                 onImageButtonClick={handleImageButtonClick}
                 onImageClear={handleImageClear}
               />
 
-              <div className={DIVIDER_CLASS} aria-hidden />
+              <div className="h-px w-full bg-line-100" aria-hidden />
 
-              <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
-                <div className="flex flex-col items-start gap-2">
-                  <RequiredLabel>이용 서비스</RequiredLabel>
-                  <p className={HELPER_CLASSNAME}>
-                    *견적 요청 시 이용 서비스를 선택할 수 있어요.
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-1.5 lg:gap-3">
-                  {SERVICE_CHIP_OPTIONS.map((option) => (
-                    <ServiceChip
-                      key={option.value}
-                      variant="button"
-                      isSelected={selectedServices.includes(option.value)}
-                      onClick={() =>
-                        setSelectedServices((prev) =>
-                          toggleService(prev, option.value)
-                        )
-                      }
-                      className={CHIP_CLASSNAME}
-                    >
-                      {option.label}
-                    </ServiceChip>
-                  ))}
-                </div>
-              </section>
+              <CustomerProfileServiceField
+                selectedServices={selectedServices}
+                helperText="*견적 요청 시 이용 서비스를 선택할 수 있어요."
+                onToggle={handleServiceToggle}
+              />
 
-              <div className={DIVIDER_CLASS} aria-hidden />
+              <div className="h-px w-full bg-line-100" aria-hidden />
 
-              <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
-                <div className="flex w-full flex-col items-start gap-2">
-                  <RequiredLabel>내가 사는 지역</RequiredLabel>
-                  <p className={HELPER_CLASSNAME}>
-                    *견적 요청 시 지역을 설정할 수 있어요.
-                  </p>
-                </div>
-                <div className={REGION_CHIP_WRAP_CLASS}>
-                  {REGION_CHIP_OPTIONS.map((option) => (
-                    <RegionChip
-                      key={option.value}
-                      variant="button"
-                      isSelected={selectedRegion === option.value}
-                      onClick={() =>
-                        setSelectedRegion((prev) =>
-                          prev === option.value ? null : option.value
-                        )
-                      }
-                      className={CHIP_CLASSNAME}
-                    >
-                      {option.label}
-                    </RegionChip>
-                  ))}
-                </div>
-              </section>
+              <CustomerProfileRegionField
+                selectedRegion={selectedRegion}
+                helperText="*견적 요청 시 지역을 설정할 수 있어요."
+                onSelect={handleRegionSelect}
+              />
             </div>
           </div>
         </div>
@@ -527,7 +457,7 @@ const CustomerProfileEditFields = ({
             disabled={!isSubmitEnabled}
             className="order-1 lg:order-2 lg:h-16 lg:max-w-[41.25rem] lg:text-xl-semibold"
           >
-            {isSubmitting ? '수정 중...' : '수정하기'}
+            {submitLabel}
           </Button>
           <Button
             type="button"
@@ -552,6 +482,7 @@ const CustomerProfileEditFields = ({
   );
 };
 
+/** `/profile/customer/edit` 프로필 조회·로딩·에러 가드. 성공 시 수정 폼을 마운트한다. */
 export const CustomerProfileEditForm = () => {
   const {
     data: profile,
@@ -560,6 +491,10 @@ export const CustomerProfileEditForm = () => {
     error,
     refetch,
   } = useCustomerProfile();
+
+  const handleRetry = () => {
+    void refetch();
+  };
 
   if (isPending) {
     return <Spinner message="프로필 불러오는 중..." />;
@@ -578,9 +513,7 @@ export const CustomerProfileEditForm = () => {
           type="button"
           variant="outlined"
           size="sm"
-          onClick={() => {
-            void refetch();
-          }}
+          onClick={handleRetry}
           className="max-w-[12rem]"
         >
           다시 시도

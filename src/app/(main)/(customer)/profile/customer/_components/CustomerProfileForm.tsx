@@ -1,39 +1,25 @@
 'use client';
 
-import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { Button } from '@/components/Button/Button';
-import { RegionChip, ServiceChip } from '@/components/ui/Chip';
-import { TextFieldOutlined } from '@/components/ui/Input';
-import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
-import {
-  REGION_CHIP_OPTIONS,
-  SERVICE_CHIP_OPTIONS,
-} from '@/constants/commonOptions';
-import {
-  AUTH_QUERY_KEYS,
-  customerProfileQueryKeys,
-} from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
+import { useUpsertCustomerProfile } from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
-import { ApiError } from '@/lib/apiClient';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
   getKrMobileSubscriberError,
-  KR_MOBILE_PREFIX_LABEL,
   KR_MOBILE_SUBSCRIBER_LENGTH,
   toKrMobileSubscriberDigits,
   toPhoneDigits,
 } from '@/lib/phoneNumber';
-import {
-  uploadProfileImage,
-  validateProfileImageFile,
-} from '@/lib/uploadProfileImage';
-import { upsertCustomerProfile } from '@/services/customerProfileApi';
+import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 
+import { CustomerProfilePhoneField } from './CustomerProfilePhoneField';
+import { CustomerProfileRegionField } from './CustomerProfileRegionField';
+import { CustomerProfileServiceField } from './CustomerProfileServiceField';
 import { ProfileImageCropModal } from './ProfileImageCropModal';
 import { ProfileImageField } from './ProfileImageField';
 import { toggleService } from '../_lib/toggleService';
@@ -44,30 +30,16 @@ import type {
   CustomerServiceType,
 } from '@/types/customerProfile';
 
-const NICKNAME_MIN_LENGTH = 2;
-const NICKNAME_MAX_LENGTH = 20;
-
-const FIELD_CLASSNAME =
-  'w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular';
-
-const LABEL_CLASSNAME = 'text-lg-semibold text-black-300 lg:text-xl-semibold';
-
-const CHIP_CLASSNAME =
-  'px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium';
-
-const DIVIDER_CLASS = 'h-px w-full bg-line-100';
-
-const FORM_CLASS =
-  'flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 lg:max-w-[40rem] lg:gap-14';
-
-const REGION_CHIP_WRAP_CLASS =
-  'flex flex-wrap gap-x-2 gap-y-3 lg:gap-x-3.5 lg:gap-y-[1.125rem]';
-
+/** `/profile/customer` 고객 프로필 등록 폼 */
 export const CustomerProfileForm = () => {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const { user } = useAuth();
   const { showToast } = useToast();
+  const { mutate: upsertProfile, isPending } = useUpsertCustomerProfile({
+    successMessage: '프로필 등록이 완료되었습니다.',
+    errorFallbackMessage:
+      '프로필 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+  });
   const imageInputId = useId();
   const phoneInputId = useId();
   const {
@@ -89,7 +61,6 @@ export const CustomerProfileForm = () => {
   const [selectedRegion, setSelectedRegion] = useState<CustomerRegion | null>(
     null
   );
-  const [isPending, setIsPending] = useState(false);
 
   // 세션 번호는 effect로 복사하지 않고, 미입력 시 표시값 fallback으로 사용
   const phoneNumber =
@@ -97,13 +68,13 @@ export const CustomerProfileForm = () => {
   const subscriberDigits = toKrMobileSubscriberDigits(phoneNumber);
   const phoneFieldError = getKrMobileSubscriberError(phoneNumber);
   const isPhoneFormatError = Boolean(phoneFieldError);
-
   const isSubmitEnabled =
     subscriberDigits.length === KR_MOBILE_SUBSCRIBER_LENGTH &&
     !isPhoneFormatError &&
     selectedServices.length > 0 &&
     selectedRegion !== null &&
     !isPending;
+  const submitLabel = isPending ? '등록 중...' : '시작하기';
 
   const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
     setPhoneDraft(formatKrMobileSubscriberInput(event.target.value));
@@ -122,66 +93,41 @@ export const CustomerProfileForm = () => {
     handleImageChange(event);
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleServiceToggle = (value: CustomerServiceType) => {
+    setSelectedServices((prev) => toggleService(prev, value));
+  };
+
+  const handleRegionSelect = (value: CustomerRegion) => {
+    setSelectedRegion((prev) => (prev === value ? null : value));
+  };
+
+  /** 전화·서비스·지역을 검증한 뒤 프로필을 등록하고 홈으로 이동한다 */
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isSubmitEnabled) return;
+    if (!isSubmitEnabled || selectedRegion === null) return;
 
-    const fullPhone = composeKrMobilePhone(phoneNumber);
-    const phoneDigits = toPhoneDigits(fullPhone);
-
-    const nickname = (user?.nickname?.trim() ?? '').slice(
-      0,
-      NICKNAME_MAX_LENGTH
-    );
-    if (nickname.length < NICKNAME_MIN_LENGTH) {
-      showToast({
-        content: '로그인 정보가 올바르지 않습니다. 다시 로그인해 주세요.',
-      });
-      return;
-    }
-
-    setIsPending(true);
-
-    try {
-      let s3Key: string | undefined;
-
-      if (profileImageFile) {
-        s3Key = await uploadProfileImage(profileImageFile);
+    upsertProfile(
+      {
+        body: {
+          phoneNumber: toPhoneDigits(composeKrMobilePhone(phoneNumber)),
+          region: selectedRegion,
+          service: selectedServices,
+        },
+        imageFile: profileImageFile,
+      },
+      {
+        onSuccess: () => {
+          router.replace('/');
+        },
       }
-
-      await upsertCustomerProfile({
-        nickname,
-        phoneNumber: phoneDigits,
-        region: selectedRegion,
-        service: selectedServices,
-        ...(s3Key ? { s3Key } : {}),
-      });
-
-      await queryClient.invalidateQueries({
-        queryKey: customerProfileQueryKeys.all,
-      });
-      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me() });
-
-      showToast({ content: '프로필 등록이 완료되었습니다.' });
-      router.replace('/');
-    } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : '프로필 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.';
-      showToast({ content: message });
-    } finally {
-      setIsPending(false);
-    }
+    );
   };
 
   return (
     <>
       <form
-        onSubmit={(event) => {
-          void handleSubmit(event);
-        }}
-        className={FORM_CLASS}
+        onSubmit={handleSubmit}
+        className="flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 lg:max-w-[40rem] lg:gap-14"
       >
         <div className="flex w-full flex-col items-stretch gap-4 lg:gap-16">
           <header className="flex w-full flex-col items-start gap-4 lg:gap-8">
@@ -191,7 +137,7 @@ export const CustomerProfileForm = () => {
             <p className="text-xs-regular text-black-100 lg:text-xl-regular lg:text-black-200">
               추가 정보를 입력하여 회원가입을 완료해주세요.
             </p>
-            <div className={DIVIDER_CLASS} aria-hidden />
+            <div className="h-px w-full bg-line-100" aria-hidden />
           </header>
 
           <div className="flex w-full flex-col items-start gap-5 lg:gap-8">
@@ -199,88 +145,36 @@ export const CustomerProfileForm = () => {
               imageInputId={imageInputId}
               imageInputRef={imageInputRef}
               displayImageUrl={displayImageUrl}
-              labelClassName={LABEL_CLASSNAME}
               onImageChange={handleValidatedImageChange}
               onImageButtonClick={handleImageButtonClick}
               onImageClear={handleImageClear}
             />
 
-            <div className={DIVIDER_CLASS} aria-hidden />
+            <div className="h-px w-full bg-line-100" aria-hidden />
 
-            <section className="flex w-full flex-col items-start gap-4 lg:gap-6">
-              <RequiredLabel htmlFor={phoneInputId}>전화번호</RequiredLabel>
-              <TextFieldOutlined
-                id={phoneInputId}
-                size="sm"
-                type="tel"
-                name="phone"
-                inputMode="numeric"
-                autoComplete="tel"
-                leftAddon={KR_MOBILE_PREFIX_LABEL}
-                placeholder="1234-5678"
-                value={formatKrMobileSubscriberInput(phoneNumber)}
-                onChange={handlePhoneChange}
-                isError={isPhoneFormatError}
-                errorMessage={phoneFieldError ?? undefined}
-                className={FIELD_CLASSNAME}
-              />
-            </section>
+            <CustomerProfilePhoneField
+              id={phoneInputId}
+              value={phoneNumber}
+              errorMessage={phoneFieldError ?? undefined}
+              onChange={handlePhoneChange}
+              className="lg:gap-6"
+            />
 
-            <div className={DIVIDER_CLASS} aria-hidden />
+            <div className="h-px w-full bg-line-100" aria-hidden />
 
-            <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
-              <div className="flex flex-col items-start gap-2">
-                <RequiredLabel>이용 서비스</RequiredLabel>
-                <p className="text-xs-regular text-gray-400 lg:text-lg-regular">
-                  이용 서비스는 중복 선택 가능하며, 언제든 수정 가능해요!
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-1.5 lg:gap-3">
-                {SERVICE_CHIP_OPTIONS.map((option) => (
-                  <ServiceChip
-                    key={option.value}
-                    variant="button"
-                    isSelected={selectedServices.includes(option.value)}
-                    onClick={() =>
-                      setSelectedServices((prev) =>
-                        toggleService(prev, option.value)
-                      )
-                    }
-                    className={CHIP_CLASSNAME}
-                  >
-                    {option.label}
-                  </ServiceChip>
-                ))}
-              </div>
-            </section>
+            <CustomerProfileServiceField
+              selectedServices={selectedServices}
+              helperText="이용 서비스는 중복 선택 가능하며, 언제든 수정 가능해요!"
+              onToggle={handleServiceToggle}
+            />
 
-            <div className={DIVIDER_CLASS} aria-hidden />
+            <div className="h-px w-full bg-line-100" aria-hidden />
 
-            <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
-              <div className="flex w-full flex-col items-start gap-2">
-                <RequiredLabel>내가 사는 지역</RequiredLabel>
-                <p className="text-xs-regular text-gray-400 lg:text-lg-regular">
-                  내가 사는 지역은 언제든 수정 가능해요!
-                </p>
-              </div>
-              <div className={REGION_CHIP_WRAP_CLASS}>
-                {REGION_CHIP_OPTIONS.map((option) => (
-                  <RegionChip
-                    key={option.value}
-                    variant="button"
-                    isSelected={selectedRegion === option.value}
-                    onClick={() =>
-                      setSelectedRegion((prev) =>
-                        prev === option.value ? null : option.value
-                      )
-                    }
-                    className={CHIP_CLASSNAME}
-                  >
-                    {option.label}
-                  </RegionChip>
-                ))}
-              </div>
-            </section>
+            <CustomerProfileRegionField
+              selectedRegion={selectedRegion}
+              helperText="내가 사는 지역은 언제든 수정 가능해요!"
+              onSelect={handleRegionSelect}
+            />
           </div>
         </div>
 
@@ -292,7 +186,7 @@ export const CustomerProfileForm = () => {
             disabled={!isSubmitEnabled}
             className="lg:h-16 lg:text-xl-semibold"
           >
-            {isPending ? '등록 중...' : '시작하기'}
+            {submitLabel}
           </Button>
         </div>
       </form>
