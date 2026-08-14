@@ -124,6 +124,21 @@ const bootstrapCustomerEstimateRequest =
                 visualStep: 4,
               });
             }
+
+            // 재조회 자체는 성공했는데 활성 요청이 사라진 경우 — 다른 실패 경로와 동일하게 로그 남기고 error로 정리
+            console.error(
+              '[customer-estimate-request] bootstrap ACTIVE_REQUEST_EXISTS retry: active request missing',
+              active
+            );
+
+            return makeBootstrapResult({
+              status: 'error',
+              error: new ApiError(
+                500,
+                '요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도합니다.',
+                API_ERROR_CODE.UNKNOWN_ERROR
+              ),
+            });
           } catch (retryError) {
             // 경합 복구 재조회 자체가 실패한 경우 — 다른 경로와 동일하게 로그 남기고 error로 정리
             console.error(
