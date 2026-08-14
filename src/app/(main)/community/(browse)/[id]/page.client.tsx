@@ -11,17 +11,15 @@ import { ReportAction } from '@/components/reports';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
+import { useCommentList } from '@/hooks/useCommentList';
 import {
-  useCommentList,
   useCreateComment,
   useCreateReply,
   useDeleteComment,
-  useDeletePost,
-  usePost,
-  usePostNeighbors,
-  useRecordPostView,
-  useTogglePostLike,
-} from '@/hooks/useCommunity';
+} from '@/hooks/useCommentMutations';
+import { usePost, usePostNeighbors, useRecordPostView } from '@/hooks/usePost';
+import { useTogglePostLike } from '@/hooks/usePostLike';
+import { useDeletePost } from '@/hooks/usePostMutations';
 import { useToast } from '@/hooks/useToast';
 import { ApiError, resolveApiErrorMessage } from '@/lib/apiClient';
 import {

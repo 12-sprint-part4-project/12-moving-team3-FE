@@ -4,9 +4,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { communityQueryKeys } from '@/constants/queryKey';
+import { getCursorNextPageParam } from '@/lib/communityQueryHelpers';
 import { getPosts } from '@/services/communityApi';
-
-import { getCursorNextPageParam } from './useCommunity';
 
 import type { PostListParams } from '@/types/community';
 
