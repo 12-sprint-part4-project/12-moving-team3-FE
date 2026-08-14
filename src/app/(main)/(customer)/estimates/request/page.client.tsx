@@ -6,7 +6,6 @@ import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 
 import { EstimateRequestBlocked } from './_components/EstimateRequestBlocked';
-import { EstimateRequestGate } from './_components/EstimateRequestGate';
 import { EstimateRequestShell } from './_components/EstimateRequestShell';
 import { AddressStep } from './_components/steps/AddressStep';
 import { MoveDateStep } from './_components/steps/MoveDateStep';
@@ -25,7 +24,7 @@ const ESTIMATE_REQUEST_FALLBACK_TITLE = '견적요청 | 무빙';
 
 /**
  * 견적요청 페이지 클라이언트 — bootstrap 분기 + 스텝 렌더.
- * 비회원·프로필 미등록: Shell + 채팅형 Gate.
+ * 비회원·프로필 미등록은 라우트 가드가 먼저 막아서 이 컴포넌트는 항상 인증·프로필 완료 상태로만 마운트된다.
  * 진행중(blocked): EstimateRequestBlocked (제출 직후·재진입 공통).
  * 일반 에러: 훅에서 토스트 + 자동 재시도 → 로딩 UI 유지.
  * 확인용 Step4 UI 없음 — Step3 「견적 확정하기」에서 submit.
@@ -47,14 +46,6 @@ export const EstimateRequestPageClient = () => {
       return;
     }
 
-    if (
-      bootstrap.status === 'unauthorized' ||
-      bootstrap.status === 'profileIncomplete'
-    ) {
-      document.title = ESTIMATE_REQUEST_TITLE_BY_STEP[1];
-      return;
-    }
-
     if (bootstrap.status === 'ready') {
       const step = bootstrap.visualStep;
       // UI는 1~3만 — 타입상 4가 와도 Step3 타이틀로 처리
@@ -68,21 +59,9 @@ export const EstimateRequestPageClient = () => {
   // loading · 일반 에러(자동 재시도 중) 공통 — 공용 Spinner로 톤 맞춤
   if (bootstrap.status === 'loading' || bootstrap.status === 'error') {
     return (
-      <div className="mx-auto max-w-[1400px] px-6 py-8 sm:px-18">
+      <div className="page-content py-8">
         <Spinner message="견적 요청을 준비하는 중…" />
       </div>
-    );
-  }
-
-  // 비회원·프로필 미등록 — Step1과 같은 Shell + 채팅 게이트
-  if (
-    bootstrap.status === 'unauthorized' ||
-    bootstrap.status === 'profileIncomplete'
-  ) {
-    return (
-      <EstimateRequestShell currentStep={1}>
-        <EstimateRequestGate kind={bootstrap.status} />
-      </EstimateRequestShell>
     );
   }
 

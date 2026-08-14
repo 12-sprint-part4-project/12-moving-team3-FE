@@ -22,10 +22,7 @@ interface EstimateRequestBlockedProps {
   role?: 'alert' | 'status';
 }
 
-/**
- * 진행 중 견적(blocked·제출 후) 전용 빈 화면.
- * 비회원·프로필 미등록은 EstimateRequestGate(채팅형)로 처리.
- */
+/** 진행 중 견적(blocked·제출 후) 전용 빈 화면. */
 export const EstimateRequestBlocked = ({
   className,
   message,

@@ -1,21 +1,17 @@
 import type {
   EstimateRequestInputStep,
   EstimateRequestRevisableField,
+  EstimateRequestStatus,
 } from '@/lib/customerEstimateRequestSchema';
 import type { ApiSuccessResponse } from '@/types/api';
 import type { ApiMoveType } from '@/types/estimateRequest';
 
-/** step body·재수정 필드 타입은 스키마가 SSOT — 여기서 재export */
-export type { EstimateRequestInputStep, EstimateRequestRevisableField };
-
-/** BE 견적요청 상태 */
-export type EstimateRequestStatus =
-  | 'DRAFT'
-  | 'SUBMITTED'
-  | 'CONFIRMED'
-  | 'COMPLETED'
-  | 'EXPIRED'
-  | 'CANCELED';
+/** step body·재수정 필드·상태 타입은 스키마가 SSOT — 여기서 재export */
+export type {
+  EstimateRequestInputStep,
+  EstimateRequestRevisableField,
+  EstimateRequestStatus,
+};
 
 /** 프로그레스 총 단계 (입력 3 + 완료/full 1) */
 export const TOTAL_PROGRESS_STEPS = 4;
@@ -105,6 +101,4 @@ export type CustomerEstimateRequestEntryStatus =
   | 'loading'
   | 'ready'
   | 'blocked'
-  | 'unauthorized'
-  | 'profileIncomplete'
   | 'error';

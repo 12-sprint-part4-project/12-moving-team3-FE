@@ -4,15 +4,11 @@ import { EstimateRequestChatPanel } from './EstimateRequestChatPanel';
 import { InlineErrorMessage } from './InlineErrorMessage';
 import { MoveTypeOptionField } from './MoveTypeOptionField';
 
+import type { MoveTypeSelectOption } from '@/constants/estimateRequestOptions';
 import type { ApiMoveType } from '@/types/estimateRequest';
 
-interface MoveTypeOption {
-  value: ApiMoveType;
-  label: string;
-}
-
 interface MoveTypeRevisePanelProps {
-  options: ReadonlyArray<MoveTypeOption>;
+  options: ReadonlyArray<MoveTypeSelectOption>;
   draftMoveType: ApiMoveType | null;
   onSelect: (value: ApiMoveType) => void;
   isSubmitting: boolean;

@@ -4,29 +4,20 @@ import { useState } from 'react';
 
 import { Button } from '@/components/Button/Button';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
+import {
+  ESTIMATE_REQUEST_INTRO_MESSAGE,
+  MOVE_TYPE_PROMPT_DESKTOP,
+  MOVE_TYPE_PROMPT_MOBILE,
+} from '@/constants/estimateRequestMessages';
+import { MOVE_TYPE_OPTIONS } from '@/constants/estimateRequestOptions';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
-import { ApiError } from '@/lib/apiClient';
+import { resolveApiErrorMessage } from '@/lib/apiClient';
 
 import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGroup';
 import { EstimateRequestChatPanel } from '../EstimateRequestChatPanel';
 import { MoveTypeOptionField } from '../MoveTypeOptionField';
 
 import type { ApiMoveType } from '@/types/estimateRequest';
-
-/** Step1 옵션 — MoveTypeChip 라벨보다 설명형 문구를 사용 */
-const MOVE_TYPE_OPTIONS: ReadonlyArray<{
-  value: ApiMoveType;
-  label: string;
-}> = [
-  { value: 'SMALL', label: '소형이사 (원룸, 투룸, 20평대 미만)' },
-  { value: 'HOME', label: '가정이사 (쓰리룸, 20평대 이상)' },
-  { value: 'OFFICE', label: '사무실이사 (사무실, 상업공간)' },
-];
-
-const INTRO_MESSAGE =
-  '몇 가지 정보만 알려주시면 최대 5개의 견적을 받을 수 있어요 :)';
-const PROMPT_MESSAGE_MOBILE = '이사 종류를 알려주세요.';
-const PROMPT_MESSAGE_DESKTOP = '이사 종류를 선택해 주세요.';
 
 /**
  * 스텝1 — 이사종류 선택.
@@ -60,11 +51,9 @@ export const MoveTypeStep = () => {
         },
       });
     } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : '이사 종류 저장 중 오류가 발생했습니다.';
-      setErrorMessage(message);
+      setErrorMessage(
+        resolveApiErrorMessage(error, '이사 종류 저장 중 오류가 발생했습니다.')
+      );
     }
   };
 
@@ -75,9 +64,9 @@ export const MoveTypeStep = () => {
     >
       {/* 시스템 연속 발화 — 한 턴으로 묶어 좌측 정렬 */}
       <EstimateRequestChatBubbleGroup>
-        <TextFieldChat>{INTRO_MESSAGE}</TextFieldChat>
-        <TextFieldChat desktopChildren={PROMPT_MESSAGE_DESKTOP}>
-          {PROMPT_MESSAGE_MOBILE}
+        <TextFieldChat>{ESTIMATE_REQUEST_INTRO_MESSAGE}</TextFieldChat>
+        <TextFieldChat desktopChildren={MOVE_TYPE_PROMPT_DESKTOP}>
+          {MOVE_TYPE_PROMPT_MOBILE}
         </TextFieldChat>
       </EstimateRequestChatBubbleGroup>
 

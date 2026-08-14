@@ -8,7 +8,6 @@ import { customerEstimateRequestQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
-import { getAuthSession } from '@/lib/authSession';
 import {
   isEstimateRequestReadyToSubmit,
   toVisualStep,
@@ -44,7 +43,6 @@ export interface CustomerEstimateRequestBootstrap {
   visualStep: EstimateRequestVisualStep;
   error: ApiError | null;
   isBootstrapping: boolean;
-  refetch: () => Promise<void>;
 }
 
 type BootstrapResultOverrides = Partial<
@@ -52,10 +50,7 @@ type BootstrapResultOverrides = Partial<
 > &
   Pick<CustomerEstimateRequestBootstrap, 'status'>;
 
-/**
- * bootstrap 분기 공통 결과 팩토리.
- * queryFn 쪽 refetch placeholder는 훅에서 실제 refetch로 덮어쓴다.
- */
+/** bootstrap 분기 공통 결과 팩토리. */
 const makeBootstrapResult = (
   overrides: BootstrapResultOverrides
 ): CustomerEstimateRequestBootstrap => ({
@@ -64,30 +59,17 @@ const makeBootstrapResult = (
   visualStep: 1,
   error: null,
   isBootstrapping: false,
-  refetch: async () => undefined,
   ...overrides,
 });
 
 /**
  * 활성 요청 조회 → DRAFT 상세 복원 또는 신규 생성.
- * PROFILE_NOT_FOUND / 401 은 entry status 로만 분기 (리다이렉트는 페이지에서).
+ * 로그인·프로필 완료 여부는 라우트 가드가 이미 보장하므로 여기서 따로 분기하지 않는다.
  */
 const bootstrapCustomerEstimateRequest =
   async (): Promise<CustomerEstimateRequestBootstrap> => {
-    // authSession 에 토큰이 없으면 API 호출 전에 로그인 안내로 분기
-    if (!getAuthSession()?.accessToken) {
-      return makeBootstrapResult({
-        status: 'unauthorized',
-        error: new ApiError(
-          401,
-          '견적 요청은 로그인 후 이용할 수 있습니다.',
-          API_ERROR_CODE.UNAUTHORIZED
-        ),
-      });
-    }
-
     try {
-      const active = await getActiveEstimateRequest();
+      const active = await getActiveEstimateRequest(); // 활성 요청 건이 존재하는지 조회 hasActiveRequest(존재여부 true/false), request(활성 요청 건 데이터)
 
       // 활성 요청 없음 → DRAFT 생성
       if (!active.hasActiveRequest || !active.request) {
@@ -97,7 +79,7 @@ const bootstrapCustomerEstimateRequest =
         return makeBootstrapResult({
           status: 'ready',
           detail,
-          visualStep: toVisualStep(detail.status, detail.currentStep, detail),
+          visualStep: toVisualStep(detail.status, detail.currentStep),
         });
       }
 
@@ -116,48 +98,64 @@ const bootstrapCustomerEstimateRequest =
       return makeBootstrapResult({
         status: 'ready',
         detail,
-        visualStep: toVisualStep(detail.status, detail.currentStep, detail),
+        visualStep: toVisualStep(detail.status, detail.currentStep),
       });
     } catch (error) {
       if (error instanceof ApiError) {
-        if (
-          error.status === 401 ||
-          error.code === API_ERROR_CODE.UNAUTHORIZED
-        ) {
-          return makeBootstrapResult({
-            status: 'unauthorized',
-            error,
-          });
-        }
-
-        if (error.code === API_ERROR_CODE.PROFILE_NOT_FOUND) {
-          return makeBootstrapResult({
-            status: 'profileIncomplete',
-            error,
-          });
-        }
-
         // 생성 경합으로 활성 요청이 생긴 경우 → active 재조회
         if (error.code === API_ERROR_CODE.ACTIVE_REQUEST_EXISTS) {
-          const active = await getActiveEstimateRequest();
-          if (active.request?.status === 'DRAFT') {
-            const detail = await getEstimateRequestDetail(active.request.id);
+          try {
+            const active = await getActiveEstimateRequest();
+            if (active.request?.status === 'DRAFT') {
+              const detail = await getEstimateRequestDetail(
+                active.request.id
+              );
+              return makeBootstrapResult({
+                status: 'ready',
+                detail,
+                visualStep: toVisualStep(detail.status, detail.currentStep),
+              });
+            }
+
+            if (active.request) {
+              return makeBootstrapResult({
+                status: 'blocked',
+                blockedRequest: active.request,
+                visualStep: 4,
+              });
+            }
+
+            // 재조회 자체는 성공했는데 활성 요청이 사라진 경우 — 다른 실패 경로와 동일하게 로그 남기고 error로 정리
+            console.error(
+              '[customer-estimate-request] bootstrap ACTIVE_REQUEST_EXISTS retry: active request missing',
+              active
+            );
+
             return makeBootstrapResult({
-              status: 'ready',
-              detail,
-              visualStep: toVisualStep(
-                detail.status,
-                detail.currentStep,
-                detail
+              status: 'error',
+              error: new ApiError(
+                500,
+                '요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도합니다.',
+                API_ERROR_CODE.UNKNOWN_ERROR
               ),
             });
-          }
+          } catch (retryError) {
+            // 경합 복구 재조회 자체가 실패한 경우 — 다른 경로와 동일하게 로그 남기고 error로 정리
+            console.error(
+              '[customer-estimate-request] bootstrap ACTIVE_REQUEST_EXISTS retry failed',
+              retryError
+            );
 
-          if (active.request) {
             return makeBootstrapResult({
-              status: 'blocked',
-              blockedRequest: active.request,
-              visualStep: 4,
+              status: 'error',
+              error:
+                retryError instanceof ApiError
+                  ? retryError
+                  : new ApiError(
+                      500,
+                      '요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도합니다.',
+                      API_ERROR_CODE.UNKNOWN_ERROR
+                    ),
             });
           }
         }
@@ -227,12 +225,11 @@ export const useCustomerEstimateRequest = () => {
       return makeBootstrapResult({
         status: 'loading',
         isBootstrapping: true,
-        refetch,
       });
     }
 
     if (bootstrapQuery.data) {
-      return { ...bootstrapQuery.data, refetch };
+      return bootstrapQuery.data;
     }
 
     return makeBootstrapResult({
@@ -245,14 +242,8 @@ export const useCustomerEstimateRequest = () => {
               '요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도합니다.',
               API_ERROR_CODE.UNKNOWN_ERROR
             ),
-      refetch,
     });
-  }, [
-    bootstrapQuery.isPending,
-    bootstrapQuery.data,
-    bootstrapQuery.error,
-    refetch,
-  ]);
+  }, [bootstrapQuery.isPending, bootstrapQuery.data, bootstrapQuery.error]);
 
   // 일반 에러: 풀페이지 대신 토스트 1회 + 자동 재조회 (성공/의도된 분기 복귀 시 토스트 플래그 리셋)
   useEffect(() => {
@@ -277,12 +268,7 @@ export const useCustomerEstimateRequest = () => {
       return () => window.clearTimeout(timerId);
     }
 
-    if (
-      bootstrap.status === 'ready' ||
-      bootstrap.status === 'blocked' ||
-      bootstrap.status === 'unauthorized' ||
-      bootstrap.status === 'profileIncomplete'
-    ) {
+    if (bootstrap.status === 'ready' || bootstrap.status === 'blocked') {
       hasToastedBootstrapErrorRef.current = false;
     }
 
@@ -302,11 +288,7 @@ export const useCustomerEstimateRequest = () => {
                 status: 'ready',
                 detail,
                 blockedRequest: null,
-                visualStep: toVisualStep(
-                  detail.status,
-                  detail.currentStep,
-                  detail
-                ),
+                visualStep: toVisualStep(detail.status, detail.currentStep),
                 error: null,
               }
             : prev
