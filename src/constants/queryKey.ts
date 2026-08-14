@@ -14,6 +14,8 @@ export const chatQueryKeys = {
   all: ['chat'] as const,
   rooms: () => [...chatQueryKeys.all, 'rooms'] as const,
   room: (roomId: number) => [...chatQueryKeys.all, 'room', roomId] as const,
+  /** roomId 무관 전체 방 상세 캐시 — 알림 SSE 등 크로스 도메인 invalidate용 */
+  roomsAll: () => [...chatQueryKeys.all, 'room'] as const,
   messages: (roomId: number) =>
     [...chatQueryKeys.all, 'messages', roomId] as const,
   unread: () => [...chatQueryKeys.all, 'unread'] as const,
