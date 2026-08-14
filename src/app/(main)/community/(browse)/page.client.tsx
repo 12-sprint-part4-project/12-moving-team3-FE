@@ -14,7 +14,7 @@ import {
   POST_SORT_OPTIONS,
   REGION_FILTER_OPTIONS,
 } from '@/constants/communityOptions';
-import { usePostList } from '@/hooks/useCommunity';
+import { usePostList } from '@/hooks/usePostList';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { ApiError } from '@/lib/apiClient';
 import {

@@ -10,12 +10,12 @@ import {
   getInitialWriteCategory,
   MAX_POST_IMAGE_COUNT,
 } from '@/constants/communityOptions';
+import { usePost } from '@/hooks/usePost';
 import {
   useCreatePost,
-  usePost,
   useUpdatePost,
   useUploadPostImage,
-} from '@/hooks/useCommunity';
+} from '@/hooks/usePostMutations';
 import { useToast } from '@/hooks/useToast';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 import { isHtmlContent } from '@/lib/communityPostContent';
