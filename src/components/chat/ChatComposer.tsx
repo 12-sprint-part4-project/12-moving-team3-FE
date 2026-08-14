@@ -66,7 +66,6 @@ export const ChatComposer = ({
   onScrollChipClick,
   className,
 }: ChatComposerProps) => {
-  const composerRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [value, setValue] = useState('');
   const [pendingImages, setPendingImages] = useState<PendingImageFile[]>([]);
@@ -213,7 +212,7 @@ export const ChatComposer = ({
     }
 
     requestAnimationFrame(() => {
-      inputRef.current?.focus();
+      inputRef.current?.focus({ preventScroll: true });
     });
   };
 
@@ -234,22 +233,12 @@ export const ChatComposer = ({
   );
 
   useEffect(() => {
-    if (pendingImages.length === 0) {
-      return;
-    }
-
-    composerRef.current?.scrollIntoView({
-      block: 'end',
-      inline: 'nearest',
-    });
-  }, [pendingImages.length]);
-
-  useEffect(() => {
     if (focusInputSignal === 0 || isBusy) {
       return;
     }
 
-    inputRef.current?.focus();
+    // 문서 스크롤을 유발하지 않도록 preventScroll (#279)
+    inputRef.current?.focus({ preventScroll: true });
   }, [focusInputSignal, isBusy]);
 
   return (
@@ -280,7 +269,6 @@ export const ChatComposer = ({
         </div>
       ) : null}
       <form
-        ref={composerRef}
         onSubmit={handleSubmit}
         className="flex flex-col gap-2 border-t border-line-100 bg-white px-4 py-3 md:px-6"
       >
@@ -358,7 +346,7 @@ export const ChatComposer = ({
             disabled={isBusy || !onSendImages}
             onClick={handleClipClick}
             className={cn(
-              'inline-flex size-9 shrink-0 items-center justify-center transition-colors',
+              'inline-flex size-11 shrink-0 items-center justify-center transition-colors',
               isBusy || !onSendImages
                 ? 'cursor-not-allowed text-gray-200'
                 : 'cursor-pointer text-gray-300 hover:text-blue-300'
@@ -374,6 +362,7 @@ export const ChatComposer = ({
             onChange={handleValueChange}
             onKeyDown={handleKeyDown}
             disabled={isBusy}
+            enterKeyHint="send"
             placeholder={
               disabled && disabledReason
                 ? '메시지를 보낼 수 없습니다'
@@ -403,10 +392,7 @@ export const ChatComposer = ({
                 : 'cursor-not-allowed text-gray-200'
             )}
           >
-            <SendIcon
-              className="size-9 translate-x-px -translate-y-px"
-              aria-hidden
-            />
+            <SendIcon className="size-9"  aria-hidden />
           </button>
         </div>
       </form>
