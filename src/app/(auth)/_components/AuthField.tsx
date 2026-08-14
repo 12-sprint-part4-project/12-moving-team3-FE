@@ -1,13 +1,7 @@
-import { type ChangeEvent } from 'react';
-
 import { TextFieldOutlined } from '@/components/ui/Input';
 import { cn } from '@/lib/utils';
 
-import {
-  AUTH_FIELD_CLASS,
-  AUTH_FIELD_GROUP_CLASS,
-  AUTH_LABEL_CLASS,
-} from './authStyles';
+import type { ChangeEvent } from 'react';
 
 interface AuthFieldProps {
   id: string;
@@ -42,8 +36,11 @@ export const AuthField = ({
   className = '',
 }: AuthFieldProps) => {
   return (
-    <div className={cn(AUTH_FIELD_GROUP_CLASS, className)}>
-      <label htmlFor={id} className={AUTH_LABEL_CLASS}>
+    <div className={cn('flex w-full flex-col gap-2 lg:gap-4', className)}>
+      <label
+        htmlFor={id}
+        className="text-md-regular text-black-400 lg:text-xl-regular"
+      >
         {label}
       </label>
       <TextFieldOutlined
@@ -59,7 +56,7 @@ export const AuthField = ({
         errorMessage={isError ? errorMessage : undefined}
         maxLength={maxLength}
         showVisibilityToggle={showVisibilityToggle}
-        className={AUTH_FIELD_CLASS}
+        className="w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 [&_input]:lg:text-xl-regular"
       />
     </div>
   );
