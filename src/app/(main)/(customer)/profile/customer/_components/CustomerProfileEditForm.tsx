@@ -32,10 +32,7 @@ import { CustomerProfileServiceField } from './CustomerProfileServiceField';
 import { CustomerProfileTextField } from './CustomerProfileTextField';
 import { ProfileImageCropModal } from './ProfileImageCropModal';
 import { ProfileImageField } from './ProfileImageField';
-import {
-  buildCustomerProfileUpdateBody,
-  getCustomerProfileUpdateError,
-} from '../_lib/customerProfileUpdate';
+import { buildCustomerProfileUpdateBody } from '../_lib/customerProfileUpdate';
 import { toggleService } from '../_lib/toggleService';
 import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
 
@@ -284,12 +281,12 @@ const CustomerProfileEditFields = ({
     setSelectedRegion((prev) => (prev === value ? null : value));
   };
 
-  /** 검증을 통과한 변경분만 제출한다 */
+  /** 변경분만 제출한다. 변경이 없으면 토스트를 띄운다 */
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isSubmitEnabled) return;
 
-    const updateParams = {
+    const body = buildCustomerProfileUpdateBody({
       profile,
       name,
       nickname,
@@ -300,16 +297,6 @@ const CustomerProfileEditFields = ({
       newPassword,
       confirmPassword,
       hasImageChange,
-    };
-
-    const validationError = getCustomerProfileUpdateError(updateParams);
-    if (validationError) {
-      showToast({ content: validationError });
-      return;
-    }
-
-    const body = buildCustomerProfileUpdateBody({
-      ...updateParams,
       s3Key: isImageCleared && !profileImageFile ? null : undefined,
     });
 

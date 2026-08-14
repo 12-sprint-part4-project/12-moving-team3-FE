@@ -30,9 +30,6 @@ import type {
   CustomerServiceType,
 } from '@/types/customerProfile';
 
-const NICKNAME_MIN_LENGTH = 2;
-const NICKNAME_MAX_LENGTH = 20;
-
 /** `/profile/customer` 고객 프로필 등록 폼 */
 export const CustomerProfileForm = () => {
   const router = useRouter();
@@ -104,26 +101,14 @@ export const CustomerProfileForm = () => {
     setSelectedRegion((prev) => (prev === value ? null : value));
   };
 
-  /** 닉네임·전화·서비스·지역을 검증한 뒤 프로필을 등록하고 홈으로 이동한다 */
+  /** 전화·서비스·지역을 검증한 뒤 프로필을 등록하고 홈으로 이동한다 */
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isSubmitEnabled || selectedRegion === null) return;
 
-    const nickname = (user?.nickname?.trim() ?? '').slice(
-      0,
-      NICKNAME_MAX_LENGTH
-    );
-    if (nickname.length < NICKNAME_MIN_LENGTH) {
-      showToast({
-        content: '로그인 정보가 올바르지 않습니다. 다시 로그인해 주세요.',
-      });
-      return;
-    }
-
     upsertProfile(
       {
         body: {
-          nickname,
           phoneNumber: toPhoneDigits(composeKrMobilePhone(phoneNumber)),
           region: selectedRegion,
           service: selectedServices,
