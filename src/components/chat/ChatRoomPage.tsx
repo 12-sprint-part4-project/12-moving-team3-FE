@@ -82,9 +82,10 @@ export const ChatRoomPage = ({
 
   useChatSocketRoom(enabled ? roomId : 0);
 
-  // 모바일 키보드 — visualViewport 높이 + 문서 스크롤 잠금 (#279)
-  useVisualViewportHeight(enabled);
+  // 모바일 키보드 — 문서 잠금 후 visualViewport에 body 고정 (#279)
+  // scrollY 보존을 위해 lock을 먼저 호출 (CodeRabbit)
   useBodyScrollLock(enabled);
+  useVisualViewportHeight(enabled);
 
   // SEO 탭 타이틀 — auth(localStorage)라 generateMetadata 불가, room 로드 후 absolute로 설정
   useEffect(() => {
@@ -266,12 +267,7 @@ export const ChatRoomPage = ({
   }
 
   return (
-    <div
-      className={cn(
-        'chat-room-content h-[calc(var(--visual-viewport-height,100dvh)-var(--height-gnb))] max-h-[calc(var(--visual-viewport-height,100dvh)-var(--height-gnb))] lg:h-[calc(var(--visual-viewport-height,100dvh)-var(--height-gnb-lg))] lg:max-h-[calc(var(--visual-viewport-height,100dvh)-var(--height-gnb-lg))]',
-        className
-      )}
-    >
+    <div className={cn('chat-room-content', className)}>
       {isRoomPending ? (
         <ChatRoomHeaderPlaceholder
           title="불러오는 중…"
