@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useCreateChatRoom } from '@/hooks/useChat';
 import { useToast } from '@/hooks/useToast';
@@ -18,6 +18,7 @@ export type StartEstimateChatParams = BuildEstimateChatRoomBodyParams;
  * 사용 화면: `/quotes` 대기카드, `/movers/[id]`, `/quotes/history`, `/quotes/[quoteId]`,
  * `/mover/requests`, `/mover/quotes/[quoteId]`
  * 동작: GENERAL/DESIGNATED body → POST /api/chat/rooms → `/chat/{roomId}` 이동, 실패 시 토스트.
+ * `targetId`를 넘기면 해당 카드만 pending UI에 쓸 `pendingChatTargetId`를 유지한다.
  * COMMUNITY `useCreateChatRoom`을 재사용한다.
  */
 export const useStartEstimateChat = () => {
@@ -25,9 +26,19 @@ export const useStartEstimateChat = () => {
   const { showToast } = useToast();
   const { mutate: createChatRoom, isPending: isChatPending } =
     useCreateChatRoom();
+  /** 목록에서 "연결 중..."을 표시할 카드/요청 id */
+  const [pendingChatTargetId, setPendingChatTargetId] = useState<number | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (!isChatPending) {
+      setPendingChatTargetId(null);
+    }
+  }, [isChatPending]);
 
   const startEstimateChat = useCallback(
-    (params: StartEstimateChatParams) => {
+    (params: StartEstimateChatParams, targetId?: number) => {
       if (isChatPending) {
         return;
       }
@@ -37,6 +48,10 @@ export const useStartEstimateChat = () => {
       if (!body) {
         showToast({ content: '채팅방을 열지 못했습니다.' });
         return;
+      }
+
+      if (targetId != null) {
+        setPendingChatTargetId(targetId);
       }
 
       createChatRoom(body, {
@@ -56,5 +71,6 @@ export const useStartEstimateChat = () => {
   return {
     startEstimateChat,
     isChatPending,
+    pendingChatTargetId,
   };
 };

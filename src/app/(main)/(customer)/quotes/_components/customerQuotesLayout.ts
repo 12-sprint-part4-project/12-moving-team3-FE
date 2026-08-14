@@ -1,3 +1,5 @@
+/** `/quotes` 레이아웃 상수. */
+
 /** 목록·이용 내역 바깥 셸 */
 export const CUSTOMER_QUOTES_PAGE_SHELL_CLASS =
   'flex min-h-0 w-full flex-1 flex-col overflow-x-hidden';
@@ -31,5 +33,4 @@ export const CUSTOMER_QUOTES_TITLE_CLASS =
 export const CUSTOMER_QUOTES_CONTENT_CLASS = `mx-auto w-full max-w-[1920px] py-6 md:py-8 lg:py-10 ${CUSTOMER_QUOTES_PAGE_X_PADDING}`;
 
 /** 상세 모바일 하단 CTA 여백 */
-export const CUSTOMER_QUOTE_DETAIL_MOBILE_ACTION_PAD =
-  'pb-[4.625rem] lg:pb-0';
+export const CUSTOMER_QUOTE_DETAIL_MOBILE_ACTION_PAD = 'pb-[4.625rem] lg:pb-0';

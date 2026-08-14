@@ -11,7 +11,7 @@ import { useConfirmQuoteModal } from '@/hooks/useConfirmQuoteModal';
 import { useCustomerQuoteDetail } from '@/hooks/useCustomerQuoteDetail';
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
-import { ApiError } from '@/lib/apiClient';
+import { resolveApiErrorMessage } from '@/lib/apiClient';
 import { fadeIn, getMotionTransition } from '@/lib/motionVariants';
 import { parsePositiveInt } from '@/lib/parsePositiveInt';
 import { toStartEstimateChatParams } from '@/lib/startEstimateChat';
@@ -27,7 +27,7 @@ export interface CustomerQuoteDetailPageClientProps {
   quoteId: string;
 }
 
-/** 고객 견적 상세 페이지 클라이언트 */
+/** `/quotes/[quoteId]` 클라이언트. - 상세 견적 페이지 */
 const CustomerQuoteDetailPageClient = ({
   quoteId,
 }: CustomerQuoteDetailPageClientProps) => {
@@ -41,7 +41,7 @@ const CustomerQuoteDetailPageClient = ({
     numericQuoteId ?? 0
   );
 
-  /** 견적 확정 후 이용 내역으로 이동 */
+  /** 견적 확정 성공 후 이용 내역으로 이동 */
   const goToHistory = useCallback(() => {
     router.replace('/quotes/history');
   }, [router]);
@@ -53,19 +53,18 @@ const CustomerQuoteDetailPageClient = ({
     closeConfirmModal,
     submitConfirm,
   } = useConfirmQuoteModal(goToHistory);
-
-  /** `/quotes/[quoteId]` 보조 CTA — 확정 기사 상세에서 채팅 시작 */
   const { startEstimateChat, isChatPending } = useStartEstimateChat();
 
-  const errorMessage =
-    error instanceof ApiError
-      ? error.message
-      : '견적 상세를 불러오지 못했습니다.';
+  const errorMessage = resolveApiErrorMessage(
+    error,
+    '견적 상세를 불러오지 못했습니다.'
+  );
 
   const handleRetry = () => {
     void refetch();
   };
 
+  // 잘못된 quoteId — 안내 + 목록 복귀 링크
   if (numericQuoteId == null) {
     return (
       <motion.div
@@ -88,6 +87,7 @@ const CustomerQuoteDetailPageClient = ({
     );
   }
 
+  // 로딩 — 상세 스켈레톤
   if (isPending) {
     return (
       <motion.div
@@ -101,6 +101,7 @@ const CustomerQuoteDetailPageClient = ({
     );
   }
 
+  // 에러 — 재시도 + 목록 복귀
   if (isError || !detail) {
     return (
       <motion.div
@@ -131,20 +132,25 @@ const CustomerQuoteDetailPageClient = ({
     );
   }
 
+  /** 상세 채팅하기 — 방 생성 후 `/chat/{roomId}` 이동 */
   const handleChatClick = () => {
     startEstimateChat(toStartEstimateChatParams(detail, detail.mover.moverId));
   };
 
+  /** 확정 CTA → 재확인 모달 오픈 */
   const handleConfirmClick = () => {
     openConfirmModal(detail.quoteId);
   };
 
+  /** 상세 프로필 찜 토글 */
   const handleToggleFavorite = () => {
     handleFavoriteClick(detail.mover.moverId, !detail.mover.isFavorited);
   };
 
+  /** 확정·채팅 중 하나라도 있으면 모바일 하단 고정바 + 본문 패딩 */
   const showMobileActionBar = detail.canConfirm || detail.canStartChat;
 
+  // 본문 + 모바일 하단 CTA + 확정 모달
   return (
     <div
       className={cn(
@@ -152,6 +158,7 @@ const CustomerQuoteDetailPageClient = ({
         showMobileActionBar && CUSTOMER_QUOTE_DETAIL_MOBILE_ACTION_PAD
       )}
     >
+      {/* 상세 본문(요약·견적가·공유·정보·데스크톱 CTA) */}
       <CustomerQuoteDetailContent
         quoteId={quoteId}
         detail={detail}
@@ -166,6 +173,7 @@ const CustomerQuoteDetailPageClient = ({
         }}
       />
 
+      {/* 모바일 하단 고정 액션바 */}
       <CustomerQuoteDetailActions
         variant="mobile"
         canConfirm={detail.canConfirm}
@@ -179,6 +187,7 @@ const CustomerQuoteDetailPageClient = ({
         onToggleFavorite={handleToggleFavorite}
       />
 
+      {/* 견적 확정 재확인 모달 */}
       <ConfirmQuoteModal
         open={isConfirmModalOpen}
         isConfirming={isConfirming}

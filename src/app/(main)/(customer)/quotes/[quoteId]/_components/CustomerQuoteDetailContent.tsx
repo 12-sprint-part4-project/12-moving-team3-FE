@@ -12,6 +12,7 @@ import {
   getMotionTransition,
 } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
+import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
 import type { CustomerQuoteDetailViewModel } from '@/types/customerQuote';
 
 import { CUSTOMER_QUOTE_DETAIL_PAGE_X_PADDING } from '../../_components/customerQuotesLayout';
@@ -23,6 +24,7 @@ const SECTION_CLASS = 'flex w-full flex-col gap-4 lg:gap-8';
 const SECTION_TITLE_CLASS =
   'text-lg-semibold text-black-400 lg:text-2xl-semibold';
 
+/** 상세 본문에 넘기는 확정·채팅·찜 액션 묶음 */
 interface CustomerQuoteDetailContentActions {
   isConfirming: boolean;
   isChatPending: boolean;
@@ -40,7 +42,7 @@ interface CustomerQuoteDetailContentProps {
   className?: string;
 }
 
-/** 견적 상세 본문. 요약 카드, 견적가, 코멘트, 공유, 견적 정보, 데스크톱 CTA. */
+/** `/quotes/[quoteId]` 상세 본문. - 요약·견적가·코멘트·공유·정보·데스크톱 CTA. */
 export const CustomerQuoteDetailContent = ({
   quoteId,
   detail,
@@ -52,7 +54,9 @@ export const CustomerQuoteDetailContent = ({
   const listStaggerVariants = getListStagger(shouldReduceMotion);
   const showComment = Boolean(detail.comment);
   const showUnconfirmedBanner = detail.showUnconfirmedBanner;
+  /** 사이드바에 CTA가 있을 때만 공유 위 구분선 */
   const showDesktopActionDivider = detail.canConfirm || detail.canStartChat;
+  /** QuoteShareButtons용 공유 메타 */
   const quoteShareProps = {
     sharePath: `/quotes/${quoteId}`,
     shareTitle: `${detail.mover.name} 기사님 견적서`,
@@ -62,7 +66,10 @@ export const CustomerQuoteDetailContent = ({
       `${detail.serviceLabel} · ${detail.priceLabel}`,
     shareImageUrl: detail.mover.profileImageUrl,
   };
+  /** 요약 카드 MoverProfileBlock용 */
+  const moverCard = toMoverCardModelFromCustomerQuoteMover(detail.mover);
 
+  // 좌측 본문 + 우측 데스크톱 aside(CTA·공유)
   return (
     <div
       className={cn(
@@ -71,6 +78,7 @@ export const CustomerQuoteDetailContent = ({
         className
       )}
     >
+      {/* 메인 컬럼 — 요약·견적가·코멘트·공유(모바일)·견적 정보·미확정 배너 */}
       <motion.div
         variants={listStaggerVariants}
         initial="hidden"
@@ -81,7 +89,7 @@ export const CustomerQuoteDetailContent = ({
         <motion.div variants={fadeUp} transition={motionTransition}>
           <CustomerQuoteDetailSummaryCard
             detail={detail}
-            mover={detail.mover}
+            mover={moverCard}
             onFavoriteClick={actions.onFavoriteClick}
             isFavoritePending={actions.isFavoritePending}
           />
@@ -93,6 +101,7 @@ export const CustomerQuoteDetailContent = ({
           className={CUSTOMER_QUOTE_DETAIL_DIVIDER_CLASS}
         />
 
+        {/* 견적가 */}
         <motion.section
           variants={fadeUp}
           transition={motionTransition}
@@ -111,6 +120,7 @@ export const CustomerQuoteDetailContent = ({
               transition={motionTransition}
               className={CUSTOMER_QUOTE_DETAIL_DIVIDER_CLASS}
             />
+            {/* 코멘트 */}
             <motion.section
               variants={fadeUp}
               transition={motionTransition}
@@ -124,6 +134,7 @@ export const CustomerQuoteDetailContent = ({
           </>
         ) : null}
 
+        {/* 공유 — 모바일만 */}
         <motion.div
           variants={fadeUp}
           transition={motionTransition}
@@ -139,6 +150,7 @@ export const CustomerQuoteDetailContent = ({
           className={CUSTOMER_QUOTE_DETAIL_DIVIDER_CLASS}
         />
 
+        {/* 견적 정보 */}
         <motion.div variants={fadeUp} transition={motionTransition}>
           <QuoteInfoSection info={detail} variant="customerDetail" />
         </motion.div>
@@ -154,6 +166,7 @@ export const CustomerQuoteDetailContent = ({
         ) : null}
       </motion.div>
 
+      {/* 사이드바(lg+) — 확정·채팅 CTA + 공유 */}
       <motion.aside
         initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: 12 }}
         animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}

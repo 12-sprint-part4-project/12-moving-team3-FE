@@ -19,7 +19,10 @@ import {
   formatRelativeTime,
   formatShortDateLabel,
 } from '@/lib/formatDate';
-import { isEstimateRequestClosedForChat } from '@/lib/startEstimateChat';
+import {
+  canStartChatForDesignation,
+  canStartEstimateChat,
+} from '@/lib/startEstimateChat';
 import { formatDistrictLabel } from '@/services/estimateRequestApi';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
 import type {
@@ -156,6 +159,10 @@ export const toPendingQuoteCardModel = (
     : null,
   isDesignated: item.isDesignated,
   designatedMoverId: item.designatedMoverId ?? null,
+  canStartChat: canStartChatForDesignation(
+    item.isDesignated,
+    item.designatedMoverId
+  ),
   moveDate: formatMoveDateLabel(request.moveDate),
   departure: request.fromAddress ?? '-',
   arrival: request.toAddress ?? '-',
@@ -217,6 +224,11 @@ export const toHistoryQuoteCardModels = (
       isConfirmed: true,
       isDesignated: item.isDesignated,
       designatedMoverId: item.designatedMoverId ?? null,
+      canStartChat: canStartEstimateChat({
+        isDesignated: item.isDesignated,
+        designatedMoverId: item.designatedMoverId,
+        estimateRequestStatus: group.status,
+      }),
       moveDate,
       departure,
       arrival,
@@ -287,9 +299,11 @@ export const toCustomerQuoteDetailViewModel = (
   const isConfirmed = detail.status === 'CONFIRMED';
   const canConfirm = isPending && detail.estimateRequestStatus === 'SUBMITTED';
   /** `/quotes/[quoteId]` 채팅 CTA — 닫힌 요청·지정인데 id 없으면 숨김 */
-  const canStartChat =
-    !isEstimateRequestClosedForChat(detail.estimateRequestStatus) &&
-    (!detail.isDesignated || detail.designatedMoverId != null);
+  const canStartChat = canStartEstimateChat({
+    isDesignated: detail.isDesignated,
+    designatedMoverId: detail.designatedMoverId,
+    estimateRequestStatus: detail.estimateRequestStatus,
+  });
 
   return {
     quoteId: detail.quoteId,

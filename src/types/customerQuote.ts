@@ -146,6 +146,8 @@ export interface PendingQuoteCardModel {
   moveType: MoveTypeOption | null;
   isDesignated: boolean;
   designatedMoverId: number | null;
+  /** 채팅하기 CTA — 지정인데 designatedMoverId 없으면 false */
+  canStartChat: boolean;
   moveDate: string;
   departure: string;
   arrival: string;
@@ -198,6 +200,8 @@ export interface HistoryQuoteCardModel {
   isConfirmed: boolean;
   isDesignated: boolean;
   designatedMoverId: number | null;
+  /** 채팅하기 CTA — 닫힌 요청·지정 id 없으면 false */
+  canStartChat: boolean;
   moveDate: string;
   departure: string;
   arrival: string;

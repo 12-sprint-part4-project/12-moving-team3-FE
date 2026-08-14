@@ -13,6 +13,32 @@ export const isEstimateRequestClosedForChat = (
   status: EstimateRequestStatus
 ): boolean => CLOSED_ESTIMATE_REQUEST_STATUSES.has(status);
 
+/** 지정 견적인데 designatedMoverId 없으면 채팅 CTA 숨김 */
+export const canStartChatForDesignation = (
+  isDesignated: boolean,
+  designatedMoverId: number | null | undefined
+): boolean => !isDesignated || designatedMoverId != null;
+
+/** 채팅 CTA 노출 여부 — 닫힌 요청·지정 id 가드 */
+export const canStartEstimateChat = ({
+  isDesignated,
+  designatedMoverId,
+  estimateRequestStatus,
+}: {
+  isDesignated: boolean;
+  designatedMoverId?: number | null;
+  estimateRequestStatus?: EstimateRequestStatus | null;
+}): boolean => {
+  if (
+    estimateRequestStatus != null &&
+    isEstimateRequestClosedForChat(estimateRequestStatus)
+  ) {
+    return false;
+  }
+
+  return canStartChatForDesignation(isDesignated, designatedMoverId);
+};
+
 export interface BuildEstimateChatRoomBodyParams {
   moverId: string;
   isDesignated: boolean;

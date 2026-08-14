@@ -23,15 +23,17 @@ export interface CustomerQuotesPageProps {
   searchParams: Promise<{ tab?: string | string[] }>;
 }
 
-/** 고객 내 견적 관리 페이지 */
+/** `/quotes` 서버 페이지. - 고객 내 견적 관리 페이지. */
 const CustomerQuotesPage = async ({
   searchParams,
 }: CustomerQuotesPageProps) => {
   const params = await searchParams;
   const activeTab = parseCustomerQuotesTabId(resolveTabSearchParam(params.tab));
 
+  // 탭 바 + 탭 본문(Suspense)
   return (
     <div className={CUSTOMER_QUOTES_PAGE_SHELL_CLASS}>
+      {/* 대기 중 / 받았던 견적 탭 */}
       <CustomerQuotesTabs activeTab={activeTab} />
       <Suspense
         fallback={
@@ -42,6 +44,7 @@ const CustomerQuotesPage = async ({
           />
         }
       >
+        {/* 활성 탭 패널 */}
         <CustomerQuotesPageClient />
       </Suspense>
     </div>
