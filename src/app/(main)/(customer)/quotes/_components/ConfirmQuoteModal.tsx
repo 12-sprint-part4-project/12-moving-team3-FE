@@ -12,9 +12,7 @@ export interface ConfirmQuoteModalProps {
   className?: string;
 }
 
-/**
- * 견적 확정 재확인 모달
- */
+/** `/quotes` 견적 확정 재확인 모달. */
 export const ConfirmQuoteModal = ({
   open,
   isConfirming = false,
@@ -34,6 +32,7 @@ export const ConfirmQuoteModal = ({
     return null;
   }
 
+  // 확정 안내 문구 + 확정하기 CTA
   return (
     <Modal onClose={handleClose} closeOnDimmedClick={!isConfirming}>
       <ModalBasic

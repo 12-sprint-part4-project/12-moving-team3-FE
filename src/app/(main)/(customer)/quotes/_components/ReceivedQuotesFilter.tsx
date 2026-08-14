@@ -25,7 +25,7 @@ const FILTER_OPTIONS: { value: CustomerPastQuoteFilter; label: string }[] = [
   { value: 'CONFIRMED', label: '확정한 견적서' },
 ];
 
-/** 받았던 견적 필터 (전체 / 확정한 견적서) — 커스텀 listbox + 키보드·포커스 계약 */
+/** `/quotes?tab=received` 그룹 필터. - 전체 / 확정한 견적서 listbox. */
 export const ReceivedQuotesFilter = ({
   value,
   onValueChange,
@@ -78,11 +78,13 @@ export const ReceivedQuotesFilter = ({
     closeAndRestoreFocus();
   };
 
+  // 필터 트리거 + (열림 시) 옵션 listbox
   return (
     <div
       ref={containerRef}
       className={cn('relative inline-grid w-max', className)}
     >
+      {/* 현재 필터 트리거 */}
       <button
         ref={triggerRef}
         type="button"
