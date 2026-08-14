@@ -12,14 +12,12 @@ import { getMotionTransition, tabContentSlide } from '@/lib/motionVariants';
 import { toStartEstimateChatParams } from '@/lib/startEstimateChat';
 
 import { ConfirmQuoteModal } from './_components/ConfirmQuoteModal';
+import { CUSTOMER_QUOTES_TAB_PANEL_CLASS } from './_components/customerQuotesStyles';
 import { PendingQuotesPanel } from './_components/PendingQuotesPanel';
 import { ReceivedQuotesPanel } from './_components/ReceivedQuotesPanel';
 
 import type { CustomerQuotesTabId } from './_components/CustomerQuotesTabs';
 import type { PendingQuoteCardModel } from '@/types/customerQuote';
-
-/** 탭 패널 공통 레이아웃 */
-const TAB_PANEL_CLASS = 'flex min-h-0 flex-1 flex-col';
 
 export interface CustomerQuotesPageClientProps {
   activeTab: CustomerQuotesTabId;
@@ -30,21 +28,14 @@ const CustomerQuotesPageClient = ({
   activeTab,
 }: CustomerQuotesPageClientProps) => {
   const shouldReduceMotion = useReducedMotion();
-  const motionTransition = getMotionTransition(shouldReduceMotion);
   const router = useRouter();
+
   const { user, isReady } = useAuth();
-  const isCustomerReady = isReady && user?.userType === 'CUSTOMER';
-  const isActiveTabPending = activeTab === 'pending';
-  /** 탭 슬라이드 방향 (received 진입 +1, pending 복귀 -1) */
-  const tabDirection = activeTab === 'received' ? 1 : -1;
   const { handleFavoriteClick, isMoverPending } = useFavoriteAction();
   const { startEstimateChat, pendingChatTargetId } = useStartEstimateChat();
-
-  /** 견적 확정 성공 후 이용 내역으로 이동 */
   const goToHistory = useCallback(() => {
     router.replace('/quotes/history');
   }, [router]);
-
   const {
     isConfirmModalOpen,
     isConfirming,
@@ -53,6 +44,14 @@ const CustomerQuotesPageClient = ({
     closeConfirmModal,
     submitConfirm,
   } = useConfirmQuoteModal(goToHistory);
+
+  const motionTransition = getMotionTransition(shouldReduceMotion);
+
+  const isCustomerReady = isReady && user?.userType === 'CUSTOMER';
+  const isActiveTabPending = activeTab === 'pending';
+
+  /** 탭 슬라이드 방향 (received 진입 +1, pending 복귀 -1) */
+  const tabDirection = activeTab === 'received' ? 1 : -1;
 
   /** 대기 카드 채팅하기 — 방 생성 후 `/chat/{roomId}` 이동 */
   const handleChatClick = (quote: PendingQuoteCardModel) => {
@@ -79,7 +78,7 @@ const CustomerQuotesPageClient = ({
               role="tabpanel"
               id="quotes-panel-pending"
               aria-labelledby="quotes-tab-pending"
-              className={TAB_PANEL_CLASS}
+              className={CUSTOMER_QUOTES_TAB_PANEL_CLASS}
             >
               {/* 대기 중인 견적 목록 */}
               <PendingQuotesPanel
@@ -105,7 +104,7 @@ const CustomerQuotesPageClient = ({
               role="tabpanel"
               id="quotes-panel-received"
               aria-labelledby="quotes-tab-received"
-              className={TAB_PANEL_CLASS}
+              className={CUSTOMER_QUOTES_TAB_PANEL_CLASS}
             >
               {/* 받았던 견적 그룹 목록 */}
               <ReceivedQuotesPanel

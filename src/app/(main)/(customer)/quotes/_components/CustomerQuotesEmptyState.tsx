@@ -45,6 +45,7 @@ export const CustomerQuotesEmptyState = ({
   className = '',
 }: CustomerQuotesEmptyStateProps) => {
   const shouldReduceMotion = useReducedMotion();
+
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const copy = EMPTY_COPY[variant];
   const messageKey = copy.lines.join('|');

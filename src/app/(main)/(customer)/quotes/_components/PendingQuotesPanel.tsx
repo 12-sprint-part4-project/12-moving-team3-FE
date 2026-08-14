@@ -11,10 +11,9 @@ import { useCustomerPendingQuotes } from '@/hooks/useCustomerPendingQuotes';
 import { useListEntranceStagger } from '@/hooks/useListEntranceStagger';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 import { fadeUp, getMotionTransition, listStagger } from '@/lib/motionVariants';
-import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
 
 import { CustomerQuotesEmptyState } from './CustomerQuotesEmptyState';
-import { CUSTOMER_QUOTES_CONTENT_CLASS } from './customerQuotesLayout';
+import { CUSTOMER_QUOTES_CONTENT_CLASS } from './customerQuotesStyles';
 import { PendingQuoteCard } from './PendingQuoteCard';
 import { PendingRequestSubHeader } from './PendingRequestSubHeader';
 
@@ -44,7 +43,7 @@ export const PendingQuotesPanel = ({
   isMoverPending,
 }: PendingQuotesPanelProps) => {
   const shouldReduceMotion = useReducedMotion();
-  const motionTransition = getMotionTransition(shouldReduceMotion);
+
   const {
     quotes,
     summary,
@@ -55,8 +54,9 @@ export const PendingQuotesPanel = ({
     error,
     refetch,
   } = useCustomerPendingQuotes({ enabled });
-
   const staggerPendingList = useListEntranceStagger(isPending);
+
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const errorMessage = resolveApiErrorMessage(
     error,
     '견적 목록을 불러오지 못했습니다.'
@@ -119,14 +119,13 @@ export const PendingQuotesPanel = ({
                   >
                     <PendingQuoteCard
                       quote={quote}
-                      mover={toMoverCardModelFromCustomerQuoteMover(quote.mover)}
                       isConfirming={isConfirming}
-                      isConfirmingThis={confirmingQuoteId === quote.quoteId}
-                      isChatPending={pendingChatQuoteId === quote.quoteId}
+                      confirmingQuoteId={confirmingQuoteId}
+                      pendingChatQuoteId={pendingChatQuoteId}
                       onConfirm={onConfirm}
                       onChatClick={onChatClick}
                       onFavoriteClick={onFavoriteClick}
-                      isFavoritePending={isMoverPending(quote.mover.moverId)}
+                      isMoverPending={isMoverPending}
                     />
                   </motion.li>
                 ))}

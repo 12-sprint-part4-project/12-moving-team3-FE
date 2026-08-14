@@ -1,9 +1,8 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import Link from 'next/link';
 
-import { Button } from '@/components/Button/Button';
+import { QuoteDetailErrorState } from '@/components/quotes/QuoteDetailErrorState';
 import { QuoteInfoSection } from '@/components/quotes/QuoteInfoRows';
 import { QuoteShareButtons } from '@/components/QuoteShareButtons/QuoteShareButtons';
 import { QuoteDetailContentSkeleton } from '@/components/ui/Skeleton';
@@ -44,23 +43,10 @@ const MoverQuoteDetailPageClient = ({
 
   if (numericQuoteId == null) {
     return (
-      <motion.div
-        variants={fadeIn}
-        initial="hidden"
-        animate="show"
-        transition={motionTransition}
-        className="flex min-h-full w-full flex-col items-center justify-center gap-4 bg-white py-16"
-      >
-        <p role="alert" className="text-lg-medium text-red-200">
-          유효하지 않은 견적입니다.
-        </p>
-        <Link
-          href="/mover/quotes"
-          className="text-lg-semibold text-blue-300 underline-offset-2 hover:underline"
-        >
-          내 견적 관리로 돌아가기
-        </Link>
-      </motion.div>
+      <QuoteDetailErrorState
+        message="유효하지 않은 견적입니다."
+        backHref="/mover/quotes"
+      />
     );
   }
 
@@ -84,33 +70,13 @@ const MoverQuoteDetailPageClient = ({
         : '견적 상세를 불러오지 못했습니다.';
 
     return (
-      <motion.div
-        variants={fadeIn}
-        initial="hidden"
-        animate="show"
-        transition={motionTransition}
-        className="flex min-h-full w-full flex-col items-center justify-center gap-4 bg-white py-16"
-      >
-        <p role="alert" className="text-center text-lg-medium text-red-200">
-          {errorMessage}
-        </p>
-        <Button
-          size="sm"
-          variant="outlined"
-          className="max-w-[10rem]"
-          onClick={() => {
-            void refetch();
-          }}
-        >
-          다시 시도
-        </Button>
-        <Link
-          href="/mover/quotes"
-          className="text-lg-semibold text-blue-300 underline-offset-2 hover:underline"
-        >
-          내 견적 관리로 돌아가기
-        </Link>
-      </motion.div>
+      <QuoteDetailErrorState
+        message={errorMessage}
+        backHref="/mover/quotes"
+        onRetry={() => {
+          void refetch();
+        }}
+      />
     );
   }
 

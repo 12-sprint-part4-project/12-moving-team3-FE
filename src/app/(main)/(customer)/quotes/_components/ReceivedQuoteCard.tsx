@@ -8,29 +8,30 @@ import { QuotePriceRow } from '@/components/quotes/QuotePriceRow';
 import { QuoteStatusChipRow } from '@/components/quotes/QuoteStatusChips';
 import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
+import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
 
 import type { ReceivedQuoteCardModel } from '@/types/customerQuote';
-import type { MoverCardModel } from '@/types/mover';
 
 export interface ReceivedQuoteCardProps {
   quote: ReceivedQuoteCardModel;
-  /** MoverProfileBlock용으로 변환된 기사 카드 모델 */
-  mover: MoverCardModel;
   onFavoriteClick?: (moverId: string, nextFavorited: boolean) => void;
-  isFavoritePending?: boolean;
+  isMoverPending?: (moverId: string) => boolean;
   className?: string;
 }
 
 /** `/quotes?tab=received` 받았던 견적 카드. */
 export const ReceivedQuoteCard = ({
   quote,
-  mover,
   onFavoriteClick,
-  isFavoritePending = false,
+  isMoverPending,
   className = '',
 }: ReceivedQuoteCardProps) => {
   const shouldReduceMotion = useReducedMotion();
+
+  const mover = toMoverCardModelFromCustomerQuoteMover(quote.mover);
   const detailHref = `/quotes/${quote.quoteId}`;
+
+  const isFavoritePending = isMoverPending?.(quote.mover.moverId) ?? false;
 
   // 칩·소개·프로필·견적가 + 상세 stretched link
   return (

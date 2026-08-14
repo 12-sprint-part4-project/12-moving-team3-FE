@@ -3,7 +3,7 @@ import {
   type QuotesTabItem,
 } from '@/components/quotes/QuotesTabsShell';
 
-import { CUSTOMER_QUOTES_PAGE_X_PADDING } from './customerQuotesLayout';
+import { CUSTOMER_QUOTES_PAGE_X_PADDING } from './customerQuotesStyles';
 
 export type CustomerQuotesTabId = 'pending' | 'received';
 

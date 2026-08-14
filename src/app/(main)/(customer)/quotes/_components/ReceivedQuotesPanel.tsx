@@ -12,7 +12,7 @@ import { useLoadMoreOnView } from '@/hooks/useLoadMoreOnView';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 
 import { CustomerQuotesEmptyState } from './CustomerQuotesEmptyState';
-import { CUSTOMER_QUOTES_CONTENT_CLASS } from './customerQuotesLayout';
+import { CUSTOMER_QUOTES_CONTENT_CLASS } from './customerQuotesStyles';
 import { ReceivedQuoteGroupSection } from './ReceivedQuoteGroupSection';
 
 /** 받았던 견적 탭 패널 props */
@@ -42,13 +42,13 @@ export const ReceivedQuotesPanel = ({
     limit: PAST_QUOTE_GROUP_LIMIT,
     enabled,
   });
-
   const staggerOnEntrance = useListEntranceStagger(isPending);
   const loadMoreRef = useLoadMoreOnView({
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
   });
+
   const errorMessage = resolveApiErrorMessage(
     error,
     '견적 목록을 불러오지 못했습니다.'

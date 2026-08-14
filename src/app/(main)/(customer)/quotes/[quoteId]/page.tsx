@@ -1,8 +1,5 @@
 import CustomerQuoteDetailPageClient from './page.client';
-import {
-  CUSTOMER_QUOTE_DETAIL_PAGE_SHELL_CLASS,
-  CUSTOMER_QUOTE_DETAIL_PAGE_X_PADDING,
-} from '../_components/customerQuotesLayout';
+import { CUSTOMER_QUOTES_PAGE_X_PADDING } from '../_components/customerQuotesStyles';
 import { CustomerQuotesTitleHeader } from '../_components/CustomerQuotesTitleHeader';
 
 import type { Metadata } from 'next';
@@ -23,10 +20,10 @@ const CustomerQuoteDetailPage = async ({
 
   // 타이틀 + 상세 본문
   return (
-    <div className={CUSTOMER_QUOTE_DETAIL_PAGE_SHELL_CLASS}>
+    <div className="flex min-h-full w-full flex-col overflow-x-hidden bg-white">
       <CustomerQuotesTitleHeader
         title="견적 상세"
-        paddingClassName={CUSTOMER_QUOTE_DETAIL_PAGE_X_PADDING}
+        paddingClassName={CUSTOMER_QUOTES_PAGE_X_PADDING}
       />
       <CustomerQuoteDetailPageClient quoteId={quoteId} />
     </div>

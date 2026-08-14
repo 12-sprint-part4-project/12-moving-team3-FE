@@ -1,8 +1,5 @@
 import CustomerQuoteHistoryPageClient from './page.client';
-import {
-  CUSTOMER_QUOTES_PAGE_SHELL_CLASS,
-  CUSTOMER_QUOTES_PAGE_X_PADDING,
-} from '../_components/customerQuotesLayout';
+import { CUSTOMER_QUOTES_PAGE_X_PADDING } from '../_components/customerQuotesStyles';
 import { CustomerQuotesTitleHeader } from '../_components/CustomerQuotesTitleHeader';
 
 import type { Metadata } from 'next';
@@ -15,7 +12,7 @@ export const metadata: Metadata = {
 const CustomerQuoteHistoryPage = () => {
   // 타이틀 + 이용 내역 목록
   return (
-    <div className={CUSTOMER_QUOTES_PAGE_SHELL_CLASS}>
+    <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden">
       <CustomerQuotesTitleHeader
         title="이용 내역"
         paddingClassName={CUSTOMER_QUOTES_PAGE_X_PADDING}

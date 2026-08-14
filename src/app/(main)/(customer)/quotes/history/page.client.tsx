@@ -11,8 +11,9 @@ import type { HistoryQuoteCardModel } from '@/types/customerQuote';
 /** `/quotes/history` 클라이언트. - 이용 내역 본문 */
 const CustomerQuoteHistoryPageClient = () => {
   const { user, isReady } = useAuth();
-  const isCustomerReady = isReady && user?.userType === 'CUSTOMER';
   const { startEstimateChat, pendingChatTargetId } = useStartEstimateChat();
+
+  const isCustomerReady = isReady && user?.userType === 'CUSTOMER';
 
   /** 확정 기사와 1:1 채팅방 생성 후 이동 */
   const handleChatClick = (quote: HistoryQuoteCardModel) => {

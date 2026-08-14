@@ -1,10 +1,5 @@
 import { cn } from '@/lib/utils';
 
-import {
-  CUSTOMER_QUOTES_TITLE_CLASS,
-  CUSTOMER_QUOTES_TITLE_HEADER_CLASS,
-} from './customerQuotesLayout';
-
 export interface CustomerQuotesTitleHeaderProps {
   title: string;
   paddingClassName: string;
@@ -20,11 +15,13 @@ export const CustomerQuotesTitleHeader = ({
   // 페이지 제목(h1)
   <div
     className={cn(
-      CUSTOMER_QUOTES_TITLE_HEADER_CLASS,
+      'border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8',
       paddingClassName,
       className
     )}
   >
-    <h1 className={CUSTOMER_QUOTES_TITLE_CLASS}>{title}</h1>
+    <h1 className="text-2lg-semibold text-black-400 lg:text-2xl-semibold">
+      {title}
+    </h1>
   </div>
 );

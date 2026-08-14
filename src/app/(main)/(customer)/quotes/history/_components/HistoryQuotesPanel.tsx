@@ -18,7 +18,7 @@ import { CustomerQuotesEmptyState } from '../../_components/CustomerQuotesEmptyS
 import {
   CUSTOMER_QUOTES_CONTENT_CLASS,
   CUSTOMER_QUOTES_PAGE_X_PADDING,
-} from '../../_components/customerQuotesLayout';
+} from '../../_components/customerQuotesStyles';
 
 import type { HistoryQuoteCardModel } from '@/types/customerQuote';
 
@@ -36,7 +36,6 @@ export const HistoryQuotesPanel = ({
   onChatClick,
 }: HistoryQuotesPanelProps) => {
   const shouldReduceMotion = useReducedMotion();
-  const motionTransition = getMotionTransition(shouldReduceMotion);
 
   const {
     historyCards,
@@ -53,12 +52,13 @@ export const HistoryQuotesPanel = ({
     filter: 'CONFIRMED',
     enabled,
   });
-
   const loadMoreRef = useLoadMoreOnView({
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
   });
+
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const errorMessage = resolveApiErrorMessage(
     error,
     '이용 내역을 불러오지 못했습니다.'
@@ -110,7 +110,7 @@ export const HistoryQuotesPanel = ({
                 >
                   <HistoryQuoteCard
                     quote={quote}
-                    isChatPending={pendingChatQuoteId === quote.quoteId}
+                    pendingChatQuoteId={pendingChatQuoteId}
                     onChatClick={() => onChatClick(quote)}
                   />
                 </motion.li>

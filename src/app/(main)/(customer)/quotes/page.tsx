@@ -1,6 +1,5 @@
 import { resolveTabSearchParam } from '@/lib/resolveTabSearchParam';
 
-import { CUSTOMER_QUOTES_PAGE_SHELL_CLASS } from './_components/customerQuotesLayout';
 import {
   CustomerQuotesTabs,
   parseCustomerQuotesTabId,
@@ -26,7 +25,7 @@ const CustomerQuotesPage = async ({
 
   // 탭 바 + 활성 탭 패널
   return (
-    <div className={CUSTOMER_QUOTES_PAGE_SHELL_CLASS}>
+    <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden">
       {/* 대기 중 / 받았던 견적 탭 */}
       <CustomerQuotesTabs activeTab={activeTab} />
       {/* 활성 탭 패널 */}

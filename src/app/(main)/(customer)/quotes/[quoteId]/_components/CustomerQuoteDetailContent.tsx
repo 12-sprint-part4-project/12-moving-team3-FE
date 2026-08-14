@@ -15,15 +15,15 @@ import { cn } from '@/lib/utils';
 import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
 
 import { CustomerQuoteDetailActions } from './CustomerQuoteDetailActions';
-import { CUSTOMER_QUOTE_DETAIL_DIVIDER_CLASS } from './customerQuoteDetailStyles';
 import { CustomerQuoteDetailSummaryCard } from './CustomerQuoteDetailSummaryCard';
-import { CUSTOMER_QUOTE_DETAIL_PAGE_X_PADDING } from '../../_components/customerQuotesLayout';
+import {
+  CUSTOMER_QUOTE_DETAIL_DIVIDER_CLASS,
+  CUSTOMER_QUOTE_DETAIL_SECTION_CLASS,
+  CUSTOMER_QUOTE_DETAIL_SECTION_TITLE_CLASS,
+  CUSTOMER_QUOTES_PAGE_X_PADDING,
+} from '../../_components/customerQuotesStyles';
 
 import type { CustomerQuoteDetailViewModel } from '@/types/customerQuote';
-
-const SECTION_CLASS = 'flex w-full flex-col gap-4 lg:gap-8';
-const SECTION_TITLE_CLASS =
-  'text-lg-semibold text-black-400 lg:text-2xl-semibold';
 
 /** 상세 본문에 넘기는 확정·채팅·찜 액션 묶음 */
 interface CustomerQuoteDetailContentActions {
@@ -51,12 +51,15 @@ export const CustomerQuoteDetailContent = ({
   className = '',
 }: CustomerQuoteDetailContentProps) => {
   const shouldReduceMotion = useReducedMotion();
+
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const listStaggerVariants = getListStagger(shouldReduceMotion);
+
   const showComment = Boolean(detail.comment);
   const showUnconfirmedBanner = detail.showUnconfirmedBanner;
   /** 사이드바에 CTA가 있을 때만 공유 위 구분선 */
   const showDesktopActionDivider = detail.canConfirm || detail.canStartChat;
+
   /** QuoteShareButtons용 공유 메타 */
   const quoteShareProps = {
     sharePath: `/quotes/${quoteId}`,
@@ -75,7 +78,7 @@ export const CustomerQuoteDetailContent = ({
     <div
       className={cn(
         'mx-auto grid w-full max-w-[1920px] flex-1 grid-cols-1 gap-6 py-6 md:gap-8 md:py-8 lg:grid-cols-[minmax(0,59.6875rem)_20.5rem] lg:items-start lg:justify-between lg:gap-10 lg:py-10',
-        CUSTOMER_QUOTE_DETAIL_PAGE_X_PADDING,
+        CUSTOMER_QUOTES_PAGE_X_PADDING,
         className
       )}
     >
@@ -106,9 +109,9 @@ export const CustomerQuoteDetailContent = ({
         <motion.section
           variants={fadeUp}
           transition={motionTransition}
-          className={SECTION_CLASS}
+          className={CUSTOMER_QUOTE_DETAIL_SECTION_CLASS}
         >
-          <h2 className={SECTION_TITLE_CLASS}>견적가</h2>
+          <h2 className={CUSTOMER_QUOTE_DETAIL_SECTION_TITLE_CLASS}>견적가</h2>
           <p className="text-2lg-bold text-black-400 lg:text-3xl-bold">
             {detail.priceLabel}
           </p>
@@ -125,9 +128,9 @@ export const CustomerQuoteDetailContent = ({
             <motion.section
               variants={fadeUp}
               transition={motionTransition}
-              className={SECTION_CLASS}
+              className={CUSTOMER_QUOTE_DETAIL_SECTION_CLASS}
             >
-              <h2 className={SECTION_TITLE_CLASS}>코멘트</h2>
+              <h2 className={CUSTOMER_QUOTE_DETAIL_SECTION_TITLE_CLASS}>코멘트</h2>
               <p className="text-lg-regular whitespace-pre-wrap text-black-400 lg:text-2lg-regular">
                 {detail.comment}
               </p>
