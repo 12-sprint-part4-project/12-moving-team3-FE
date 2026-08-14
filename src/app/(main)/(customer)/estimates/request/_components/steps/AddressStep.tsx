@@ -1,5 +1,6 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -9,6 +10,7 @@ import { API_ERROR_CODE } from '@/constants/errorCode';
 import { useMoveInfoRevise } from '@/hooks/useMoveInfoRevise';
 import { ApiError, resolveApiErrorMessage } from '@/lib/apiClient';
 import { saveEstimateRequestStepBodySchema } from '@/lib/customerEstimateRequestSchema';
+import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 
 import { AddressSelectCard } from '../AddressSelectCard';
 import {
@@ -64,6 +66,7 @@ const toDraftFromDetail = (
 export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
   const router = useRouter();
   const [activeSide, setActiveSide] = useState<AddressSide | null>(null);
+  const shouldReduceMotion = useReducedMotion();
 
   const {
     detail,
@@ -219,7 +222,13 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
           ) : null}
 
           {moveDate.isRevising ? (
-            <div className="flex w-full flex-col gap-2 md:items-end">
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="show"
+              transition={getMotionTransition(shouldReduceMotion)}
+              className="flex w-full flex-col gap-2 md:items-end"
+            >
               <Calendar
                 className="max-w-[20.4375rem] md:max-w-[40rem]"
                 value={moveDate.draft}
@@ -232,7 +241,7 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
                 }}
               />
               <InlineErrorMessage message={errorMessage} />
-            </div>
+            </motion.div>
           ) : null}
         </>
       )}

@@ -1,8 +1,11 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
+
 import { Calendar } from '@/components/ui/Calendar/Calendar';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { useMoveInfoRevise } from '@/hooks/useMoveInfoRevise';
+import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 
 import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGroup';
 import { InlineErrorMessage } from '../InlineErrorMessage';
@@ -18,6 +21,7 @@ const MOVE_DATE_PROMPT = '이사 예정일을 선택해주세요.';
 export const MoveDateStep = () => {
   const { detail, errorMessage, isSubmitting, isRevisingField, moveType, moveDate } =
     useMoveInfoRevise();
+  const shouldReduceMotion = useReducedMotion();
 
   return (
     <section
@@ -39,7 +43,13 @@ export const MoveDateStep = () => {
           </EstimateRequestChatBubbleGroup>
 
           {/* Calendar 자체 카드 — ChatPanel로 감싸지 않음, md+ 우측 정렬 */}
-          <div className="flex w-full flex-col gap-2 md:items-end">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            transition={getMotionTransition(shouldReduceMotion)}
+            className="flex w-full flex-col gap-2 md:items-end"
+          >
             <Calendar
               className="max-w-[20.4375rem] md:max-w-[40rem]"
               value={moveDate.draft}
@@ -52,7 +62,7 @@ export const MoveDateStep = () => {
               }}
             />
             <InlineErrorMessage message={errorMessage} />
-          </div>
+          </motion.div>
         </>
       )}
     </section>

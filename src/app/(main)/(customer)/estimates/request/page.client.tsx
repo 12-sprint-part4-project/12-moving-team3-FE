@@ -59,7 +59,7 @@ export const EstimateRequestPageClient = () => {
   // loading · 일반 에러(자동 재시도 중) 공통 — 공용 Spinner로 톤 맞춤
   if (bootstrap.status === 'loading' || bootstrap.status === 'error') {
     return (
-      <div className="mx-auto max-w-[1400px] px-6 py-8 sm:px-18">
+      <div className="page-content py-8">
         <Spinner message="견적 요청을 준비하는 중…" />
       </div>
     );
