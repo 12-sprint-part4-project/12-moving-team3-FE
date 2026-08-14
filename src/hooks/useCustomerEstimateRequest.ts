@@ -134,21 +134,43 @@ const bootstrapCustomerEstimateRequest =
 
         // 생성 경합으로 활성 요청이 생긴 경우 → active 재조회
         if (error.code === API_ERROR_CODE.ACTIVE_REQUEST_EXISTS) {
-          const active = await getActiveEstimateRequest();
-          if (active.request?.status === 'DRAFT') {
-            const detail = await getEstimateRequestDetail(active.request.id);
-            return makeBootstrapResult({
-              status: 'ready',
-              detail,
-              visualStep: toVisualStep(detail.status, detail.currentStep),
-            });
-          }
+          try {
+            const active = await getActiveEstimateRequest();
+            if (active.request?.status === 'DRAFT') {
+              const detail = await getEstimateRequestDetail(
+                active.request.id
+              );
+              return makeBootstrapResult({
+                status: 'ready',
+                detail,
+                visualStep: toVisualStep(detail.status, detail.currentStep),
+              });
+            }
 
-          if (active.request) {
+            if (active.request) {
+              return makeBootstrapResult({
+                status: 'blocked',
+                blockedRequest: active.request,
+                visualStep: 4,
+              });
+            }
+          } catch (retryError) {
+            // 경합 복구 재조회 자체가 실패한 경우 — 다른 경로와 동일하게 로그 남기고 error로 정리
+            console.error(
+              '[customer-estimate-request] bootstrap ACTIVE_REQUEST_EXISTS retry failed',
+              retryError
+            );
+
             return makeBootstrapResult({
-              status: 'blocked',
-              blockedRequest: active.request,
-              visualStep: 4,
+              status: 'error',
+              error:
+                retryError instanceof ApiError
+                  ? retryError
+                  : new ApiError(
+                      500,
+                      '요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도합니다.',
+                      API_ERROR_CODE.UNKNOWN_ERROR
+                    ),
             });
           }
         }
