@@ -103,3 +103,8 @@ export const LOGIN_HREF_BY_USER_TYPE: Record<ApiUserType, string> = {
   CUSTOMER: '/login',
   MOVER: '/login/mover',
 };
+
+export const SIGNUP_HREF_BY_USER_TYPE: Record<ApiUserType, string> = {
+  CUSTOMER: '/signup',
+  MOVER: '/signup/mover',
+};

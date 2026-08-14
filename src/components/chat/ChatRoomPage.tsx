@@ -15,7 +15,9 @@ import {
   useMarkChatRoomAsRead,
   useSendChatMessage,
 } from '@/hooks/useChat';
+import { useChatRoomMobileViewport } from '@/hooks/useChatRoomMobileViewport';
 import { useChatSocketRoom } from '@/hooks/useChatSocketRoom';
+import { useIsMobileViewport } from '@/hooks/useIsMobileViewport';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import {
@@ -79,6 +81,11 @@ export const ChatRoomPage = ({
   }
 
   useChatSocketRoom(enabled ? roomId : 0);
+
+  // 모바일만: body를 visualViewport에 고정 → 키보드 시 채팅 UI가 가시 영역에 맞게 축소 (#279)
+  // 데스크톱은 훅 미사용 — 메시지 리스트 스크롤·전송 하단 이동 기존 유지
+  const isMobileViewport = useIsMobileViewport();
+  useChatRoomMobileViewport(enabled && isMobileViewport);
 
   // SEO 탭 타이틀 — auth(localStorage)라 generateMetadata 불가, room 로드 후 absolute로 설정
   useEffect(() => {
@@ -179,6 +186,7 @@ export const ChatRoomPage = ({
         messageType: 'TEXT',
         content,
       });
+      // 하단 스크롤을 먼저 요청한 뒤, preventScroll 포커스로 문서 밀림을 막는다 (#279)
       handleScrollToBottom();
       setFocusInputSignal((current) => current + 1);
     } catch (error) {
@@ -261,7 +269,12 @@ export const ChatRoomPage = ({
   return (
     <div
       className={cn(
-        'chat-room-content h-[calc(100dvh-var(--height-gnb))] max-h-[calc(100dvh-var(--height-gnb))] lg:h-[calc(100dvh-var(--height-gnb-lg))] lg:max-h-[calc(100dvh-var(--height-gnb-lg))]',
+        'chat-room-content',
+        // 모바일 + viewport lock: body가 vv 높이이므로 main 남은 공간을 채움
+        enabled && isMobileViewport
+          ? 'h-full min-h-0 max-h-full flex-1'
+          : 'h-[calc(100dvh-var(--height-gnb))] max-h-[calc(100dvh-var(--height-gnb))]',
+        'lg:h-[calc(100dvh-var(--height-gnb-lg))] lg:max-h-[calc(100dvh-var(--height-gnb-lg))]',
         className
       )}
     >

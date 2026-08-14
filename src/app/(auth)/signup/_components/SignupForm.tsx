@@ -1,29 +1,25 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, type ChangeEvent, type FormEvent } from 'react';
+import { useState } from 'react';
 
-import { AuthBrand, AuthHelperText } from '@/app/(auth)/_components/AuthBrand';
+import { AuthBrand } from '@/app/(auth)/_components/AuthBrand';
+import { AuthEmailField } from '@/app/(auth)/_components/AuthEmailField';
 import { AuthField } from '@/app/(auth)/_components/AuthField';
+import { AuthHelperText } from '@/app/(auth)/_components/AuthHelperText';
 import { AuthKakaoSection } from '@/app/(auth)/_components/AuthKakaoSection';
+import { AuthPasswordField } from '@/app/(auth)/_components/AuthPasswordField';
 import {
-  AUTH_PATH,
   USER_TYPE_BY_ROLE,
   getAuthRoleSwitch,
-  type AuthRole,
 } from '@/app/(auth)/_components/authRole';
-import {
-  AUTH_FIELDS_AND_SUBMIT_CLASS,
-  AUTH_FIELDS_CLASS,
-  AUTH_FORM_CLASS,
-  AUTH_SUBMIT_CLASS,
-} from '@/app/(auth)/_components/authStyles';
 import { Button } from '@/components/Button/Button';
 import { API_ERROR_CODE } from '@/constants/errorCode';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { LOGIN_HREF_BY_USER_TYPE } from '@/lib/authRoutePaths';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
-import { EMAIL_MAX_LENGTH, validateEmail } from '@/lib/validateEmail';
+import { validateEmail } from '@/lib/validateEmail';
 import {
   PASSWORD_FORMAT_ERROR_MESSAGE,
   PASSWORD_MAX_LENGTH,
@@ -31,6 +27,9 @@ import {
   validatePassword,
 } from '@/lib/validatePassword';
 import { signup } from '@/services/authApi';
+
+import type { AuthRole } from '@/app/(auth)/_components/authRole';
+import type { ChangeEvent, SubmitEvent } from 'react';
 
 interface SignupFormProps {
   role: AuthRole;
@@ -54,11 +53,6 @@ const NICKNAME_FORMAT_ERROR_MESSAGE = `닉네임은 ${NICKNAME_MIN_LENGTH}~${NIC
 const EMAIL_FORMAT_FIELD_ERROR_MESSAGE = '이메일 형식이 아닙니다.';
 const PASSWORD_FORMAT_FIELD_ERROR_MESSAGE = '비밀번호가 올바르지 않습니다.';
 
-const SIGNUP_STACK_CLASS = 'flex w-full flex-col items-center gap-8 lg:gap-14';
-
-const SIGNUP_FORM_SNS_WRAP_CLASS =
-  'flex w-full flex-col items-center gap-12 lg:gap-[4.5rem]';
-
 const INITIAL_VALUES: SignupFormValues = {
   name: '',
   email: '',
@@ -67,7 +61,7 @@ const INITIAL_VALUES: SignupFormValues = {
   passwordConfirm: '',
 };
 
-/** 전화번호는 프로필 등록에서 받는다. */
+/** 이메일·카카오 회원가입 폼. 전화번호는 프로필 등록에서 받는다. */
 export const SignupForm = ({ role }: SignupFormProps) => {
   const router = useRouter();
   const { showToast } = useToast();
@@ -116,7 +110,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
       setValues((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isSubmittable) return;
 
@@ -134,7 +128,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
 
       // 이메일 가입은 로그인 페이지로, 카카오는 콜백에서 바로 로그인
       showToast({ content: '회원가입이 완료되었습니다. 로그인해 주세요.' });
-      router.replace(AUTH_PATH.login[role]);
+      router.replace(LOGIN_HREF_BY_USER_TYPE[userType]);
     } catch (error) {
       if (
         error instanceof ApiError &&
@@ -165,17 +159,21 @@ export const SignupForm = ({ role }: SignupFormProps) => {
   };
 
   return (
-    <div className={SIGNUP_STACK_CLASS}>
+    <div className="flex w-full flex-col items-center gap-8 lg:gap-14">
       <AuthBrand
         prompt={roleSwitch.prompt}
         linkLabel={roleSwitch.linkLabel}
         href={roleSwitch.href}
       />
 
-      <div className={SIGNUP_FORM_SNS_WRAP_CLASS}>
-        <form noValidate onSubmit={handleSubmit} className={AUTH_FORM_CLASS}>
-          <div className={AUTH_FIELDS_AND_SUBMIT_CLASS}>
-            <div className={AUTH_FIELDS_CLASS}>
+      <div className="flex w-full flex-col items-center gap-12 lg:gap-[4.5rem]">
+        <form
+          noValidate
+          onSubmit={handleSubmit}
+          className="flex w-full max-w-[20.4375rem] flex-col items-center gap-4 lg:max-w-[40rem] lg:gap-6"
+        >
+          <div className="flex w-full flex-col gap-8 lg:gap-14">
+            <div className="flex w-full flex-col gap-4 lg:gap-8">
               <AuthField
                 id="signup-name"
                 label="이름"
@@ -187,14 +185,8 @@ export const SignupForm = ({ role }: SignupFormProps) => {
                 isError={isNameFormatError}
                 errorMessage={NAME_FORMAT_ERROR_MESSAGE}
               />
-              <AuthField
+              <AuthEmailField
                 id="signup-email"
-                label="이메일"
-                name="email"
-                type="email"
-                autoComplete="email"
-                maxLength={EMAIL_MAX_LENGTH}
-                placeholder="이메일을 입력해 주세요"
                 value={values.email}
                 onChange={handleChange('email')}
                 isError={isEmailFormatError}
@@ -211,27 +203,20 @@ export const SignupForm = ({ role }: SignupFormProps) => {
                 isError={isNicknameFormatError}
                 errorMessage={NICKNAME_FORMAT_ERROR_MESSAGE}
               />
-              <AuthField
+              <AuthPasswordField
                 id="signup-password"
-                label="비밀번호"
-                name="password"
-                type="password"
                 autoComplete="new-password"
-                showVisibilityToggle
                 maxLength={PASSWORD_MAX_LENGTH}
-                placeholder="비밀번호를 입력해 주세요"
                 value={values.password}
                 onChange={handleChange('password')}
                 isError={isPasswordFormatError}
                 errorMessage={PASSWORD_FORMAT_FIELD_ERROR_MESSAGE}
               />
-              <AuthField
+              <AuthPasswordField
                 id="signup-password-confirm"
-                label="비밀번호 확인"
                 name="passwordConfirm"
-                type="password"
+                label="비밀번호 확인"
                 autoComplete="new-password"
-                showVisibilityToggle
                 maxLength={PASSWORD_MAX_LENGTH}
                 placeholder="비밀번호를 다시 한번 입력해 주세요"
                 value={values.passwordConfirm}
@@ -246,7 +231,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
               variant="solid"
               size="sm"
               disabled={!isSubmittable}
-              className={AUTH_SUBMIT_CLASS}
+              className="lg:h-16 lg:gap-2 lg:text-xl-semibold"
             >
               {submitLabel}
             </Button>
@@ -255,7 +240,7 @@ export const SignupForm = ({ role }: SignupFormProps) => {
           <AuthHelperText
             prompt="이미 무빙 회원이신가요?"
             linkLabel="로그인"
-            href={AUTH_PATH.login[role]}
+            href={LOGIN_HREF_BY_USER_TYPE[userType]}
           />
         </form>
 

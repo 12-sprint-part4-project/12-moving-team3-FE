@@ -111,6 +111,12 @@
   --height-gnb: 3.375rem;
   --height-gnb-lg: 5.5rem;
 
+  /**
+   * Layout — visualViewport 높이 (모바일 채팅방 lock 시).
+   * useChatRoomMobileViewport가 px로 덮어씀. 미설정·데스크톱은 100dvh fallback.
+   */
+  --visual-viewport-height: 100dvh;
+
   /** Breakpoint — Tablet 744px (Figma community) */
   --breakpoint-tablet: 46.5rem;
 
@@ -255,9 +261,23 @@ body {
   @apply mx-auto flex w-full max-w-chat flex-col px-6 py-10;
 }
 
-/** 채팅방(상세) 공통 래퍼 — 높이는 ChatRoomPage에서 뷰포트 기준으로 고정, 내부만 스크롤 */
+/**
+ * 채팅방(상세) 공통 래퍼 —
+ * 높이는 ChatRoomPage에서 뷰포트 − GNB(데스크톱) 또는 main 남은 높이(모바일 lock)로 고정.
+ * 메시지 목록만 스크롤 (#279).
+ */
 @utility chat-room-content {
-  @apply mx-auto flex w-full max-w-chat flex-col overflow-hidden;
+  @apply mx-auto flex w-full max-w-chat flex-col overflow-hidden overscroll-none;
+}
+
+/**
+ * 모바일 채팅방 — useChatRoomMobileViewport가 html에 부여.
+ * body가 visualViewport에 고정된 뒤 main이 남는 높이를 넘지 않게 한다.
+ */
+html.chat-room-viewport-lock main {
+  min-height: 0;
+  flex: 1 1 0;
+  overflow: hidden;
 }
 
 /** 이미지 드래그 방지 */

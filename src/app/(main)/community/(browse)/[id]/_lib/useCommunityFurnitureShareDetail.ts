@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 
 import { useCreateChatRoom } from '@/hooks/useChat';
-import { useCompletePost } from '@/hooks/useCommunity';
+import { useCompletePost } from '@/hooks/usePostMutations';
 import { useToast } from '@/hooks/useToast';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 import {
