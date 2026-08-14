@@ -46,8 +46,6 @@ export interface NotificationListResponse {
   };
   meta: {
     totalCount: number;
-    /** items는 최신 10개로 제한되지만 unreadCount는 전체 미읽음 기준 (BE 미배포 시 대비 optional) */
-    unreadCount?: number;
   };
 }
 

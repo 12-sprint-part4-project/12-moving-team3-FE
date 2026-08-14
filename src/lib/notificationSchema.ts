@@ -28,8 +28,6 @@ export const notificationListResponseSchema = z.object({
   }),
   meta: z.object({
     totalCount: z.number(),
-    // BE 미배포 구간 대비 optional — 없으면 FE가 items 기준으로 폴백
-    unreadCount: z.number().optional(),
   }),
 });
 
