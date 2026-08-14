@@ -112,6 +112,8 @@ export const estimateRequestStatusSchema = z.enum([
   'CANCELED',
 ]);
 
+export type EstimateRequestStatus = z.infer<typeof estimateRequestStatusSchema>;
+
 const nullableMoveTypeSchema = moveTypeSchema.nullable();
 const nullableStringSchema = z.string().nullable();
 
@@ -212,8 +214,7 @@ export const isEstimateRequestReadyToSubmit = (detail: {
  */
 export const toVisualStep = (
   status: string,
-  currentStep: number,
-  _detail: Parameters<typeof isEstimateRequestReadyToSubmit>[0]
+  currentStep: number
 ): 1 | 2 | 3 | 4 => {
   if (status !== 'DRAFT') {
     return 4;

@@ -97,7 +97,7 @@ const bootstrapCustomerEstimateRequest =
         return makeBootstrapResult({
           status: 'ready',
           detail,
-          visualStep: toVisualStep(detail.status, detail.currentStep, detail),
+          visualStep: toVisualStep(detail.status, detail.currentStep),
         });
       }
 
@@ -116,7 +116,7 @@ const bootstrapCustomerEstimateRequest =
       return makeBootstrapResult({
         status: 'ready',
         detail,
-        visualStep: toVisualStep(detail.status, detail.currentStep, detail),
+        visualStep: toVisualStep(detail.status, detail.currentStep),
       });
     } catch (error) {
       if (error instanceof ApiError) {
@@ -145,11 +145,7 @@ const bootstrapCustomerEstimateRequest =
             return makeBootstrapResult({
               status: 'ready',
               detail,
-              visualStep: toVisualStep(
-                detail.status,
-                detail.currentStep,
-                detail
-              ),
+              visualStep: toVisualStep(detail.status, detail.currentStep),
             });
           }
 
@@ -302,11 +298,7 @@ export const useCustomerEstimateRequest = () => {
                 status: 'ready',
                 detail,
                 blockedRequest: null,
-                visualStep: toVisualStep(
-                  detail.status,
-                  detail.currentStep,
-                  detail
-                ),
+                visualStep: toVisualStep(detail.status, detail.currentStep),
                 error: null,
               }
             : prev
