@@ -1,3 +1,4 @@
+import { API_PATH } from '@/constants/apiPaths';
 import {
   API_BASE_URL,
   apiClient,
@@ -21,7 +22,7 @@ import type {
 
 /** POST /api/auth/login */
 export const login = (body: LoginRequest): Promise<LoginResponse> => {
-  return apiClient<LoginResponse>('/api/auth/login', {
+  return apiClient<LoginResponse>(API_PATH.AUTH_LOGIN, {
     method: 'POST',
     body,
   });
@@ -29,7 +30,7 @@ export const login = (body: LoginRequest): Promise<LoginResponse> => {
 
 /** POST /api/auth/signup */
 export const signup = (body: SignupRequest): Promise<SignupResponse> => {
-  return apiClient<SignupResponse>('/api/auth/signup', {
+  return apiClient<SignupResponse>(API_PATH.AUTH_SIGNUP, {
     method: 'POST',
     body,
   });
@@ -43,7 +44,7 @@ export const signup = (body: SignupRequest): Promise<SignupResponse> => {
 export const kakaoLogin = (
   body: KakaoLoginRequest
 ): Promise<KakaoLoginResponse> => {
-  return apiClient<KakaoLoginResponse>('/api/auth/kakao', {
+  return apiClient<KakaoLoginResponse>(API_PATH.AUTH_KAKAO, {
     method: 'POST',
     body,
   });
@@ -61,14 +62,14 @@ export const refresh = async (): Promise<RefreshResponse> => {
 
 /** POST /api/auth/logout */
 export const logout = (): Promise<LogoutResponse> => {
-  return apiClient<LogoutResponse>('/api/auth/logout', {
+  return apiClient<LogoutResponse>(API_PATH.AUTH_LOGOUT, {
     method: 'POST',
   });
 };
 
 /** GET /api/auth/me — Access Token으로 현재 유저 조회 */
 export const getMe = async (): Promise<MeResponse> => {
-  const response = await authFetch(`${API_BASE_URL}/api/auth/me`, {
+  const response = await authFetch(`${API_BASE_URL}${API_PATH.AUTH_ME}`, {
     method: 'GET',
     signal: createApiTimeoutSignal(),
   });

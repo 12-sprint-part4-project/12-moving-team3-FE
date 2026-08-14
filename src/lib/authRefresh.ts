@@ -1,3 +1,4 @@
+import { API_PATH } from '@/constants/apiPaths';
 import { API_ERROR_CODE } from '@/constants/errorCode';
 import {
   API_BASE_URL,
@@ -12,9 +13,9 @@ import type { RefreshResponse } from '@/types/auth';
 
 /** 401 refresh 재시도 루프에 넣지 않을 경로 */
 export const AUTH_RETRY_EXCLUDED_PATHS = [
-  '/api/auth/refresh',
-  '/api/auth/login',
-  '/api/auth/logout',
+  API_PATH.AUTH_REFRESH,
+  API_PATH.AUTH_LOGIN,
+  API_PATH.AUTH_LOGOUT,
 ] as const;
 
 let inflightRefresh: Promise<string> | null = null;
@@ -47,7 +48,7 @@ export const refreshAccessToken = (): Promise<string> => {
   inflightRefresh = (async () => {
     let response: Response;
     try {
-      response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
+      response = await fetch(`${API_BASE_URL}${API_PATH.AUTH_REFRESH}`, {
         method: 'POST',
         credentials: 'include',
         signal: createApiTimeoutSignal(),

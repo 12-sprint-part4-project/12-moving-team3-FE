@@ -1,38 +1,33 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
-import { AuthBrand, AuthHelperText } from '@/app/(auth)/_components/AuthBrand';
-import { AuthField } from '@/app/(auth)/_components/AuthField';
+import { AuthBrand } from '@/app/(auth)/_components/AuthBrand';
+import { AuthEmailField } from '@/app/(auth)/_components/AuthEmailField';
+import { AuthHelperText } from '@/app/(auth)/_components/AuthHelperText';
 import { AuthKakaoSection } from '@/app/(auth)/_components/AuthKakaoSection';
+import { AuthPasswordField } from '@/app/(auth)/_components/AuthPasswordField';
 import {
-  AUTH_PATH,
   USER_TYPE_BY_ROLE,
   getAuthRoleSwitch,
-  type AuthRole,
 } from '@/app/(auth)/_components/authRole';
-import {
-  AUTH_FIELDS_AND_SUBMIT_CLASS,
-  AUTH_FIELDS_CLASS,
-  AUTH_FORM_CLASS,
-  AUTH_SUBMIT_CLASS,
-} from '@/app/(auth)/_components/authStyles';
 import { Button } from '@/components/Button/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { SIGNUP_HREF_BY_USER_TYPE } from '@/lib/authRoutePaths';
 import { getPostAuthRedirectPath } from '@/lib/getPostAuthRedirectPath';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
-import {
-  EMAIL_FORMAT_ERROR_MESSAGE,
-  EMAIL_MAX_LENGTH,
-  validateEmail,
-} from '@/lib/validateEmail';
+import { validateEmail } from '@/lib/validateEmail';
 import { login } from '@/services/authApi';
+
+import type { AuthRole } from '@/app/(auth)/_components/authRole';
+import type { ChangeEvent, SubmitEvent } from 'react';
 
 interface LoginFormProps {
   role: AuthRole;
+  redirectTo?: string | null;
 }
 
 interface LoginFormValues {
@@ -40,20 +35,14 @@ interface LoginFormValues {
   password: string;
 }
 
-const LOGIN_STACK_CLASS =
-  'flex w-full flex-col items-center gap-10 lg:gap-[4.5rem]';
-
-const LOGIN_FORM_SNS_WRAP_CLASS =
-  'flex w-full flex-col items-center gap-12 md:gap-10 lg:contents';
-
 const INITIAL_VALUES: LoginFormValues = {
   email: '',
   password: '',
 };
 
-const LoginFormInner = ({ role }: LoginFormProps) => {
+/** 이메일·비밀번호·카카오 로그인 폼 */
+export const LoginForm = ({ role, redirectTo = null }: LoginFormProps) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { showToast } = useToast();
   const { setSession } = useAuth();
   const [values, setValues] = useState<LoginFormValues>(INITIAL_VALUES);
@@ -61,7 +50,6 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
 
   const roleSwitch = getAuthRoleSwitch('login', role);
   const userType = USER_TYPE_BY_ROLE[role];
-  const redirectTo = searchParams.get('redirect');
   const trimmedEmail = values.email.trim();
   const isSubmittable =
     trimmedEmail.length > 0 && values.password.length > 0 && !isPending;
@@ -73,12 +61,14 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
       setValues((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  /** 이메일 형식 검사 후 로그인하고 역할별 경로로 이동한다 */
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isSubmittable) return;
 
-    if (validateEmail(trimmedEmail)) {
-      showToast({ content: EMAIL_FORMAT_ERROR_MESSAGE });
+    const emailError = validateEmail(trimmedEmail);
+    if (emailError) {
+      showToast({ content: emailError });
       return;
     }
 
@@ -122,36 +112,28 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
   };
 
   return (
-    <div className={LOGIN_STACK_CLASS}>
+    <div className="flex w-full flex-col items-center gap-10 lg:gap-[4.5rem]">
       <AuthBrand
         prompt={roleSwitch.prompt}
         linkLabel={roleSwitch.linkLabel}
         href={roleSwitch.href}
       />
 
-      <div className={LOGIN_FORM_SNS_WRAP_CLASS}>
-        <form noValidate onSubmit={handleSubmit} className={AUTH_FORM_CLASS}>
-          <div className={AUTH_FIELDS_AND_SUBMIT_CLASS}>
-            <div className={AUTH_FIELDS_CLASS}>
-              <AuthField
+      <div className="flex w-full flex-col items-center gap-12 md:gap-10 lg:contents">
+        <form
+          noValidate
+          onSubmit={handleSubmit}
+          className="flex w-full max-w-[20.4375rem] flex-col items-center gap-4 lg:max-w-[40rem] lg:gap-6"
+        >
+          <div className="flex w-full flex-col gap-8 lg:gap-14">
+            <div className="flex w-full flex-col gap-4 lg:gap-8">
+              <AuthEmailField
                 id="login-email"
-                label="이메일"
-                name="email"
-                type="email"
-                autoComplete="email"
-                maxLength={EMAIL_MAX_LENGTH}
-                placeholder="이메일을 입력해 주세요"
                 value={values.email}
                 onChange={handleChange('email')}
               />
-              <AuthField
+              <AuthPasswordField
                 id="login-password"
-                label="비밀번호"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                showVisibilityToggle
-                placeholder="비밀번호를 입력해 주세요"
                 value={values.password}
                 onChange={handleChange('password')}
               />
@@ -162,7 +144,7 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
               variant="solid"
               size="sm"
               disabled={!isSubmittable}
-              className={AUTH_SUBMIT_CLASS}
+              className="lg:h-16 lg:gap-2 lg:text-xl-semibold"
             >
               {submitLabel}
             </Button>
@@ -171,7 +153,7 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
           <AuthHelperText
             prompt="아직 무빙 회원이 아니신가요?"
             linkLabel="이메일로 회원가입하기"
-            href={AUTH_PATH.signup[role]}
+            href={SIGNUP_HREF_BY_USER_TYPE[userType]}
           />
         </form>
 
@@ -182,14 +164,5 @@ const LoginFormInner = ({ role }: LoginFormProps) => {
         />
       </div>
     </div>
-  );
-};
-
-/** useSearchParams용 Suspense 경계 */
-export const LoginForm = ({ role }: LoginFormProps) => {
-  return (
-    <Suspense fallback={null}>
-      <LoginFormInner role={role} />
-    </Suspense>
   );
 };
