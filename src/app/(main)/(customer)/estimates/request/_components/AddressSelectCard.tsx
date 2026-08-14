@@ -126,7 +126,7 @@ const AddressSideField = ({
           onClick={isFilled ? onRevise : onSelect}
         >
           <span className="truncate text-left">
-            {isFilled ? draft?.address : emptyLabel}
+            {draft?.address ? draft.address : emptyLabel}
           </span>
         </Button>
       </div>
