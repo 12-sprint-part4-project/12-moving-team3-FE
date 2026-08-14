@@ -49,15 +49,56 @@ export const sortChatRoomsForGnbPreview = <
   rooms: T[]
 ): T[] => [...rooms].sort(compareChatRoomsForGnbPreviewDesc);
 
-/** lastMessage 반영 시 lastActivityAt 갱신 */
+const compareLastMessageRecency = (
+  a: ChatLastMessage,
+  b: ChatLastMessage
+): number => {
+  const byTime = a.createdAt.localeCompare(b.createdAt);
+  if (byTime !== 0) {
+    return byTime;
+  }
+
+  return a.messageId - b.messageId;
+};
+
+/** incoming이 current보다 최신(동시각이면 messageId 큼)이면 true */
+const isIncomingLastMessageNewer = (
+  incoming: ChatLastMessage,
+  current: ChatLastMessage
+): boolean => compareLastMessageRecency(incoming, current) > 0;
+
+const shouldApplyIncomingLastMessage = (
+  room: ChatRoomListItem,
+  incoming: ChatLastMessage
+): boolean => {
+  if (room.lastMessage) {
+    return isIncomingLastMessageNewer(incoming, room.lastMessage);
+  }
+
+  // lastMessage 없음: BE lastActivityAt(생성·재참여)보다 오래된 메시지는 무시
+  return incoming.createdAt.localeCompare(room.lastActivityAt) >= 0;
+};
+
+/** lastMessage 반영 시 lastActivityAt 갱신 (역순·중복 도착 시 기존 최신 상태 유지) */
 export const patchChatRoomWithLastMessage = (
   room: ChatRoomListItem,
   lastMessage: ChatLastMessage
-): ChatRoomListItem => ({
-  ...room,
-  lastMessage,
-  lastActivityAt: lastMessage.createdAt,
-});
+): ChatRoomListItem => {
+  if (!shouldApplyIncomingLastMessage(room, lastMessage)) {
+    return room;
+  }
+
+  const lastActivityAt =
+    lastMessage.createdAt.localeCompare(room.lastActivityAt) > 0
+      ? lastMessage.createdAt
+      : room.lastActivityAt;
+
+  return {
+    ...room,
+    lastMessage,
+    lastActivityAt,
+  };
+};
 
 /** 목록 캐시: 방 lastMessage·lastActivityAt 갱신 후 lastActivityAt 순 재정렬 */
 export const applyLastMessageToChatRoomsList = (
