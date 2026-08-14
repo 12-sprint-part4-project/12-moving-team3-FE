@@ -101,6 +101,4 @@ export type CustomerEstimateRequestEntryStatus =
   | 'loading'
   | 'ready'
   | 'blocked'
-  | 'unauthorized'
-  | 'profileIncomplete'
   | 'error';

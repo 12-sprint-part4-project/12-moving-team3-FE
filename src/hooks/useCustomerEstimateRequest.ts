@@ -8,7 +8,6 @@ import { customerEstimateRequestQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
-import { getAuthSession } from '@/lib/authSession';
 import {
   isEstimateRequestReadyToSubmit,
   toVisualStep,
@@ -65,22 +64,10 @@ const makeBootstrapResult = (
 
 /**
  * 활성 요청 조회 → DRAFT 상세 복원 또는 신규 생성.
- * PROFILE_NOT_FOUND / 401 은 entry status 로만 분기 (리다이렉트는 페이지에서).
+ * 로그인·프로필 완료 여부는 라우트 가드가 이미 보장하므로 여기서 따로 분기하지 않는다.
  */
 const bootstrapCustomerEstimateRequest =
   async (): Promise<CustomerEstimateRequestBootstrap> => {
-    // authSession 에 토큰이 없으면 API 호출 전에 로그인 안내로 분기
-    if (!getAuthSession()?.accessToken) {
-      return makeBootstrapResult({
-        status: 'unauthorized',
-        error: new ApiError(
-          401,
-          '견적 요청은 로그인 후 이용할 수 있습니다.',
-          API_ERROR_CODE.UNAUTHORIZED
-        ),
-      });
-    }
-
     try {
       const active = await getActiveEstimateRequest(); // 활성 요청 건이 존재하는지 조회 hasActiveRequest(존재여부 true/false), request(활성 요청 건 데이터)
 
@@ -115,23 +102,6 @@ const bootstrapCustomerEstimateRequest =
       });
     } catch (error) {
       if (error instanceof ApiError) {
-        if (
-          error.status === 401 ||
-          error.code === API_ERROR_CODE.UNAUTHORIZED
-        ) {
-          return makeBootstrapResult({
-            status: 'unauthorized',
-            error,
-          });
-        }
-
-        if (error.code === API_ERROR_CODE.PROFILE_NOT_FOUND) {
-          return makeBootstrapResult({
-            status: 'profileIncomplete',
-            error,
-          });
-        }
-
         // 생성 경합으로 활성 요청이 생긴 경우 → active 재조회
         if (error.code === API_ERROR_CODE.ACTIVE_REQUEST_EXISTS) {
           try {
@@ -283,12 +253,7 @@ export const useCustomerEstimateRequest = () => {
       return () => window.clearTimeout(timerId);
     }
 
-    if (
-      bootstrap.status === 'ready' ||
-      bootstrap.status === 'blocked' ||
-      bootstrap.status === 'unauthorized' ||
-      bootstrap.status === 'profileIncomplete'
-    ) {
+    if (bootstrap.status === 'ready' || bootstrap.status === 'blocked') {
       hasToastedBootstrapErrorRef.current = false;
     }
 
