@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { fn } from 'storybook/test';
 
 import { Pagination } from './Pagination';
+import { ResponsivePagination } from './ResponsivePagination';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
@@ -140,4 +141,24 @@ export const AllSizes: Story = {
       </div>
     </div>
   ),
+};
+
+const InteractiveResponsivePagination = ({
+  totalPages,
+}: {
+  totalPages: number;
+}) => {
+  const [page, setPage] = useState(1);
+  return (
+    <ResponsivePagination
+      page={page}
+      totalPages={totalPages}
+      onPageChange={setPage}
+    />
+  );
+};
+
+/** 뷰포트에 따라 sm / lg 전환 (기본 breakpoint=lg) */
+export const Responsive: Story = {
+  render: () => <InteractiveResponsivePagination totalPages={9} />,
 };
