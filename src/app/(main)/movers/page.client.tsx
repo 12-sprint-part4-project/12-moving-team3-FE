@@ -1,8 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useEffect, useMemo } from 'react';
-import { useInView } from 'react-intersection-observer';
+import { useMemo } from 'react';
 
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
@@ -12,8 +11,9 @@ import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useFavoriteMoversPreview } from '@/hooks/useFavoriteMoversPreview';
+import { useLoadMoreOnView } from '@/hooks/useLoadMoreOnView';
 import { useMoversList } from '@/hooks/useMoversList';
-import { ApiError } from '@/lib/apiClient';
+import { resolveApiErrorMessage } from '@/lib/apiClient';
 import {
   fadeIn,
   fadeUp,
@@ -23,14 +23,15 @@ import {
 import { cn } from '@/lib/utils';
 
 import { MoversEmptyState } from './_components/MoversEmptyState';
+import { MOVERS_PAGE_X_PADDING } from './_components/moversLayout';
 import { MoversSidebar } from './_components/MoversSidebar';
 import { MoversToolbar } from './_components/MoversToolbar';
 import { useMoversFilters } from './_lib/useMoversFilters';
 
-/** 기사님 찾기 목록 페이지 클라이언트 */
-export const MoversPageClient = () => {
+/** `/movers` 클라이언트. - 필터 Query, 무한스크롤, 찜 오케스트레이션. */
+const MoversPageClient = () => {
+  // [리팩터][7] 훅 → 훅 인자 파생 → 나머지 파생 → 핸들러 → JSX → 모달
   const shouldReduceMotion = useReducedMotion();
-  const motionTransition = getMotionTransition(shouldReduceMotion);
   const { user } = useAuth();
   const isLoggedIn = Boolean(user);
   const canUseFavorites = Boolean(user?.isProfileCompleted);
@@ -74,15 +75,13 @@ export const MoversPageClient = () => {
 
   const { favorites } = useFavoriteMoversPreview(canUseFavorites);
 
-  const { ref: loadMoreRef, inView } = useInView({
+  /** [리팩터][5] useInView+useEffect → useLoadMoreOnView. rootMargin 200px 유지. */
+  const loadMoreRef = useLoadMoreOnView({
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
     rootMargin: '200px',
   });
-
-  useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      void fetchNextPage();
-    }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   /** 정렬·필터 변경 시에만 목록 entrance 애니메이션 (검색어 제외) */
   const listAnimationKey = useMemo(
@@ -90,6 +89,7 @@ export const MoversPageClient = () => {
     [sortValue, filters.regionValue, filters.serviceValue]
   );
 
+  const motionTransition = getMotionTransition(shouldReduceMotion);
   const showListFetching = isFetching && !isPending && !isFetchingNextPage;
   /**
    * 목록 entrance/stagger 애니메이션은 "펜딩 중(=기존 data 유지 + isFetching=true)"에는
@@ -103,39 +103,24 @@ export const MoversPageClient = () => {
       filters.regionValue !== 'ALL' ||
       filters.serviceValue !== 'ALL');
 
+  /** [리팩터][6] fallback 문구 유지. ApiError·Error 메시지 추출만 헬퍼로. */
+  const errorMessage = resolveApiErrorMessage(
+    error,
+    '기사님 목록을 불러오지 못했습니다.'
+  );
+
   const handleRetry = () => {
     void refetch();
   };
 
-  const errorMessage =
-    error instanceof ApiError
-      ? error.message
-      : (error?.message ?? '기사님 목록을 불러오지 못했습니다.');
-
-  const pageXPadding =
-    'px-6 md:px-[4.5rem] lg:px-10 xl:px-16 min-[90rem]:px-[16.25rem]';
-
+  // [리팩터][4] 타이틀·바깥 bg-white 래퍼 제거. 셸은 page.tsx.
   return (
-    <div className="flex w-full flex-col overflow-x-hidden bg-white">
-      <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        animate="show"
-        transition={motionTransition}
-        className={cn(
-          'border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8',
-          pageXPadding
-        )}
-      >
-        <h1 className="text-2lg-semibold text-black-400 lg:text-2xl-semibold">
-          기사님 찾기
-        </h1>
-      </motion.div>
-
+    <>
+      {/* [리팩터][8] 본문 좌우 패딩은 moversLayout에서 직접 import. */}
       <div
         className={cn(
           'mx-auto flex w-full max-w-[1920px] flex-col gap-6 py-6 md:py-8 xl:flex-row xl:items-start xl:gap-8 min-[90rem]:gap-12',
-          pageXPadding
+          MOVERS_PAGE_X_PADDING
         )}
       >
         <MoversSidebar
@@ -163,6 +148,7 @@ export const MoversPageClient = () => {
             />
           </motion.div>
 
+          {/* [리팩터][9] 목록 칸만 배타 분기. 사이드바·툴바·센티널은 이 분기 밖(기존과 동일). */}
           {isPending ? (
             <motion.div
               variants={fadeIn}
@@ -172,9 +158,7 @@ export const MoversPageClient = () => {
             >
               <Spinner message="기사님 목록을 불러오는 중..." />
             </motion.div>
-          ) : null}
-
-          {isError ? (
+          ) : isError ? (
             <motion.div
               variants={fadeIn}
               initial="hidden"
@@ -193,15 +177,11 @@ export const MoversPageClient = () => {
                 다시 시도
               </Button>
             </motion.div>
-          ) : null}
-
-          {!isPending && !isError && isEmpty ? (
+          ) : isEmpty ? (
             <MoversEmptyState
               onReset={isFilteredEmpty ? handleResetAll : undefined}
             />
-          ) : null}
-
-          {!isError && movers.length > 0 ? (
+          ) : (
             <div className="relative">
               <AnimatePresence>
                 {showListFetching ? (
@@ -242,7 +222,7 @@ export const MoversPageClient = () => {
                 ))}
               </motion.ul>
             </div>
-          ) : null}
+          )}
 
           {hasNextPage || isFetchingNextPage ? (
             <div ref={loadMoreRef} className="flex w-full justify-center py-6">
@@ -266,11 +246,15 @@ export const MoversPageClient = () => {
         </div>
       </div>
 
+      {/* [리팩터][10] 찜 가드 모달. 탭과 무관하므로 페이지 레벨에 둔다. */}
       <LoginRequiredModal open={isLoginModalOpen} onClose={closeAuthModal} />
       <ProfileRequiredModal
         open={isProfileModalOpen}
         onClose={closeAuthModal}
       />
-    </div>
+    </>
   );
 };
+
+/** [리팩터][3] page.client는 default export. */
+export default MoversPageClient;
