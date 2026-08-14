@@ -7,7 +7,7 @@ import { Calendar } from '@/components/ui/Calendar/Calendar';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { API_ERROR_CODE } from '@/constants/errorCode';
 import { useMoveInfoRevise } from '@/hooks/useMoveInfoRevise';
-import { ApiError } from '@/lib/apiClient';
+import { ApiError, resolveApiErrorMessage } from '@/lib/apiClient';
 import { saveEstimateRequestStepBodySchema } from '@/lib/customerEstimateRequestSchema';
 
 import { AddressSelectCard } from '../AddressSelectCard';
@@ -178,11 +178,9 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
       }
 
       // REQUIRED_FIELD_MISSING 등 ApiError.message 그대로 노출
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : '견적 요청 제출 중 오류가 발생했습니다.';
-      setErrorMessage(message);
+      setErrorMessage(
+        resolveApiErrorMessage(error, '견적 요청 제출 중 오류가 발생했습니다.')
+      );
     }
   };
 

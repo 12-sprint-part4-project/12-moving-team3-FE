@@ -6,21 +6,12 @@ import {
   formatDateOnly,
   parseDateOnly,
 } from '@/components/ui/Calendar/Calendar.utils';
+import { MOVE_TYPE_OPTIONS } from '@/constants/estimateRequestOptions';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 import { useLocalToday } from '@/hooks/useLocalToday';
-import { ApiError } from '@/lib/apiClient';
+import { resolveApiErrorMessage } from '@/lib/apiClient';
 
 import type { ApiMoveType } from '@/types/estimateRequest';
-
-/** Step1~3 공용 — 답변 라벨·수정 패널 옵션 */
-export const MOVE_TYPE_OPTIONS: ReadonlyArray<{
-  value: ApiMoveType;
-  label: string;
-}> = [
-  { value: 'SMALL', label: '소형이사 (원룸, 투룸, 20평대 미만)' },
-  { value: 'HOME', label: '가정이사 (쓰리룸, 20평대 이상)' },
-  { value: 'OFFICE', label: '사무실이사 (사무실, 상업공간)' },
-];
 
 /** YYYY-MM-DD → 채팅 버블용 「YYYY년 M월 D일」 */
 const formatChatMoveDate = (moveDate: string): string => {
@@ -101,11 +92,9 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
       // syncDetail 후에도 visualStep 유지 → 수정 UI 닫고 본 스텝 복귀
       setIsRevisingMoveType(false);
     } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : '이사 종류 수정 중 오류가 발생했습니다.';
-      setErrorMessage(message);
+      setErrorMessage(
+        resolveApiErrorMessage(error, '이사 종류 수정 중 오류가 발생했습니다.')
+      );
     }
   };
 
@@ -134,11 +123,9 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
       });
       setIsRevisingMoveDate(false);
     } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : '이사 예정일 수정 중 오류가 발생했습니다.';
-      setErrorMessage(message);
+      setErrorMessage(
+        resolveApiErrorMessage(error, '이사 예정일 수정 중 오류가 발생했습니다.')
+      );
     }
   };
 
@@ -165,11 +152,9 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
         });
       }
     } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : '이사 예정일 저장 중 오류가 발생했습니다.';
-      setErrorMessage(message);
+      setErrorMessage(
+        resolveApiErrorMessage(error, '이사 예정일 저장 중 오류가 발생했습니다.')
+      );
     }
   };
 

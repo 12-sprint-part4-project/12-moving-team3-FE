@@ -11,7 +11,7 @@ import { ModalHeader } from '@/components/ui/Modal/ModalHeader';
 import { MODAL_PANEL_CLASS } from '@/components/ui/Modal/modalPanel';
 import { Pagination } from '@/components/ui/Pagination';
 import { API_ERROR_CODE } from '@/constants/errorCode';
-import { ApiError } from '@/lib/apiClient';
+import { ApiError, resolveApiErrorMessage } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 import { searchAddresses } from '@/services/addressSearchApi';
 import {
@@ -137,9 +137,7 @@ export const EstimateRequestAddressModal = ({
         setErrorMessage(ADDRESS_SEARCH_SOFT_ERROR);
       } else {
         setErrorMessage(
-          error instanceof ApiError
-            ? error.message
-            : '주소 검색 중 오류가 발생했습니다.'
+          resolveApiErrorMessage(error, '주소 검색 중 오류가 발생했습니다.')
         );
       }
     } finally {

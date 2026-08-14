@@ -4,6 +4,7 @@ import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { EstimateRequestChatBubbleGroup } from './EstimateRequestChatBubbleGroup';
 import { MoveTypeRevisePanel } from './MoveTypeRevisePanel';
 
+import type { MoveTypeSelectOption } from '@/constants/estimateRequestOptions';
 import type { ApiMoveType } from '@/types/estimateRequest';
 
 const INTRO_MESSAGE =
@@ -11,16 +12,11 @@ const INTRO_MESSAGE =
 const MOVE_TYPE_PROMPT_MOBILE = '이사 종류를 알려주세요.';
 const MOVE_TYPE_PROMPT_DESKTOP = '이사 종류를 선택해 주세요.';
 
-interface MoveTypeOption {
-  value: ApiMoveType;
-  label: string;
-}
-
 /** `useMoveInfoRevise().moveType`과 같은 모양 — 이사종류 질문/답변/수정 값+핸들러 */
 export interface MoveTypeAnswerModel {
   label: string | null;
   isRevising: boolean;
-  options: ReadonlyArray<MoveTypeOption>;
+  options: ReadonlyArray<MoveTypeSelectOption>;
   draft: ApiMoveType | null;
   setDraft: (value: ApiMoveType) => void;
   canConfirm: boolean;
