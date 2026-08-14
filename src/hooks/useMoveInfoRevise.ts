@@ -101,10 +101,10 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
   /** Step3 — 이미 저장된 일자만 reviseField */
   const startReviseMoveDate = () => {
     setErrorMessage(null);
-    onBeforeStartRevise?.();
-    setIsRevisingMoveType(false);
-    setDraftDate(detail?.moveDate ? parseDateOnly(detail.moveDate) : undefined);
-    setIsRevisingMoveDate(true);
+    onBeforeStartRevise?.(); // 수정 모드 진입 직전 추가 정리 (예: 주소 모달 닫기)
+    setIsRevisingMoveType(false); // 이사종류 수정 중이면 이사일자 수정 모드로 변경
+    setDraftDate(detail?.moveDate ? parseDateOnly(detail.moveDate) : undefined); // 이사일자 수정 모드로 변경시 이사일자 초기값 설정
+    setIsRevisingMoveDate(true); // 이사일자 수정 모드로 변경
   };
 
   const confirmMoveDateRevise = async (date: Date) => {
@@ -124,7 +124,10 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
       setIsRevisingMoveDate(false);
     } catch (error) {
       setErrorMessage(
-        resolveApiErrorMessage(error, '이사 예정일 수정 중 오류가 발생했습니다.')
+        resolveApiErrorMessage(
+          error,
+          '이사 예정일 수정 중 오류가 발생했습니다.'
+        )
       );
     }
   };
@@ -153,7 +156,10 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
       }
     } catch (error) {
       setErrorMessage(
-        resolveApiErrorMessage(error, '이사 예정일 저장 중 오류가 발생했습니다.')
+        resolveApiErrorMessage(
+          error,
+          '이사 예정일 저장 중 오류가 발생했습니다.'
+        )
       );
     }
   };

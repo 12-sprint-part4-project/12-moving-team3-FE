@@ -6,6 +6,7 @@ import {
   MOVE_TYPE_PROMPT_MOBILE,
 } from '@/constants/estimateRequestMessages';
 
+import { AnswerWithReviseButton } from './AnswerWithReviseButton';
 import { EstimateRequestChatBubbleGroup } from './EstimateRequestChatBubbleGroup';
 import { MoveTypeRevisePanel } from './MoveTypeRevisePanel';
 
@@ -54,17 +55,11 @@ export const MoveTypeAnswerSection = ({
 
       {/* 유저: 이사종류 답변 + 수정하기 (수정 모드 중에는 숨김) */}
       {moveType.label && !moveType.isRevising ? (
-        <EstimateRequestChatBubbleGroup align="end">
-          <TextFieldChat color="mePrimary">{moveType.label}</TextFieldChat>
-          <button
-            type="button"
-            className="pr-2 text-xs-medium text-gray-500 underline md:text-lg-medium"
-            disabled={isSubmitting}
-            onClick={moveType.start}
-          >
-            수정하기
-          </button>
-        </EstimateRequestChatBubbleGroup>
+        <AnswerWithReviseButton
+          label={moveType.label}
+          disabled={isSubmitting}
+          onRevise={moveType.start}
+        />
       ) : null}
 
       {moveType.isRevising ? (

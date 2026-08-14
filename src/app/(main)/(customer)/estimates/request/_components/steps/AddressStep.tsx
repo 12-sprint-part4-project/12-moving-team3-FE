@@ -14,6 +14,7 @@ import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 
 import { useScrollToActiveSection } from '../../_lib/useScrollToActiveSection';
 import { AddressSelectCard } from '../AddressSelectCard';
+import { AnswerWithReviseButton } from '../AnswerWithReviseButton';
 import {
   EstimateRequestAddressModal,
   type AddressDraft,
@@ -215,17 +216,11 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
 
           {/* 유저: 날짜 답변 + 수정하기 (날짜 수정 모드 중에는 숨김) */}
           {moveDate.label && !moveDate.isRevising ? (
-            <EstimateRequestChatBubbleGroup align="end">
-              <TextFieldChat color="mePrimary">{moveDate.label}</TextFieldChat>
-              <button
-                type="button"
-                className="pr-2 text-xs-medium text-gray-500 underline md:text-lg-medium"
-                disabled={isSubmitting}
-                onClick={moveDate.start}
-              >
-                수정하기
-              </button>
-            </EstimateRequestChatBubbleGroup>
+            <AnswerWithReviseButton
+              label={moveDate.label}
+              disabled={isSubmitting}
+              onRevise={moveDate.start}
+            />
           ) : null}
 
           {moveDate.isRevising ? (
