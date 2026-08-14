@@ -17,18 +17,23 @@ interface MoveTypeOption {
   label: string;
 }
 
+/** `useMoveInfoRevise().moveType`과 같은 모양 — 이사종류 질문/답변/수정 값+핸들러 */
+export interface MoveTypeAnswerModel {
+  label: string | null;
+  isRevising: boolean;
+  options: ReadonlyArray<MoveTypeOption>;
+  draft: ApiMoveType | null;
+  setDraft: (value: ApiMoveType) => void;
+  canConfirm: boolean;
+  start: () => void;
+  confirm: () => Promise<void>;
+}
+
 interface MoveTypeAnswerSectionProps {
-  moveTypeLabel: string | null;
-  isRevisingMoveType: boolean;
+  moveType: MoveTypeAnswerModel;
   isSubmitting: boolean;
-  startReviseMoveType: () => void;
-  moveTypeOptions: ReadonlyArray<MoveTypeOption>;
-  draftMoveType: ApiMoveType | null;
-  setDraftMoveType: (value: ApiMoveType) => void;
   isRevisingField: boolean;
-  canConfirmMoveType: boolean;
   errorMessage: string | null;
-  confirmMoveType: () => Promise<void>;
   /** 수정 모드가 아닐 때 이 자리에 이어서 렌더할 다음 질문 블록 */
   children: ReactNode;
 }
@@ -38,17 +43,10 @@ interface MoveTypeAnswerSectionProps {
  * AddressStep·MoveDateStep에 거의 동일하게 중복돼 있던 블록을 추출.
  */
 export const MoveTypeAnswerSection = ({
-  moveTypeLabel,
-  isRevisingMoveType,
+  moveType,
   isSubmitting,
-  startReviseMoveType,
-  moveTypeOptions,
-  draftMoveType,
-  setDraftMoveType,
   isRevisingField,
-  canConfirmMoveType,
   errorMessage,
-  confirmMoveType,
   children,
 }: MoveTypeAnswerSectionProps) => {
   return (
@@ -62,31 +60,31 @@ export const MoveTypeAnswerSection = ({
       </EstimateRequestChatBubbleGroup>
 
       {/* 유저: 이사종류 답변 + 수정하기 (수정 모드 중에는 숨김) */}
-      {moveTypeLabel && !isRevisingMoveType ? (
+      {moveType.label && !moveType.isRevising ? (
         <EstimateRequestChatBubbleGroup align="end">
-          <TextFieldChat color="mePrimary">{moveTypeLabel}</TextFieldChat>
+          <TextFieldChat color="mePrimary">{moveType.label}</TextFieldChat>
           <button
             type="button"
             className="pr-2 text-xs-medium text-gray-500 underline md:text-lg-medium"
             disabled={isSubmitting}
-            onClick={startReviseMoveType}
+            onClick={moveType.start}
           >
             수정하기
           </button>
         </EstimateRequestChatBubbleGroup>
       ) : null}
 
-      {isRevisingMoveType ? (
+      {moveType.isRevising ? (
         <MoveTypeRevisePanel
-          options={moveTypeOptions}
-          draftMoveType={draftMoveType}
-          onSelect={setDraftMoveType}
+          options={moveType.options}
+          draftMoveType={moveType.draft}
+          onSelect={moveType.setDraft}
           isSubmitting={isSubmitting}
           isRevisingField={isRevisingField}
-          canConfirm={canConfirmMoveType}
+          canConfirm={moveType.canConfirm}
           errorMessage={errorMessage}
           onConfirm={() => {
-            void confirmMoveType();
+            void moveType.confirm();
           }}
         />
       ) : (

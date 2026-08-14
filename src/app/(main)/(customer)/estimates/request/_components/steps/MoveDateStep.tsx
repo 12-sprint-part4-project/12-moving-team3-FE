@@ -16,24 +16,8 @@ const MOVE_DATE_PROMPT = '이사 예정일을 선택해주세요.';
  * 이사종류 수정하기: useMoveInfoRevise → Calendar 복귀 (visualStep 유지).
  */
 export const MoveDateStep = () => {
-  const {
-    detail,
-    moveTypeLabel,
-    moveTypeOptions,
-    draftMoveType,
-    setDraftMoveType,
-    isRevisingMoveType,
-    draftDate,
-    setDraftDate,
-    minMoveDate,
-    errorMessage,
-    isSubmitting,
-    isRevisingField,
-    canConfirmMoveType,
-    startReviseMoveType,
-    confirmMoveType,
-    confirmMoveDate,
-  } = useMoveInfoRevise();
+  const { detail, errorMessage, isSubmitting, isRevisingField, moveType, moveDate } =
+    useMoveInfoRevise();
 
   return (
     <section
@@ -41,17 +25,10 @@ export const MoveDateStep = () => {
       className="page-content flex flex-col gap-2 md:gap-6"
     >
       <MoveTypeAnswerSection
-        moveTypeLabel={moveTypeLabel}
-        isRevisingMoveType={isRevisingMoveType}
+        moveType={moveType}
         isSubmitting={isSubmitting}
-        startReviseMoveType={startReviseMoveType}
-        moveTypeOptions={moveTypeOptions}
-        draftMoveType={draftMoveType}
-        setDraftMoveType={setDraftMoveType}
         isRevisingField={isRevisingField}
-        canConfirmMoveType={canConfirmMoveType}
         errorMessage={errorMessage}
-        confirmMoveType={confirmMoveType}
       >
         {/* 시스템: 날짜 선택 프롬프트 */}
         <EstimateRequestChatBubbleGroup>
@@ -62,13 +39,13 @@ export const MoveDateStep = () => {
         <div className="flex w-full flex-col gap-2 md:items-end">
           <Calendar
             className="max-w-[20.4375rem] md:max-w-[40rem]"
-            value={draftDate}
-            onValueChange={setDraftDate}
-            minDate={minMoveDate}
+            value={moveDate.draft}
+            onValueChange={moveDate.setDraft}
+            minDate={moveDate.min}
             confirmDisabled={isSubmitting || detail == null}
             confirmLabel={isSubmitting ? '저장 중…' : '선택완료'}
             onConfirm={(date) => {
-              void confirmMoveDate(date);
+              void moveDate.confirmSave(date);
             }}
           />
           <InlineErrorMessage message={errorMessage} />

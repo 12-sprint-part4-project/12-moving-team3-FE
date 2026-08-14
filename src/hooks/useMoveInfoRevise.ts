@@ -175,16 +175,6 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
 
   return {
     detail,
-    moveTypeLabel,
-    moveDateLabel,
-    moveTypeOptions: MOVE_TYPE_OPTIONS,
-    draftMoveType,
-    setDraftMoveType,
-    isRevisingMoveType,
-    draftDate,
-    setDraftDate,
-    isRevisingMoveDate,
-    minMoveDate,
     errorMessage,
     setErrorMessage,
     saveStep,
@@ -194,11 +184,29 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
     isSubmittingRequest,
     isSubmitting,
     isInReviseMode,
-    canConfirmMoveType,
-    startReviseMoveType,
-    confirmMoveType,
-    startReviseMoveDate,
-    confirmMoveDateRevise,
-    confirmMoveDate,
+    /** 이사종류 질문/답변/수정 — 값·핸들러 한 덩어리 */
+    moveType: {
+      label: moveTypeLabel,
+      isRevising: isRevisingMoveType,
+      options: MOVE_TYPE_OPTIONS,
+      draft: draftMoveType,
+      setDraft: setDraftMoveType,
+      canConfirm: canConfirmMoveType,
+      start: startReviseMoveType,
+      confirm: confirmMoveType,
+    },
+    /** 이사일자 질문/답변/수정 — 값·핸들러 한 덩어리 */
+    moveDate: {
+      label: moveDateLabel,
+      isRevising: isRevisingMoveDate,
+      draft: draftDate,
+      setDraft: setDraftDate,
+      min: minMoveDate,
+      start: startReviseMoveDate,
+      /** Step3 — 이미 저장된 일자 재수정 */
+      confirmRevise: confirmMoveDateRevise,
+      /** Step2 — 최초 저장 또는 재수정 */
+      confirmSave: confirmMoveDate,
+    },
   };
 };

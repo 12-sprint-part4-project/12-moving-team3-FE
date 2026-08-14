@@ -60,16 +60,6 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
 
   const {
     detail,
-    moveTypeLabel,
-    moveDateLabel,
-    moveTypeOptions,
-    draftMoveType,
-    setDraftMoveType,
-    isRevisingMoveType,
-    draftDate,
-    setDraftDate,
-    isRevisingMoveDate,
-    minMoveDate,
     errorMessage,
     setErrorMessage,
     saveStep,
@@ -79,11 +69,8 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
     isSubmittingRequest,
     isSubmitting,
     isInReviseMode,
-    canConfirmMoveType,
-    startReviseMoveType,
-    confirmMoveType,
-    startReviseMoveDate,
-    confirmMoveDateRevise,
+    moveType,
+    moveDate,
   } = useMoveInfoRevise({
     onBeforeStartRevise: () => setActiveSide(null),
   });
@@ -198,29 +185,16 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
       className="page-content flex flex-col gap-2 md:gap-6"
     >
       <MoveTypeAnswerSection
-        moveTypeLabel={moveTypeLabel}
-        isRevisingMoveType={isRevisingMoveType}
+        moveType={moveType}
         isSubmitting={isSubmitting}
-        startReviseMoveType={startReviseMoveType}
-        moveTypeOptions={moveTypeOptions}
-        draftMoveType={draftMoveType}
-        setDraftMoveType={setDraftMoveType}
         isRevisingField={isRevisingField}
-        canConfirmMoveType={canConfirmMoveType}
         errorMessage={errorMessage}
-        confirmMoveType={confirmMoveType}
       >
         <MoveDateAnswerSection
-          moveDateLabel={moveDateLabel}
-          isRevisingMoveDate={isRevisingMoveDate}
+          moveDate={moveDate}
           isSubmitting={isSubmitting}
-          startReviseMoveDate={startReviseMoveDate}
-          draftDate={draftDate}
-          setDraftDate={setDraftDate}
-          minMoveDate={minMoveDate}
           dateConfirmDisabled={isSubmitting || detail == null}
           errorMessage={errorMessage}
-          confirmMoveDateRevise={confirmMoveDateRevise}
         >
           <AddressSelectSection
             departure={departure}
