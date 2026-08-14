@@ -9,8 +9,8 @@ import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useFavoriteMoversPreview } from '@/hooks/useFavoriteMoversPreview';
 import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 
-import { MoversListPanel } from './_components/MoversListPanel';
 import { MOVERS_LIST_CONTENT_CLASS } from './_components/moversLayout';
+import { MoversListPanel } from './_components/MoversListPanel';
 import { MoversSidebar } from './_components/MoversSidebar';
 import { MoversToolbar } from './_components/MoversToolbar';
 import { useMoversFilters } from './_lib/useMoversFilters';

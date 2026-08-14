@@ -2,9 +2,9 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 
-import { Button } from '@/components/Button/Button';
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
+import { Button } from '@/components/Button/Button';
 import { MoverCard } from '@/components/movers/MoverCard';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useMoverDetail } from '@/hooks/useMoverDetail';
@@ -16,8 +16,6 @@ import {
   listStagger,
 } from '@/lib/motionVariants';
 
-import { MOVERS_DETAIL_CONTENT_CLASS } from '../../_components/moversLayout';
-import { useMoverDetailActions } from '../_lib/useMoverDetailActions';
 import { AlreadyDesignatedModal } from './AlreadyDesignatedModal';
 import { MoverDetailBottomBar } from './MoverDetailBottomBar';
 import { MoverDetailSections } from './MoverDetailSections';
@@ -25,6 +23,8 @@ import { MoverDetailShareSection } from './MoverDetailShareSection';
 import { MoverDetailSidebar } from './MoverDetailSidebar';
 import { MoverReviewsPanel } from './MoverReviewsPanel';
 import { NeedGeneralEstimateModal } from './NeedGeneralEstimateModal';
+import { MOVERS_DETAIL_CONTENT_CLASS } from '../../_components/moversLayout';
+import { useMoverDetailActions } from '../_lib/useMoverDetailActions';
 
 export interface MoverDetailContentPanelProps {
   moverId: string;

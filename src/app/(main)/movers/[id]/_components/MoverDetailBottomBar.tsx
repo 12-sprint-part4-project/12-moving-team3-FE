@@ -5,9 +5,8 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
-import { MOVERS_DETAIL_BOTTOM_BAR_CLASS } from '../../_components/moversLayout';
-
 import { MoverDetailCtaButtons } from './MoverDetailCtaButtons';
+import { MOVERS_DETAIL_BOTTOM_BAR_CLASS } from '../../_components/moversLayout';
 
 import type {
   MoverDetailChat,
