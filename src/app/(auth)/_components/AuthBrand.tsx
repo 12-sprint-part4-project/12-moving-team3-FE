@@ -12,14 +12,7 @@ import {
   AUTH_LOGO_LINK_CLASS,
 } from './authStyles';
 
-interface AuthHelperTextProps {
-  prompt: string;
-  linkLabel: string;
-  href: string;
-  className?: string;
-}
-
-interface AuthBrandProps {
+interface AuthPromptLinkProps {
   prompt: string;
   linkLabel: string;
   href: string;
@@ -31,7 +24,7 @@ export const AuthHelperText = ({
   linkLabel,
   href,
   className = '',
-}: AuthHelperTextProps) => {
+}: AuthPromptLinkProps) => {
   return (
     <p className={cn(AUTH_HELPER_TEXT_CLASS, className)}>
       <span className={AUTH_HELPER_MUTED_CLASS}>{prompt}</span>
@@ -47,7 +40,7 @@ export const AuthBrand = ({
   linkLabel,
   href,
   className = '',
-}: AuthBrandProps) => {
+}: AuthPromptLinkProps) => {
   return (
     <div className={cn(AUTH_BRAND_CLASS, className)}>
       <Link href="/" aria-label="무빙" className={AUTH_LOGO_LINK_CLASS}>
