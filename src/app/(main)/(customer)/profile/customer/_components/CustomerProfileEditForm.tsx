@@ -1,6 +1,5 @@
 'use client';
 
-import { useQueryClient } from '@tanstack/react-query';
 import { redirect, useRouter } from 'next/navigation';
 import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
 
@@ -9,10 +8,9 @@ import { TextFieldOutlined } from '@/components/ui/Input';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import {
-  AUTH_QUERY_KEYS,
-  customerProfileQueryKeys,
-} from '@/constants/queryKey';
-import { useCustomerProfile } from '@/hooks/useCustomerProfile';
+  useCustomerProfile,
+  useUpsertCustomerProfile,
+} from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import {
@@ -23,16 +21,12 @@ import {
   KR_MOBILE_SUBSCRIBER_LENGTH,
   toKrMobileSubscriberDigits,
 } from '@/lib/phoneNumber';
-import {
-  uploadProfileImage,
-  validateProfileImageFile,
-} from '@/lib/uploadProfileImage';
+import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MISMATCH_ERROR_MESSAGE,
   validatePassword,
 } from '@/lib/validatePassword';
-import { upsertCustomerProfile } from '@/services/customerProfileApi';
 
 import { CustomerProfileRegionField } from './CustomerProfileRegionField';
 import { CustomerProfileServiceField } from './CustomerProfileServiceField';
@@ -185,8 +179,12 @@ const CustomerProfileEditFields = ({
   profile,
 }: CustomerProfileEditFieldsProps) => {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const { mutate: upsertProfile, isPending } = useUpsertCustomerProfile({
+    successMessage: '프로필이 수정되었습니다.',
+    errorFallbackMessage:
+      '프로필 수정에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+  });
   const imageInputId = useId();
   const nameInputId = useId();
   const nicknameInputId = useId();
@@ -224,7 +222,6 @@ const CustomerProfileEditFields = ({
   const [selectedRegion, setSelectedRegion] = useState<CustomerRegion | null>(
     profile.region
   );
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const trimmedName = name.trim();
   const trimmedNickname = nickname.trim();
@@ -265,8 +262,8 @@ const CustomerProfileEditFields = ({
     !isPasswordFormatError &&
     !isPasswordMismatchError &&
     !isPasswordIncomplete &&
-    !isSubmitting;
-  const submitLabel = isSubmitting ? '수정 중...' : '수정하기';
+    !isPending;
+  const submitLabel = isPending ? '수정 중...' : '수정하기';
 
   const handleCancel = () => {
     router.back();
@@ -293,8 +290,8 @@ const CustomerProfileEditFields = ({
     setSelectedRegion((prev) => (prev === value ? null : value));
   };
 
-  /** 변경분만 PATCH하고 캐시를 무효화한다 */
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  /** 검증을 통과한 변경분만 제출한다 */
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isSubmitEnabled) return;
 
@@ -317,52 +314,26 @@ const CustomerProfileEditFields = ({
       return;
     }
 
-    setIsSubmitting(true);
+    const body = buildCustomerProfileUpdateBody({
+      ...updateParams,
+      s3Key: isImageCleared && !profileImageFile ? null : undefined,
+    });
 
-    try {
-      let s3Key: string | null | undefined;
-
-      if (profileImageFile) {
-        s3Key = await uploadProfileImage(profileImageFile);
-      } else if (isImageCleared) {
-        s3Key = null;
-      }
-
-      const body = buildCustomerProfileUpdateBody({
-        ...updateParams,
-        s3Key,
-      });
-
-      if (!body) {
-        showToast({ content: '변경된 내용이 없습니다.' });
-        return;
-      }
-
-      await upsertCustomerProfile(body);
-
-      await queryClient.invalidateQueries({
-        queryKey: customerProfileQueryKeys.all,
-      });
-      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me() });
-
-      showToast({ content: '프로필이 수정되었습니다.' });
-    } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : '프로필 수정에 실패했습니다. 잠시 후 다시 시도해 주세요.';
-      showToast({ content: message });
-    } finally {
-      setIsSubmitting(false);
+    if (!body) {
+      showToast({ content: '변경된 내용이 없습니다.' });
+      return;
     }
+
+    upsertProfile({
+      body,
+      imageFile: profileImageFile,
+    });
   };
 
   return (
     <>
       <form
-        onSubmit={(event) => {
-          void handleSubmit(event);
-        }}
+        onSubmit={handleSubmit}
         className="flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 bg-white lg:max-w-[87.5rem] lg:gap-16 lg:rounded-[2rem] lg:px-6 lg:pt-8 lg:pb-10"
       >
         <div className="flex w-full flex-col items-stretch gap-5 lg:gap-10">

@@ -3,6 +3,7 @@
 import { RegionChip } from '@/components/ui/Chip';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { REGION_CHIP_OPTIONS } from '@/constants/commonOptions';
+import { cn } from '@/lib/utils';
 
 import type { CustomerRegion } from '@/types/customerProfile';
 
@@ -10,6 +11,7 @@ interface CustomerProfileRegionFieldProps {
   selectedRegion: CustomerRegion | null;
   helperText: string;
   onSelect: (value: CustomerRegion) => void;
+  className?: string;
 }
 
 /** 거주 지역 단일 선택 칩. 같은 칩을 다시 누르면 해제한다. */
@@ -17,9 +19,15 @@ export const CustomerProfileRegionField = ({
   selectedRegion,
   helperText,
   onSelect,
+  className = '',
 }: CustomerProfileRegionFieldProps) => {
   return (
-    <section className="flex w-full flex-col items-start gap-6 lg:gap-8">
+    <section
+      className={cn(
+        'flex w-full flex-col items-start gap-6 lg:gap-8',
+        className
+      )}
+    >
       <div className="flex w-full flex-col items-start gap-2">
         <RequiredLabel>내가 사는 지역</RequiredLabel>
         <p className="text-xs-regular text-gray-400 lg:text-lg-regular">

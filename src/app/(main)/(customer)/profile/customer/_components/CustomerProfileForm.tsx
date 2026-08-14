@@ -1,19 +1,14 @@
 'use client';
 
-import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { Button } from '@/components/Button/Button';
 import { TextFieldOutlined } from '@/components/ui/Input';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
-import {
-  AUTH_QUERY_KEYS,
-  customerProfileQueryKeys,
-} from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
+import { useUpsertCustomerProfile } from '@/hooks/useCustomerProfile';
 import { useToast } from '@/hooks/useToast';
-import { ApiError } from '@/lib/apiClient';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
@@ -23,11 +18,7 @@ import {
   toKrMobileSubscriberDigits,
   toPhoneDigits,
 } from '@/lib/phoneNumber';
-import {
-  uploadProfileImage,
-  validateProfileImageFile,
-} from '@/lib/uploadProfileImage';
-import { upsertCustomerProfile } from '@/services/customerProfileApi';
+import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 
 import { CustomerProfileRegionField } from './CustomerProfileRegionField';
 import { CustomerProfileServiceField } from './CustomerProfileServiceField';
@@ -47,9 +38,13 @@ const NICKNAME_MAX_LENGTH = 20;
 /** `/profile/customer` 고객 프로필 등록 폼 */
 export const CustomerProfileForm = () => {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const { user } = useAuth();
   const { showToast } = useToast();
+  const { mutate: upsertProfile, isPending } = useUpsertCustomerProfile({
+    successMessage: '프로필 등록이 완료되었습니다.',
+    errorFallbackMessage:
+      '프로필 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+  });
   const imageInputId = useId();
   const phoneInputId = useId();
   const {
@@ -71,7 +66,6 @@ export const CustomerProfileForm = () => {
   const [selectedRegion, setSelectedRegion] = useState<CustomerRegion | null>(
     null
   );
-  const [isPending, setIsPending] = useState(false);
 
   // 세션 번호는 effect로 복사하지 않고, 미입력 시 표시값 fallback으로 사용
   const phoneNumber =
@@ -113,12 +107,9 @@ export const CustomerProfileForm = () => {
   };
 
   /** 닉네임·전화·서비스·지역을 검증한 뒤 프로필을 등록하고 홈으로 이동한다 */
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isSubmitEnabled) return;
-
-    const fullPhone = composeKrMobilePhone(phoneNumber);
-    const phoneDigits = toPhoneDigits(fullPhone);
+    if (!isSubmitEnabled || selectedRegion === null) return;
 
     const nickname = (user?.nickname?.trim() ?? '').slice(
       0,
@@ -131,47 +122,28 @@ export const CustomerProfileForm = () => {
       return;
     }
 
-    setIsPending(true);
-
-    try {
-      let s3Key: string | undefined;
-
-      if (profileImageFile) {
-        s3Key = await uploadProfileImage(profileImageFile);
+    upsertProfile(
+      {
+        body: {
+          nickname,
+          phoneNumber: toPhoneDigits(composeKrMobilePhone(phoneNumber)),
+          region: selectedRegion,
+          service: selectedServices,
+        },
+        imageFile: profileImageFile,
+      },
+      {
+        onSuccess: () => {
+          router.replace('/');
+        },
       }
-
-      await upsertCustomerProfile({
-        nickname,
-        phoneNumber: phoneDigits,
-        region: selectedRegion,
-        service: selectedServices,
-        ...(s3Key ? { s3Key } : {}),
-      });
-
-      await queryClient.invalidateQueries({
-        queryKey: customerProfileQueryKeys.all,
-      });
-      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.me() });
-
-      showToast({ content: '프로필 등록이 완료되었습니다.' });
-      router.replace('/');
-    } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : '프로필 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.';
-      showToast({ content: message });
-    } finally {
-      setIsPending(false);
-    }
+    );
   };
 
   return (
     <>
       <form
-        onSubmit={(event) => {
-          void handleSubmit(event);
-        }}
+        onSubmit={handleSubmit}
         className="flex w-full max-w-[20.4375rem] flex-col items-stretch gap-8 lg:max-w-[40rem] lg:gap-14"
       >
         <div className="flex w-full flex-col items-stretch gap-4 lg:gap-16">

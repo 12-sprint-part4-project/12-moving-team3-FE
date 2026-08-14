@@ -23,6 +23,7 @@ export const ProfileImageCropModal = ({
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [isPending, setIsPending] = useState(false);
+  const submitLabel = isPending ? '적용 중...' : '적용하기';
 
   const handleCropComplete = (
     _croppedArea: Area,
@@ -55,7 +56,7 @@ export const ProfileImageCropModal = ({
             }}
             disabled={!croppedAreaPixels || isPending}
           >
-            {isPending ? '적용 중...' : '적용하기'}
+            {submitLabel}
           </ModalCtaButton>
         }
       >
