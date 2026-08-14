@@ -1,3 +1,4 @@
+import { API_PATH } from '@/constants/apiPaths';
 import {
   API_BASE_URL,
   ApiError,
@@ -15,12 +16,9 @@ import type {
   UpsertMoverProfileRequest,
 } from '@/types/moverProfile';
 
-const PROFILE_PATH = '/api/users/movers/profile';
-const BASIC_INFO_PATH = '/api/users/movers/basic-info';
-
 /** GET /api/users/movers/profile */
 export const getMoverProfile = async (): Promise<MoverProfileMeResponse> => {
-  const response = await authFetch(`${API_BASE_URL}${PROFILE_PATH}`, {
+  const response = await authFetch(`${API_BASE_URL}${API_PATH.MOVER_PROFILE}`, {
     method: 'GET',
     signal: createApiTimeoutSignal(),
   });
@@ -52,7 +50,7 @@ export const getMoverProfileMe = async (): Promise<MoverProfileMe | null> => {
 export const upsertMoverProfile = async (
   body: UpsertMoverProfileRequest
 ): Promise<MoverProfileResponse> => {
-  const response = await authFetch(`${API_BASE_URL}${PROFILE_PATH}`, {
+  const response = await authFetch(`${API_BASE_URL}${API_PATH.MOVER_PROFILE}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -72,14 +70,17 @@ export const upsertMoverProfile = async (
 export const updateMoverBasicInfo = async (
   body: UpdateMoverBasicInfoRequest
 ): Promise<MoverBasicInfoResponse> => {
-  const response = await authFetch(`${API_BASE_URL}${BASIC_INFO_PATH}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-    signal: createApiTimeoutSignal(),
-  });
+  const response = await authFetch(
+    `${API_BASE_URL}${API_PATH.MOVER_BASIC_INFO}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+      signal: createApiTimeoutSignal(),
+    }
+  );
 
   if (!response.ok) {
     return throwApiError(response);

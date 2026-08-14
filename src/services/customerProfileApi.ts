@@ -1,3 +1,4 @@
+import { API_PATH } from '@/constants/apiPaths';
 import {
   API_BASE_URL,
   ApiError,
@@ -13,15 +14,16 @@ import type {
   UpsertCustomerProfileRequest,
 } from '@/types/customerProfile';
 
-const PROFILE_PATH = '/api/users/customers/profile';
-
 /** GET /api/users/customers/profile */
 export const getCustomerProfile =
   async (): Promise<CustomerProfileMeResponse> => {
-    const response = await authFetch(`${API_BASE_URL}${PROFILE_PATH}`, {
-      method: 'GET',
-      signal: createApiTimeoutSignal(),
-    });
+    const response = await authFetch(
+      `${API_BASE_URL}${API_PATH.CUSTOMER_PROFILE}`,
+      {
+        method: 'GET',
+        signal: createApiTimeoutSignal(),
+      }
+    );
 
     if (!response.ok) {
       return throwApiError(response);
@@ -51,14 +53,17 @@ export const getCustomerProfileMe =
 export const upsertCustomerProfile = async (
   body: UpsertCustomerProfileRequest
 ): Promise<CustomerProfileResponse> => {
-  const response = await authFetch(`${API_BASE_URL}${PROFILE_PATH}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-    signal: createApiTimeoutSignal(),
-  });
+  const response = await authFetch(
+    `${API_BASE_URL}${API_PATH.CUSTOMER_PROFILE}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+      signal: createApiTimeoutSignal(),
+    }
+  );
 
   if (!response.ok) {
     return throwApiError(response);
