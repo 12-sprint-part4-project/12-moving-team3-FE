@@ -80,34 +80,29 @@ export const ReceivedQuotesPanel = ({
     );
   }
 
-  // 빈 상태 — 받았던 견적 없음
-  if (isEmpty) {
-    return (
-      <div className={CUSTOMER_QUOTES_CONTENT_CLASS}>
-        <CustomerQuotesEmptyState variant="receivedEmpty" />
-      </div>
-    );
-  }
-
-  // 본문 — 요청 그룹 섹션 + 무한스크롤
+  // 본문 — 빈 상태 또는 요청 그룹 섹션 + 무한스크롤
   return (
     <div className={CUSTOMER_QUOTES_CONTENT_CLASS}>
-      <div className="mx-auto flex w-full max-w-[87.5rem] flex-col gap-6 md:gap-8 lg:gap-10">
-        {groups.map((group) => (
-          <ReceivedQuoteGroupSection
-            key={group.estimateRequestId}
-            group={group}
-            staggerOnEntrance={staggerOnEntrance}
-            onFavoriteClick={onFavoriteClick}
-            isMoverPending={isMoverPending}
-          />
-        ))}
+      {isEmpty ? (
+        <CustomerQuotesEmptyState variant="receivedEmpty" />
+      ) : (
+        <div className="mx-auto flex w-full max-w-[87.5rem] flex-col gap-6 md:gap-8 lg:gap-10">
+          {groups.map((group) => (
+            <ReceivedQuoteGroupSection
+              key={group.estimateRequestId}
+              group={group}
+              staggerOnEntrance={staggerOnEntrance}
+              onFavoriteClick={onFavoriteClick}
+              isMoverPending={isMoverPending}
+            />
+          ))}
 
-        <QuotesLoadMoreSentinel
-          loadMoreRef={loadMoreRef}
-          isFetchingNextPage={isFetchingNextPage}
-        />
-      </div>
+          <QuotesLoadMoreSentinel
+            loadMoreRef={loadMoreRef}
+            isFetchingNextPage={isFetchingNextPage}
+          />
+        </div>
+      )}
     </div>
   );
 };

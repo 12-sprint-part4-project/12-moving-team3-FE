@@ -1,7 +1,3 @@
-import { Suspense } from 'react';
-
-import { QuotesHistoryPageSkeleton } from '@/components/ui/Skeleton';
-
 import { CustomerQuotesTitleHeader } from '../_components/CustomerQuotesTitleHeader';
 import {
   CUSTOMER_QUOTES_PAGE_SHELL_CLASS,
@@ -17,7 +13,7 @@ export const metadata: Metadata = {
 
 /** `/quotes/history` 서버 페이지. - 이용 내역(확정 견적). */
 const CustomerQuoteHistoryPage = () => {
-  // 타이틀 + 이용 내역 목록(Suspense)
+  // 타이틀 + 이용 내역 목록
   return (
     <div className={CUSTOMER_QUOTES_PAGE_SHELL_CLASS}>
       <CustomerQuotesTitleHeader
@@ -25,17 +21,8 @@ const CustomerQuoteHistoryPage = () => {
         paddingClassName={CUSTOMER_QUOTES_PAGE_X_PADDING}
         className="shrink-0"
       />
-
-      <Suspense
-        fallback={
-          <QuotesHistoryPageSkeleton
-            pageXPadding={CUSTOMER_QUOTES_PAGE_X_PADDING}
-          />
-        }
-      >
-        {/* 확정 견적 카드 목록 */}
-        <CustomerQuoteHistoryPageClient />
-      </Suspense>
+      {/* 확정 견적 카드 목록 (로딩 스켈레톤은 client isPending에서 처리) */}
+      <CustomerQuoteHistoryPageClient />
     </div>
   );
 };

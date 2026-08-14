@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -13,20 +13,24 @@ import { toStartEstimateChatParams } from '@/lib/startEstimateChat';
 import type { PendingQuoteCardModel } from '@/types/customerQuote';
 
 import { ConfirmQuoteModal } from './_components/ConfirmQuoteModal';
-import { parseCustomerQuotesTabId } from './_components/CustomerQuotesTabs';
+import type { CustomerQuotesTabId } from './_components/CustomerQuotesTabs';
 import { PendingQuotesPanel } from './_components/PendingQuotesPanel';
 import { ReceivedQuotesPanel } from './_components/ReceivedQuotesPanel';
 
 /** 탭 패널 공통 레이아웃 */
 const TAB_PANEL_CLASS = 'flex min-h-0 flex-1 flex-col';
 
+export interface CustomerQuotesPageClientProps {
+  activeTab: CustomerQuotesTabId;
+}
+
 /** `/quotes` 클라이언트. - 고객 내 견적 관리 본문 */
-const CustomerQuotesPageClient = () => {
+const CustomerQuotesPageClient = ({
+  activeTab,
+}: CustomerQuotesPageClientProps) => {
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const activeTab = parseCustomerQuotesTabId(searchParams.get('tab'));
   const { user, isReady } = useAuth();
   const isCustomerReady = isReady && user?.userType === 'CUSTOMER';
   const isActiveTabPending = activeTab === 'pending';
