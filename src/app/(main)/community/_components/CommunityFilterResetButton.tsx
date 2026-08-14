@@ -1,7 +1,6 @@
 'use client';
 
 import ResetIcon from '@/assets/icons/reset.svg';
-
 import { cn } from '@/lib/utils';
 
 /** Mobile/Tablet filter/sm 트리거와 동일 높이 */

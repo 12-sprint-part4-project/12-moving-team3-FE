@@ -10,8 +10,8 @@ import { RejectRequestModal } from '@/components/ui/Modal/RejectRequestModal';
 import { SendQuoteModal } from '@/components/ui/Modal/SendQuoteModal';
 import { RequestsListSkeleton } from '@/components/ui/Skeleton';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
-import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useAuth } from '@/hooks/useAuth';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useQuoteSubmission } from '@/hooks/useQuoteSubmission';
 import { useReceivedEstimateRequests } from '@/hooks/useReceivedEstimateRequests';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
@@ -59,16 +59,8 @@ const MoverRequestsPageClient = ({
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const { user } = useAuth();
-  const { startEstimateChat, isChatPending } = useStartEstimateChat();
-  const [pendingChatRequestId, setPendingChatRequestId] = useState<
-    number | null
-  >(null);
-
-  useEffect(() => {
-    if (!isChatPending) {
-      setPendingChatRequestId(null);
-    }
-  }, [isChatPending]);
+  const { startEstimateChat, isChatPending, pendingChatTargetId } =
+    useStartEstimateChat();
 
   const {
     listFilters,
@@ -267,13 +259,15 @@ const MoverRequestsPageClient = ({
       return;
     }
 
-    setPendingChatRequestId(request.id);
-    startEstimateChat({
-      moverId: user.id,
-      isDesignated: request.isDesignated,
-      estimateRequestId: request.id,
-      designatedMoverId: request.designatedMoverId,
-    });
+    startEstimateChat(
+      {
+        moverId: user.id,
+        isDesignated: request.isDesignated,
+        estimateRequestId: request.id,
+        designatedMoverId: request.designatedMoverId,
+      },
+      request.id
+    );
   };
 
   /** 견적 보내기 모달 닫기 */
@@ -429,7 +423,7 @@ const MoverRequestsPageClient = ({
                           onSendQuote={handleOpenSendQuoteModal}
                           onReject={handleOpenRejectModal}
                           onChatClick={handleChatClick}
-                          isChatPending={pendingChatRequestId === request.id}
+                          isChatPending={pendingChatTargetId === request.id}
                         />
                       </motion.li>
                     ))}
@@ -447,7 +441,7 @@ const MoverRequestsPageClient = ({
                         onSendQuote={handleOpenSendQuoteModal}
                         onReject={handleOpenRejectModal}
                         onChatClick={handleChatClick}
-                        isChatPending={pendingChatRequestId === request.id}
+                        isChatPending={pendingChatTargetId === request.id}
                       />
                     </motion.li>
                   ))

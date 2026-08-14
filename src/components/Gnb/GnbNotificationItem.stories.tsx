@@ -1,8 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
 
 import { GnbNotificationItem } from './GnbNotificationItem';
 import { NOTIFICATION_FIXTURES } from './notificationFixtures';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const offerItem = NOTIFICATION_FIXTURES.find(
   (item) => item.type === 'NEW_QUOTE_OFFER_ARRIVED'

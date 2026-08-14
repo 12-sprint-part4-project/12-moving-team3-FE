@@ -1,17 +1,13 @@
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
-import type { Editor, Extensions } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
 import { COMMUNITY_WRITE_CONTENT_EDITOR_CLASS } from './communityWriteStyles';
 
+import type { Editor, Extensions } from '@tiptap/react';
+
 export type CommunityWriteToolbarItemId =
-  | 'bold'
-  | 'italic'
-  | 'heading1'
-  | 'heading2'
-  | 'bulletList'
-  | 'orderedList';
+  'bold' | 'italic' | 'heading1' | 'heading2' | 'bulletList' | 'orderedList';
 
 type CommunityWriteToolbarItemKind = 'toggle';
 

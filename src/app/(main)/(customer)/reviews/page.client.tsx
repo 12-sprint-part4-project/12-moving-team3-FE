@@ -6,12 +6,12 @@ import { useEffect, useRef, useState } from 'react';
 
 import { DeleteReviewConfirmModal } from '@/components/reviews/DeleteReviewConfirmModal';
 import { EditReviewModal } from '@/components/reviews/EditReviewModal';
+import { ReviewDetailModal } from '@/components/reviews/ReviewDetailModal';
 import {
   ReviewListSection,
   type ReviewListStatus,
 } from '@/components/reviews/ReviewListSection';
 import { ReviewsEmptyState } from '@/components/reviews/ReviewsEmptyState';
-import { ReviewDetailModal } from '@/components/reviews/ReviewDetailModal';
 import {
   parseHighlightReviewId,
   parseReviewsTabId,
@@ -35,6 +35,7 @@ import {
   getMotionTransition,
   tabContentSlide,
 } from '@/lib/motionVariants';
+
 import type { CustomerReviewItem, WritableQuoteItem } from '@/types/review';
 
 /** 내 견적 관리와 동일한 본문 컨테이너 — 패널 높이 채움(페이지네이션 mt-auto용) */

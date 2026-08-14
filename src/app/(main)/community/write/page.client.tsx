@@ -1,16 +1,24 @@
 'use client';
 
-import type { Editor } from '@tiptap/react';
+import { marked } from 'marked';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { getCommunityWriteHtml } from '@/app/(main)/community/write/_components/communityWriteEditor';
-import { getInitialWriteCategory, MAX_POST_IMAGE_COUNT } from '@/constants/communityOptions';
-import { useCreatePost, usePost, useUpdatePost, useUploadPostImage } from '@/hooks/useCommunity';
+import { Spinner } from '@/components/ui/Spinner/Spinner';
+import {
+  getInitialWriteCategory,
+  MAX_POST_IMAGE_COUNT,
+} from '@/constants/communityOptions';
+import {
+  useCreatePost,
+  usePost,
+  useUpdatePost,
+  useUploadPostImage,
+} from '@/hooks/useCommunity';
 import { useToast } from '@/hooks/useToast';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
-import { scheduleAppRouterReplace } from '@/lib/scheduleAppRouterNavigation';
+import { isHtmlContent } from '@/lib/communityPostContent';
 import {
   createExistingWriteImageItems,
   createPendingWriteImageItems,
@@ -20,30 +28,20 @@ import {
   revokePendingWriteImageItems,
   type WriteImageItem,
 } from '@/lib/communityWriteImageItems';
-import { marked } from 'marked';
-
-import { isHtmlContent } from '@/lib/communityPostContent';
 import { parsePositiveInt } from '@/lib/parsePositiveInt';
+import { scheduleAppRouterReplace } from '@/lib/scheduleAppRouterNavigation';
 import { cn } from '@/lib/utils';
-import type {
-  CreatePostBody,
-  PostCategory,
-  PostDetail,
-  Region,
-  UpdatePostBody,
-} from '@/types/community';
 
-import { COMMUNITY_DETAIL_DIVIDER } from '../_components/communitySharedStyles';
 import {
   COMMUNITY_DESKTOP_X,
   COMMUNITY_DETAIL_MAX_W,
   COMMUNITY_HEADER_X,
 } from '../_components/communityLayout';
+import { COMMUNITY_DETAIL_DIVIDER } from '../_components/communitySharedStyles';
 import { CommunityWriteCategoryChips } from './_components/CommunityWriteCategoryChips';
 import { CommunityWriteContentField } from './_components/CommunityWriteContentField';
 import { CommunityWriteImageField } from './_components/CommunityWriteImageField';
 import { CommunityWriteRegionChips } from './_components/CommunityWriteRegionChips';
-import { CommunityWriteTitleField } from './_components/CommunityWriteTitleField';
 import {
   COMMUNITY_WRITE_ACTIONS_CLASS,
   COMMUNITY_WRITE_CANCEL_BUTTON_CLASS,
@@ -53,6 +51,16 @@ import {
   COMMUNITY_WRITE_PAGE_TITLE_CLASS,
   COMMUNITY_WRITE_SUBMIT_BUTTON_CLASS,
 } from './_components/communityWriteStyles';
+import { CommunityWriteTitleField } from './_components/CommunityWriteTitleField';
+
+import type {
+  CreatePostBody,
+  PostCategory,
+  PostDetail,
+  Region,
+  UpdatePostBody,
+} from '@/types/community';
+import type { Editor } from '@tiptap/react';
 
 interface CommunityWriteFormProps {
   isEditMode: boolean;
@@ -109,7 +117,8 @@ const CommunityWriteForm = ({
     []
   );
 
-  const isDirty = title.trim().length > 0 || !isContentEmpty || imageItems.length > 0;
+  const isDirty =
+    title.trim().length > 0 || !isContentEmpty || imageItems.length > 0;
 
   useEffect(() => {
     if (!isDirty) return;
@@ -165,7 +174,9 @@ const CommunityWriteForm = ({
       return;
     }
 
-    const nextItems = createPendingWriteImageItems(files.slice(0, remainingSlots));
+    const nextItems = createPendingWriteImageItems(
+      files.slice(0, remainingSlots)
+    );
 
     setImageItems((previous) => [...previous, ...nextItems]);
   }, []);
@@ -400,12 +411,7 @@ export const CommunityWritePageClient = () => {
     scheduleAppRouterReplace(router, `/community/${editPost.id}`);
   }, [editPost, isEditMode, isEditPostFetched, router, showToast]);
 
-  if (
-    isEditMode &&
-    isEditPostFetched &&
-    editPost &&
-    editPost.isMine !== true
-  ) {
+  if (isEditMode && isEditPostFetched && editPost && editPost.isMine !== true) {
     return (
       <div className="flex justify-center py-24">
         <Spinner message="게시글로 이동 중..." />

@@ -1,13 +1,14 @@
-import type { Decorator } from '@storybook/nextjs-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { NOTIFICATION_LIST_FIXTURE } from '@/components/Gnb/notificationFixtures';
 import { chatQueryKeys, notificationQueryKeys } from '@/constants/queryKey';
+
 import type {
   ChatRoomListResponse,
   ChatUnreadCountResponse,
 } from '@/types/chat';
 import type { NotificationListResponse } from '@/types/notification';
+import type { Decorator } from '@storybook/nextjs-vite';
 
 const STORY_UNREAD: ChatUnreadCountResponse = {
   data: { unreadCount: 0 },

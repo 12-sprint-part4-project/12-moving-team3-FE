@@ -35,6 +35,7 @@ import {
   unlikePost,
   updatePost,
 } from '@/services/communityApi';
+
 import type {
   CommentItem,
   CommentListMeta,
@@ -378,16 +379,18 @@ export const useTogglePostLike = () => {
     },
     onMutate: async ({ postId, nextLiked }) => {
       await Promise.all([
-        queryClient.cancelQueries({ queryKey: communityQueryKeys.detail(postId) }),
+        queryClient.cancelQueries({
+          queryKey: communityQueryKeys.detail(postId),
+        }),
         queryClient.cancelQueries({ queryKey: communityQueryKeys.lists() }),
       ]);
 
       const previousDetail = queryClient.getQueryData<PostDetailResponse>(
         communityQueryKeys.detail(postId)
       );
-      const previousLists = queryClient.getQueriesData<InfiniteData<PostListResponse>>(
-        { queryKey: communityQueryKeys.lists() }
-      );
+      const previousLists = queryClient.getQueriesData<
+        InfiniteData<PostListResponse>
+      >({ queryKey: communityQueryKeys.lists() });
 
       queryClient.setQueryData<PostDetailResponse>(
         communityQueryKeys.detail(postId),
@@ -417,10 +420,17 @@ export const useTogglePostLike = () => {
                 items: page.data.items.map((item) => {
                   if (item.id !== postId) return item;
                   const delta =
-                    typeof item.isLiked === 'boolean' && item.isLiked !== nextLiked
-                      ? nextLiked ? 1 : -1
+                    typeof item.isLiked === 'boolean' &&
+                    item.isLiked !== nextLiked
+                      ? nextLiked
+                        ? 1
+                        : -1
                       : 0;
-                  return { ...item, isLiked: nextLiked, likeCount: item.likeCount + delta };
+                  return {
+                    ...item,
+                    isLiked: nextLiked,
+                    likeCount: item.likeCount + delta,
+                  };
                 }),
               },
             })),
@@ -432,7 +442,10 @@ export const useTogglePostLike = () => {
     },
     onError: (_err, { postId }, context) => {
       if (context?.previousDetail !== undefined) {
-        queryClient.setQueryData(communityQueryKeys.detail(postId), context.previousDetail);
+        queryClient.setQueryData(
+          communityQueryKeys.detail(postId),
+          context.previousDetail
+        );
       }
 
       // 전체 목록 스냅샷 복원 대신 해당 게시글만 롤백 — 다른 mutation의 낙관적 업데이트 보존
@@ -453,7 +466,11 @@ export const useTogglePostLike = () => {
                   ...page.data,
                   items: page.data.items.map((item) =>
                     item.id === postId
-                      ? { ...item, isLiked: prevPost.isLiked, likeCount: prevPost.likeCount }
+                      ? {
+                          ...item,
+                          isLiked: prevPost.isLiked,
+                          likeCount: prevPost.likeCount,
+                        }
                       : item
                   ),
                 },
@@ -476,7 +493,9 @@ export const useTogglePostLike = () => {
     if (throttleLockRef.current) return;
 
     throttleLockRef.current = true;
-    setTimeout(() => { throttleLockRef.current = false; }, 300);
+    setTimeout(() => {
+      throttleLockRef.current = false;
+    }, 300);
 
     mutation.mutate({ postId, nextLiked }, options);
   };

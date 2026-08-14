@@ -1,22 +1,20 @@
 import { MoverProfileBlock } from '@/components/movers/MoverProfileBlock';
 import { QuoteStatusChips } from '@/components/quotes/QuoteStatusChips';
 import { cn } from '@/lib/utils';
-import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
-import type {
-  CustomerQuoteDetailViewModel,
-  CustomerQuoteMoverViewModel,
-} from '@/types/customerQuote';
+
+import type { CustomerQuoteDetailViewModel } from '@/types/customerQuote';
+import type { MoverCardModel } from '@/types/mover';
 
 export interface CustomerQuoteDetailSummaryCardProps {
   detail: CustomerQuoteDetailViewModel;
-  /** 찜 상태가 반영된 기사님 프로필 */
-  mover: CustomerQuoteMoverViewModel;
+  /** MoverProfileBlock용으로 변환된 기사 카드 (찜 상태 반영) */
+  mover: MoverCardModel;
   onFavoriteClick?: (moverId: string, nextFavorited: boolean) => void;
   isFavoritePending?: boolean;
   className?: string;
 }
 
-/** 고객 견적 상세 상단 요약 카드 */
+/** `/quotes/[quoteId]` 상단 요약 카드. */
 export const CustomerQuoteDetailSummaryCard = ({
   detail,
   mover,
@@ -30,6 +28,7 @@ export const CustomerQuoteDetailSummaryCard = ({
       className
     )}
   >
+    {/* 상태 칩 + 한줄 소개 + 기사 프로필(찜) */}
     <div className="flex w-full flex-wrap items-center gap-2 lg:gap-3">
       <QuoteStatusChips
         status={detail.isConfirmed ? 'confirmed' : 'pending'}
@@ -47,7 +46,7 @@ export const CustomerQuoteDetailSummaryCard = ({
     ) : null}
 
     <MoverProfileBlock
-      mover={toMoverCardModelFromCustomerQuoteMover(mover)}
+      mover={mover}
       disableNavigation
       onFavoriteClick={onFavoriteClick}
       isFavoritePending={isFavoritePending}

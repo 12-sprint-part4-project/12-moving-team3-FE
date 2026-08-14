@@ -7,15 +7,16 @@ import {
   type PostListContext,
 } from '@/lib/communityListContext';
 import { cn } from '@/lib/utils';
-import type { PostListItem } from '@/types/community';
 
-import { CommunityPostThumbnail } from './CommunityPostThumbnail';
-import { CommunityRegionBadge } from './CommunityRegionBadge';
 import {
   COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_CLASS,
   COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_TEXT_CLASS,
   FURNITURE_SHARE_COMPLETE_LABEL,
 } from './communityFurnitureShareStyles';
+import { CommunityPostThumbnail } from './CommunityPostThumbnail';
+import { CommunityRegionBadge } from './CommunityRegionBadge';
+
+import type { PostListItem } from '@/types/community';
 
 interface CommunityFurnitureGridCardProps {
   post: PostListItem;
@@ -71,7 +72,9 @@ export const CommunityFurnitureGridCard = ({
 
         {post.isCompleted === true ? (
           <div className={COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_CLASS}>
-            <span className={COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_TEXT_CLASS}>
+            <span
+              className={COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_TEXT_CLASS}
+            >
               {FURNITURE_SHARE_COMPLETE_LABEL}
             </span>
           </div>

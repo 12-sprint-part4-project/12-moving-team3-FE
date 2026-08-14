@@ -1,9 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import ClipIcon from '@/assets/icons/clip.svg';
+import LikeActiveIcon from '@/assets/icons/like-active.svg';
 import FacebookIcon from '@/assets/icons/symbol-facebook.svg';
 import KakaoIcon from '@/assets/icons/symbol-kakao.svg';
-import LikeActiveIcon from '@/assets/icons/like-active.svg';
+
 import { IconButton } from './IconButton';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof IconButton> = {
   title: 'UI/IconButton',

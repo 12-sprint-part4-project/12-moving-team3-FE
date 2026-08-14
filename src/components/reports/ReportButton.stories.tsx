@@ -1,8 +1,8 @@
 'use client';
 
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-
 import { ReportButton } from '@/components/reports/ReportButton';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof ReportButton> = {
   title: 'Reports/ReportButton',

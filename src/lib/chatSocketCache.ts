@@ -1,6 +1,5 @@
-import type { InfiniteData, QueryClient } from '@tanstack/react-query';
-
 import { chatQueryKeys } from '@/constants/queryKey';
+
 import type {
   ChatMessage,
   ChatMessagesResponse,
@@ -13,6 +12,7 @@ import type {
   ChatSocketUnreadPayload,
   ChatUnreadCountResponse,
 } from '@/types/chat';
+import type { InfiniteData, QueryClient } from '@tanstack/react-query';
 
 /** 재참여 직후 message/unread가 연달아 올 때 rooms 중복 refetch 방지 */
 const ROOMS_REFETCH_COOLDOWN_MS = 1500;
@@ -47,9 +47,7 @@ const hasRoomInRoomsCache = (
   const roomsCache = queryClient.getQueryData<ChatRoomListResponse>(
     chatQueryKeys.rooms()
   );
-  return Boolean(
-    roomsCache?.data.rooms.some((room) => room.roomId === roomId)
-  );
+  return Boolean(roomsCache?.data.rooms.some((room) => room.roomId === roomId));
 };
 
 const refetchRoomsList = (queryClient: QueryClient): void => {

@@ -16,11 +16,11 @@ import NoImageIcon from '@/assets/icons/no-image.svg';
 import { MAX_POST_IMAGE_COUNT } from '@/constants/communityOptions';
 import { cn } from '@/lib/utils';
 
-import { CommunityPostImagePreviewModal } from './CommunityPostImagePreviewModal';
 import {
   COMMUNITY_POST_DETAIL_BROKEN_ICON_CLASS,
   COMMUNITY_POST_DETAIL_THUMB_BUTTON_CLASS,
 } from './communityDetailStyles';
+import { CommunityPostImagePreviewModal } from './CommunityPostImagePreviewModal';
 
 const THUMB_GAP_PX = 8;
 
@@ -136,8 +136,9 @@ export const CommunityPostDetailImages = ({
                 aria-label={`게시글 이미지 ${index + 1} 원본 보기`}
                 onClick={() => {
                   if (!hasError) {
-                    const validIndices = visibleUrls.flatMap((itemUrl, itemIndex) =>
-                      failedUrls.has(itemUrl) ? [] : [itemIndex]
+                    const validIndices = visibleUrls.flatMap(
+                      (itemUrl, itemIndex) =>
+                        failedUrls.has(itemUrl) ? [] : [itemIndex]
                     );
                     const urls = validIndices.map(
                       (itemIndex) => visibleUrls[itemIndex]

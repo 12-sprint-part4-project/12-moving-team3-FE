@@ -1,9 +1,9 @@
-import { CustomerQuotesTitleHeader } from '../_components/CustomerQuotesTitleHeader';
+import CustomerQuoteDetailPageClient from './page.client';
 import {
   CUSTOMER_QUOTE_DETAIL_PAGE_SHELL_CLASS,
   CUSTOMER_QUOTE_DETAIL_PAGE_X_PADDING,
 } from '../_components/customerQuotesLayout';
-import CustomerQuoteDetailPageClient from './page.client';
+import { CustomerQuotesTitleHeader } from '../_components/CustomerQuotesTitleHeader';
 
 import type { Metadata } from 'next';
 
@@ -15,12 +15,13 @@ export interface CustomerQuoteDetailPageProps {
   params: Promise<{ quoteId: string }>;
 }
 
-/** 고객 견적 상세 페이지 */
+/** `/quotes/[quoteId]` 서버 페이지. - 견적 상세. */
 const CustomerQuoteDetailPage = async ({
   params,
 }: CustomerQuoteDetailPageProps) => {
   const { quoteId } = await params;
 
+  // 타이틀 + 상세 본문
   return (
     <div className={CUSTOMER_QUOTE_DETAIL_PAGE_SHELL_CLASS}>
       <CustomerQuotesTitleHeader

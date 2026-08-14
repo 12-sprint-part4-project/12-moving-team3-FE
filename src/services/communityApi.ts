@@ -6,6 +6,7 @@ import {
   throwApiError,
 } from '@/lib/apiClient';
 import { authFetch } from '@/lib/authFetch';
+
 import type {
   CommentListQuery,
   CommentListResponse,
@@ -62,7 +63,11 @@ const communityFetch = async <T>(
   try {
     return (await response.json()) as T;
   } catch {
-    throw new ApiError(500, DEFAULT_API_ERROR_MESSAGE, API_ERROR_CODE.INVALID_RESPONSE);
+    throw new ApiError(
+      500,
+      DEFAULT_API_ERROR_MESSAGE,
+      API_ERROR_CODE.INVALID_RESPONSE
+    );
   }
 };
 
@@ -74,6 +79,7 @@ export const buildPostListQueryString = (query: PostListQuery = {}): string => {
   if (query.region) params.set('region', query.region);
   if (query.sort) params.set('sort', query.sort);
   if (query.keyword) params.set('keyword', query.keyword);
+  if (query.hideCompleted) params.set('hideCompleted', 'true');
   appendCursorPaginationParams(params, query);
 
   const qs = params.toString();

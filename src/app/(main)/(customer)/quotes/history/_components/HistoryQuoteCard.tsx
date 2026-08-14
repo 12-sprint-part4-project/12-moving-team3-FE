@@ -5,42 +5,32 @@ import Link from 'next/link';
 import { Button, getButtonClassName } from '@/components/Button/Button';
 import { getClosedQuoteOverlayMessage } from '@/components/quotes/closedQuoteOverlay';
 import { QuoteListCard } from '@/components/quotes/QuoteListCard';
-import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
-import {
-  isEstimateRequestClosedForChat,
-  toStartEstimateChatParams,
-} from '@/lib/startEstimateChat';
 import { cn } from '@/lib/utils';
+
 import type { HistoryQuoteCardModel } from '@/types/customerQuote';
 
 export interface HistoryQuoteCardProps {
   quote: HistoryQuoteCardModel;
+  isChatPending?: boolean;
+  onChatClick?: () => void;
   className?: string;
 }
 
 const CTA_CLASS =
   'h-12 w-full rounded-lg text-lg-semibold md:flex-1 lg:h-14 lg:rounded-2xl lg:text-xl-semibold';
 
-/**
- * `/quotes/history` 이용 내역(확정 기사) 카드.
- * 열린 카드: 하단 CTA [상세보기][채팅하기]. 닫힌(EXPIRED/CANCELED/COMPLETED)은 오버레이만.
- */
+/** `/quotes/history` 이용 내역 카드. - 상세·채팅 CTA / 닫힌 요청은 오버레이. */
 export const HistoryQuoteCard = ({
   quote,
+  isChatPending = false,
+  onChatClick,
   className = '',
 }: HistoryQuoteCardProps) => {
   const detailHref = `/quotes/${quote.quoteId}`;
+  /** COMPLETED·EXPIRED·CANCELED면 오버레이만 노출 */
   const isClosedCard = quote.isMoveCompleted;
-  const { startEstimateChat, isChatPending } = useStartEstimateChat();
-  const canStartChat =
-    !isEstimateRequestClosedForChat(quote.estimateRequestStatus) &&
-    (!quote.isDesignated || quote.designatedMoverId != null);
 
-  /** 확정 기사와 1:1 방 열고 채팅 화면으로 이동 */
-  const handleChatClick = () => {
-    startEstimateChat(toStartEstimateChatParams(quote, quote.moverId));
-  };
-
+  // QuoteListCard — 열린 카드는 상세/채팅 CTA, 닫힌 카드는 오버레이만
   return (
     <QuoteListCard
       className={className}
@@ -79,13 +69,13 @@ export const HistoryQuoteCard = ({
             >
               상세보기
             </Link>
-            {canStartChat ? (
+            {quote.canStartChat ? (
               <Button
                 size="md"
                 variant="solid"
                 className={CTA_CLASS}
                 disabled={isChatPending}
-                onClick={handleChatClick}
+                onClick={onChatClick}
                 aria-label={`${quote.moverName} 기사님과 채팅하기`}
               >
                 {isChatPending ? '연결 중...' : '채팅하기'}

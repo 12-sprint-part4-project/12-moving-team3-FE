@@ -1,7 +1,7 @@
-import type { ReactNode } from 'react';
-
 import { EstimateRequestProgress } from './EstimateRequestProgress';
+
 import type { EstimateRequestVisualStep } from '@/types/customerEstimateRequest';
+import type { ReactNode } from 'react';
 
 interface EstimateRequestShellProps {
   currentStep: EstimateRequestVisualStep;

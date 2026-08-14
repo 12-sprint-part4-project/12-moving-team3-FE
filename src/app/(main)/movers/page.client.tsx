@@ -4,10 +4,10 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
 
-import { MoverCard } from '@/components/movers/MoverCard';
-import { Button } from '@/components/Button/Button';
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
+import { Button } from '@/components/Button/Button';
+import { MoverCard } from '@/components/movers/MoverCard';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';

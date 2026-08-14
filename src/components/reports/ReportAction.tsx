@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCreateReport } from '@/hooks/useCreateReport';
 import { useToast } from '@/hooks/useToast';
 import { cn } from '@/lib/utils';
+
 import type { ReportCategory, ReportTarget } from '@/types/report';
 
 interface ReportActionBaseProps {
@@ -35,7 +36,8 @@ interface ControlledReportActionProps extends ReportActionBaseProps {
   onControlledClose: () => void;
 }
 
-export type ReportActionProps = UncontrolledReportActionProps | ControlledReportActionProps;
+export type ReportActionProps =
+  UncontrolledReportActionProps | ControlledReportActionProps;
 
 /**
  * 신고 트리거 + 사유 모달 + API 연동 컨테이너.

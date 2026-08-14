@@ -1,10 +1,9 @@
 'use client';
 
-import type { ChangeEvent } from 'react';
-
 import CheckIcon from '@/assets/icons/check.svg';
-
 import { cn } from '@/lib/utils';
+
+import type { ChangeEvent } from 'react';
 
 interface FilterCheckBoxProps {
   /** 체크박스 왼쪽에 표시할 라벨 텍스트 */
@@ -58,9 +57,7 @@ export const FilterCheckBox = ({
             checked ? 'border-blue-300 bg-blue-300' : 'border-line-200 bg-white'
           }`}
         >
-          {checked ? (
-            <CheckIcon className="h-1.5 w-2.5 text-white" />
-          ) : null}
+          {checked ? <CheckIcon className="h-1.5 w-2.5 text-white" /> : null}
         </span>
       </span>
     </label>

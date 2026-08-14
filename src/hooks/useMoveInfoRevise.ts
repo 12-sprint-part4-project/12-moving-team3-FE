@@ -9,6 +9,7 @@ import {
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 import { useLocalToday } from '@/hooks/useLocalToday';
 import { ApiError } from '@/lib/apiClient';
+
 import type { ApiMoveType } from '@/types/estimateRequest';
 
 /** Step1~3 공용 — 답변 라벨·수정 패널 옵션 */
@@ -73,8 +74,7 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
   const minMoveDate = useLocalToday();
 
   // 저장·수정·제출 중 공통 busy (버튼/수정하기 잠금)
-  const isSubmitting =
-    isSavingStep || isRevisingField || isSubmittingRequest;
+  const isSubmitting = isSavingStep || isRevisingField || isSubmittingRequest;
   const isInReviseMode = isRevisingMoveType || isRevisingMoveDate;
   const canConfirmMoveType =
     draftMoveType != null && !isSubmitting && detail != null;

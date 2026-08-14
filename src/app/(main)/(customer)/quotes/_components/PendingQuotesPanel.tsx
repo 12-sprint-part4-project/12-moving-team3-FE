@@ -1,7 +1,6 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { useEffect, useState } from 'react';
 
 import { QuotesListErrorState } from '@/components/quotes/QuotesListErrorState';
 import {
@@ -10,32 +9,37 @@ import {
 } from '@/components/ui/Skeleton';
 import { useCustomerPendingQuotes } from '@/hooks/useCustomerPendingQuotes';
 import { useListEntranceStagger } from '@/hooks/useListEntranceStagger';
-import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
-import { ApiError } from '@/lib/apiClient';
+import { resolveApiErrorMessage } from '@/lib/apiClient';
 import { fadeUp, getMotionTransition, listStagger } from '@/lib/motionVariants';
-import { toStartEstimateChatParams } from '@/lib/startEstimateChat';
-import type { PendingQuoteCardModel } from '@/types/customerQuote';
+import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
 
+import { CustomerQuotesEmptyState } from './CustomerQuotesEmptyState';
 import { CUSTOMER_QUOTES_CONTENT_CLASS } from './customerQuotesLayout';
 import { PendingQuoteCard } from './PendingQuoteCard';
-import { PendingQuotesEmptyState } from './PendingQuotesEmptyState';
 import { PendingRequestSubHeader } from './PendingRequestSubHeader';
 
+import type { PendingQuoteCardModel } from '@/types/customerQuote';
+
+/** 대기 중인 견적 탭 패널 props */
 interface PendingQuotesPanelProps {
   enabled: boolean;
   isConfirming: boolean;
   confirmingQuoteId: number | null;
+  pendingChatQuoteId: number | null;
   onConfirm: (quoteId: number) => void;
+  onChatClick: (quote: PendingQuoteCardModel) => void;
   onFavoriteClick: (moverId: string, nextFavorited: boolean) => void;
   isMoverPending: (moverId: string) => boolean;
 }
 
-/** 대기 중인 견적 탭 본문. 목록 조회·채팅 시작·카드 렌더를 담당한다. */
+/** `/quotes` 대기 탭 본문. - 목록 Query·서브헤더·카드 그리드. */
 export const PendingQuotesPanel = ({
   enabled,
   isConfirming,
   confirmingQuoteId,
+  pendingChatQuoteId,
   onConfirm,
+  onChatClick,
   onFavoriteClick,
   isMoverPending,
 }: PendingQuotesPanelProps) => {
@@ -52,31 +56,17 @@ export const PendingQuotesPanel = ({
     refetch,
   } = useCustomerPendingQuotes({ enabled });
 
-  const { startEstimateChat, isChatPending } = useStartEstimateChat();
-  const [pendingChatQuoteId, setPendingChatQuoteId] = useState<number | null>(
-    null
-  );
   const staggerPendingList = useListEntranceStagger(isPending);
-  const errorMessage =
-    error instanceof ApiError
-      ? error.message
-      : '견적 목록을 불러오지 못했습니다.';
-
-  useEffect(() => {
-    if (!isChatPending) {
-      setPendingChatQuoteId(null);
-    }
-  }, [isChatPending]);
+  const errorMessage = resolveApiErrorMessage(
+    error,
+    '견적 목록을 불러오지 못했습니다.'
+  );
 
   const handleRetry = () => {
     void refetch();
   };
 
-  const handleChatClick = (quote: PendingQuoteCardModel) => {
-    setPendingChatQuoteId(quote.quoteId);
-    startEstimateChat(toStartEstimateChatParams(quote, quote.mover.moverId));
-  };
-
+  // 로딩 — 서브헤더·목록 스켈레톤
   if (isPending) {
     return (
       <>
@@ -88,6 +78,7 @@ export const PendingQuotesPanel = ({
     );
   }
 
+  // 에러 — 재시도
   if (isError) {
     return (
       <div className={CUSTOMER_QUOTES_CONTENT_CLASS}>
@@ -100,20 +91,22 @@ export const PendingQuotesPanel = ({
     );
   }
 
+  // 빈 상태 — 활성 요청 없음
   if (hasNoActiveRequest) {
     return (
       <div className={CUSTOMER_QUOTES_CONTENT_CLASS}>
-        <PendingQuotesEmptyState variant="noRequest" />
+        <CustomerQuotesEmptyState variant="noRequest" />
       </div>
     );
   }
 
+  // 본문 — 요청 서브헤더 + 대기 카드 그리드(또는 waiting 빈 상태)
   return (
     <>
       {summary ? <PendingRequestSubHeader summary={summary} /> : null}
       <div className={CUSTOMER_QUOTES_CONTENT_CLASS}>
         {isWaitingForQuotes ? (
-          <PendingQuotesEmptyState variant="waiting" />
+          <CustomerQuotesEmptyState variant="waiting" />
         ) : (
           <motion.ul
             variants={staggerPendingList ? listStagger : undefined}
@@ -129,11 +122,12 @@ export const PendingQuotesPanel = ({
               >
                 <PendingQuoteCard
                   quote={quote}
+                  mover={toMoverCardModelFromCustomerQuoteMover(quote.mover)}
                   isConfirming={isConfirming}
                   isConfirmingThis={confirmingQuoteId === quote.quoteId}
                   isChatPending={pendingChatQuoteId === quote.quoteId}
                   onConfirm={onConfirm}
-                  onChatClick={handleChatClick}
+                  onChatClick={onChatClick}
                   onFavoriteClick={onFavoriteClick}
                   isFavoritePending={isMoverPending(quote.mover.moverId)}
                 />

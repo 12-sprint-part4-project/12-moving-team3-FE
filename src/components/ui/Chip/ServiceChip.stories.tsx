@@ -1,8 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
 import { ServiceChip } from './ServiceChip';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof ServiceChip> = {
   title: 'UI/Chip/ServiceChip',
@@ -84,7 +85,7 @@ function InteractiveDemo() {
     setSelected((prev) =>
       prev.includes(service)
         ? prev.filter((s) => s !== service)
-        : [...prev, service],
+        : [...prev, service]
     );
   };
 

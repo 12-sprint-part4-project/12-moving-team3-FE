@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-
 import {
   EMPTY_RATING_STATISTICS,
   SAMPLE_RATING_STATISTICS,
 } from '@/components/reviews/_fixtures/reviewFixtures';
 import { ReviewRatingChart } from '@/components/reviews/ReviewRatingChart';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof ReviewRatingChart> = {
   title: 'Reviews/ReviewRatingChart',

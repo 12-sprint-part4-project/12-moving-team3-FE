@@ -1,6 +1,7 @@
 import { API_BASE_URL } from '@/lib/apiClient';
 import { fetchAndValidate } from '@/services/moverApiResponse';
 import { assertMoverAccessToken } from '@/services/moversAuth';
+
 import type { ApiSuccessResponse } from '@/types/api';
 
 export type AddFavoriteResponse = ApiSuccessResponse<{

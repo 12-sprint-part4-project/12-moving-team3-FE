@@ -3,7 +3,6 @@
 import { motion, useReducedMotion } from 'framer-motion';
 
 import ResetIcon from '@/assets/icons/reset.svg';
-
 import { getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 

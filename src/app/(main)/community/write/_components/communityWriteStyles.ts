@@ -1,9 +1,8 @@
-import {
-  getPostCategoryBadgeClassName,
-} from '@/constants/communityCategoryStyles';
-import type { PostCategory } from '@/types/community';
+import { getPostCategoryBadgeClassName } from '@/constants/communityCategoryStyles';
 
 import { COMMUNITY_RICH_TEXT_PROSE_CLASS } from '../../_components/communitySharedStyles';
+
+import type { PostCategory } from '@/types/community';
 
 /** Figma 15211:41641 — 게시글 작성 Mobile / Tablet / Desktop 공통 스타일 */
 

@@ -1,7 +1,6 @@
 'use client';
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useState } from 'react';
 
 import { QuoteInfoRows } from '@/components/quotes/QuoteInfoRows';
 import {
@@ -11,21 +10,13 @@ import {
   listStagger,
 } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
-import type {
-  CustomerPastQuoteFilter,
-  ReceivedQuoteCardModel,
-  ReceivedQuoteGroupModel,
-} from '@/types/customerQuote';
+import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
 
 import { ReceivedQuoteCard } from './ReceivedQuoteCard';
 import { ReceivedQuotesFilter } from './ReceivedQuotesFilter';
+import { useReceivedQuoteGroupFilter } from '../_lib/useReceivedQuoteGroupFilter';
 
-/** 그룹 내 필터 적용 */
-const filterQuotesByStatus = (
-  quotes: ReceivedQuoteCardModel[],
-  filter: CustomerPastQuoteFilter
-): ReceivedQuoteCardModel[] =>
-  filter === 'CONFIRMED' ? quotes.filter((quote) => quote.isConfirmed) : quotes;
+import type { ReceivedQuoteGroupModel } from '@/types/customerQuote';
 
 export interface ReceivedQuoteGroupSectionProps {
   group: ReceivedQuoteGroupModel;
@@ -36,9 +27,7 @@ export interface ReceivedQuoteGroupSectionProps {
   className?: string;
 }
 
-/**
- * 받았던 견적 블록
- */
+/** `/quotes?tab=received` 요청 그룹 블록. - 견적 정보·필터·카드 목록. */
 export const ReceivedQuoteGroupSection = ({
   group,
   staggerOnEntrance = false,
@@ -48,17 +37,11 @@ export const ReceivedQuoteGroupSection = ({
 }: ReceivedQuoteGroupSectionProps) => {
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
-  const [filter, setFilter] = useState<CustomerPastQuoteFilter>('ALL');
-  /** 필터 변경으로 remount된 목록만 stagger */
-  const [staggerOnFilter, setStaggerOnFilter] = useState(false);
-  const visibleQuotes = filterQuotesByStatus(group.quotes, filter);
-  const shouldStaggerList = staggerOnEntrance || staggerOnFilter;
+  /** 그룹 로컬 필터·필터 변경 stagger */
+  const { filter, visibleQuotes, shouldStaggerList, handleFilterChange } =
+    useReceivedQuoteGroupFilter(group.quotes, staggerOnEntrance);
 
-  const handleFilterChange = (next: CustomerPastQuoteFilter) => {
-    setStaggerOnFilter(true);
-    setFilter(next);
-  };
-
+  // 견적 정보 + 그룹 필터 + 견적서 카드(또는 필터 빈 문구)
   return (
     <section
       className={cn(
@@ -67,6 +50,7 @@ export const ReceivedQuoteGroupSection = ({
       )}
       aria-labelledby={`received-group-${group.estimateRequestId}-info`}
     >
+      {/* 요청 견적 정보 */}
       <div className="flex w-full flex-col gap-4 lg:gap-8">
         <h2
           id={`received-group-${group.estimateRequestId}-info`}
@@ -77,7 +61,7 @@ export const ReceivedQuoteGroupSection = ({
         <QuoteInfoRows info={group.info} variant="group" />
       </div>
 
-      {/* 이 그룹 안에서만 필터 */}
+      {/* 그룹 내 필터 + 견적서 목록 */}
       <div className="flex w-full flex-col gap-3 md:gap-4 lg:gap-6">
         <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
           견적서 목록
@@ -105,6 +89,7 @@ export const ReceivedQuoteGroupSection = ({
                 >
                   <ReceivedQuoteCard
                     quote={quote}
+                    mover={toMoverCardModelFromCustomerQuoteMover(quote.mover)}
                     onFavoriteClick={onFavoriteClick}
                     isFavoritePending={isMoverPending?.(quote.mover.moverId)}
                   />

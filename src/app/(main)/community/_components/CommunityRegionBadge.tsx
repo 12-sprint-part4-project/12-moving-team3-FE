@@ -1,11 +1,12 @@
-import { REGION_LABEL } from '@/constants/communityOptions';
 import {
   POST_CATEGORY_CHIP_LAYOUT_CLASS,
   POST_REGION_BADGE_CLASS,
   POST_REGION_OVERLAY_BADGE_CLASS,
   POST_REGION_OVERLAY_CHIP_LAYOUT_CLASS,
 } from '@/constants/communityCategoryStyles';
+import { REGION_LABEL } from '@/constants/communityOptions';
 import { cn } from '@/lib/utils';
+
 import type { Region } from '@/types/community';
 
 type CommunityRegionBadgeVariant = 'default' | 'overlay';

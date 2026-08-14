@@ -2,14 +2,15 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
-import type { ReactNode } from 'react';
 
 import { QuoteCardInfo } from '@/components/quotes/QuoteCardInfo';
 import { QuotePriceRow } from '@/components/quotes/QuotePriceRow';
 import { QuoteStatusChips } from '@/components/quotes/QuoteStatusChips';
 import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
+
 import type { MoveTypeOption } from '@/types/estimateRequest';
+import type { ReactNode } from 'react';
 
 export interface QuoteListCardProps {
   displayName: string;

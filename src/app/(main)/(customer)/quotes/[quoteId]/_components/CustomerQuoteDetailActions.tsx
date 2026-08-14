@@ -39,6 +39,7 @@ interface QuoteActionButtonsProps extends Pick<
   chatLabel: string;
 }
 
+/** `/quotes/[quoteId]` 데스크톱 CTA. */
 const DesktopQuoteActions = ({
   canConfirm,
   canStartChat,
@@ -74,6 +75,7 @@ const DesktopQuoteActions = ({
   </div>
 );
 
+/** `/quotes/[quoteId]` 모바일 하단바. */
 const MobileQuoteActions = ({
   canConfirm,
   canStartChat,
@@ -132,7 +134,7 @@ const MobileQuoteActions = ({
   </QuoteDetailMobileActionBar>
 );
 
-/** 견적 상세 확정·찜·채팅 액션 */
+/** `/quotes/[quoteId]` 확정·찜·채팅 액션. */
 export const CustomerQuoteDetailActions = ({
   canConfirm,
   canStartChat = false,
@@ -146,6 +148,7 @@ export const CustomerQuoteDetailActions = ({
   variant,
   className = '',
 }: CustomerQuoteDetailActionsProps) => {
+  /** 노출할 CTA가 없으면 렌더하지 않음 */
   if (!canConfirm && !canStartChat) {
     return null;
   }
@@ -165,6 +168,7 @@ export const CustomerQuoteDetailActions = ({
     chatLabel: isChatPending ? '연결 중...' : '채팅하기',
   };
 
+  // desktop 사이드바 CTA 또는 mobile 하단 고정바
   return variant === 'desktop' ? (
     <DesktopQuoteActions {...actionProps} />
   ) : (

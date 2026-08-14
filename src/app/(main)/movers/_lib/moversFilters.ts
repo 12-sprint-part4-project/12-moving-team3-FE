@@ -1,6 +1,5 @@
-import type { ChangeEvent } from 'react';
-
 import type { MoversSortValue } from '@/types/mover';
+import type { ChangeEvent } from 'react';
 
 export interface MoversFilters {
   regionValue: string;

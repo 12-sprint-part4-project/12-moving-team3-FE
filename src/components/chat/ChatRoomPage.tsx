@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
-
 import { ChatComposer } from '@/components/chat/ChatComposer';
 import { ChatMessageList } from '@/components/chat/ChatMessageList';
 import { ChatRoomHeader } from '@/components/chat/ChatRoomHeader';
@@ -46,10 +45,11 @@ export const ChatRoomPage = ({
   const { showToast } = useToast();
   const enabled = Boolean(isReady && user && isValidRoomId);
 
-  const { room, isPending: isRoomPending, isError: isRoomError } = useChatRoom(
-    roomId,
-    { enabled }
-  );
+  const {
+    room,
+    isPending: isRoomPending,
+    isError: isRoomError,
+  } = useChatRoom(roomId, { enabled });
 
   const {
     messages,

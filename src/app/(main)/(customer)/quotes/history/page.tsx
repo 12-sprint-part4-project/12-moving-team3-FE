@@ -2,12 +2,12 @@ import { Suspense } from 'react';
 
 import { QuotesHistoryPageSkeleton } from '@/components/ui/Skeleton';
 
-import { CustomerQuotesTitleHeader } from '../_components/CustomerQuotesTitleHeader';
+import CustomerQuoteHistoryPageClient from './page.client';
 import {
   CUSTOMER_QUOTES_PAGE_SHELL_CLASS,
   CUSTOMER_QUOTES_PAGE_X_PADDING,
 } from '../_components/customerQuotesLayout';
-import CustomerQuoteHistoryPageClient from './page.client';
+import { CustomerQuotesTitleHeader } from '../_components/CustomerQuotesTitleHeader';
 
 import type { Metadata } from 'next';
 
@@ -15,8 +15,9 @@ export const metadata: Metadata = {
   title: '이용 내역',
 };
 
-/** 고객 이용 내역 페이지 (확정한 견적) */
+/** `/quotes/history` 서버 페이지. - 이용 내역(확정 견적). */
 const CustomerQuoteHistoryPage = () => {
+  // 타이틀 + 이용 내역 목록(Suspense)
   return (
     <div className={CUSTOMER_QUOTES_PAGE_SHELL_CLASS}>
       <CustomerQuotesTitleHeader
@@ -32,6 +33,7 @@ const CustomerQuoteHistoryPage = () => {
           />
         }
       >
+        {/* 확정 견적 카드 목록 */}
         <CustomerQuoteHistoryPageClient />
       </Suspense>
     </div>

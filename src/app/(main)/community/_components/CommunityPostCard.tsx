@@ -1,21 +1,22 @@
 import Link from 'next/link';
-import type { ReactNode } from 'react';
 
 import ChatIcon from '@/assets/icons/chat.svg';
 import HeartIcon from '@/assets/icons/heart.svg';
 import { COMMUNITY_POST_LIST_BADGE_FONT_CLASS } from '@/constants/communityCategoryStyles';
-import { formatRelativeTime } from '@/lib/formatDate';
-import { stripCommunityPostContentPreview } from '@/lib/communityPostContent';
 import {
   buildCommunityPostDetailHref,
   type PostListContext,
 } from '@/lib/communityListContext';
+import { stripCommunityPostContentPreview } from '@/lib/communityPostContent';
+import { formatRelativeTime } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
-import type { PostListItem } from '@/types/community';
 
-import { CommunityPostBadges } from './CommunityPostBadges';
 import { CommunityFurnitureShareCompletedBadge } from './CommunityFurnitureShareCompletedBadge';
+import { CommunityPostBadges } from './CommunityPostBadges';
 import { CommunityPostThumbnail } from './CommunityPostThumbnail';
+
+import type { PostListItem } from '@/types/community';
+import type { ReactNode } from 'react';
 
 interface CommunityPostCardProps {
   post: PostListItem;

@@ -9,19 +9,20 @@ import {
 } from '@/hooks/useCustomerPastQuotes';
 import { useListEntranceStagger } from '@/hooks/useListEntranceStagger';
 import { useLoadMoreOnView } from '@/hooks/useLoadMoreOnView';
-import { ApiError } from '@/lib/apiClient';
+import { resolveApiErrorMessage } from '@/lib/apiClient';
 
+import { CustomerQuotesEmptyState } from './CustomerQuotesEmptyState';
 import { CUSTOMER_QUOTES_CONTENT_CLASS } from './customerQuotesLayout';
-import { PendingQuotesEmptyState } from './PendingQuotesEmptyState';
 import { ReceivedQuoteGroupSection } from './ReceivedQuoteGroupSection';
 
+/** 받았던 견적 탭 패널 props */
 interface ReceivedQuotesPanelProps {
   enabled: boolean;
   onFavoriteClick: (moverId: string, nextFavorited: boolean) => void;
   isMoverPending: (moverId: string) => boolean;
 }
 
-/** 받았던 견적 탭 본문. 그룹 조회·무한스크롤·필터 섹션을 담당한다. */
+/** `/quotes?tab=received` 탭 본문. - 그룹 Query·무한스크롤. */
 export const ReceivedQuotesPanel = ({
   enabled,
   onFavoriteClick,
@@ -48,15 +49,16 @@ export const ReceivedQuotesPanel = ({
     isFetchingNextPage,
     fetchNextPage,
   });
-  const errorMessage =
-    error instanceof ApiError
-      ? error.message
-      : '견적 목록을 불러오지 못했습니다.';
+  const errorMessage = resolveApiErrorMessage(
+    error,
+    '견적 목록을 불러오지 못했습니다.'
+  );
 
   const handleRetry = () => {
     void refetch();
   };
 
+  // 로딩 — 받았던 견적 목록 스켈레톤
   if (isPending) {
     return (
       <div className={CUSTOMER_QUOTES_CONTENT_CLASS}>
@@ -65,6 +67,7 @@ export const ReceivedQuotesPanel = ({
     );
   }
 
+  // 에러 — 재시도
   if (isError) {
     return (
       <div className={CUSTOMER_QUOTES_CONTENT_CLASS}>
@@ -77,14 +80,16 @@ export const ReceivedQuotesPanel = ({
     );
   }
 
+  // 빈 상태 — 받았던 견적 없음
   if (isEmpty) {
     return (
       <div className={CUSTOMER_QUOTES_CONTENT_CLASS}>
-        <PendingQuotesEmptyState variant="receivedEmpty" />
+        <CustomerQuotesEmptyState variant="receivedEmpty" />
       </div>
     );
   }
 
+  // 본문 — 요청 그룹 섹션 + 무한스크롤
   return (
     <div className={CUSTOMER_QUOTES_CONTENT_CLASS}>
       <div className="mx-auto flex w-full max-w-[87.5rem] flex-col gap-6 md:gap-8 lg:gap-10">

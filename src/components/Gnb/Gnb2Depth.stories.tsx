@@ -1,8 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
 
 import { withQueryClient } from '@/storybook/withQueryClient';
+
 import { Gnb2Depth } from './Gnb2Depth';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof Gnb2Depth> = {
   title: 'UI/Gnb2Depth',

@@ -8,16 +8,17 @@ import { getButtonClassName } from '@/components/Button/Button';
 import { fadeIn, floatY, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
-export type PendingQuotesEmptyVariant =
+export type CustomerQuotesEmptyVariant =
   'waiting' | 'noRequest' | 'receivedEmpty' | 'historyEmpty';
 
-export interface PendingQuotesEmptyStateProps {
-  variant: PendingQuotesEmptyVariant;
+export interface CustomerQuotesEmptyStateProps {
+  variant: CustomerQuotesEmptyVariant;
   className?: string;
 }
 
+/** variant별 안내 문구·CTA */
 const EMPTY_COPY: Record<
-  PendingQuotesEmptyVariant,
+  CustomerQuotesEmptyVariant,
   { lines: string[]; actionHref?: string; actionLabel?: string }
 > = {
   waiting: {
@@ -38,16 +39,17 @@ const EMPTY_COPY: Record<
   },
 };
 
-/** 고객 내 견적 관리 빈 상태 */
-export const PendingQuotesEmptyState = ({
+/** `/quotes`·history 빈 상태. - variant별 안내 문구·선택 CTA. */
+export const CustomerQuotesEmptyState = ({
   variant,
   className = '',
-}: PendingQuotesEmptyStateProps) => {
+}: CustomerQuotesEmptyStateProps) => {
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const copy = EMPTY_COPY[variant];
   const messageKey = copy.lines.join('|');
 
+  // 빈 이미지 + 안내 문구 + (선택) CTA
   return (
     <motion.div
       variants={fadeIn}

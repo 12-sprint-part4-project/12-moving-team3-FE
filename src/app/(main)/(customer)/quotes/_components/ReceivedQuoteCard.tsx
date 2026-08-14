@@ -8,19 +8,23 @@ import { QuotePriceRow } from '@/components/quotes/QuotePriceRow';
 import { QuoteStatusChipRow } from '@/components/quotes/QuoteStatusChips';
 import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
-import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
+
 import type { ReceivedQuoteCardModel } from '@/types/customerQuote';
+import type { MoverCardModel } from '@/types/mover';
 
 export interface ReceivedQuoteCardProps {
   quote: ReceivedQuoteCardModel;
+  /** MoverProfileBlock용으로 변환된 기사 카드 모델 */
+  mover: MoverCardModel;
   onFavoriteClick?: (moverId: string, nextFavorited: boolean) => void;
   isFavoritePending?: boolean;
   className?: string;
 }
 
-/** 고객 받았던 견적 카드 */
+/** `/quotes?tab=received` 받았던 견적 카드. */
 export const ReceivedQuoteCard = ({
   quote,
+  mover,
   onFavoriteClick,
   isFavoritePending = false,
   className = '',
@@ -28,6 +32,7 @@ export const ReceivedQuoteCard = ({
   const shouldReduceMotion = useReducedMotion();
   const detailHref = `/quotes/${quote.quoteId}`;
 
+  // 칩·소개·프로필·견적가 + 상세 stretched link
   return (
     <motion.article
       {...(shouldReduceMotion ? {} : cardHover)}
@@ -49,7 +54,7 @@ export const ReceivedQuoteCard = ({
       ) : null}
 
       <MoverProfileBlock
-        mover={toMoverCardModelFromCustomerQuoteMover(quote.mover)}
+        mover={mover}
         disableNavigation
         onFavoriteClick={onFavoriteClick}
         isFavoritePending={isFavoritePending}
@@ -61,7 +66,7 @@ export const ReceivedQuoteCard = ({
       <Link
         href={detailHref}
         className="absolute inset-0 z-0 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
-        aria-label={`${quote.mover.name} 기사님 견적 상세보기`}
+        aria-label={`${mover.name} 기사님 견적 상세보기`}
       />
     </motion.article>
   );

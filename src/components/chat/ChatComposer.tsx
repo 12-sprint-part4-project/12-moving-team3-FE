@@ -14,21 +14,20 @@ import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import ClipIcon from '@/assets/icons/clip.svg';
 import CloseIcon from '@/assets/icons/close.svg';
 import SendIcon from '@/assets/icons/send.svg';
-
 import {
   CHAT_MESSAGE_MAX_LENGTH,
   CHAT_MESSAGE_MAX_LENGTH_HINT,
 } from '@/constants/chatUi';
-import {
-  CHAT_IMAGE_MAX_COUNT,
-  validateChatImageFile,
-} from '@/lib/uploadChatImage';
 import {
   createPendingImageFiles,
   revokePendingImageFile,
   revokePendingImageFiles,
   type PendingImageFile,
 } from '@/lib/pendingImagePreviews';
+import {
+  CHAT_IMAGE_MAX_COUNT,
+  validateChatImageFile,
+} from '@/lib/uploadChatImage';
 import { cn } from '@/lib/utils';
 
 const CHAT_IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
@@ -273,130 +272,133 @@ export const ChatComposer = ({
         onSubmit={handleSubmit}
         className="flex flex-col gap-2 border-t border-line-100 bg-white px-4 py-3 md:px-6"
       >
-      {disabled && disabledReason ? (
-        <p className="text-sm-medium text-gray-300" role="status">
-          {disabledReason}
-        </p>
-      ) : null}
-
-      {hasPendingImages ? (
-        <div className="flex flex-col gap-1.5">
-          <p className="text-xs-medium text-gray-400">
-            첨부한 사진 {pendingImages.length}장
+        {disabled && disabledReason ? (
+          <p className="text-sm-medium text-gray-300" role="status">
+            {disabledReason}
           </p>
-          <ul
-            className="flex min-h-[4.75rem] gap-2 overflow-x-auto pt-2 pr-2 pb-1"
-            aria-label="첨부 이미지 미리보기"
-          >
-            {pendingImages.map((item, index) => (
-              <li
-                key={`${item.file.name}-${item.file.lastModified}-${index}`}
-                className="relative shrink-0"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={item.previewUrl}
-                  alt={item.file.name}
-                  className="size-16 rounded-xl border border-line-200 object-cover"
-                />
-                <button
-                  type="button"
-                  aria-label={`${item.file.name} 삭제`}
-                  disabled={isBusy}
-                  onClick={() => handleRemoveImage(index)}
-                  className="absolute -top-1.5 -right-1.5 inline-flex size-5 cursor-pointer items-center justify-center rounded-full bg-black-400 text-white disabled:cursor-not-allowed"
+        ) : null}
+
+        {hasPendingImages ? (
+          <div className="flex flex-col gap-1.5">
+            <p className="text-xs-medium text-gray-400">
+              첨부한 사진 {pendingImages.length}장
+            </p>
+            <ul
+              className="flex min-h-[4.75rem] gap-2 overflow-x-auto pt-2 pr-2 pb-1"
+              aria-label="첨부 이미지 미리보기"
+            >
+              {pendingImages.map((item, index) => (
+                <li
+                  key={`${item.file.name}-${item.file.lastModified}-${index}`}
+                  className="relative shrink-0"
                 >
-                  <CloseIcon className="size-3" aria-hidden />
-                </button>
-              </li>
-            ))}
-          </ul>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={item.previewUrl}
+                    alt={item.file.name}
+                    className="size-16 rounded-xl border border-line-200 object-cover"
+                  />
+                  <button
+                    type="button"
+                    aria-label={`${item.file.name} 삭제`}
+                    disabled={isBusy}
+                    onClick={() => handleRemoveImage(index)}
+                    className="absolute -top-1.5 -right-1.5 inline-flex size-5 cursor-pointer items-center justify-center rounded-full bg-black-400 text-white disabled:cursor-not-allowed"
+                  >
+                    <CloseIcon className="size-3" aria-hidden />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        {imageError ? (
+          <p className="text-sm-medium text-red-200" role="alert">
+            {imageError}
+          </p>
+        ) : null}
+
+        {isAtMessageLimit ? (
+          <p
+            id="chat-composer-message-limit-hint"
+            className="text-sm-medium text-red-200"
+            role="alert"
+          >
+            {CHAT_MESSAGE_MAX_LENGTH_HINT}
+          </p>
+        ) : null}
+
+        <div className="flex items-end gap-2.5">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={CHAT_IMAGE_ACCEPT}
+            multiple
+            className="sr-only"
+            aria-hidden
+            tabIndex={-1}
+            onChange={handleFileChange}
+          />
+          <button
+            type="button"
+            aria-label="이미지 첨부"
+            disabled={isBusy || !onSendImages}
+            onClick={handleClipClick}
+            className={cn(
+              'inline-flex size-9 shrink-0 items-center justify-center transition-colors',
+              isBusy || !onSendImages
+                ? 'cursor-not-allowed text-gray-200'
+                : 'cursor-pointer text-gray-300 hover:text-blue-300'
+            )}
+          >
+            <ClipIcon className="size-9" aria-hidden />
+          </button>
+          <textarea
+            ref={inputRef}
+            rows={1}
+            value={value}
+            maxLength={CHAT_MESSAGE_MAX_LENGTH}
+            onChange={handleValueChange}
+            onKeyDown={handleKeyDown}
+            disabled={isBusy}
+            enterKeyHint="send"
+            placeholder={
+              disabled && disabledReason
+                ? '메시지를 보낼 수 없습니다'
+                : '메시지를 입력하세요'
+            }
+            aria-label="메시지 입력"
+            aria-describedby={
+              isAtMessageLimit ? 'chat-composer-message-limit-hint' : undefined
+            }
+            className={cn(
+              'max-h-32 min-h-11 min-w-0 flex-1 resize-none rounded-2xl border border-line-200 bg-background-100 px-3.5 py-2.5 text-md-medium text-black-400 outline-none',
+              '[scrollbar-width:none] overflow-hidden [&::-webkit-scrollbar]:hidden',
+              'whitespace-pre-wrap',
+              'placeholder:text-gray-300',
+              'focus:border-blue-300',
+              'disabled:cursor-not-allowed disabled:bg-background-200 disabled:text-gray-300'
+            )}
+          />
+          <button
+            type="submit"
+            disabled={!canSend}
+            aria-label="전송"
+            className={cn(
+              'inline-flex size-11 shrink-0 items-center justify-center transition-colors',
+              canSend
+                ? 'cursor-pointer text-blue-300 hover:text-blue-200'
+                : 'cursor-not-allowed text-gray-200'
+            )}
+          >
+            <SendIcon
+              className="size-9 translate-x-px -translate-y-px"
+              aria-hidden
+            />
+          </button>
         </div>
-      ) : null}
-
-      {imageError ? (
-        <p className="text-sm-medium text-red-200" role="alert">
-          {imageError}
-        </p>
-      ) : null}
-
-      {isAtMessageLimit ? (
-        <p
-          id="chat-composer-message-limit-hint"
-          className="text-sm-medium text-red-200"
-          role="alert"
-        >
-          {CHAT_MESSAGE_MAX_LENGTH_HINT}
-        </p>
-      ) : null}
-
-      <div className="flex items-end gap-2.5">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept={CHAT_IMAGE_ACCEPT}
-          multiple
-          className="sr-only"
-          aria-hidden
-          tabIndex={-1}
-          onChange={handleFileChange}
-        />
-        <button
-          type="button"
-          aria-label="이미지 첨부"
-          disabled={isBusy || !onSendImages}
-          onClick={handleClipClick}
-          className={cn(
-            'inline-flex size-9 shrink-0 items-center justify-center transition-colors',
-            isBusy || !onSendImages
-              ? 'cursor-not-allowed text-gray-200'
-              : 'cursor-pointer text-gray-300 hover:text-blue-300'
-          )}
-        >
-          <ClipIcon className="size-9" aria-hidden />
-        </button>
-        <textarea
-          ref={inputRef}
-          rows={1}
-          value={value}
-          maxLength={CHAT_MESSAGE_MAX_LENGTH}
-          onChange={handleValueChange}
-          onKeyDown={handleKeyDown}
-          disabled={isBusy}
-          enterKeyHint="send"
-          placeholder={
-            disabled && disabledReason
-              ? '메시지를 보낼 수 없습니다'
-              : '메시지를 입력하세요'
-          }
-          aria-label="메시지 입력"
-          aria-describedby={
-            isAtMessageLimit ? 'chat-composer-message-limit-hint' : undefined
-          }
-          className={cn(
-            'max-h-32 min-h-11 min-w-0 flex-1 resize-none rounded-2xl border border-line-200 bg-background-100 px-3.5 py-2.5 text-md-medium text-black-400 outline-none',
-            'overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-            'whitespace-pre-wrap',
-            'placeholder:text-gray-300',
-            'focus:border-blue-300',
-            'disabled:cursor-not-allowed disabled:bg-background-200 disabled:text-gray-300'
-          )}
-        />
-        <button
-          type="submit"
-          disabled={!canSend}
-          aria-label="전송"
-          className={cn(
-            'inline-flex size-11 shrink-0 items-center justify-center transition-colors',
-            canSend
-              ? 'cursor-pointer text-blue-300 hover:text-blue-200'
-              : 'cursor-not-allowed text-gray-200'
-          )}
-        >
-          <SendIcon className="size-9 translate-x-px -translate-y-px" aria-hidden />
-        </button>
-      </div>
-    </form>
+      </form>
     </div>
   );
 };

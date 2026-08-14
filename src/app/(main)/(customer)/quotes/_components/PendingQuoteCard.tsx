@@ -10,11 +10,14 @@ import { QuoteStatusChipRow } from '@/components/quotes/QuoteStatusChips';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
 import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
-import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
+
 import type { PendingQuoteCardModel } from '@/types/customerQuote';
+import type { MoverCardModel } from '@/types/mover';
 
 export interface PendingQuoteCardProps {
   quote: PendingQuoteCardModel;
+  /** MoverProfileBlock용으로 변환된 기사 카드 모델 */
+  mover: MoverCardModel;
   /** 다른 카드 포함 확정 요청 진행 중 */
   isConfirming?: boolean;
   /** 이 카드의 확정 요청 진행 중 */
@@ -35,13 +38,10 @@ const FIELD_VALUE_CLASS = 'text-md-medium text-black-300 lg:text-2lg-medium';
 const CTA_CLASS =
   'h-12 min-w-0 flex-1 rounded-lg text-lg-semibold lg:h-16 lg:rounded-2xl lg:text-xl-semibold';
 
-/**
- * `/quotes` 대기 중인 견적 카드.
- * 하단 CTA: 1줄 [견적 확정하기 solid][채팅하기 outlined] / 2줄 [상세보기 텍스트].
- * 지정 견적인데 designatedMoverId 없으면 채팅 CTA 숨김.
- */
+/** `/quotes` 대기 견적 카드. - 확정·채팅·상세보기 CTA. */
 export const PendingQuoteCard = ({
   quote,
+  mover,
   isConfirming = false,
   isConfirmingThis = false,
   isChatPending = false,
@@ -53,7 +53,6 @@ export const PendingQuoteCard = ({
 }: PendingQuoteCardProps) => {
   const shouldReduceMotion = useReducedMotion();
   const detailHref = `/quotes/${quote.quoteId}`;
-  const canStartChat = !quote.isDesignated || quote.designatedMoverId != null;
 
   const handleConfirm = () => {
     onConfirm?.(quote.quoteId);
@@ -63,6 +62,7 @@ export const PendingQuoteCard = ({
     onChatClick?.(quote);
   };
 
+  // 칩·프로필·이사정보·견적가·CTA(확정/채팅/상세)
   return (
     <motion.article
       {...(shouldReduceMotion ? {} : cardHover)}
@@ -71,6 +71,7 @@ export const PendingQuoteCard = ({
         className
       )}
     >
+      {/* 상태 칩 + 기사 프로필 + 이사일/출발/도착 */}
       <div className="flex w-full flex-col gap-3.5 lg:gap-6">
         <QuoteStatusChipRow
           status="pending"
@@ -81,7 +82,7 @@ export const PendingQuoteCard = ({
 
         <div className="flex w-full flex-col gap-3.5 lg:gap-6">
           <MoverProfileBlock
-            mover={toMoverCardModelFromCustomerQuoteMover(quote.mover)}
+            mover={mover}
             disableNavigation
             onFavoriteClick={onFavoriteClick}
             isFavoritePending={isFavoritePending}
@@ -129,6 +130,7 @@ export const PendingQuoteCard = ({
 
       <QuotePriceRow priceLabel={quote.priceLabel} />
 
+      {/* CTA — 확정·채팅 / 상세보기 */}
       <div className="flex w-full flex-col gap-2 lg:gap-3">
         <div className="flex w-full gap-2 lg:gap-3">
           <Button
@@ -137,18 +139,18 @@ export const PendingQuoteCard = ({
             className={CTA_CLASS}
             disabled={isConfirming}
             onClick={handleConfirm}
-            aria-label={`${quote.mover.name} 기사님 견적 확정하기`}
+            aria-label={`${mover.name} 기사님 견적 확정하기`}
           >
             {isConfirmingThis ? '확정 중...' : '견적 확정하기'}
           </Button>
-          {canStartChat ? (
+          {quote.canStartChat ? (
             <Button
               size="md"
               variant="outlined"
               className={CTA_CLASS}
               disabled={isConfirming || isChatPending}
               onClick={handleChatClick}
-              aria-label={`${quote.mover.name} 기사님과 채팅하기`}
+              aria-label={`${mover.name} 기사님과 채팅하기`}
             >
               {isChatPending ? '연결 중...' : '채팅하기'}
             </Button>
@@ -157,7 +159,7 @@ export const PendingQuoteCard = ({
         <Link
           href={detailHref}
           className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center py-2 text-center text-md-medium text-blue-300 hover:underline focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:outline-none active:text-blue-200 lg:text-lg-medium"
-          aria-label={`${quote.mover.name} 기사님 견적 상세보기`}
+          aria-label={`${mover.name} 기사님 견적 상세보기`}
         >
           상세보기
         </Link>

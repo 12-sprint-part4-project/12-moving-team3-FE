@@ -7,8 +7,8 @@ import {
   getCommunityWriteEditorExtensions,
   getCommunityWriteEditorProps,
 } from './communityWriteEditor';
-import { CommunityWriteToolbar } from './CommunityWriteToolbar';
 import { COMMUNITY_WRITE_LABEL_CLASS } from './communityWriteStyles';
+import { CommunityWriteToolbar } from './CommunityWriteToolbar';
 
 interface CommunityWriteContentFieldProps {
   initialContent?: string;
@@ -67,9 +67,7 @@ export const CommunityWriteContentField = ({
       <h2 className={COMMUNITY_WRITE_LABEL_CLASS}>내용</h2>
 
       <div className="mt-2.5">
-        {editor !== null ? (
-          <CommunityWriteToolbar editor={editor} />
-        ) : null}
+        {editor !== null ? <CommunityWriteToolbar editor={editor} /> : null}
         <EditorContent editor={editor} />
       </div>
     </section>

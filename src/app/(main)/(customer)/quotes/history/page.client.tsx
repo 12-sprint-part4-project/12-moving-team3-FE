@@ -11,22 +11,27 @@ import {
   useCustomerPastQuotes,
 } from '@/hooks/useCustomerPastQuotes';
 import { useLoadMoreOnView } from '@/hooks/useLoadMoreOnView';
-import { ApiError } from '@/lib/apiClient';
+import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
+import { resolveApiErrorMessage } from '@/lib/apiClient';
 import { fadeUp, getMotionTransition, listStagger } from '@/lib/motionVariants';
+import { toStartEstimateChatParams } from '@/lib/startEstimateChat';
 
+import { CustomerQuotesEmptyState } from '../_components/CustomerQuotesEmptyState';
 import {
   CUSTOMER_QUOTES_CONTENT_CLASS,
   CUSTOMER_QUOTES_PAGE_X_PADDING,
 } from '../_components/customerQuotesLayout';
-import { PendingQuotesEmptyState } from '../_components/PendingQuotesEmptyState';
 import { HistoryQuoteCard } from './_components/HistoryQuoteCard';
 
-/** 고객 이용 내역 */
+import type { HistoryQuoteCardModel } from '@/types/customerQuote';
+
+/** `/quotes/history` 클라이언트. - 확정 견적 목록 */
 const CustomerQuoteHistoryPageClient = () => {
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const { user, isReady } = useAuth();
   const isLoggedIn = Boolean(user);
+  const { startEstimateChat, pendingChatTargetId } = useStartEstimateChat();
 
   const {
     historyCards,
@@ -49,16 +54,24 @@ const CustomerQuoteHistoryPageClient = () => {
     isFetchingNextPage,
     fetchNextPage,
   });
-  const errorMessage =
-    error instanceof ApiError
-      ? error.message
-      : '이용 내역을 불러오지 못했습니다.';
+  const errorMessage = resolveApiErrorMessage(
+    error,
+    '이용 내역을 불러오지 못했습니다.'
+  );
 
   const handleRetry = () => {
     void refetch();
   };
 
-  /** 인증 초기화·로그인 후 조회 중만 스켈레톤 (!user의 disabled isPending과 분리) */
+  /** 확정 기사와 1:1 채팅방 생성 후 이동 */
+  const handleChatClick = (quote: HistoryQuoteCardModel) => {
+    startEstimateChat(
+      toStartEstimateChatParams(quote, quote.moverId),
+      quote.quoteId
+    );
+  };
+
+  // 로딩 — 이용 내역 스켈레톤
   if (!isReady || (isLoggedIn && isPending)) {
     return (
       <QuotesHistoryPageSkeleton
@@ -67,11 +80,12 @@ const CustomerQuoteHistoryPageClient = () => {
     );
   }
 
-  /** 비로그인 — AuthRouteGuard(LoginRequiredModal)가 처리 */
+  // 비로그인 — AuthRouteGuard(LoginRequiredModal)가 처리
   if (!user) {
     return null;
   }
 
+  // 에러 — 재시도
   if (isError) {
     return (
       <div className="min-h-0 w-full flex-1 bg-background-200">
@@ -82,16 +96,18 @@ const CustomerQuoteHistoryPageClient = () => {
     );
   }
 
+  // 빈 상태 — 이용 내역 없음
   if (isHistoryEmpty) {
     return (
       <div className="min-h-0 w-full flex-1 bg-background-200">
         <div className={CUSTOMER_QUOTES_CONTENT_CLASS}>
-          <PendingQuotesEmptyState variant="historyEmpty" />
+          <CustomerQuotesEmptyState variant="historyEmpty" />
         </div>
       </div>
     );
   }
 
+  // 본문 — 확정 견적 카드 그리드 + 무한스크롤
   return (
     <div className="min-h-0 w-full flex-1 bg-background-200">
       <div className={CUSTOMER_QUOTES_CONTENT_CLASS}>
@@ -107,7 +123,11 @@ const CustomerQuoteHistoryPageClient = () => {
               variants={fadeUp}
               transition={motionTransition}
             >
-              <HistoryQuoteCard quote={quote} />
+              <HistoryQuoteCard
+                quote={quote}
+                isChatPending={pendingChatTargetId === quote.quoteId}
+                onChatClick={() => handleChatClick(quote)}
+              />
             </motion.li>
           ))}
         </motion.ul>

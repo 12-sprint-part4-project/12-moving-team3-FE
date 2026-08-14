@@ -1,6 +1,6 @@
-import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
-
 import { cn } from '@/lib/utils';
+
+import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
 
 /*
   BASE CHIP (내부 공용)

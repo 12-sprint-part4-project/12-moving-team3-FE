@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useState } from 'react';
+
 import StarIcon from '@/assets/icons/star.svg';
 
 export interface StarRatingProps {
@@ -43,7 +44,7 @@ export const StarRating = ({
   const safeValue = normalizeValue(value);
   if (safeValue !== value) {
     console.warn(
-      `StarRating: value(${value})는 0~${MAX} 사이의 정수여야 합니다. ${safeValue}로 보정해서 렌더링합니다.`,
+      `StarRating: value(${value})는 0~${MAX} 사이의 정수여야 합니다. ${safeValue}로 보정해서 렌더링합니다.`
     );
   }
 

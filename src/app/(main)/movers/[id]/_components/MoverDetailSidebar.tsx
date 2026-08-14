@@ -7,6 +7,7 @@ import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 import { MoverDetailCtaButtons } from './MoverDetailCtaButtons';
+
 import type {
   MoverDetailChat,
   MoverDetailDesignated,

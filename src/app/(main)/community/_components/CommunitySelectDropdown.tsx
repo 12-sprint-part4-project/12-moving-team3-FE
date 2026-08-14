@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
-
 import { useOutsideClick } from '@/hooks/useOutsideClick';
 import { cn } from '@/lib/utils';
 
@@ -73,11 +72,7 @@ export const CommunitySelectDropdown = ({
   return (
     <div
       ref={containerRef}
-      className={cn(
-        'relative',
-        isDesktop ? 'w-[20.5rem]' : 'w-max',
-        className
-      )}
+      className={cn('relative', isDesktop ? 'w-[20.5rem]' : 'w-max', className)}
     >
       <button
         type="button"
@@ -125,7 +120,7 @@ export const CommunitySelectDropdown = ({
             'absolute top-full left-0 z-20 mt-1 border border-line-200 bg-white',
             isDesktop
               ? 'w-[20.5rem] overflow-hidden rounded-2xl'
-              : 'w-max min-w-full max-h-[11.25rem] overflow-y-auto rounded-lg'
+              : 'max-h-[11.25rem] w-max min-w-full overflow-y-auto rounded-lg'
           )}
         >
           <ul

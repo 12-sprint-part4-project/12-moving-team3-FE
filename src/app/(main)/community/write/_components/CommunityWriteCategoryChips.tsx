@@ -2,7 +2,6 @@
 
 import { WRITE_CATEGORY_OPTIONS } from '@/constants/communityOptions';
 import { cn } from '@/lib/utils';
-import type { PostCategory } from '@/types/community';
 
 import {
   COMMUNITY_WRITE_CATEGORY_CHIP_LAYOUT_CLASS,
@@ -10,6 +9,8 @@ import {
   COMMUNITY_WRITE_LABEL_CLASS,
   getPostCategoryWriteChipClassName,
 } from './communityWriteStyles';
+
+import type { PostCategory } from '@/types/community';
 
 interface CommunityWriteCategoryChipsProps {
   value: PostCategory;

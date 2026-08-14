@@ -1,11 +1,12 @@
 'use client';
 
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { ReportAction } from '@/components/reports/ReportAction';
 import { AuthProvider } from '@/providers/AuthProvider';
 import { ToastProvider } from '@/providers/ToastProvider';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 const meta: Meta<typeof ReportAction> = {
   title: 'Reports/ReportAction',

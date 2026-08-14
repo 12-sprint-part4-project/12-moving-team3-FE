@@ -2,8 +2,8 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 
-import { ReviewRatingChart } from '@/components/reviews/ReviewRatingChart';
 import { ReviewListItem } from '@/components/reviews/ReviewListItem';
+import { ReviewRatingChart } from '@/components/reviews/ReviewRatingChart';
 import { Pagination } from '@/components/ui/Pagination/Pagination';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import {
@@ -13,6 +13,7 @@ import {
   listStagger,
 } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
+
 import type {
   MoverPublicReviewItem,
   ReviewRatingStatistics,

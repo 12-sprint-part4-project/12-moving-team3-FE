@@ -1,6 +1,6 @@
-import type { Metadata } from 'next';
-
 import { CustomerProfileForm } from './_components/CustomerProfileForm';
+
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: '프로필 등록',

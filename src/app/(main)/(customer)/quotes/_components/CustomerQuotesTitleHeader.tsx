@@ -11,12 +11,13 @@ export interface CustomerQuotesTitleHeaderProps {
   className?: string;
 }
 
-/** 이용 내역·견적 상세 페이지 타이틀 헤더 */
+/** `/quotes/history`·`/quotes/[quoteId]` 타이틀 헤더. */
 export const CustomerQuotesTitleHeader = ({
   title,
   paddingClassName,
   className = '',
 }: CustomerQuotesTitleHeaderProps) => (
+  // 페이지 제목(h1)
   <div
     className={cn(
       CUSTOMER_QUOTES_TITLE_HEADER_CLASS,

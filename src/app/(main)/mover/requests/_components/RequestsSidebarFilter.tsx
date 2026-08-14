@@ -4,16 +4,8 @@ import { motion, useReducedMotion } from 'framer-motion';
 
 import { CheckBox } from '@/components/ui/CheckBox/CheckBox';
 import { FilterCheckBox } from '@/components/ui/Filter/FilterCheckBox';
-
 import { fadeUp, getMotionTransition, tapScale } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
-
-import type {
-  MoveTypeFilterCounts,
-  MoveTypeOption,
-  RequestScopeFilterCounts,
-  RequestScopeOption,
-} from '@/types/estimateRequest';
 
 import {
   MOVE_TYPE_LABELS,
@@ -23,6 +15,13 @@ import {
   formatFilterLabel,
   toggleFilterItem,
 } from '../_lib/filterOptions';
+
+import type {
+  MoveTypeFilterCounts,
+  MoveTypeOption,
+  RequestScopeFilterCounts,
+  RequestScopeOption,
+} from '@/types/estimateRequest';
 
 export interface RequestsSidebarFilterProps {
   selectedMoveTypes: MoveTypeOption[];
