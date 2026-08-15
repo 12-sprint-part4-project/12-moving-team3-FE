@@ -9,6 +9,8 @@ const NOTIFICATION_STALE_TIME_MS = 30_000;
 /**
  * 알림 목록 조회.
  * unreadCount는 목록 items 기준 파생값 (미읽음 서버 meta 없음).
+ * 전체 알림 보기 페이지가 없어 드롭다운(최신 10건) 밖의 미읽음은 어차피 사용자가 확인할 방법이 없으므로,
+ * 정확한 전체 미읽음 수 대신 드롭다운에서 항상 해결 가능한 값만 보여준다(2026-08-15 보류 결정).
  */
 export const useNotifications = () => {
   const query = useQuery({

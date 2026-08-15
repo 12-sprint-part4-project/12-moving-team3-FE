@@ -19,8 +19,8 @@ import type { NotificationItem } from '@/types/notification';
 const NOTIFICATION_EVENT = 'notification';
 const UNREAD_COUNT_EVENT = 'unread-count';
 const NOTIFICATION_REFRESH_EVENT = 'notification-refresh';
-const SSE_RECONNECT_BASE_DELAY_MS = 1_000;
-const SSE_RECONNECT_MAX_DELAY_MS = 15_000;
+const SSE_RECONNECT_BASE_DELAY_MS = 1_000; // 재연결 시도 주기 기본값 1초
+const SSE_RECONNECT_MAX_DELAY_MS = 15_000; // 재연결 시도 주기 최대값 15초
 
 interface NotificationStreamHandlers {
   onNotification: (notification: NotificationItem) => void;
@@ -251,7 +251,7 @@ const runConnectionLoop = async (
         }
       }
 
-      await waitForReconnect(reconnectDelayMs, signal);
+      await waitForReconnect(reconnectDelayMs, signal); // 재연결 시도 지연 (지수 백오프)
       reconnectDelayMs = Math.min(
         reconnectDelayMs * 2,
         SSE_RECONNECT_MAX_DELAY_MS

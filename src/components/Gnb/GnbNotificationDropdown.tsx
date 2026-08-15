@@ -112,24 +112,20 @@ export const GnbNotificationDropdown = ({
           >
             {isLoading ? (
               <Spinner message={LOADING_MESSAGE} className="gap-3 py-8" />
-            ) : null}
-
-            {isEmpty ? (
+            ) : isEmpty ? (
               <p className="px-4 py-8 text-center text-md-medium text-gray-300 md:px-6">
                 {EMPTY_MESSAGE}
               </p>
-            ) : null}
-
-            {!isLoading
-              ? items.map((item) => (
-                  <GnbNotificationItem
-                    key={item.id}
-                    item={item}
-                    onClick={onItemClick}
-                    onPointerEnter={onItemPointerEnter}
-                  />
-                ))
-              : null}
+            ) : (
+              items.map((item) => (
+                <GnbNotificationItem
+                  key={item.id}
+                  item={item}
+                  onClick={onItemClick}
+                  onPointerEnter={onItemPointerEnter}
+                />
+              ))
+            )}
           </div>
         </div>
 
