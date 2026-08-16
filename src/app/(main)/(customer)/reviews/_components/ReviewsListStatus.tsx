@@ -3,9 +3,10 @@
 import { motion, useReducedMotion } from 'framer-motion';
 
 import { ReviewsEmptyState } from '@/components/reviews/ReviewsEmptyState';
-import { REVIEWS_CONTENT_CLASS } from '@/components/reviews/ReviewsTabs';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { fadeIn, getMotionTransition } from '@/lib/motionVariants';
+
+import { REVIEWS_CONTENT_CLASS } from './reviewsStyles';
 
 import type { ReactNode } from 'react';
 

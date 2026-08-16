@@ -1,15 +1,12 @@
 'use client';
 
 import { ReviewListSection } from '@/components/reviews/ReviewListSection';
-import {
-  ReviewsContent,
-  ReviewsListStatus,
-} from '@/components/reviews/ReviewsListStatus';
 import { WritableReviewCard } from '@/components/reviews/WritableReviewCard';
 import { useCustomerWritableQuotes } from '@/hooks/useCustomerWritableQuotes';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 
 import { isReviewListEmpty } from '../_lib/isReviewListEmpty';
+import { ReviewsContent, ReviewsListStatus } from './ReviewsListStatus';
 
 import type { WritableQuoteItem } from '@/types/review';
 

@@ -15,10 +15,11 @@ import { useDeleteReview } from '@/hooks/useDeleteReview';
 import { useUpdateReview } from '@/hooks/useUpdateReview';
 import { getMotionTransition, getTabPanelMotionProps } from '@/lib/motionVariants';
 
+import { REVIEWS_TAB_PANEL_CLASS } from './_components/reviewsStyles';
 import { WritableReviewsPanel } from './_components/WritableReviewsPanel';
 import { WrittenReviewsPanel } from './_components/WrittenReviewsPanel';
 
-import type { ReviewsPageTab } from '@/components/reviews/ReviewsTabs';
+import type { ReviewsPageTab } from './_components/ReviewsTabs';
 import type { CustomerReviewItem, WritableQuoteItem } from '@/types/review';
 
 export interface ReviewsPageClientProps {
@@ -172,7 +173,7 @@ const ReviewsPageClient = ({
               role="tabpanel"
               id="reviews-panel-writable"
               aria-labelledby="reviews-tab-writable"
-              className="flex min-h-0 flex-1 flex-col"
+              className={REVIEWS_TAB_PANEL_CLASS}
             >
               <WritableReviewsPanel
                 enabled={isCustomerReady}
@@ -186,7 +187,7 @@ const ReviewsPageClient = ({
               role="tabpanel"
               id="reviews-panel-written"
               aria-labelledby="reviews-tab-written"
-              className="flex min-h-0 flex-1 flex-col"
+              className={REVIEWS_TAB_PANEL_CLASS}
             >
               <WrittenReviewsPanel
                 enabled={isCustomerReady}

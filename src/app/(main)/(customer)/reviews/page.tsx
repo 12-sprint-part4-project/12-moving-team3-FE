@@ -1,10 +1,10 @@
-import {
-  parseHighlightReviewId,
-  parseReviewsTabId,
-  resolveReviewsTabParam,
-  ReviewsTabs,
-} from '@/components/reviews/ReviewsTabs';
+import { parsePositiveInt } from '@/lib/parsePositiveInt';
+import { resolveTabSearchParam } from '@/lib/resolveTabSearchParam';
 
+import {
+  ReviewsTabs,
+  parseReviewsTabId,
+} from './_components/ReviewsTabs';
 import ReviewsPageClient from './page.client';
 
 import type { Metadata } from 'next';
@@ -23,9 +23,9 @@ export interface ReviewsPageProps {
 /** `/reviews` 서버 페이지. - 작성 가능 / 내가 작성한 리뷰 탭. */
 const ReviewsPage = async ({ searchParams }: ReviewsPageProps) => {
   const params = await searchParams;
-  const activeTab = parseReviewsTabId(resolveReviewsTabParam(params.tab));
-  const highlightReviewId = parseHighlightReviewId(
-    resolveReviewsTabParam(params.highlight)
+  const activeTab = parseReviewsTabId(resolveTabSearchParam(params.tab));
+  const highlightReviewId = parsePositiveInt(
+    resolveTabSearchParam(params.highlight)
   );
 
   return (

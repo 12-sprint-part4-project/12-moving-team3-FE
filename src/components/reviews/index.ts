@@ -22,20 +22,8 @@ export { DeleteReviewConfirmModal } from './DeleteReviewConfirmModal';
 export type { DeleteReviewConfirmModalProps } from './DeleteReviewConfirmModal';
 export { ReviewsEmptyState } from './ReviewsEmptyState';
 export type { ReviewsEmptyStateProps } from './ReviewsEmptyState';
-export { ReviewsContent, ReviewsListStatus } from './ReviewsListStatus';
-export type { ReviewsListStatusProps } from './ReviewsListStatus';
 export { ReviewListSection } from './ReviewListSection';
 export type {
   ReviewListSectionProps,
   ReviewListPagination,
 } from './ReviewListSection';
-export {
-  ReviewsTabs,
-  REVIEWS_PAGE_X_PADDING,
-  REVIEWS_CONTENT_CLASS,
-  REVIEW_HIGHLIGHT_DURATION_MS,
-  parseHighlightReviewId,
-  parseReviewsTabId,
-  resolveReviewsTabParam,
-} from './ReviewsTabs';
-export type { ReviewsPageTab, ReviewsTabsProps } from './ReviewsTabs';

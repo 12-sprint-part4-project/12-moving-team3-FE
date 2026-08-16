@@ -3,7 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 
-import { REVIEW_HIGHLIGHT_DURATION_MS } from '@/components/reviews/ReviewsTabs';
+/** 등록 직후 카드 강조 유지 시간(ms) */
+const REVIEW_HIGHLIGHT_DURATION_MS = 1000;
 
 interface UseHighlightWrittenReviewParams {
   highlightReviewId: number | null;

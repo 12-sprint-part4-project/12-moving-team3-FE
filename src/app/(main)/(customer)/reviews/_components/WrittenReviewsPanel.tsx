@@ -1,16 +1,13 @@
 'use client';
 
 import { ReviewListSection } from '@/components/reviews/ReviewListSection';
-import {
-  ReviewsContent,
-  ReviewsListStatus,
-} from '@/components/reviews/ReviewsListStatus';
 import { WrittenReviewCard } from '@/components/reviews/WrittenReviewCard';
 import { useCustomerReviews } from '@/hooks/useCustomerReviews';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 
 import { isReviewListEmpty } from '../_lib/isReviewListEmpty';
 import { useHighlightWrittenReview } from '../_lib/useHighlightWrittenReview';
+import { ReviewsContent, ReviewsListStatus } from './ReviewsListStatus';
 
 import type { CustomerReviewItem } from '@/types/review';
 
