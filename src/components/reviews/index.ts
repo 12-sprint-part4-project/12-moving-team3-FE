@@ -22,10 +22,11 @@ export { DeleteReviewConfirmModal } from './DeleteReviewConfirmModal';
 export type { DeleteReviewConfirmModalProps } from './DeleteReviewConfirmModal';
 export { ReviewsEmptyState } from './ReviewsEmptyState';
 export type { ReviewsEmptyStateProps } from './ReviewsEmptyState';
+export { ReviewsContent, ReviewsListStatus } from './ReviewsListStatus';
+export type { ReviewsListStatusProps } from './ReviewsListStatus';
 export { ReviewListSection } from './ReviewListSection';
 export type {
   ReviewListSectionProps,
-  ReviewListStatus,
   ReviewListPagination,
 } from './ReviewListSection';
 export {

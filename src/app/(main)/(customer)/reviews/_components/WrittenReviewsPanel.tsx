@@ -4,11 +4,11 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 
 import { ReviewListSection } from '@/components/reviews/ReviewListSection';
-import { ReviewsEmptyState } from '@/components/reviews/ReviewsEmptyState';
 import {
-  REVIEW_HIGHLIGHT_DURATION_MS,
-  REVIEWS_CONTENT_CLASS,
-} from '@/components/reviews/ReviewsTabs';
+  ReviewsContent,
+  ReviewsListStatus,
+} from '@/components/reviews/ReviewsListStatus';
+import { REVIEW_HIGHLIGHT_DURATION_MS } from '@/components/reviews/ReviewsTabs';
 import { WrittenReviewCard } from '@/components/reviews/WrittenReviewCard';
 import { useCustomerReviews } from '@/hooks/useCustomerReviews';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
@@ -23,7 +23,7 @@ export interface WrittenReviewsPanelProps {
   onReviewClick: (item: CustomerReviewItem) => void;
 }
 
-/** `/reviews` 내가 작성한 리뷰 탭. Query·highlight·목록 가드. */
+/** `/reviews` 내가 작성한 리뷰 탭. Query·highlight·배타 가드. */
 export const WrittenReviewsPanel = ({
   enabled,
   highlightReviewId,
@@ -34,6 +34,7 @@ export const WrittenReviewsPanel = ({
   const highlightHandledRef = useRef<number | null>(null);
 
   const written = useCustomerReviews({ enabled });
+  const items = written.reviews;
 
   useEffect(() => {
     if (highlightReviewId === null) {
@@ -49,7 +50,7 @@ export const WrittenReviewsPanel = ({
       return;
     }
 
-    const isHighlightedReviewVisible = written.reviews.some(
+    const isHighlightedReviewVisible = items.some(
       (review) => review.id === highlightReviewId
     );
     if (!isHighlightedReviewVisible) {
@@ -70,37 +71,58 @@ export const WrittenReviewsPanel = ({
     return () => window.clearTimeout(timer);
   }, [
     highlightReviewId,
+    items,
     router,
     written.isError,
     written.isPending,
-    written.reviews,
   ]);
 
-  return (
-    <div className={REVIEWS_CONTENT_CLASS}>
-      <ReviewListSection
-        items={written.reviews}
-        status={{
-          isPending: written.isPending,
-          isError: written.isError,
-          showEmpty: isReviewListEmpty(written),
-          pendingMessage: '작성한 리뷰를 불러오는 중...',
-          errorMessage: resolveApiErrorMessage(
-            written.error,
-            '작성한 리뷰를 불러오지 못했습니다.'
-          ),
-          onRetry: () => {
-            void written.refetch();
-          },
-          emptyState: (
-            <ReviewsEmptyState message="아직 작성한 리뷰가 없어요" />
-          ),
+  // 로딩 — 초기 조회 (페이지 전환 keepPreviousData는 목록 오버레이)
+  if (written.isPending && items.length === 0) {
+    return (
+      <ReviewsListStatus
+        variant="pending"
+        message="작성한 리뷰를 불러오는 중..."
+      />
+    );
+  }
+
+  // 에러 — 재시도
+  if (written.isError) {
+    return (
+      <ReviewsListStatus
+        variant="error"
+        message={resolveApiErrorMessage(
+          written.error,
+          '작성한 리뷰를 불러오지 못했습니다.'
+        )}
+        onRetry={() => {
+          void written.refetch();
         }}
+      />
+    );
+  }
+
+  // 빈 목록
+  if (isReviewListEmpty(written)) {
+    return (
+      <ReviewsListStatus
+        variant="empty"
+        message="아직 작성한 리뷰가 없어요"
+      />
+    );
+  }
+
+  // 본문 — 그리드 + 페이지네이션
+  return (
+    <ReviewsContent>
+      <ReviewListSection
+        items={items}
         pagination={{
           page: written.page,
           totalPages: written.totalPages,
           onPageChange: written.setPage,
-          isFetching: written.isFetching,
+          isFetching: written.isFetching && !written.isPending,
           getItemKey: (item) => item.id,
         }}
         renderItem={(item) => {
@@ -115,6 +137,6 @@ export const WrittenReviewsPanel = ({
           );
         }}
       />
-    </div>
+    </ReviewsContent>
   );
 };
