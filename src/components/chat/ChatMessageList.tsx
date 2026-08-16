@@ -11,10 +11,8 @@ import {
 } from 'react';
 
 import { ChatMessageItem } from '@/components/chat/ChatMessageItem';
-import { ReportCategoryModal } from '@/components/reports/ReportCategoryModal';
-import { Modal } from '@/components/ui/Modal/Modal';
+import { ReportAction } from '@/components/reports';
 import { useAuth } from '@/hooks/useAuth';
-import { useCreateReport } from '@/hooks/useCreateReport';
 import { useToast } from '@/hooks/useToast';
 import {
   formatChatDateSeparator,
@@ -24,7 +22,6 @@ import {
 import { cn } from '@/lib/utils';
 
 import type { ChatMessage } from '@/types/chat';
-import type { ReportCategory } from '@/types/report';
 
 export interface ChatMessageListProps {
   messages: ChatMessage[];
@@ -133,7 +130,6 @@ export const ChatMessageList = ({
 }: ChatMessageListProps) => {
   const { user } = useAuth();
   const { showToast } = useToast();
-  const { submitReport, isPending: isReportPending } = useCreateReport();
   const [reportMessageId, setReportMessageId] = useState<number | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -449,26 +445,6 @@ export const ChatMessageList = ({
     setReportMessageId(messageId);
   };
 
-  const handleCloseReport = () => {
-    if (isReportPending) return;
-    setReportMessageId(null);
-  };
-
-  const handleSubmitReport = async (category: ReportCategory) => {
-    if (isReportPending || reportMessageId == null) return;
-
-    try {
-      await submitReport({
-        target: 'MESSAGE',
-        targetId: String(reportMessageId),
-        category,
-      });
-      setReportMessageId(null);
-    } catch {
-      // 성공/실패 토스트는 useCreateReport에서 처리
-    }
-  };
-
   return (
     <>
       <div
@@ -585,15 +561,12 @@ export const ChatMessageList = ({
       </div>
 
       {reportMessageId != null ? (
-        <Modal placement="bottom" onClose={handleCloseReport}>
-          <ReportCategoryModal
-            onClose={handleCloseReport}
-            onSubmit={(category) => {
-              void handleSubmitReport(category);
-            }}
-            isSubmitting={isReportPending}
-          />
-        </Modal>
+        <ReportAction
+          target="MESSAGE"
+          targetId={String(reportMessageId)}
+          controlledOpen
+          onControlledClose={() => setReportMessageId(null)}
+        />
       ) : null}
     </>
   );

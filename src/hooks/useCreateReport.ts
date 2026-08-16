@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 
 import { useToast } from '@/hooks/useToast';
-import { ApiError } from '@/lib/apiClient';
+import { resolveApiErrorMessage } from '@/lib/apiClient';
 import { createReport } from '@/services/reportsApi';
 
 import type { CreateReportBody } from '@/types/report';
@@ -20,11 +20,12 @@ export const useCreateReport = () => {
       showToast({ content: '신고가 접수되었습니다.' });
     },
     onError: (error: unknown) => {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : '신고 접수 중 오류가 발생했습니다.';
-      showToast({ content: message });
+      showToast({
+        content: resolveApiErrorMessage(
+          error,
+          '신고 접수 중 오류가 발생했습니다.'
+        ),
+      });
     },
   });
 
