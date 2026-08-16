@@ -10,14 +10,12 @@ import { resolveApiErrorMessage } from '@/lib/apiClient';
 import { FavoritesEmptyState } from './FavoritesEmptyState';
 
 export interface FavoritesListPanelProps {
-  enabled: boolean;
   onFavoriteClick: (moverId: string, nextFavorited: boolean) => void;
   isMoverPending: (moverId: string) => boolean;
 }
 
 /** `/favorites` 목록 패널. Query·배타 가드·무한스크롤. */
 export const FavoritesListPanel = ({
-  enabled,
   onFavoriteClick,
   isMoverPending,
 }: FavoritesListPanelProps) => {
@@ -31,7 +29,7 @@ export const FavoritesListPanel = ({
     error,
     isEmpty,
     refetch,
-  } = useFavoriteMoversList({ enabled });
+  } = useFavoriteMoversList();
 
   const loadMoreRef = useLoadMoreOnView({
     hasNextPage,
