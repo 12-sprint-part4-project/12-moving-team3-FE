@@ -4,7 +4,6 @@ import { useState } from 'react';
 
 import { SAMPLE_WRITABLE_QUOTES } from '@/components/reviews/_fixtures/reviewFixtures';
 import { ReviewListSection } from '@/components/reviews/ReviewListSection';
-import { ReviewsEmptyState } from '@/components/reviews/ReviewsEmptyState';
 import { WritableReviewCard } from '@/components/reviews/WritableReviewCard';
 
 import type { WritableQuoteItem } from '@/types/review';
@@ -20,7 +19,7 @@ const meta: Meta<typeof ReviewListSection<WritableQuoteItem>> = {
   decorators: [
     (Story) => (
       <div className="min-h-screen bg-background-200 p-6 xl:px-16">
-        <div className="mx-auto max-w-[87.5rem]">
+        <div className="mx-auto flex min-h-[40rem] max-w-[87.5rem] flex-col">
           <Story />
         </div>
       </div>
@@ -35,22 +34,6 @@ const renderWritableCard = (item: WritableQuoteItem) => (
   <WritableReviewCard key={item.quoteId} item={item} onWriteClick={() => {}} />
 );
 
-const IDLE_STATUS = {
-  isPending: false,
-  isError: false,
-  showEmpty: false,
-  pendingMessage: '작성 가능한 리뷰를 불러오는 중...',
-  errorMessage: '작성 가능한 리뷰를 불러오지 못했습니다.',
-  onRetry: () => {},
-  emptyState: <ReviewsEmptyState />,
-};
-
-const IDLE_PAGINATION = {
-  page: 1,
-  totalPages: 1,
-  onPageChange: () => {},
-};
-
 /** 목록 + 페이지네이션 */
 export const WithItems: Story = {
   render: () => {
@@ -59,11 +42,11 @@ export const WithItems: Story = {
     return (
       <ReviewListSection
         items={SAMPLE_WRITABLE_QUOTES}
-        status={IDLE_STATUS}
         pagination={{
           page,
           totalPages: 3,
           onPageChange: setPage,
+          getItemKey: (item) => item.quoteId,
         }}
         renderItem={renderWritableCard}
       />
@@ -71,41 +54,17 @@ export const WithItems: Story = {
   },
 };
 
-/** 초기 로딩 */
-export const Pending: Story = {
+/** 페이지 전환 keepPreviousData 재조회 오버레이 */
+export const Fetching: Story = {
   args: {
-    items: [],
-    status: {
-      ...IDLE_STATUS,
-      isPending: true,
+    items: SAMPLE_WRITABLE_QUOTES,
+    pagination: {
+      page: 2,
+      totalPages: 3,
+      onPageChange: () => {},
+      isFetching: true,
+      getItemKey: (item) => item.quoteId,
     },
-    pagination: IDLE_PAGINATION,
-    renderItem: renderWritableCard,
-  },
-};
-
-/** 에러 + 다시 시도 */
-export const ErrorState: Story = {
-  args: {
-    items: [],
-    status: {
-      ...IDLE_STATUS,
-      isError: true,
-    },
-    pagination: IDLE_PAGINATION,
-    renderItem: renderWritableCard,
-  },
-};
-
-/** 빈 목록 */
-export const Empty: Story = {
-  args: {
-    items: [],
-    status: {
-      ...IDLE_STATUS,
-      showEmpty: true,
-    },
-    pagination: IDLE_PAGINATION,
     renderItem: renderWritableCard,
   },
 };
