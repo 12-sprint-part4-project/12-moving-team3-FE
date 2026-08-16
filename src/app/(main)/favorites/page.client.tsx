@@ -1,60 +1,25 @@
 'use client';
 
-import Link from 'next/link';
-import { useEffect } from 'react';
-import { useInView } from 'react-intersection-observer';
-
-import { MoverCard } from '@/components/movers/MoverCard';
+import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
+import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
-import { useFavoriteMoversList } from '@/hooks/useFavoriteMoversList';
-import { useToggleFavorite } from '@/hooks/useToggleFavorite';
-import { ApiError } from '@/lib/apiClient';
-import { cn } from '@/lib/utils';
+import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 
-/** 찜한 기사님 목록 페이지 클라이언트 */
-export const FavoritesPageClient = () => {
+import { FAVORITES_CONTENT_CLASS } from './_components/favoritesLayout';
+import { FavoritesListPanel } from './_components/FavoritesListPanel';
+
+/** `/favorites` 클라이언트. - 인증 가드, 찜 목록 Query, 무한스크롤 오케스트레이션. */
+const FavoritesPageClient = () => {
   const { user, isReady } = useAuth();
   const isLoggedIn = Boolean(user);
-  const { toggleFavorite, isMoverPending } = useToggleFavorite();
-
   const {
-    movers,
-    isPending,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-    isError,
-    error,
-    isEmpty,
-    refetch,
-  } = useFavoriteMoversList({ enabled: isLoggedIn });
-
-  const { ref: loadMoreRef, inView } = useInView({
-    rootMargin: '200px',
-  });
-
-  useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      void fetchNextPage();
-    }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  const handleFavoriteClick = (moverId: string, nextFavorited: boolean) => {
-    toggleFavorite(moverId, nextFavorited);
-  };
-
-  const handleRetry = () => {
-    void refetch();
-  };
-
-  const errorMessage =
-    error instanceof ApiError
-      ? error.message
-      : (error?.message ?? '찜한 기사님 목록을 불러오지 못했습니다.');
-
-  const pageXPadding =
-    'px-6 md:px-[4.5rem] lg:px-10 xl:px-16 min-[90rem]:px-[16.25rem]';
+    handleFavoriteClick,
+    isMoverPending,
+    isLoginModalOpen,
+    isProfileModalOpen,
+    closeAuthModal,
+  } = useFavoriteAction();
 
   if (!isReady || !user) {
     return (
@@ -65,79 +30,24 @@ export const FavoritesPageClient = () => {
   }
 
   return (
-    <div className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden">
-      <div
-        className={cn(
-          'shrink-0 border-b border-line-100 bg-white py-4 shadow-page-title md:py-6 lg:py-8',
-          pageXPadding
-        )}
-      >
-        <h1 className="text-2lg-semibold text-black-400 lg:text-2xl-semibold">
-          찜한 기사님
-        </h1>
-      </div>
-
+    <>
       <div className="min-h-0 w-full flex-1 bg-background-200">
-        <div
-          className={cn(
-            'mx-auto flex w-full max-w-[1920px] flex-col py-6 md:py-8',
-            pageXPadding
-          )}
-        >
-          {isPending ? (
-            <Spinner message="찜한 기사님을 불러오는 중..." />
-          ) : null}
-
-          {isError ? (
-            <div className="flex flex-col items-center gap-4 py-16">
-              <p className="text-lg-medium text-gray-400">{errorMessage}</p>
-              <button
-                type="button"
-                onClick={handleRetry}
-                className="cursor-pointer rounded-lg bg-blue-300 px-4 py-2 text-lg-semibold text-white"
-              >
-                다시 시도
-              </button>
-            </div>
-          ) : null}
-
-          {isEmpty ? (
-            <div className="flex flex-col items-center justify-center gap-4 py-16">
-              <p className="text-xl-regular text-gray-400">
-                찜한 기사님이 없어요
-              </p>
-              <Link
-                href="/movers"
-                className="cursor-pointer text-lg-semibold text-blue-300 hover:underline"
-              >
-                기사님 찾아보기
-              </Link>
-            </div>
-          ) : null}
-
-          {!isError && movers.length > 0 ? (
-            <ul className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-2 lg:gap-x-6 lg:gap-y-12">
-              {movers.map((mover) => (
-                <li key={mover.moverId}>
-                  <MoverCard
-                    mover={mover}
-                    size="lg"
-                    variant="favorite"
-                    onFavoriteClick={handleFavoriteClick}
-                    isFavoritePending={isMoverPending(mover.moverId)}
-                  />
-                </li>
-              ))}
-            </ul>
-          ) : null}
-
-          <div ref={loadMoreRef} className="h-8 w-full">
-            {isFetchingNextPage ? (
-              <Spinner message="더 불러오는 중..." className="py-6" />
-            ) : null}
-          </div>
+        <div className={FAVORITES_CONTENT_CLASS}>
+          <FavoritesListPanel
+            enabled={isLoggedIn}
+            onFavoriteClick={handleFavoriteClick}
+            isMoverPending={isMoverPending}
+          />
         </div>
       </div>
-    </div>
+
+      <LoginRequiredModal open={isLoginModalOpen} onClose={closeAuthModal} />
+      <ProfileRequiredModal
+        open={isProfileModalOpen}
+        onClose={closeAuthModal}
+      />
+    </>
   );
 };
+
+export default FavoritesPageClient;
