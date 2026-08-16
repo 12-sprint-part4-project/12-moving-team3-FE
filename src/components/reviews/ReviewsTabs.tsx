@@ -21,6 +21,9 @@ export const REVIEW_HIGHLIGHT_DURATION_MS = 1000;
 export const REVIEWS_PAGE_X_PADDING =
   'px-6 md:px-18 lg:px-10 xl:px-16 min-[90rem]:px-65';
 
+/** 탭 본문 컨테이너 — 패널 높이 채움(페이지네이션 mt-auto용) */
+export const REVIEWS_CONTENT_CLASS = `mx-auto flex min-h-0 w-full max-w-[1920px] flex-1 flex-col py-6 md:py-8 lg:py-10 ${REVIEWS_PAGE_X_PADDING}`;
+
 const TABS: QuotesTabItem<ReviewsPageTab>[] = [
   { id: 'writable', label: '작성 가능한 리뷰', href: '/reviews' },
   { id: 'written', label: '내가 작성한 리뷰', href: '/reviews?tab=written' },
