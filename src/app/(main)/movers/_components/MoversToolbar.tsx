@@ -87,7 +87,7 @@ export const MoversToolbar = ({
 
       <TextFieldSearch
         size="sm"
-        className="w-full max-w-none lg:h-16 lg:gap-2 lg:px-6 lg:py-3.5 lg:[&_button]:size-9 lg:[&_input]:text-xl-regular lg:[&_svg]:size-9"
+        className="w-full max-w-none xl:h-16 xl:gap-2 xl:px-6 xl:py-3.5 xl:[&_button]:size-9 xl:[&_input]:text-xl-regular xl:[&_svg]:size-9"
         placeholder="검색어를 입력해 주세요"
         value={searchValue}
         onChange={onSearchChange}

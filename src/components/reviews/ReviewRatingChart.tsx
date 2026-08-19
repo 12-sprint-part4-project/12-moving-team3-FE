@@ -42,7 +42,7 @@ export const ReviewRatingChart = ({
     <div
       className={cn(
         'flex w-full min-w-0 flex-col items-center gap-10',
-        'md:flex-row md:items-center md:justify-center md:gap-14',
+        'tablet:flex-row tablet:items-center tablet:justify-center tablet:gap-14',
         'xl:gap-[5.1875rem] xl:rounded-[2rem] xl:bg-background-200 xl:px-16 xl:py-10',
         className
       )}
@@ -91,7 +91,7 @@ export const ReviewRatingChart = ({
       <div
         className={cn(
           'flex w-full max-w-[20.4375rem] min-w-0 flex-col items-stretch justify-center gap-1.5 rounded-3xl bg-background-200 px-[1.125rem] py-4',
-          'md:min-w-0 md:flex-1',
+          'tablet:min-w-0 tablet:flex-1',
           'xl:max-w-[30.625rem] xl:gap-3.5 xl:rounded-none xl:bg-transparent xl:p-0'
         )}
       >

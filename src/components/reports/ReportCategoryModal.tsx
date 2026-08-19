@@ -46,7 +46,7 @@ export const ReportCategoryModal = ({
       title="신고하기"
       onClose={handleClose}
       titleAlign="center"
-      titleClassName="text-black-500 sm:text-2xl-bold"
+      titleClassName="text-black-500 tablet:text-2xl-bold"
       className={cn(MODAL_PANEL_BOTTOM_SHEET_CLASS, className)}
       footer={
         <ModalCtaButton disabled={!canSubmit} onClick={handleSubmit}>
@@ -54,8 +54,8 @@ export const ReportCategoryModal = ({
         </ModalCtaButton>
       }
     >
-      <fieldset className="flex w-full flex-col gap-3 sm:gap-4">
-        <legend className="mb-1 pb-4 text-lg-semibold text-black-200 sm:text-2lg-semibold">
+      <fieldset className="flex w-full flex-col gap-3 tablet:gap-4">
+        <legend className="mb-1 pb-4 text-lg-semibold text-black-200 tablet:text-2lg-semibold">
           신고 사유를 선택해 주세요
         </legend>
         {REPORT_CATEGORY_OPTIONS.map((option) => {
@@ -83,7 +83,7 @@ export const ReportCategoryModal = ({
                 onChange={() => setCategory(option.value)}
                 className="size-5 accent-blue-300"
               />
-              <span className="text-lg-medium text-black-300 sm:text-2lg-medium">
+              <span className="text-lg-medium text-black-300 tablet:text-2lg-medium">
                 {option.label}
               </span>
             </label>

@@ -33,7 +33,7 @@ export const QuotesTabsShell = <T extends string>({
       className
     )}
   >
-    <nav aria-label={ariaLabel} className="flex items-start gap-6 lg:gap-8">
+    <nav aria-label={ariaLabel} className="flex items-start gap-6 xl:gap-8">
       {tabs.map((tab) => {
         const active = activeTab === tab.id;
         return (
