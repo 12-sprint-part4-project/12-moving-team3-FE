@@ -11,18 +11,15 @@ import { cn } from '@/lib/utils';
 import { ALL_MOVE_TYPES, ALL_SCOPES } from '@/types/estimateRequest';
 
 import { RequestsFilterResetButton } from './RequestsFilterResetButton';
+import { REQUESTS_SORT_OPTIONS } from '../_lib/filterOptions';
 import {
   isDefaultRequestsListUrlState,
+  isRequestsSortValue,
   type RequestsListUrlState,
 } from '../_lib/requestsListSearchParams';
 import { useRequestsListSearch } from '../_lib/useRequestsListSearch';
 
 import type { RequestsSortValue } from '@/types/estimateRequest';
-
-const SORT_OPTIONS: { label: string; value: RequestsSortValue }[] = [
-  { label: '이사 빠른순', value: 'moveDateAsc' },
-  { label: '요청일 빠른순', value: 'requestDateAsc' },
-];
 
 export interface RequestsListToolbarProps {
   listFilters: RequestsListUrlState;
@@ -35,6 +32,8 @@ export interface RequestsListToolbarProps {
   totalCount: number;
   showListFetching: boolean;
   onSortChange: (value: string) => void;
+  onSortOpen?: () => void;
+  onSortOptionPrefetch?: (value: RequestsSortValue) => void;
   onFilterOpen: () => void;
   className?: string;
 }
@@ -51,6 +50,8 @@ export const RequestsListToolbar = ({
   totalCount,
   showListFetching,
   onSortChange,
+  onSortOpen,
+  onSortOptionPrefetch,
   onFilterOpen,
   className = '',
 }: RequestsListToolbarProps) => {
@@ -86,6 +87,12 @@ export const RequestsListToolbar = ({
     ...listFilters,
     keyword: searchInputValue.trim(),
   });
+
+  const handleSortOptionPrefetch = (value: string) => {
+    if (isRequestsSortValue(value)) {
+      onSortOptionPrefetch?.(value);
+    }
+  };
 
   const handleReset = () => {
     setSearchDraft('');
@@ -154,17 +161,21 @@ export const RequestsListToolbar = ({
           />
           <div className="flex items-center md:hidden">
             <Sort
-              options={SORT_OPTIONS}
+              options={REQUESTS_SORT_OPTIONS}
               value={listFilters.sort}
               onValueChange={onSortChange}
+              onOpen={onSortOpen}
+              onOptionPrefetch={handleSortOptionPrefetch}
               size="sm"
             />
           </div>
           <div className="hidden items-center md:flex">
             <Sort
-              options={SORT_OPTIONS}
+              options={REQUESTS_SORT_OPTIONS}
               value={listFilters.sort}
               onValueChange={onSortChange}
+              onOpen={onSortOpen}
+              onOptionPrefetch={handleSortOptionPrefetch}
               size="md"
             />
           </div>

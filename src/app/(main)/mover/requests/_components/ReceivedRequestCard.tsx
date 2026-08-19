@@ -125,7 +125,7 @@ export const ReceivedRequestCard = ({
 
       <motion.div
         variants={listStagger}
-        initial="hidden"
+        initial={false}
         animate="show"
         className="flex w-full flex-col gap-5 lg:gap-4"
       >

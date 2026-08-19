@@ -1,6 +1,9 @@
 'use client';
 
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+
 import CheckIcon from '@/assets/icons/check.svg';
+import { getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 import type { ChangeEvent } from 'react';
@@ -8,6 +11,8 @@ import type { ChangeEvent } from 'react';
 interface FilterCheckBoxProps {
   /** 체크박스 왼쪽에 표시할 라벨 텍스트 */
   label: string;
+  /** 라벨 뒤 건수. 있으면 `(0)`부터 항상 표시하고, 값이 바뀔 때 숫자만 슬라이드 */
+  count?: number;
   /** 체크 여부 */
   checked: boolean;
   /** 체크 상태 변경 시 호출되는 콜백 */
@@ -20,8 +25,35 @@ interface FilterCheckBoxProps {
   labelClassName?: string;
 }
 
+const FilterCount = ({ count }: { count: number }) => {
+  const shouldReduceMotion = useReducedMotion();
+  const motionTransition = getMotionTransition(shouldReduceMotion);
+
+  return (
+    <span className="ml-1 inline-flex items-center">
+      (
+      <span className="relative inline-flex h-[1.2em] min-w-[1ch] items-center overflow-hidden">
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.span
+            key={count}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: '70%' }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={shouldReduceMotion ? undefined : { opacity: 0, y: '-70%' }}
+            transition={motionTransition}
+            className="inline-block tabular-nums"
+          >
+            {count}
+          </motion.span>
+        </AnimatePresence>
+      </span>
+      )
+    </span>
+  );
+};
+
 export const FilterCheckBox = ({
   label,
+  count,
   checked,
   onCheckedChange,
   disabled = false,
@@ -42,6 +74,7 @@ export const FilterCheckBox = ({
     >
       <span className={cn('text-2lg-medium text-black-400', labelClassName)}>
         {label}
+        {count !== undefined ? <FilterCount count={count} /> : null}
       </span>
       <span className="relative flex size-9 shrink-0 items-center justify-center">
         <input

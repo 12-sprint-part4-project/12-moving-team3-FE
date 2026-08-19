@@ -1,32 +1,22 @@
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-import { estimateRequestQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
 import {
-  getReceivedEstimateRequests,
+  buildReceivedEstimateRequestsInfiniteQuery,
+  RECEIVED_ESTIMATE_REQUESTS_PAGE_SIZE,
+  RECEIVED_ESTIMATE_REQUESTS_STALE_TIME_MS,
+} from '@/lib/receivedEstimateRequestsQuery';
+import {
   toMoveTypeFilterCounts,
   toReceivedRequestCardModel,
   toScopeFilterCounts,
 } from '@/services/estimateRequestApi';
 
-import type {
-  MoveTypeOption,
-  RequestScopeOption,
-  RequestsSortValue,
-} from '@/types/estimateRequest';
+import type { ReceivedEstimateRequestsQueryInput } from '@/lib/receivedEstimateRequestsQuery';
 
-/** 필터 배열을 정렬해 queryKey·요청 파라미터를 안정화 */
-const toStableOptions = <T extends string>(items: readonly T[]): T[] =>
-  [...items].sort();
-
-export interface UseReceivedEstimateRequestsParams {
-  keyword?: string;
-  moveTypes: MoveTypeOption[];
-  scopes: RequestScopeOption[];
-  sort: RequestsSortValue;
-  limit?: number;
-}
+export type UseReceivedEstimateRequestsParams =
+  ReceivedEstimateRequestsQueryInput;
 
 /**
  * 기사님 받은 요청 목록 무한 스크롤 조회 훅
@@ -40,59 +30,28 @@ export const useReceivedEstimateRequests = ({
   moveTypes,
   scopes,
   sort,
-  limit = 10,
+  limit = RECEIVED_ESTIMATE_REQUESTS_PAGE_SIZE,
 }: UseReceivedEstimateRequestsParams) => {
   const { user, isReady } = useAuth();
   const isMoverReady = isReady && user?.userType === 'MOVER';
   const hasSelectedMoveTypes = moveTypes.length > 0;
-  const hasSelectedScopes = scopes.length > 0;
 
-  const stableMoveTypes = useMemo(
-    () => (hasSelectedMoveTypes ? toStableOptions(moveTypes) : []),
-    [moveTypes, hasSelectedMoveTypes]
-  );
-  const stableScopes = useMemo(
-    () => (hasSelectedScopes ? toStableOptions(scopes) : []),
-    [scopes, hasSelectedScopes]
-  );
-
-  const queryParams = useMemo(
-    () => ({
-      keyword: keyword?.trim() || undefined,
-      moveTypes: hasSelectedMoveTypes ? stableMoveTypes : undefined,
-      scopes: hasSelectedScopes ? stableScopes : undefined,
-      sort,
-      limit,
-    }),
-    [
-      keyword,
-      hasSelectedMoveTypes,
-      stableMoveTypes,
-      hasSelectedScopes,
-      stableScopes,
-      sort,
-      limit,
-    ]
+  const infiniteQuery = useMemo(
+    () =>
+      buildReceivedEstimateRequestsInfiniteQuery({
+        keyword,
+        moveTypes,
+        scopes,
+        sort,
+        limit,
+      }),
+    [keyword, moveTypes, scopes, sort, limit]
   );
 
   const query = useInfiniteQuery({
-    queryKey: estimateRequestQueryKeys.receivedList({
-      ...queryParams,
-      // 미선택([])과 전체 선택(전체 배열)이 같은 키가 되지 않도록 구분
-      moveTypes: hasSelectedMoveTypes ? stableMoveTypes : [],
-      scopes: hasSelectedScopes ? stableScopes : [],
-    }),
-    queryFn: ({ pageParam }) =>
-      getReceivedEstimateRequests({
-        ...queryParams,
-        cursor: pageParam,
-      }),
-    initialPageParam: undefined as string | undefined,
+    ...infiniteQuery,
     enabled: isMoverReady,
-    getNextPageParam: (lastPage) =>
-      lastPage.meta.hasNextPage
-        ? (lastPage.meta.nextCursor ?? undefined)
-        : undefined,
+    staleTime: RECEIVED_ESTIMATE_REQUESTS_STALE_TIME_MS,
     placeholderData: keepPreviousData,
   });
 
