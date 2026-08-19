@@ -1,4 +1,5 @@
 import { InfoField } from '@/components/ui/InfoField/InfoField';
+import { cn } from '@/lib/utils';
 
 /**
  * 주소 유형(도로명/지번) 라벨 pill의 크기/너비.
@@ -36,9 +37,11 @@ export const AddressCard = ({
       type="button"
       aria-pressed={isSelected}
       onClick={onClick}
-      className={`flex w-full flex-col items-start gap-4 rounded-2xl border px-4 pt-5 pb-6 text-left shadow-[.125rem_.125rem_.3125rem] shadow-shadow-gray-200/20 ${
-        isSelected ? 'border-blue-200 bg-blue-50' : 'border-line-100 bg-white'
-      } ${className}`}
+      className={cn(
+        'flex w-full flex-col items-start gap-4 rounded-2xl border px-4 pt-5 pb-6 text-left shadow-[.125rem_.125rem_.3125rem] shadow-shadow-gray-200/20',
+        isSelected ? 'border-blue-200 bg-blue-50' : 'border-line-100 bg-white',
+        className
+      )}
     >
       <p className="text-md-semibold text-black-400 sm:text-lg-semibold">
         {zipCode}
