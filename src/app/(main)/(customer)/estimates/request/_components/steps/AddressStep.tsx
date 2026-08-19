@@ -236,6 +236,7 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
                 value={moveDate.draft}
                 onValueChange={moveDate.setDraft}
                 minDate={moveDate.min}
+                maxDate={moveDate.max}
                 confirmDisabled={isSubmitting || detail == null}
                 confirmLabel={isSubmitting ? '저장 중…' : '선택완료'}
                 onConfirm={(date) => {
