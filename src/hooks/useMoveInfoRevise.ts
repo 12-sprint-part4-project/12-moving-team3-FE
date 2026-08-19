@@ -62,6 +62,14 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const minMoveDate = useLocalToday();
+  // 최대 선택 가능 일자 — 오늘로부터 6개월 뒤까지
+  const maxMoveDate = minMoveDate
+    ? new Date(
+        minMoveDate.getFullYear(),
+        minMoveDate.getMonth() + 6,
+        minMoveDate.getDate()
+      )
+    : undefined;
 
   // 저장·수정·제출 중 공통 busy (버튼/수정하기 잠금)
   const isSubmitting = isSavingStep || isRevisingField || isSubmittingRequest;
@@ -193,6 +201,7 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
       draft: draftDate,
       setDraft: setDraftDate,
       min: minMoveDate,
+      max: maxMoveDate,
       start: startReviseMoveDate,
       /** Step3 — 이미 저장된 일자 재수정 */
       confirmRevise: confirmMoveDateRevise,

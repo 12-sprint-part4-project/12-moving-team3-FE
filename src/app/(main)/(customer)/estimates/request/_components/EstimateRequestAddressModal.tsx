@@ -89,8 +89,7 @@ export const EstimateRequestAddressModal = ({
 
   const selected = addresses.find((item) => item.id === selectedId) ?? null;
   const trimmedDetail = detailAddress.trim();
-  const canSubmit =
-    selected != null && trimmedDetail.length > 0 && !isSearching;
+  const canSubmit = selected != null && !isSearching;
   const totalPages = Math.max(
     1,
     Math.ceil(totalCount / ADDRESS_SEARCH_PAGE_SIZE)
@@ -150,7 +149,7 @@ export const EstimateRequestAddressModal = ({
   };
 
   const handleSubmit = () => {
-    if (!selected || !trimmedDetail) {
+    if (!selected) {
       return;
     }
 
@@ -289,13 +288,13 @@ export const EstimateRequestAddressModal = ({
             </p>
           ) : null}
 
-          {/* BE 필수 detailAddress — 선택 후 입력 */}
+          {/* BE 선택값 detailAddress — 선택 후 입력, 상세주소가 없는 주소도 있어 필수 아님 */}
           <div className="flex w-full flex-col gap-2">
             <label
               htmlFor={`address-detail-${side}`}
               className="text-md-medium text-black-400 md:text-lg-medium"
             >
-              상세주소
+              상세주소 (선택)
             </label>
             <TextFieldOutlined
               id={`address-detail-${side}`}
@@ -306,9 +305,8 @@ export const EstimateRequestAddressModal = ({
               )}
               value={detailAddress}
               onChange={(event) => setDetailAddress(event.target.value)}
-              placeholder="상세주소를 입력해 주세요."
+              placeholder="상세주소를 입력해 주세요. (선택)"
               disabled={selected == null}
-              aria-required
             />
           </div>
         </div>

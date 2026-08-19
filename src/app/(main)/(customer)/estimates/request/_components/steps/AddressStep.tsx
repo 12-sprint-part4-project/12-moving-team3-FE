@@ -54,10 +54,10 @@ const toDraftFromDetail = (
   address: string | null | undefined,
   detailAddress: string | null | undefined
 ): AddressDraft | null => {
-  if (!zipCode || !address || !detailAddress) {
+  if (!zipCode || !address) {
     return null;
   }
-  return { zipCode, address, detailAddress };
+  return { zipCode, address, detailAddress: detailAddress ?? '' };
 };
 
 /**
@@ -236,6 +236,7 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
                 value={moveDate.draft}
                 onValueChange={moveDate.setDraft}
                 minDate={moveDate.min}
+                maxDate={moveDate.max}
                 confirmDisabled={isSubmitting || detail == null}
                 confirmLabel={isSubmitting ? '저장 중…' : '선택완료'}
                 onConfirm={(date) => {
