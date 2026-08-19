@@ -31,14 +31,14 @@ export const ReportButton = ({
       variant === 'default' &&
         'gap-1 text-md-medium text-gray-400 hover:text-black-300',
       variant === 'icon-only' &&
-        'size-5 shrink-0 justify-center text-gray-400 hover:text-black-300 min-[46.5rem]:size-6 xl:size-7',
+        'size-5 shrink-0 justify-center text-gray-400 hover:text-black-300 tablet:size-6 xl:size-7',
       className
     )}
   >
     <ReportIcon
       className={cn(
         variant === 'icon-only'
-          ? 'size-5 min-[46.5rem]:size-6 xl:size-7'
+          ? 'size-5 tablet:size-6 xl:size-7'
           : 'size-4'
       )}
     />

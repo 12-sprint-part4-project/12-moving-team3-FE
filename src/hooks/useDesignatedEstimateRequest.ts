@@ -134,7 +134,7 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
           queryKey: chatQueryKeys.rooms(),
         }),
         queryClient.invalidateQueries({
-          queryKey: [...chatQueryKeys.all, 'room'],
+          queryKey: chatQueryKeys.roomsAll(),
         }),
       ]);
       showToast({ content: '지정 견적 요청을 보냈어요.' });

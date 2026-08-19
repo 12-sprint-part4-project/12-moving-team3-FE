@@ -81,10 +81,10 @@ export const ReviewFormFields = ({
       : undefined;
 
   return (
-    <div className="flex w-full flex-col gap-5 sm:gap-5">
-      <div className="mb-7 flex flex-col gap-3.5 sm:gap-6">
+    <div className="flex w-full flex-col gap-5">
+      <div className="mb-7 flex flex-col gap-3.5 tablet:gap-6">
         {moveTypeUi || isDesignated ? (
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="flex flex-wrap items-center gap-2 tablet:gap-3">
             {moveTypeUi ? (
               <MoveTypeChip
                 type={moveTypeUi}
@@ -111,7 +111,7 @@ export const ReviewFormFields = ({
       </div>
 
       <div className="flex flex-col gap-4">
-        <p className="text-lg-semibold text-black-300 sm:text-xl-semibold">
+        <p className="text-lg-semibold text-black-300 tablet:text-xl-semibold">
           {ratingLabel}
         </p>
         <StarRating value={rating} onChange={onRatingChange} />
@@ -125,7 +125,7 @@ export const ReviewFormFields = ({
       </div>
 
       <div className="flex flex-col gap-4">
-        <p className="text-lg-semibold text-black-300 sm:text-xl-semibold">
+        <p className="text-lg-semibold text-black-300 tablet:text-xl-semibold">
           {contentLabel}
         </p>
         <TextArea
@@ -134,7 +134,7 @@ export const ReviewFormFields = ({
           value={content}
           onChange={handleContentChange}
           placeholder="10자 이상 600자 이하로 작성해주세요"
-          className="[&>div]:w-full [&>div>textarea]:sm:text-xl-regular"
+          className="[&>div]:w-full [&>div>textarea]:tablet:text-xl-regular"
           aria-label="상세 후기"
           onBlur={() => setContentTouched(true)}
           errorMessage={contentError}

@@ -105,7 +105,7 @@ export const WritableReviewCard = ({
               </div>
               <span
                 aria-hidden
-                className="hidden h-3.5 w-px bg-line-200 sm:block xl:h-4"
+                className="hidden h-3.5 w-px bg-line-200 tablet:block xl:h-4"
               />
               <div className="flex items-center gap-1.5 xl:gap-3">
                 <span className="text-sm-medium text-gray-300 xl:text-xl-regular xl:text-gray-500">

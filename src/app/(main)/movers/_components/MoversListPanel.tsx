@@ -164,7 +164,7 @@ export const MoversListPanel = ({
           variants={shouldAnimateList ? listStagger : undefined}
           initial={shouldAnimateList ? 'hidden' : false}
           animate={shouldAnimateList ? 'show' : undefined}
-          className="flex flex-col gap-6 lg:gap-12"
+          className="flex flex-col gap-6 xl:gap-12"
         >
           {movers.map((mover) => (
             <motion.li

@@ -74,7 +74,7 @@ export const FavoritesListPanel = ({
 
   return (
     <>
-      <ul className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-2 lg:gap-x-6 lg:gap-y-12">
+      <ul className="grid grid-cols-1 gap-6 tablet:gap-8 xl:grid-cols-2 xl:gap-x-6 xl:gap-y-12">
         {movers.map((mover) => (
           <li key={mover.moverId}>
             <MoverCard

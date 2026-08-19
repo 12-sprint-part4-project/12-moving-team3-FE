@@ -71,9 +71,9 @@ export const ReviewDetailModal = ({
     >
       <ModalHeader title="리뷰 상세" onClose={onClose} titleId={titleId} />
 
-      <div className="flex w-full flex-col gap-5 sm:gap-8">
+      <div className="flex w-full flex-col gap-5 tablet:gap-8">
         {(moveTypeUi || isDesignated) && (
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="flex flex-wrap items-center gap-2 tablet:gap-3">
             {moveTypeUi ? (
               <MoveTypeChip
                 type={moveTypeUi}
@@ -98,18 +98,18 @@ export const ReviewDetailModal = ({
           avatarSrc={avatarSrc}
         />
 
-        <div className="flex flex-col gap-3 sm:gap-4">
-          <p className="text-lg-semibold text-black-300 sm:text-xl-semibold">
+        <div className="flex flex-col gap-3 tablet:gap-4">
+          <p className="text-lg-semibold text-black-300 tablet:text-xl-semibold">
             평점
           </p>
           <StarRating value={review.rating} readOnly />
         </div>
 
-        <div className="flex flex-col gap-3 sm:gap-4">
-          <p className="text-lg-semibold text-black-300 sm:text-xl-semibold">
+        <div className="flex flex-col gap-3 tablet:gap-4">
+          <p className="text-lg-semibold text-black-300 tablet:text-xl-semibold">
             상세 후기
           </p>
-          <p className="rounded-2xl bg-background-200 px-4 py-3.5 text-lg-regular whitespace-pre-wrap text-black-300 sm:text-xl-regular">
+          <p className="rounded-2xl bg-background-200 px-4 py-3.5 text-lg-regular whitespace-pre-wrap text-black-300 tablet:text-xl-regular">
             {review.content}
           </p>
         </div>
@@ -119,11 +119,11 @@ export const ReviewDetailModal = ({
           <span>{createdLabel}</span>
         </p>
 
-        <div className="flex w-full gap-2 sm:gap-3">
+        <div className="flex w-full gap-2 tablet:gap-3">
           <Button
             variant="outlined"
             size="sm"
-            className="sm:h-16 sm:text-xl-semibold"
+            className="tablet:h-16 tablet:text-xl-semibold"
             onClick={onDelete}
           >
             리뷰 삭제
@@ -132,7 +132,7 @@ export const ReviewDetailModal = ({
             variant="solid"
             size="sm"
             showIcon
-            className="sm:h-16 sm:text-xl-semibold"
+            className="tablet:h-16 tablet:text-xl-semibold"
             onClick={onEdit}
           >
             리뷰 수정
