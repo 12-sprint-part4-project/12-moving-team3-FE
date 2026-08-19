@@ -12,6 +12,10 @@ export const PASSWORD_FORMAT_ERROR_MESSAGE = `비밀번호는 ${PASSWORD_MIN_LEN
 export const PASSWORD_MISMATCH_ERROR_MESSAGE =
   '비밀번호가 일치하지 않습니다.';
 
+/** 프로필 수정 폼 필드에 보여주는 짧은 형식 오류 */
+export const PASSWORD_FORMAT_FIELD_ERROR_MESSAGE =
+  '비밀번호가 올바르지 않습니다.';
+
 /**
  * 회원가입·비밀번호 변경 공통 형식 검증 (BE 규칙과 동일).
  * 실패 시 메시지, 통과 시 null.
@@ -22,4 +26,35 @@ export const validatePassword = (password: string): string | null => {
   }
 
   return null;
+};
+
+interface PasswordChangeFields {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+/** 비밀번호 변경 3필드의 입력·형식·불일치·미완료 상태 */
+export const getPasswordChangeFieldState = ({
+  currentPassword,
+  newPassword,
+  confirmPassword,
+}: PasswordChangeFields) => {
+  const hasPasswordInput =
+    currentPassword.length > 0 ||
+    newPassword.length > 0 ||
+    confirmPassword.length > 0;
+
+  return {
+    hasPasswordInput,
+    isPasswordFormatError:
+      newPassword.length > 0 && Boolean(validatePassword(newPassword)),
+    isPasswordMismatchError:
+      confirmPassword.length > 0 && newPassword !== confirmPassword,
+    isPasswordIncomplete:
+      hasPasswordInput &&
+      (currentPassword.length === 0 ||
+        newPassword.length === 0 ||
+        confirmPassword.length === 0),
+  };
 };

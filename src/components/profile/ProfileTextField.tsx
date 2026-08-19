@@ -5,16 +5,16 @@ import { cn } from '@/lib/utils';
 
 import type { ComponentProps } from 'react';
 
-type CustomerProfileTextFieldProps = Omit<
+type ProfileTextFieldProps = Omit<
   ComponentProps<typeof TextFieldOutlined>,
   'size'
 >;
 
-/** 고객 프로필 폼 공통 입력. 높이·너비를 고정한다. */
-export const CustomerProfileTextField = ({
+/** 프로필 폼 공통 입력. 높이·너비를 고정한다. */
+export const ProfileTextField = ({
   className = '',
   ...props
-}: CustomerProfileTextFieldProps) => {
+}: ProfileTextFieldProps) => {
   return (
     <TextFieldOutlined
       size="sm"

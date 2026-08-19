@@ -1,5 +1,6 @@
 'use client';
 
+import { ProfileTextField } from '@/components/profile/ProfileTextField';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import {
   formatKrMobileSubscriberInput,
@@ -7,11 +8,9 @@ import {
 } from '@/lib/phoneNumber';
 import { cn } from '@/lib/utils';
 
-import { CustomerProfileTextField } from './CustomerProfileTextField';
-
 import type { ChangeEvent } from 'react';
 
-interface CustomerProfilePhoneFieldProps {
+interface ProfilePhoneFieldProps {
   id: string;
   value: string;
   errorMessage?: string;
@@ -20,13 +19,13 @@ interface CustomerProfilePhoneFieldProps {
 }
 
 /** 전화번호 필드. 010 접두어와 구독자 번호 입력을 고정한다. */
-export const CustomerProfilePhoneField = ({
+export const ProfilePhoneField = ({
   id,
   value,
   errorMessage,
   onChange,
   className = '',
-}: CustomerProfilePhoneFieldProps) => {
+}: ProfilePhoneFieldProps) => {
   const isError = Boolean(errorMessage);
 
   return (
@@ -34,7 +33,7 @@ export const CustomerProfilePhoneField = ({
       className={cn('flex w-full flex-col items-start gap-4', className)}
     >
       <RequiredLabel htmlFor={id}>전화번호</RequiredLabel>
-      <CustomerProfileTextField
+      <ProfileTextField
         id={id}
         type="tel"
         name="phone"

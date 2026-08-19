@@ -4,26 +4,23 @@ import { useRouter } from 'next/navigation';
 import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { Button } from '@/components/Button/Button';
+import { ProfileImageCropModal } from '@/components/profile/ProfileImageCropModal';
+import { ProfileImageField } from '@/components/profile/ProfileImageField';
+import { ProfilePhoneField } from '@/components/profile/ProfilePhoneField';
+import { ProfileRegionField } from '@/components/profile/ProfileRegionField';
+import { ProfileServiceField } from '@/components/profile/ProfileServiceField';
 import { useAuth } from '@/hooks/useAuth';
 import { useUpsertCustomerProfile } from '@/hooks/useCustomerProfile';
+import { useProfileImageCrop } from '@/hooks/useProfileImageCrop';
 import { useToast } from '@/hooks/useToast';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
-  getKrMobileSubscriberError,
-  KR_MOBILE_SUBSCRIBER_LENGTH,
-  toKrMobileSubscriberDigits,
+  getKrMobileFieldState,
   toPhoneDigits,
 } from '@/lib/phoneNumber';
+import { toggleService } from '@/lib/toggleService';
 import { validateProfileImageFile } from '@/lib/uploadProfileImage';
-
-import { CustomerProfilePhoneField } from './CustomerProfilePhoneField';
-import { CustomerProfileRegionField } from './CustomerProfileRegionField';
-import { CustomerProfileServiceField } from './CustomerProfileServiceField';
-import { ProfileImageCropModal } from './ProfileImageCropModal';
-import { ProfileImageField } from './ProfileImageField';
-import { toggleService } from '../_lib/toggleService';
-import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
 
 import type {
   CustomerRegion,
@@ -65,12 +62,10 @@ export const CustomerProfileForm = () => {
   // 세션 번호는 effect로 복사하지 않고, 미입력 시 표시값 fallback으로 사용
   const phoneNumber =
     phoneDraft ?? formatKrMobileSubscriberInput(user?.phoneNumber ?? '');
-  const subscriberDigits = toKrMobileSubscriberDigits(phoneNumber);
-  const phoneFieldError = getKrMobileSubscriberError(phoneNumber);
-  const isPhoneFormatError = Boolean(phoneFieldError);
+  const { phoneFieldError, isPhoneComplete } =
+    getKrMobileFieldState(phoneNumber);
   const isSubmitEnabled =
-    subscriberDigits.length === KR_MOBILE_SUBSCRIBER_LENGTH &&
-    !isPhoneFormatError &&
+    isPhoneComplete &&
     selectedServices.length > 0 &&
     selectedRegion !== null &&
     !isPending;
@@ -152,7 +147,7 @@ export const CustomerProfileForm = () => {
 
             <div className="h-px w-full bg-line-100" aria-hidden />
 
-            <CustomerProfilePhoneField
+            <ProfilePhoneField
               id={phoneInputId}
               value={phoneNumber}
               errorMessage={phoneFieldError ?? undefined}
@@ -162,17 +157,19 @@ export const CustomerProfileForm = () => {
 
             <div className="h-px w-full bg-line-100" aria-hidden />
 
-            <CustomerProfileServiceField
+            <ProfileServiceField
               selectedServices={selectedServices}
               helperText="이용 서비스는 중복 선택 가능하며, 언제든 수정 가능해요!"
+              label="이용 서비스"
               onToggle={handleServiceToggle}
             />
 
             <div className="h-px w-full bg-line-100" aria-hidden />
 
-            <CustomerProfileRegionField
-              selectedRegion={selectedRegion}
+            <ProfileRegionField
+              selectedRegions={selectedRegion ? [selectedRegion] : []}
               helperText="내가 사는 지역은 언제든 수정 가능해요!"
+              label="내가 사는 지역"
               onSelect={handleRegionSelect}
             />
           </div>
