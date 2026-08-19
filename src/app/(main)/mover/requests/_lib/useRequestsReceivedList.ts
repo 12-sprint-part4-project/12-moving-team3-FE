@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useLoadMoreOnView } from '@/hooks/useLoadMoreOnView';
@@ -91,9 +91,11 @@ export const useRequestsReceivedList = ({
   /** 정렬·필터 변경 시에만 목록 entrance 애니메이션 (검색어 제외) */
   const listAnimationKey = useMemo(
     () =>
-      [listFilters.sort, debouncedMoveTypes.join(','), debouncedScopes.join(',')].join(
-        '|'
-      ),
+      [
+        listFilters.sort,
+        debouncedMoveTypes.join(','),
+        debouncedScopes.join(','),
+      ].join('|'),
     [listFilters.sort, debouncedMoveTypes, debouncedScopes]
   );
 
@@ -119,10 +121,14 @@ export const useRequestsReceivedList = ({
 
   const showListFetching = isFetching && !isPending && !isFetchingNextPage;
   /**
-   * 목록 entrance/stagger 애니메이션은 "펜딩 중(=기존 data 유지 + isFetching=true)"에는
-   * 실행하지 않는다. 타이핑/필터 변경 시 목록이 계속 흔들리는 현상을 막기 위함이다.
+   * keepPreviousData 재조회 중에는 이전 key를 유지한다.
+   * fetching 시작/완료마다 ul key가 바뀌면 목록이 두 번 리마운트되며 stagger가 중복된다.
    */
-  const shouldAnimateList = !showListFetching;
+  const [settledListAnimationKey, setSettledListAnimationKey] =
+    useState(listAnimationKey);
+  if (!showListFetching && settledListAnimationKey !== listAnimationKey) {
+    setSettledListAnimationKey(listAnimationKey);
+  }
 
   const handleRetry = () => {
     void refetch();
@@ -141,10 +147,11 @@ export const useRequestsReceivedList = ({
     isFilteredEmpty,
     hasNextPage,
     loadMoreRef,
-    listAnimationKey,
+    listAnimationKey: showListFetching
+      ? settledListAnimationKey
+      : listAnimationKey,
     errorMessage,
     showListFetching,
-    shouldAnimateList,
     handleRetry,
   };
 };

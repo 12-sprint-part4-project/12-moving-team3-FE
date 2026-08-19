@@ -1,4 +1,8 @@
-import { chatQueryKeys, notificationQueryKeys } from '@/constants/queryKey';
+import {
+  chatQueryKeys,
+  estimateRequestQueryKeys,
+  notificationQueryKeys,
+} from '@/constants/queryKey';
 
 import type {
   NotificationItem,
@@ -72,6 +76,15 @@ export const invalidateChatQueriesForNotification = (
   });
   void queryClient.invalidateQueries({
     queryKey: chatQueryKeys.roomsAll(),
+  });
+};
+
+/** 기사 받은 요청 목록 캐시 무효화 — 알림 드롭다운 클릭 등 명시적 갱신용 */
+export const invalidateReceivedRequestsList = (
+  queryClient: QueryClient
+): void => {
+  void queryClient.invalidateQueries({
+    queryKey: estimateRequestQueryKeys.receivedLists(),
   });
 };
 

@@ -12,7 +12,6 @@ import {
   MOVE_TYPE_OPTIONS,
   SCOPE_LABELS,
   SCOPE_OPTIONS,
-  formatFilterLabel,
   toggleFilterItem,
 } from '../_lib/filterOptions';
 
@@ -35,12 +34,14 @@ export interface RequestsSidebarFilterProps {
 
 interface AnimatedFilterRowProps {
   label: string;
+  count: number;
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
 }
 
 const AnimatedFilterRow = ({
   label,
+  count,
   checked,
   onCheckedChange,
 }: AnimatedFilterRowProps) => {
@@ -59,6 +60,7 @@ const AnimatedFilterRow = ({
     >
       <FilterCheckBox
         label={label}
+        count={count}
         checked={checked}
         onCheckedChange={onCheckedChange}
       />
@@ -140,10 +142,8 @@ export const RequestsSidebarFilter = ({
               }}
             >
               <AnimatedFilterRow
-                label={formatFilterLabel(
-                  MOVE_TYPE_LABELS[type],
-                  moveTypeCounts?.[type]
-                )}
+                label={MOVE_TYPE_LABELS[type]}
+                count={moveTypeCounts?.[type] ?? 0}
                 checked={selectedMoveTypes.includes(type)}
                 onCheckedChange={(checked) =>
                   handleMoveTypeToggle(type, checked)
@@ -181,10 +181,8 @@ export const RequestsSidebarFilter = ({
               }}
             >
               <AnimatedFilterRow
-                label={formatFilterLabel(
-                  SCOPE_LABELS[scope],
-                  scopeCounts?.[scope]
-                )}
+                label={SCOPE_LABELS[scope]}
+                count={scopeCounts?.[scope] ?? 0}
                 checked={selectedScopes.includes(scope)}
                 onCheckedChange={(checked) => handleScopeToggle(scope, checked)}
               />

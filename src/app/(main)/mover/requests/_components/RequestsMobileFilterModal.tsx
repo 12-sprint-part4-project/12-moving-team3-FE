@@ -23,7 +23,6 @@ import {
   MOVE_TYPE_OPTIONS,
   SCOPE_LABELS,
   SCOPE_OPTIONS,
-  formatFilterLabel,
 } from '../_lib/filterOptions';
 
 import type { RequestsMobileFilterTab } from './RequestsMobileFilterTabButton';
@@ -194,10 +193,8 @@ export const RequestsMobileFilterModal = ({
             >
               <motion.div {...(shouldReduceMotion ? {} : tapScale)}>
                 <FilterCheckBox
-                  label={formatFilterLabel(
-                    '전체선택',
-                    moveTypeCounts ? moveTypeTotal : undefined
-                  )}
+                  label="전체선택"
+                  count={moveTypeTotal}
                   checked={isAllMoveTypesSelected}
                   onCheckedChange={handleMoveTypeSelectAll}
                   labelClassName="text-gray-300"
@@ -212,10 +209,8 @@ export const RequestsMobileFilterModal = ({
                     {...(shouldReduceMotion ? {} : tapScale)}
                   >
                     <FilterCheckBox
-                      label={formatFilterLabel(
-                        MOVE_TYPE_LABELS[type],
-                        moveTypeCounts?.[type]
-                      )}
+                      label={MOVE_TYPE_LABELS[type]}
+                      count={moveTypeCounts?.[type] ?? 0}
                       checked={selectedMoveTypes.has(type)}
                       onCheckedChange={(checked) =>
                         handleMoveTypeToggle(type, checked)
@@ -236,10 +231,8 @@ export const RequestsMobileFilterModal = ({
             >
               <motion.div {...(shouldReduceMotion ? {} : tapScale)}>
                 <FilterCheckBox
-                  label={formatFilterLabel(
-                    '전체선택',
-                    scopeCounts ? scopeTotal : undefined
-                  )}
+                  label="전체선택"
+                  count={scopeTotal}
                   checked={isAllScopesSelected}
                   onCheckedChange={handleScopeSelectAll}
                   labelClassName="text-gray-300"
@@ -254,10 +247,8 @@ export const RequestsMobileFilterModal = ({
                     {...(shouldReduceMotion ? {} : tapScale)}
                   >
                     <FilterCheckBox
-                      label={formatFilterLabel(
-                        SCOPE_LABELS[scope],
-                        scopeCounts?.[scope]
-                      )}
+                      label={SCOPE_LABELS[scope]}
+                      count={scopeCounts?.[scope] ?? 0}
                       checked={selectedScopes.has(scope)}
                       onCheckedChange={(checked) =>
                         handleScopeToggle(scope, checked)
