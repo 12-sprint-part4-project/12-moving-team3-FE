@@ -26,6 +26,7 @@ import {
   KR_MOBILE_SUBSCRIBER_LENGTH,
   toKrMobileSubscriberDigits,
 } from '@/lib/phoneNumber';
+import { toggleService } from '@/lib/toggleService';
 import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 import {
   PASSWORD_MAX_LENGTH,
@@ -34,7 +35,6 @@ import {
 } from '@/lib/validatePassword';
 
 import { buildCustomerProfileUpdateBody } from '../_lib/customerProfileUpdate';
-import { toggleService } from '../_lib/toggleService';
 
 import type {
   CustomerProfileMe,

@@ -21,9 +21,8 @@ import {
   toKrMobileSubscriberDigits,
   toPhoneDigits,
 } from '@/lib/phoneNumber';
+import { toggleService } from '@/lib/toggleService';
 import { validateProfileImageFile } from '@/lib/uploadProfileImage';
-
-import { toggleService } from '../_lib/toggleService';
 
 import type {
   CustomerRegion,

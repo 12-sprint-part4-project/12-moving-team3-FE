@@ -23,11 +23,11 @@ import {
   toKrMobileSubscriberDigits,
   toPhoneDigits,
 } from '@/lib/phoneNumber';
+import { toggleService } from '@/lib/toggleService';
 import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 
 import { MoverProfileTextArea } from './MoverProfileTextArea';
 import { normalizeCareerInput } from '../_lib/normalizeCareerInput';
-import { toggleService } from '../_lib/toggleService';
 
 import type { MoverRegion, MoverServiceType } from '@/types/moverProfile';
 

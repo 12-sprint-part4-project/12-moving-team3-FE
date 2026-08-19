@@ -19,12 +19,12 @@ import { useProfileImageCrop } from '@/hooks/useProfileImageCrop';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { isValidKrPhoneNumber } from '@/lib/phoneNumber';
+import { toggleService } from '@/lib/toggleService';
 import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 
 import { MoverProfileTextArea } from './MoverProfileTextArea';
 import { buildMoverProfileUpdateBody } from '../_lib/moverProfileUpdate';
 import { normalizeCareerInput } from '../_lib/normalizeCareerInput';
-import { toggleService } from '../_lib/toggleService';
 
 import type {
   MoverProfileMe,
