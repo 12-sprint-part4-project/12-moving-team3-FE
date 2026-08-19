@@ -1,20 +1,13 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
-import { Button } from '@/components/Button/Button';
 import { MoverCard } from '@/components/movers/MoverCard';
-import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useMoverDetail } from '@/hooks/useMoverDetail';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
-import {
-  fadeIn,
-  fadeUp,
-  getMotionTransition,
-  listStagger,
-} from '@/lib/motionVariants';
+import { fadeUp, listStagger } from '@/lib/motionVariants';
 import { isMoverId } from '@/types/mover';
 
 import { MOVERS_DETAIL_CONTENT_CLASS } from '../_components/moversLayout';
@@ -23,6 +16,7 @@ import { MoverDetailBottomBar } from './_components/MoverDetailBottomBar';
 import { MoverDetailSections } from './_components/MoverDetailSections';
 import { MoverDetailShareSection } from './_components/MoverDetailShareSection';
 import { MoverDetailSidebar } from './_components/MoverDetailSidebar';
+import { MoverDetailStatus } from './_components/MoverDetailStatus';
 import { MoverReviewsPanel } from './_components/MoverReviewsPanel';
 import { NeedGeneralEstimateModal } from './_components/NeedGeneralEstimateModal';
 import { useMoverDetailActions } from './_lib/useMoverDetailActions';
@@ -38,7 +32,6 @@ export interface MoverDetailPageClientProps {
 
 /** `/movers/[id]` 클라이언트. - 상세 Query·찜·지정·채팅 오케스트레이션. */
 const MoverDetailPageClient = ({ moverId }: MoverDetailPageClientProps) => {
-  const shouldReduceMotion = useReducedMotion();
   const { mover, isPending, isError, error, isNotFound, refetch } =
     useMoverDetail(moverId);
   const {
@@ -56,7 +49,6 @@ const MoverDetailPageClient = ({ moverId }: MoverDetailPageClientProps) => {
   } = useMoverDetailActions(moverId);
 
   const isValidMoverId = isMoverId(moverId);
-  const motionTransition = getMotionTransition(shouldReduceMotion);
   const errorMessage = resolveApiErrorMessage(
     error,
     '기사님 정보를 불러오지 못했습니다.'
@@ -67,69 +59,24 @@ const MoverDetailPageClient = ({ moverId }: MoverDetailPageClientProps) => {
   };
 
   if (!isValidMoverId) {
-    return (
-      <motion.div
-        variants={fadeIn}
-        initial="hidden"
-        animate="show"
-        transition={motionTransition}
-        className="flex w-full flex-col items-center justify-center py-24"
-      >
-        <p className="text-lg-medium text-gray-400">
-          유효하지 않은 기사님입니다.
-        </p>
-      </motion.div>
-    );
+    return <MoverDetailStatus variant="invalid" />;
   }
 
   if (isPending) {
-    return (
-      <motion.div
-        variants={fadeIn}
-        initial="hidden"
-        animate="show"
-        transition={motionTransition}
-        className="flex w-full flex-col py-24"
-      >
-        <Spinner message="기사님 정보를 불러오는 중..." />
-      </motion.div>
-    );
+    return <MoverDetailStatus variant="pending" />;
   }
 
   if (isNotFound) {
-    return (
-      <motion.div
-        variants={fadeIn}
-        initial="hidden"
-        animate="show"
-        transition={motionTransition}
-        className="flex w-full flex-col items-center justify-center py-24"
-      >
-        <p className="text-lg-medium text-gray-400">기사님을 찾을 수 없어요.</p>
-      </motion.div>
-    );
+    return <MoverDetailStatus variant="notFound" />;
   }
 
   if (isError || !mover) {
     return (
-      <motion.div
-        variants={fadeIn}
-        initial="hidden"
-        animate="show"
-        transition={motionTransition}
-        className="flex w-full flex-col items-center gap-4 py-24"
-      >
-        <p className="text-lg-medium text-gray-400">{errorMessage}</p>
-        <Button
-          type="button"
-          variant="solid"
-          size="sm"
-          onClick={handleRetry}
-          className="w-auto"
-        >
-          다시 시도
-        </Button>
-      </motion.div>
+      <MoverDetailStatus
+        variant="error"
+        message={errorMessage}
+        onRetry={handleRetry}
+      />
     );
   }
 
