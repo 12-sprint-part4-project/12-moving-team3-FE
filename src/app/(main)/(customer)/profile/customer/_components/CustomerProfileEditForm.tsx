@@ -7,6 +7,7 @@ import { Button } from '@/components/Button/Button';
 import { ProfileImageCropModal } from '@/components/profile/ProfileImageCropModal';
 import { ProfileImageField } from '@/components/profile/ProfileImageField';
 import { ProfilePhoneField } from '@/components/profile/ProfilePhoneField';
+import { ProfileRegionField } from '@/components/profile/ProfileRegionField';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import {
@@ -30,7 +31,6 @@ import {
   validatePassword,
 } from '@/lib/validatePassword';
 
-import { CustomerProfileRegionField } from './CustomerProfileRegionField';
 import { CustomerProfileServiceField } from './CustomerProfileServiceField';
 import { CustomerProfileTextField } from './CustomerProfileTextField';
 import { buildCustomerProfileUpdateBody } from '../_lib/customerProfileUpdate';
@@ -440,9 +440,10 @@ const CustomerProfileEditFields = ({
 
               <div className="h-px w-full bg-line-100" aria-hidden />
 
-              <CustomerProfileRegionField
-                selectedRegion={selectedRegion}
+              <ProfileRegionField
+                selectedRegions={selectedRegion ? [selectedRegion] : []}
                 helperText="*견적 요청 시 지역을 설정할 수 있어요."
+                label="내가 사는 지역"
                 onSelect={handleRegionSelect}
               />
             </div>

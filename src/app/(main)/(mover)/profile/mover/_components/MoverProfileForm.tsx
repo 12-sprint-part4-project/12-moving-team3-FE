@@ -7,6 +7,7 @@ import { Button } from '@/components/Button/Button';
 import { ProfileImageCropModal } from '@/components/profile/ProfileImageCropModal';
 import { ProfileImageField } from '@/components/profile/ProfileImageField';
 import { ProfilePhoneField } from '@/components/profile/ProfilePhoneField';
+import { ProfileRegionField } from '@/components/profile/ProfileRegionField';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { useAuth } from '@/hooks/useAuth';
 import { useCreateMoverProfile } from '@/hooks/useMoverProfile';
@@ -22,7 +23,6 @@ import {
 } from '@/lib/phoneNumber';
 import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 
-import { MoverProfileRegionField } from './MoverProfileRegionField';
 import { MoverProfileServiceField } from './MoverProfileServiceField';
 import { MoverProfileTextArea } from './MoverProfileTextArea';
 import { MoverProfileTextField } from './MoverProfileTextField';
@@ -297,9 +297,10 @@ export const MoverProfileForm = () => {
 
             <div className="h-px w-full bg-line-100" aria-hidden />
 
-            <MoverProfileRegionField
+            <ProfileRegionField
               selectedRegions={selectedRegions}
-              onToggle={handleRegionToggle}
+              label="서비스 가능 지역"
+              onSelect={handleRegionToggle}
             />
           </div>
         </div>

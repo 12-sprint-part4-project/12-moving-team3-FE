@@ -7,6 +7,7 @@ import { Button } from '@/components/Button/Button';
 import { ProfileImageCropModal } from '@/components/profile/ProfileImageCropModal';
 import { ProfileImageField } from '@/components/profile/ProfileImageField';
 import { ProfilePhoneField } from '@/components/profile/ProfilePhoneField';
+import { ProfileRegionField } from '@/components/profile/ProfileRegionField';
 import { useAuth } from '@/hooks/useAuth';
 import { useUpsertCustomerProfile } from '@/hooks/useCustomerProfile';
 import { useProfileImageCrop } from '@/hooks/useProfileImageCrop';
@@ -21,7 +22,6 @@ import {
 } from '@/lib/phoneNumber';
 import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 
-import { CustomerProfileRegionField } from './CustomerProfileRegionField';
 import { CustomerProfileServiceField } from './CustomerProfileServiceField';
 import { toggleService } from '../_lib/toggleService';
 
@@ -170,9 +170,10 @@ export const CustomerProfileForm = () => {
 
             <div className="h-px w-full bg-line-100" aria-hidden />
 
-            <CustomerProfileRegionField
-              selectedRegion={selectedRegion}
+            <ProfileRegionField
+              selectedRegions={selectedRegion ? [selectedRegion] : []}
               helperText="내가 사는 지역은 언제든 수정 가능해요!"
+              label="내가 사는 지역"
               onSelect={handleRegionSelect}
             />
           </div>
