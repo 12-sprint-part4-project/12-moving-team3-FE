@@ -4,52 +4,48 @@ import { redirect, useRouter } from 'next/navigation';
 import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { Button } from '@/components/Button/Button';
+import { ProfileImageCropModal } from '@/components/profile/ProfileImageCropModal';
+import { ProfileImageField } from '@/components/profile/ProfileImageField';
+import { ProfilePhoneField } from '@/components/profile/ProfilePhoneField';
+import { ProfileRegionField } from '@/components/profile/ProfileRegionField';
+import { ProfileServiceField } from '@/components/profile/ProfileServiceField';
+import { ProfileTextField } from '@/components/profile/ProfileTextField';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import {
   useCustomerProfile,
   useUpsertCustomerProfile,
 } from '@/hooks/useCustomerProfile';
+import { useProfileImageCrop } from '@/hooks/useProfileImageCrop';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
-  getKrMobileSubscriberError,
-  KR_MOBILE_SUBSCRIBER_LENGTH,
-  toKrMobileSubscriberDigits,
+  getKrMobileFieldState,
 } from '@/lib/phoneNumber';
+import { toggleService } from '@/lib/toggleService';
 import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 import {
+  getPasswordChangeFieldState,
+  PASSWORD_FORMAT_FIELD_ERROR_MESSAGE,
   PASSWORD_MAX_LENGTH,
   PASSWORD_MISMATCH_ERROR_MESSAGE,
-  validatePassword,
 } from '@/lib/validatePassword';
+import {
+  isProfileTextFormatError,
+  isProfileTextValid,
+  PROFILE_NAME_FORMAT_ERROR_MESSAGE,
+  PROFILE_NICKNAME_FORMAT_ERROR_MESSAGE,
+} from '@/lib/validateProfileText';
 
-import { CustomerProfilePhoneField } from './CustomerProfilePhoneField';
-import { CustomerProfileRegionField } from './CustomerProfileRegionField';
-import { CustomerProfileServiceField } from './CustomerProfileServiceField';
-import { CustomerProfileTextField } from './CustomerProfileTextField';
-import { ProfileImageCropModal } from './ProfileImageCropModal';
-import { ProfileImageField } from './ProfileImageField';
 import { buildCustomerProfileUpdateBody } from '../_lib/customerProfileUpdate';
-import { toggleService } from '../_lib/toggleService';
-import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
 
 import type {
   CustomerProfileMe,
   CustomerRegion,
   CustomerServiceType,
 } from '@/types/customerProfile';
-
-const NAME_MIN_LENGTH = 2;
-const NAME_MAX_LENGTH = 20;
-const NICKNAME_MIN_LENGTH = 2;
-const NICKNAME_MAX_LENGTH = 20;
-
-const NAME_FORMAT_ERROR_MESSAGE = `이름은 ${NAME_MIN_LENGTH}~${NAME_MAX_LENGTH}자로 입력해 주세요.`;
-const NICKNAME_FORMAT_ERROR_MESSAGE = `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`;
-const PASSWORD_FORMAT_FIELD_ERROR_MESSAGE = '비밀번호가 올바르지 않습니다.';
 
 interface CustomerProfilePasswordFieldsProps {
   currentPasswordId: string;
@@ -90,7 +86,7 @@ const CustomerProfilePasswordFields = ({
         >
           현재 비밀번호
         </label>
-        <CustomerProfileTextField
+        <ProfileTextField
           id={currentPasswordId}
           type="password"
           name="currentPassword"
@@ -111,7 +107,7 @@ const CustomerProfilePasswordFields = ({
         >
           새 비밀번호
         </label>
-        <CustomerProfileTextField
+        <ProfileTextField
           id={newPasswordId}
           type="password"
           name="newPassword"
@@ -139,7 +135,7 @@ const CustomerProfilePasswordFields = ({
         >
           새 비밀번호 확인
         </label>
-        <CustomerProfileTextField
+        <ProfileTextField
           id={confirmPasswordId}
           type="password"
           name="confirmPassword"
@@ -214,40 +210,24 @@ const CustomerProfileEditFields = ({
     profile.region
   );
 
-  const trimmedName = name.trim();
-  const trimmedNickname = nickname.trim();
-  const subscriberDigits = toKrMobileSubscriberDigits(phoneNumber);
-  const phoneFieldError = getKrMobileSubscriberError(phoneNumber);
-  const isPhoneFormatError = Boolean(phoneFieldError);
+  const { phoneFieldError, isPhoneComplete } =
+    getKrMobileFieldState(phoneNumber);
   const showPasswordFields = profile.hasPassword;
-  const isNameFormatError =
-    trimmedName.length > 0 &&
-    (trimmedName.length < NAME_MIN_LENGTH ||
-      trimmedName.length > NAME_MAX_LENGTH);
-  const isNicknameFormatError =
-    trimmedNickname.length > 0 &&
-    (trimmedNickname.length < NICKNAME_MIN_LENGTH ||
-      trimmedNickname.length > NICKNAME_MAX_LENGTH);
-  const hasPasswordInput =
-    currentPassword.length > 0 ||
-    newPassword.length > 0 ||
-    confirmPassword.length > 0;
-  const isPasswordFormatError =
-    newPassword.length > 0 && Boolean(validatePassword(newPassword));
-  const isPasswordMismatchError =
-    confirmPassword.length > 0 && newPassword !== confirmPassword;
-  const isPasswordIncomplete =
-    hasPasswordInput &&
-    (currentPassword.length === 0 ||
-      newPassword.length === 0 ||
-      confirmPassword.length === 0);
+  const isNameFormatError = isProfileTextFormatError(name);
+  const isNicknameFormatError = isProfileTextFormatError(nickname);
+  const {
+    isPasswordFormatError,
+    isPasswordMismatchError,
+    isPasswordIncomplete,
+  } = getPasswordChangeFieldState({
+    currentPassword,
+    newPassword,
+    confirmPassword,
+  });
   const isSubmitEnabled =
-    trimmedName.length >= NAME_MIN_LENGTH &&
-    trimmedName.length <= NAME_MAX_LENGTH &&
-    trimmedNickname.length >= NICKNAME_MIN_LENGTH &&
-    trimmedNickname.length <= NICKNAME_MAX_LENGTH &&
-    subscriberDigits.length === KR_MOBILE_SUBSCRIBER_LENGTH &&
-    !isPhoneFormatError &&
+    isProfileTextValid(name) &&
+    isProfileTextValid(nickname) &&
+    isPhoneComplete &&
     selectedServices.length > 0 &&
     selectedRegion !== null &&
     !isPasswordFormatError &&
@@ -329,7 +309,7 @@ const CustomerProfileEditFields = ({
             <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
               <section className="flex w-full flex-col items-start gap-4">
                 <RequiredLabel htmlFor={nameInputId}>이름</RequiredLabel>
-                <CustomerProfileTextField
+                <ProfileTextField
                   id={nameInputId}
                   name="name"
                   autoComplete="name"
@@ -337,7 +317,9 @@ const CustomerProfileEditFields = ({
                   onChange={(event) => setName(event.target.value)}
                   isError={isNameFormatError}
                   errorMessage={
-                    isNameFormatError ? NAME_FORMAT_ERROR_MESSAGE : undefined
+                    isNameFormatError
+                      ? PROFILE_NAME_FORMAT_ERROR_MESSAGE
+                      : undefined
                   }
                 />
               </section>
@@ -346,7 +328,7 @@ const CustomerProfileEditFields = ({
 
               <section className="flex w-full flex-col items-start gap-4">
                 <RequiredLabel htmlFor={nicknameInputId}>닉네임</RequiredLabel>
-                <CustomerProfileTextField
+                <ProfileTextField
                   id={nicknameInputId}
                   name="nickname"
                   autoComplete="nickname"
@@ -356,7 +338,7 @@ const CustomerProfileEditFields = ({
                   isError={isNicknameFormatError}
                   errorMessage={
                     isNicknameFormatError
-                      ? NICKNAME_FORMAT_ERROR_MESSAGE
+                      ? PROFILE_NICKNAME_FORMAT_ERROR_MESSAGE
                       : undefined
                   }
                 />
@@ -371,7 +353,7 @@ const CustomerProfileEditFields = ({
                 >
                   이메일
                 </label>
-                <CustomerProfileTextField
+                <ProfileTextField
                   id={emailInputId}
                   type="email"
                   name="email"
@@ -384,7 +366,7 @@ const CustomerProfileEditFields = ({
 
               <div className="h-px w-full bg-line-100" aria-hidden />
 
-              <CustomerProfilePhoneField
+              <ProfilePhoneField
                 id={phoneInputId}
                 value={phoneNumber}
                 errorMessage={phoneFieldError ?? undefined}
@@ -432,17 +414,19 @@ const CustomerProfileEditFields = ({
 
               <div className="h-px w-full bg-line-100" aria-hidden />
 
-              <CustomerProfileServiceField
+              <ProfileServiceField
                 selectedServices={selectedServices}
                 helperText="*견적 요청 시 이용 서비스를 선택할 수 있어요."
+                label="이용 서비스"
                 onToggle={handleServiceToggle}
               />
 
               <div className="h-px w-full bg-line-100" aria-hidden />
 
-              <CustomerProfileRegionField
-                selectedRegion={selectedRegion}
+              <ProfileRegionField
+                selectedRegions={selectedRegion ? [selectedRegion] : []}
                 helperText="*견적 요청 시 지역을 설정할 수 있어요."
+                label="내가 사는 지역"
                 onSelect={handleRegionSelect}
               />
             </div>
