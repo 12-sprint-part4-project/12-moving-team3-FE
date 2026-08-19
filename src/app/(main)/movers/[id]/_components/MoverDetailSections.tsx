@@ -31,17 +31,17 @@ export const MoverDetailSections = ({
 
   return (
     <div className={cn('flex w-full flex-col', className)}>
-      <section className="flex flex-col gap-4 border-b border-line-100 py-6 lg:gap-8 lg:py-10">
-        <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
+      <section className="flex flex-col gap-4 border-b border-line-100 py-6 xl:gap-8 xl:py-10">
+        <h2 className="text-lg-semibold text-black-400 xl:text-2xl-semibold">
           상세설명
         </h2>
-        <p className="text-md-medium whitespace-pre-wrap text-black-300 lg:text-2lg-medium">
+        <p className="text-md-medium whitespace-pre-wrap text-black-300 xl:text-2lg-medium">
           {description}
         </p>
       </section>
 
-      <section className="flex flex-col gap-4 border-b border-line-100 py-6 lg:gap-8 lg:py-10">
-        <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
+      <section className="flex flex-col gap-4 border-b border-line-100 py-6 xl:gap-8 xl:py-10">
+        <h2 className="text-lg-semibold text-black-400 xl:text-2xl-semibold">
           제공 서비스
         </h2>
         {mover.services.length > 0 ? (
@@ -49,7 +49,7 @@ export const MoverDetailSections = ({
             variants={listStagger}
             initial="hidden"
             animate="show"
-            className="flex flex-wrap gap-2 lg:gap-3"
+            className="flex flex-wrap gap-2 xl:gap-3"
           >
             {mover.services.map((service: ApiMoveType, index) => (
               <motion.div
@@ -67,14 +67,14 @@ export const MoverDetailSections = ({
             ))}
           </motion.div>
         ) : (
-          <p className="text-md-medium text-gray-300 lg:text-2lg-medium">
+          <p className="text-md-medium text-gray-300 xl:text-2lg-medium">
             서비스 미등록
           </p>
         )}
       </section>
 
-      <section className="flex flex-col gap-4 border-b border-line-100 py-6 lg:gap-8 lg:py-10">
-        <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
+      <section className="flex flex-col gap-4 border-b border-line-100 py-6 xl:gap-8 xl:py-10">
+        <h2 className="text-lg-semibold text-black-400 xl:text-2xl-semibold">
           서비스 가능 지역
         </h2>
         {mover.regions.length > 0 ? (
@@ -82,7 +82,7 @@ export const MoverDetailSections = ({
             variants={listStagger}
             initial="hidden"
             animate="show"
-            className="flex flex-wrap gap-2 lg:gap-3"
+            className="flex flex-wrap gap-2 xl:gap-3"
           >
             {mover.regions.map((region: ApiRegion, index) => (
               <motion.div
@@ -100,7 +100,7 @@ export const MoverDetailSections = ({
             ))}
           </motion.div>
         ) : (
-          <p className="text-md-medium text-gray-300 lg:text-2lg-medium">
+          <p className="text-md-medium text-gray-300 xl:text-2lg-medium">
             지역 미등록
           </p>
         )}

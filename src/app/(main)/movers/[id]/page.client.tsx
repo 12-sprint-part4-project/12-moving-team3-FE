@@ -130,7 +130,7 @@ const MoverDetailPageClient = ({ moverId }: MoverDetailPageClientProps) => {
               <MoverDetailSections mover={mover} />
             </motion.div>
 
-            <motion.div variants={fadeUp} className="py-6 lg:py-10">
+            <motion.div variants={fadeUp} className="py-6 xl:py-10">
               <MoverReviewsPanel moverId={mover.moverId} />
             </motion.div>
           </motion.div>

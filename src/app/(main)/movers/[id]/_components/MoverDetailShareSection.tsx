@@ -24,7 +24,7 @@ export const MoverDetailShareSection = ({
         className
       )}
     >
-      <p className="text-md-semibold text-black-400 md:text-lg-semibold">
+      <p className="text-md-semibold text-black-400 tablet:text-lg-semibold">
         나만 알기엔 아쉬운 기사님인가요?
       </p>
       <MoverShareButtons

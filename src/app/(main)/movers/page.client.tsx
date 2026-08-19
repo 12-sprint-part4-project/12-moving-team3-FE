@@ -58,7 +58,7 @@ const MoversPageClient = () => {
           isMoverPending={isMoverPending}
         />
 
-        <div className="flex min-w-0 flex-1 flex-col gap-6 lg:gap-8">
+        <div className="flex min-w-0 flex-1 flex-col gap-6 xl:gap-8">
           <motion.div
             variants={fadeUp}
             initial="hidden"

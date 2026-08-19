@@ -88,7 +88,7 @@ export const MoverCard = ({
         className={cn('flex w-full flex-col', isCompact ? 'gap-3' : 'gap-4')}
       >
         <motion.div variants={fadeUp} className="flex justify-between">
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="flex flex-wrap items-center gap-2 tablet:gap-3">
             {mover.services.length > 0 ? (
               mover.services.map((service: ApiMoveType) => (
                 <MoveTypeChip
@@ -129,7 +129,7 @@ export const MoverCard = ({
         {showDescription ? (
           <motion.p
             variants={fadeUp}
-            className="text-xl-semibold text-black-300 sm:text-2xl-semibold"
+            className="text-xl-semibold text-black-300 tablet:text-2xl-semibold"
           >
             {description}
           </motion.p>
@@ -163,7 +163,7 @@ export const MoverCard = ({
             )}
           </div>
 
-          <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:gap-2">
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5 tablet:gap-2">
             {disableNavigation ? (
               <p className={nameClassName}>{mover.name} 기사님</p>
             ) : (
@@ -174,7 +174,7 @@ export const MoverCard = ({
             )}
             <div
               className={cn(
-                'flex flex-wrap items-center gap-x-3 gap-y-1 sm:gap-x-4',
+                'flex flex-wrap items-center gap-x-3 gap-y-1 tablet:gap-x-4',
                 isCompact ? 'text-md-medium' : 'text-lg-medium'
               )}
             >
@@ -195,7 +195,7 @@ export const MoverCard = ({
                 <>
                   <span
                     aria-hidden
-                    className="hidden h-3.5 w-px bg-line-200 sm:block"
+                    className="hidden h-3.5 w-px bg-line-200 tablet:block"
                   />
                   <span className="inline-flex items-center gap-1.5">
                     <span className="text-gray-300">경력</span>
@@ -203,7 +203,7 @@ export const MoverCard = ({
                   </span>
                   <span
                     aria-hidden
-                    className="hidden h-3.5 w-px bg-line-200 sm:block"
+                    className="hidden h-3.5 w-px bg-line-200 tablet:block"
                   />
                   <span className="inline-flex items-center gap-1.5">
                     <span className="text-black-300">{confirmedLabel}</span>

@@ -23,7 +23,7 @@ const FavoritesPageClient = () => {
       <div className="min-h-0 w-full flex-1 bg-background-200">
         <div
           className={cn(
-            'mx-auto flex w-full max-w-[1920px] flex-col py-6 md:py-8',
+            'mx-auto flex w-full max-w-[1920px] flex-col py-6 tablet:py-8',
             FAVORITES_PAGE_X_PADDING
           )}
         >

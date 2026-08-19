@@ -36,11 +36,11 @@ export const DeleteReviewConfirmModal = ({
       onClose={handleClose}
       className={cn(MODAL_PANEL_BOTTOM_SHEET_CLASS, className)}
       footer={
-        <div className="flex w-full gap-2 sm:gap-3">
+        <div className="flex w-full gap-2 tablet:gap-3">
           <Button
             variant="outlined"
             size="sm"
-            className="sm:h-16 sm:text-xl-semibold"
+            className="tablet:h-16 tablet:text-xl-semibold"
             disabled={isDeleting}
             onClick={handleClose}
           >
@@ -49,7 +49,7 @@ export const DeleteReviewConfirmModal = ({
           <Button
             variant="solid"
             size="sm"
-            className="sm:h-16 sm:text-xl-semibold"
+            className="tablet:h-16 tablet:text-xl-semibold"
             disabled={isDeleting}
             onClick={onConfirm}
           >
@@ -58,7 +58,7 @@ export const DeleteReviewConfirmModal = ({
         </div>
       }
     >
-      <p className="text-lg-medium text-black-300 sm:text-2lg-medium">
+      <p className="text-lg-medium text-black-300 tablet:text-2lg-medium">
         작성한 리뷰를 삭제하시겠습니까?
         <br />
         삭제 후에는 복구할 수 없습니다.

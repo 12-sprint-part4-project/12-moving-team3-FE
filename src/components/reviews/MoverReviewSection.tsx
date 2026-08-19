@@ -72,8 +72,8 @@ export const MoverReviewSection = ({
   const shouldAnimateList = !showListFetching;
 
   return (
-    <section className={cn('flex w-full flex-col gap-4 lg:gap-8', className)}>
-      <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
+    <section className={cn('flex w-full flex-col gap-4 xl:gap-8', className)}>
+      <h2 className="text-lg-semibold text-black-400 xl:text-2xl-semibold">
         리뷰 ({totalCount})
       </h2>
 
