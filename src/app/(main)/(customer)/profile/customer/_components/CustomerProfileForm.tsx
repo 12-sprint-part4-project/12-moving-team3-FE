@@ -6,6 +6,7 @@ import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Button } from '@/components/Button/Button';
 import { ProfileImageCropModal } from '@/components/profile/ProfileImageCropModal';
 import { ProfileImageField } from '@/components/profile/ProfileImageField';
+import { ProfilePhoneField } from '@/components/profile/ProfilePhoneField';
 import { useAuth } from '@/hooks/useAuth';
 import { useUpsertCustomerProfile } from '@/hooks/useCustomerProfile';
 import { useProfileImageCrop } from '@/hooks/useProfileImageCrop';
@@ -20,7 +21,6 @@ import {
 } from '@/lib/phoneNumber';
 import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 
-import { CustomerProfilePhoneField } from './CustomerProfilePhoneField';
 import { CustomerProfileRegionField } from './CustomerProfileRegionField';
 import { CustomerProfileServiceField } from './CustomerProfileServiceField';
 import { toggleService } from '../_lib/toggleService';
@@ -152,7 +152,7 @@ export const CustomerProfileForm = () => {
 
             <div className="h-px w-full bg-line-100" aria-hidden />
 
-            <CustomerProfilePhoneField
+            <ProfilePhoneField
               id={phoneInputId}
               value={phoneNumber}
               errorMessage={phoneFieldError ?? undefined}
