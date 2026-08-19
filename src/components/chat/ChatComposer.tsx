@@ -25,6 +25,7 @@ import {
   type PendingImageFile,
 } from '@/lib/pendingImagePreviews';
 import {
+  CHAT_IMAGE_LIMIT_HINT,
   CHAT_IMAGE_MAX_COUNT,
   validateChatImageFile,
 } from '@/lib/uploadChatImage';
@@ -51,6 +52,8 @@ export interface ChatComposerProps {
   scrollChipMode?: ChatScrollChipMode;
   /** 스크롤 안내 칩 탭 시 콜백 */
   onScrollChipClick?: () => void;
+  /** Composer 높이 변화(이미지 미리보기·안내 문구) — 하단 고정 유지용 */
+  onHeightChange?: () => void;
   className?: string;
 }
 
@@ -64,8 +67,10 @@ export const ChatComposer = ({
   focusInputSignal = 0,
   scrollChipMode = 'hidden',
   onScrollChipClick,
+  onHeightChange,
   className,
 }: ChatComposerProps) => {
+  const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [value, setValue] = useState('');
   const [pendingImages, setPendingImages] = useState<PendingImageFile[]>([]);
@@ -107,6 +112,33 @@ export const ChatComposer = ({
   useEffect(() => {
     pendingImagesRef.current = pendingImages;
   }, [pendingImages]);
+
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el || !onHeightChange || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    let lastHeight: number | null = null;
+    const observer = new ResizeObserver((entries) => {
+      const nextHeight = entries[0]?.contentRect.height;
+      if (nextHeight == null) {
+        return;
+      }
+      if (lastHeight == null) {
+        lastHeight = nextHeight;
+        return;
+      }
+      if (nextHeight === lastHeight) {
+        return;
+      }
+      lastHeight = nextHeight;
+      onHeightChange();
+    });
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [onHeightChange]);
 
   const clearPendingImages = () => {
     revokePendingImageFiles(pendingImages);
@@ -241,8 +273,16 @@ export const ChatComposer = ({
     inputRef.current?.focus({ preventScroll: true });
   }, [focusInputSignal, isBusy]);
 
+  const showImageLimitHint = hasPendingImages && imageError == null;
+  const imageDescribedBy = [
+    showImageLimitHint ? 'chat-composer-image-limit-hint' : null,
+    imageError ? 'chat-composer-image-error' : null,
+  ]
+    .filter((id): id is string => id != null)
+    .join(' ');
+
   return (
-    <div className={cn('relative shrink-0', className)}>
+    <div ref={rootRef} className={cn('relative shrink-0', className)}>
       {scrollChipMode === 'new-message' ? (
         <div className="absolute -top-11 left-1/2 z-10 -translate-x-1/2">
           <button
@@ -310,11 +350,23 @@ export const ChatComposer = ({
                 </li>
               ))}
             </ul>
+            {showImageLimitHint ? (
+              <p
+                id="chat-composer-image-limit-hint"
+                className="text-xs-medium text-gray-300"
+              >
+                {CHAT_IMAGE_LIMIT_HINT}
+              </p>
+            ) : null}
           </div>
         ) : null}
 
         {imageError ? (
-          <p className="text-sm-medium text-red-200" role="alert">
+          <p
+            id="chat-composer-image-error"
+            className="text-sm-medium text-red-200"
+            role="alert"
+          >
             {imageError}
           </p>
         ) : null}
@@ -343,6 +395,7 @@ export const ChatComposer = ({
           <button
             type="button"
             aria-label="이미지 첨부"
+            aria-describedby={imageDescribedBy || undefined}
             disabled={isBusy || !onSendImages}
             onClick={handleClipClick}
             className={cn(
