@@ -1,5 +1,6 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -11,6 +12,7 @@ import { useMarkNotificationAsRead } from '@/hooks/useMarkNotificationAsRead';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
 import { getNotificationHref } from '@/lib/getNotificationHref';
+import { invalidateReceivedRequestsList } from '@/lib/notificationSseCache';
 import { cn } from '@/lib/utils';
 
 import type { NotificationItem, NotificationRole } from '@/types/notification';
@@ -42,6 +44,7 @@ export const NotificationGnbButton = ({
   className,
 }: NotificationGnbButtonProps) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const shouldReduceMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
   const [prevCloseSignal, setPrevCloseSignal] = useState(closeSignal);
@@ -101,6 +104,9 @@ export const NotificationGnbButton = ({
     }
 
     const href = getNotificationHref(item, role);
+    if (role === 'mover' && href?.startsWith('/mover/requests')) {
+      invalidateReceivedRequestsList(queryClient);
+    }
     if (href) {
       router.push(href);
     }
