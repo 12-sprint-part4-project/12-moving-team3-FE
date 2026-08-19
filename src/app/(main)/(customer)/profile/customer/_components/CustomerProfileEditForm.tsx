@@ -8,6 +8,7 @@ import { ProfileImageCropModal } from '@/components/profile/ProfileImageCropModa
 import { ProfileImageField } from '@/components/profile/ProfileImageField';
 import { ProfilePhoneField } from '@/components/profile/ProfilePhoneField';
 import { ProfileRegionField } from '@/components/profile/ProfileRegionField';
+import { ProfileServiceField } from '@/components/profile/ProfileServiceField';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import {
@@ -31,7 +32,6 @@ import {
   validatePassword,
 } from '@/lib/validatePassword';
 
-import { CustomerProfileServiceField } from './CustomerProfileServiceField';
 import { CustomerProfileTextField } from './CustomerProfileTextField';
 import { buildCustomerProfileUpdateBody } from '../_lib/customerProfileUpdate';
 import { toggleService } from '../_lib/toggleService';
@@ -432,9 +432,10 @@ const CustomerProfileEditFields = ({
 
               <div className="h-px w-full bg-line-100" aria-hidden />
 
-              <CustomerProfileServiceField
+              <ProfileServiceField
                 selectedServices={selectedServices}
                 helperText="*견적 요청 시 이용 서비스를 선택할 수 있어요."
+                label="이용 서비스"
                 onToggle={handleServiceToggle}
               />
 

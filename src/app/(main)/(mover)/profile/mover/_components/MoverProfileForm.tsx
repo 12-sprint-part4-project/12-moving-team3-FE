@@ -8,6 +8,7 @@ import { ProfileImageCropModal } from '@/components/profile/ProfileImageCropModa
 import { ProfileImageField } from '@/components/profile/ProfileImageField';
 import { ProfilePhoneField } from '@/components/profile/ProfilePhoneField';
 import { ProfileRegionField } from '@/components/profile/ProfileRegionField';
+import { ProfileServiceField } from '@/components/profile/ProfileServiceField';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { useAuth } from '@/hooks/useAuth';
 import { useCreateMoverProfile } from '@/hooks/useMoverProfile';
@@ -23,7 +24,6 @@ import {
 } from '@/lib/phoneNumber';
 import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 
-import { MoverProfileServiceField } from './MoverProfileServiceField';
 import { MoverProfileTextArea } from './MoverProfileTextArea';
 import { MoverProfileTextField } from './MoverProfileTextField';
 import { normalizeCareerInput } from '../_lib/normalizeCareerInput';
@@ -290,8 +290,9 @@ export const MoverProfileForm = () => {
 
             <div className="h-px w-full bg-line-100" aria-hidden />
 
-            <MoverProfileServiceField
+            <ProfileServiceField
               selectedServices={selectedServices}
+              label="제공 서비스"
               onToggle={handleServiceToggle}
             />
 

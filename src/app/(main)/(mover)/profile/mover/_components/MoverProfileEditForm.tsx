@@ -7,6 +7,7 @@ import { Button } from '@/components/Button/Button';
 import { ProfileImageCropModal } from '@/components/profile/ProfileImageCropModal';
 import { ProfileImageField } from '@/components/profile/ProfileImageField';
 import { ProfileRegionField } from '@/components/profile/ProfileRegionField';
+import { ProfileServiceField } from '@/components/profile/ProfileServiceField';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import {
@@ -19,7 +20,6 @@ import { ApiError } from '@/lib/apiClient';
 import { isValidKrPhoneNumber } from '@/lib/phoneNumber';
 import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 
-import { MoverProfileServiceField } from './MoverProfileServiceField';
 import { MoverProfileTextArea } from './MoverProfileTextArea';
 import { MoverProfileTextField } from './MoverProfileTextField';
 import { buildMoverProfileUpdateBody } from '../_lib/moverProfileUpdate';
@@ -285,8 +285,9 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
 
             <div className="flex w-full flex-col items-start gap-4 lg:col-start-2 lg:row-start-1">
               <div className="h-px w-full bg-line-100 lg:hidden" aria-hidden />
-              <MoverProfileServiceField
+              <ProfileServiceField
                 selectedServices={selectedServices}
+                label="제공 서비스"
                 onToggle={handleServiceToggle}
               />
             </div>
