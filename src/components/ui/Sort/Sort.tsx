@@ -34,6 +34,10 @@ interface SortProps {
   defaultValue?: string;
   /** 옵션 선택 시 호출. 선택된 option의 value(영문 등)를 전달 */
   onValueChange?: (value: string) => void;
+  /** 드롭다운이 열리거나 트리거에 hover·포커스될 때 호출 (정렬 목록 prefetch 등) */
+  onOpen?: () => void;
+  /** 옵션 hover·포커스 시 해당 value 전달 */
+  onOptionPrefetch?: (value: string) => void;
   /** 사이즈. sm: 모바일, md: 태블릿/PC */
   size?: SortSize;
   /** 추가 스타일 클래스 */
@@ -62,6 +66,8 @@ export const Sort = ({
   value,
   defaultValue,
   onValueChange,
+  onOpen,
+  onOptionPrefetch,
   size = 'md',
   className,
 }: SortProps) => {
@@ -84,7 +90,11 @@ export const Sort = ({
   useOutsideClick(containerRef, isOpen, setIsOpen);
 
   const handleToggle = () => {
-    setIsOpen((prev) => !prev);
+    setIsOpen((prev) => {
+      const next = !prev;
+      if (next) onOpen?.();
+      return next;
+    });
   };
 
   const handleSelect = (nextValue: string) => {
@@ -112,6 +122,8 @@ export const Sort = ({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         onClick={handleToggle}
+        onPointerEnter={onOpen}
+        onFocus={onOpen}
         className={`col-start-1 row-start-1 flex w-full cursor-pointer items-center justify-center whitespace-nowrap ${sizeStyles.trigger}`}
       >
         <span>{selectedOption.label}</span>
@@ -147,6 +159,8 @@ export const Sort = ({
                     role="option"
                     aria-selected={isSelected}
                     onClick={() => handleSelect(option.value)}
+                    onPointerEnter={() => onOptionPrefetch?.(option.value)}
+                    onFocus={() => onOptionPrefetch?.(option.value)}
                     className={`flex w-full cursor-pointer items-center justify-center whitespace-nowrap ${sizeStyles.option} ${
                       isSelected
                         ? 'bg-background-300'
