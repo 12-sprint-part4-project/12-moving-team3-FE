@@ -18,21 +18,21 @@ import { useToast } from '@/hooks/useToast';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
-  getKrMobileSubscriberError,
-  KR_MOBILE_SUBSCRIBER_LENGTH,
-  toKrMobileSubscriberDigits,
+  getKrMobileFieldState,
   toPhoneDigits,
 } from '@/lib/phoneNumber';
 import { toggleService } from '@/lib/toggleService';
 import { validateProfileImageFile } from '@/lib/uploadProfileImage';
+import {
+  isProfileTextValid,
+  PROFILE_TEXT_MAX_LENGTH,
+} from '@/lib/validateProfileText';
 
 import { MoverProfileTextArea } from './MoverProfileTextArea';
 import { normalizeCareerInput } from '../_lib/normalizeCareerInput';
 
 import type { MoverRegion, MoverServiceType } from '@/types/moverProfile';
 
-const NICKNAME_MIN_LENGTH = 2;
-const NICKNAME_MAX_LENGTH = 20;
 const CAREER_MAX = 50;
 const SHORT_DESCRIPTION_MAX = 20;
 const DESCRIPTION_MIN = 8;
@@ -81,9 +81,8 @@ export const MoverProfileForm = () => {
   // 세션 번호는 effect로 복사하지 않고, 미입력 시 표시값 fallback으로 사용
   const phoneNumber =
     phoneDraft ?? formatKrMobileSubscriberInput(user?.phoneNumber ?? '');
-  const subscriberDigits = toKrMobileSubscriberDigits(phoneNumber);
-  const phoneFieldError = getKrMobileSubscriberError(phoneNumber);
-  const isPhoneFormatError = Boolean(phoneFieldError);
+  const { phoneFieldError, isPhoneComplete } =
+    getKrMobileFieldState(phoneNumber);
   const trimmedShortIntro = shortIntro.trim();
   const trimmedDescription = description.trim();
   const careerValue = career === '' ? null : Number(career);
@@ -100,8 +99,7 @@ export const MoverProfileForm = () => {
     (trimmedDescription.length < DESCRIPTION_MIN ||
       trimmedDescription.length > DESCRIPTION_MAX);
   const isSubmitEnabled =
-    subscriberDigits.length === KR_MOBILE_SUBSCRIBER_LENGTH &&
-    !isPhoneFormatError &&
+    isPhoneComplete &&
     isCareerValid &&
     trimmedShortIntro.length > 0 &&
     trimmedShortIntro.length <= SHORT_DESCRIPTION_MAX &&
@@ -160,9 +158,9 @@ export const MoverProfileForm = () => {
     // 카카오 가입 닉네임은 최대 50자일 수 있어, 프로필 API(2~20자)에 맞게 자른다.
     const nickname = (user?.nickname?.trim() ?? '').slice(
       0,
-      NICKNAME_MAX_LENGTH
+      PROFILE_TEXT_MAX_LENGTH
     );
-    if (nickname.length < NICKNAME_MIN_LENGTH) {
+    if (!isProfileTextValid(nickname)) {
       showToast({
         content: '로그인 정보가 올바르지 않습니다. 다시 로그인해 주세요.',
       });

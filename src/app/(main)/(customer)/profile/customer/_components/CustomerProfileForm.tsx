@@ -16,9 +16,7 @@ import { useToast } from '@/hooks/useToast';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
-  getKrMobileSubscriberError,
-  KR_MOBILE_SUBSCRIBER_LENGTH,
-  toKrMobileSubscriberDigits,
+  getKrMobileFieldState,
   toPhoneDigits,
 } from '@/lib/phoneNumber';
 import { toggleService } from '@/lib/toggleService';
@@ -64,12 +62,10 @@ export const CustomerProfileForm = () => {
   // 세션 번호는 effect로 복사하지 않고, 미입력 시 표시값 fallback으로 사용
   const phoneNumber =
     phoneDraft ?? formatKrMobileSubscriberInput(user?.phoneNumber ?? '');
-  const subscriberDigits = toKrMobileSubscriberDigits(phoneNumber);
-  const phoneFieldError = getKrMobileSubscriberError(phoneNumber);
-  const isPhoneFormatError = Boolean(phoneFieldError);
+  const { phoneFieldError, isPhoneComplete } =
+    getKrMobileFieldState(phoneNumber);
   const isSubmitEnabled =
-    subscriberDigits.length === KR_MOBILE_SUBSCRIBER_LENGTH &&
-    !isPhoneFormatError &&
+    isPhoneComplete &&
     selectedServices.length > 0 &&
     selectedRegion !== null &&
     !isPending;

@@ -18,15 +18,19 @@ import { ApiError } from '@/lib/apiClient';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
-  getKrMobileSubscriberError,
-  KR_MOBILE_SUBSCRIBER_LENGTH,
-  toKrMobileSubscriberDigits,
+  getKrMobileFieldState,
 } from '@/lib/phoneNumber';
 import {
+  getPasswordChangeFieldState,
+  PASSWORD_FORMAT_FIELD_ERROR_MESSAGE,
   PASSWORD_MAX_LENGTH,
   PASSWORD_MISMATCH_ERROR_MESSAGE,
-  validatePassword,
 } from '@/lib/validatePassword';
+import {
+  isProfileTextFormatError,
+  isProfileTextValid,
+  PROFILE_NAME_FORMAT_ERROR_MESSAGE,
+} from '@/lib/validateProfileText';
 
 import {
   buildMoverBasicInfoUpdateBody,
@@ -34,12 +38,6 @@ import {
 } from '../_lib/moverBasicInfoUpdate';
 
 import type { MoverProfileMe } from '@/types/moverProfile';
-
-const NAME_MIN_LENGTH = 2;
-const NAME_MAX_LENGTH = 20;
-
-const NAME_FORMAT_ERROR_MESSAGE = `이름은 ${NAME_MIN_LENGTH}~${NAME_MAX_LENGTH}자로 입력해 주세요.`;
-const PASSWORD_FORMAT_FIELD_ERROR_MESSAGE = '비밀번호가 올바르지 않습니다.';
 
 interface MoverBasicInfoPasswordFieldsProps {
   currentPasswordId: string;
@@ -189,33 +187,22 @@ const MoverBasicInfoEditFields = ({
     formatKrMobileSubscriberInput(
       profile.phoneNumber || user?.phoneNumber || ''
     );
-  const trimmedName = name.trim();
-  const subscriberDigits = toKrMobileSubscriberDigits(phoneNumber);
-  const phoneFieldError = getKrMobileSubscriberError(phoneNumber);
-  const isPhoneFormatError = Boolean(phoneFieldError);
+  const { phoneFieldError, isPhoneComplete } =
+    getKrMobileFieldState(phoneNumber);
   const showPasswordFields = profile.hasPassword;
-  const isNameFormatError =
-    trimmedName.length > 0 &&
-    (trimmedName.length < NAME_MIN_LENGTH ||
-      trimmedName.length > NAME_MAX_LENGTH);
-  const hasPasswordInput =
-    currentPassword.length > 0 ||
-    newPassword.length > 0 ||
-    confirmPassword.length > 0;
-  const isPasswordFormatError =
-    newPassword.length > 0 && Boolean(validatePassword(newPassword));
-  const isPasswordMismatchError =
-    confirmPassword.length > 0 && newPassword !== confirmPassword;
-  const isPasswordIncomplete =
-    hasPasswordInput &&
-    (currentPassword.length === 0 ||
-      newPassword.length === 0 ||
-      confirmPassword.length === 0);
+  const isNameFormatError = isProfileTextFormatError(name);
+  const {
+    isPasswordFormatError,
+    isPasswordMismatchError,
+    isPasswordIncomplete,
+  } = getPasswordChangeFieldState({
+    currentPassword,
+    newPassword,
+    confirmPassword,
+  });
   const isSubmitEnabled =
-    trimmedName.length >= NAME_MIN_LENGTH &&
-    trimmedName.length <= NAME_MAX_LENGTH &&
-    subscriberDigits.length === KR_MOBILE_SUBSCRIBER_LENGTH &&
-    !isPhoneFormatError &&
+    isProfileTextValid(name) &&
+    isPhoneComplete &&
     !isPasswordFormatError &&
     !isPasswordMismatchError &&
     !isPasswordIncomplete &&
@@ -288,7 +275,9 @@ const MoverBasicInfoEditFields = ({
                 onChange={handleNameChange}
                 isError={isNameFormatError}
                 errorMessage={
-                  isNameFormatError ? NAME_FORMAT_ERROR_MESSAGE : undefined
+                  isNameFormatError
+                    ? PROFILE_NAME_FORMAT_ERROR_MESSAGE
+                    : undefined
                 }
               />
             </section>

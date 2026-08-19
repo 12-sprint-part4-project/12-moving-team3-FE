@@ -80,3 +80,19 @@ export const getPhoneNumberError = (value: string): string | null => {
   }
   return null;
 };
+
+/** 010 가입자 번호 필드의 표시·검증 파생값 */
+export const getKrMobileFieldState = (subscriber: string) => {
+  const subscriberDigits = toKrMobileSubscriberDigits(subscriber);
+  const phoneFieldError = getKrMobileSubscriberError(subscriber);
+  const isPhoneFormatError = Boolean(phoneFieldError);
+
+  return {
+    subscriberDigits,
+    phoneFieldError,
+    isPhoneFormatError,
+    isPhoneComplete:
+      subscriberDigits.length === KR_MOBILE_SUBSCRIBER_LENGTH &&
+      !isPhoneFormatError,
+  };
+};

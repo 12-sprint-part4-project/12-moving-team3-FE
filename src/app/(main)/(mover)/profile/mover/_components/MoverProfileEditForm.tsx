@@ -21,6 +21,11 @@ import { ApiError } from '@/lib/apiClient';
 import { isValidKrPhoneNumber } from '@/lib/phoneNumber';
 import { toggleService } from '@/lib/toggleService';
 import { validateProfileImageFile } from '@/lib/uploadProfileImage';
+import {
+  isProfileTextFormatError,
+  isProfileTextValid,
+  PROFILE_NICKNAME_FORMAT_ERROR_MESSAGE,
+} from '@/lib/validateProfileText';
 
 import { MoverProfileTextArea } from './MoverProfileTextArea';
 import { buildMoverProfileUpdateBody } from '../_lib/moverProfileUpdate';
@@ -32,14 +37,11 @@ import type {
   MoverServiceType,
 } from '@/types/moverProfile';
 
-const NICKNAME_MIN_LENGTH = 2;
-const NICKNAME_MAX_LENGTH = 20;
 const CAREER_MAX = 50;
 const SHORT_DESCRIPTION_MAX = 20;
 const DESCRIPTION_MIN = 8;
 const DESCRIPTION_MAX = 200;
 
-const NICKNAME_FORMAT_ERROR_MESSAGE = `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`;
 const CAREER_FORMAT_ERROR_MESSAGE = `경력은 0~${CAREER_MAX} 사이의 값으로 입력해 주세요.`;
 const SHORT_INTRO_FORMAT_ERROR_MESSAGE = `한 줄 소개는 1~${SHORT_DESCRIPTION_MAX}자로 입력해 주세요.`;
 const DESCRIPTION_FORMAT_ERROR_MESSAGE = `상세 설명은 ${DESCRIPTION_MIN}~${DESCRIPTION_MAX}자로 입력해 주세요.`;
@@ -90,7 +92,6 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
   ]);
 
   const phoneNumber = profile.phoneNumber ?? '';
-  const trimmedNickname = nickname.trim();
   const trimmedShortIntro = shortIntro.trim();
   const trimmedDescription = description.trim();
   const careerValue = career === '' ? null : Number(career);
@@ -99,10 +100,7 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
     Number.isInteger(careerValue) &&
     careerValue >= 0 &&
     careerValue <= CAREER_MAX;
-  const isNicknameFormatError =
-    trimmedNickname.length > 0 &&
-    (trimmedNickname.length < NICKNAME_MIN_LENGTH ||
-      trimmedNickname.length > NICKNAME_MAX_LENGTH);
+  const isNicknameFormatError = isProfileTextFormatError(nickname);
   const isCareerFormatError = career !== '' && !isCareerValid;
   const isShortIntroFormatError =
     trimmedShortIntro.length > SHORT_DESCRIPTION_MAX;
@@ -111,8 +109,7 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
     (trimmedDescription.length < DESCRIPTION_MIN ||
       trimmedDescription.length > DESCRIPTION_MAX);
   const isSubmitEnabled =
-    trimmedNickname.length >= NICKNAME_MIN_LENGTH &&
-    trimmedNickname.length <= NICKNAME_MAX_LENGTH &&
+    isProfileTextValid(nickname) &&
     isCareerValid &&
     trimmedShortIntro.length > 0 &&
     trimmedShortIntro.length <= SHORT_DESCRIPTION_MAX &&
@@ -228,7 +225,7 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
                 isError={isNicknameFormatError}
                 errorMessage={
                   isNicknameFormatError
-                    ? NICKNAME_FORMAT_ERROR_MESSAGE
+                    ? PROFILE_NICKNAME_FORMAT_ERROR_MESSAGE
                     : undefined
                 }
               />

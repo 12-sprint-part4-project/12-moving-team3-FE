@@ -1,13 +1,14 @@
 import { getPhoneNumberError, toPhoneDigits } from '@/lib/phoneNumber';
 import { validatePassword } from '@/lib/validatePassword';
+import {
+  isProfileTextValid,
+  PROFILE_NAME_FORMAT_ERROR_MESSAGE,
+} from '@/lib/validateProfileText';
 
 import type {
   MoverProfileMe,
   UpdateMoverBasicInfoRequest,
 } from '@/types/moverProfile';
-
-const NAME_MIN_LENGTH = 2;
-const NAME_MAX_LENGTH = 20;
 
 interface BuildMoverBasicInfoUpdateParams {
   profile: MoverProfileMe;
@@ -66,12 +67,8 @@ export const getMoverBasicInfoUpdateError = ({
   newPassword,
   confirmPassword,
 }: BuildMoverBasicInfoUpdateParams): string | null => {
-  const trimmedName = name.trim();
-  if (
-    trimmedName.length < NAME_MIN_LENGTH ||
-    trimmedName.length > NAME_MAX_LENGTH
-  ) {
-    return `이름은 ${NAME_MIN_LENGTH}~${NAME_MAX_LENGTH}자로 입력해 주세요.`;
+  if (!isProfileTextValid(name)) {
+    return PROFILE_NAME_FORMAT_ERROR_MESSAGE;
   }
 
   const phoneError = getPhoneNumberError(phoneNumber);
