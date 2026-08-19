@@ -4,8 +4,11 @@ import { useRouter } from 'next/navigation';
 import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { Button } from '@/components/Button/Button';
+import { ProfileImageCropModal } from '@/components/profile/ProfileImageCropModal';
+import { ProfileImageField } from '@/components/profile/ProfileImageField';
 import { useAuth } from '@/hooks/useAuth';
 import { useUpsertCustomerProfile } from '@/hooks/useCustomerProfile';
+import { useProfileImageCrop } from '@/hooks/useProfileImageCrop';
 import { useToast } from '@/hooks/useToast';
 import {
   composeKrMobilePhone,
@@ -20,10 +23,7 @@ import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 import { CustomerProfilePhoneField } from './CustomerProfilePhoneField';
 import { CustomerProfileRegionField } from './CustomerProfileRegionField';
 import { CustomerProfileServiceField } from './CustomerProfileServiceField';
-import { ProfileImageCropModal } from './ProfileImageCropModal';
-import { ProfileImageField } from './ProfileImageField';
 import { toggleService } from '../_lib/toggleService';
-import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
 
 import type {
   CustomerRegion,

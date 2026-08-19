@@ -4,12 +4,15 @@ import { redirect, useRouter } from 'next/navigation';
 import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { Button } from '@/components/Button/Button';
+import { ProfileImageCropModal } from '@/components/profile/ProfileImageCropModal';
+import { ProfileImageField } from '@/components/profile/ProfileImageField';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import {
   useCustomerProfile,
   useUpsertCustomerProfile,
 } from '@/hooks/useCustomerProfile';
+import { useProfileImageCrop } from '@/hooks/useProfileImageCrop';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import {
@@ -30,11 +33,8 @@ import { CustomerProfilePhoneField } from './CustomerProfilePhoneField';
 import { CustomerProfileRegionField } from './CustomerProfileRegionField';
 import { CustomerProfileServiceField } from './CustomerProfileServiceField';
 import { CustomerProfileTextField } from './CustomerProfileTextField';
-import { ProfileImageCropModal } from './ProfileImageCropModal';
-import { ProfileImageField } from './ProfileImageField';
 import { buildCustomerProfileUpdateBody } from '../_lib/customerProfileUpdate';
 import { toggleService } from '../_lib/toggleService';
-import { useProfileImageCrop } from '../_lib/useProfileImageCrop';
 
 import type {
   CustomerProfileMe,

@@ -4,11 +4,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
 
-import { ProfileImageCropModal } from '@/app/(main)/(customer)/profile/customer/_components/ProfileImageCropModal';
-import { ProfileImageField } from '@/app/(main)/(customer)/profile/customer/_components/ProfileImageField';
 import { toggleService } from '@/app/(main)/(customer)/profile/customer/_lib/toggleService';
-import { useProfileImageCrop } from '@/app/(main)/(customer)/profile/customer/_lib/useProfileImageCrop';
 import { Button } from '@/components/Button/Button';
+import { ProfileImageCropModal } from '@/components/profile/ProfileImageCropModal';
+import { ProfileImageField } from '@/components/profile/ProfileImageField';
 import { RegionChip, ServiceChip } from '@/components/ui/Chip';
 import { TextArea, TextFieldOutlined } from '@/components/ui/Input';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
@@ -20,6 +19,7 @@ import {
 } from '@/constants/commonOptions';
 import { AUTH_QUERY_KEYS, moverProfileQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
+import { useProfileImageCrop } from '@/hooks/useProfileImageCrop';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import {
