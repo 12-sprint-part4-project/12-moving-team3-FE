@@ -73,6 +73,7 @@ export const ChatRoomPage = ({
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [scrollToBottomSignal, setScrollToBottomSignal] = useState(0);
   const [focusInputSignal, setFocusInputSignal] = useState(0);
+  const isNearBottomRef = useRef(true);
 
   if (trackedRoomId !== roomId) {
     setTrackedRoomId(roomId);
@@ -102,6 +103,7 @@ export const ChatRoomPage = ({
   useEffect(() => {
     lastMarkedMessageIdRef.current = null;
     lastPartnerMessageIdRef.current = null;
+    isNearBottomRef.current = true;
   }, [roomId]);
 
   useEffect(() => {
@@ -163,6 +165,7 @@ export const ChatRoomPage = ({
   }, [enabled, messages, user?.id, isNearBottom]);
 
   const handleNearBottomChange = useCallback((nearBottom: boolean) => {
+    isNearBottomRef.current = nearBottom;
     setIsNearBottom(nearBottom);
     if (nearBottom) {
       setShowNewMessageChip(false);
@@ -173,6 +176,12 @@ export const ChatRoomPage = ({
     setScrollToBottomSignal((current) => current + 1);
     setShowNewMessageChip(false);
   }, []);
+
+  const handleComposerHeightChange = useCallback(() => {
+    if (isNearBottomRef.current) {
+      handleScrollToBottom();
+    }
+  }, [handleScrollToBottom]);
 
   const isMessagingAllowed = room?.isMessagingAllowed !== false;
 
@@ -350,6 +359,7 @@ export const ChatRoomPage = ({
             focusInputSignal={focusInputSignal}
             scrollChipMode={scrollChipMode}
             onScrollChipClick={handleScrollToBottom}
+            onHeightChange={handleComposerHeightChange}
             className="shrink-0"
           />
         </>
