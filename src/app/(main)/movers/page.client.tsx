@@ -19,8 +19,6 @@ import { useMoversFilters } from './_lib/useMoversFilters';
 const MoversPageClient = () => {
   const shouldReduceMotion = useReducedMotion();
   const { user } = useAuth();
-  const isLoggedIn = Boolean(user);
-  const canUseFavorites = Boolean(user?.isProfileCompleted);
   const {
     handleFavoriteClick,
     isMoverPending,
@@ -41,8 +39,10 @@ const MoversPageClient = () => {
     handleResetAll,
   } = useMoversFilters();
 
+  const canUseFavorites = Boolean(user?.isProfileCompleted);
   const { favorites } = useFavoriteMoversPreview(canUseFavorites);
 
+  const isLoggedIn = Boolean(user);
   const motionTransition = getMotionTransition(shouldReduceMotion);
 
   return (

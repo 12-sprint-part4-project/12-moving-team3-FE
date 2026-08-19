@@ -4,21 +4,13 @@ import { useDesignatedEstimateRequest } from '@/hooks/useDesignatedEstimateReque
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 
-import type {
-  MoverDetailChat,
-  MoverDetailDesignated,
-  MoverDetailFavorite,
-  MoverDetailShare,
-} from './moverDetailActions';
-import type { MoverCardModel } from '@/types/mover';
+import type { MoverDetailChat, MoverDetailDesignated } from './moverDetailActions';
 
 /**
- * 기사 상세 — 찜·지정 견적·채팅 액션과 묶음 props.
+ * 기사 상세 — 지정 견적·채팅 액션과 인증 모달.
+ * 찜·공유는 가드로 mover를 좁힌 뒤 페이지에서 만든다.
  */
-export const useMoverDetailActions = (
-  moverId: string,
-  mover: MoverCardModel | null
-) => {
+export const useMoverDetailActions = (moverId: string) => {
   const {
     user,
     handleFavoriteClick,
@@ -100,29 +92,6 @@ export const useMoverDetailActions = (
     moverId,
   ]);
 
-  const handleSidebarFavoriteClick = useCallback(() => {
-    if (!mover) {
-      return;
-    }
-    handleFavoriteClick(mover.moverId, !mover.isFavorited);
-  }, [mover, handleFavoriteClick]);
-
-  const favorite = useMemo((): MoverDetailFavorite => {
-    if (!mover) {
-      return {
-        isFavorited: false,
-        isFavoritePending: false,
-        onFavoriteClick: handleSidebarFavoriteClick,
-      };
-    }
-
-    return {
-      isFavorited: mover.isFavorited,
-      isFavoritePending: isMoverPending(mover.moverId),
-      onFavoriteClick: handleSidebarFavoriteClick,
-    };
-  }, [mover, isMoverPending, handleSidebarFavoriteClick]);
-
   const designated = useMemo(
     (): MoverDetailDesignated => ({
       showCta: showDesignatedCta,
@@ -155,25 +124,11 @@ export const useMoverDetailActions = (
     [showChatCta, isChatPending, handleChatClick]
   );
 
-  const share = useMemo((): MoverDetailShare | null => {
-    if (!mover) {
-      return null;
-    }
-
-    return {
-      name: mover.name,
-      description: mover.shortDescription,
-      profileImageUrl: mover.profileImageUrl,
-    };
-  }, [mover]);
-
   return {
     handleFavoriteClick,
     isMoverPending,
-    favorite,
     designated,
     chat,
-    share,
     isLoginModalOpen,
     isProfileModalOpen,
     closeAuthModal,
