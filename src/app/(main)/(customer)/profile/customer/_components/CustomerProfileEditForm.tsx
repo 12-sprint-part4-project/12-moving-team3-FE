@@ -9,6 +9,7 @@ import { ProfileImageField } from '@/components/profile/ProfileImageField';
 import { ProfilePhoneField } from '@/components/profile/ProfilePhoneField';
 import { ProfileRegionField } from '@/components/profile/ProfileRegionField';
 import { ProfileServiceField } from '@/components/profile/ProfileServiceField';
+import { ProfileTextField } from '@/components/profile/ProfileTextField';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import {
@@ -32,7 +33,6 @@ import {
   validatePassword,
 } from '@/lib/validatePassword';
 
-import { CustomerProfileTextField } from './CustomerProfileTextField';
 import { buildCustomerProfileUpdateBody } from '../_lib/customerProfileUpdate';
 import { toggleService } from '../_lib/toggleService';
 
@@ -90,7 +90,7 @@ const CustomerProfilePasswordFields = ({
         >
           현재 비밀번호
         </label>
-        <CustomerProfileTextField
+        <ProfileTextField
           id={currentPasswordId}
           type="password"
           name="currentPassword"
@@ -111,7 +111,7 @@ const CustomerProfilePasswordFields = ({
         >
           새 비밀번호
         </label>
-        <CustomerProfileTextField
+        <ProfileTextField
           id={newPasswordId}
           type="password"
           name="newPassword"
@@ -139,7 +139,7 @@ const CustomerProfilePasswordFields = ({
         >
           새 비밀번호 확인
         </label>
-        <CustomerProfileTextField
+        <ProfileTextField
           id={confirmPasswordId}
           type="password"
           name="confirmPassword"
@@ -329,7 +329,7 @@ const CustomerProfileEditFields = ({
             <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
               <section className="flex w-full flex-col items-start gap-4">
                 <RequiredLabel htmlFor={nameInputId}>이름</RequiredLabel>
-                <CustomerProfileTextField
+                <ProfileTextField
                   id={nameInputId}
                   name="name"
                   autoComplete="name"
@@ -346,7 +346,7 @@ const CustomerProfileEditFields = ({
 
               <section className="flex w-full flex-col items-start gap-4">
                 <RequiredLabel htmlFor={nicknameInputId}>닉네임</RequiredLabel>
-                <CustomerProfileTextField
+                <ProfileTextField
                   id={nicknameInputId}
                   name="nickname"
                   autoComplete="nickname"
@@ -371,7 +371,7 @@ const CustomerProfileEditFields = ({
                 >
                   이메일
                 </label>
-                <CustomerProfileTextField
+                <ProfileTextField
                   id={emailInputId}
                   type="email"
                   name="email"

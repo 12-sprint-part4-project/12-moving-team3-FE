@@ -9,6 +9,7 @@ import { ProfileImageField } from '@/components/profile/ProfileImageField';
 import { ProfilePhoneField } from '@/components/profile/ProfilePhoneField';
 import { ProfileRegionField } from '@/components/profile/ProfileRegionField';
 import { ProfileServiceField } from '@/components/profile/ProfileServiceField';
+import { ProfileTextField } from '@/components/profile/ProfileTextField';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { useAuth } from '@/hooks/useAuth';
 import { useCreateMoverProfile } from '@/hooks/useMoverProfile';
@@ -25,7 +26,6 @@ import {
 import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 
 import { MoverProfileTextArea } from './MoverProfileTextArea';
-import { MoverProfileTextField } from './MoverProfileTextField';
 import { normalizeCareerInput } from '../_lib/normalizeCareerInput';
 import { toggleService } from '../_lib/toggleService';
 
@@ -230,7 +230,7 @@ export const MoverProfileForm = () => {
 
             <section className="flex w-full flex-col items-start gap-4">
               <RequiredLabel htmlFor={careerInputId}>경력</RequiredLabel>
-              <MoverProfileTextField
+              <ProfileTextField
                 id={careerInputId}
                 name="career"
                 inputMode="numeric"
@@ -250,7 +250,7 @@ export const MoverProfileForm = () => {
               <RequiredLabel htmlFor={shortIntroInputId}>
                 한 줄 소개
               </RequiredLabel>
-              <MoverProfileTextField
+              <ProfileTextField
                 id={shortIntroInputId}
                 name="shortIntro"
                 placeholder="한 줄 소개를 입력해 주세요"

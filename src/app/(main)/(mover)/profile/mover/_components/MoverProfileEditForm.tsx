@@ -8,6 +8,7 @@ import { ProfileImageCropModal } from '@/components/profile/ProfileImageCropModa
 import { ProfileImageField } from '@/components/profile/ProfileImageField';
 import { ProfileRegionField } from '@/components/profile/ProfileRegionField';
 import { ProfileServiceField } from '@/components/profile/ProfileServiceField';
+import { ProfileTextField } from '@/components/profile/ProfileTextField';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import {
@@ -21,7 +22,6 @@ import { isValidKrPhoneNumber } from '@/lib/phoneNumber';
 import { validateProfileImageFile } from '@/lib/uploadProfileImage';
 
 import { MoverProfileTextArea } from './MoverProfileTextArea';
-import { MoverProfileTextField } from './MoverProfileTextField';
 import { buildMoverProfileUpdateBody } from '../_lib/moverProfileUpdate';
 import { normalizeCareerInput } from '../_lib/normalizeCareerInput';
 import { toggleService } from '../_lib/toggleService';
@@ -218,7 +218,7 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
           <div className="grid w-full grid-cols-1 gap-5 lg:grid-cols-2 lg:items-start lg:gap-x-10 lg:gap-y-8">
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
               <RequiredLabel htmlFor={nicknameInputId}>닉네임</RequiredLabel>
-              <MoverProfileTextField
+              <ProfileTextField
                 id={nicknameInputId}
                 name="nickname"
                 autoComplete="nickname"
@@ -249,7 +249,7 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
               <div className="h-px w-full bg-line-100" aria-hidden />
               <RequiredLabel htmlFor={careerInputId}>경력</RequiredLabel>
-              <MoverProfileTextField
+              <ProfileTextField
                 id={careerInputId}
                 name="career"
                 inputMode="numeric"
@@ -268,7 +268,7 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
               <RequiredLabel htmlFor={shortIntroInputId}>
                 한 줄 소개
               </RequiredLabel>
-              <MoverProfileTextField
+              <ProfileTextField
                 id={shortIntroInputId}
                 name="shortIntro"
                 placeholder="한 줄 소개를 입력해 주세요"

@@ -5,6 +5,7 @@ import { useId, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { Button } from '@/components/Button/Button';
 import { ProfilePhoneField } from '@/components/profile/ProfilePhoneField';
+import { ProfileTextField } from '@/components/profile/ProfileTextField';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
@@ -27,7 +28,6 @@ import {
   validatePassword,
 } from '@/lib/validatePassword';
 
-import { MoverProfileTextField } from './MoverProfileTextField';
 import {
   buildMoverBasicInfoUpdateBody,
   getMoverBasicInfoUpdateError,
@@ -81,7 +81,7 @@ const MoverBasicInfoPasswordFields = ({
           >
             현재 비밀번호
           </label>
-          <MoverProfileTextField
+          <ProfileTextField
             id={currentPasswordId}
             type="password"
             name="currentPassword"
@@ -102,7 +102,7 @@ const MoverBasicInfoPasswordFields = ({
           >
             새 비밀번호
           </label>
-          <MoverProfileTextField
+          <ProfileTextField
             id={newPasswordId}
             type="password"
             name="newPassword"
@@ -130,7 +130,7 @@ const MoverBasicInfoPasswordFields = ({
           >
             새 비밀번호 확인
           </label>
-          <MoverProfileTextField
+          <ProfileTextField
             id={confirmPasswordId}
             type="password"
             name="confirmPassword"
@@ -280,7 +280,7 @@ const MoverBasicInfoEditFields = ({
           <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
             <section className="flex w-full flex-col items-start gap-4">
               <RequiredLabel htmlFor={nameInputId}>이름</RequiredLabel>
-              <MoverProfileTextField
+              <ProfileTextField
                 id={nameInputId}
                 name="name"
                 autoComplete="name"
@@ -302,7 +302,7 @@ const MoverBasicInfoEditFields = ({
               >
                 이메일
               </label>
-              <MoverProfileTextField
+              <ProfileTextField
                 id={emailInputId}
                 type="email"
                 name="email"

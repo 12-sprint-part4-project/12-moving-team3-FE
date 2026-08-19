@@ -1,6 +1,6 @@
 'use client';
 
-import { TextFieldOutlined } from '@/components/ui/Input';
+import { ProfileTextField } from '@/components/profile/ProfileTextField';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
 import {
   formatKrMobileSubscriberInput,
@@ -33,9 +33,8 @@ export const ProfilePhoneField = ({
       className={cn('flex w-full flex-col items-start gap-4', className)}
     >
       <RequiredLabel htmlFor={id}>전화번호</RequiredLabel>
-      <TextFieldOutlined
+      <ProfileTextField
         id={id}
-        size="sm"
         type="tel"
         name="phone"
         inputMode="numeric"
@@ -46,7 +45,6 @@ export const ProfilePhoneField = ({
         onChange={onChange}
         isError={isError}
         errorMessage={errorMessage}
-        className="w-full [&_>div]:min-h-[3.375rem] [&_>div]:w-full [&_>div]:max-w-full lg:[&_>div]:min-h-16 lg:[&_>div]:text-xl-regular"
       />
     </section>
   );
