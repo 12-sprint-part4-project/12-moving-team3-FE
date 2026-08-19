@@ -13,6 +13,8 @@ export const CHAT_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
 /** 메시지당 최대 첨부 수 (BE 계약) */
 export const CHAT_IMAGE_MAX_COUNT = 5;
 
+export const CHAT_IMAGE_LIMIT_HINT = `이미지는 최대 ${CHAT_IMAGE_MAX_COUNT}장, 장당 5MB 이하만 첨부할 수 있어요.`;
+
 export const isAllowedChatImageType = (contentType: string): boolean =>
   ALLOWED_CHAT_IMAGE_TYPES.has(contentType);
 

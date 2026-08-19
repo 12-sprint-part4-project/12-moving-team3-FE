@@ -148,6 +148,8 @@ export const ChatMessageList = ({
   /** 방 진입 후 첫 하단 정렬이 끝났는지 */
   const didInitialScrollRef = useRef(false);
   const isProgrammaticScrollRef = useRef(false);
+  /** Composer 높이 변화로 스크롤 영역이 줄었는지 감지 */
+  const lastClientHeightRef = useRef(0);
   /** 지연 retry 무효화 — 새 하단 이동 요청 또는 언마운트 시 증가 */
   const scrollRetryGenerationRef = useRef(0);
   const scrollRetryTimeoutIdsRef = useRef<number[]>([]);
@@ -313,6 +315,7 @@ export const ChatMessageList = ({
     shouldStickToBottomRef.current = true;
     scrollToBottom();
     didInitialScrollRef.current = true;
+    lastClientHeightRef.current = scrollRef.current?.clientHeight ?? 0;
     prevMessageCountRef.current = messages.length;
     oldestMessageIdRef.current = messages[0]?.messageId ?? null;
   }, [isPending, messages, scrollToBottom]);
@@ -379,7 +382,7 @@ export const ChatMessageList = ({
     return () => vv.removeEventListener('resize', handleViewportResize);
   }, []);
 
-  // 이미지 등으로 콘텐츠 높이가 늘어나도 하단 고정 중이면 따라감
+  // 메시지 콘텐츠·스크롤 영역(Composer 높이)이 바뀌어도 하단 고정 중이면 따라감
   useEffect(() => {
     const scrollEl = scrollRef.current;
     const contentEl = contentRef.current;
@@ -387,7 +390,8 @@ export const ChatMessageList = ({
       return;
     }
 
-    const observer = new ResizeObserver(() => {
+    const pinToBottomIfStuck = () => {
+      lastClientHeightRef.current = scrollEl.clientHeight;
       if (!didInitialScrollRef.current || !shouldStickToBottomRef.current) {
         return;
       }
@@ -396,17 +400,41 @@ export const ChatMessageList = ({
       }
       isProgrammaticScrollRef.current = true;
       scrollEl.scrollTop = scrollEl.scrollHeight;
+      reportNearBottom(true);
       requestAnimationFrame(() => {
         isProgrammaticScrollRef.current = false;
       });
-    });
+    };
 
+    const observer = new ResizeObserver(pinToBottomIfStuck);
     observer.observe(contentEl);
+    observer.observe(scrollEl);
     return () => observer.disconnect();
-  }, []);
+  }, [reportNearBottom]);
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     const el = event.currentTarget;
+    const prevClientHeight = lastClientHeightRef.current;
+    const nextClientHeight = el.clientHeight;
+    lastClientHeightRef.current = nextClientHeight;
+
+    // Composer가 커져 리스트 높이가 줄어들면 브라우저가 scroll을 띄울 수 있다.
+    // 하단 고정 중이면 사용자가 위로 올린 것으로 오인하지 않고 최신에 붙인다.
+    if (
+      didInitialScrollRef.current &&
+      prevClientHeight > 0 &&
+      nextClientHeight < prevClientHeight &&
+      shouldStickToBottomRef.current
+    ) {
+      isProgrammaticScrollRef.current = true;
+      el.scrollTop = el.scrollHeight;
+      reportNearBottom(true);
+      requestAnimationFrame(() => {
+        isProgrammaticScrollRef.current = false;
+      });
+      return;
+    }
+
     const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
     const isNearBottom = distanceFromBottom <= NEAR_BOTTOM_PX;
 
