@@ -27,6 +27,8 @@ interface NotificationStreamHandlers {
   onUnreadCount: (unreadCount: number) => void;
   /** Outbox fan-out 후 목록·배지 재조회용 (payload 본문 없음) */
   onNotificationRefresh: () => void;
+  /** 끊겼다 재연결 성공 시 — 유실됐을 수 있는 이벤트 캐치업용 */
+  onReconnected?: () => void;
   onError?: (error: ApiError) => void;
 }
 
@@ -229,11 +231,17 @@ const runConnectionLoop = async (
 ): Promise<void> => {
   const { signal } = connection.controller;
   let reconnectDelayMs = SSE_RECONNECT_BASE_DELAY_MS;
+  // 최초 연결과 구분해 재연결 성공 시에만 캐치업 콜백을 알린다.
+  let hasConnectedBefore = false;
 
   try {
     while (!signal.aborted) {
       try {
         const response = await openStream(signal);
+        if (hasConnectedBefore) {
+          handlers.onReconnected?.();
+        }
+        hasConnectedBefore = true;
         reconnectDelayMs = SSE_RECONNECT_BASE_DELAY_MS;
         await consumeStream(response, signal, handlers);
       } catch (error) {

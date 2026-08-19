@@ -58,6 +58,10 @@ export const NotificationSseProvider = ({
       onNotificationRefresh: () => {
         invalidateNotificationList(queryClient);
       },
+      // 재연결 성공 — 끊겨 있던 동안 놓쳤을 수 있는 이벤트 캐치업
+      onReconnected: () => {
+        invalidateNotificationList(queryClient);
+      },
       // 재연결은 클라이언트가 지수 백오프로 자동 처리되므로... 사용자에게는 노출하지 않고 로그만 남긴다
       onError: (error) => {
         console.error('[notification-sse] stream error', error);
