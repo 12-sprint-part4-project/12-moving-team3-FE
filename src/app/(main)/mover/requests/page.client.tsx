@@ -28,6 +28,7 @@ import { useRequestsListUrlState } from './_lib/useRequestsListUrlState';
 import { useRequestsReceivedList } from './_lib/useRequestsReceivedList';
 import { useRequestsRejectModal } from './_lib/useRequestsRejectModal';
 import { useRequestsSendQuoteModal } from './_lib/useRequestsSendQuoteModal';
+import { useRequestsSortPrefetch } from './_lib/useRequestsSortPrefetch';
 
 import type { RequestsListUrlState } from './_lib/requestsListSearchParams';
 import type {
@@ -66,12 +67,16 @@ const MoverRequestsPageClient = ({
   const [resetSignal, setResetSignal] = useState(0);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
+  const { prefetchSort, prefetchAllSorts } = useRequestsSortPrefetch({
+    listFilters,
+    queryKeyword,
+  });
+
   const { user } = useAuth();
   const { startEstimateChatFromSource, pendingChatTargetId } =
     useStartEstimateChat();
 
-  const { exitingIds, handleExitComplete, markExiting } =
-    useRequestsCardExit();
+  const { exitingIds, handleExitComplete, markExiting } = useRequestsCardExit();
   const {
     sendQuoteTarget,
     sendQuoteErrorMessage,
@@ -118,7 +123,6 @@ const MoverRequestsPageClient = ({
     listAnimationKey,
     errorMessage,
     showListFetching,
-    shouldAnimateList,
     handleRetry,
   } = useRequestsReceivedList({
     listFilters,
@@ -175,6 +179,8 @@ const MoverRequestsPageClient = ({
             totalCount={totalCount}
             showListFetching={showListFetching}
             onSortChange={handleSortChange}
+            onSortOpen={prefetchAllSorts}
+            onSortOptionPrefetch={prefetchSort}
             onFilterOpen={() => setIsFilterModalOpen(true)}
           />
           {/* 로딩·에러·빈목록·목록 */}
@@ -204,41 +210,26 @@ const MoverRequestsPageClient = ({
               </AnimatePresence>
 
               <motion.ul
-                key={shouldAnimateList ? listAnimationKey : 'requests-list'}
-                variants={shouldAnimateList ? listStagger : undefined}
-                initial={shouldAnimateList ? 'hidden' : false}
-                animate={shouldAnimateList ? 'show' : undefined}
+                key={listAnimationKey}
+                variants={listStagger}
+                initial="hidden"
+                animate="show"
                 className="flex w-full flex-col gap-6 lg:gap-12"
               >
-                {shouldAnimateList ? (
-                  <AnimatePresence mode="popLayout">
-                    {displayRequests.map((request) => (
-                      <ReceivedRequestListItem
-                        key={request.id}
-                        request={request}
-                        shouldAnimate
-                        onSendQuote={handleOpenSendQuoteModal}
-                        onReject={handleOpenRejectModal}
-                        onChatClick={handleChatClick}
-                        isChatPending={pendingChatTargetId === request.id}
-                        onExitComplete={handleExitComplete}
-                      />
-                    ))}
-                  </AnimatePresence>
-                ) : (
-                  displayRequests.map((request) => (
+                <AnimatePresence mode="popLayout">
+                  {displayRequests.map((request) => (
                     <ReceivedRequestListItem
                       key={request.id}
                       request={request}
-                      shouldAnimate={false}
+                      shouldAnimate
                       onSendQuote={handleOpenSendQuoteModal}
                       onReject={handleOpenRejectModal}
                       onChatClick={handleChatClick}
                       isChatPending={pendingChatTargetId === request.id}
                       onExitComplete={handleExitComplete}
                     />
-                  ))
-                )}
+                  ))}
+                </AnimatePresence>
               </motion.ul>
 
               {hasNextPage || isFetchingNextPage ? (
