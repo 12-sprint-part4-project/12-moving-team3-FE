@@ -30,21 +30,18 @@ import {
 import { MoverProfileTextArea } from './MoverProfileTextArea';
 import { buildMoverProfileUpdateBody } from '../_lib/moverProfileUpdate';
 import { normalizeCareerInput } from '../_lib/normalizeCareerInput';
+import {
+  CAREER_FORMAT_ERROR_MESSAGE,
+  DESCRIPTION_FORMAT_ERROR_MESSAGE,
+  getMoverProfileTextFieldState,
+  SHORT_INTRO_FORMAT_ERROR_MESSAGE,
+} from '../_lib/validateMoverProfileText';
 
 import type {
   MoverProfileMe,
   MoverRegion,
   MoverServiceType,
 } from '@/types/moverProfile';
-
-const CAREER_MAX = 50;
-const SHORT_DESCRIPTION_MAX = 20;
-const DESCRIPTION_MIN = 8;
-const DESCRIPTION_MAX = 200;
-
-const CAREER_FORMAT_ERROR_MESSAGE = `경력은 0~${CAREER_MAX} 사이의 값으로 입력해 주세요.`;
-const SHORT_INTRO_FORMAT_ERROR_MESSAGE = `한 줄 소개는 1~${SHORT_DESCRIPTION_MAX}자로 입력해 주세요.`;
-const DESCRIPTION_FORMAT_ERROR_MESSAGE = `상세 설명은 ${DESCRIPTION_MIN}~${DESCRIPTION_MAX}자로 입력해 주세요.`;
 
 interface MoverProfileEditFieldsProps {
   profile: MoverProfileMe;
@@ -92,29 +89,25 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
   ]);
 
   const phoneNumber = profile.phoneNumber ?? '';
-  const trimmedShortIntro = shortIntro.trim();
-  const trimmedDescription = description.trim();
-  const careerValue = career === '' ? null : Number(career);
-  const isCareerValid =
-    careerValue !== null &&
-    Number.isInteger(careerValue) &&
-    careerValue >= 0 &&
-    careerValue <= CAREER_MAX;
   const isNicknameFormatError = isProfileTextFormatError(nickname);
-  const isCareerFormatError = career !== '' && !isCareerValid;
-  const isShortIntroFormatError =
-    trimmedShortIntro.length > SHORT_DESCRIPTION_MAX;
-  const isDescriptionFormatError =
-    trimmedDescription.length > 0 &&
-    (trimmedDescription.length < DESCRIPTION_MIN ||
-      trimmedDescription.length > DESCRIPTION_MAX);
+  const {
+    careerValue,
+    isCareerValid,
+    isCareerFormatError,
+    isShortIntroFormatError,
+    isShortIntroValid,
+    isDescriptionFormatError,
+    isDescriptionValid,
+  } = getMoverProfileTextFieldState({
+    career,
+    shortIntro,
+    description,
+  });
   const isSubmitEnabled =
     isProfileTextValid(nickname) &&
     isCareerValid &&
-    trimmedShortIntro.length > 0 &&
-    trimmedShortIntro.length <= SHORT_DESCRIPTION_MAX &&
-    trimmedDescription.length >= DESCRIPTION_MIN &&
-    trimmedDescription.length <= DESCRIPTION_MAX &&
+    isShortIntroValid &&
+    isDescriptionValid &&
     selectedServices.length > 0 &&
     selectedRegions.length > 0 &&
     !isPending;
