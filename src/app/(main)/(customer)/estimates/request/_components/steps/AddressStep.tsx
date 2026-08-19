@@ -54,10 +54,10 @@ const toDraftFromDetail = (
   address: string | null | undefined,
   detailAddress: string | null | undefined
 ): AddressDraft | null => {
-  if (!zipCode || !address || !detailAddress) {
+  if (!zipCode || !address) {
     return null;
   }
-  return { zipCode, address, detailAddress };
+  return { zipCode, address, detailAddress: detailAddress ?? '' };
 };
 
 /**
