@@ -1,41 +1,80 @@
 'use client';
 
+import { useState } from 'react';
+
 import { ReviewListSection } from '@/components/reviews/ReviewListSection';
 import { WritableReviewCard } from '@/components/reviews/WritableReviewCard';
+import { WriteReviewModal } from '@/components/reviews/WriteReviewModal';
+import { Modal } from '@/components/ui/Modal/Modal';
+import { useCreateReview } from '@/hooks/useCreateReview';
 import { useCustomerWritableQuotes } from '@/hooks/useCustomerWritableQuotes';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 
 import { isReviewListEmpty } from '../_lib/isReviewListEmpty';
 import { ReviewsContent, ReviewsListStatus } from './ReviewsListStatus';
 
+import type { ReactNode } from 'react';
 import type { WritableQuoteItem } from '@/types/review';
 
 export interface WritableReviewsPanelProps {
   enabled: boolean;
-  onWriteClick: (item: WritableQuoteItem) => void;
+  onReviewCreated: (reviewId: number) => void;
 }
 
-/** `/reviews` 작성 가능 탭. Query·배타 가드. */
+/** `/reviews` 작성 가능 탭. Query·작성 모달. */
 export const WritableReviewsPanel = ({
   enabled,
-  onWriteClick,
+  onReviewCreated,
 }: WritableReviewsPanelProps) => {
+  const [selectedQuote, setSelectedQuote] = useState<WritableQuoteItem | null>(
+    null
+  );
+
   const writable = useCustomerWritableQuotes({ enabled });
+  const { submitReview, isPending: isSubmitting } = useCreateReview();
   const items = writable.writableQuotes;
 
-  // 로딩 — 초기 조회 (페이지 전환 keepPreviousData는 목록 오버레이)
+  const handleWriteClick = (item: WritableQuoteItem) => {
+    setSelectedQuote(item);
+  };
+
+  const handleCloseWriteModal = () => {
+    if (isSubmitting) {
+      return;
+    }
+    setSelectedQuote(null);
+  };
+
+  const handleSubmitReview = async (review: {
+    rating: number;
+    content: string;
+  }) => {
+    if (!selectedQuote || isSubmitting) {
+      return;
+    }
+
+    try {
+      const reviewId = await submitReview(selectedQuote.quoteId, review);
+      if (reviewId) {
+        setSelectedQuote(null);
+        onReviewCreated(reviewId);
+      }
+    } catch {
+      // 성공/실패 토스트는 useCreateReview에서 처리
+    }
+  };
+
+  let listBody: ReactNode;
+
   if (writable.isPending && items.length === 0) {
-    return (
+    listBody = (
       <ReviewsListStatus
         variant="pending"
         message="작성 가능한 리뷰를 불러오는 중..."
       />
     );
-  }
-
-  // 에러 — 재시도
-  if (writable.isError) {
-    return (
+  } else if (writable.isError) {
+    listBody = (
       <ReviewsListStatus
         variant="error"
         message={resolveApiErrorMessage(
@@ -47,29 +86,45 @@ export const WritableReviewsPanel = ({
         }}
       />
     );
+  } else if (isReviewListEmpty(writable)) {
+    listBody = <ReviewsListStatus variant="empty" />;
+  } else {
+    listBody = (
+      <ReviewsContent>
+        <ReviewListSection
+          items={items}
+          pagination={{
+            page: writable.page,
+            totalPages: writable.totalPages,
+            onPageChange: writable.setPage,
+            isFetching: writable.isFetching && !writable.isPending,
+            getItemKey: (item) => item.quoteId,
+          }}
+          renderItem={(item) => (
+            <WritableReviewCard item={item} onWriteClick={handleWriteClick} />
+          )}
+        />
+      </ReviewsContent>
+    );
   }
 
-  // 빈 목록
-  if (isReviewListEmpty(writable)) {
-    return <ReviewsListStatus variant="empty" />;
-  }
-
-  // 본문 — 그리드 + 페이지네이션
   return (
-    <ReviewsContent>
-      <ReviewListSection
-        items={items}
-        pagination={{
-          page: writable.page,
-          totalPages: writable.totalPages,
-          onPageChange: writable.setPage,
-          isFetching: writable.isFetching && !writable.isPending,
-          getItemKey: (item) => item.quoteId,
-        }}
-        renderItem={(item) => (
-          <WritableReviewCard item={item} onWriteClick={onWriteClick} />
-        )}
-      />
-    </ReviewsContent>
+    <>
+      {listBody}
+
+      {selectedQuote ? (
+        <Modal placement="bottom" onClose={handleCloseWriteModal}>
+          <WriteReviewModal
+            key={selectedQuote.quoteId}
+            quote={selectedQuote}
+            onClose={handleCloseWriteModal}
+            onSubmit={(review) => {
+              void handleSubmitReview(review);
+            }}
+            isSubmitting={isSubmitting}
+          />
+        </Modal>
+      ) : null}
+    </>
   );
 };
