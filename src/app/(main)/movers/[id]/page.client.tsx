@@ -58,23 +58,13 @@ const MoverDetailPageClient = ({ moverId }: MoverDetailPageClientProps) => {
     void refetch();
   };
 
-  if (!isValidMoverId) {
-    return <MoverDetailStatus variant="invalid" />;
-  }
-
-  if (isPending) {
-    return <MoverDetailStatus variant="pending" />;
-  }
-
-  if (isNotFound) {
-    return <MoverDetailStatus variant="notFound" />;
-  }
-
-  if (isError || !mover) {
+  if (!isValidMoverId || isPending || isNotFound || isError || !mover) {
     return (
       <MoverDetailStatus
-        variant="error"
-        message={errorMessage}
+        isValidMoverId={isValidMoverId}
+        isPending={isPending}
+        isNotFound={isNotFound}
+        errorMessage={errorMessage}
         onRetry={handleRetry}
       />
     );
