@@ -47,8 +47,12 @@ interface ChatImageLightboxProps {
 
 const SWIPE_THRESHOLD_PX = 48;
 
+interface FilteredMessageBodyProps {
+  content: string;
+}
+
 /** 필터 토큰을 pill 칩으로 치환한 ReactNode를 반환한다. */
-const FilteredMessageBody = ({ content }: { content: string }) => {
+const FilteredMessageBody = ({ content }: FilteredMessageBodyProps) => {
   const parts = parseFilterContent(content);
 
   return (
