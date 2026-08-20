@@ -11,9 +11,9 @@ import { useCustomerWritableQuotes } from '@/hooks/useCustomerWritableQuotes';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 
 import { isReviewListEmpty } from '../_lib/isReviewListEmpty';
-import { ReviewsContent, ReviewsListStatus } from './ReviewsListStatus';
+import { ReviewsContent } from './ReviewsListStatus';
+import { WritableReviewsListStatus } from './WritableReviewsListStatus';
 
-import type { ReactNode } from 'react';
 import type { WritableQuoteItem } from '@/types/review';
 
 export interface WritableReviewsPanelProps {
@@ -33,6 +33,13 @@ export const WritableReviewsPanel = ({
   const writable = useCustomerWritableQuotes({ enabled });
   const { submitReview, isPending: isSubmitting } = useCreateReview();
   const items = writable.writableQuotes;
+
+  const isInitialPending = writable.isPending && items.length === 0;
+  const isEmpty = isReviewListEmpty(writable);
+  const errorMessage = resolveApiErrorMessage(
+    writable.error,
+    '작성 가능한 리뷰를 불러오지 못했습니다.'
+  );
 
   const handleWriteClick = (item: WritableQuoteItem) => {
     setSelectedQuote(item);
@@ -64,32 +71,25 @@ export const WritableReviewsPanel = ({
     }
   };
 
-  let listBody: ReactNode;
+  const handleRetry = () => {
+    void writable.refetch();
+  };
 
-  if (writable.isPending && items.length === 0) {
-    listBody = (
-      <ReviewsListStatus
-        variant="pending"
-        message="작성 가능한 리뷰를 불러오는 중..."
-      />
+  if (isInitialPending || writable.isError || isEmpty) {
+    return (
+      <>
+        <WritableReviewsListStatus
+          isPending={isInitialPending}
+          isError={writable.isError}
+          errorMessage={errorMessage}
+          onRetry={handleRetry}
+        />
+      </>
     );
-  } else if (writable.isError) {
-    listBody = (
-      <ReviewsListStatus
-        variant="error"
-        message={resolveApiErrorMessage(
-          writable.error,
-          '작성 가능한 리뷰를 불러오지 못했습니다.'
-        )}
-        onRetry={() => {
-          void writable.refetch();
-        }}
-      />
-    );
-  } else if (isReviewListEmpty(writable)) {
-    listBody = <ReviewsListStatus variant="empty" />;
-  } else {
-    listBody = (
+  }
+
+  return (
+    <>
       <ReviewsContent>
         <ReviewListSection
           items={items}
@@ -105,12 +105,6 @@ export const WritableReviewsPanel = ({
           )}
         />
       </ReviewsContent>
-    );
-  }
-
-  return (
-    <>
-      {listBody}
 
       {selectedQuote ? (
         <Modal placement="bottom" onClose={handleCloseWriteModal}>
