@@ -278,7 +278,8 @@ const ChatImageLightbox = ({
 const PERSONAL_INFO_FILTER_MESSAGE =
   '민감한 개인정보가 감지되었습니다. 개인정보 보호를 위해 해당 내용이 가려집니다.';
 
-const CHAT_BUBBLE_CLASS = 'px-3.5 py-2.5 drop-shadow-none md:px-3.5 md:py-2.5';
+const CHAT_BUBBLE_CLASS =
+  'px-4 py-2 drop-shadow-none md:px-4 md:py-2.5';
 
 /** 대화 말풍선 1건 — 나(오른쪽)·상대(왼쪽). 상대만 ⋯ 신고 메뉴 */
 export const ChatMessageItem = ({
@@ -295,7 +296,10 @@ export const ChatMessageItem = ({
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const filterAction = getFilterAction(message.isFiltered, message.content);
+  // 경고 문구: 발신·수신 모두 회색 (모서리만 발신/수신 방향 유지)
   const filteredColor = isMine ? 'filteredMine' : 'filteredIncoming';
+  const isFilterNotice =
+    filterAction === 'profanity' || filterAction === 'block';
 
   const bubble = isImageMessage ? (
     <ChatImageAttachments
@@ -354,7 +358,15 @@ export const ChatMessageItem = ({
 
   const partnerMeta =
     !isMine && (onReport || timeLabel) ? (
-      <div className="ml-0.5 flex shrink-0 flex-col items-start justify-end gap-0 self-end">
+      <div
+        className={cn(
+          'ml-0.5 flex shrink-0 flex-col items-start gap-0',
+          // 모바일: 긴 경고 말풍선도 ⋯·시간을 첫 줄 높이에 — lg+는 일반 메시지와 동일(하단)
+          isFilterNotice
+            ? 'self-start justify-start lg:self-end lg:justify-end'
+            : 'justify-end self-end'
+        )}
+      >
         {onReport ? (
           <ChatMessageMenu
             onReport={onReport}
@@ -376,10 +388,16 @@ export const ChatMessageItem = ({
 
   return (
     <>
+      {/*
+        발신: 행 전체를 ml-auto + max-w로 오른쪽 기준선 고정
+        (말풍선만 75%면 긴 경고가 왼쪽으로 밀려 zz와 오른쪽 선이 어긋남)
+      */}
       <div
         className={cn(
           'flex max-w-chat-bubble items-end gap-1.5',
-          isMine ? 'flex-row self-end' : 'group/msg flex-row self-start',
+          isMine
+            ? 'ml-auto flex-row'
+            : 'group/msg mr-auto flex-row',
           className
         )}
       >
