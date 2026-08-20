@@ -3,7 +3,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 
 import { Button } from '@/components/Button/Button';
-import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { MoverDetailContentSkeleton } from '@/components/ui/Skeleton';
 import { fadeIn, getMotionTransition } from '@/lib/motionVariants';
 
 interface MoverDetailPendingStatusProps {
@@ -36,17 +36,7 @@ export const MoverDetailStatus = (props: MoverDetailStatusProps) => {
   const motionTransition = getMotionTransition(shouldReduceMotion);
 
   if (props.variant === 'pending') {
-    return (
-      <motion.div
-        variants={fadeIn}
-        initial="hidden"
-        animate="show"
-        transition={motionTransition}
-        className="flex w-full flex-col py-24"
-      >
-        <Spinner message="기사님 정보를 불러오는 중..." />
-      </motion.div>
-    );
+    return <MoverDetailContentSkeleton />;
   }
 
   if (props.variant === 'error') {

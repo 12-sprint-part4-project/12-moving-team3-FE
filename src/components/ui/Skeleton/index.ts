@@ -11,4 +11,11 @@ export type { QuoteDetailContentSkeletonProps } from './quotes/QuoteDetailConten
 
 export { RequestsListSkeleton } from './requests/RequestsListSkeleton';
 
+export { MoverCardSkeleton } from './movers/MoverCardSkeleton';
+export type { MoverCardSkeletonProps } from './movers/MoverCardSkeleton';
+export { MoversListSkeleton } from './movers/MoversListSkeleton';
+export type { MoversListSkeletonProps } from './movers/MoversListSkeleton';
+export { MoverDetailContentSkeleton } from './movers/MoverDetailContentSkeleton';
+export { MOVERS_PREVIEW_SKELETON_COUNT } from './movers/constants';
+
 export { CommunityPostListSkeleton } from './community/CommunityPostListSkeleton';

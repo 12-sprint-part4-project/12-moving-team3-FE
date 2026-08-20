@@ -5,6 +5,10 @@ import Link from 'next/link';
 
 import { MoverCard } from '@/components/movers/MoverCard';
 import {
+  MoverCardSkeleton,
+  MOVERS_PREVIEW_SKELETON_COUNT,
+} from '@/components/ui/Skeleton';
+import {
   fadeIn,
   fadeUp,
   getMotionTransition,
@@ -24,6 +28,7 @@ export interface MoversSidebarProps {
   filterActions: MoversFilterActions;
   isLoggedIn: boolean;
   favoriteMovers: MoverCardModel[];
+  isFavoritesPending?: boolean;
   onFavoriteClick: (moverId: string, nextFavorited: boolean) => void;
   isMoverPending?: (moverId: string) => boolean;
   className?: string;
@@ -35,6 +40,7 @@ export const MoversSidebar = ({
   filterActions,
   isLoggedIn,
   favoriteMovers,
+  isFavoritesPending = false,
   onFavoriteClick,
   isMoverPending,
   className = '',
@@ -129,6 +135,16 @@ export const MoversSidebar = ({
           >
             로그인이 필요한 기능입니다
           </motion.p>
+        ) : isFavoritesPending ? (
+          <ul className="flex flex-col gap-4" aria-busy="true" aria-label="찜한 기사님 불러오는 중">
+            {Array.from(
+              { length: MOVERS_PREVIEW_SKELETON_COUNT },
+              (_, index) => (
+              <li key={index}>
+                <MoverCardSkeleton size="sm" />
+              </li>
+            ))}
+          </ul>
         ) : favoriteMovers.length === 0 ? (
           <motion.p
             variants={fadeIn}

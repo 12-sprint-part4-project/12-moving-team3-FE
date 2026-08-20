@@ -93,6 +93,7 @@ export const MoversListPanel = ({
     void refetch();
   };
 
+  //로딩·에러·empty.
   if (isPending || isError || isEmpty) {
     return (
       <MoversListStatus
@@ -148,7 +149,7 @@ export const MoversListPanel = ({
         </motion.ul>
       </div>
 
-      {hasNextPage || isFetchingNextPage ? (
+      {hasNextPage || isFetchingNextPage ? ( //새로운 페이지를 불러올 때, 스피너.
         <div ref={loadMoreRef} className="flex w-full justify-center py-6">
           <AnimatePresence>
             {isFetchingNextPage ? (

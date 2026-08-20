@@ -3,7 +3,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 
 import { Button } from '@/components/Button/Button';
-import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { MoversListSkeleton } from '@/components/ui/Skeleton';
 import { fadeIn, getMotionTransition } from '@/lib/motionVariants';
 
 import { MoversEmptyState } from './MoversEmptyState';
@@ -31,16 +31,7 @@ export const MoversListStatus = ({
   const motionTransition = getMotionTransition(shouldReduceMotion);
 
   if (isPending) {
-    return (
-      <motion.div
-        variants={fadeIn}
-        initial="hidden"
-        animate="show"
-        transition={motionTransition}
-      >
-        <Spinner message="기사님 목록을 불러오는 중..." />
-      </motion.div>
-    );
+    return <MoversListSkeleton />;
   }
 
   if (isError) {

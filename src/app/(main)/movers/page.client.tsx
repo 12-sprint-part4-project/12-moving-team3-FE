@@ -40,7 +40,8 @@ const MoversPageClient = () => {
   } = useMoversFilters();
 
   const canUseFavorites = Boolean(user?.isProfileCompleted);
-  const { favorites } = useFavoriteMoversPreview(canUseFavorites);
+  const { favorites, isPending: isFavoritesPending } =
+    useFavoriteMoversPreview(canUseFavorites);
 
   const isLoggedIn = Boolean(user);
   const motionTransition = getMotionTransition(shouldReduceMotion);
@@ -54,6 +55,7 @@ const MoversPageClient = () => {
           filterActions={filterActions}
           isLoggedIn={isLoggedIn}
           favoriteMovers={favorites}
+          isFavoritesPending={canUseFavorites && isFavoritesPending}
           onFavoriteClick={handleFavoriteClick}
           isMoverPending={isMoverPending}
         />
