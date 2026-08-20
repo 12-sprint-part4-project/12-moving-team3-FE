@@ -389,21 +389,19 @@ export const ChatMessageItem = ({
   return (
     <>
       {/*
-        발신: 행 전체를 ml-auto + max-w로 오른쪽 기준선 고정
-        (말풍선만 75%면 긴 경고가 왼쪽으로 밀려 zz와 오른쪽 선이 어긋남)
+        행은 w-full + justify-end/start로 오른쪽·왼쪽 붙임.
+        max-w(75%)는 말풍선에만 — 읽음·시간은 밖에 두어 긴 발신 말풍선 폭 고정.
       */}
       <div
         className={cn(
-          'flex max-w-chat-bubble items-end gap-1.5',
-          isMine
-            ? 'ml-auto flex-row'
-            : 'group/msg mr-auto flex-row',
+          'flex w-full items-end gap-1.5',
+          isMine ? 'flex-row justify-end' : 'group/msg flex-row justify-start',
           className
         )}
       >
         {/* 내 메시지: (1|읽음·시간) | 말풍선. 상대: 말풍선 | (⋯ / 시간) */}
         {mineMeta}
-        <div className="min-w-0">{bubble}</div>
+        <div className="min-w-0 max-w-chat-bubble">{bubble}</div>
         {partnerMeta}
       </div>
 
