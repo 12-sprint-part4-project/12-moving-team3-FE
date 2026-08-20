@@ -1,5 +1,6 @@
 'use client';
 
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useRef, useState } from 'react';
 
 import ChatIcon from '@/assets/icons/chat.svg';
@@ -19,6 +20,9 @@ export interface ChatGnbButtonProps {
   className?: string;
 }
 
+/** 드롭다운 열림/닫힘 모션 시간(초) — 알림 GNB와 동일 */
+const DROPDOWN_MOTION_DURATION_S = 0.18;
+
 /** GNB 채팅 아이콘 + unread 뱃지 + 미리보기 드롭다운 */
 export const ChatGnbButton = ({
   size = 'lg',
@@ -26,11 +30,14 @@ export const ChatGnbButton = ({
   closeSignal = 0,
   className,
 }: ChatGnbButtonProps) => {
+  const shouldReduceMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
   const [prevCloseSignal, setPrevCloseSignal] = useState(closeSignal);
   const containerRef = useRef<HTMLDivElement>(null);
   const { unreadCount } = useChatUnreadCount();
   const iconSizeClass = size === 'lg' ? 'size-9' : 'size-6';
+  // prefers-reduced-motion이면 위치 이동 없이 opacity만
+  const dropdownOffsetY = shouldReduceMotion ? 0 : -12;
 
   useOutsideClick(containerRef, isOpen, setIsOpen);
 
@@ -75,18 +82,29 @@ export const ChatGnbButton = ({
         <ChatUnreadBadge count={unreadCount} variant="icon" />
       </button>
 
-      {isOpen ? (
-        // mobile: viewport 고정(top 48 / right 20). sm+: 채팅 아이콘 기준
-        <div
-          className={cn(
-            'z-50',
-            'fixed top-12 right-5',
-            'sm:absolute sm:top-full sm:right-0 sm:mt-2'
-          )}
-        >
-          <ChatPreviewDropdown onClose={handleClose} />
-        </div>
-      ) : null}
+      {/* mobile: viewport 고정(top 48 / right 20). sm+: 채팅 아이콘 기준 */}
+      <AnimatePresence>
+        {isOpen ? (
+          <motion.div
+            key="gnb-chat-dropdown"
+            // fadeInDown — reduced motion이면 opacity만 (y=0)
+            initial={{ opacity: 0, y: dropdownOffsetY }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: dropdownOffsetY }}
+            transition={{
+              duration: DROPDOWN_MOTION_DURATION_S,
+              ease: 'easeOut',
+            }}
+            className={cn(
+              'z-50',
+              'fixed top-12 right-5',
+              'sm:absolute sm:top-full sm:right-0 sm:mt-2'
+            )}
+          >
+            <ChatPreviewDropdown onClose={handleClose} />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 };
