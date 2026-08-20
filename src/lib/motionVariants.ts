@@ -148,6 +148,60 @@ export const getTabPanelMotionProps = (
     transition,
   }) satisfies HTMLMotionProps<'div'>;
 
+/** 채팅 목록↔방 모바일 슬라이드 (0.3s 이하) */
+export const CHAT_ROUTE_SLIDE_DURATION_S = 0.24;
+/** 채팅 라우트 데스크톱·reduced-motion용 fade */
+export const CHAT_ROUTE_FADE_DURATION_S = 0.18;
+
+const CHAT_ROUTE_SLIDE_EASE: [number, number, number, number] = [
+  0.32, 0.72, 0, 1,
+];
+
+/** 목록→방(1): 오른쪽에서 진입 / 방→목록(-1): 오른쪽으로 퇴장 */
+export const chatRouteSlideVariants: Variants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? '100%' : '-24%',
+  }),
+  center: { x: 0 },
+  exit: (direction: number) => ({
+    x: direction > 0 ? '-24%' : '100%',
+  }),
+};
+
+interface GetChatRoutePanelMotionArgs {
+  direction: number;
+  isMobile: boolean;
+  shouldReduceMotion: boolean | null;
+}
+
+/** 채팅 `/chat` ↔ `/chat/[roomId]` 페이지 래퍼용. 페이지 레벨 1곳만 사용 */
+export const getChatRoutePanelMotionProps = ({
+  direction,
+  isMobile,
+  shouldReduceMotion,
+}: GetChatRoutePanelMotionArgs) => {
+  const useSlide = !shouldReduceMotion && isMobile && direction !== 0;
+  const transition = getMotionTransition(shouldReduceMotion, {
+    duration: useSlide
+      ? CHAT_ROUTE_SLIDE_DURATION_S
+      : CHAT_ROUTE_FADE_DURATION_S,
+    ease: useSlide ? CHAT_ROUTE_SLIDE_EASE : 'easeOut',
+  });
+
+  if (useSlide) {
+    return {
+      custom: direction,
+      variants: chatRouteSlideVariants,
+      initial: 'enter',
+      animate: 'center',
+      exit: 'exit',
+      transition,
+    } satisfies HTMLMotionProps<'div'>;
+  }
+
+  return getFadeInPresenceProps(transition);
+};
+
 /** fadeIn enter. AnimatePresence 밖 로딩·페이지네이션용 */
 export const getFadeInMotionProps = (transition: Transition) =>
   ({
