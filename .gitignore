@@ -55,3 +55,5 @@ storybook-static
 
 # local-only chat UI planning / mockup (개인용)
 /docs/local/
+# Sentry Config File
+.env.sentry-build-plugin
