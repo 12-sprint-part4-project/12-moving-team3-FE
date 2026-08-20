@@ -5,11 +5,7 @@ import { ProfileIncompleteRouteGuard } from '@/components/auth/ProfileIncomplete
 import { SuspendedRouteGuard } from '@/components/auth/SuspendedRouteGuard';
 import { Header } from '@/components/layout/Header';
 import { ScrollToTopButton } from '@/components/ui/ScrollToTopButton/ScrollToTopButton';
-import { AuthProvider } from '@/providers/AuthProvider';
-import { ChatSocketProvider } from '@/providers/ChatSocketProvider';
-import { NotificationSseProvider } from '@/providers/NotificationSseProvider';
-import { QueryProvider } from '@/providers/QueryProvider';
-import { ToastProvider } from '@/providers/ToastProvider';
+import { Providers } from '@/providers/Providers';
 
 import './globals.css';
 
@@ -48,27 +44,19 @@ export default function RootLayout({
       className={`${pretendard.variable} h-full min-w-[320px] antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <QueryProvider>
-          <AuthProvider>
-            <ToastProvider>
-              <ChatSocketProvider>
-                <NotificationSseProvider>
-                  <Header />
-                  <main className="flex flex-1 flex-col">
-                    <AuthRouteGuard>
-                      <SuspendedRouteGuard>
-                        <ProfileIncompleteRouteGuard>
-                          {children}
-                        </ProfileIncompleteRouteGuard>
-                      </SuspendedRouteGuard>
-                    </AuthRouteGuard>
-                  </main>
-                  <ScrollToTopButton />
-                </NotificationSseProvider>
-              </ChatSocketProvider>
-            </ToastProvider>
-          </AuthProvider>
-        </QueryProvider>
+        <Providers>
+          <Header />
+          <main className="flex flex-1 flex-col">
+            <AuthRouteGuard>
+              <SuspendedRouteGuard>
+                <ProfileIncompleteRouteGuard>
+                  {children}
+                </ProfileIncompleteRouteGuard>
+              </SuspendedRouteGuard>
+            </AuthRouteGuard>
+          </main>
+          <ScrollToTopButton />
+        </Providers>
       </body>
     </html>
   );
