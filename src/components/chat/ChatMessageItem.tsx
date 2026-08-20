@@ -9,6 +9,11 @@ import CloseIcon from '@/assets/icons/close.svg';
 import { ChatMessageMenu } from '@/components/chat/ChatMessageMenu';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { Modal } from '@/components/ui/Modal/Modal';
+import {
+  getFilterAction,
+  parseFilterContent,
+  PROFANITY_MESSAGE,
+} from '@/lib/chatFilterTokens';
 import { formatChatMessageTime } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
 
@@ -42,13 +47,28 @@ interface ChatImageLightboxProps {
 
 const SWIPE_THRESHOLD_PX = 48;
 
-const getTextMessageBody = (message: ChatMessage): string => {
-  const content = message.content.trim();
-  if (message.isFiltered && !content) {
-    return '필터링된 메시지입니다';
-  }
+/** 필터 토큰을 pill 칩으로 치환한 ReactNode를 반환한다. */
+const FilteredMessageBody = ({ content }: { content: string }) => {
+  const parts = parseFilterContent(content);
 
-  return content.length > 0 ? content : ' ';
+  return (
+    <>
+      {parts.map((part, index) => {
+        if (part.type === 'token') {
+          return (
+            <span
+              key={`${part.tokenType}-${part.label}-${index}`}
+              className="mx-0.5 inline-flex items-center rounded-full bg-black-400/15 px-2 py-0.5 text-xs-medium"
+              aria-label={part.tokenType === 'phone' ? '전화번호' : '계좌번호'}
+            >
+              {part.label}
+            </span>
+          );
+        }
+        return <span key={`text-${part.value}-${index}`}>{part.value}</span>;
+      })}
+    </>
+  );
 };
 
 const imageBubbleRadius = (isMine: boolean): string =>
@@ -251,6 +271,11 @@ const ChatImageLightbox = ({
   );
 };
 
+const PERSONAL_INFO_FILTER_MESSAGE =
+  '민감한 개인정보가 감지되었습니다. 개인정보 보호를 위해 해당 내용이 가려집니다.';
+
+const CHAT_BUBBLE_CLASS = 'px-3.5 py-2.5 drop-shadow-none md:px-3.5 md:py-2.5';
+
 /** 대화 말풍선 1건 — 나(오른쪽)·상대(왼쪽). 상대만 ⋯ 신고 메뉴 */
 export const ChatMessageItem = ({
   message,
@@ -265,18 +290,37 @@ export const ChatMessageItem = ({
     message.messageType === 'IMAGE' && message.attachments.length > 0;
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
+  const filterAction = getFilterAction(message.isFiltered, message.content);
+  const filteredColor = isMine ? 'filteredMine' : 'filteredIncoming';
+
   const bubble = isImageMessage ? (
     <ChatImageAttachments
       attachments={message.attachments}
       isMine={isMine}
       onSelectImage={setLightboxIndex}
     />
+  ) : filterAction === 'profanity' ? (
+    <TextFieldChat color={filteredColor} className={CHAT_BUBBLE_CLASS}>
+      {PROFANITY_MESSAGE}
+    </TextFieldChat>
+  ) : filterAction === 'mask' && isMine ? (
+    <TextFieldChat color={filteredColor} className={CHAT_BUBBLE_CLASS}>
+      {PERSONAL_INFO_FILTER_MESSAGE}
+    </TextFieldChat>
+  ) : filterAction === 'mask' ? (
+    <TextFieldChat color="incoming" className={CHAT_BUBBLE_CLASS}>
+      <FilteredMessageBody content={message.content} />
+    </TextFieldChat>
+  ) : filterAction === 'block' ? (
+    <TextFieldChat color={filteredColor} className={CHAT_BUBBLE_CLASS}>
+      {PERSONAL_INFO_FILTER_MESSAGE}
+    </TextFieldChat>
   ) : (
     <TextFieldChat
       color={isMine ? 'mePrimary' : 'incoming'}
-      className="px-3.5 py-2.5 drop-shadow-none md:px-3.5 md:py-2.5"
+      className={CHAT_BUBBLE_CLASS}
     >
-      {message.messageType === 'IMAGE' ? '사진' : getTextMessageBody(message)}
+      {message.messageType === 'IMAGE' ? '사진' : message.content || ' '}
     </TextFieldChat>
   );
 

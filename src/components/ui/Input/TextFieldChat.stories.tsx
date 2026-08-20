@@ -22,9 +22,15 @@ const meta: Meta<typeof TextFieldChat> = {
   argTypes: {
     color: {
       control: 'select',
-      options: ['incoming', 'mePrimary', 'meSecondary'],
+      options: [
+        'incoming',
+        'mePrimary',
+        'meSecondary',
+        'filteredIncoming',
+        'filteredMine',
+      ],
       description:
-        '말풍선 색상. incoming(수신/흰), mePrimary(파란), meSecondary(연파란)',
+        '말풍선 색상. incoming(수신/흰), mePrimary(파란), meSecondary(연파란), filteredIncoming/filteredMine(필터 안내)',
     },
     desktopChildren: {
       control: 'text',
@@ -54,6 +60,22 @@ export const MeSecondary: Story = {
   },
 };
 
+export const FilteredIncoming: Story = {
+  args: {
+    color: 'filteredIncoming',
+    children:
+      '민감한 개인정보가 감지되었습니다. 개인정보 보호를 위해 해당 내용이 가려집니다.',
+  },
+};
+
+export const FilteredMine: Story = {
+  args: {
+    color: 'filteredMine',
+    children:
+      '민감한 개인정보가 감지되었습니다. 개인정보 보호를 위해 해당 내용이 가려집니다.',
+  },
+};
+
 /** 모바일/데스크톱 문구가 다른 경우 */
 export const WithDesktopChildren: Story = {
   args: {
@@ -74,6 +96,13 @@ export const AllVariants: Story = {
       </TextFieldChat>
       <TextFieldChat color="meSecondary">
         몇 가지 정보만 알려주시면 최대 5개의 견적을 받을 수 있어요 :)
+      </TextFieldChat>
+      <TextFieldChat color="filteredIncoming">
+        민감한 개인정보가 감지되었습니다. 개인정보 보호를 위해 해당 내용이
+        가려집니다.
+      </TextFieldChat>
+      <TextFieldChat color="filteredMine">
+        부적절한 언어 사용이 감지되었습니다. 반복될 경우 제재가 진행됩니다.
       </TextFieldChat>
       <TextFieldChat
         color="incoming"
