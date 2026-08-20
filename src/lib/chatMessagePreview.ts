@@ -1,3 +1,5 @@
+import { formatFilterContentPreview } from '@/lib/chatFilterTokens';
+
 import type { ChatLastMessage } from '@/types/chat';
 
 /** 목록/드롭다운용 마지막 메시지 미리보기 문구 */
@@ -13,5 +15,7 @@ export const getChatLastMessagePreview = (
   }
 
   const content = lastMessage.content.trim();
-  return content.length > 0 ? content : '대화를 시작해 보세요';
+  return content.length > 0
+    ? formatFilterContentPreview(content)
+    : '대화를 시작해 보세요';
 };

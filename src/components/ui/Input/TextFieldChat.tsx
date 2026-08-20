@@ -15,15 +15,22 @@ import type { HTMLAttributes, ReactNode } from 'react';
 
   [props]
   - color:
-    · incoming    — 상대 메시지 (흰 배경, 왼쪽 위 모서리 각짐)
-    · mePrimary   — 내 메시지 (파란 배경)
-    · meSecondary — 내 메시지 (연파란 배경)
+    · incoming          — 상대 메시지 (흰 배경, 왼쪽 위 모서리 각짐)
+    · mePrimary         — 내 메시지 (파란 배경)
+    · meSecondary       — 내 메시지 (연파란 배경)
+    · filteredIncoming  — 필터 안내 (회색 배경, 수신 모서리)
+    · filteredMine      — 필터 안내 (회색 배경, 발신 모서리)
   - children: 말풍선 본문 (모바일 기준)
   - desktopChildren: 데스크톱에서만 다른 문구가 필요할 때
   - className / ...rest: HTMLAttributes<HTMLDivElement>
 */
 
-type ChatColor = 'incoming' | 'mePrimary' | 'meSecondary';
+type ChatColor =
+  | 'incoming'
+  | 'mePrimary'
+  | 'meSecondary'
+  | 'filteredIncoming'
+  | 'filteredMine';
 
 interface TextFieldChatProps extends HTMLAttributes<HTMLDivElement> {
   color?: ChatColor;
@@ -36,6 +43,8 @@ const colorStyles: Record<ChatColor, string> = {
   incoming: 'bg-white text-black-400',
   mePrimary: 'bg-blue-300 text-white',
   meSecondary: 'bg-blue-100 text-blue-300',
+  filteredIncoming: 'bg-line-200 text-black-100',
+  filteredMine: 'bg-line-200 text-black-100',
 };
 
 // meSecondary만 semibold — 보조 말풍선 강조 톤이 다름
@@ -43,6 +52,8 @@ const typographyStyles: Record<ChatColor, string> = {
   incoming: 'text-md-medium md:text-2lg-medium',
   mePrimary: 'text-md-medium md:text-2lg-medium',
   meSecondary: 'text-md-semibold md:text-2lg-semibold',
+  filteredIncoming: 'text-md-medium md:text-2lg-medium',
+  filteredMine: 'text-md-medium md:text-2lg-medium',
 };
 
 // incoming은 왼쪽 위를 각지게, me*는 오른쪽 위를 각지게 (말풍선 꼬리 방향)
@@ -53,6 +64,10 @@ const radiusStyles: Record<ChatColor, string> = {
   mePrimary:
     'rounded-tl-3xl rounded-br-3xl rounded-bl-3xl md:rounded-tl-[1.875rem] md:rounded-br-[1.875rem] md:rounded-bl-[1.875rem]',
   meSecondary:
+    'rounded-tl-3xl rounded-br-3xl rounded-bl-3xl md:rounded-tl-[1.875rem] md:rounded-br-[1.875rem] md:rounded-bl-[1.875rem]',
+  filteredIncoming:
+    'rounded-tr-3xl rounded-br-3xl rounded-bl-3xl md:rounded-tr-[1.875rem] md:rounded-br-[1.875rem] md:rounded-bl-[1.875rem]',
+  filteredMine:
     'rounded-tl-3xl rounded-br-3xl rounded-bl-3xl md:rounded-tl-[1.875rem] md:rounded-br-[1.875rem] md:rounded-bl-[1.875rem]',
 };
 
