@@ -17,7 +17,7 @@ import { useMoversFilters } from './_lib/useMoversFilters';
 
 /** `/movers` 클라이언트. - 필터·목록 Query, 무한스크롤, 찜 오케스트레이션. */
 const MoversPageClient = () => {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useReducedMotion(); //true면, 애니메이션을 줄임.
   const { user } = useAuth();
   const {
     handleFavoriteClick,
