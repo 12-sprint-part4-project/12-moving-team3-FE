@@ -1,8 +1,6 @@
 import localFont from 'next/font/local';
 
-import { AuthRouteGuard } from '@/components/auth/AuthRouteGuard';
-import { ProfileIncompleteRouteGuard } from '@/components/auth/ProfileIncompleteRouteGuard';
-import { SuspendedRouteGuard } from '@/components/auth/SuspendedRouteGuard';
+import { Guards } from '@/components/auth/Guards';
 import { Header } from '@/components/layout/Header';
 import { ScrollToTopButton } from '@/components/ui/ScrollToTopButton/ScrollToTopButton';
 import { Providers } from '@/providers/Providers';
@@ -47,13 +45,7 @@ export default function RootLayout({
         <Providers>
           <Header />
           <main className="flex flex-1 flex-col">
-            <AuthRouteGuard>
-              <SuspendedRouteGuard>
-                <ProfileIncompleteRouteGuard>
-                  {children}
-                </ProfileIncompleteRouteGuard>
-              </SuspendedRouteGuard>
-            </AuthRouteGuard>
+            <Guards>{children}</Guards>
           </main>
           <ScrollToTopButton />
         </Providers>
