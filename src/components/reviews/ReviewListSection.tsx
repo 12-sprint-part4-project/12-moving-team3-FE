@@ -48,7 +48,6 @@ export const ReviewListSection = <T,>({
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const showListFetching = isFetching && items.length > 0;
-  const shouldAnimateList = !showListFetching;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -68,10 +67,10 @@ export const ReviewListSection = <T,>({
         </AnimatePresence>
 
         <motion.div
-          key={shouldAnimateList ? page : 'review-list'}
-          variants={shouldAnimateList ? listStagger : undefined}
-          initial={shouldAnimateList ? 'hidden' : false}
-          animate={shouldAnimateList ? 'show' : undefined}
+          key={page}
+          variants={listStagger}
+          initial="hidden"
+          animate="show"
           className="grid grid-cols-1 gap-8 xl:grid-cols-2 xl:gap-x-6 xl:gap-y-10"
         >
           {items.map((item, index) => (
