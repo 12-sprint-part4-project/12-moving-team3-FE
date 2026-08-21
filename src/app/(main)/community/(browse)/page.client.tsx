@@ -206,15 +206,21 @@ export const CommunityPageClient = ({
     if (listKeyword) setIsSearchOpen(true);
   }, [listKeyword]);
 
+  // 토글로 열릴 때만 포커스 (useState updater 내 사이드이펙트 제거)
+  const shouldFocusRef = useRef(false);
+
+  useEffect(() => {
+    if (!isSearchOpen || !shouldFocusRef.current) return;
+    shouldFocusRef.current = false;
+    const timeoutId = window.setTimeout(() => {
+      searchWrapperRef.current?.querySelector('input')?.focus();
+    }, 200);
+    return () => window.clearTimeout(timeoutId);
+  }, [isSearchOpen]);
+
   const handleSearchToggle = () => {
-    setIsSearchOpen((prev) => {
-      if (!prev) {
-        setTimeout(() => {
-          searchWrapperRef.current?.querySelector('input')?.focus();
-        }, 200);
-      }
-      return !prev;
-    });
+    if (!isSearchOpen) shouldFocusRef.current = true;
+    setIsSearchOpen((prev) => !prev);
   };
 
   const handleSortChange = (value: string) => {
