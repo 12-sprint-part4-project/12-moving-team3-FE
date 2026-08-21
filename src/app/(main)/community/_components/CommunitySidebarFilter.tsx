@@ -11,6 +11,7 @@ import { CommunitySearchField } from './CommunitySearchField';
 import { CommunitySelectDropdown } from './CommunitySelectDropdown';
 
 import type { PostCategory } from '@/types/community';
+import type { ReactNode } from 'react';
 
 interface CommunitySidebarFilterProps {
   showCategoryFilter: boolean;
@@ -27,6 +28,7 @@ interface CommunitySidebarFilterProps {
   onHideCompletedChange?: (value: boolean) => void;
   onCategoryOpen?: () => void;
   onRegionOpen?: () => void;
+  writeButton?: ReactNode;
   className?: string;
 }
 
@@ -46,6 +48,7 @@ export const CommunitySidebarFilter = ({
   onHideCompletedChange,
   onCategoryOpen,
   onRegionOpen,
+  writeButton,
   className = '',
 }: CommunitySidebarFilterProps) => (
   <aside className={cn('w-[20.5rem] shrink-0', className)}>
@@ -130,5 +133,7 @@ export const CommunitySidebarFilter = ({
         inputClassName="h-16 w-[20.5rem] max-w-none rounded-2xl bg-background-200"
       />
     </section>
+
+    {writeButton ? <div className="mt-4">{writeButton}</div> : null}
   </aside>
 );
