@@ -1,9 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
+import SearchIcon from '@/assets/icons/search.svg';
 import { Sort } from '@/components/ui/Sort/Sort';
 import {
   BOARD_CATEGORY_FILTER_OPTIONS,
@@ -29,7 +30,7 @@ import {
 } from '@/lib/communitySearch';
 import { cn } from '@/lib/utils';
 
-import { CommunityFilterResetButton } from '../_components/CommunityFilterResetButton';
+import { CommunityFilterResetButton, COMMUNITY_FILTER_RESET_BUTTON_CLASS } from '../_components/CommunityFilterResetButton';
 import {
   COMMUNITY_DESKTOP_MAIN_GAP,
   COMMUNITY_DESKTOP_X,
@@ -77,6 +78,8 @@ export const CommunityPageClient = ({
 
   const [searchDraft, setSearchDraft] = useState('');
   const [isSearchFlushed, setIsSearchFlushed] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(!!initialContext.keyword);
+  const searchWrapperRef = useRef<HTMLDivElement>(null);
 
   const replaceListContextUrl = useCallback(
     (context: PostListContext) => {
@@ -197,6 +200,22 @@ export const CommunityPageClient = ({
     isFetchNextPageError,
     fetchNextPage,
   ]);
+
+  // 키워드 있으면 검색창 닫히지 않도록
+  useEffect(() => {
+    if (listKeyword) setIsSearchOpen(true);
+  }, [listKeyword]);
+
+  const handleSearchToggle = () => {
+    setIsSearchOpen((prev) => {
+      if (!prev) {
+        setTimeout(() => {
+          searchWrapperRef.current?.querySelector('input')?.focus();
+        }, 200);
+      }
+      return !prev;
+    });
+  };
 
   const handleSortChange = (value: string) => {
     if (!isPostSort(value)) {
@@ -323,12 +342,12 @@ export const CommunityPageClient = ({
       {/* Mobile / Tablet toolbar */}
       <div
         className={cn(
-          'flex h-[3.25rem] items-center gap-2 bg-white xl:hidden',
-          'min-[46.5rem]:h-[4.25rem] min-[46.5rem]:gap-2',
+          'flex flex-col bg-white xl:hidden',
           COMMUNITY_SECTION_X
         )}
       >
-        <div className="flex min-w-0 items-center gap-2">
+        {/* 1행: 필터 */}
+        <div className="flex h-[3.25rem] items-center gap-2 min-[46.5rem]:h-[4.25rem]">
           {activeTab === 'board' ? (
             <CommunitySelectDropdown
               label="카테고리"
@@ -351,8 +370,44 @@ export const CommunityPageClient = ({
             className="shrink-0"
           />
           <CommunityFilterResetButton onClick={handleFilterReset} />
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              aria-label="검색"
+              aria-expanded={isSearchOpen}
+              onClick={handleSearchToggle}
+              className={cn(
+                COMMUNITY_FILTER_RESET_BUTTON_CLASS,
+                isSearchOpen && 'border-blue-300 text-blue-300'
+              )}
+            >
+              <SearchIcon className="size-5 shrink-0" aria-hidden />
+            </button>
+            <CommunityWriteButton variant="toolbar" activeTab={activeTab} />
+          </div>
         </div>
-        <div className="ml-auto flex shrink-0 items-center gap-2">
+        {/* 2행: 검색창 (토글) */}
+        <div
+          ref={searchWrapperRef}
+          className={cn(
+            'grid transition-[grid-template-rows] duration-200',
+            isSearchOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+          )}
+        >
+          <div className="overflow-hidden">
+            <div className="pb-2 pt-1 min-[46.5rem]:pb-3 min-[46.5rem]:pt-1.5">
+              <CommunitySearchField
+                value={searchInputValue}
+                onChange={handleSearchChange}
+                onSearch={handleSearch}
+                className="min-[46.5rem]:max-w-[37.5625rem]"
+                inputClassName="h-11 max-w-none gap-1.5 rounded-2xl bg-background-200 px-4 py-3.5"
+              />
+            </div>
+          </div>
+        </div>
+        {/* 3행: 정렬 */}
+        <div className="flex h-10 items-center justify-end min-[46.5rem]:h-11">
           <Sort
             options={POST_SORT_OPTIONS}
             value={sortValue}
@@ -360,24 +415,9 @@ export const CommunityPageClient = ({
             size="md"
             className={SORT_CLASS_MOBILE}
           />
-          <CommunityWriteButton variant="toolbar" activeTab={activeTab} />
         </div>
       </div>
 
-      <div
-        className={cn(
-          'bg-white pb-1 min-[46.5rem]:h-16 min-[46.5rem]:py-0.5 xl:hidden',
-          COMMUNITY_SECTION_X
-        )}
-      >
-        <CommunitySearchField
-          value={searchInputValue}
-          onChange={handleSearchChange}
-          onSearch={handleSearch}
-          className="min-[46.5rem]:max-w-[37.5625rem]"
-          inputClassName="h-11 max-w-none gap-1.5 rounded-2xl bg-background-200 px-4 py-3.5"
-        />
-      </div>
 
       <div
         className={cn(
@@ -403,11 +443,18 @@ export const CommunityPageClient = ({
           onHideCompletedChange={handleHideCompletedChange}
           onCategoryOpen={handleCategoryOpen}
           onRegionOpen={handleRegionOpen}
+          writeButton={
+            <CommunityWriteButton
+              variant="desktop"
+              activeTab={activeTab}
+              className="h-16 w-full rounded-2xl"
+            />
+          }
           className="hidden xl:block"
         />
 
         <div className="min-w-0 flex-1">
-          <div className="mb-8 hidden items-center justify-between xl:flex">
+          <div className="mb-8 hidden items-center justify-end xl:flex">
             <Sort
               options={POST_SORT_OPTIONS}
               value={sortValue}
@@ -415,7 +462,6 @@ export const CommunityPageClient = ({
               size="md"
               className={SORT_CLASS}
             />
-            <CommunityWriteButton variant="desktop" activeTab={activeTab} />
           </div>
 
           <CommunityPostList

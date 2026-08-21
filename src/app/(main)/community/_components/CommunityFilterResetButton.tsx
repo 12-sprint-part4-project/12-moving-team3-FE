@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 
 /** Mobile/Tablet filter/sm 트리거와 동일 높이 */
 export const COMMUNITY_FILTER_RESET_BUTTON_CLASS =
-  'inline-flex h-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-line-200 bg-white px-2.5 text-gray-400 transition-colors hover:text-gray-500';
+  'inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-line-200 bg-white text-gray-400 transition-colors hover:text-gray-500';
 
 interface CommunityFilterResetButtonProps {
   onClick: () => void;
