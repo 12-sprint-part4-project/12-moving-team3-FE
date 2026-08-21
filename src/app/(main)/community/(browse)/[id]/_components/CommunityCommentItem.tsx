@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 
-import { ChatAvatar } from '@/components/chat/ChatAvatar';
 import { formatRelativeTime } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
 
@@ -75,11 +74,6 @@ const CommunityCommentRow = ({
         isReply && COMMUNITY_COMMENT_REPLY_INDENT_CLASS
       )}
     >
-      <ChatAvatar
-        src={item.author.profileImageUrl}
-        alt={`${item.author.nickname} 프로필`}
-        className="size-7 shrink-0 min-[46.5rem]:size-10 xl:size-[3.25rem]"
-      />
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 flex-wrap items-center gap-x-1 min-[46.5rem]:gap-x-1.5">
