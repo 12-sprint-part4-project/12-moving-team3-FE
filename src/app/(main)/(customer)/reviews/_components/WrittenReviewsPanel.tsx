@@ -171,17 +171,14 @@ export const WrittenReviewsPanel = ({
 
   if (isInitialPending || written.isError || isEmpty) {
     return (
-      <>
-        <WrittenReviewsListStatus
-          isPending={isInitialPending}
-          isError={written.isError}
-          errorMessage={errorMessage}
-          onRetry={() => {
-            void written.refetch();
-          }}
-        />
-        {modals}
-      </>
+      <WrittenReviewsListStatus
+        isPending={isInitialPending}
+        isError={written.isError}
+        errorMessage={errorMessage}
+        onRetry={() => {
+          void written.refetch();
+        }}
+      />
     );
   }
 
