@@ -9,21 +9,18 @@ export interface ChatStartButtonContentProps {
 export const ChatStartButtonContent = ({
   isPending = false,
   className,
-}: ChatStartButtonContentProps) => {
-  if (isPending) {
-    return (
+}: ChatStartButtonContentProps) => (
+  <span className={cn('inline-flex items-center justify-center', className)}>
+    {isPending ? (
       <>
         <span
           aria-hidden
-          className={cn(
-            'inline-block size-4 animate-spin rounded-full border-2 border-line-100 border-t-blue-300 motion-reduce:animate-none',
-            className
-          )}
+          className="inline-block size-4 animate-spin rounded-full border-2 border-line-100 border-t-blue-300 motion-reduce:animate-none"
         />
         <span className="sr-only">채팅방 여는 중</span>
       </>
-    );
-  }
-
-  return <>채팅하기</>;
-};
+    ) : (
+      '채팅하기'
+    )}
+  </span>
+);

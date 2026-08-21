@@ -163,7 +163,11 @@ export const PendingQuoteCard = ({
               disabled={isConfirming || isChatPending}
               aria-busy={isChatPending}
               onClick={handleChatClick}
-              aria-label={`${mover.name} 기사님과 채팅하기`}
+              aria-label={
+                isChatPending
+                  ? `${mover.name} 기사님 채팅방 여는 중`
+                  : `${mover.name} 기사님과 채팅하기`
+              }
             >
               <ChatStartButtonContent isPending={isChatPending} />
             </Button>
