@@ -1,6 +1,10 @@
 'use client';
 
 import { ChatRoomListItem } from '@/components/chat/ChatRoomListItem';
+import {
+  CHAT_LIST_SKELETON_COUNT,
+  ChatRoomListSkeleton,
+} from '@/components/ui/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useChatRooms } from '@/hooks/useChat';
 import { cn } from '@/lib/utils';
@@ -36,9 +40,7 @@ export const ChatRoomListPage = ({ className }: ChatRoomListPageProps) => {
 
       <div className="mt-6 flex flex-col overflow-hidden rounded-3xl border border-line-200 bg-white">
         {isPending ? (
-          <p className="px-6 py-10 text-center text-md-medium text-gray-300">
-            불러오는 중…
-          </p>
+          <ChatRoomListSkeleton count={CHAT_LIST_SKELETON_COUNT} />
         ) : null}
 
         {isError ? (

@@ -1,9 +1,10 @@
 'use client';
 
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 import { Button, type ButtonVariant } from '@/components/Button/Button';
-import { getMotionTransition, tapScale } from '@/lib/motionVariants';
+import { ChatStartButtonContent } from '@/components/chat/ChatStartButtonContent';
+import { tapScale } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 export interface RequestCardAction {
@@ -12,6 +13,8 @@ export interface RequestCardAction {
   variant: ButtonVariant;
   showIcon: boolean;
   disabled?: boolean;
+  /** 채팅하기 pending — 중앙 스피너만 표시 */
+  isPending?: boolean;
   onClick: () => void;
 }
 
@@ -28,7 +31,6 @@ export const RequestCardActionButton = ({
   className = '',
 }: RequestCardActionButtonProps) => {
   const shouldReduceMotion = useReducedMotion();
-  const motionTransition = getMotionTransition(shouldReduceMotion);
 
   return (
     <motion.div
@@ -44,21 +46,12 @@ export const RequestCardActionButton = ({
         variant={action.variant}
         showIcon={action.showIcon}
         disabled={action.disabled}
+        aria-busy={action.key === 'chat' ? action.isPending : undefined}
         onClick={action.onClick}
         className="cursor-pointer"
       >
         {action.key === 'chat' ? (
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.span
-              key={action.label}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={motionTransition}
-            >
-              {action.label}
-            </motion.span>
-          </AnimatePresence>
+          <ChatStartButtonContent isPending={action.isPending} />
         ) : (
           action.label
         )}

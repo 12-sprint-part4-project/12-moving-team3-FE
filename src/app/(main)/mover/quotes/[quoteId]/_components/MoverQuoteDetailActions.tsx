@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/Button/Button';
+import { ChatStartButtonContent } from '@/components/chat/ChatStartButtonContent';
 import { QuoteDetailMobileActionBar } from '@/components/quotes/QuoteDetailMobileActionBar';
 import { cn } from '@/lib/utils';
 
@@ -24,8 +25,6 @@ export const MoverQuoteDetailActions = ({
     return null;
   }
 
-  const chatLabel = isChatPending ? '연결 중...' : '채팅하기';
-
   if (variant === 'desktop') {
     return (
       <div className={cn('w-full', className)}>
@@ -33,9 +32,10 @@ export const MoverQuoteDetailActions = ({
           size="md"
           variant="outlined"
           disabled={isChatPending}
+          aria-busy={isChatPending}
           onClick={onChatClick}
         >
-          {chatLabel}
+          <ChatStartButtonContent isPending={isChatPending} />
         </Button>
       </div>
     );
@@ -48,9 +48,10 @@ export const MoverQuoteDetailActions = ({
         variant="solid"
         className="w-full"
         disabled={isChatPending}
+        aria-busy={isChatPending}
         onClick={onChatClick}
       >
-        {chatLabel}
+        <ChatStartButtonContent isPending={isChatPending} />
       </Button>
     </QuoteDetailMobileActionBar>
   );

@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 
 import { Button } from '@/components/Button/Button';
+import { ChatStartButtonContent } from '@/components/chat/ChatStartButtonContent';
 import { MoverProfileBlock } from '@/components/movers/MoverProfileBlock';
 import { QuotePriceRow } from '@/components/quotes/QuotePriceRow';
 import { QuoteStatusChipRow } from '@/components/quotes/QuoteStatusChips';
@@ -160,10 +161,15 @@ export const PendingQuoteCard = ({
               variant="outlined"
               className={PENDING_QUOTE_CTA_CLASS}
               disabled={isConfirming || isChatPending}
+              aria-busy={isChatPending}
               onClick={handleChatClick}
-              aria-label={`${mover.name} 기사님과 채팅하기`}
+              aria-label={
+                isChatPending
+                  ? `${mover.name} 기사님 채팅방 여는 중`
+                  : `${mover.name} 기사님과 채팅하기`
+              }
             >
-              {isChatPending ? '연결 중...' : '채팅하기'}
+              <ChatStartButtonContent isPending={isChatPending} />
             </Button>
           ) : null}
         </div>

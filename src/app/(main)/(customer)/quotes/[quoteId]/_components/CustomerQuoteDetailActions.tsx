@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/Button/Button';
+import { ChatStartButtonContent } from '@/components/chat/ChatStartButtonContent';
 import { FavoriteButton } from '@/components/Favorite';
 import { QuoteDetailMobileActionBar } from '@/components/quotes/QuoteDetailMobileActionBar';
 import { cn } from '@/lib/utils';
@@ -36,7 +37,6 @@ interface QuoteActionButtonsProps extends Pick<
   | 'className'
 > {
   confirmLabel: string;
-  chatLabel: string;
 }
 
 /** `/quotes/[quoteId]` 데스크톱 CTA. */
@@ -49,7 +49,6 @@ const DesktopQuoteActions = ({
   onChatClick,
   className = '',
   confirmLabel,
-  chatLabel,
 }: QuoteActionButtonsProps) => (
   <div className={cn('flex w-full flex-col gap-4', className)}>
     {canConfirm ? (
@@ -67,9 +66,10 @@ const DesktopQuoteActions = ({
         size="md"
         variant="outlined"
         disabled={isChatPending}
+        aria-busy={isChatPending}
         onClick={onChatClick}
       >
-        {chatLabel}
+        <ChatStartButtonContent isPending={isChatPending} />
       </Button>
     ) : null}
   </div>
@@ -88,7 +88,6 @@ const MobileQuoteActions = ({
   onToggleFavorite,
   className = '',
   confirmLabel,
-  chatLabel,
 }: QuoteActionButtonsProps) => (
   <QuoteDetailMobileActionBar className={className}>
     {canConfirm ? (
@@ -114,9 +113,10 @@ const MobileQuoteActions = ({
             variant="outlined"
             className="flex-1"
             disabled={isChatPending}
+            aria-busy={isChatPending}
             onClick={onChatClick}
           >
-            {chatLabel}
+            <ChatStartButtonContent isPending={isChatPending} />
           </Button>
         ) : null}
       </>
@@ -126,9 +126,10 @@ const MobileQuoteActions = ({
         variant="solid"
         className="w-full"
         disabled={isChatPending}
+        aria-busy={isChatPending}
         onClick={onChatClick}
       >
-        {chatLabel}
+        <ChatStartButtonContent isPending={isChatPending} />
       </Button>
     )}
   </QuoteDetailMobileActionBar>
@@ -165,7 +166,6 @@ export const CustomerQuoteDetailActions = ({
     onToggleFavorite,
     className,
     confirmLabel: isConfirming ? '확정 중...' : '견적 확정하기',
-    chatLabel: isChatPending ? '연결 중...' : '채팅하기',
   };
 
   // desktop 사이드바 CTA 또는 mobile 하단 고정바
