@@ -287,12 +287,7 @@ export const ChatRoomPage = ({
         className
       )}
     >
-      {isRoomPending ? (
-        <ChatRoomHeaderPlaceholder
-          title="불러오는 중…"
-          titleClassName="text-gray-300"
-        />
-      ) : null}
+      {isRoomPending ? <ChatRoomHeaderPlaceholder variant="loading" /> : null}
 
       {!isRoomPending && room ? (
         <ChatRoomHeader

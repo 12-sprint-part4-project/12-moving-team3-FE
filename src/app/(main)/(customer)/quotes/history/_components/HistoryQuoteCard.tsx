@@ -3,6 +3,7 @@
 import Link from 'next/link';
 
 import { Button, getButtonClassName } from '@/components/Button/Button';
+import { ChatStartButtonContent } from '@/components/chat/ChatStartButtonContent';
 import { getClosedQuoteOverlayMessage } from '@/components/quotes/closedQuoteOverlay';
 import { QuoteListCard } from '@/components/quotes/QuoteListCard';
 import { cn } from '@/lib/utils';
@@ -77,10 +78,11 @@ export const HistoryQuoteCard = ({
                 variant="solid"
                 className={HISTORY_QUOTE_CTA_CLASS}
                 disabled={isChatPending}
+                aria-busy={isChatPending}
                 onClick={onChatClick}
                 aria-label={`${quote.moverName} 기사님과 채팅하기`}
               >
-                {isChatPending ? '연결 중...' : '채팅하기'}
+                <ChatStartButtonContent isPending={isChatPending} />
               </Button>
             ) : null}
           </>

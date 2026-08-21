@@ -5,6 +5,10 @@ import { useMemo } from 'react';
 
 import CloseIcon from '@/assets/icons/close.svg';
 import { ChatRoomListItem } from '@/components/chat/ChatRoomListItem';
+import {
+  CHAT_PREVIEW_SKELETON_COUNT,
+  ChatRoomListSkeleton,
+} from '@/components/ui/Skeleton';
 import { useChatRooms } from '@/hooks/useChat';
 import { sortChatRoomsForGnbPreview } from '@/lib/chatRoomListSort';
 import { cn } from '@/lib/utils';
@@ -51,9 +55,10 @@ export const ChatPreviewDropdown = ({
 
       <div className="flex w-full flex-col items-stretch">
         {isPending ? (
-          <p className="px-6 py-8 text-center text-md-medium text-gray-300">
-            불러오는 중…
-          </p>
+          <ChatRoomListSkeleton
+            count={CHAT_PREVIEW_SKELETON_COUNT}
+            itemClassName="w-full max-w-[20.4375rem] self-center border-line-200 px-6"
+          />
         ) : null}
 
         {isError ? (

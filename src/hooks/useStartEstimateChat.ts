@@ -28,7 +28,7 @@ export const useStartEstimateChat = () => {
   const { showToast } = useToast();
   const { mutate: createChatRoom, isPending: isChatPending } =
     useCreateChatRoom();
-  /** 목록에서 "연결 중..."을 표시할 카드/요청 id */
+  /** 목록에서 채팅하기 pending UI에 쓸 카드/요청 id */
   const [pendingChatTargetId, setPendingChatTargetId] = useState<number | null>(
     null
   );

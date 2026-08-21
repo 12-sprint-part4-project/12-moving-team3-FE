@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/Button/Button';
+import { ChatStartButtonContent } from '@/components/chat/ChatStartButtonContent';
 import { FavoriteButton } from '@/components/Favorite';
 import { cn } from '@/lib/utils';
 
@@ -99,7 +100,7 @@ export const MoverDetailCtaButtons = ({
           aria-busy={chat.isPending}
           className={isBottomBar ? 'flex-1' : undefined}
         >
-          {chat.isPending ? '연결 중...' : '채팅하기'}
+          <ChatStartButtonContent isPending={chat.isPending} />
         </Button>
       ) : null}
     </>

@@ -82,10 +82,11 @@ export const ReceivedRequestCard = ({
     ? [
         {
           key: 'chat',
-          label: isChatPending ? '연결 중...' : '채팅하기',
+          label: '채팅하기',
           variant: 'outlined',
           showIcon: false,
           disabled: isChatPending,
+          isPending: isChatPending,
           onClick: handleChatClick,
         },
       ]

@@ -12,6 +12,7 @@ import {
 
 import { ChatMessageItem } from '@/components/chat/ChatMessageItem';
 import { ReportAction } from '@/components/reports';
+import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import {
@@ -507,9 +508,7 @@ export const ChatMessageList = ({
             ) : null}
 
             {isPending ? (
-              <p className="py-16 text-center text-lg-medium text-gray-300">
-                불러오는 중…
-              </p>
+              <Spinner message="불러오는 중…" className="gap-3 py-16" />
             ) : null}
 
             {isInitialError ? (
