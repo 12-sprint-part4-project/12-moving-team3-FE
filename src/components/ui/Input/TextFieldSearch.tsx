@@ -14,14 +14,13 @@ import SearchIcon from '@/assets/icons/search.svg';
   TEXT FIELD SEARCH
 
   검색용 입력 필드입니다.
-  비활성(미포커스·빈 값)일 때는 왼쪽에 검색 아이콘만 두고,
-  포커스되거나 값이 있으면 오른쪽을 clear(X) + search 액션으로 바꿉니다.
+  오른쪽에 clear(X, 값 있을 때만) + search 아이콘을 항상 표시합니다.
 
   [props]
   - size: 'sm' | 'md'
-  - value / defaultValue: 제어(부모가 value 관리)·비제어(내부가 defaultValue로 관리) 중 하나만 사용 (동시 사용 금지)
+  - value / defaultValue: 제어·비제어 중 하나만 사용 (동시 사용 금지)
   - onChange / onClear / onSearch
-  - onClear: X 클릭 시 추가 처리 (값 비우기와 별도 콜백)
+  - onClear: X 클릭 시 추가 처리
   - onSearch: 검색 아이콘 클릭 또는 Enter 시 호출
   - disabled / placeholder
   - ...rest: InputHTMLAttributes<HTMLInputElement>
@@ -69,7 +68,6 @@ export const TextFieldSearch = ({
   ...rest
 }: TextFieldSearchProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [isFocused, setIsFocused] = useState(false);
   // 비제어 모드(부모가 value를 안 넘길 때)에서
   // hasValue·액션 노출을 계산하기 위한 로컬 미러(입력값을 따라가는 내부 state)
   const [uncontrolledValue, setUncontrolledValue] = useState(() =>
@@ -78,8 +76,6 @@ export const TextFieldSearch = ({
 
   const currentValue = value !== undefined ? String(value) : uncontrolledValue;
   const hasValue = currentValue.length > 0;
-  // 포커스 중이거나 값이 있으면 좌측 장식 아이콘 → 우측 액션으로 전환
-  const showActiveActions = isFocused || hasValue;
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (value === undefined) {
@@ -114,14 +110,6 @@ export const TextFieldSearch = ({
     <div
       className={`flex items-center overflow-clip rounded-2xl bg-background-100 ${sizeStyles[size].field} ${className}`.trim()}
     >
-      {/* 대기 상태: 좌측 검색 아이콘 (장식용) */}
-      {!showActiveActions && (
-        <SearchIcon
-          aria-hidden
-          className={`shrink-0 ${sizeStyles[size].icon} text-gray-300`}
-        />
-      )}
-
       <input
         {...rest}
         ref={inputRef}
@@ -130,14 +118,8 @@ export const TextFieldSearch = ({
         disabled={disabled}
         placeholder={placeholder}
         onChange={handleChange}
-        onFocus={(event) => {
-          setIsFocused(true);
-          rest.onFocus?.(event);
-        }}
-        onBlur={(event) => {
-          setIsFocused(false);
-          rest.onBlur?.(event);
-        }}
+        onFocus={rest.onFocus}
+        onBlur={rest.onBlur}
         onKeyDown={(event) => {
           // Enter = 검색 실행 (검색창 UX)
           if (event.key === 'Enter') {
@@ -150,31 +132,28 @@ export const TextFieldSearch = ({
         }`}
       />
 
-      {/* 활성 상태: clear(값 있을 때만) + search */}
-      {showActiveActions && (
-        <div className={`flex shrink-0 items-center ${sizeStyles[size].gap}`}>
-          {hasValue && (
-            <button
-              type="button"
-              disabled={disabled}
-              aria-label="입력 내용 지우기"
-              onClick={handleClear}
-              className={`flex cursor-pointer items-center justify-center overflow-clip ${sizeStyles[size].icon}`}
-            >
-              <CloseIcon className="size-full text-gray-200" />
-            </button>
-          )}
+      <div className={`flex shrink-0 items-center ${sizeStyles[size].gap}`}>
+        {hasValue && (
           <button
             type="button"
             disabled={disabled}
-            aria-label="검색"
-            onClick={onSearch}
-            className={`flex items-center justify-center overflow-clip ${sizeStyles[size].icon}`}
+            aria-label="입력 내용 지우기"
+            onClick={handleClear}
+            className={`flex cursor-pointer items-center justify-center overflow-clip ${sizeStyles[size].icon}`}
           >
-            <SearchIcon className="size-full text-gray-300" />
+            <CloseIcon className="size-full text-gray-200" />
           </button>
-        </div>
-      )}
+        )}
+        <button
+          type="button"
+          disabled={disabled}
+          aria-label="검색"
+          onClick={onSearch}
+          className={`flex items-center justify-center overflow-clip ${sizeStyles[size].icon}`}
+        >
+          <SearchIcon className="size-full text-gray-300" />
+        </button>
+      </div>
     </div>
   );
 };

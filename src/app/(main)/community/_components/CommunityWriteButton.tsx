@@ -16,9 +16,11 @@ import {
 } from '@/hooks/useFloatingActionScrollVisibility';
 import { cn } from '@/lib/utils';
 
+import { COMMUNITY_FILTER_RESET_BUTTON_CLASS } from './CommunityFilterResetButton';
+
 import type { CommunityTabId } from '@/constants/communityOptions';
 
-type CommunityWriteButtonVariant = 'fab' | 'toolbar' | 'desktop';
+type CommunityWriteButtonVariant = 'fab' | 'toolbar' | 'desktop' | 'tabbar';
 
 interface CommunityWriteFabProps {
   onClick: () => void;
@@ -90,17 +92,25 @@ export const CommunityWriteButton = ({
       ) : (
         <button
           type="button"
+          aria-label={variant === 'toolbar' ? '글쓰기' : undefined}
           onClick={handleWriteClick}
           className={cn(
-            'hidden shrink-0 cursor-pointer items-center justify-center bg-blue-300 text-white transition-colors hover:bg-blue-200',
+            'hidden shrink-0 cursor-pointer items-center justify-center transition-colors',
+            variant !== 'toolbar' && 'bg-blue-300 text-white hover:bg-blue-200',
             variant === 'toolbar' &&
-              'h-9 min-w-[6.875rem] rounded-lg px-4 text-sm-semibold min-[46.5rem]:inline-flex xl:hidden',
+              cn(COMMUNITY_FILTER_RESET_BUTTON_CLASS, 'border-transparent bg-blue-300 text-white hover:bg-blue-200 hover:text-white min-[46.5rem]:inline-flex xl:hidden'),
             variant === 'desktop' &&
-              'h-[3.125rem] min-w-[11.25rem] rounded-lg px-4 text-xl-semibold xl:inline-flex',
+              'h-[3.125rem] min-w-[11.25rem] rounded-2xl px-4 text-xl-semibold xl:inline-flex',
+            variant === 'tabbar' &&
+              'h-11 w-full rounded-2xl px-5 text-lg-semibold inline-flex',
             className
           )}
         >
-          글쓰기
+          {variant === 'toolbar' ? (
+            <EditIcon className="size-6 text-white" aria-hidden />
+          ) : (
+            '글쓰기'
+          )}
         </button>
       )}
       <LoginRequiredModal

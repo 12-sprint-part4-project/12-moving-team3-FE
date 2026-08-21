@@ -22,7 +22,7 @@ interface CommunityPostNavigationProps {
 const NAV_LABEL_CLASS = 'text-md-medium text-gray-400 xl:text-lg-medium';
 
 const NAV_TITLE_CLASS =
-  'mt-1 w-full min-w-0 truncate text-md-semibold text-black-400 min-[46.5rem]:text-lg-semibold xl:text-2lg-semibold';
+  'mt-1 w-full min-w-0 truncate text-md-semibold text-black-400 transition-colors group-hover:text-gray-500 min-[46.5rem]:text-lg-semibold xl:text-2lg-semibold';
 
 interface NavItemProps {
   direction: 'prev' | 'next';
@@ -37,7 +37,7 @@ const NavItem = ({ direction, neighbor, listContext }: NavItemProps) => {
   return (
     <Link
       href={buildCommunityPostDetailHref(neighbor.id, listContext)}
-      className="flex w-full min-w-0 flex-col items-start rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-background-200"
+      className="group flex w-full min-w-0 flex-col items-start px-2 py-1.5 text-left"
     >
       <span className={NAV_LABEL_CLASS}>{label}</span>
       <span className={NAV_TITLE_CLASS}>{neighbor.title}</span>
