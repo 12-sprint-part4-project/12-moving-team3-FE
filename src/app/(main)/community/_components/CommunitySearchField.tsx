@@ -40,7 +40,7 @@ export const CommunitySearchField = ({
         onClear={handleClear}
         onSearch={onSearch}
         className={inputClassName}
-        placeholder="텍스트를 입력해 주세요."
+        placeholder="검색어를 입력해 주세요."
         aria-label="게시글 검색"
       />
     </div>
