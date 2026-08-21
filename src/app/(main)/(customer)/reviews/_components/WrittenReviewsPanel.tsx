@@ -15,10 +15,9 @@ import { resolveApiErrorMessage } from '@/lib/apiClient';
 
 import { isReviewListEmpty } from '../_lib/isReviewListEmpty';
 import { useHighlightWrittenReview } from '../_lib/useHighlightWrittenReview';
-import { ReviewsContent, ReviewsListStatus } from './ReviewsListStatus';
-
-import type { ReactNode } from 'react';
+import { ReviewsContent } from './ReviewsListStatus';
 import type { CustomerReviewItem } from '@/types/review';
+import { WrittenReviewsListStatus } from './WrittenReviewsListStatus';
 
 export interface WrittenReviewsPanelProps {
   enabled: boolean;
@@ -122,64 +121,8 @@ export const WrittenReviewsPanel = ({
     }
   };
 
-  let listBody: ReactNode;
-
-  if (written.isPending && items.length === 0) {
-    listBody = (
-      <ReviewsListStatus
-        variant="pending"
-        message="작성한 리뷰를 불러오는 중..."
-      />
-    );
-  } else if (written.isError) {
-    listBody = (
-      <ReviewsListStatus
-        variant="error"
-        message={resolveApiErrorMessage(
-          written.error,
-          '작성한 리뷰를 불러오지 못했습니다.'
-        )}
-        onRetry={() => {
-          void written.refetch();
-        }}
-      />
-    );
-  } else if (isReviewListEmpty(written)) {
-    listBody = (
-      <ReviewsListStatus
-        variant="empty"
-        message="아직 작성한 리뷰가 없어요"
-      />
-    );
-  } else {
-    listBody = (
-      <ReviewsContent>
-        <ReviewListSection
-          items={items}
-          pagination={{
-            page: written.page,
-            totalPages: written.totalPages,
-            onPageChange: written.setPage,
-            isFetching: written.isFetching && !written.isPending,
-            getItemKey: (item) => item.id,
-          }}
-          renderItem={(item) => (
-            <WrittenReviewCard
-              ref={isHighlighted(item.id) ? cardRef : undefined}
-              item={item}
-              highlighted={isHighlighted(item.id)}
-              onClick={handleReviewClick}
-            />
-          )}
-        />
-      </ReviewsContent>
-    );
-  }
-
-  return (
+  const modals = (
     <>
-      {listBody}
-
       {selectedReview ? (
         <Modal placement="bottom" onClose={handleCloseDetailModal}>
           <ReviewDetailModal
@@ -216,6 +159,56 @@ export const WrittenReviewsPanel = ({
           />
         </Modal>
       ) : null}
+    </>
+  );
+
+  const isInitialPending = written.isPending && items.length === 0;
+  const isEmpty = isReviewListEmpty(written);
+  const errorMessage = resolveApiErrorMessage(
+    written.error,
+    '작성한 리뷰를 불러오지 못했습니다.'
+  );
+
+  if (isInitialPending || written.isError || isEmpty) {
+    return (
+      <>
+        <WrittenReviewsListStatus
+          isPending={isInitialPending}
+          isError={written.isError}
+          errorMessage={errorMessage}
+          onRetry={() => {
+            void written.refetch();
+          }}
+        />
+        {modals}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <ReviewsContent>
+        <ReviewListSection
+          items={items}
+          pagination={{
+            page: written.page,
+            totalPages: written.totalPages,
+            onPageChange: written.setPage,
+            isFetching: written.isFetching && !written.isPending,
+            getItemKey: (item) => item.id,
+          }}
+          renderItem={(item) => (
+            <WrittenReviewCard
+              ref={isHighlighted(item.id) ? cardRef : undefined}
+              item={item}
+              highlighted={isHighlighted(item.id)}
+              onClick={handleReviewClick}
+            />
+          )}
+        />
+      </ReviewsContent>
+
+      {modals}
     </>
   );
 };
