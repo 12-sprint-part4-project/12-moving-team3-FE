@@ -1,6 +1,6 @@
 'use client';
 
-import { type FormEvent, type KeyboardEvent, useRef, useState } from 'react';
+import { type FormEvent, type KeyboardEvent, useState } from 'react';
 
 import LikeActiveIcon from '@/assets/icons/like-active.svg';
 import SendIcon from '@/assets/icons/send.svg';
@@ -40,11 +40,9 @@ export const CommunityPostEngagementBar = ({
   className = '',
 }: CommunityPostEngagementBarProps) => {
   const [animTrigger, setAnimTrigger] = useState(0);
-  const isLikedRef = useRef(isLiked);
-  isLikedRef.current = isLiked;
 
   const handleLikeClick = () => {
-    if (!isLikedRef.current) setAnimTrigger((t) => t + 1);
+    if (!isLiked) setAnimTrigger((t) => t + 1);
     onLikeClick();
   };
 

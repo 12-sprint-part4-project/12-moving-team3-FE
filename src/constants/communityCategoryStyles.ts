@@ -34,7 +34,7 @@ export const POST_CATEGORY_CHIP_LAYOUT_CLASS =
 /** 목록·상세 지역 뱃지 — 기존 ETC(기타) 색상 */
 export const POST_REGION_BADGE_CLASS = 'bg-gray-300/12 text-gray-400';
 
-/** 사진 위 지역 뱃지 — 가구나눔 그리드 등 overlay (반투명 흰 배경 + 진한 텍스트) */
+/** 사진 위 지역 뱃지 — 가구나눔 그리드 등 overlay (반투명 파란 배경 + 흰색 텍스트) */
 export const POST_REGION_OVERLAY_BADGE_CLASS = 'bg-[rgba(14,165,233,0.72)] text-white shadow-sm';
 
 /** 사진 위 지역 칩 레이아웃 — 게시판 카테고리 칩과 동일 */

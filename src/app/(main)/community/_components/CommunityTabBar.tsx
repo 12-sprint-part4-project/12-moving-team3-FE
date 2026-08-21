@@ -68,8 +68,9 @@ export const CommunityTabBar = ({
             >
               {tab.label}
               {isActive && (
-                <motion.div
+                <motion.span
                   layoutId="tab-indicator"
+                  aria-hidden
                   className="absolute bottom-0 left-0 h-0.5 w-full bg-black-400"
                   transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                 />

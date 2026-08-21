@@ -9,13 +9,14 @@ import {
   FLOATING_ACTION_INSET_X_CLASS,
   WRITE_FAB_BOTTOM_CLASS,
 } from '@/constants/floatingActionLayout';
-import { COMMUNITY_FILTER_RESET_BUTTON_CLASS } from './CommunityFilterResetButton';
 import { useCommunityWriteAction } from '@/hooks/useCommunityWriteAction';
 import {
   type FloatingActionVisibility,
   useFloatingActionScrollVisibility,
 } from '@/hooks/useFloatingActionScrollVisibility';
 import { cn } from '@/lib/utils';
+
+import { COMMUNITY_FILTER_RESET_BUTTON_CLASS } from './CommunityFilterResetButton';
 
 import type { CommunityTabId } from '@/constants/communityOptions';
 
