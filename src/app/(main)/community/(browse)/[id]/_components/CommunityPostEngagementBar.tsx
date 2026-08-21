@@ -1,6 +1,6 @@
 'use client';
 
-import { type FormEvent, type KeyboardEvent } from 'react';
+import { type FormEvent, type KeyboardEvent, useRef, useState } from 'react';
 
 import LikeActiveIcon from '@/assets/icons/like-active.svg';
 import SendIcon from '@/assets/icons/send.svg';
@@ -39,6 +39,15 @@ export const CommunityPostEngagementBar = ({
   onCommentFocus,
   className = '',
 }: CommunityPostEngagementBarProps) => {
+  const [animTrigger, setAnimTrigger] = useState(0);
+  const isLikedRef = useRef(isLiked);
+  isLikedRef.current = isLiked;
+
+  const handleLikeClick = () => {
+    if (!isLikedRef.current) setAnimTrigger((t) => t + 1);
+    onLikeClick();
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmed = commentValue.trim();
@@ -80,21 +89,24 @@ export const CommunityPostEngagementBar = ({
       >
         <button
           type="button"
-          onClick={onLikeClick}
+          onClick={handleLikeClick}
           aria-label={likeLabel}
           aria-pressed={isLiked}
           aria-busy={isLikePending}
           disabled={isLikePending || isLikeDisabled}
           className={cn(
             COMMUNITY_ENGAGEMENT_BUTTON_CLASS,
-            'border border-line-200 bg-white',
+            'border border-line-200 bg-white transition-transform',
+            !(isLikePending || isLikeDisabled) && 'active:scale-90',
             (isLikePending || isLikeDisabled) && 'cursor-not-allowed opacity-60'
           )}
         >
           <LikeActiveIcon
+            key={animTrigger}
             className={cn(
               COMMUNITY_ENGAGEMENT_ICON_CLASS,
-              isLiked ? 'text-blue-300' : 'text-gray-200'
+              'transition-colors duration-200',
+              isLiked ? 'animate-like-pop text-blue-300' : 'text-gray-200'
             )}
             aria-hidden
           />
