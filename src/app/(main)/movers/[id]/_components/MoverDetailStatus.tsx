@@ -3,71 +3,63 @@
 import { motion, useReducedMotion } from 'framer-motion';
 
 import { Button } from '@/components/Button/Button';
-import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { MoverDetailContentSkeleton } from '@/components/ui/Skeleton';
 import { fadeIn, getMotionTransition } from '@/lib/motionVariants';
 
-interface MoverDetailPendingStatusProps {
-  variant: 'pending';
-}
-
-interface MoverDetailMessageStatusProps {
-  variant: 'invalid' | 'notFound';
-}
-
-interface MoverDetailErrorStatusProps {
-  variant: 'error';
-  message: string;
+export interface MoverDetailStatusProps {
+  isValidMoverId: boolean;
+  isPending: boolean;
+  isNotFound: boolean;
+  errorMessage: string;
   onRetry: () => void;
 }
 
-export type MoverDetailStatusProps =
-  | MoverDetailPendingStatusProps
-  | MoverDetailMessageStatusProps
-  | MoverDetailErrorStatusProps;
-
-const STATUS_MESSAGE: Record<'invalid' | 'notFound', string> = {
+const STATUS_MESSAGE = {
   invalid: '유효하지 않은 기사님입니다.',
   notFound: '기사님을 찾을 수 없어요.',
-};
+} as const;
 
 /** `/movers/[id]` 가드 UI. 잘못된 id·로딩·404·에러. */
-export const MoverDetailStatus = (props: MoverDetailStatusProps) => {
+export const MoverDetailStatus = ({
+  isValidMoverId,
+  isPending,
+  isNotFound,
+  errorMessage,
+  onRetry,
+}: MoverDetailStatusProps) => {
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
 
-  if (props.variant === 'pending') {
+  if (!isValidMoverId) {
     return (
       <motion.div
         variants={fadeIn}
         initial="hidden"
         animate="show"
         transition={motionTransition}
-        className="flex w-full flex-col py-24"
+        className="flex w-full flex-col items-center justify-center py-24"
       >
-        <Spinner message="기사님 정보를 불러오는 중..." />
+        <p className="text-lg-medium text-gray-400">{STATUS_MESSAGE.invalid}</p>
       </motion.div>
     );
   }
 
-  if (props.variant === 'error') {
+  if (isPending) {
+    return <MoverDetailContentSkeleton />;
+  }
+
+  if (isNotFound) {
     return (
       <motion.div
         variants={fadeIn}
         initial="hidden"
         animate="show"
         transition={motionTransition}
-        className="flex w-full flex-col items-center gap-4 py-24"
+        className="flex w-full flex-col items-center justify-center py-24"
       >
-        <p className="text-lg-medium text-gray-400">{props.message}</p>
-        <Button
-          type="button"
-          variant="solid"
-          size="sm"
-          onClick={props.onRetry}
-          className="w-auto"
-        >
-          다시 시도
-        </Button>
+        <p className="text-lg-medium text-gray-400">
+          {STATUS_MESSAGE.notFound}
+        </p>
       </motion.div>
     );
   }
@@ -78,11 +70,18 @@ export const MoverDetailStatus = (props: MoverDetailStatusProps) => {
       initial="hidden"
       animate="show"
       transition={motionTransition}
-      className="flex w-full flex-col items-center justify-center py-24"
+      className="flex w-full flex-col items-center gap-4 py-24"
     >
-      <p className="text-lg-medium text-gray-400">
-        {STATUS_MESSAGE[props.variant]}
-      </p>
+      <p className="text-lg-medium text-gray-400">{errorMessage}</p>
+      <Button
+        type="button"
+        variant="solid"
+        size="sm"
+        onClick={onRetry}
+        className="w-auto"
+      >
+        다시 시도
+      </Button>
     </motion.div>
   );
 };

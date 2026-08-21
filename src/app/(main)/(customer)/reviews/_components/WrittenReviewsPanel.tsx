@@ -1,29 +1,45 @@
 'use client';
 
+import { useState } from 'react';
+
+import { DeleteReviewConfirmModal } from '@/components/reviews/DeleteReviewConfirmModal';
+import { EditReviewModal } from '@/components/reviews/EditReviewModal';
+import { ReviewDetailModal } from '@/components/reviews/ReviewDetailModal';
 import { ReviewListSection } from '@/components/reviews/ReviewListSection';
 import { WrittenReviewCard } from '@/components/reviews/WrittenReviewCard';
+import { Modal } from '@/components/ui/Modal/Modal';
 import { useCustomerReviews } from '@/hooks/useCustomerReviews';
+import { useDeleteReview } from '@/hooks/useDeleteReview';
+import { useUpdateReview } from '@/hooks/useUpdateReview';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 
 import { isReviewListEmpty } from '../_lib/isReviewListEmpty';
 import { useHighlightWrittenReview } from '../_lib/useHighlightWrittenReview';
-import { ReviewsContent, ReviewsListStatus } from './ReviewsListStatus';
-
+import { ReviewsContent } from './ReviewsListStatus';
 import type { CustomerReviewItem } from '@/types/review';
+import { WrittenReviewsListStatus } from './WrittenReviewsListStatus';
 
 export interface WrittenReviewsPanelProps {
   enabled: boolean;
   highlightReviewId: number | null;
-  onReviewClick: (item: CustomerReviewItem) => void;
 }
 
-/** `/reviews` 내가 작성한 리뷰 탭. Query·배타 가드. */
+/** `/reviews` 내가 작성한 리뷰 탭. Query·상세/수정/삭제 모달. */
 export const WrittenReviewsPanel = ({
   enabled,
   highlightReviewId,
-  onReviewClick,
 }: WrittenReviewsPanelProps) => {
+  const [selectedReview, setSelectedReview] =
+    useState<CustomerReviewItem | null>(null);
+  const [editingReview, setEditingReview] = useState<CustomerReviewItem | null>(
+    null
+  );
+  const [reviewToDelete, setReviewToDelete] =
+    useState<CustomerReviewItem | null>(null);
+
   const written = useCustomerReviews({ enabled });
+  const { submitUpdate, isPending: isUpdating } = useUpdateReview();
+  const { submitDelete, isPending: isDeleting } = useDeleteReview();
   const items = written.reviews;
   const { cardRef, isHighlighted } = useHighlightWrittenReview({
     highlightReviewId,
@@ -32,25 +48,133 @@ export const WrittenReviewsPanel = ({
     isError: written.isError,
   });
 
-  // 로딩 — 초기 조회 (페이지 전환 keepPreviousData는 목록 오버레이)
-  if (written.isPending && items.length === 0) {
-    return (
-      <ReviewsListStatus
-        variant="pending"
-        message="작성한 리뷰를 불러오는 중..."
-      />
-    );
-  }
+  const handleReviewClick = (item: CustomerReviewItem) => {
+    setEditingReview(null);
+    setReviewToDelete(null);
+    setSelectedReview(item);
+  };
 
-  // 에러 — 재시도
-  if (written.isError) {
+  const handleCloseDetailModal = () => {
+    setSelectedReview(null);
+  };
+
+  const handleEditReview = () => {
+    if (!selectedReview) {
+      return;
+    }
+    setEditingReview(selectedReview);
+    setSelectedReview(null);
+  };
+
+  const handleRequestDelete = () => {
+    if (!selectedReview) {
+      return;
+    }
+    setReviewToDelete(selectedReview);
+    setSelectedReview(null);
+  };
+
+  const handleCloseEditModal = () => {
+    if (isUpdating) {
+      return;
+    }
+    setEditingReview(null);
+  };
+
+  const handleSubmitUpdate = async (review: {
+    rating: number;
+    content: string;
+  }) => {
+    if (!editingReview || isUpdating) {
+      return;
+    }
+
+    try {
+      const performed = await submitUpdate(editingReview.id, review);
+      if (performed) {
+        setEditingReview(null);
+      }
+    } catch {
+      // 성공/실패 토스트는 useUpdateReview에서 처리
+    }
+  };
+
+  const handleCloseDeleteConfirm = () => {
+    if (isDeleting) {
+      return;
+    }
+    setReviewToDelete(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!reviewToDelete || isDeleting) {
+      return;
+    }
+
+    try {
+      const performed = await submitDelete(reviewToDelete.id);
+      if (performed) {
+        setReviewToDelete(null);
+      }
+    } catch {
+      // 성공/실패 토스트는 useDeleteReview에서 처리
+    }
+  };
+
+  const modals = (
+    <>
+      {selectedReview ? (
+        <Modal placement="bottom" onClose={handleCloseDetailModal}>
+          <ReviewDetailModal
+            review={selectedReview}
+            onClose={handleCloseDetailModal}
+            onEdit={handleEditReview}
+            onDelete={handleRequestDelete}
+          />
+        </Modal>
+      ) : null}
+
+      {editingReview ? (
+        <Modal placement="bottom" onClose={handleCloseEditModal}>
+          <EditReviewModal
+            key={editingReview.id}
+            review={editingReview}
+            onClose={handleCloseEditModal}
+            onSubmit={(review) => {
+              void handleSubmitUpdate(review);
+            }}
+            isSubmitting={isUpdating}
+          />
+        </Modal>
+      ) : null}
+
+      {reviewToDelete ? (
+        <Modal placement="bottom" onClose={handleCloseDeleteConfirm}>
+          <DeleteReviewConfirmModal
+            onClose={handleCloseDeleteConfirm}
+            onConfirm={() => {
+              void handleConfirmDelete();
+            }}
+            isDeleting={isDeleting}
+          />
+        </Modal>
+      ) : null}
+    </>
+  );
+
+  const isInitialPending = written.isPending && items.length === 0;
+  const isEmpty = isReviewListEmpty(written);
+  const errorMessage = resolveApiErrorMessage(
+    written.error,
+    '작성한 리뷰를 불러오지 못했습니다.'
+  );
+
+  if (isInitialPending || written.isError || isEmpty) {
     return (
-      <ReviewsListStatus
-        variant="error"
-        message={resolveApiErrorMessage(
-          written.error,
-          '작성한 리뷰를 불러오지 못했습니다.'
-        )}
+      <WrittenReviewsListStatus
+        isPending={isInitialPending}
+        isError={written.isError}
+        errorMessage={errorMessage}
         onRetry={() => {
           void written.refetch();
         }}
@@ -58,37 +182,30 @@ export const WrittenReviewsPanel = ({
     );
   }
 
-  // 빈 목록
-  if (isReviewListEmpty(written)) {
-    return (
-      <ReviewsListStatus
-        variant="empty"
-        message="아직 작성한 리뷰가 없어요"
-      />
-    );
-  }
-
-  // 본문 — 그리드 + 페이지네이션
   return (
-    <ReviewsContent>
-      <ReviewListSection
-        items={items}
-        pagination={{
-          page: written.page,
-          totalPages: written.totalPages,
-          onPageChange: written.setPage,
-          isFetching: written.isFetching && !written.isPending,
-          getItemKey: (item) => item.id,
-        }}
-        renderItem={(item) => (
-          <WrittenReviewCard
-            ref={isHighlighted(item.id) ? cardRef : undefined}
-            item={item}
-            highlighted={isHighlighted(item.id)}
-            onClick={onReviewClick}
-          />
-        )}
-      />
-    </ReviewsContent>
+    <>
+      <ReviewsContent>
+        <ReviewListSection
+          items={items}
+          pagination={{
+            page: written.page,
+            totalPages: written.totalPages,
+            onPageChange: written.setPage,
+            isFetching: written.isFetching && !written.isPending,
+            getItemKey: (item) => item.id,
+          }}
+          renderItem={(item) => (
+            <WrittenReviewCard
+              ref={isHighlighted(item.id) ? cardRef : undefined}
+              item={item}
+              highlighted={isHighlighted(item.id)}
+              onClick={handleReviewClick}
+            />
+          )}
+        />
+      </ReviewsContent>
+
+      {modals}
+    </>
   );
 };

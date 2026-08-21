@@ -3,7 +3,6 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useMemo } from 'react';
 
-import { Button } from '@/components/Button/Button';
 import { MoverCard } from '@/components/movers/MoverCard';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useLoadMoreOnView } from '@/hooks/useLoadMoreOnView';
@@ -16,14 +15,10 @@ import {
   listStagger,
 } from '@/lib/motionVariants';
 
-import { MoversEmptyState } from './MoversEmptyState';
+import { MoversListStatus } from './MoversListStatus';
 
 import type { MoversFilters } from '../_lib/moversFilters';
-import type {
-  ApiMoveType,
-  ApiRegion,
-  MoversSortValue,
-} from '@/types/mover';
+import type { ApiMoveType, ApiRegion, MoversSortValue } from '@/types/mover';
 
 export interface MoversListPanelProps {
   debouncedSearch: string;
@@ -98,46 +93,15 @@ export const MoversListPanel = ({
     void refetch();
   };
 
-  if (isPending) {
+  //로딩·에러·empty.
+  if (isPending || isError || isEmpty) {
     return (
-      <motion.div
-        variants={fadeIn}
-        initial="hidden"
-        animate="show"
-        transition={motionTransition}
-      >
-        <Spinner message="기사님 목록을 불러오는 중..." />
-      </motion.div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <motion.div
-        variants={fadeIn}
-        initial="hidden"
-        animate="show"
-        transition={motionTransition}
-        className="flex flex-col items-center gap-4 py-16"
-      >
-        <p className="text-lg-medium text-gray-400">{errorMessage}</p>
-        <Button
-          type="button"
-          variant="solid"
-          size="sm"
-          onClick={handleRetry}
-          className="w-auto"
-        >
-          다시 시도
-        </Button>
-      </motion.div>
-    );
-  }
-
-  if (isEmpty) {
-    return (
-      <MoversEmptyState
-        onReset={isFilteredEmpty ? onResetAll : undefined}
+      <MoversListStatus
+        isPending={isPending}
+        isError={isError}
+        errorMessage={errorMessage}
+        onRetry={handleRetry}
+        onResetEmpty={isFilteredEmpty ? onResetAll : undefined}
       />
     );
   }
@@ -185,7 +149,7 @@ export const MoversListPanel = ({
         </motion.ul>
       </div>
 
-      {hasNextPage || isFetchingNextPage ? (
+      {hasNextPage || isFetchingNextPage ? ( //새로운 페이지를 불러올 때, 스피너.
         <div ref={loadMoreRef} className="flex w-full justify-center py-6">
           <AnimatePresence>
             {isFetchingNextPage ? (
