@@ -48,7 +48,6 @@ export const useCreateComment = (postId: number) => {
           author: {
             id: user.id,
             nickname: user.nickname,
-            profileImageUrl: null, // AuthUser에 profileImageUrl 없음
           },
           isMine: true,
           createdAt: new Date().toISOString(),
@@ -109,7 +108,6 @@ export const useCreateReply = (postId: number) => {
           author: {
             id: user.id,
             nickname: user.nickname,
-            profileImageUrl: null, // AuthUser에 profileImageUrl 없음
           },
           isMine: true,
           createdAt: new Date().toISOString(),
