@@ -145,7 +145,7 @@ export const CommunityCommentItem = ({
   };
 
   return (
-    <li className="flex flex-col gap-4 min-[46.5rem]:gap-5">
+    <li className="flex flex-col gap-4 pl-2 min-[46.5rem]:gap-5">
       <CommunityCommentRow
         item={comment}
         postAuthorId={postAuthorId}

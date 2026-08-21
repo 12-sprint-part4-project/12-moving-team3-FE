@@ -17,7 +17,6 @@ export const regionSchema = z.enum(REGION_VALUES);
 const postAuthorSchema = z.object({
   id: z.string(),
   nickname: z.string(),
-  profileImageUrl: z.string().nullable(),
 });
 
 export const postListItemSchema = z.object({
