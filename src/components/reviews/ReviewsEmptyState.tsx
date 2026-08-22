@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 
+import { useTranslation } from '@/i18n/useTranslation';
 import { fadeIn, floatY, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
@@ -13,9 +14,11 @@ export interface ReviewsEmptyStateProps {
 
 /** 리뷰 목록 empty (Figma: img/Component/empty) */
 export const ReviewsEmptyState = ({
-  message = '작성 가능한 리뷰가 없어요',
+  message,
   className,
 }: ReviewsEmptyStateProps) => {
+  const { t } = useTranslation();
+  const resolvedMessage = message ?? t('reviews.writable.empty');
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
 
@@ -43,14 +46,14 @@ export const ReviewsEmptyState = ({
       </motion.div>
       <AnimatePresence mode="wait">
         <motion.p
-          key={message}
+          key={resolvedMessage}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={motionTransition}
           className="text-center text-lg-regular text-gray-400"
         >
-          {message}
+          {resolvedMessage}
         </motion.p>
       </AnimatePresence>
     </motion.div>

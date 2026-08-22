@@ -4,6 +4,7 @@ import Image from 'next/image';
 
 import CloseIcon from '@/assets/icons/close.svg';
 import NoImageIcon from '@/assets/icons/no-image.svg';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import type { ChangeEvent, MouseEvent, RefObject } from 'react';
@@ -34,6 +35,7 @@ export const ProfileImageField = ({
   labelClassName = '',
   className = '',
 }: ProfileImageFieldProps) => {
+  const { t } = useTranslation();
   const handleClearClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
@@ -50,14 +52,14 @@ export const ProfileImageField = ({
           labelClassName
         )}
       >
-        프로필 이미지
+        {t('profile.image')}
       </h2>
       <input
         ref={imageInputRef}
         id={imageInputId}
         type="file"
         accept="image/*"
-        aria-label="프로필 이미지 파일 선택"
+        aria-label={t('profile.imageSelectAria')}
         className="sr-only"
         onChange={onImageChange}
       />
@@ -65,7 +67,7 @@ export const ProfileImageField = ({
         <button
           type="button"
           onClick={onImageButtonClick}
-          aria-label="프로필 이미지 업로드"
+          aria-label={t('profile.imageUploadAria')}
           className={cn(
             'relative flex size-[6.25rem] cursor-pointer items-center justify-center overflow-hidden rounded-md bg-background-200 lg:size-40',
             'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300'
@@ -76,13 +78,13 @@ export const ProfileImageField = ({
               // eslint-disable-next-line @next/next/no-img-element -- blob/data 미리보기는 next/image 미지원
               <img
                 src={displayImageUrl}
-                alt="프로필 이미지 미리보기"
+                alt={t('profile.imagePreviewAlt')}
                 className="size-full object-cover"
               />
             ) : (
               <Image
                 src={displayImageUrl}
-                alt="프로필 이미지 미리보기"
+                alt={t('profile.imagePreviewAlt')}
                 fill
                 sizes="(min-width: 64rem) 160px, 100px"
                 className="object-cover"
@@ -99,7 +101,7 @@ export const ProfileImageField = ({
         {displayImageUrl ? (
           <button
             type="button"
-            aria-label="프로필 이미지 제거"
+            aria-label={t('profile.imageRemoveAria')}
             onClick={handleClearClick}
             className={cn(
               'absolute top-1 right-1 z-10 inline-flex size-5 cursor-pointer items-center justify-center rounded-full bg-black/50 text-white',

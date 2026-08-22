@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslation } from '@/i18n/useTranslation';
+
 import { ReviewsListStatus } from './ReviewsListStatus';
 
 export interface WrittenReviewsListStatusProps {
@@ -19,11 +21,13 @@ export const WrittenReviewsListStatus = ({
   errorMessage,
   onRetry,
 }: WrittenReviewsListStatusProps) => {
+  const { t } = useTranslation();
+
   if (isPending) {
     return (
       <ReviewsListStatus
         variant="pending"
-        message="작성한 리뷰를 불러오는 중..."
+        message={t('reviews.written.loading')}
       />
     );
   }
@@ -41,7 +45,7 @@ export const WrittenReviewsListStatus = ({
   return (
     <ReviewsListStatus
       variant="empty"
-      message="아직 작성한 리뷰가 없어요"
+      message={t('reviews.written.empty')}
     />
   );
 };

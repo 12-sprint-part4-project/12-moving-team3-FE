@@ -11,6 +11,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { useCustomerPendingQuotes } from '@/hooks/useCustomerPendingQuotes';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
 import { getActiveEstimateRequest } from '@/services/customerEstimateRequestApi';
 import {
@@ -48,6 +49,7 @@ const fetchDesignatedExistenceForMover = async (
  * 기사님 상세에서 지정 견적 요청 · 이미 지정됐는지 상태.
  */
 export const useDesignatedEstimateRequest = (moverId: string) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
@@ -137,7 +139,7 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
           queryKey: chatQueryKeys.roomsAll(),
         }),
       ]);
-      showToast({ content: '지정 견적 요청을 보냈어요.' });
+      showToast({ content: t('movers.designated.sent') });
     },
     onError: (error: unknown) => {
       if (error instanceof ApiError) {
@@ -155,7 +157,7 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
         }
 
         if (error.code === API_ERROR_CODE.QUOTE_ALREADY_RECEIVED_FROM_MOVER) {
-          showToast({ content: '이미 견적을 받은 기사님입니다' });
+          showToast({ content: t('movers.designated.alreadyReceived') });
           void refetchPendingQuotes();
           return;
         }
@@ -167,7 +169,7 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
       }
 
       // ApiError가 아닌 경우(네트워크/응답 파싱 등)도 동일하게 버튼 비활성한다.
-      showToast({ content: '지정 견적 요청 중 오류가 발생했습니다.' });
+      showToast({ content: t('movers.designated.requestError') });
       setIsDesignatedRequestFailed(true);
     },
   });
@@ -184,14 +186,14 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
 
     if (isQuoteStatusError) {
       showToast({
-        content: '견적 정보를 확인하지 못했어요. 다시 시도해 주세요.',
+        content: t('movers.designated.statusCheckError'),
       });
       void refetchPendingQuotes();
       return;
     }
 
     if (hasReceivedQuoteFromMover) {
-      showToast({ content: '이미 견적을 받은 기사님입니다' });
+      showToast({ content: t('movers.designated.alreadyReceived') });
       return;
     }
 
@@ -205,6 +207,7 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
     hasReceivedQuoteFromMover,
     refetchPendingQuotes,
     showToast,
+    t,
   ]);
 
   return {

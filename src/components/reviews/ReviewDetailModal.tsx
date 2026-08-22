@@ -12,6 +12,7 @@ import {
   MOVE_TYPE_CHIP_RESPONSIVE_CLASS,
 } from '@/components/ui/Modal/modalPanel';
 import { StarRating } from '@/components/ui/StarRating/StarRating';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   formatReviewCreatedDate,
   formatReviewMoveDate,
@@ -43,13 +44,14 @@ export const ReviewDetailModal = ({
   onDelete,
   className = '',
 }: ReviewDetailModalProps) => {
+  const { t } = useTranslation();
   const titleId = useId();
   const quote = review.quote;
   const moveTypeUi = quote?.moveType
     ? API_MOVE_TYPE_TO_UI[quote.moveType]
     : null;
   const isDesignated = quote?.isDesignated ?? false;
-  const moverName = review.mover?.name?.trim() || '기사';
+  const moverName = review.mover?.name?.trim() || t('reviews.fallbackMoverName');
   const avatarSrc = review.mover?.profileImageUrl ?? undefined;
   const moveDateLabel = formatReviewMoveDate(quote?.moveDate ?? null);
   const priceLabel = formatQuotePriceLabel(quote?.price ?? null);
@@ -69,7 +71,11 @@ export const ReviewDetailModal = ({
         className
       )}
     >
-      <ModalHeader title="리뷰 상세" onClose={onClose} titleId={titleId} />
+      <ModalHeader
+        title={t('reviews.modal.detailTitle')}
+        onClose={onClose}
+        titleId={titleId}
+      />
 
       <div className="flex w-full flex-col gap-5 tablet:gap-8">
         {(moveTypeUi || isDesignated) && (
@@ -100,14 +106,14 @@ export const ReviewDetailModal = ({
 
         <div className="flex flex-col gap-3 tablet:gap-4">
           <p className="text-lg-semibold text-black-300 tablet:text-xl-semibold">
-            평점
+            {t('reviews.form.ratingLabel')}
           </p>
           <StarRating value={review.rating} readOnly />
         </div>
 
         <div className="flex flex-col gap-3 tablet:gap-4">
           <p className="text-lg-semibold text-black-300 tablet:text-xl-semibold">
-            상세 후기
+            {t('reviews.form.contentLabel')}
           </p>
           <p className="rounded-2xl bg-background-200 px-4 py-3.5 text-lg-regular whitespace-pre-wrap text-black-300 tablet:text-xl-regular">
             {review.content}
@@ -115,7 +121,7 @@ export const ReviewDetailModal = ({
         </div>
 
         <p className="flex items-center justify-end gap-2 text-md-regular text-gray-300">
-          <span>작성일</span>
+          <span>{t('reviews.writtenDate')}</span>
           <span>{createdLabel}</span>
         </p>
 
@@ -126,7 +132,7 @@ export const ReviewDetailModal = ({
             className="tablet:h-16 tablet:text-xl-semibold"
             onClick={onDelete}
           >
-            리뷰 삭제
+            {t('reviews.delete')}
           </Button>
           <Button
             variant="solid"
@@ -135,7 +141,7 @@ export const ReviewDetailModal = ({
             className="tablet:h-16 tablet:text-xl-semibold"
             onClick={onEdit}
           >
-            리뷰 수정
+            {t('reviews.edit')}
           </Button>
         </div>
       </div>

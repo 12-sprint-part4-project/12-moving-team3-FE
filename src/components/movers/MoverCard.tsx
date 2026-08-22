@@ -170,11 +170,13 @@ export const MoverCard = ({
 
           <div className="flex min-w-0 flex-1 flex-col gap-1.5 tablet:gap-2">
             {disableNavigation ? (
-              <p className={nameClassName}>{mover.name} 기사님</p>
+              <p className={nameClassName}>
+                {mover.name} {t('gnb.role.mover')}
+              </p>
             ) : (
               <Link href={`/movers/${mover.moverId}`} className={nameClassName}>
                 <span className="absolute inset-0 z-0" aria-hidden />
-                {mover.name} 기사님
+                {mover.name} {t('gnb.role.mover')}
               </Link>
             )}
             <div
@@ -203,7 +205,7 @@ export const MoverCard = ({
                     className="hidden h-3.5 w-px bg-line-200 tablet:block"
                   />
                   <span className="inline-flex items-center gap-1.5">
-                    <span className="text-gray-300">경력</span>
+                    <span className="text-gray-300">{t('profile.career')}</span>
                     <span className="text-black-300">{careerLabel}</span>
                   </span>
                   <span
@@ -212,7 +214,7 @@ export const MoverCard = ({
                   />
                   <span className="inline-flex items-center gap-1.5">
                     <span className="text-black-300">{confirmedLabel}</span>
-                    <span className="text-gray-300">확정</span>
+                    <span className="text-gray-300">{t('profile.confirmed')}</span>
                   </span>
                 </>
               ) : null}

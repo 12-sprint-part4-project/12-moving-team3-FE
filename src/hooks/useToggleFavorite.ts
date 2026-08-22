@@ -7,6 +7,7 @@ import {
   moverQueryKeys,
 } from '@/constants/queryKey';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
 import {
   applyOptimisticFavorite,
@@ -29,6 +30,7 @@ export type { ToggleFavoriteVariables };
 export const useToggleFavorite = () => {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const { t } = useTranslation();
 
   const latestDesiredRef = useRef<Map<string, boolean>>(new Map());
   const lastSyncedRef = useRef<Map<string, boolean>>(new Map());
@@ -109,7 +111,7 @@ export const useToggleFavorite = () => {
             const message =
               error instanceof ApiError
                 ? error.message
-                : '찜 처리 중 오류가 발생했습니다.';
+                : t('movers.favorite.error');
             showToast({ content: message });
             break;
           }
@@ -119,7 +121,7 @@ export const useToggleFavorite = () => {
         markPending(moverId, false);
       }
     },
-    [markPending, queryClient, showToast]
+    [markPending, queryClient, showToast, t]
   );
 
   const toggleFavorite = useCallback(

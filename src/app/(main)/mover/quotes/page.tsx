@@ -1,9 +1,7 @@
 import { resolveTabSearchParam } from '@/lib/resolveTabSearchParam';
 
-import {
-  MoverQuotesTabs,
-  parseMoverQuotesTabId,
-} from './_components/MoverQuotesTabs';
+import { MoverQuotesTabs } from './_components/MoverQuotesTabs';
+import { parseMoverQuotesTabId } from './_lib/parseMoverQuotesTabId';
 import MoverQuotesPageClient from './page.client';
 
 import type { Metadata } from 'next';

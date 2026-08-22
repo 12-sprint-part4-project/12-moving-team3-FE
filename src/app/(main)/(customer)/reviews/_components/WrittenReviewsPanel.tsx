@@ -11,6 +11,7 @@ import { Modal } from '@/components/ui/Modal/Modal';
 import { useCustomerReviews } from '@/hooks/useCustomerReviews';
 import { useDeleteReview } from '@/hooks/useDeleteReview';
 import { useUpdateReview } from '@/hooks/useUpdateReview';
+import { useTranslation } from '@/i18n/useTranslation';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 
 import { isReviewListEmpty } from '../_lib/isReviewListEmpty';
@@ -29,6 +30,7 @@ export const WrittenReviewsPanel = ({
   enabled,
   highlightReviewId,
 }: WrittenReviewsPanelProps) => {
+  const { t } = useTranslation();
   const [selectedReview, setSelectedReview] =
     useState<CustomerReviewItem | null>(null);
   const [editingReview, setEditingReview] = useState<CustomerReviewItem | null>(
@@ -166,7 +168,7 @@ export const WrittenReviewsPanel = ({
   const isEmpty = isReviewListEmpty(written);
   const errorMessage = resolveApiErrorMessage(
     written.error,
-    '작성한 리뷰를 불러오지 못했습니다.'
+    t('reviews.written.error')
   );
 
   if (isInitialPending || written.isError || isEmpty) {

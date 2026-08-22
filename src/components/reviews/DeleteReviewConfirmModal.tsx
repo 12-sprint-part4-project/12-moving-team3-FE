@@ -2,9 +2,8 @@
 
 import { Button } from '@/components/Button/Button';
 import { ModalBasic } from '@/components/ui/Modal/ModalBasic';
-import {
-  MODAL_PANEL_BOTTOM_SHEET_CLASS,
-} from '@/components/ui/Modal/modalPanel';
+import { MODAL_PANEL_BOTTOM_SHEET_CLASS } from '@/components/ui/Modal/modalPanel';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 export interface DeleteReviewConfirmModalProps {
@@ -25,6 +24,7 @@ export const DeleteReviewConfirmModal = ({
   isDeleting = false,
   className = '',
 }: DeleteReviewConfirmModalProps) => {
+  const { t } = useTranslation();
   const handleClose = () => {
     if (isDeleting) return;
     onClose();
@@ -32,7 +32,7 @@ export const DeleteReviewConfirmModal = ({
 
   return (
     <ModalBasic
-      title="리뷰 삭제"
+      title={t('reviews.modal.deleteTitle')}
       onClose={handleClose}
       className={cn(MODAL_PANEL_BOTTOM_SHEET_CLASS, className)}
       footer={
@@ -44,7 +44,7 @@ export const DeleteReviewConfirmModal = ({
             disabled={isDeleting}
             onClick={handleClose}
           >
-            취소
+            {t('common.cancel')}
           </Button>
           <Button
             variant="solid"
@@ -53,15 +53,15 @@ export const DeleteReviewConfirmModal = ({
             disabled={isDeleting}
             onClick={onConfirm}
           >
-            삭제하기
+            {t('community.deleteAction')}
           </Button>
         </div>
       }
     >
       <p className="text-lg-medium text-black-300 tablet:text-2lg-medium">
-        작성한 리뷰를 삭제하시겠습니까?
+        {t('reviews.modal.deleteMessage')}
         <br />
-        삭제 후에는 복구할 수 없습니다.
+        {t('reviews.modal.deleteIrreversible')}
       </p>
     </ModalBasic>
   );

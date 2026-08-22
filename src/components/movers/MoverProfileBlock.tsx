@@ -76,7 +76,7 @@ export const MoverProfileBlock = ({
           {disableNavigation ? (
             <p className="text-lg-semibold text-black-300 lg:text-2lg-semibold">
               {mover.name}
-              <span className="ml-1 lg:ml-2">기사님</span>
+              <span className="ml-1 lg:ml-2">{t('gnb.role.mover')}</span>
             </p>
           ) : (
             <Link
@@ -84,7 +84,7 @@ export const MoverProfileBlock = ({
               className="text-lg-semibold text-black-300 lg:text-2lg-semibold"
             >
               {mover.name}
-              <span className="ml-1 lg:ml-2">기사님</span>
+              <span className="ml-1 lg:ml-2">{t('gnb.role.mover')}</span>
             </Link>
           )}
 
@@ -116,7 +116,7 @@ export const MoverProfileBlock = ({
             <>
               <span aria-hidden className="h-3.5 w-px bg-line-200" />
               <span className="inline-flex items-center gap-1.5">
-                <span className="text-gray-300">경력</span>
+                <span className="text-gray-300">{t('profile.career')}</span>
                 <span className="text-black-300">{careerLabel}</span>
               </span>
             </>
@@ -125,7 +125,7 @@ export const MoverProfileBlock = ({
           <span aria-hidden className="h-3.5 w-px bg-line-200" />
           <span className="inline-flex items-center gap-1.5">
             <span className="text-black-300">{confirmedLabel}</span>
-            <span className="text-gray-300">확정</span>
+            <span className="text-gray-300">{t('profile.confirmed')}</span>
           </span>
         </div>
       </div>

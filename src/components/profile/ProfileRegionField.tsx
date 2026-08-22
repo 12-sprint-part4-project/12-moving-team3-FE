@@ -6,6 +6,7 @@ import {
   REGION_CHIP_OPTIONS,
   type RegionChipValue,
 } from '@/constants/commonOptions';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 interface ProfileRegionFieldProps {
@@ -24,6 +25,8 @@ export const ProfileRegionField = ({
   helperText,
   className = '',
 }: ProfileRegionFieldProps) => {
+  const { t } = useTranslation();
+
   return (
     <section
       className={cn(
@@ -51,7 +54,7 @@ export const ProfileRegionField = ({
             onClick={() => onSelect(option.value)}
             className="px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium"
           >
-            {option.label}
+            {t(`region.${option.value}`)}
           </RegionChip>
         ))}
       </div>

@@ -12,6 +12,7 @@ import {
   MODAL_PANEL_BOTTOM_SHEET_CLASS,
   MODAL_PANEL_CLASS,
 } from '@/components/ui/Modal/modalPanel';
+import { useTranslation } from '@/i18n/useTranslation';
 import { formatReviewMoveDate } from '@/lib/reviewDisplay';
 import { cn } from '@/lib/utils';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
@@ -40,8 +41,9 @@ export const WriteReviewModal = ({
   isSubmitting = false,
   className = '',
 }: WriteReviewModalProps) => {
+  const { t } = useTranslation();
   const titleId = useId();
-  const moverName = quote.mover?.name?.trim() || '기사';
+  const moverName = quote.mover?.name?.trim() || t('reviews.fallbackMoverName');
   const avatarSrc = quote.mover?.profileImageUrl ?? undefined;
   const moveDateLabel = formatReviewMoveDate(quote.moveDate);
   const priceLabel = formatQuotePriceLabel(quote.price);
@@ -67,7 +69,11 @@ export const WriteReviewModal = ({
         className
       )}
     >
-      <ModalHeader title="리뷰 쓰기" onClose={onClose} titleId={titleId} />
+      <ModalHeader
+        title={t('reviews.modal.writeTitle')}
+        onClose={onClose}
+        titleId={titleId}
+      />
 
       <ReviewFormFields
         moveType={quote.moveType}
@@ -83,7 +89,7 @@ export const WriteReviewModal = ({
       />
 
       <ModalCtaButton disabled={!isSubmittable} onClick={handleSubmit}>
-        리뷰 등록
+        {t('reviews.modal.submitCreate')}
       </ModalCtaButton>
     </section>
   );

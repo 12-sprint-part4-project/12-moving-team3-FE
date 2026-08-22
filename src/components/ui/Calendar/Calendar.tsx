@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTranslation } from '@/i18n/useTranslation';
 
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 import { Button } from '@/components/Button/Button';
 import { useControllableValue } from '@/hooks/useControllableValue';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import {
@@ -63,11 +63,13 @@ export const Calendar = ({
   onConfirm,
   minDate,
   maxDate,
-  confirmLabel = '선택완료',
+  confirmLabel,
   confirmDisabled = false,
   className,
 }: CalendarProps) => {
   const { t } = useTranslation();
+  const resolvedConfirmLabel =
+    confirmLabel ?? t('estimateRequest.selectComplete');
   // Date | undefined 전체를 다루는 훅에, 실제 통지는 Date만 넘기도록 좁힌다
   const handleControllableChange = (nextValue: Date | undefined) => {
     if (nextValue) {
@@ -128,7 +130,7 @@ export const Calendar = ({
         <div className="flex h-12 w-full items-center justify-between px-3.5 md:h-auto md:px-3.5 md:py-3">
           <button
             type="button"
-            aria-label="이전 달"
+            aria-label={t('date.prevMonth')}
             disabled={currentMonth == null}
             onClick={handlePrevMonth}
             className="flex size-6 items-center justify-center text-gray-300 md:size-9"
@@ -143,7 +145,7 @@ export const Calendar = ({
           </p>
           <button
             type="button"
-            aria-label="다음 달"
+            aria-label={t('date.nextMonth')}
             disabled={currentMonth == null}
             onClick={handleNextMonth}
             className="flex size-6 items-center justify-center text-gray-300 md:size-9"
@@ -155,8 +157,8 @@ export const Calendar = ({
         <table className="w-full max-w-[19.3125rem] border-collapse md:max-w-[40rem]">
           <caption className="sr-only">
             {currentMonth
-              ? `${formatMonthTitle(currentMonth)} 날짜 선택`
-              : '날짜 선택'}
+              ? t('date.selectMonth', { month: formatMonthTitle(currentMonth) })
+              : t('date.select')}
           </caption>
           <thead>
             <tr>
@@ -191,7 +193,11 @@ export const Calendar = ({
                           type="button"
                           disabled={disabled}
                           aria-pressed={isSelected}
-                          aria-label={`${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`}
+                          aria-label={t('date.yearMonthDay', {
+                            year: date.getFullYear(),
+                            month: date.getMonth() + 1,
+                            day: date.getDate(),
+                          })}
                           onClick={() => setSelectedDate(date)}
                           className={cn(
                             'mx-auto flex size-10 items-center justify-center rounded-full text-sm-medium transition-colors md:size-16 md:text-xl-medium',
@@ -233,7 +239,7 @@ export const Calendar = ({
           className="md:h-16 md:text-xl-semibold"
           onClick={handleConfirm}
         >
-          {confirmLabel}
+          {resolvedConfirmLabel}
         </Button>
       </div>
     </div>

@@ -4,6 +4,7 @@ import Image from 'next/image';
 
 import ProfileIcon from '@/assets/icons/profile.svg';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 export interface ReviewMoverSummaryCardProps {
@@ -25,7 +26,10 @@ export const ReviewMoverSummaryCard = ({
   quotePrice,
   avatarSrc,
   className = '',
-}: ReviewMoverSummaryCardProps) => (
+}: ReviewMoverSummaryCardProps) => {
+  const { t } = useTranslation();
+
+  return (
   <div
     className={cn(
       'flex w-full items-center gap-3 rounded-xl border border-line-100 bg-white px-3.5 py-3 shadow-[0.25rem_0.25rem_0.5rem] shadow-shadow-gray-200/10 tablet:gap-4 tablet:rounded-2xl tablet:px-[1.125rem] tablet:py-6',
@@ -47,11 +51,11 @@ export const ReviewMoverSummaryCard = ({
     </div>
     <div className="flex min-w-0 flex-col gap-1.5 tablet:gap-4">
       <p className="text-md-semibold text-black-300 tablet:text-2xl-semibold">
-        {moverName} 기사님
+        {t('reviews.moverWithSuffix', { name: moverName })}
       </p>
       <div className="flex flex-wrap items-center gap-2 tablet:gap-4">
         <InfoField
-          label="이사일"
+          label={t('quotes.moveDate')}
           value={moveDate}
           color="neutral"
           className="gap-1 tablet:gap-3"
@@ -63,14 +67,14 @@ export const ReviewMoverSummaryCard = ({
           className="hidden h-3.5 w-px bg-line-200 tablet:block tablet:h-4"
         />
         <InfoField
-          label="견적가"
+          label={t('quotes.priceAmount')}
           value={quotePrice}
           color="neutral"
           className="gap-1 tablet:gap-3"
           labelClassName="px-1.5 py-0.5 text-md-medium tablet:py-1 tablet:text-2lg-regular"
-          valueClassName="text-md-bold text-black-300 tablet:text-2lg-bold"
         />
       </div>
     </div>
   </div>
-);
+  );
+};

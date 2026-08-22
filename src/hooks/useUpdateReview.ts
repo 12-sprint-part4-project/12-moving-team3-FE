@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { moverQueryKeys, reviewQueryKeys } from '@/constants/queryKey';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
 import { updateReview } from '@/services/reviewsApi';
 
@@ -18,6 +19,7 @@ export interface UpdateReviewVariables {
  * pending 중 추가 호출은 무시하고 false를 반환한다 (연타 방지).
  */
 export const useUpdateReview = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
 
@@ -25,7 +27,7 @@ export const useUpdateReview = () => {
     mutationFn: ({ reviewId, body }: UpdateReviewVariables) =>
       updateReview(reviewId, body),
     onSuccess: async () => {
-      showToast({ content: '리뷰가 수정되었습니다' });
+      showToast({ content: t('reviews.toast.updated') });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: reviewQueryKeys.all }),
         queryClient.invalidateQueries({ queryKey: moverQueryKeys.lists() }),
@@ -36,7 +38,7 @@ export const useUpdateReview = () => {
       const message =
         error instanceof ApiError
           ? error.message
-          : '리뷰 수정 중 오류가 발생했습니다.';
+          : t('reviews.toast.updateError');
       showToast({ content: message });
     },
   });

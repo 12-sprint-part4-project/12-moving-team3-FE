@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Cropper, { type Area } from 'react-easy-crop';
 
 import { Modal, ModalBasic, ModalCtaButton } from '@/components/ui/Modal';
+import { useTranslation } from '@/i18n/useTranslation';
 import { getCroppedImage } from '@/lib/getCroppedImage';
 import { cn } from '@/lib/utils';
 
@@ -19,11 +20,14 @@ export const ProfileImageCropModal = ({
   onClose,
   onCropComplete,
 }: ProfileImageCropModalProps) => {
+  const { t } = useTranslation();
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [isPending, setIsPending] = useState(false);
-  const submitLabel = isPending ? '적용 중...' : '적용하기';
+  const submitLabel = isPending
+    ? t('profile.cropApplying')
+    : t('profile.cropApply');
 
   const handleCropComplete = (
     _croppedArea: Area,
@@ -47,7 +51,7 @@ export const ProfileImageCropModal = ({
   return (
     <Modal onClose={onClose} closeOnDimmedClick={false}>
       <ModalBasic
-        title="프로필 이미지 편집"
+        title={t('profile.cropTitle')}
         onClose={onClose}
         footer={
           <ModalCtaButton
@@ -75,7 +79,9 @@ export const ProfileImageCropModal = ({
           </div>
 
           <label className="flex w-full flex-col gap-2">
-            <span className="text-md-medium text-black-300">확대/축소</span>
+            <span className="text-md-medium text-black-300">
+              {t('profile.zoomLabel')}
+            </span>
             <input
               type="range"
               min={1}
@@ -87,7 +93,7 @@ export const ProfileImageCropModal = ({
                 'h-2 w-full cursor-pointer appearance-none rounded-full bg-line-200',
                 'accent-blue-300'
               )}
-              aria-label="이미지 확대/축소"
+              aria-label={t('profile.zoomAria')}
             />
           </label>
         </div>

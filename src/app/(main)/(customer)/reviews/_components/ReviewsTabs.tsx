@@ -1,11 +1,16 @@
+'use client';
+
 import {
   QuotesTabsShell,
   type QuotesTabItem,
 } from '@/components/quotes/QuotesTabsShell';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import { REVIEWS_PAGE_X_PADDING } from './reviewsStyles';
 
-export type ReviewsPageTab = 'writable' | 'written';
+import type { ReviewsPageTab } from '../_lib/parseReviewsTabId';
+
+export type { ReviewsPageTab } from '../_lib/parseReviewsTabId';
 
 /** 작성 가능 / 내가 작성한 리뷰 탭 정의 */
 const TABS: QuotesTabItem<ReviewsPageTab>[] = [
@@ -13,22 +18,24 @@ const TABS: QuotesTabItem<ReviewsPageTab>[] = [
   { id: 'written', label: '내가 작성한 리뷰', href: '/reviews?tab=written' },
 ];
 
-/** URL `tab` 쿼리 → 탭 id (`written`만 특수, 기본 writable) */
-export const parseReviewsTabId = (
-  value: string | null | undefined
-): ReviewsPageTab => (value === 'written' ? 'written' : 'writable');
-
 export interface ReviewsTabsProps {
   activeTab: ReviewsPageTab;
 }
 
 /** `/reviews` 상단 탭바. - 작성 가능 / 내가 작성한 리뷰. */
-export const ReviewsTabs = ({ activeTab }: ReviewsTabsProps) => (
-  <QuotesTabsShell
-    tabs={TABS}
-    activeTab={activeTab}
-    className={REVIEWS_PAGE_X_PADDING}
-    ariaLabel="이사 리뷰 탭"
-    tabIdPrefix="reviews-tab"
-  />
-);
+export const ReviewsTabs = ({ activeTab }: ReviewsTabsProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <QuotesTabsShell
+      tabs={TABS.map((tab) => ({
+        ...tab,
+        label: t(`reviews.tab.${tab.id}`),
+      }))}
+      activeTab={activeTab}
+      className={REVIEWS_PAGE_X_PADDING}
+      ariaLabel={t('reviews.tabsAria')}
+      tabIdPrefix="reviews-tab"
+    />
+  );
+};

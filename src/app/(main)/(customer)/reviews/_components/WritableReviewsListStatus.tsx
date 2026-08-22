@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslation } from '@/i18n/useTranslation';
+
 import { ReviewsListStatus } from './ReviewsListStatus';
 
 export interface WritableReviewsListStatusProps {
@@ -19,11 +21,13 @@ export const WritableReviewsListStatus = ({
   errorMessage,
   onRetry,
 }: WritableReviewsListStatusProps) => {
+  const { t } = useTranslation();
+
   if (isPending) {
     return (
       <ReviewsListStatus
         variant="pending"
-        message="작성 가능한 리뷰를 불러오는 중..."
+        message={t('reviews.writable.loading')}
       />
     );
   }

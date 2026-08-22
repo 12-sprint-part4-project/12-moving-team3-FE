@@ -1,10 +1,8 @@
 import { parsePositiveInt } from '@/lib/parsePositiveInt';
 import { resolveTabSearchParam } from '@/lib/resolveTabSearchParam';
 
-import {
-  ReviewsTabs,
-  parseReviewsTabId,
-} from './_components/ReviewsTabs';
+import { ReviewsTabs } from './_components/ReviewsTabs';
+import { parseReviewsTabId } from './_lib/parseReviewsTabId';
 import ReviewsPageClient from './page.client';
 
 import type { Metadata } from 'next';

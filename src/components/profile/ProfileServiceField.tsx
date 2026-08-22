@@ -6,6 +6,7 @@ import {
   SERVICE_CHIP_OPTIONS,
   type ServiceChipValue,
 } from '@/constants/commonOptions';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 interface ProfileServiceFieldProps {
@@ -24,6 +25,8 @@ export const ProfileServiceField = ({
   helperText,
   className = '',
 }: ProfileServiceFieldProps) => {
+  const { t } = useTranslation();
+
   return (
     <section
       className={cn(
@@ -51,7 +54,7 @@ export const ProfileServiceField = ({
             onClick={() => onToggle(option.value)}
             className="px-3 py-1.5 text-md-medium lg:px-5 lg:py-2.5 lg:text-2lg-medium"
           >
-            {option.label}
+            {t(`moveType.${option.value}`)}
           </ServiceChip>
         ))}
       </div>

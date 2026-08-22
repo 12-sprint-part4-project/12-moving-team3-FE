@@ -18,6 +18,7 @@ import {
 } from '@/hooks/useCustomerProfile';
 import { useProfileImageCrop } from '@/hooks/useProfileImageCrop';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
 import {
   composeKrMobilePhone,
@@ -75,6 +76,8 @@ const CustomerProfilePasswordFields = ({
   onNewPasswordChange,
   onConfirmPasswordChange,
 }: CustomerProfilePasswordFieldsProps) => {
+  const { t } = useTranslation();
+
   return (
     <>
       <div className="h-px w-full bg-line-100" aria-hidden />
@@ -84,14 +87,14 @@ const CustomerProfilePasswordFields = ({
           htmlFor={currentPasswordId}
           className="text-lg-semibold text-black-300 lg:text-xl-semibold"
         >
-          현재 비밀번호
+          {t('profile.currentPassword')}
         </label>
         <ProfileTextField
           id={currentPasswordId}
           type="password"
           name="currentPassword"
           autoComplete="new-password"
-          placeholder="현재 비밀번호를 입력해주세요"
+          placeholder={t('profile.currentPasswordPlaceholder')}
           showVisibilityToggle
           value={currentPassword}
           onChange={onCurrentPasswordChange}
@@ -105,14 +108,14 @@ const CustomerProfilePasswordFields = ({
           htmlFor={newPasswordId}
           className="text-lg-semibold text-black-300 lg:text-xl-semibold"
         >
-          새 비밀번호
+          {t('profile.newPassword')}
         </label>
         <ProfileTextField
           id={newPasswordId}
           type="password"
           name="newPassword"
           autoComplete="new-password"
-          placeholder="새 비밀번호를 입력해주세요"
+          placeholder={t('profile.newPasswordPlaceholder')}
           showVisibilityToggle
           maxLength={PASSWORD_MAX_LENGTH}
           value={newPassword}
@@ -133,14 +136,14 @@ const CustomerProfilePasswordFields = ({
           htmlFor={confirmPasswordId}
           className="text-lg-semibold text-black-300 lg:text-xl-semibold"
         >
-          새 비밀번호 확인
+          {t('profile.newPasswordConfirm')}
         </label>
         <ProfileTextField
           id={confirmPasswordId}
           type="password"
           name="confirmPassword"
           autoComplete="new-password"
-          placeholder="새 비밀번호를 다시 한번 입력해주세요"
+          placeholder={t('profile.newPasswordConfirmPlaceholder')}
           showVisibilityToggle
           maxLength={PASSWORD_MAX_LENGTH}
           value={confirmPassword}
@@ -165,12 +168,12 @@ interface CustomerProfileEditFieldsProps {
 const CustomerProfileEditFields = ({
   profile,
 }: CustomerProfileEditFieldsProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { showToast } = useToast();
   const { mutate: upsertProfile, isPending } = useUpsertCustomerProfile({
-    successMessage: '프로필이 수정되었습니다.',
-    errorFallbackMessage:
-      '프로필 수정에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+    successMessage: t('profile.editSuccess'),
+    errorFallbackMessage: t('profile.editError'),
   });
   const imageInputId = useId();
   const nameInputId = useId();
@@ -234,7 +237,7 @@ const CustomerProfileEditFields = ({
     !isPasswordMismatchError &&
     !isPasswordIncomplete &&
     !isPending;
-  const submitLabel = isPending ? '수정 중...' : '수정하기';
+  const submitLabel = isPending ? t('profile.editing') : t('profile.submitEdit');
 
   const handleCancel = () => {
     router.back();
@@ -281,7 +284,7 @@ const CustomerProfileEditFields = ({
     });
 
     if (!body) {
-      showToast({ content: '변경된 내용이 없습니다.' });
+      showToast({ content: t('profile.noChanges') });
       return;
     }
 
@@ -300,7 +303,7 @@ const CustomerProfileEditFields = ({
         <div className="flex w-full flex-col items-stretch gap-5 lg:gap-10">
           <header className="flex w-full flex-col items-start gap-8 lg:gap-10">
             <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
-              프로필 수정
+              {t('nav.profile.edit')}
             </h1>
             <div className="h-px w-full bg-line-100" aria-hidden />
           </header>
@@ -308,7 +311,9 @@ const CustomerProfileEditFields = ({
           <div className="flex w-full flex-col items-stretch gap-5 lg:flex-row lg:items-start lg:justify-between lg:gap-10">
             <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
               <section className="flex w-full flex-col items-start gap-4">
-                <RequiredLabel htmlFor={nameInputId}>이름</RequiredLabel>
+                <RequiredLabel htmlFor={nameInputId}>
+                  {t('auth.name.label')}
+                </RequiredLabel>
                 <ProfileTextField
                   id={nameInputId}
                   name="name"
@@ -327,12 +332,14 @@ const CustomerProfileEditFields = ({
               <div className="h-px w-full bg-line-100" aria-hidden />
 
               <section className="flex w-full flex-col items-start gap-4">
-                <RequiredLabel htmlFor={nicknameInputId}>닉네임</RequiredLabel>
+                <RequiredLabel htmlFor={nicknameInputId}>
+                  {t('auth.nickname.label')}
+                </RequiredLabel>
                 <ProfileTextField
                   id={nicknameInputId}
                   name="nickname"
                   autoComplete="nickname"
-                  placeholder="닉네임을 입력해 주세요"
+                  placeholder={t('auth.nickname.placeholder')}
                   value={nickname}
                   onChange={(event) => setNickname(event.target.value)}
                   isError={isNicknameFormatError}
@@ -351,7 +358,7 @@ const CustomerProfileEditFields = ({
                   htmlFor={emailInputId}
                   className="text-lg-semibold text-black-300 lg:text-xl-semibold"
                 >
-                  이메일
+                  {t('auth.email.label')}
                 </label>
                 <ProfileTextField
                   id={emailInputId}
@@ -416,8 +423,8 @@ const CustomerProfileEditFields = ({
 
               <ProfileServiceField
                 selectedServices={selectedServices}
-                helperText="*견적 요청 시 이용 서비스를 선택할 수 있어요."
-                label="이용 서비스"
+                helperText={t('profile.servicesHelperEdit')}
+                label={t('profile.services')}
                 onToggle={handleServiceToggle}
               />
 
@@ -425,8 +432,8 @@ const CustomerProfileEditFields = ({
 
               <ProfileRegionField
                 selectedRegions={selectedRegion ? [selectedRegion] : []}
-                helperText="*견적 요청 시 지역을 설정할 수 있어요."
-                label="내가 사는 지역"
+                helperText={t('profile.regionHelperEdit')}
+                label={t('profile.myRegion')}
                 onSelect={handleRegionSelect}
               />
             </div>
@@ -450,7 +457,7 @@ const CustomerProfileEditFields = ({
             onClick={handleCancel}
             className="order-2 border-gray-200 text-gray-300 shadow-cta hover:border-gray-200 hover:bg-transparent hover:text-gray-300 hover:shadow-cta lg:order-1 lg:h-16 lg:max-w-[41.25rem] lg:text-xl-semibold"
           >
-            취소
+            {t('common.cancel')}
           </Button>
         </div>
       </form>
@@ -468,6 +475,7 @@ const CustomerProfileEditFields = ({
 
 /** `/profile/customer/edit` 프로필 조회·로딩·에러 가드. 성공 시 수정 폼을 마운트한다. */
 export const CustomerProfileEditForm = () => {
+  const { t } = useTranslation();
   const {
     data: profile,
     isPending,
@@ -481,14 +489,14 @@ export const CustomerProfileEditForm = () => {
   };
 
   if (isPending) {
-    return <Spinner message="프로필 불러오는 중..." />;
+    return <Spinner message={t('profile.loading')} />;
   }
 
   if (isError) {
     const message =
       error instanceof ApiError
         ? error.message
-        : '프로필을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
+        : t('profile.loadError');
 
     return (
       <div className="flex w-full max-w-[87.5rem] flex-col items-center gap-6 py-16">
@@ -500,7 +508,7 @@ export const CustomerProfileEditForm = () => {
           onClick={handleRetry}
           className="max-w-[12rem]"
         >
-          다시 시도
+          {t('common.retry')}
         </Button>
       </div>
     );

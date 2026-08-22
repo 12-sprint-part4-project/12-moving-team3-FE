@@ -2,6 +2,7 @@
 
 import StarIcon from '@/assets/icons/star.svg';
 import { ReportAction } from '@/components/reports';
+import { useTranslation } from '@/i18n/useTranslation';
 import { formatReviewCreatedDate } from '@/lib/reviewDisplay';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +26,7 @@ export const ReviewListItem = ({
   className,
   reviewId,
 }: ReviewListItemProps) => {
+  const { t } = useTranslation();
   const safeRating = Math.min(5, Math.max(0, Math.round(rating)));
 
   return (
@@ -43,7 +45,10 @@ export const ReviewListItem = ({
               {formatReviewCreatedDate(createdAt)}
             </p>
           </div>
-          <div className="flex items-start" aria-label={`${safeRating}점`}>
+          <div
+            className="flex items-start"
+            aria-label={t('reviews.ratingAria', { rating: safeRating })}
+          >
             {Array.from({ length: 5 }, (_, index) => {
               const filled = index < safeRating;
               return (

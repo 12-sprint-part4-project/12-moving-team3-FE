@@ -1,9 +1,7 @@
 import { resolveTabSearchParam } from '@/lib/resolveTabSearchParam';
 
-import {
-  CustomerQuotesTabs,
-  parseCustomerQuotesTabId,
-} from './_components/CustomerQuotesTabs';
+import { CustomerQuotesTabs } from './_components/CustomerQuotesTabs';
+import { parseCustomerQuotesTabId } from './_lib/parseCustomerQuotesTabId';
 import CustomerQuotesPageClient from './page.client';
 
 import type { Metadata } from 'next';

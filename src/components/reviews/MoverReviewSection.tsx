@@ -6,6 +6,7 @@ import { ReviewListItem } from '@/components/reviews/ReviewListItem';
 import { ReviewRatingChart } from '@/components/reviews/ReviewRatingChart';
 import { Pagination } from '@/components/ui/Pagination/Pagination';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   fadeIn,
   fadeUp,
@@ -59,6 +60,7 @@ export const MoverReviewSection = ({
   onRetry,
   className,
 }: MoverReviewSectionProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const isInitialLoading =
@@ -74,7 +76,7 @@ export const MoverReviewSection = ({
   return (
     <section className={cn('flex w-full flex-col gap-4 xl:gap-8', className)}>
       <h2 className="text-lg-semibold text-black-400 xl:text-2xl-semibold">
-        리뷰 ({totalCount})
+        {t('reviews.sectionTitle', { count: totalCount })}
       </h2>
 
       {isInitialLoading ? (
@@ -84,7 +86,7 @@ export const MoverReviewSection = ({
           animate="show"
           transition={motionTransition}
         >
-          <Spinner message="리뷰를 불러오는 중..." />
+          <Spinner message={t('reviews.loading')} />
         </motion.div>
       ) : null}
 
@@ -97,7 +99,7 @@ export const MoverReviewSection = ({
           className="flex flex-col items-start gap-3 py-6"
         >
           <p className="text-md-medium text-gray-400">
-            리뷰를 불러오지 못했습니다.
+            {t('reviews.loadError')}
           </p>
           {onRetry ? (
             <button
@@ -105,7 +107,7 @@ export const MoverReviewSection = ({
               onClick={onRetry}
               className="text-md-semibold text-blue-300 underline"
             >
-              다시 시도
+              {t('common.retry')}
             </button>
           ) : null}
         </motion.div>
@@ -116,7 +118,7 @@ export const MoverReviewSection = ({
           {isError ? (
             <div className="flex flex-col items-start gap-3">
               <p className="text-md-medium text-gray-400">
-                리뷰를 불러오지 못했습니다.
+                {t('reviews.loadError')}
               </p>
               {onRetry ? (
                 <button
@@ -124,7 +126,7 @@ export const MoverReviewSection = ({
                   onClick={onRetry}
                   className="text-md-semibold text-blue-300 underline"
                 >
-                  다시 시도
+                  {t('common.retry')}
                 </button>
               ) : null}
             </div>
@@ -140,7 +142,7 @@ export const MoverReviewSection = ({
               transition={motionTransition}
               className="py-8 text-center text-md-medium text-gray-400"
             >
-              아직 리뷰가 없습니다
+              {t('reviews.emptyPublic')}
             </motion.p>
           ) : (
             <motion.div
