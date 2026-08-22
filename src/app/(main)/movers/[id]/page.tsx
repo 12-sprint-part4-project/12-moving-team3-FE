@@ -1,3 +1,4 @@
+import { getServerTranslation } from '@/i18n/getServerTranslation';
 import { getMoverDetail } from '@/services/moversApi';
 
 import MoverDetailPageClient from './page.client';
@@ -9,21 +10,25 @@ export interface MoverDetailPageProps {
 }
 
 /** 기사님 이름 기반 탭 타이틀 — 루트 template으로 `{name} 기사님 | 무빙` */
-export async function generateMetadata({
+export const generateMetadata = async ({
   params,
-}: MoverDetailPageProps): Promise<Metadata> {
+}: MoverDetailPageProps): Promise<Metadata> => {
+  const { t } = await getServerTranslation();
   const { id } = await params;
+
   try {
     const res = await getMoverDetail(id);
     const name = res.data.moverDetail.user.name?.trim();
+
     if (name) {
-      return { title: `${name} 기사님` };
+      return { title: t('meta.moverDetailNamed', { name }) };
     }
   } catch {
     // 404·네트워크 등 → fallback
   }
-  return { title: '기사님 상세' };
-}
+
+  return { title: t('meta.moverDetail') };
+};
 
 /** `/movers/[id]` 서버 페이지. - route id를 Client에 넘긴다. */
 const MoverDetailPage = async ({ params }: MoverDetailPageProps) => {

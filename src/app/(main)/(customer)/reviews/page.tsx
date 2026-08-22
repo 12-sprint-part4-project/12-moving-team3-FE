@@ -1,3 +1,4 @@
+import { createPageMetadata } from '@/i18n/createPageMetadata';
 import { parsePositiveInt } from '@/lib/parsePositiveInt';
 import { resolveTabSearchParam } from '@/lib/resolveTabSearchParam';
 
@@ -5,11 +6,7 @@ import { ReviewsTabs } from './_components/ReviewsTabs';
 import { parseReviewsTabId } from './_lib/parseReviewsTabId';
 import ReviewsPageClient from './page.client';
 
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: '이사 리뷰',
-};
+export const generateMetadata = createPageMetadata('nav.profile.reviews');
 
 export interface ReviewsPageProps {
   searchParams: Promise<{

@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 
 import { Button } from '@/components/Button/Button';
+import { useTranslation } from '@/i18n/useTranslation';
 import { fadeIn, floatY, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
@@ -15,19 +16,19 @@ export interface RequestsEmptyStateProps {
   className?: string;
 }
 
-const EMPTY_MESSAGE: Record<RequestsEmptyStateVariant, string> = {
-  initial: '아직 받은 요청이 없어요!',
-  filtered: '조건에 맞는 요청이 없어요.',
-};
-
 /** 받은 요청 빈 목록 안내 표시 */
 export const RequestsEmptyState = ({
   variant = 'initial',
   onReset,
   className = '',
 }: RequestsEmptyStateProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
+  const emptyMessage =
+    variant === 'initial'
+      ? t('receivedRequests.emptyInitial')
+      : t('receivedRequests.emptyFiltered');
 
   return (
     <motion.div
@@ -61,7 +62,7 @@ export const RequestsEmptyState = ({
           transition={motionTransition}
           className="text-center text-xl-regular text-gray-400"
         >
-          {EMPTY_MESSAGE[variant]}
+          {emptyMessage}
         </motion.p>
       </AnimatePresence>
 
@@ -80,7 +81,7 @@ export const RequestsEmptyState = ({
             className="max-w-[12rem]"
             onClick={onReset}
           >
-            필터 초기화
+            {t('common.reset')}
           </Button>
         </motion.div>
       ) : null}

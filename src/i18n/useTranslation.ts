@@ -3,17 +3,18 @@
 import { useSyncExternalStore } from 'react';
 import { useTranslation as useI18nextTranslation } from 'react-i18next';
 
-import { DEFAULT_LANGUAGE } from '@/i18n/config';
+import { useInitialLanguage } from '@/i18n/InitialLanguageContext';
 
 const subscribeToNothing = () => () => undefined;
 const getClientHydratedSnapshot = () => true;
 const getServerHydratedSnapshot = () => false;
 
-/** 서버 HTML은 기본 언어라서, hydrate가 끝나기 전에는 t()도 기본 언어를 쓴다. */
+/** SSR HTML과 첫 페인트가 같도록, hydrate 전에는 쿠키 언어로 t()를 고정한다. */
 export const useTranslation = ((
   ...args: Parameters<typeof useI18nextTranslation>
 ) => {
   const translation = useI18nextTranslation(...args);
+  const initialLanguage = useInitialLanguage();
   const hasHydrated = useSyncExternalStore(
     subscribeToNothing,
     getClientHydratedSnapshot,
@@ -27,7 +28,7 @@ export const useTranslation = ((
   const i18n = new Proxy(translation.i18n, {
     get: (target, property, receiver) => {
       if (property === 'language' || property === 'resolvedLanguage') {
-        return DEFAULT_LANGUAGE;
+        return initialLanguage;
       }
 
       return Reflect.get(target, property, receiver);
@@ -37,6 +38,6 @@ export const useTranslation = ((
   return {
     ...translation,
     i18n,
-    t: translation.i18n.getFixedT(DEFAULT_LANGUAGE),
+    t: translation.i18n.getFixedT(initialLanguage),
   };
 }) as typeof useI18nextTranslation;

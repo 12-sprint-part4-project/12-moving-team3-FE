@@ -104,7 +104,7 @@ export const MoverCard = ({
               ))
             ) : (
               <span className="text-md-medium text-gray-300">
-                서비스 미등록
+                {t('movers.serviceUnregistered')}
               </span>
             )}
             {mover.isDesignated ? (

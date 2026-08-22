@@ -4,6 +4,7 @@ import { MoverCard } from '@/components/movers/MoverCard';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useFavoriteMoversList } from '@/hooks/useFavoriteMoversList';
 import { useLoadMoreOnView } from '@/hooks/useLoadMoreOnView';
+import { useTranslation } from '@/i18n/useTranslation';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 
 import { FavoritesListStatus } from './FavoritesListStatus';
@@ -18,6 +19,7 @@ export const FavoritesListPanel = ({
   onFavoriteClick,
   isMoverPending,
 }: FavoritesListPanelProps) => {
+  const { t } = useTranslation();
   const {
     movers,
     isPending,
@@ -39,7 +41,7 @@ export const FavoritesListPanel = ({
 
   const errorMessage = resolveApiErrorMessage(
     error,
-    '찜한 기사님 목록을 불러오지 못했습니다.'
+    t('movers.listError')
   );
 
   const handleRetry = () => {
@@ -76,7 +78,7 @@ export const FavoritesListPanel = ({
       {hasNextPage || isFetchingNextPage ? (
         <div ref={loadMoreRef} className="h-8 w-full">
           {isFetchingNextPage ? (
-            <Spinner message="더 불러오는 중..." className="py-6" />
+            <Spinner message={t('common.loadMore')} className="py-6" />
           ) : null}
         </div>
       ) : null}

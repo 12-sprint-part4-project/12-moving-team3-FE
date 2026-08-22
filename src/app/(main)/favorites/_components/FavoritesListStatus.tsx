@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 
 import { Button } from '@/components/Button/Button';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { useTranslation } from '@/i18n/useTranslation';
 import { fadeIn, getMotionTransition } from '@/lib/motionVariants';
 
 import { FavoritesEmptyState } from './FavoritesEmptyState';
@@ -25,11 +26,12 @@ export const FavoritesListStatus = ({
   errorMessage,
   onRetry,
 }: FavoritesListStatusProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
 
   if (isPending) {
-    return <Spinner message="찜한 기사님을 불러오는 중..." />;
+    return <Spinner message={t('movers.favoritesLoadingAria')} />;
   }
 
   if (isError) {
@@ -49,7 +51,7 @@ export const FavoritesListStatus = ({
           onClick={onRetry}
           className="w-auto"
         >
-          다시 시도
+          {t('common.retry')}
         </Button>
       </motion.div>
     );

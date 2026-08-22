@@ -2,6 +2,7 @@
 
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import type { ReactNode } from 'react';
 
@@ -15,12 +16,13 @@ interface FavoritesAuthGuardProps {
  * 타이틀은 layout에 두고, 스피너는 본문 영역만 가린다.
  */
 export const FavoritesAuthGuard = ({ children }: FavoritesAuthGuardProps) => {
+  const { t } = useTranslation();
   const { user, isReady } = useAuth();
 
   if (!isReady || !user) {
     return (
       <div className="flex min-h-0 w-full flex-1 items-center justify-center bg-background-200">
-        <Spinner message="로딩 중..." />
+        <Spinner message={t('common.loading')} />
       </div>
     );
   }

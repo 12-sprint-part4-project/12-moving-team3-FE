@@ -1,10 +1,8 @@
 import { MoverBasicInfoEditForm } from '../_components/MoverBasicInfoEditForm';
 
-import type { Metadata } from 'next';
+import { createPageMetadata } from '@/i18n/createPageMetadata';
 
-export const metadata: Metadata = {
-  title: '기본정보 수정',
-};
+export const generateMetadata = createPageMetadata('profile.basicInfoTitle');
 
 const MoverBasicInfoEditPage = () => {
   return (

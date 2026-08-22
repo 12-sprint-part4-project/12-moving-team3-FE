@@ -1,14 +1,11 @@
+import { createPageMetadata } from '@/i18n/createPageMetadata';
 import { resolveTabSearchParam } from '@/lib/resolveTabSearchParam';
 
 import { MoverQuotesTabs } from './_components/MoverQuotesTabs';
 import { parseMoverQuotesTabId } from './_lib/parseMoverQuotesTabId';
 import MoverQuotesPageClient from './page.client';
 
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: '내 견적 관리',
-};
+export const generateMetadata = createPageMetadata('nav.myQuotes');
 
 export interface MoverQuotesPageProps {
   searchParams: Promise<{ tab?: string | string[] }>;

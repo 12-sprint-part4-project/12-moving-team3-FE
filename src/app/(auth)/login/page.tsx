@@ -1,11 +1,8 @@
 import { LoginForm } from '@/app/(auth)/login/_components/LoginForm';
+import { createPageMetadata } from '@/i18n/createPageMetadata';
 import { resolveTabSearchParam } from '@/lib/resolveTabSearchParam';
 
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: '로그인',
-};
+export const generateMetadata = createPageMetadata('common.login');
 
 interface LoginPageProps {
   searchParams: Promise<{ redirect?: string | string[] }>;

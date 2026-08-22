@@ -15,10 +15,44 @@
     "reset": "초기화",
     "retry": "다시 시도",
     "loadMore": "더 불러오는 중...",
-    "scrollToLoadMore": "스크롤하여 더 보기"
+    "scrollToLoadMore": "스크롤하여 더 보기",
+    "pageLoading": "페이지 불러오는 중...",
+    "countUnit": "건",
+    "updating": "업데이트 중",
+    "selectAll": "전체선택"
   },
   "language": {
     "selectorLabel": "Select language"
+  },
+  "meta": {
+    "titleTemplate": "%s | 무빙",
+    "description": "원하는 이사 서비스를 요청하고 견적을 받아보세요",
+    "signup": "회원가입",
+    "loginMover": "기사님 로그인",
+    "signupMover": "기사님 회원가입",
+    "quoteDetail": "견적 상세",
+    "moverDetail": "기사님 상세",
+    "moverDetailNamed": "{{name}} 기사님",
+    "postDetailFallback": "게시글 | 무빙"
+  },
+  "landing": {
+    "heroLine1": "원하는 이사 서비스를 요청하고",
+    "heroLine2": "견적을 받아보세요",
+    "smallMove": {
+      "title": "소형이사",
+      "description": "원룸, 투룸, 20평대 미만",
+      "imageAlt": "소형이사 일러스트"
+    },
+    "homeMove": {
+      "title": "가정이사",
+      "description": "쓰리룸, 20평대 미만",
+      "imageAlt": "가정이사 일러스트"
+    },
+    "officeMove": {
+      "title": "기업, 사무실 이사",
+      "description": "사무실, 상업공간",
+      "imageAlt": "기업·사무실 이사 일러스트"
+    }
   },
   "nav": {
     "findMovers": "기사님 찾기",
@@ -153,6 +187,13 @@
     "logout": {
       "success": "로그아웃되었습니다.",
       "unexpected": "로그아웃에 실패했습니다. 잠시 후 다시 시도해 주세요."
+    },
+    "suspended": {
+      "title": "계정이 정지되었어요",
+      "line1": "서비스 이용 정책 위반으로",
+      "line2": "일부 기능 이용이 제한되었습니다.",
+      "hint": "프로필·알림·둘러보기 등은 계속 이용할 수 있어요.",
+      "goBack": "뒤로가기"
     }
   },
   "moveType": {
@@ -425,6 +466,7 @@
     "selectService": "어떤 서비스가 필요하세요?",
     "favoritesLoadingAria": "찜한 기사님 불러오는 중",
     "favoritesEmpty": "찜한 기사님이 없어요",
+    "browseMovers": "기사님 찾아보기",
     "loginRequired": "로그인이 필요한 기능입니다",
     "empty": "조건에 맞는 기사님이 없어요.",
     "resetFilters": "필터 초기화",
@@ -471,6 +513,32 @@
       "addMover": "기사님 찜하기",
       "removeMover": "기사님 찜 취소",
       "error": "찜 처리 중 오류가 발생했습니다."
+    }
+  },
+  "receivedRequests": {
+    "listError": "받은 요청 목록을 불러오지 못했습니다.",
+    "emptyInitial": "아직 받은 요청이 없어요!",
+    "emptyFiltered": "조건에 맞는 요청이 없어요.",
+    "searchPlaceholder": "고객명 또는 출발지·도착지로 검색해 보세요",
+    "searchAria": "고객명·출발지·도착지 검색",
+    "openFilterAria": "필터 열기",
+    "moveTypeSection": "이사 유형",
+    "filterSection": "필터",
+    "selectAllMoveTypeAria": "이사 유형 전체선택",
+    "selectAllFilterAria": "필터 전체선택",
+    "filterTabsAria": "필터 탭",
+    "moveTypeTab": "이사 유형",
+    "filterTab": "필터",
+    "submitFilter": "조회하기",
+    "sendQuote": "견적 보내기",
+    "quoteCount": "지정: {{designated}} / 일반: {{general}}",
+    "sort": {
+      "moveDateAsc": "이사 빠른순",
+      "requestDateAsc": "요청일 빠른순"
+    },
+    "scope": {
+      "serviceArea": "서비스 가능 지역",
+      "designated": "지정 견적 요청"
     }
   },
   "quotes": {
