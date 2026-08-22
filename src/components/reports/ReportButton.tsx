@@ -1,6 +1,7 @@
 'use client';
 
 import ReportIcon from '@/assets/icons/report.svg';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 export type ReportButtonVariant = 'default' | 'icon-only';
@@ -20,28 +21,32 @@ export const ReportButton = ({
   disabled = false,
   variant = 'default',
   className = '',
-}: ReportButtonProps) => (
-  <button
-    type="button"
-    aria-label="신고"
-    disabled={disabled}
-    onClick={onClick}
-    className={cn(
-      'inline-flex cursor-pointer items-center transition-colors disabled:cursor-not-allowed disabled:opacity-50',
-      variant === 'default' &&
-        'gap-1 text-md-medium text-gray-400 hover:text-black-300',
-      variant === 'icon-only' &&
-        'size-5 shrink-0 justify-center text-gray-400 hover:text-black-300 tablet:size-6 xl:size-7',
-      className
-    )}
-  >
-    <ReportIcon
+}: ReportButtonProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <button
+      type="button"
+      aria-label={t('chat.report')}
+      disabled={disabled}
+      onClick={onClick}
       className={cn(
-        variant === 'icon-only'
-          ? 'size-5 tablet:size-6 xl:size-7'
-          : 'size-4'
+        'inline-flex cursor-pointer items-center transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+        variant === 'default' &&
+          'gap-1 text-md-medium text-gray-400 hover:text-black-300',
+        variant === 'icon-only' &&
+          'size-5 shrink-0 justify-center text-gray-400 hover:text-black-300 tablet:size-6 xl:size-7',
+        className
       )}
-    />
-    {variant === 'default' ? <span>신고</span> : null}
-  </button>
-);
+    >
+      <ReportIcon
+        className={cn(
+          variant === 'icon-only'
+            ? 'size-5 tablet:size-6 xl:size-7'
+            : 'size-4'
+        )}
+      />
+      {variant === 'default' ? <span>{t('chat.report')}</span> : null}
+    </button>
+  );
+};

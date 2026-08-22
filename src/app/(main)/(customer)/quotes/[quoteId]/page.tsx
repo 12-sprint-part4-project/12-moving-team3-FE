@@ -1,12 +1,11 @@
+import { createPageMetadata } from '@/i18n/createPageMetadata';
+import { getServerTranslation } from '@/i18n/getServerTranslation';
+
 import CustomerQuoteDetailPageClient from './page.client';
 import { CUSTOMER_QUOTES_PAGE_X_PADDING } from '../_components/customerQuotesStyles';
 import { CustomerQuotesTitleHeader } from '../_components/CustomerQuotesTitleHeader';
 
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: '견적 상세',
-};
+export const generateMetadata = createPageMetadata('meta.quoteDetail');
 
 export interface CustomerQuoteDetailPageProps {
   params: Promise<{ quoteId: string }>;
@@ -16,13 +15,13 @@ export interface CustomerQuoteDetailPageProps {
 const CustomerQuoteDetailPage = async ({
   params,
 }: CustomerQuoteDetailPageProps) => {
+  const { t } = await getServerTranslation();
   const { quoteId } = await params;
 
-  // 타이틀 + 상세 본문
   return (
     <div className="flex min-h-full w-full flex-col overflow-x-hidden bg-white">
       <CustomerQuotesTitleHeader
-        title="견적 상세"
+        title={t('meta.quoteDetail')}
         paddingClassName={CUSTOMER_QUOTES_PAGE_X_PADDING}
       />
       <CustomerQuoteDetailPageClient quoteId={quoteId} />

@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 
 import { Button } from '@/components/Button/Button';
+import { useTranslation } from '@/i18n/useTranslation';
 import { fadeIn, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
@@ -21,10 +22,11 @@ export interface QuoteDetailErrorStateProps {
 export const QuoteDetailErrorState = ({
   message,
   backHref,
-  backLabel = '내 견적 관리로 돌아가기',
+  backLabel,
   onRetry,
   className = '',
 }: QuoteDetailErrorStateProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
 
@@ -49,14 +51,14 @@ export const QuoteDetailErrorState = ({
           className="max-w-40"
           onClick={onRetry}
         >
-          다시 시도
+          {t('common.retry')}
         </Button>
       ) : null}
       <Link
         href={backHref}
         className="text-lg-semibold text-blue-300 underline-offset-2 hover:underline"
       >
-        {backLabel}
+        {backLabel ?? t('quotes.backToList')}
       </Link>
     </motion.div>
   );

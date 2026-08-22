@@ -19,11 +19,9 @@ import { useChatRoomMobileViewport } from '@/hooks/useChatRoomMobileViewport';
 import { useChatSocketRoom } from '@/hooks/useChatSocketRoom';
 import { useIsMobileViewport } from '@/hooks/useIsMobileViewport';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
-import {
-  CHAT_PAGE_DOCUMENT_TITLE,
-  chatRoomDocumentTitle,
-} from '@/lib/chatPartnerDisplayName';
+import { chatPartnerDisplayName } from '@/lib/chatPartnerDisplayName';
 import { uploadChatImage } from '@/lib/uploadChatImage';
 import { cn } from '@/lib/utils';
 
@@ -38,6 +36,7 @@ export const ChatRoomPage = ({
   roomId: roomIdParam,
   className,
 }: ChatRoomPageProps) => {
+  const { t } = useTranslation();
   const roomId = Number(roomIdParam);
   const isValidRoomId = Number.isFinite(roomId) && roomId > 0;
 
@@ -92,13 +91,15 @@ export const ChatRoomPage = ({
   useEffect(() => {
     document.title =
       enabled && room
-        ? chatRoomDocumentTitle(room.partner)
-        : CHAT_PAGE_DOCUMENT_TITLE;
+        ? t('chat.roomDocumentTitle', {
+            name: chatPartnerDisplayName(room.partner),
+          })
+        : t('chat.pageDocumentTitle');
 
     return () => {
-      document.title = CHAT_PAGE_DOCUMENT_TITLE;
+      document.title = t('chat.pageDocumentTitle');
     };
-  }, [enabled, room]);
+  }, [enabled, room, t]);
 
   useEffect(() => {
     lastMarkedMessageIdRef.current = null;
@@ -200,9 +201,7 @@ export const ChatRoomPage = ({
       setFocusInputSignal((current) => current + 1);
     } catch (error) {
       const message =
-        error instanceof ApiError
-          ? error.message
-          : '메시지 전송에 실패했습니다.';
+        error instanceof ApiError ? error.message : t('chat.sendFail');
       showToast({ content: message });
       throw error;
     }
@@ -224,9 +223,7 @@ export const ChatRoomPage = ({
       setFocusInputSignal((current) => current + 1);
     } catch (error) {
       const message =
-        error instanceof ApiError
-          ? error.message
-          : '이미지 전송에 실패했습니다.';
+        error instanceof ApiError ? error.message : t('chat.imageSendFail');
       showToast({ content: message });
       throw error;
     } finally {
@@ -250,9 +247,9 @@ export const ChatRoomPage = ({
   if (!user) {
     return (
       <div className={cn('chat-content', className)}>
-        <h1 className="text-2xl-bold text-black-400">채팅</h1>
+        <h1 className="text-2xl-bold text-black-400">{t('chat.title')}</h1>
         <p className="mt-8 text-center text-lg-medium text-gray-300">
-          로그인 후 채팅을 이용할 수 있어요
+          {t('chat.loginRequired')}
         </p>
       </div>
     );
@@ -266,10 +263,10 @@ export const ChatRoomPage = ({
           className="inline-flex w-fit items-center gap-1 text-md-medium text-gray-400 hover:text-black-400"
         >
           <ChevronLeftIcon className="size-5" aria-hidden />
-          채팅 목록
+          {t('chat.listLink')}
         </Link>
         <p className="mt-8 text-center text-lg-medium text-gray-300">
-          존재하지 않는 채팅방이에요
+          {t('chat.roomNotFound')}
         </p>
       </div>
     );
@@ -281,7 +278,7 @@ export const ChatRoomPage = ({
         'chat-room-content',
         // 모바일 + viewport lock: body가 vv 높이이므로 main 남은 공간을 채움
         enabled && isMobileViewport
-          ? 'h-full min-h-0 max-h-full flex-1'
+          ? 'h-full max-h-full min-h-0 flex-1'
           : 'h-[calc(100dvh-var(--height-gnb))] max-h-[calc(100dvh-var(--height-gnb))]',
         'lg:h-[calc(100dvh-var(--height-gnb-lg))] lg:max-h-[calc(100dvh-var(--height-gnb-lg))]',
         className
@@ -301,7 +298,7 @@ export const ChatRoomPage = ({
 
       {!isRoomPending && (isRoomError || !room) ? (
         <ChatRoomHeaderPlaceholder
-          title="채팅방"
+          title={t('chat.room')}
           titleClassName="text-black-400"
         />
       ) : null}
@@ -309,13 +306,13 @@ export const ChatRoomPage = ({
       {isRoomError && !room ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-16">
           <p className="text-center text-lg-medium text-gray-300">
-            채팅방을 불러오지 못했어요
+            {t('chat.roomError')}
           </p>
           <Link
             href="/chat"
             className="text-md-medium text-blue-300 underline-offset-2 hover:underline"
           >
-            채팅 목록으로
+            {t('chat.backToList')}
           </Link>
         </div>
       ) : (
@@ -343,11 +340,7 @@ export const ChatRoomPage = ({
           />
           <ChatComposer
             disabled={composerDisabled}
-            disabledReason={
-              composerDisabled
-                ? '현재 이 채팅방에서는 메시지를 보낼 수 없습니다.'
-                : undefined
-            }
+            disabledReason={composerDisabled ? t('chat.cannotSend') : undefined}
             isSending={isSending}
             onSend={handleSend}
             onSendImages={isMessagingAllowed ? handleSendImages : undefined}

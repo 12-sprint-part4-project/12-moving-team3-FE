@@ -76,7 +76,7 @@ export const EstimateRequestBlocked = ({
             type="button"
             variant="solid"
             size="sm"
-            className="max-w-[12.25rem] px-6 md:h-16 md:text-xl-semibold"
+            className="max-w-[18rem] px-6 text-center whitespace-normal md:h-16 md:max-w-[20rem] md:text-xl-semibold"
             onClick={handleAction}
           >
             {actionLabel}

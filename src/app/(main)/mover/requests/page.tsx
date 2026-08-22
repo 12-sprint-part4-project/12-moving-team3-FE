@@ -1,3 +1,6 @@
+import { createPageMetadata } from '@/i18n/createPageMetadata';
+import { getServerTranslation } from '@/i18n/getServerTranslation';
+
 import { MOVER_REQUESTS_PAGE_X_PADDING } from './_components/moverRequestsStyles';
 import { MoverRequestsTitleHeader } from './_components/MoverRequestsTitleHeader';
 import {
@@ -7,11 +10,7 @@ import {
 } from './_lib/requestsListSearchParams';
 import MoverRequestsPageClient from './page.client';
 
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: '받은 요청',
-};
+export const generateMetadata = createPageMetadata('nav.receivedRequests');
 
 export interface MoverRequestsPageProps {
   searchParams: Promise<{
@@ -28,6 +27,7 @@ export interface MoverRequestsPageProps {
  * `?focus=` 알림 딥링크 시 필터는 기본값으로 열어 대상 카드가 목록에 나올 수 있게 한다.
  */
 const MoverRequestsPage = async ({ searchParams }: MoverRequestsPageProps) => {
+  const { t } = await getServerTranslation();
   const params = await searchParams;
   const focusRequestId = parseFocusRequestId(params.focus);
   const initialUrlState =
@@ -35,11 +35,10 @@ const MoverRequestsPage = async ({ searchParams }: MoverRequestsPageProps) => {
       ? DEFAULT_REQUESTS_LIST_URL_STATE
       : parseRequestsListSearchParamsRecord(params);
 
-  // 타이틀 + 목록 본문
   return (
     <div className="flex w-full flex-col overflow-x-hidden bg-white">
       <MoverRequestsTitleHeader
-        title="받은 요청"
+        title={t('nav.receivedRequests')}
         paddingClassName={MOVER_REQUESTS_PAGE_X_PADDING}
       />
       <MoverRequestsPageClient

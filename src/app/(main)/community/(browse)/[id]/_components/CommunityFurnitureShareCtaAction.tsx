@@ -2,6 +2,7 @@
 
 import ChatIcon from '@/assets/icons/chat.svg';
 import CheckIcon from '@/assets/icons/check.svg';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import {
@@ -9,8 +10,6 @@ import {
   COMMUNITY_FURNITURE_SHARE_CTA_CHECK_ICON_CLASS,
   COMMUNITY_FURNITURE_SHARE_CTA_ICON_CLASS,
   COMMUNITY_FURNITURE_SHARE_CTA_LABEL_CLASS,
-  FURNITURE_SHARE_CHAT_CTA_LABEL,
-  FURNITURE_SHARE_COMPLETE_LABEL,
 } from '../../../_components/communityFurnitureShareStyles';
 
 type FurnitureShareCtaVariant = 'chat' | 'complete';
@@ -34,10 +33,11 @@ export const CommunityFurnitureShareCtaAction = ({
   isPending = false,
   asStatus = false,
 }: CommunityFurnitureShareCtaActionProps) => {
+  const { t } = useTranslation();
   const label =
     variant === 'chat'
-      ? FURNITURE_SHARE_CHAT_CTA_LABEL
-      : FURNITURE_SHARE_COMPLETE_LABEL;
+      ? t('community.receiveShare')
+      : t('community.shareComplete');
 
   const isDisabled = disabled || isPending;
   const pillClassName = cn(

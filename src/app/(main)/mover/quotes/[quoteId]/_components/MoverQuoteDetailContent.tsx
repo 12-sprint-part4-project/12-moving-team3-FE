@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 
 import { QuoteInfoSection } from '@/components/quotes/QuoteInfoRows';
 import { QuoteShareButtons } from '@/components/QuoteShareButtons/QuoteShareButtons';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   fadeUp,
   getFadeUpMotionProps,
@@ -41,6 +42,7 @@ export const MoverQuoteDetailContent = ({
   actions,
   className = '',
 }: MoverQuoteDetailContentProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
 
   const motionTransition = getMotionTransition(shouldReduceMotion);
@@ -54,7 +56,7 @@ export const MoverQuoteDetailContent = ({
   /** QuoteShareButtons용 공유 메타 */
   const quoteShareProps = {
     sharePath: `/mover/quotes/${detail.id}`,
-    shareTitle: `${detail.customerName} 고객님 견적서`,
+    shareTitle: t('quotes.shareCustomerTitle', { name: detail.customerName }),
     shareDescription:
       detail.comment?.trim() || `${detail.serviceLabel} · ${detail.priceLabel}`,
   };
@@ -64,8 +66,7 @@ export const MoverQuoteDetailContent = ({
     <div
       className={cn(
         'mx-auto grid w-full max-w-[1920px] flex-1 grid-cols-1 gap-6 py-6 md:gap-8 md:py-8 lg:items-start lg:justify-between lg:gap-10 lg:py-10',
-        !detail.isRejected &&
-          'lg:grid-cols-[minmax(0,59.6875rem)_auto]',
+        !detail.isRejected && 'lg:grid-cols-[minmax(0,59.6875rem)_auto]',
         MOVER_QUOTES_PAGE_X_PADDING,
         className
       )}
@@ -95,7 +96,7 @@ export const MoverQuoteDetailContent = ({
               className={MOVER_QUOTE_DETAIL_SECTION_CLASS}
             >
               <h2 className={MOVER_QUOTE_DETAIL_SECTION_TITLE_CLASS}>
-                반려 사유
+                {t('quotes.rejectReason')}
               </h2>
               <p className="text-lg-regular whitespace-pre-wrap text-black-400 lg:text-2lg-regular">
                 {detail.rejectReason}
@@ -108,7 +109,9 @@ export const MoverQuoteDetailContent = ({
               {...fadeUpMotion}
               className={MOVER_QUOTE_DETAIL_SECTION_CLASS}
             >
-              <h2 className={MOVER_QUOTE_DETAIL_SECTION_TITLE_CLASS}>견적가</h2>
+              <h2 className={MOVER_QUOTE_DETAIL_SECTION_TITLE_CLASS}>
+                {t('quotes.priceAmount')}
+              </h2>
               <p className="text-2lg-bold text-black-400 lg:text-3xl-bold">
                 {detail.priceLabel}
               </p>
@@ -125,7 +128,7 @@ export const MoverQuoteDetailContent = ({
                   className={MOVER_QUOTE_DETAIL_SECTION_CLASS}
                 >
                   <h2 className={MOVER_QUOTE_DETAIL_SECTION_TITLE_CLASS}>
-                    코멘트
+                    {t('quotes.comment')}
                   </h2>
                   <p className="text-lg-regular whitespace-pre-wrap text-black-400 lg:text-2lg-regular">
                     {detail.comment}
@@ -160,12 +163,8 @@ export const MoverQuoteDetailContent = ({
       {/* 사이드바(lg+) — 채팅 CTA + 공유 (반려 제외) */}
       {!detail.isRejected ? (
         <motion.aside
-          initial={
-            shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: 12 }
-          }
-          animate={
-            shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }
-          }
+          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: 12 }}
+          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
           transition={motionTransition}
           className="col-start-1 hidden w-full flex-col gap-10 lg:col-start-2 lg:row-span-1 lg:row-start-1 lg:flex"
         >

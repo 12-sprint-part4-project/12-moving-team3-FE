@@ -21,6 +21,7 @@ import { usePost, usePostNeighbors, useRecordPostView } from '@/hooks/usePost';
 import { useTogglePostLike } from '@/hooks/usePostLike';
 import { useDeletePost } from '@/hooks/usePostMutations';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError, resolveApiErrorMessage } from '@/lib/apiClient';
 import {
   getTabFromPostCategory,
@@ -69,6 +70,7 @@ const DETAIL_STATE_MESSAGE_CLASS =
 export const CommunityPostDetailPageClient = ({
   postId,
 }: CommunityPostDetailPageClientProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
@@ -226,13 +228,13 @@ export const CommunityPostDetailPageClient = ({
     }
 
     if (post.isLiked === null) {
-      showToast({ content: '좋아요 정보를 불러오지 못했습니다.' });
+      showToast({ content: t('community.likeLoadFail') });
       return;
     }
 
     togglePostLike(postId, !post.isLiked, {
       onError: (error) => {
-        showMutationError(error, '좋아요 처리에 실패했습니다.');
+        showMutationError(error, t('community.likeFail'));
       },
     });
   }, [
@@ -242,6 +244,7 @@ export const CommunityPostDetailPageClient = ({
     togglePostLike,
     showToast,
     showMutationError,
+    t,
   ]);
 
   const handleReplySubmit = useCallback(
@@ -251,12 +254,12 @@ export const CommunityPostDetailPageClient = ({
         { commentId, content },
         {
           onError: (error) => {
-            showMutationError(error, '답글 작성에 실패했습니다.');
+            showMutationError(error, t('community.replyFail'));
           },
         }
       );
     },
-    [ensureProfileReady, createReply, showMutationError]
+    [ensureProfileReady, createReply, showMutationError, t]
   );
 
   const handleCommentSubmit = useCallback(
@@ -272,12 +275,12 @@ export const CommunityPostDetailPageClient = ({
             setCommentDraft('');
           },
           onError: (error) => {
-            showMutationError(error, '댓글 작성에 실패했습니다.');
+            showMutationError(error, t('community.commentFail'));
           },
         }
       );
     },
-    [ensureProfileReady, createComment, showMutationError]
+    [ensureProfileReady, createComment, showMutationError, t]
   );
 
   const handleCommentInputFocus = useCallback(() => {
@@ -313,10 +316,10 @@ export const CommunityPostDetailPageClient = ({
     deleteCommentMutate(commentIdToDelete, {
       onSuccess: () => {
         setCommentIdToDelete(null);
-        showToast({ content: '댓글이 삭제되었습니다.' });
+        showToast({ content: t('community.commentDeleted') });
       },
       onError: (error) => {
-        showMutationError(error, '댓글 삭제에 실패했습니다.');
+        showMutationError(error, t('community.commentDeleteFail'));
       },
     });
   }, [
@@ -325,6 +328,7 @@ export const CommunityPostDetailPageClient = ({
     isDeleteCommentPending,
     showToast,
     showMutationError,
+    t,
   ]);
 
   const handlePostEdit = useCallback(() => {
@@ -338,11 +342,11 @@ export const CommunityPostDetailPageClient = ({
   const handleCopyPostLink = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      showToast({ content: '링크가 복사되었습니다.' });
+      showToast({ content: t('share.copySuccess') });
     } catch {
-      showToast({ content: '링크 복사에 실패했습니다.' });
+      showToast({ content: t('share.copyFail') });
     }
-  }, [showToast]);
+  }, [showToast, t]);
 
   const handlePostDeleteModalClose = useCallback(() => {
     if (isDeletePostPending) {
@@ -359,11 +363,11 @@ export const CommunityPostDetailPageClient = ({
     deletePostMutate(postId, {
       onSuccess: () => {
         setIsPostDeleteModalOpen(false);
-        showToast({ content: '게시글이 삭제되었습니다.' });
+        showToast({ content: t('community.postDeleted') });
         router.push('/community');
       },
       onError: (error) => {
-        showMutationError(error, '게시글 삭제에 실패했습니다.');
+        showMutationError(error, t('community.postDeleteFail'));
       },
     });
   }, [
@@ -373,6 +377,7 @@ export const CommunityPostDetailPageClient = ({
     router,
     showToast,
     showMutationError,
+    t,
   ]);
 
   useEffect(() => {
@@ -395,7 +400,9 @@ export const CommunityPostDetailPageClient = ({
   if (postId <= 0 || Number.isNaN(postId)) {
     return (
       <div className={DETAIL_STATE_MESSAGE_CLASS}>
-        <p className="text-lg-medium text-gray-400">잘못된 게시글 주소예요.</p>
+        <p className="text-lg-medium text-gray-400">
+          {t('community.invalidPostUrl')}
+        </p>
       </div>
     );
   }
@@ -403,7 +410,7 @@ export const CommunityPostDetailPageClient = ({
   if (isPostPending) {
     return (
       <div className="flex justify-center py-24">
-        <Spinner message="게시글 불러오는 중..." />
+        <Spinner message={t('community.loadingPost')} />
       </div>
     );
   }
@@ -414,7 +421,9 @@ export const CommunityPostDetailPageClient = ({
   if (isNotFound) {
     return (
       <div className={DETAIL_STATE_MESSAGE_CLASS}>
-        <p className="text-lg-medium text-gray-400">게시글을 찾을 수 없어요.</p>
+        <p className="text-lg-medium text-gray-400">
+          {t('community.postNotFound')}
+        </p>
       </div>
     );
   }
@@ -422,7 +431,7 @@ export const CommunityPostDetailPageClient = ({
   if (isPostError || !post) {
     const errorMessage = resolveApiErrorMessage(
       postError,
-      '게시글을 불러오지 못했습니다.'
+      t('community.postError')
     );
 
     return (
@@ -435,7 +444,7 @@ export const CommunityPostDetailPageClient = ({
             void refetchPost();
           }}
         >
-          다시 시도
+          {t('common.retry')}
         </Button>
       </div>
     );
@@ -445,7 +454,7 @@ export const CommunityPostDetailPageClient = ({
 
   const commentsErrorMessage = resolveApiErrorMessage(
     commentsError,
-    '댓글을 불러오지 못했습니다.'
+    t('community.commentError')
   );
 
   const isLiked = post.isLiked === true;
@@ -623,8 +632,8 @@ export const CommunityPostDetailPageClient = ({
       {commentIdToDelete !== null ? (
         <Modal placement="bottom" onClose={handleDeleteCommentModalClose}>
           <ConfirmDeleteModal
-            title="댓글 삭제"
-            message="작성한 댓글을 삭제하시겠습니까?"
+            title={t('community.deleteCommentTitle')}
+            message={t('community.deleteCommentMessage')}
             onClose={handleDeleteCommentModalClose}
             onConfirm={handleDeleteCommentConfirm}
             isDeleting={isDeleteCommentPending}
@@ -635,12 +644,12 @@ export const CommunityPostDetailPageClient = ({
       {isPostDeleteModalOpen ? (
         <Modal placement="bottom" onClose={handlePostDeleteModalClose}>
           <ConfirmDeleteModal
-            title="게시글 삭제"
+            title={t('community.deletePostTitle')}
             message={
               <>
-                작성한 게시글을 삭제하시겠습니까?
+                {t('community.deletePostMessage')}
                 <br />
-                삭제 후에는 복구할 수 없습니다.
+                {t('community.deletePostIrreversible')}
               </>
             }
             onClose={handlePostDeleteModalClose}
@@ -653,15 +662,15 @@ export const CommunityPostDetailPageClient = ({
       {isCompleteModalOpen ? (
         <Modal placement="bottom" onClose={handleCompleteModalClose}>
           <ConfirmDeleteModal
-            title="나눔 완료"
+            title={t('community.completeShareTitle')}
             message={
               <>
-                나눔을 완료 처리하시겠습니까?
+                {t('community.completeShareMessage')}
                 <br />
-                완료 후에는 더 이상 나눔 받기 요청을 받을 수 없습니다.
+                {t('community.completeShareIrreversible')}
               </>
             }
-            confirmLabel="완료하기"
+            confirmLabel={t('community.completeAction')}
             onClose={handleCompleteModalClose}
             onConfirm={handleCompleteConfirm}
             isDeleting={isCompletePending}

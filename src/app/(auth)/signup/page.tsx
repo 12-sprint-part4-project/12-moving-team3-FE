@@ -1,10 +1,8 @@
 import { SignupForm } from '@/app/(auth)/signup/_components/SignupForm';
 
-import type { Metadata } from 'next';
+import { createPageMetadata } from '@/i18n/createPageMetadata';
 
-export const metadata: Metadata = {
-  title: '회원가입',
-};
+export const generateMetadata = createPageMetadata('meta.signup');
 
 /** `/signup` 서버 페이지. - 일반 유저 회원가입 */
 const SignupPage = () => {

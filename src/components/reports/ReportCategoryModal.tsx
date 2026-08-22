@@ -5,6 +5,7 @@ import { useId, useState } from 'react';
 import { ModalBasic } from '@/components/ui/Modal/ModalBasic';
 import { ModalCtaButton } from '@/components/ui/Modal/ModalCtaButton';
 import { MODAL_PANEL_BOTTOM_SHEET_CLASS } from '@/components/ui/Modal/modalPanel';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 import { REPORT_CATEGORY_OPTIONS, type ReportCategory } from '@/types/report';
 
@@ -26,6 +27,7 @@ export const ReportCategoryModal = ({
   isSubmitting = false,
   className = '',
 }: ReportCategoryModalProps) => {
+  const { t } = useTranslation();
   const groupId = useId();
   const [category, setCategory] = useState<ReportCategory | null>(null);
 
@@ -43,20 +45,20 @@ export const ReportCategoryModal = ({
 
   return (
     <ModalBasic
-      title="신고하기"
+      title={t('report.title')}
       onClose={handleClose}
       titleAlign="center"
       titleClassName="text-black-500 tablet:text-2xl-bold"
       className={cn(MODAL_PANEL_BOTTOM_SHEET_CLASS, className)}
       footer={
         <ModalCtaButton disabled={!canSubmit} onClick={handleSubmit}>
-          신고하기
+          {t('report.title')}
         </ModalCtaButton>
       }
     >
       <fieldset className="flex w-full flex-col gap-3 tablet:gap-4">
         <legend className="mb-1 pb-4 text-lg-semibold text-black-200 tablet:text-2lg-semibold">
-          신고 사유를 선택해 주세요
+          {t('report.selectReason')}
         </legend>
         {REPORT_CATEGORY_OPTIONS.map((option) => {
           const optionId = `${groupId}-${option.value}`;
@@ -84,7 +86,7 @@ export const ReportCategoryModal = ({
                 className="size-5 accent-blue-300"
               />
               <span className="text-lg-medium text-black-300 tablet:text-2lg-medium">
-                {option.label}
+                {t(`report.category.${option.value}`)}
               </span>
             </label>
           );

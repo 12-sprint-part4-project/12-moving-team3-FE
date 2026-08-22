@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 
 import StarIcon from '@/assets/icons/star.svg';
+import { useTranslation } from '@/i18n/useTranslation';
 import { getMotionTransition } from '@/lib/motionVariants';
 import {
   getReviewScoreBreakdown,
@@ -26,6 +27,7 @@ export const ReviewRatingChart = ({
   statistics,
   className,
 }: ReviewRatingChartProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const barTransition = getMotionTransition(shouldReduceMotion, {
     duration: 0.45,
@@ -83,7 +85,9 @@ export const ReviewRatingChart = ({
             );
           })}
         </div>
-        <span className="sr-only">평균 {averageLabel}점</span>
+        <span className="sr-only">
+          {t('reviews.averageRatingSr', { rating: averageLabel })}
+        </span>
       </div>
 
       {/* 점수 분포 — mobile/tablet만 별도 회색 카드, desktop은 바깥 카드에 포함
@@ -116,7 +120,7 @@ export const ReviewRatingChart = ({
                     : 'text-md-medium xl:text-xl-medium'
                 )}
               >
-                {score}점
+                {t('reviews.scorePoints', { score })}
               </p>
               <div className="relative h-2 min-w-0 flex-1 overflow-hidden rounded-[0.9375rem] bg-background-300 xl:max-w-[23.125rem]">
                 <motion.div

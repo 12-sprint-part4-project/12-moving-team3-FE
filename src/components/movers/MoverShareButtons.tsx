@@ -5,6 +5,7 @@ import SymbolFacebookIcon from '@/assets/icons/symbol-facebook.svg';
 import SymbolKakaoIcon from '@/assets/icons/symbol-kakao.svg';
 import { IconButton } from '@/components/ui/IconButton/IconButton';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import { isKakaoShareConfigured, shareMoverToKakao } from '@/lib/kakaoShare';
 import { cn } from '@/lib/utils';
 
@@ -27,6 +28,7 @@ export const MoverShareButtons = ({
   description = null,
   profileImageUrl = null,
 }: MoverShareButtonsProps) => {
+  const { t } = useTranslation();
   const { showToast } = useToast();
 
   const getShareUrl = () =>
@@ -35,16 +37,16 @@ export const MoverShareButtons = ({
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(getShareUrl());
-      showToast({ content: '링크가 복사되었습니다.' });
+      showToast({ content: t('share.copySuccess') });
     } catch {
-      showToast({ content: '링크 복사에 실패했습니다.' });
+      showToast({ content: t('share.copyFail') });
     }
   };
 
   const handleShareKakao = () => {
     if (!isKakaoShareConfigured()) {
       showToast({
-        content: '카카오톡 공유 설정이 되어 있지 않습니다.',
+        content: t('share.kakaoUnconfigured'),
       });
       return;
     }
@@ -58,7 +60,7 @@ export const MoverShareButtons = ({
       const message =
         error instanceof Error
           ? error.message
-          : '카카오톡 공유에 실패했습니다.';
+          : t('share.kakaoFail');
       showToast({ content: message });
     });
   };
@@ -76,7 +78,7 @@ export const MoverShareButtons = ({
     <div className={cn('flex items-center gap-4', className)}>
       <IconButton
         icon={ClipIcon}
-        aria-label="링크 복사"
+        aria-label={t('share.copyLink')}
         size={size}
         variant="outlined"
         onClick={() => {
@@ -86,14 +88,14 @@ export const MoverShareButtons = ({
       />
       <IconButton
         icon={SymbolKakaoIcon}
-        aria-label="카카오톡 공유"
+        aria-label={t('share.kakao')}
         size={size}
         variant="kakao"
         onClick={handleShareKakao}
       />
       <IconButton
         icon={SymbolFacebookIcon}
-        aria-label="페이스북 공유"
+        aria-label={t('share.facebook')}
         size={size}
         variant="facebook"
         onClick={handleShareFacebook}

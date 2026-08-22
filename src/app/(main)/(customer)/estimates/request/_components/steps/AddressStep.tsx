@@ -8,6 +8,7 @@ import { Calendar } from '@/components/ui/Calendar/Calendar';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { API_ERROR_CODE } from '@/constants/errorCode';
 import { useMoveInfoRevise } from '@/hooks/useMoveInfoRevise';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError, resolveApiErrorMessage } from '@/lib/apiClient';
 import { saveEstimateRequestStepBodySchema } from '@/lib/customerEstimateRequestSchema';
 import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
@@ -45,9 +46,6 @@ interface AddressStepProps {
   onProgressFillChange?: (fill: EstimateRequestVisualStep) => void;
 }
 
-const MOVE_DATE_PROMPT = '이사 예정일을 선택해주세요.';
-const ADDRESS_PROMPT = '이사 지역을 선택해주세요.';
-
 /** detail에 저장된 주소가 있으면 draft로 복원 */
 const toDraftFromDetail = (
   zipCode: string | null | undefined,
@@ -66,6 +64,7 @@ const toDraftFromDetail = (
  * Progress: 한쪽 draft=3/4, 둘 다=full. 이사종류/일자 수정은 useMoveInfoRevise.
  */
 export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const [activeSide, setActiveSide] = useState<AddressSide | null>(null);
   const shouldReduceMotion = useReducedMotion();
@@ -96,10 +95,10 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
   // 주소 저장·제출 중 CTA busy — 라벨은 단계별로 구분
   const isConfirmBusy = isSavingStep || isSubmittingRequest;
   const confirmLabel = isSubmittingRequest
-    ? '제출 중…'
+    ? t('estimateRequest.submitting')
     : isSavingStep
-      ? '저장 중…'
-      : '견적 확정하기';
+      ? t('estimateRequest.saving')
+      : t('estimateRequest.confirmQuote');
 
   const [departure, setDeparture] = useState<AddressDraft | null>(() =>
     toDraftFromDetail(
@@ -145,7 +144,7 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
 
     // 출발·도착 draft 모두 있어야 step3 body 구성 가능
     if (!departure || !arrival) {
-      setErrorMessage('출발지와 도착지를 모두 입력해 주세요.');
+      setErrorMessage(t('estimateRequest.bothAddressesRequired'));
       return;
     }
 
@@ -163,7 +162,7 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
 
     if (!parsed.success) {
       setErrorMessage(
-        parsed.error.issues[0]?.message ?? '주소를 입력해 주세요.'
+        parsed.error.issues[0]?.message ?? t('estimateRequest.addressRequired')
       );
       return;
     }
@@ -190,14 +189,14 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
 
       // REQUIRED_FIELD_MISSING 등 ApiError.message 그대로 노출
       setErrorMessage(
-        resolveApiErrorMessage(error, '견적 요청 제출 중 오류가 발생했습니다.')
+        resolveApiErrorMessage(error, t('estimateRequest.submitError'))
       );
     }
   };
 
   return (
     <section
-      aria-label="출발지 도착지 입력"
+      aria-label={t('estimateRequest.selectAddressAria')}
       className="page-content flex flex-col gap-2 md:gap-6"
     >
       <MoveTypeAnswerSection
@@ -211,7 +210,7 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
         <>
           {/* 시스템: 날짜 프롬프트 */}
           <EstimateRequestChatBubbleGroup>
-            <TextFieldChat>{MOVE_DATE_PROMPT}</TextFieldChat>
+            <TextFieldChat>{t('estimateRequest.moveDatePrompt')}</TextFieldChat>
           </EstimateRequestChatBubbleGroup>
 
           {/* 유저: 날짜 답변 + 수정하기 (날짜 수정 모드 중에는 숨김) */}
@@ -238,7 +237,11 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
                 minDate={moveDate.min}
                 maxDate={moveDate.max}
                 confirmDisabled={isSubmitting || detail == null}
-                confirmLabel={isSubmitting ? '저장 중…' : '선택완료'}
+                confirmLabel={
+                  isSubmitting
+                    ? t('estimateRequest.saving')
+                    : t('estimateRequest.selectComplete')
+                }
                 onConfirm={(date) => {
                   void moveDate.confirmRevise(date);
                 }}
@@ -253,7 +256,7 @@ export const AddressStep = ({ onProgressFillChange }: AddressStepProps) => {
         <>
           {/* 시스템: 지역 선택 프롬프트 */}
           <EstimateRequestChatBubbleGroup>
-            <TextFieldChat>{ADDRESS_PROMPT}</TextFieldChat>
+            <TextFieldChat>{t('estimateRequest.addressPrompt')}</TextFieldChat>
           </EstimateRequestChatBubbleGroup>
 
           {/* 출발/도착 선택 카드 + 견적 확정(저장·제출) CTA */}

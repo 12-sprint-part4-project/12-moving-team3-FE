@@ -1,16 +1,11 @@
+import { createPageMetadata } from '@/i18n/createPageMetadata';
 import { resolveTabSearchParam } from '@/lib/resolveTabSearchParam';
 
-import {
-  CustomerQuotesTabs,
-  parseCustomerQuotesTabId,
-} from './_components/CustomerQuotesTabs';
+import { CustomerQuotesTabs } from './_components/CustomerQuotesTabs';
+import { parseCustomerQuotesTabId } from './_lib/parseCustomerQuotesTabId';
 import CustomerQuotesPageClient from './page.client';
 
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: '내 견적 관리',
-};
+export const generateMetadata = createPageMetadata('nav.myQuotes');
 
 export interface CustomerQuotesPageProps {
   searchParams: Promise<{ tab?: string | string[] }>;

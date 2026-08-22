@@ -8,6 +8,8 @@ interface AuthEmailFieldProps {
   id: string;
   value: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  label: string;
+  placeholder: string;
   isError?: boolean;
   errorMessage?: string;
 }
@@ -17,6 +19,8 @@ export const AuthEmailField = ({
   id,
   value,
   onChange,
+  label,
+  placeholder,
   isError,
   errorMessage,
 }: AuthEmailFieldProps) => {
@@ -26,8 +30,8 @@ export const AuthEmailField = ({
       name="email"
       type="email"
       autoComplete="email"
-      label="이메일"
-      placeholder="이메일을 입력해 주세요"
+      label={label}
+      placeholder={placeholder}
       maxLength={EMAIL_MAX_LENGTH}
       value={value}
       onChange={onChange}

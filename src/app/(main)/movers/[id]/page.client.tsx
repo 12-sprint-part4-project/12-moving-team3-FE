@@ -6,6 +6,7 @@ import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { ProfileRequiredModal } from '@/components/auth/ProfileRequiredModal';
 import { MoverCard } from '@/components/movers/MoverCard';
 import { useMoverDetail } from '@/hooks/useMoverDetail';
+import { useTranslation } from '@/i18n/useTranslation';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 import { fadeUp, listStagger } from '@/lib/motionVariants';
 import { isMoverId } from '@/types/mover';
@@ -32,6 +33,7 @@ export interface MoverDetailPageClientProps {
 
 /** `/movers/[id]` 클라이언트. - 상세 Query·찜·지정·채팅 오케스트레이션. */
 const MoverDetailPageClient = ({ moverId }: MoverDetailPageClientProps) => {
+  const { t } = useTranslation();
   const { mover, isPending, isError, error, isNotFound, refetch } =
     useMoverDetail(moverId);
   const {
@@ -51,7 +53,7 @@ const MoverDetailPageClient = ({ moverId }: MoverDetailPageClientProps) => {
   const isValidMoverId = isMoverId(moverId);
   const errorMessage = resolveApiErrorMessage(
     error,
-    '기사님 정보를 불러오지 못했습니다.'
+    t('movers.detailError')
   );
 
   const handleRetry = () => {

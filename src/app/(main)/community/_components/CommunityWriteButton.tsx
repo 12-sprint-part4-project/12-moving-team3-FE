@@ -14,6 +14,7 @@ import {
   type FloatingActionVisibility,
   useFloatingActionScrollVisibility,
 } from '@/hooks/useFloatingActionScrollVisibility';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import { COMMUNITY_FILTER_RESET_BUTTON_CLASS } from './CommunityFilterResetButton';
@@ -34,12 +35,13 @@ const CommunityWriteFab = ({
   visibility = 'scroll',
   bottomClass = WRITE_FAB_BOTTOM_CLASS,
 }: CommunityWriteFabProps) => {
+  const { t } = useTranslation();
   const visibilityClass = useFloatingActionScrollVisibility(visibility);
 
   return (
     <button
       type="button"
-      aria-label="글쓰기"
+      aria-label={t('community.write')}
       onClick={onClick}
       className={cn(
         FLOATING_ACTION_FIXED_CLASS,
@@ -74,6 +76,7 @@ export const CommunityWriteButton = ({
   visibility,
   bottomClass,
 }: CommunityWriteButtonProps) => {
+  const { t } = useTranslation();
   const {
     writeHref,
     handleWriteClick,
@@ -92,24 +95,27 @@ export const CommunityWriteButton = ({
       ) : (
         <button
           type="button"
-          aria-label={variant === 'toolbar' ? '글쓰기' : undefined}
+          aria-label={variant === 'toolbar' ? t('community.write') : undefined}
           onClick={handleWriteClick}
           className={cn(
             'hidden shrink-0 cursor-pointer items-center justify-center transition-colors',
             variant !== 'toolbar' && 'bg-blue-300 text-white hover:bg-blue-200',
             variant === 'toolbar' &&
-              cn(COMMUNITY_FILTER_RESET_BUTTON_CLASS, 'border-transparent bg-blue-300 text-white hover:bg-blue-200 hover:text-white min-[46.5rem]:inline-flex xl:hidden'),
+              cn(
+                COMMUNITY_FILTER_RESET_BUTTON_CLASS,
+                'border-transparent bg-blue-300 text-white hover:bg-blue-200 hover:text-white min-[46.5rem]:inline-flex xl:hidden'
+              ),
             variant === 'desktop' &&
               'h-[3.125rem] min-w-[11.25rem] rounded-2xl px-4 text-xl-semibold xl:inline-flex',
             variant === 'tabbar' &&
-              'h-11 w-full rounded-2xl px-5 text-lg-semibold inline-flex',
+              'inline-flex h-11 w-full rounded-2xl px-5 text-lg-semibold',
             className
           )}
         >
           {variant === 'toolbar' ? (
             <EditIcon className="size-6 text-white" aria-hidden />
           ) : (
-            '글쓰기'
+            t('community.write')
           )}
         </button>
       )}

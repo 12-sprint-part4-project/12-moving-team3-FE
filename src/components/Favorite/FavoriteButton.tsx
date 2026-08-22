@@ -1,6 +1,7 @@
 'use client';
 
 import LikeActiveIcon from '@/assets/icons/like-active.svg';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import type { MouseEvent } from 'react';
@@ -41,9 +42,14 @@ export const FavoriteButton = ({
   iconClassName = '',
   countClassName = '',
 }: FavoriteButtonProps) => {
+  const { t } = useTranslation();
   const iconColorClass = isFavorited ? ICON_COLOR.favorited : ICON_COLOR.idle;
-  const shortLabel = isFavorited ? '찜 취소' : '찜하기';
-  const longLabel = isFavorited ? '기사님 찜 취소' : '기사님 찜하기';
+  const shortLabel = isFavorited
+    ? t('movers.favorite.remove')
+    : t('movers.favorite.add');
+  const longLabel = isFavorited
+    ? t('movers.favorite.removeMover')
+    : t('movers.favorite.addMover');
 
   if (variant === 'icon-only') {
     return (

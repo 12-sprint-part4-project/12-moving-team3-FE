@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   cardHover,
   fadeUp,
@@ -44,6 +45,7 @@ export const ReceivedRequestCard = ({
   isChatPending = false,
   className = '',
 }: ReceivedRequestCardProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
 
@@ -70,7 +72,7 @@ export const ReceivedRequestCard = ({
     ? [
         {
           key: 'reject',
-          label: '반려',
+          label: t('quoteStatus.rejected'),
           variant: 'outlined',
           showIcon: false,
           onClick: handleReject,
@@ -82,7 +84,7 @@ export const ReceivedRequestCard = ({
     ? [
         {
           key: 'chat',
-          label: '채팅하기',
+          label: t('quotes.startChat'),
           variant: 'outlined',
           showIcon: false,
           disabled: isChatPending,
@@ -95,7 +97,7 @@ export const ReceivedRequestCard = ({
   const cardActions: RequestCardAction[] = [
     {
       key: 'send-quote',
-      label: '견적 보내기',
+      label: t('receivedRequests.sendQuote'),
       variant: 'solid',
       showIcon: true,
       onClick: handleSendQuote,
@@ -166,17 +168,19 @@ export const ReceivedRequestCard = ({
             <h3 className="flex flex-wrap items-baseline gap-x-1.5 text-lg-semibold text-black-300 lg:gap-x-2 lg:text-xl-semibold">
               <span>
                 {request.customerName}
-                <span className="ml-1 lg:ml-2">고객님</span>
+                <span className="ml-1 lg:ml-2">{t('gnb.role.customer')}</span>
               </span>
               <span className="text-md-medium text-gray-500 lg:text-lg-medium">
-                (지정: {request.quoteCount.designated} / 일반:{' '}
-                {request.quoteCount.general})
+                {t('receivedRequests.quoteCount', {
+                  designated: request.quoteCount.designated,
+                  general: request.quoteCount.general,
+                })}
               </span>
             </h3>
 
             <div className="lg:hidden">
               <InfoField
-                label="이사일"
+                label={t('quotes.moveDate')}
                 value={request.moveDate}
                 color="neutral"
                 className="gap-2"
@@ -190,7 +194,7 @@ export const ReceivedRequestCard = ({
 
           <div className="flex flex-wrap items-center gap-3.5 lg:hidden">
             <InfoField
-              label="출발"
+              label={t('quotes.departureShort')}
               value={request.departure}
               color="neutral"
               className="gap-2"
@@ -199,7 +203,7 @@ export const ReceivedRequestCard = ({
             />
             <span aria-hidden className="h-3.5 w-px bg-line-200" />
             <InfoField
-              label="도착"
+              label={t('quotes.arrivalShort')}
               value={request.arrival}
               color="neutral"
               className="gap-2"
@@ -210,7 +214,7 @@ export const ReceivedRequestCard = ({
 
           <div className="hidden min-w-0 items-center gap-x-4 lg:flex lg:flex-nowrap">
             <InfoField
-              label="이사일"
+              label={t('quotes.moveDate')}
               value={request.moveDate}
               color="neutral"
               className="shrink-0 gap-3"
@@ -222,7 +226,7 @@ export const ReceivedRequestCard = ({
               className="hidden h-4 w-px shrink-0 bg-line-200 xl:block"
             />
             <InfoField
-              label="출발"
+              label={t('quotes.departureShort')}
               value={
                 <span className="block truncate" title={request.departure}>
                   {request.departure}
@@ -238,7 +242,7 @@ export const ReceivedRequestCard = ({
               className="hidden h-4 w-px shrink-0 bg-line-200 xl:block"
             />
             <InfoField
-              label="도착"
+              label={t('quotes.arrivalShort')}
               value={
                 <span className="block truncate" title={request.arrival}>
                   {request.arrival}

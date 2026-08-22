@@ -1,11 +1,7 @@
 import { ChatRoomListPage } from '@/components/chat/ChatRoomListPage';
+import { createPageMetadata } from '@/i18n/createPageMetadata';
 
-import type { Metadata } from 'next';
-
-/** 루트 template → `채팅 | 무빙` */
-export const metadata: Metadata = {
-  title: '채팅',
-};
+export const generateMetadata = createPageMetadata('chat.title');
 
 const ChatPage = () => {
   return <ChatRoomListPage />;

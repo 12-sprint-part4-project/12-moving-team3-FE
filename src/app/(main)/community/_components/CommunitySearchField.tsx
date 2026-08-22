@@ -1,6 +1,7 @@
 'use client';
 
 import { TextFieldSearch } from '@/components/ui/Input/TextFieldSearch';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import type { ChangeEvent } from 'react';
@@ -23,6 +24,8 @@ export const CommunitySearchField = ({
   className = '',
   inputClassName = '',
 }: CommunitySearchFieldProps) => {
+  const { t } = useTranslation();
+
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     onChange(event.target.value);
   };
@@ -40,8 +43,8 @@ export const CommunitySearchField = ({
         onClear={handleClear}
         onSearch={onSearch}
         className={inputClassName}
-        placeholder="검색어를 입력해 주세요."
-        aria-label="게시글 검색"
+        placeholder={t('community.searchPlaceholder')}
+        aria-label={t('community.searchAria')}
       />
     </div>
   );

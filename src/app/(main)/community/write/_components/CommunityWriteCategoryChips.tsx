@@ -1,6 +1,7 @@
 'use client';
 
 import { WRITE_CATEGORY_OPTIONS } from '@/constants/communityOptions';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import {
@@ -25,36 +26,40 @@ export const CommunityWriteCategoryChips = ({
   onChange,
   readOnly = false,
   className = '',
-}: CommunityWriteCategoryChipsProps) => (
-  <section className={className}>
-    <h2 className={COMMUNITY_WRITE_LABEL_CLASS}>카테고리</h2>
-    <div className={COMMUNITY_WRITE_FIELD_ROW_CLASS}>
-      {WRITE_CATEGORY_OPTIONS.map((option) => {
-        const isSelected = value === option.value;
+}: CommunityWriteCategoryChipsProps) => {
+  const { t } = useTranslation();
 
-        return (
-          <button
-            key={option.value}
-            type="button"
-            aria-pressed={isSelected}
-            disabled={readOnly}
-            onClick={() => {
-              if (readOnly) {
-                return;
-              }
+  return (
+    <section className={className}>
+      <h2 className={COMMUNITY_WRITE_LABEL_CLASS}>{t('community.category')}</h2>
+      <div className={COMMUNITY_WRITE_FIELD_ROW_CLASS}>
+        {WRITE_CATEGORY_OPTIONS.map((option) => {
+          const isSelected = value === option.value;
 
-              onChange(option.value);
-            }}
-            className={cn(
-              COMMUNITY_WRITE_CATEGORY_CHIP_LAYOUT_CLASS,
-              readOnly ? 'cursor-default' : 'cursor-pointer',
-              getPostCategoryWriteChipClassName(option.value, isSelected)
-            )}
-          >
-            {option.label}
-          </button>
-        );
-      })}
-    </div>
-  </section>
-);
+          return (
+            <button
+              key={option.value}
+              type="button"
+              aria-pressed={isSelected}
+              disabled={readOnly}
+              onClick={() => {
+                if (readOnly) {
+                  return;
+                }
+
+                onChange(option.value);
+              }}
+              className={cn(
+                COMMUNITY_WRITE_CATEGORY_CHIP_LAYOUT_CLASS,
+                readOnly ? 'cursor-default' : 'cursor-pointer',
+                getPostCategoryWriteChipClassName(option.value, isSelected)
+              )}
+            >
+              {t(`community.postCategory.${option.value}`)}
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+};

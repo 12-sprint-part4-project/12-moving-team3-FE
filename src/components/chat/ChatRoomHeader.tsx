@@ -14,6 +14,7 @@ import { ModalBasic } from '@/components/ui/Modal/ModalBasic';
 import { useLeaveChatRoom } from '@/hooks/useChat';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 
@@ -36,6 +37,7 @@ export const ChatRoomHeader = ({
   quoteStatus,
   className,
 }: ChatRoomHeaderProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { showToast } = useToast();
   const leaveMutation = useLeaveChatRoom();
@@ -69,14 +71,12 @@ export const ChatRoomHeader = ({
       const result = await leaveMutation.mutateAsync(roomId);
       setIsLeaveModalOpen(false);
       showToast({
-        content: result ? '채팅방에서 나갔습니다.' : '이미 나간 채팅방입니다.',
+        content: result ? t('chat.left') : t('chat.alreadyLeft'),
       });
       router.replace('/chat');
     } catch (error) {
       const message =
-        error instanceof ApiError
-          ? error.message
-          : '채팅방 나가기에 실패했습니다.';
+        error instanceof ApiError ? error.message : t('chat.leaveFail');
       showToast({ content: message });
     }
   };
@@ -91,7 +91,7 @@ export const ChatRoomHeader = ({
       >
         <Link
           href="/chat"
-          aria-label="채팅 목록으로"
+          aria-label={t('chat.backToListAria')}
           className="z-10 inline-flex size-6 shrink-0 items-center justify-center text-black-400"
         >
           <ChevronLeftIcon className="size-6" aria-hidden />
@@ -112,7 +112,7 @@ export const ChatRoomHeader = ({
         <div ref={menuRef} className="relative z-10 shrink-0">
           <button
             type="button"
-            aria-label="채팅방 메뉴"
+            aria-label={t('chat.menuAria')}
             aria-haspopup="menu"
             aria-expanded={isMenuOpen}
             onClick={() => setIsMenuOpen((prev) => !prev)}
@@ -135,7 +135,7 @@ export const ChatRoomHeader = ({
                   setIsLeaveModalOpen(true);
                 }}
               >
-                채팅방 나가기
+                {t('chat.leave')}
               </button>
             </div>
           ) : null}
@@ -145,7 +145,7 @@ export const ChatRoomHeader = ({
       {isLeaveModalOpen ? (
         <Modal onClose={() => setIsLeaveModalOpen(false)}>
           <ModalBasic
-            title="채팅방 나가기"
+            title={t('chat.leave')}
             onClose={() => setIsLeaveModalOpen(false)}
             titleAlign="center"
             footer={
@@ -157,7 +157,7 @@ export const ChatRoomHeader = ({
                   onClick={() => setIsLeaveModalOpen(false)}
                   className="sm:flex-1"
                 >
-                  취소
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   type="button"
@@ -167,13 +167,13 @@ export const ChatRoomHeader = ({
                   onClick={() => void handleLeaveConfirm()}
                   className="sm:flex-1"
                 >
-                  나가기
+                  {t('chat.leaveAction')}
                 </Button>
               </div>
             }
           >
             <p className="px-6 pb-6 text-center text-2lg-medium text-black-300">
-              채팅방에서 나가면 대화 목록에서 삭제됩니다.
+              {t('chat.leaveBody')}
             </p>
           </ModalBasic>
         </Modal>

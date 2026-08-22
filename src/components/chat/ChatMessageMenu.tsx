@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import MoreVerticalIcon from '@/assets/icons/more-vertical.svg';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 export interface ChatMessageMenuProps {
@@ -21,6 +22,7 @@ export const ChatMessageMenu = ({
   onReport,
   className,
 }: ChatMessageMenuProps) => {
+  const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -45,7 +47,7 @@ export const ChatMessageMenu = ({
     <div ref={menuRef} className={cn('relative shrink-0', className)}>
       <button
         type="button"
-        aria-label="메시지 메뉴"
+        aria-label={t('chat.messageMenuAria')}
         aria-haspopup="menu"
         aria-expanded={isMenuOpen}
         onClick={() => setIsMenuOpen((prev) => !prev)}
@@ -78,7 +80,7 @@ export const ChatMessageMenu = ({
               onReport();
             }}
           >
-            신고
+            {t('chat.report')}
           </button>
         </div>
       ) : null}

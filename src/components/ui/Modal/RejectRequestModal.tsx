@@ -3,6 +3,7 @@
 import { useId, useMemo, useState, type ChangeEvent } from 'react';
 
 import { TextArea } from '@/components/ui/Input/TextArea';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   MAX_QUOTE_TEXT_LENGTH,
   MIN_QUOTE_TEXT_LENGTH,
@@ -57,6 +58,7 @@ export const RejectRequestModal = ({
   errorMessage,
   className = '',
 }: RejectRequestModalProps) => {
+  const { t } = useTranslation();
   const titleId = useId();
   const [reason, setReason] = useState('');
 
@@ -70,7 +72,7 @@ export const RejectRequestModal = ({
   const reasonLength = reason.trim().length;
   const reasonErrorMessage =
     reasonLength > 0 && reasonLength < MIN_QUOTE_TEXT_LENGTH
-      ? `최소 ${MIN_QUOTE_TEXT_LENGTH}자 이상 입력해 주세요.`
+      ? t('quoteModal.minLengthError', { count: MIN_QUOTE_TEXT_LENGTH })
       : undefined;
 
   const handleReasonChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -96,7 +98,11 @@ export const RejectRequestModal = ({
         className
       )}
     >
-      <ModalHeader title="반려요청" onClose={onClose} titleId={titleId} />
+      <ModalHeader
+        title={t('quoteModal.rejectTitle')}
+        onClose={onClose}
+        titleId={titleId}
+      />
 
       <div className="flex w-full flex-col gap-4 sm:gap-5">
         <RequestSummaryCard
@@ -111,7 +117,7 @@ export const RejectRequestModal = ({
         <div className="flex flex-col gap-4">
           <div className="flex items-end justify-between gap-2">
             <p className="text-lg-semibold text-black-300 sm:text-xl-semibold">
-              반려 사유를 입력해 주세요
+              {t('quoteModal.rejectReasonPrompt')}
             </p>
             <p className="text-sm-medium text-gray-400">
               {reasonLength}/{MAX_QUOTE_TEXT_LENGTH}
@@ -123,10 +129,13 @@ export const RejectRequestModal = ({
             value={reason}
             onChange={handleReasonChange}
             maxLength={MAX_QUOTE_TEXT_LENGTH}
-            placeholder={`최소 ${MIN_QUOTE_TEXT_LENGTH}자 이상, 최대 ${MAX_QUOTE_TEXT_LENGTH}자 이내로 입력해주세요`}
+            placeholder={t('quoteModal.commentPlaceholder', {
+              min: MIN_QUOTE_TEXT_LENGTH,
+              max: MAX_QUOTE_TEXT_LENGTH,
+            })}
             errorMessage={reasonErrorMessage}
             className="[&>div]:min-h-28 [&>div]:w-full"
-            aria-label="반려 사유"
+            aria-label={t('quoteModal.rejectReasonAria')}
           />
         </div>
       </div>
@@ -136,7 +145,9 @@ export const RejectRequestModal = ({
         onClick={handleSubmit}
         className="cursor-pointer disabled:cursor-default"
       >
-        {isSubmitting ? '반려 중...' : '반려하기'}
+        {isSubmitting
+          ? t('quoteModal.rejecting')
+          : t('quoteModal.rejectSubmit')}
       </ModalCtaButton>
       {errorMessage ? (
         <p role="alert" className="text-center text-md-medium text-red-200">

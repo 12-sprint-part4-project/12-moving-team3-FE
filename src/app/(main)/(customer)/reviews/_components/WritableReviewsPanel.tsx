@@ -8,6 +8,7 @@ import { WriteReviewModal } from '@/components/reviews/WriteReviewModal';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { useCreateReview } from '@/hooks/useCreateReview';
 import { useCustomerWritableQuotes } from '@/hooks/useCustomerWritableQuotes';
+import { useTranslation } from '@/i18n/useTranslation';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 
 import { isReviewListEmpty } from '../_lib/isReviewListEmpty';
@@ -26,6 +27,7 @@ export const WritableReviewsPanel = ({
   enabled,
   onReviewCreated,
 }: WritableReviewsPanelProps) => {
+  const { t } = useTranslation();
   const [selectedQuote, setSelectedQuote] = useState<WritableQuoteItem | null>(
     null
   );
@@ -38,7 +40,7 @@ export const WritableReviewsPanel = ({
   const isEmpty = isReviewListEmpty(writable);
   const errorMessage = resolveApiErrorMessage(
     writable.error,
-    '작성 가능한 리뷰를 불러오지 못했습니다.'
+    t('reviews.writable.error')
   );
 
   const handleWriteClick = (item: WritableQuoteItem) => {

@@ -3,6 +3,7 @@
 import { Modal } from '@/components/ui/Modal/Modal';
 import { ModalBasic } from '@/components/ui/Modal/ModalBasic';
 import { ModalCtaButton } from '@/components/ui/Modal/ModalCtaButton';
+import { useTranslation } from '@/i18n/useTranslation';
 
 export interface AlreadyDesignatedModalProps {
   open: boolean;
@@ -17,6 +18,8 @@ export const AlreadyDesignatedModal = ({
   open,
   onClose,
 }: AlreadyDesignatedModalProps) => {
+  const { t } = useTranslation();
+
   if (!open) {
     return null;
   }
@@ -24,12 +27,14 @@ export const AlreadyDesignatedModal = ({
   return (
     <Modal onClose={onClose}>
       <ModalBasic
-        title="지정 견적 요청하기"
+        title={t('movers.designated.request')}
         onClose={onClose}
-        footer={<ModalCtaButton onClick={onClose}>확인</ModalCtaButton>}
+        footer={
+          <ModalCtaButton onClick={onClose}>{t('common.confirm')}</ModalCtaButton>
+        }
       >
         <p className="text-2lg-medium text-black-300">
-          이미 이 기사님에게 지정 견적을 요청했어요.
+          {t('movers.designated.alreadyBody')}
         </p>
       </ModalBasic>
     </Modal>

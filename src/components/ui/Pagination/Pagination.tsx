@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
 
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import type { ButtonHTMLAttributes, HTMLAttributes, RefObject } from 'react';
 
@@ -199,6 +200,7 @@ export const Pagination = ({
   className = '',
   ...rest
 }: PaginationProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const scrollBehavior: ScrollBehavior = shouldReduceMotion ? 'auto' : 'smooth';
   /** 사용자가 페이지를 바꾼 뒤에만 page 동기화 스크롤 (최초 마운트 제외) */
@@ -241,14 +243,14 @@ export const Pagination = ({
 
   return (
     <nav
-      aria-label="페이지네이션"
+      aria-label={t('common.pagination')}
       className={`inline-flex items-start ${sizeStyles[size].root} ${className}`.trim()}
       {...rest}
     >
       <PaginationItem
         size={size}
         disabled={!canGoPrev}
-        aria-label="이전 페이지"
+        aria-label={t('common.prevPage')}
         onClick={() => handlePageChange(currentPage - 1)}
       >
         <ChevronLeftIcon
@@ -281,7 +283,7 @@ export const Pagination = ({
             <PaginationItem
               key={item}
               size={size}
-              aria-label={`${item}페이지`}
+              aria-label={t('common.pageNumber', { page: item })}
               aria-current={isActive ? 'page' : undefined}
               onClick={() => handlePageChange(item)}
             >
@@ -304,7 +306,7 @@ export const Pagination = ({
       <PaginationItem
         size={size}
         disabled={!canGoNext}
-        aria-label="다음 페이지"
+        aria-label={t('common.nextPage')}
         onClick={() => handlePageChange(currentPage + 1)}
       >
         <ChevronRightIcon

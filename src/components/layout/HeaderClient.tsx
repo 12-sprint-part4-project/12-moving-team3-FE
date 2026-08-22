@@ -3,6 +3,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, type ReactNode } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import { GnbDefault } from '@/components/Gnb/GnbDefault';
 import { GnbMenuOverlay } from '@/components/Gnb/GnbMenuOverlay';
@@ -21,9 +22,9 @@ import { getAuthRouteRequirement } from '@/lib/authRoutePaths';
 import { logout } from '@/services/authApi';
 
 const LANDING_MENU_ITEMS: GnbNavItem[] = [
-  { label: '기사님 찾기', href: '/movers' },
-  { label: '커뮤니티', href: '/community' },
-  { label: '로그인', href: '/login' },
+  { labelKey: 'nav.findMovers', href: '/movers' },
+  { labelKey: 'nav.community', href: '/community' },
+  { labelKey: 'common.login', href: '/login' },
 ];
 
 const HeaderSkeleton = () => (
@@ -44,6 +45,7 @@ export const HeaderClient = ({
   landingMd,
   landingLg,
 }: HeaderClientProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
@@ -70,7 +72,7 @@ export const HeaderClient = ({
       const message =
         error instanceof ApiError
           ? error.message
-          : '로그아웃에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+          : t('auth.logout.unexpected');
       showToast({ content: message });
       return;
     }
@@ -83,7 +85,7 @@ export const HeaderClient = ({
     }
 
     clearSession();
-    showToast({ content: '로그아웃되었습니다.' });
+    showToast({ content: t('auth.logout.success') });
 
     if (isProtectedPath) {
       router.replace('/');
@@ -114,7 +116,8 @@ export const HeaderClient = ({
 
   const navRole = user.userType === 'MOVER' ? 'mover' : 'customer';
   const desktopMenu = navRole === 'mover' ? 'twoMenu' : 'threeMenu';
-  const nameSuffix = navRole === 'mover' ? '기사님' : '고객님';
+  const nameSuffix =
+    navRole === 'mover' ? t('gnb.role.mover') : t('gnb.role.customer');
   const avatarSrc =
     navRole === 'mover'
       ? (moverProfile?.profileImageUrl ?? null)

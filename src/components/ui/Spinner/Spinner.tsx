@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import type { HTMLAttributes } from 'react';
@@ -12,6 +15,8 @@ export interface SpinnerProps extends HTMLAttributes<HTMLDivElement> {
  * message가 있으면 스피너 하단에 문구를 함께 표시
  */
 export const Spinner = ({ message, className = '', ...rest }: SpinnerProps) => {
+  const { t } = useTranslation();
+
   return (
     <div
       role="status"
@@ -30,7 +35,7 @@ export const Spinner = ({ message, className = '', ...rest }: SpinnerProps) => {
       {message ? (
         <p className="text-center text-lg-medium text-gray-400">{message}</p>
       ) : (
-        <span className="sr-only">로딩 중</span>
+        <span className="sr-only">{t('common.loadingSrOnly')}</span>
       )}
     </div>
   );

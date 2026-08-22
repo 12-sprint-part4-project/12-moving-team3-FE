@@ -7,6 +7,7 @@ import { forwardRef } from 'react';
 import ProfileIcon from '@/assets/icons/profile.svg';
 import StarIcon from '@/assets/icons/star.svg';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cardHover } from '@/lib/motionVariants';
 import {
   formatReviewCreatedDate,
@@ -37,12 +38,13 @@ export const WrittenReviewCard = forwardRef<
   { item, onClick, highlighted = false, className },
   ref
 ) {
+  const { t } = useTranslation();
   const quote = item.quote;
   const moveTypeUi = quote?.moveType
     ? API_MOVE_TYPE_TO_UI[quote.moveType]
     : null;
   const isDesignated = quote?.isDesignated ?? false;
-  const moverName = item.mover?.name?.trim() || '기사';
+  const moverName = item.mover?.name?.trim() || t('reviews.fallbackMoverName');
   const avatarSrc = item.mover?.profileImageUrl ?? undefined;
   const moveDateLabel = formatReviewMoveDate(quote?.moveDate ?? null);
   const priceLabel = formatQuotePriceLabel(quote?.price ?? null);
@@ -92,7 +94,7 @@ export const WrittenReviewCard = forwardRef<
             ) : null}
           </div>
           <p className="hidden shrink-0 items-center gap-2 text-2lg-regular text-gray-300 xl:flex">
-            <span>작성일</span>
+            <span>{t('reviews.writtenDate')}</span>
             <span>{createdLabel}</span>
           </p>
         </div>
@@ -119,12 +121,12 @@ export const WrittenReviewCard = forwardRef<
 
           <div className="flex min-w-0 flex-1 flex-col gap-1.5 xl:gap-2">
             <p className="text-md-semibold text-black-300 xl:text-2xl-semibold">
-              {moverName} 기사님
+              {t('reviews.moverWithSuffix', { name: moverName })}
             </p>
             <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 xl:gap-4">
               <div className="flex items-center gap-1.5 xl:gap-3">
                 <span className="text-sm-medium text-gray-300 xl:text-xl-regular xl:text-gray-500">
-                  이사일
+                  {t('quotes.moveDate')}
                 </span>
                 <span className="text-sm-medium text-black-300 xl:text-xl-medium xl:text-black-400">
                   {moveDateLabel}
@@ -136,7 +138,7 @@ export const WrittenReviewCard = forwardRef<
               />
               <div className="flex items-center gap-1.5 xl:gap-3">
                 <span className="text-sm-medium text-gray-300 xl:text-xl-regular xl:text-gray-500">
-                  견적가
+                  {t('quotes.priceAmount')}
                 </span>
                 <span className="text-sm-medium text-black-300 xl:text-xl-medium xl:text-black-400">
                   {priceLabel}
@@ -145,7 +147,7 @@ export const WrittenReviewCard = forwardRef<
             </div>
             <div
               className="hidden items-center xl:flex"
-              aria-label={`${safeRating}점`}
+              aria-label={t('reviews.ratingAria', { rating: safeRating })}
             >
               {Array.from({ length: 5 }, (_, index) => (
                 <StarIcon
@@ -170,7 +172,7 @@ export const WrittenReviewCard = forwardRef<
 
       <div className="flex w-full justify-end xl:hidden">
         <p className="flex items-center gap-1.5 text-xs-regular text-gray-300">
-          <span>작성일</span>
+          <span>{t('reviews.writtenDate')}</span>
           <span>{createdLabel}</span>
         </p>
       </div>

@@ -11,13 +11,17 @@ import {
   formatRelativeTime,
   formatShortDateLabel,
 } from '@/lib/formatDate';
+import { getActiveLanguage, toBcp47Locale } from '@/lib/formatLocale';
 import {
   quoteListResponseSchema,
   quoteSubmitResponseSchema,
 } from '@/lib/quoteSchema';
 import { isEstimateRequestClosedForChat } from '@/lib/startEstimateChat';
 import { formatDistrictLabel } from '@/services/estimateRequestApi';
-import { API_MOVE_TYPE_TO_UI, MOVE_TYPE_LABELS } from '@/types/estimateRequest';
+import { i18n } from '@/i18n/i18n';
+import { API_MOVE_TYPE_TO_UI } from '@/types/estimateRequest';
+
+import type { MoveTypeOption } from '@/types/estimateRequest';
 
 import type {
   MoverQuotesParams,
@@ -42,13 +46,26 @@ const JSON_HEADERS: HeadersInit = {
   'Content-Type': 'application/json',
 };
 
+const MOVE_TYPE_I18N_KEY: Record<MoveTypeOption, 'SMALL' | 'HOME' | 'OFFICE'> = {
+  small: 'SMALL',
+  home: 'HOME',
+  office: 'OFFICE',
+};
+
+const getMoveTypeLabel = (moveType: MoveTypeOption | null): string =>
+  moveType ? i18n.t(`moveType.${MOVE_TYPE_I18N_KEY[moveType]}`) : '-';
+
 /** 견적 금액 표시 문자열 */
 export const formatQuotePriceLabel = (price: number | null): string => {
   if (price === null) {
     return '-';
   }
 
-  return `${price.toLocaleString('ko-KR')}원`;
+  return new Intl.NumberFormat(toBcp47Locale(getActiveLanguage()), {
+    style: 'currency',
+    currency: 'KRW',
+    maximumFractionDigits: 0,
+  }).format(price);
 };
 
 /** 보낸 견적 BE 아이템 → 카드 UI 모델 */
@@ -112,7 +129,7 @@ export const toQuoteDetailViewModel = (
     comment: detail.comment,
     rejectReason: detail.rejectReason,
     requestedAtLabel: formatShortDateLabel(detail.requestedAt),
-    serviceLabel: moveType ? MOVE_TYPE_LABELS[moveType] : '-',
+    serviceLabel: getMoveTypeLabel(moveType),
     moveDateLabel: formatMoveDateLabel(detail.moveDate),
     departure: detail.fromAddress ?? '-',
     arrival: detail.toAddress ?? '-',

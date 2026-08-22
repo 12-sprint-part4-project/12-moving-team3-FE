@@ -14,6 +14,7 @@ import {
   useUpdateMoverBasicInfo,
 } from '@/hooks/useMoverProfile';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
 import {
   composeKrMobilePhone,
@@ -67,6 +68,8 @@ const MoverBasicInfoPasswordFields = ({
   onNewPasswordChange,
   onConfirmPasswordChange,
 }: MoverBasicInfoPasswordFieldsProps) => {
+  const { t } = useTranslation();
+
   return (
     <>
       <div className="h-px w-full bg-line-100 lg:hidden" aria-hidden />
@@ -77,14 +80,14 @@ const MoverBasicInfoPasswordFields = ({
             htmlFor={currentPasswordId}
             className="text-lg-semibold text-black-300 lg:text-xl-semibold"
           >
-            현재 비밀번호
+            {t('profile.currentPassword')}
           </label>
           <ProfileTextField
             id={currentPasswordId}
             type="password"
             name="currentPassword"
             autoComplete="new-password"
-            placeholder="현재 비밀번호를 입력해주세요"
+            placeholder={t('profile.currentPasswordPlaceholder')}
             showVisibilityToggle
             value={currentPassword}
             onChange={onCurrentPasswordChange}
@@ -98,14 +101,14 @@ const MoverBasicInfoPasswordFields = ({
             htmlFor={newPasswordId}
             className="text-lg-semibold text-black-300 lg:text-xl-semibold"
           >
-            새 비밀번호
+            {t('profile.newPassword')}
           </label>
           <ProfileTextField
             id={newPasswordId}
             type="password"
             name="newPassword"
             autoComplete="new-password"
-            placeholder="새 비밀번호를 입력해주세요"
+            placeholder={t('profile.newPasswordPlaceholder')}
             showVisibilityToggle
             maxLength={PASSWORD_MAX_LENGTH}
             value={newPassword}
@@ -126,14 +129,14 @@ const MoverBasicInfoPasswordFields = ({
             htmlFor={confirmPasswordId}
             className="text-lg-semibold text-black-300 lg:text-xl-semibold"
           >
-            새 비밀번호 확인
+            {t('profile.newPasswordConfirm')}
           </label>
           <ProfileTextField
             id={confirmPasswordId}
             type="password"
             name="confirmPassword"
             autoComplete="new-password"
-            placeholder="새 비밀번호를 다시 한번 입력해주세요"
+            placeholder={t('profile.newPasswordConfirmPlaceholder')}
             showVisibilityToggle
             maxLength={PASSWORD_MAX_LENGTH}
             value={confirmPassword}
@@ -159,13 +162,13 @@ interface MoverBasicInfoEditFieldsProps {
 const MoverBasicInfoEditFields = ({
   profile,
 }: MoverBasicInfoEditFieldsProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
   const { showToast } = useToast();
   const { mutate: updateBasicInfo, isPending } = useUpdateMoverBasicInfo({
-    successMessage: '기본정보가 수정되었습니다.',
-    errorFallbackMessage:
-      '기본정보 수정에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+    successMessage: t('profile.basicEditSuccess'),
+    errorFallbackMessage: t('profile.basicEditError'),
   });
   const nameInputId = useId();
   const emailInputId = useId();
@@ -207,7 +210,7 @@ const MoverBasicInfoEditFields = ({
     !isPasswordMismatchError &&
     !isPasswordIncomplete &&
     !isPending;
-  const submitLabel = isPending ? '수정 중...' : '수정하기';
+  const submitLabel = isPending ? t('profile.editing') : t('profile.submitEdit');
 
   const handleCancel = () => {
     router.back();
@@ -243,7 +246,7 @@ const MoverBasicInfoEditFields = ({
 
     const body = buildMoverBasicInfoUpdateBody(updateParams);
     if (!body) {
-      showToast({ content: '변경된 내용이 없습니다.' });
+      showToast({ content: t('profile.noChanges') });
       return;
     }
 
@@ -258,7 +261,7 @@ const MoverBasicInfoEditFields = ({
       <div className="flex w-full flex-col items-stretch gap-5 lg:gap-10">
         <header className="flex w-full flex-col items-start gap-4 lg:gap-10">
           <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
-            기본정보 수정
+            {t('profile.basicInfoTitle')}
           </h1>
           <div className="h-px w-full bg-line-100" aria-hidden />
         </header>
@@ -266,7 +269,9 @@ const MoverBasicInfoEditFields = ({
         <div className="flex w-full flex-col items-stretch gap-5 lg:flex-row lg:items-start lg:justify-between lg:gap-10">
           <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
             <section className="flex w-full flex-col items-start gap-4">
-              <RequiredLabel htmlFor={nameInputId}>이름</RequiredLabel>
+              <RequiredLabel htmlFor={nameInputId}>
+                {t('auth.name.label')}
+              </RequiredLabel>
               <ProfileTextField
                 id={nameInputId}
                 name="name"
@@ -289,7 +294,7 @@ const MoverBasicInfoEditFields = ({
                 htmlFor={emailInputId}
                 className="text-lg-semibold text-black-300 lg:text-xl-semibold"
               >
-                이메일
+                {t('auth.email.label')}
               </label>
               <ProfileTextField
                 id={emailInputId}
@@ -354,7 +359,7 @@ const MoverBasicInfoEditFields = ({
           disabled={isPending}
           className="order-2 border-gray-200 text-gray-300 shadow-cta hover:border-gray-200 hover:bg-transparent hover:text-gray-300 hover:shadow-cta lg:order-1 lg:h-16 lg:max-w-[41.25rem] lg:border-blue-300 lg:text-xl-semibold lg:text-blue-300 lg:hover:border-blue-300 lg:hover:bg-blue-50 lg:hover:text-blue-300"
         >
-          취소
+          {t('common.cancel')}
         </Button>
       </div>
     </form>
@@ -363,6 +368,7 @@ const MoverBasicInfoEditFields = ({
 
 /** `/profile/mover/basic` 기본정보 조회·로딩·에러 가드. 성공 시 수정 폼을 마운트한다. */
 export const MoverBasicInfoEditForm = () => {
+  const { t } = useTranslation();
   const {
     data: profile,
     isPending,
@@ -376,14 +382,14 @@ export const MoverBasicInfoEditForm = () => {
   };
 
   if (isPending) {
-    return <Spinner message="기본정보 불러오는 중..." />;
+    return <Spinner message={t('profile.basicInfoLoading')} />;
   }
 
   if (isError) {
     const message =
       error instanceof ApiError
         ? error.message
-        : '기본정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
+        : t('profile.basicInfoLoadError');
 
     return (
       <div className="flex w-full max-w-[87.5rem] flex-col items-center gap-6 py-16">
@@ -395,7 +401,7 @@ export const MoverBasicInfoEditForm = () => {
           onClick={handleRetry}
           className="max-w-[12rem]"
         >
-          다시 시도
+          {t('common.retry')}
         </Button>
       </div>
     );

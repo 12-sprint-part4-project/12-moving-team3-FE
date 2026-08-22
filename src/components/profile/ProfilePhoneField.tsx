@@ -2,6 +2,7 @@
 
 import { ProfileTextField } from '@/components/profile/ProfileTextField';
 import { RequiredLabel } from '@/components/ui/RequiredLabel/RequiredLabel';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   formatKrMobileSubscriberInput,
   KR_MOBILE_PREFIX_LABEL,
@@ -26,13 +27,14 @@ export const ProfilePhoneField = ({
   onChange,
   className = '',
 }: ProfilePhoneFieldProps) => {
+  const { t } = useTranslation();
   const isError = Boolean(errorMessage);
 
   return (
     <section
       className={cn('flex w-full flex-col items-start gap-4', className)}
     >
-      <RequiredLabel htmlFor={id}>전화번호</RequiredLabel>
+      <RequiredLabel htmlFor={id}>{t('profile.phone')}</RequiredLabel>
       <ProfileTextField
         id={id}
         type="tel"

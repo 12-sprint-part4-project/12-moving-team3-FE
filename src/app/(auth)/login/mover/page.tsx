@@ -1,11 +1,8 @@
 import { LoginForm } from '@/app/(auth)/login/_components/LoginForm';
+import { createPageMetadata } from '@/i18n/createPageMetadata';
 import { resolveTabSearchParam } from '@/lib/resolveTabSearchParam';
 
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: '기사님 로그인',
-};
+export const generateMetadata = createPageMetadata('meta.loginMover');
 
 interface MoverLoginPageProps {
   searchParams: Promise<{ redirect?: string | string[] }>;

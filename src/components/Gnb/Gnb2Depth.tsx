@@ -8,6 +8,7 @@ import { ChatGnbButton } from '@/components/chat/ChatGnbButton';
 import { NotificationGnbButton } from '@/components/Gnb/NotificationGnbButton';
 import { Logo } from '@/components/Logo/Logo';
 import { Tab } from '@/components/ui/Tab/Tab';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import type { NotificationRole } from '@/types/notification';
 
@@ -44,6 +45,11 @@ const DEFAULT_TABS: Gnb2DepthTabItem[] = [
   { id: 'tab-2', label: '받았던 견적' },
 ];
 
+const TAB_LABEL_KEY: Record<Gnb2DepthActiveTab, 'gnb.tabs.pendingQuotes' | 'gnb.tabs.receivedQuotes'> = {
+  'tab-1': 'gnb.tabs.pendingQuotes',
+  'tab-2': 'gnb.tabs.receivedQuotes',
+};
+
 const HEADER_STYLE: Record<'sm' | 'md', string> = {
   sm: 'h-[3.375rem] px-6 py-2.5',
   md: 'h-[3.375rem] px-[4.5rem] py-2.5',
@@ -71,6 +77,7 @@ const Gnb2DepthHeader = ({
   onProfileClick,
   onMenuClick,
 }: Gnb2DepthHeaderProps) => {
+  const { t } = useTranslation();
   // 채팅·알림 상호 배타 (2Depth는 프로필 드롭다운 없음)
   const [chatCloseSignal, setChatCloseSignal] = useState(0);
   const [notificationCloseSignal, setNotificationCloseSignal] = useState(0);
@@ -109,7 +116,7 @@ const Gnb2DepthHeader = ({
           />
           <button
             type="button"
-            aria-label="프로필"
+            aria-label={t('gnb.profile.open')}
             onClick={onProfileClick}
             className="inline-flex size-6 shrink-0 items-center justify-center"
           >
@@ -117,7 +124,7 @@ const Gnb2DepthHeader = ({
           </button>
           <button
             type="button"
-            aria-label="메뉴 열기"
+            aria-label={t('gnb.openMenu')}
             onClick={onMenuClick}
             className="inline-flex size-6 shrink-0 items-center justify-center [&_path]:stroke-gray-300"
           >
@@ -154,23 +161,27 @@ const Gnb2DepthTabBar = ({
   tabs,
   activeTab,
   onTabChange,
-}: Gnb2DepthTabBarProps) => (
-  <div
-    className="flex h-20 w-full items-start gap-8 border-b border-line-100 bg-white px-[16.25rem] pt-4 shadow-[0_0.125rem_0.3125rem] shadow-shadow-gray-100/10"
-    role="tablist"
-  >
-    {tabs.map((tab) => (
-      <Tab
-        key={tab.id}
-        variant="depth"
-        active={tab.id === activeTab}
-        onClick={() => onTabChange?.(tab.id)}
-      >
-        {tab.label}
-      </Tab>
-    ))}
-  </div>
-);
+}: Gnb2DepthTabBarProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <div
+      className="flex h-20 w-full items-start gap-8 border-b border-line-100 bg-white px-[16.25rem] pt-4 shadow-[0_0.125rem_0.3125rem] shadow-shadow-gray-100/10"
+      role="tablist"
+    >
+      {tabs.map((tab) => (
+        <Tab
+          key={tab.id}
+          variant="depth"
+          active={tab.id === activeTab}
+          onClick={() => onTabChange?.(tab.id)}
+        >
+          {t(TAB_LABEL_KEY[tab.id])}
+        </Tab>
+      ))}
+    </div>
+  );
+};
 
 /**
  * 2Depth GNB.
@@ -192,10 +203,12 @@ export const Gnb2Depth = ({
   onMenuClick,
   className = '',
 }: Gnb2DepthProps) => {
+  const { t } = useTranslation();
   const activeLabel =
     title ??
-    tabs.find((tab) => tab.id === activeTab)?.label ??
-    DEFAULT_TABS[1].label;
+    (tabs.find((tab) => tab.id === activeTab)
+      ? t(TAB_LABEL_KEY[activeTab])
+      : t(TAB_LABEL_KEY['tab-2']));
 
   if (size === 'lg') {
     return (

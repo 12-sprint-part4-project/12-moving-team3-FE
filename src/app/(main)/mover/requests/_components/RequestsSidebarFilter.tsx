@@ -4,13 +4,12 @@ import { motion, useReducedMotion } from 'framer-motion';
 
 import { CheckBox } from '@/components/ui/CheckBox/CheckBox';
 import { FilterCheckBox } from '@/components/ui/Filter/FilterCheckBox';
+import { useTranslation } from '@/i18n/useTranslation';
 import { fadeUp, getMotionTransition, tapScale } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
 import {
-  MOVE_TYPE_LABELS,
   MOVE_TYPE_OPTIONS,
-  SCOPE_LABELS,
   SCOPE_OPTIONS,
   toggleFilterItem,
 } from '../_lib/filterOptions';
@@ -78,6 +77,7 @@ export const RequestsSidebarFilter = ({
   onScopesChange,
   className = '',
 }: RequestsSidebarFilterProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
 
@@ -117,16 +117,20 @@ export const RequestsSidebarFilter = ({
     >
       <section className="flex w-full flex-col gap-6 bg-white">
         <div className="flex items-center justify-between border-b border-line-200 px-2.5 py-4">
-          <h2 className="text-xl-medium text-black-400">이사 유형</h2>
+          <h2 className="text-xl-medium text-black-400">
+            {t('receivedRequests.moveTypeSection')}
+          </h2>
           <div className="flex items-center gap-1">
             <CheckBox
               checked={isAllMoveTypesSelected}
               onCheckedChange={handleMoveTypeSelectAll}
               size="md"
               shape="square"
-              aria-label="이사 유형 전체선택"
+              aria-label={t('receivedRequests.selectAllMoveTypeAria')}
             />
-            <span className="text-2lg-regular text-gray-300">전체선택</span>
+            <span className="text-2lg-regular text-gray-300">
+              {t('common.selectAll')}
+            </span>
           </div>
         </div>
         <motion.div layout className="flex flex-col">
@@ -142,7 +146,7 @@ export const RequestsSidebarFilter = ({
               }}
             >
               <AnimatedFilterRow
-                label={MOVE_TYPE_LABELS[type]}
+                label={t(`moveType.${type.toUpperCase()}`)}
                 count={moveTypeCounts?.[type] ?? 0}
                 checked={selectedMoveTypes.includes(type)}
                 onCheckedChange={(checked) =>
@@ -156,16 +160,20 @@ export const RequestsSidebarFilter = ({
 
       <section className="flex w-full flex-col gap-6 bg-white">
         <div className="flex items-center justify-between border-b border-line-200 px-2.5 py-4">
-          <h2 className="text-xl-medium text-black-400">필터</h2>
+          <h2 className="text-xl-medium text-black-400">
+            {t('receivedRequests.filterSection')}
+          </h2>
           <div className="flex items-center gap-1">
             <CheckBox
               checked={isAllScopesSelected}
               onCheckedChange={handleScopeSelectAll}
               size="md"
               shape="square"
-              aria-label="필터 전체선택"
+              aria-label={t('receivedRequests.selectAllFilterAria')}
             />
-            <span className="text-2lg-regular text-gray-300">전체선택</span>
+            <span className="text-2lg-regular text-gray-300">
+              {t('common.selectAll')}
+            </span>
           </div>
         </div>
         <motion.div layout className="flex flex-col">
@@ -181,7 +189,7 @@ export const RequestsSidebarFilter = ({
               }}
             >
               <AnimatedFilterRow
-                label={SCOPE_LABELS[scope]}
+                label={t(`receivedRequests.scope.${scope}`)}
                 count={scopeCounts?.[scope] ?? 0}
                 checked={selectedScopes.includes(scope)}
                 onCheckedChange={(checked) => handleScopeToggle(scope, checked)}

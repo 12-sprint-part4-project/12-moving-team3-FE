@@ -6,6 +6,7 @@ import {
   type InputHTMLAttributes,
   type ReactNode,
 } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import VisibilityOffIcon from '@/assets/icons/visibility-off.svg';
 import VisibilityOnIcon from '@/assets/icons/visibility-on.svg';
@@ -80,6 +81,7 @@ export const TextFieldOutlined = ({
   disabled,
   ...rest
 }: TextFieldOutlinedProps) => {
+  const { t } = useTranslation();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -180,7 +182,9 @@ export const TextFieldOutlined = ({
               <button
                 type="button"
                 aria-label={
-                  isPasswordVisible ? '비밀번호 숨기기' : '비밀번호 보기'
+                  isPasswordVisible
+                    ? t('auth.password.hide')
+                    : t('auth.password.show')
                 }
                 onClick={handleToggleVisibility}
                 className="flex size-6 items-center justify-center overflow-clip"

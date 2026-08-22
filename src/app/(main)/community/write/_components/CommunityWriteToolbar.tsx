@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import {
@@ -26,6 +27,7 @@ interface CommunityWriteToolbarProps {
 export const CommunityWriteToolbar = ({
   editor,
 }: CommunityWriteToolbarProps) => {
+  const { t } = useTranslation();
   const [, setToolbarRevision] = useState(0);
 
   useEffect(() => {
@@ -50,7 +52,7 @@ export const CommunityWriteToolbar = ({
     <div
       className={COMMUNITY_WRITE_TOOLBAR_CLASS}
       role="group"
-      aria-label="본문 서식"
+      aria-label={t('community.toolbarAria')}
     >
       {COMMUNITY_WRITE_TOOLBAR_ITEMS.map((item) => {
         const isActive = isCommunityWriteToolbarItemActive(editor, item.id);
@@ -59,7 +61,7 @@ export const CommunityWriteToolbar = ({
           <button
             key={item.id}
             type="button"
-            aria-label={item.ariaLabel}
+            aria-label={t(`community.editor.${item.id}`)}
             aria-pressed={shouldShowToolbarItemPressed(item, isActive)}
             onClick={() => handleToolbarClick(item.id)}
             className={cn(

@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 
 import { Button } from '@/components/Button/Button';
+import { useTranslation } from '@/i18n/useTranslation';
 import { fadeIn, floatY, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
@@ -17,6 +18,7 @@ export const MoversEmptyState = ({
   onReset,
   className = '',
 }: MoversEmptyStateProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
 
@@ -49,7 +51,7 @@ export const MoversEmptyState = ({
         transition={motionTransition}
         className="text-center text-xl-regular text-gray-400"
       >
-        조건에 맞는 기사님이 없어요.
+        {t('movers.empty')}
       </motion.p>
 
       {onReset ? (
@@ -67,7 +69,7 @@ export const MoversEmptyState = ({
             className="max-w-[12rem]"
             onClick={onReset}
           >
-            필터 초기화
+            {t('movers.resetFilters')}
           </Button>
         </motion.div>
       ) : null}

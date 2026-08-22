@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 export interface MoversSelectOption {
@@ -39,6 +40,7 @@ export const MoversSelectDropdown = ({
   placeholder,
   columns = 1,
 }: MoversSelectDropdownProps) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const selected =
@@ -99,7 +101,7 @@ export const MoversSelectDropdown = ({
       {isOpen ? (
         <div
           role="listbox"
-          aria-label={`${label} 옵션`}
+          aria-label={t('common.optionsAria', { name: label })}
           className={cn(
             'absolute top-full left-0 z-20 mt-1 max-h-[11.25rem] overflow-y-auto rounded-lg border border-line-200 bg-white shadow-[0.25rem_0.25rem_0.625rem] shadow-shadow-gray-400/20',
             fullWidth ? 'w-full' : 'w-max min-w-full'

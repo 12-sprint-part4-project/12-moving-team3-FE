@@ -1,7 +1,10 @@
+'use client';
+
 import BoxFillIcon from '@/assets/icons/box-fill.svg';
 import DockFillIcon from '@/assets/icons/dock-fill.svg';
 import HomeFillIcon from '@/assets/icons/home-fill.svg';
 import OfficeFillIcon from '@/assets/icons/office-fill.svg';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import type { HTMLAttributes, ReactNode } from 'react';
 
@@ -21,7 +24,10 @@ import type { HTMLAttributes, ReactNode } from 'react';
 
 type IconMoveType = 'small' | 'home' | 'office' | 'designated';
 type StatusMoveType =
-  'quotePending' | 'quoteConfirmed' | 'quoteRejected' | 'furnitureShare';
+  | 'quotePending'
+  | 'quoteConfirmed'
+  | 'quoteRejected'
+  | 'furnitureShare';
 type MoveType = IconMoveType | StatusMoveType;
 type MoveTypeSize = 'xs' | 'sm' | 'md';
 type StatusMoveTypeSize = Exclude<MoveTypeSize, 'xs'>;
@@ -42,15 +48,13 @@ interface StatusMoveTypeChipProps extends MoveTypeChipBaseProps {
 
 type MoveTypeChipProps = IconMoveTypeChipProps | StatusMoveTypeChipProps;
 
-const DEFAULT_LABELS: Record<MoveType, string> = {
-  small: '소형이사',
-  home: '가정이사',
-  office: '사무실이사',
-  designated: '지정 견적 요청',
-  quotePending: '견적 대기',
-  quoteConfirmed: '견적 확정',
-  quoteRejected: '반려',
-  furnitureShare: '가구나눔',
+const MOVE_TYPE_I18N_KEY: Record<
+  'small' | 'home' | 'office',
+  'SMALL' | 'HOME' | 'OFFICE'
+> = {
+  small: 'SMALL',
+  home: 'HOME',
+  office: 'OFFICE',
 };
 
 // 일반 이사 = 파란, 지정 요청 = 빨간(강조), 상태칩(대기/확정/반려) = 회색 배경·진한 텍스트 (Figma Chip/이사유형)
@@ -105,7 +109,28 @@ export const MoveTypeChip = ({
   className = '',
   ...rest
 }: MoveTypeChipProps) => {
-  const label = children ?? DEFAULT_LABELS[type];
+  const { t } = useTranslation();
+
+  const defaultLabel = (() => {
+    if (type === 'designated') {
+      return t('moveType.designated');
+    }
+    if (type === 'furnitureShare') {
+      return t('moveType.furnitureShare');
+    }
+    if (type === 'quotePending') {
+      return t('quoteStatus.pending');
+    }
+    if (type === 'quoteConfirmed') {
+      return t('quoteStatus.confirmed');
+    }
+    if (type === 'quoteRejected') {
+      return t('quoteStatus.rejected');
+    }
+    return t(`moveType.${MOVE_TYPE_I18N_KEY[type as 'small' | 'home' | 'office']}`);
+  })();
+
+  const label = children ?? defaultLabel;
   // xs: 좁은 공간(리스트 썸네일 등)용 아이콘-only
   const isIconOnly = size === 'xs';
   const Icon = isStatusChip(type) ? null : ICONS[type];

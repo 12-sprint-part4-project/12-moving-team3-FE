@@ -11,6 +11,7 @@ import { ModalHeader } from '@/components/ui/Modal/ModalHeader';
 import { MODAL_PANEL_CLASS } from '@/components/ui/Modal/modalPanel';
 import { Pagination } from '@/components/ui/Pagination';
 import { API_ERROR_CODE } from '@/constants/errorCode';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError, resolveApiErrorMessage } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 import { searchAddresses } from '@/services/addressSearchApi';
@@ -37,16 +38,6 @@ interface EstimateRequestAddressModalProps {
   initialDraft?: AddressDraft | null;
 }
 
-const SIDE_TITLE: Record<AddressSide, string> = {
-  departure: '출발지를 선택해주세요',
-  arrival: '도착지를 선택해주세요',
-};
-
-/** 행안부 keyword 안내 — placeholder로 사전 예시, 실패 시에만 soft 오류 */
-const ADDRESS_SEARCH_PLACEHOLDER = '예: 반포대로 58 또는 삼성동 25';
-const ADDRESS_SEARCH_SOFT_ERROR =
-  '검색어를 더 구체적으로 입력해 주세요. (예: 제주 이도동)';
-
 /** 수정하기 진입 — draft를 AddressCard용 검색 항목으로 시드 (재검색 없이 상세만 수정 가능) */
 const toInitialItem = (draft: AddressDraft | null): AddressSearchItem | null =>
   draft
@@ -68,6 +59,7 @@ export const EstimateRequestAddressModal = ({
   onConfirm,
   initialDraft = null,
 }: EstimateRequestAddressModalProps) => {
+  const { t } = useTranslation();
   const titleId = useId();
   const [query, setQuery] = useState('');
   // initialDraft가 있으면 목록·선택 상태를 미리 채워 상세주소·선택완료를 바로 활성화
@@ -108,7 +100,7 @@ export const EstimateRequestAddressModal = ({
   const handleSearch = async (keyword: string, page = 1) => {
     const next = keyword.trim();
     if (!next) {
-      setErrorMessage('검색어를 입력해 주세요.');
+      setErrorMessage(t('estimateRequest.searchRequired'));
       resetSearchResults();
       return;
     }
@@ -133,10 +125,10 @@ export const EstimateRequestAddressModal = ({
         error instanceof ApiError &&
         error.code === API_ERROR_CODE.ADDRESS_SEARCH_FAILED
       ) {
-        setErrorMessage(ADDRESS_SEARCH_SOFT_ERROR);
+        setErrorMessage(t('estimateRequest.searchSoftError'));
       } else {
         setErrorMessage(
-          resolveApiErrorMessage(error, '주소 검색 중 오류가 발생했습니다.')
+          resolveApiErrorMessage(error, t('estimateRequest.searchAddressError'))
         );
       }
     } finally {
@@ -176,7 +168,11 @@ export const EstimateRequestAddressModal = ({
         )}
       >
         <ModalHeader
-          title={SIDE_TITLE[side]}
+          title={
+            side === 'departure'
+              ? t('estimateRequest.departureTitle')
+              : t('estimateRequest.arrivalTitle')
+          }
           onClose={onClose}
           titleId={titleId}
           // 굵기 bold 고정 — 크기만 md에서 확대 (공용 헤더 sm:semibold 덮어씀)
@@ -203,14 +199,14 @@ export const EstimateRequestAddressModal = ({
                 // 새 검색어는 항상 1페이지부터
                 void handleSearch(query, 1);
               }}
-              placeholder={ADDRESS_SEARCH_PLACEHOLDER}
+              placeholder={t('estimateRequest.searchPlaceholder')}
               className={cn(
                 '!max-w-none',
                 'md:h-16 md:gap-2 md:px-6',
                 'md:[&_input]:text-xl-regular',
                 'md:[&>svg]:size-9 md:[&_button]:size-9 md:[&>div]:gap-4'
               )}
-              aria-label="주소 검색"
+              aria-label={t('estimateRequest.searchAddressAria')}
               aria-describedby={
                 errorMessage ? `address-search-error-${side}` : undefined
               }
@@ -233,7 +229,7 @@ export const EstimateRequestAddressModal = ({
               className="text-md-medium text-gray-400 md:text-lg-medium"
               role="status"
             >
-              주소를 검색하는 중…
+              {t('estimateRequest.searching')}
             </p>
           ) : null}
 
@@ -284,7 +280,7 @@ export const EstimateRequestAddressModal = ({
               className="text-md-medium text-gray-400 md:text-lg-medium"
               role="status"
             >
-              검색 결과가 없습니다. 다른 검색어를 입력해 주세요.
+              {t('estimateRequest.noSearchResults')}
             </p>
           ) : null}
 
@@ -294,7 +290,7 @@ export const EstimateRequestAddressModal = ({
               htmlFor={`address-detail-${side}`}
               className="text-md-medium text-black-400 md:text-lg-medium"
             >
-              상세주소 (선택)
+              {t('estimateRequest.detailAddress')}
             </label>
             <TextFieldOutlined
               id={`address-detail-${side}`}
@@ -305,7 +301,7 @@ export const EstimateRequestAddressModal = ({
               )}
               value={detailAddress}
               onChange={(event) => setDetailAddress(event.target.value)}
-              placeholder="상세주소를 입력해 주세요. (선택)"
+              placeholder={t('estimateRequest.detailAddressPlaceholder')}
               disabled={selected == null}
             />
           </div>
@@ -316,7 +312,7 @@ export const EstimateRequestAddressModal = ({
           onClick={handleSubmit}
           className="sm:h-[3.375rem] sm:text-lg-semibold md:h-16 md:text-xl-semibold"
         >
-          선택완료
+          {t('estimateRequest.selectComplete')}
         </ModalCtaButton>
       </section>
     </Modal>

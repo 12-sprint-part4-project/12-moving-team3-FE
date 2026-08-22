@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 
 import { ReviewsEmptyState } from '@/components/reviews/ReviewsEmptyState';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { useTranslation } from '@/i18n/useTranslation';
 import { fadeIn, getMotionTransition } from '@/lib/motionVariants';
 
 import { REVIEWS_CONTENT_CLASS } from './reviewsStyles';
@@ -45,6 +46,7 @@ export type ReviewsListStatusProps =
  * 가드(언제 보여줄지)는 패널 early return이 담당한다.
  */
 export const ReviewsListStatus = (props: ReviewsListStatusProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
 
@@ -79,7 +81,7 @@ export const ReviewsListStatus = (props: ReviewsListStatusProps) => {
             onClick={props.onRetry}
             className="text-md-semibold text-blue-300 underline"
           >
-            다시 시도
+            {t('common.retry')}
           </button>
         </motion.div>
       </ReviewsContent>

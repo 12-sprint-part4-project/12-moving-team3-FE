@@ -17,6 +17,7 @@ import {
 } from '@/hooks/useMoverProfile';
 import { useProfileImageCrop } from '@/hooks/useProfileImageCrop';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
 import { isValidKrPhoneNumber } from '@/lib/phoneNumber';
 import { toggleService } from '@/lib/toggleService';
@@ -49,12 +50,12 @@ interface MoverProfileEditFieldsProps {
 
 /** profile이 있을 때만 마운트한다. key로 리마운트한다. */
 const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { showToast } = useToast();
   const { mutate: upsertProfile, isPending } = useUpsertMoverProfile({
-    successMessage: '프로필이 수정되었습니다.',
-    errorFallbackMessage:
-      '프로필 수정에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+    successMessage: t('profile.editSuccess'),
+    errorFallbackMessage: t('profile.editError'),
   });
   const imageInputId = useId();
   const nicknameInputId = useId();
@@ -111,7 +112,7 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
     selectedServices.length > 0 &&
     selectedRegions.length > 0 &&
     !isPending;
-  const submitLabel = isPending ? '수정 중...' : '수정하기';
+  const submitLabel = isPending ? t('profile.editing') : t('profile.submitEdit');
 
   const handleCancel = () => {
     router.back();
@@ -161,7 +162,7 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
 
     if (!isValidKrPhoneNumber(phoneNumber)) {
       showToast({
-        content: '등록된 전화번호가 없습니다. 기본정보를 먼저 수정해 주세요.',
+        content: t('profile.noPhone'),
       });
       return;
     }
@@ -181,7 +182,7 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
     });
 
     if (!body) {
-      showToast({ content: '변경된 내용이 없습니다.' });
+      showToast({ content: t('profile.noChanges') });
       return;
     }
 
@@ -200,19 +201,21 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
         <div className="flex w-full flex-col items-stretch gap-4 lg:gap-10">
           <header className="flex w-full flex-col items-start gap-4 lg:gap-10">
             <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
-              프로필 수정
+              {t('nav.profile.edit')}
             </h1>
             <div className="h-px w-full bg-line-100" aria-hidden />
           </header>
 
           <div className="grid w-full grid-cols-1 gap-5 lg:grid-cols-2 lg:items-start lg:gap-x-10 lg:gap-y-8">
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
-              <RequiredLabel htmlFor={nicknameInputId}>닉네임</RequiredLabel>
+              <RequiredLabel htmlFor={nicknameInputId}>
+                {t('auth.nickname.label')}
+              </RequiredLabel>
               <ProfileTextField
                 id={nicknameInputId}
                 name="nickname"
                 autoComplete="nickname"
-                placeholder="닉네임을 입력해 주세요"
+                placeholder={t('auth.nickname.placeholder')}
                 value={nickname}
                 onChange={handleNicknameChange}
                 isError={isNicknameFormatError}
@@ -238,12 +241,14 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
 
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
               <div className="h-px w-full bg-line-100" aria-hidden />
-              <RequiredLabel htmlFor={careerInputId}>경력</RequiredLabel>
+              <RequiredLabel htmlFor={careerInputId}>
+                {t('profile.career')}
+              </RequiredLabel>
               <ProfileTextField
                 id={careerInputId}
                 name="career"
                 inputMode="numeric"
-                placeholder="기사님의 경력을 입력해 주세요"
+                placeholder={t('profile.careerPlaceholder')}
                 value={career}
                 onChange={handleCareerChange}
                 isError={isCareerFormatError}
@@ -256,12 +261,12 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
               <div className="h-px w-full bg-line-100" aria-hidden />
               <RequiredLabel htmlFor={shortIntroInputId}>
-                한 줄 소개
+                {t('profile.shortIntro')}
               </RequiredLabel>
               <ProfileTextField
                 id={shortIntroInputId}
                 name="shortIntro"
-                placeholder="한 줄 소개를 입력해 주세요"
+                placeholder={t('profile.shortIntroPlaceholder')}
                 value={shortIntro}
                 onChange={handleShortIntroChange}
                 isError={isShortIntroFormatError}
@@ -277,7 +282,7 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
               <div className="h-px w-full bg-line-100 lg:hidden" aria-hidden />
               <ProfileServiceField
                 selectedServices={selectedServices}
-                label="제공 서비스"
+              label={t('movers.providedServices')}
                 onToggle={handleServiceToggle}
               />
             </div>
@@ -286,7 +291,7 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
               <div className="h-px w-full bg-line-100" aria-hidden />
               <ProfileRegionField
                 selectedRegions={selectedRegions}
-                label="서비스 가능 지역"
+              label={t('movers.availableRegions')}
                 onSelect={handleRegionToggle}
               />
             </div>
@@ -294,12 +299,12 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
             <section className="flex w-full flex-col items-start gap-4 lg:col-start-1">
               <div className="h-px w-full bg-line-100" aria-hidden />
               <RequiredLabel htmlFor={descriptionInputId}>
-                상세 설명
+                {t('profile.description')}
               </RequiredLabel>
               <MoverProfileTextArea
                 id={descriptionInputId}
                 name="description"
-                placeholder="상세 내용을 입력해 주세요"
+                placeholder={t('profile.descriptionPlaceholder')}
                 value={description}
                 onChange={handleDescriptionChange}
                 isError={isDescriptionFormatError}
@@ -331,7 +336,7 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
             disabled={isPending}
             className="order-2 border-gray-200 text-gray-300 shadow-cta hover:border-gray-200 hover:bg-transparent hover:text-gray-300 hover:shadow-cta lg:order-1 lg:h-16 lg:max-w-[41.25rem] lg:text-xl-semibold"
           >
-            취소
+            {t('common.cancel')}
           </Button>
         </div>
       </form>
@@ -349,6 +354,7 @@ const MoverProfileEditFields = ({ profile }: MoverProfileEditFieldsProps) => {
 
 /** `/profile/mover/edit` 프로필 조회·로딩·에러 가드. 성공 시 수정 폼을 마운트한다. */
 export const MoverProfileEditForm = () => {
+  const { t } = useTranslation();
   const {
     data: profile,
     isPending,
@@ -362,14 +368,14 @@ export const MoverProfileEditForm = () => {
   };
 
   if (isPending) {
-    return <Spinner message="프로필 불러오는 중..." />;
+    return <Spinner message={t('profile.loading')} />;
   }
 
   if (isError) {
     const message =
       error instanceof ApiError
         ? error.message
-        : '프로필을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
+        : t('profile.loadError');
 
     return (
       <div className="flex w-full max-w-[87.5rem] flex-col items-center gap-6 py-16">
@@ -381,7 +387,7 @@ export const MoverProfileEditForm = () => {
           onClick={handleRetry}
           className="max-w-[12rem]"
         >
-          다시 시도
+          {t('common.retry')}
         </Button>
       </div>
     );

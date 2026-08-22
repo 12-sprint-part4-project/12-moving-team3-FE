@@ -1,10 +1,8 @@
+import { createPageMetadata } from '@/i18n/createPageMetadata';
+
 import { COMMUNITY_PAGE_SHELL } from './_components/communityLayout';
 
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: '커뮤니티',
-};
+export const generateMetadata = createPageMetadata('nav.community');
 
 interface CommunityLayoutProps {
   children: React.ReactNode;

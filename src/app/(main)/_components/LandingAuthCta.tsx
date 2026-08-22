@@ -3,6 +3,7 @@
 import Link from 'next/link';
 
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 const CTA_BASE_STYLE =
@@ -10,6 +11,7 @@ const CTA_BASE_STYLE =
 
 /** 비로그인일 때만 랜딩 CTA(로그인·회원가입)를 노출한다. */
 export const LandingAuthCta = () => {
+  const { t } = useTranslation();
   const { user, isReady } = useAuth();
   const showAuthCta = isReady && !user;
 
@@ -25,7 +27,7 @@ export const LandingAuthCta = () => {
           'bg-blue-300 text-white shadow-cta hover:bg-blue-200'
         )}
       >
-        로그인
+        {t('common.login')}
       </Link>
       <Link
         href="/signup"
@@ -35,7 +37,7 @@ export const LandingAuthCta = () => {
           'border border-blue-300 bg-white text-blue-300 shadow-cta hover:bg-blue-50 hover:shadow-cta-hover'
         )}
       >
-        회원가입
+        {t('meta.signup')}
       </Link>
     </div>
   );

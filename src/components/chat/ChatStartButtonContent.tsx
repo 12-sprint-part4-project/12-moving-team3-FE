@@ -1,3 +1,4 @@
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 export interface ChatStartButtonContentProps {
@@ -9,18 +10,22 @@ export interface ChatStartButtonContentProps {
 export const ChatStartButtonContent = ({
   isPending = false,
   className,
-}: ChatStartButtonContentProps) => (
-  <span className={cn('inline-flex items-center justify-center', className)}>
-    {isPending ? (
-      <>
-        <span
-          aria-hidden
-          className="inline-block size-4 animate-spin rounded-full border-2 border-line-100 border-t-blue-300 motion-reduce:animate-none"
-        />
-        <span className="sr-only">채팅방 여는 중</span>
-      </>
-    ) : (
-      '채팅하기'
-    )}
-  </span>
-);
+}: ChatStartButtonContentProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <span className={cn('inline-flex items-center justify-center', className)}>
+      {isPending ? (
+        <>
+          <span
+            aria-hidden
+            className="inline-block size-4 animate-spin rounded-full border-2 border-line-100 border-t-blue-300 motion-reduce:animate-none"
+          />
+          <span className="sr-only">{t('quotes.openingChat')}</span>
+        </>
+      ) : (
+        t('quotes.startChat')
+      )}
+    </span>
+  );
+};

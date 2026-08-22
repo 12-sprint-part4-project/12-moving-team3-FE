@@ -1,3 +1,7 @@
+'use client';
+
+import { useTranslation } from '@/i18n/useTranslation';
+
 import { RequestCardSkeleton } from './RequestCardSkeleton';
 
 const LIST_SKELETON_COUNT = 3;
@@ -7,19 +11,23 @@ export const RequestsListSkeleton = ({
   className = '',
 }: {
   className?: string;
-}) => (
-  <div
-    className={className}
-    role="status"
-    aria-busy="true"
-    aria-label="목록 불러오는 중"
-  >
-    <ul className="m-0 flex w-full list-none flex-col gap-6 p-0 lg:gap-12">
-      {Array.from({ length: LIST_SKELETON_COUNT }, (_, index) => (
-        <li key={index}>
-          <RequestCardSkeleton />
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <div
+      className={className}
+      role="status"
+      aria-busy="true"
+      aria-label={t('a11y.skeleton.list')}
+    >
+      <ul className="m-0 flex w-full list-none flex-col gap-6 p-0 lg:gap-12">
+        {Array.from({ length: LIST_SKELETON_COUNT }, (_, index) => (
+          <li key={index}>
+            <RequestCardSkeleton />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};

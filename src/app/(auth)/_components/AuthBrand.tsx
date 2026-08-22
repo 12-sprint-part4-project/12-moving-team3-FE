@@ -9,6 +9,7 @@ interface AuthBrandProps {
   prompt: string;
   linkLabel: string;
   href: string;
+  ariaLabel: string;
   className?: string;
 }
 
@@ -17,13 +18,14 @@ export const AuthBrand = ({
   prompt,
   linkLabel,
   href,
+  ariaLabel,
   className = '',
 }: AuthBrandProps) => {
   return (
     <div className={cn('flex flex-col items-center lg:gap-2', className)}>
       <Link
         href="/"
-        aria-label="무빙"
+        aria-label={ariaLabel}
         className="flex w-full max-w-[20.4375rem] flex-col items-center justify-center p-2.5 lg:max-w-[40rem]"
       >
         <TextLogoIcon

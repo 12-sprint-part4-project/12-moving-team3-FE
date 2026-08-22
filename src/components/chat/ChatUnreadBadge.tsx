@@ -1,3 +1,4 @@
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 export interface ChatUnreadBadgeProps {
@@ -20,6 +21,8 @@ export const ChatUnreadBadge = ({
   className,
   variant = 'inline',
 }: ChatUnreadBadgeProps) => {
+  const { t } = useTranslation();
+
   if (count <= 0) {
     return null;
   }
@@ -36,7 +39,7 @@ export const ChatUnreadBadge = ({
         className
       )}
       aria-hidden={isIcon ? true : undefined}
-      aria-label={isIcon ? undefined : `미읽음 ${count}개`}
+      aria-label={isIcon ? undefined : t('chat.unreadCountAria', { count })}
     >
       {formatUnreadCount(count)}
     </span>

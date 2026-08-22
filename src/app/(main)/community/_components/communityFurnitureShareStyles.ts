@@ -1,9 +1,5 @@
 /** 가구나눔 — CTA·그리드 완료 오버레이 공통 스타일 */
 
-export const FURNITURE_SHARE_CHAT_CTA_LABEL = '나눔 받을래요!';
-
-export const FURNITURE_SHARE_COMPLETE_LABEL = '나눔 완료';
-
 /** 상세 CTA pill — 나눔 받을래요 / 나눔 완료 공통 */
 export const COMMUNITY_FURNITURE_SHARE_CTA_BUTTON_CLASS =
   'inline-flex items-center gap-2 rounded-2xl border border-shadow-gray-200 bg-white px-4 py-3 transition-colors min-[46.5rem]:gap-2.5 min-[46.5rem]:px-5 min-[46.5rem]:py-3.5 xl:gap-3 xl:px-6 xl:py-4';
@@ -19,7 +15,7 @@ export const COMMUNITY_FURNITURE_SHARE_CTA_LABEL_CLASS =
 
 /** 그리드 카드 — 나눔 완료 오버레이 */
 export const COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_CLASS =
-  'absolute inset-0 flex items-center justify-center bg-black-400/60';
+  'absolute inset-0 flex items-center justify-center bg-black-400/60 px-3 text-center';
 
 export const COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_TEXT_CLASS =
-  'text-xl-bold text-white drop-shadow-icon-on-media min-[46.5rem]:text-2xl-bold xl:text-3xl-bold';
+  'block w-full max-w-full text-center text-xl-bold leading-tight text-white drop-shadow-icon-on-media min-[46.5rem]:text-2xl-bold xl:text-3xl-bold';

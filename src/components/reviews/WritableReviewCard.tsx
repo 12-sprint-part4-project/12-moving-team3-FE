@@ -6,6 +6,7 @@ import Image from 'next/image';
 import ProfileIcon from '@/assets/icons/profile.svg';
 import { Button } from '@/components/Button/Button';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cardHover, tapScale } from '@/lib/motionVariants';
 import { formatReviewMoveDate } from '@/lib/reviewDisplay';
 import { cn } from '@/lib/utils';
@@ -28,8 +29,9 @@ export const WritableReviewCard = ({
   onWriteClick,
   className,
 }: WritableReviewCardProps) => {
+  const { t } = useTranslation();
   const moveTypeUi = item.moveType ? API_MOVE_TYPE_TO_UI[item.moveType] : null;
-  const moverName = item.mover?.name?.trim() || '기사';
+  const moverName = item.mover?.name?.trim() || t('reviews.fallbackMoverName');
   const avatarSrc = item.mover?.profileImageUrl ?? undefined;
   const moveDateLabel = formatReviewMoveDate(item.moveDate);
   const priceLabel = formatQuotePriceLabel(item.price);
@@ -92,12 +94,12 @@ export const WritableReviewCard = ({
 
           <div className="flex min-w-0 flex-1 flex-col gap-1.5 xl:gap-4">
             <p className="text-md-semibold text-black-300 xl:text-2xl-semibold">
-              {moverName} 기사님
+              {t('reviews.moverWithSuffix', { name: moverName })}
             </p>
             <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 xl:gap-4">
               <div className="flex items-center gap-1.5 xl:gap-3">
                 <span className="text-sm-medium text-gray-300 xl:text-xl-regular xl:text-gray-500">
-                  이사일
+                  {t('quotes.moveDate')}
                 </span>
                 <span className="text-sm-medium text-black-300 xl:text-xl-medium xl:text-black-400">
                   {moveDateLabel}
@@ -109,7 +111,7 @@ export const WritableReviewCard = ({
               />
               <div className="flex items-center gap-1.5 xl:gap-3">
                 <span className="text-sm-medium text-gray-300 xl:text-xl-regular xl:text-gray-500">
-                  견적가
+                  {t('quotes.priceAmount')}
                 </span>
                 <span className="text-sm-medium text-black-300 xl:text-xl-medium xl:text-black-400">
                   {priceLabel}
@@ -131,7 +133,7 @@ export const WritableReviewCard = ({
           className="rounded-lg"
           onClick={() => onWriteClick(item)}
         >
-          리뷰 작성하기
+          {t('reviews.writeCta')}
         </Button>
       </motion.div>
       <motion.div
@@ -145,7 +147,7 @@ export const WritableReviewCard = ({
           className="rounded-2xl"
           onClick={() => onWriteClick(item)}
         >
-          리뷰 작성하기
+          {t('reviews.writeCta')}
         </Button>
       </motion.div>
     </motion.article>

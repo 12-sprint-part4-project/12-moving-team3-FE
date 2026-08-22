@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 
 import ResetIcon from '@/assets/icons/reset.svg';
+import { useTranslation } from '@/i18n/useTranslation';
 import { getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
@@ -18,12 +19,13 @@ export const RequestsFilterResetButton = ({
   disabled = false,
   className = '',
 }: RequestsFilterResetButtonProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
 
   return (
     <button
       type="button"
-      aria-label="검색·필터·정렬 초기화"
+      aria-label={t('common.resetSearchFilters')}
       onClick={onClick}
       disabled={disabled}
       className={cn(

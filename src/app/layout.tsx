@@ -3,6 +3,7 @@ import localFont from 'next/font/local';
 import { Guards } from '@/components/auth/Guards';
 import { Header } from '@/components/layout/Header';
 import { ScrollToTopButton } from '@/components/ui/ScrollToTopButton/ScrollToTopButton';
+import { getServerTranslation } from '@/i18n/getServerTranslation';
 import { Providers } from '@/providers/Providers';
 
 import './globals.css';
@@ -16,12 +17,16 @@ const pretendard = localFont({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: '무빙',
-    template: '%s | 무빙',
-  },
-  description: '원하는 이사 서비스를 요청하고 견적을 받아보세요',
+export const generateMetadata = async (): Promise<Metadata> => {
+  const { t } = await getServerTranslation();
+
+  return {
+    title: {
+      default: t('auth.brand'),
+      template: t('meta.titleTemplate'),
+    },
+    description: t('meta.description'),
+  };
 };
 
 /** Android Chrome 등 — 가상 키보드가 layout viewport를 줄이도록 (채팅 입력 UX) */
@@ -31,18 +36,20 @@ export const viewport: Viewport = {
   interactiveWidget: 'resizes-content',
 };
 
-export default function RootLayout({
+const RootLayout = async ({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>) => {
+  const { language } = await getServerTranslation();
+
   return (
     <html
-      lang="ko"
+      lang={language}
       className={`${pretendard.variable} h-full min-w-[320px] antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <Providers>
+        <Providers initialLanguage={language}>
           <Header />
           <main className="flex flex-1 flex-col">
             <Guards>{children}</Guards>
@@ -52,4 +59,6 @@ export default function RootLayout({
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

@@ -1,10 +1,8 @@
 import { CustomerProfileEditForm } from '../_components/CustomerProfileEditForm';
 
-import type { Metadata } from 'next';
+import { createPageMetadata } from '@/i18n/createPageMetadata';
 
-export const metadata: Metadata = {
-  title: '프로필 수정',
-};
+export const generateMetadata = createPageMetadata('nav.profile.edit');
 
 /** `/profile/customer/edit` 서버 페이지. - 고객 프로필 수정 */
 const CustomerProfileEditPage = () => {

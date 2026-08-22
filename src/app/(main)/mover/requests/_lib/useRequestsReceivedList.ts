@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useLoadMoreOnView } from '@/hooks/useLoadMoreOnView';
 import { useReceivedEstimateRequests } from '@/hooks/useReceivedEstimateRequests';
+import { useTranslation } from '@/i18n/useTranslation';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 
 import {
@@ -33,6 +34,7 @@ export const useRequestsReceivedList = ({
   focusRequestId = null,
   exitingIds,
 }: UseRequestsReceivedListParams) => {
+  const { t } = useTranslation();
   const debouncedMoveTypes = useDebouncedValue(
     listFilters.moveTypes,
     FILTER_DEBOUNCE_MS
@@ -106,7 +108,7 @@ export const useRequestsReceivedList = ({
 
   const errorMessage = resolveApiErrorMessage(
     error,
-    '받은 요청 목록을 불러오지 못했습니다.'
+    t('receivedRequests.listError')
   );
 
   const isFilteredEmpty =

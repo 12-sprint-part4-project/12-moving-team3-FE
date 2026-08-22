@@ -7,6 +7,7 @@ import { MoverReviewSection } from '@/components/reviews/MoverReviewSection';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useMoverProfile } from '@/hooks/useMoverProfile';
 import { useMoverReceivedReviews } from '@/hooks/useMoverReceivedReviews';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
 import { getReviewStatsTotalCount } from '@/lib/reviewDisplay';
 import { cn } from '@/lib/utils';
@@ -27,6 +28,7 @@ const STATUS_WRAP_CLASS = 'flex flex-col items-center gap-4 py-16';
 
 /** 기사님 마이페이지. 프로필 카드와 받은 리뷰를 보여 준다. */
 export const MoverMyPageClient = () => {
+  const { t } = useTranslation();
   const router = useRouter();
 
   const {
@@ -53,7 +55,7 @@ export const MoverMyPageClient = () => {
   const profileErrorMessage =
     profileError instanceof ApiError
       ? profileError.message
-      : '프로필을 불러오지 못했습니다.';
+      : t('profile.loadErrorShort');
 
   const reviewCount =
     pagination?.totalCount ??
@@ -89,13 +91,13 @@ export const MoverMyPageClient = () => {
     <div className="flex w-full flex-col overflow-x-hidden bg-white">
       <div className={cn(TITLE_BAR_CLASS, PAGE_X_PADDING)}>
         <h1 className="text-md-semibold text-black-400 md:text-2lg-semibold lg:text-2xl-semibold">
-          마이페이지
+          {t('nav.profile.mypage')}
         </h1>
       </div>
 
       <div className={cn(CONTENT_CLASS, PAGE_X_PADDING)}>
         {showProfileSpinner ? (
-          <Spinner message="프로필을 불러오는 중..." />
+          <Spinner message={t('profile.loadingWithEllipsis')} />
         ) : null}
 
         {showProfileError ? (
@@ -108,7 +110,7 @@ export const MoverMyPageClient = () => {
               onClick={handleRetry}
               className="cursor-pointer rounded-lg bg-blue-300 px-4 py-2 text-lg-semibold text-white"
             >
-              다시 시도
+              {t('common.retry')}
             </button>
           </div>
         ) : null}
@@ -116,13 +118,13 @@ export const MoverMyPageClient = () => {
         {showProfileEmpty ? (
           <div className={STATUS_WRAP_CLASS}>
             <p className="text-lg-medium text-gray-400">
-              등록된 프로필이 없어요.
+              {t('profile.noProfile')}
             </p>
             <Link
               href="/profile/mover"
               className="rounded-lg bg-blue-300 px-4 py-2 text-lg-semibold text-white"
             >
-              프로필 등록하기
+              {t('profile.registerCta')}
             </Link>
           </div>
         ) : null}

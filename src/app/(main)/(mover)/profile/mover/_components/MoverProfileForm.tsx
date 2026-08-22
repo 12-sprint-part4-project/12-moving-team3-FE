@@ -15,6 +15,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCreateMoverProfile } from '@/hooks/useMoverProfile';
 import { useProfileImageCrop } from '@/hooks/useProfileImageCrop';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
@@ -41,13 +42,13 @@ import type { MoverRegion, MoverServiceType } from '@/types/moverProfile';
 
 /** `/profile/mover` 기사님 프로필 등록 폼 */
 export const MoverProfileForm = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
   const { showToast } = useToast();
   const { mutate: createProfile, isPending } = useCreateMoverProfile({
-    successMessage: '프로필 등록이 완료되었습니다.',
-    errorFallbackMessage:
-      '프로필 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+    successMessage: t('profile.registerSuccess'),
+    errorFallbackMessage: t('profile.registerError'),
   });
   const imageInputId = useId();
   const phoneInputId = useId();
@@ -103,7 +104,9 @@ export const MoverProfileForm = () => {
     selectedServices.length > 0 &&
     selectedRegions.length > 0 &&
     !isPending;
-  const submitLabel = isPending ? '등록 중...' : '시작하기';
+  const submitLabel = isPending
+    ? t('profile.submitting')
+    : t('auth.signup.submit');
 
   const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
     setPhoneDraft(formatKrMobileSubscriberInput(event.target.value));
@@ -157,7 +160,7 @@ export const MoverProfileForm = () => {
     );
     if (!isProfileTextValid(nickname)) {
       showToast({
-        content: '로그인 정보가 올바르지 않습니다. 다시 로그인해 주세요.',
+        content: t('profile.invalidSession'),
       });
       return;
     }
@@ -191,10 +194,10 @@ export const MoverProfileForm = () => {
       >
         <header className="flex w-full flex-col items-start gap-4 lg:gap-8">
           <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
-            기사님 프로필 등록
+            {t('profile.registerMoverTitle')}
           </h1>
           <p className="text-xs-regular text-black-100 lg:text-xl-regular lg:text-black-200">
-            추가 정보를 입력하여 회원가입을 완료해주세요.
+            {t('profile.registerSubtitle')}
           </p>
           <div className="h-px w-full bg-line-100" aria-hidden />
         </header>
@@ -222,12 +225,14 @@ export const MoverProfileForm = () => {
             <div className="h-px w-full bg-line-100" aria-hidden />
 
             <section className="flex w-full flex-col items-start gap-4">
-              <RequiredLabel htmlFor={careerInputId}>경력</RequiredLabel>
+              <RequiredLabel htmlFor={careerInputId}>
+                {t('profile.career')}
+              </RequiredLabel>
               <ProfileTextField
                 id={careerInputId}
                 name="career"
                 inputMode="numeric"
-                placeholder="기사님의 경력을 입력해 주세요"
+                placeholder={t('profile.careerPlaceholder')}
                 value={career}
                 onChange={handleCareerChange}
                 isError={isCareerFormatError}
@@ -241,12 +246,12 @@ export const MoverProfileForm = () => {
 
             <section className="flex w-full flex-col items-start gap-4">
               <RequiredLabel htmlFor={shortIntroInputId}>
-                한 줄 소개
+                {t('profile.shortIntro')}
               </RequiredLabel>
               <ProfileTextField
                 id={shortIntroInputId}
                 name="shortIntro"
-                placeholder="한 줄 소개를 입력해 주세요"
+                placeholder={t('profile.shortIntroPlaceholder')}
                 value={shortIntro}
                 onChange={handleShortIntroChange}
                 isError={isShortIntroFormatError}
@@ -264,12 +269,12 @@ export const MoverProfileForm = () => {
           <div className="flex w-full flex-col items-start gap-5 lg:max-w-[40rem] lg:gap-8">
             <section className="flex w-full flex-col items-start gap-4">
               <RequiredLabel htmlFor={descriptionInputId}>
-                상세 설명
+                {t('profile.description')}
               </RequiredLabel>
               <MoverProfileTextArea
                 id={descriptionInputId}
                 name="description"
-                placeholder="상세 내용을 입력해 주세요"
+                placeholder={t('profile.descriptionPlaceholder')}
                 value={description}
                 onChange={handleDescriptionChange}
                 isError={isDescriptionFormatError}
@@ -285,7 +290,7 @@ export const MoverProfileForm = () => {
 
             <ProfileServiceField
               selectedServices={selectedServices}
-              label="제공 서비스"
+              label={t('movers.providedServices')}
               onToggle={handleServiceToggle}
             />
 
@@ -293,7 +298,7 @@ export const MoverProfileForm = () => {
 
             <ProfileRegionField
               selectedRegions={selectedRegions}
-              label="서비스 가능 지역"
+              label={t('movers.availableRegions')}
               onSelect={handleRegionToggle}
             />
           </div>

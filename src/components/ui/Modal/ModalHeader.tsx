@@ -3,6 +3,7 @@
 import { useId, type ReactNode } from 'react';
 
 import CloseIcon from '@/assets/icons/close.svg';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 export interface ModalHeaderProps {
@@ -33,6 +34,7 @@ export const ModalHeader = ({
   titleId: titleIdProp,
   closeDisabled = false,
 }: ModalHeaderProps) => {
+  const { t } = useTranslation();
   const generatedId = useId();
   const titleId = titleIdProp ?? generatedId;
   const isCentered = titleAlign === 'center';
@@ -57,7 +59,7 @@ export const ModalHeader = ({
       </h2>
       <button
         type="button"
-        aria-label="닫기"
+        aria-label={t('common.close')}
         disabled={closeDisabled}
         aria-disabled={closeDisabled}
         onClick={onClose}

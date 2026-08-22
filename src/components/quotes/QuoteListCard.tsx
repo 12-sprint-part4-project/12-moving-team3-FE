@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { QuoteCardInfo } from '@/components/quotes/QuoteCardInfo';
 import { QuotePriceRow } from '@/components/quotes/QuotePriceRow';
 import { QuoteStatusChips } from '@/components/quotes/QuoteStatusChips';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
@@ -44,7 +45,7 @@ export interface QuoteListCardProps {
  */
 export const QuoteListCard = ({
   displayName,
-  nameSuffix = '고객님',
+  nameSuffix,
   moveType,
   isConfirmed = false,
   isDesignated,
@@ -61,7 +62,9 @@ export const QuoteListCard = ({
   chips,
   footerActions,
 }: QuoteListCardProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
+  const suffix = nameSuffix ?? t('gnb.role.customer');
 
   const defaultChips = (
     <QuoteStatusChips
@@ -69,7 +72,7 @@ export const QuoteListCard = ({
       moveType={moveType}
       isDesignated={isDesignated}
       size="sm"
-      statusLabel="견적 확정"
+      statusLabel={t('quoteStatus.confirmed')}
     />
   );
 
@@ -88,7 +91,7 @@ export const QuoteListCard = ({
 
       <QuoteCardInfo
         displayName={displayName}
-        nameSuffix={nameSuffix}
+        nameSuffix={suffix}
         moveDate={moveDate}
         departure={departure}
         arrival={arrival}
@@ -138,7 +141,7 @@ export const QuoteListCard = ({
             aria-label={`${detailAriaLabel} — ${overlayMessage}`}
             className="inline-flex items-center justify-center rounded-2xl border border-blue-200 bg-blue-100 px-4 py-2 text-md-semibold text-blue-300 transition-colors hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:outline-none lg:px-4.5 lg:py-2.5 lg:text-lg-semibold"
           >
-            견적 상세보기
+            {t('quotes.viewDetail')}
           </Link>
         </div>
       ) : null}

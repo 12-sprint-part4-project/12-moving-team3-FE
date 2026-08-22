@@ -4,6 +4,7 @@ import { type FormEvent, type KeyboardEvent, useState } from 'react';
 
 import LikeActiveIcon from '@/assets/icons/like-active.svg';
 import SendIcon from '@/assets/icons/send.svg';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import {
@@ -39,6 +40,7 @@ export const CommunityPostEngagementBar = ({
   onCommentFocus,
   className = '',
 }: CommunityPostEngagementBarProps) => {
+  const { t } = useTranslation();
   const [animTrigger, setAnimTrigger] = useState(0);
 
   const handleLikeClick = () => {
@@ -64,7 +66,7 @@ export const CommunityPostEngagementBar = ({
     }
   };
 
-  const likeLabel = isLiked ? '좋아요 취소' : '좋아요';
+  const likeLabel = isLiked ? t('community.unlike') : t('community.like');
   const isCommentSubmitDisabled =
     commentValue.trim().length === 0 || isCommentPending;
 
@@ -111,7 +113,7 @@ export const CommunityPostEngagementBar = ({
         </button>
 
         <label className="sr-only" htmlFor="community-comment-input">
-          댓글 입력
+          {t('community.commentInputAria')}
         </label>
         <input
           id="community-comment-input"
@@ -120,7 +122,7 @@ export const CommunityPostEngagementBar = ({
           onChange={(event) => onCommentChange(event.target.value)}
           onFocus={onCommentFocus}
           onKeyDown={handleCommentKeyDown}
-          placeholder="댓글을 입력해 주세요."
+          placeholder={t('community.commentPlaceholder')}
           disabled={isCommentPending}
           className={cn(
             COMMUNITY_DETAIL_COMMENT_INPUT,
@@ -129,7 +131,7 @@ export const CommunityPostEngagementBar = ({
         />
         <button
           type="submit"
-          aria-label="댓글 등록"
+          aria-label={t('community.commentSubmitAria')}
           disabled={isCommentSubmitDisabled}
           className={cn(
             COMMUNITY_ENGAGEMENT_BUTTON_CLASS,

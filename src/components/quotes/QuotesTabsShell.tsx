@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 export interface QuotesTabItem<T extends string = string> {
@@ -24,36 +25,44 @@ export const QuotesTabsShell = <T extends string>({
   tabs,
   activeTab,
   className = '',
-  ariaLabel = '내 견적 관리',
+  ariaLabel,
   tabIdPrefix = 'quotes-tab',
-}: QuotesTabsShellProps<T>) => (
-  <div
-    className={cn(
-      'shrink-0 border-b border-line-100 bg-white pt-4 shadow-page-title',
-      className
-    )}
-  >
-    <nav aria-label={ariaLabel} className="flex items-start gap-6 xl:gap-8">
-      {tabs.map((tab) => {
-        const active = activeTab === tab.id;
-        return (
-          <Link
-            key={tab.id}
-            id={`${tabIdPrefix}-${tab.id}`}
-            href={tab.href}
-            scroll={false}
-            aria-current={active ? 'page' : undefined}
-            className={cn(
-              'flex cursor-pointer items-center justify-center self-stretch py-4 text-xl-semibold whitespace-nowrap',
-              active
-                ? 'border-b-2 border-black-400 text-black-400'
-                : 'text-gray-400'
-            )}
-          >
-            {tab.label}
-          </Link>
-        );
-      })}
-    </nav>
-  </div>
-);
+}: QuotesTabsShellProps<T>) => {
+  const { t } = useTranslation();
+  const resolvedAriaLabel = ariaLabel ?? t('quotes.tabsAria');
+
+  return (
+    <div
+      className={cn(
+        'shrink-0 border-b border-line-100 bg-white pt-4 shadow-page-title',
+        className
+      )}
+    >
+      <nav
+        aria-label={resolvedAriaLabel}
+        className="flex items-start gap-6 xl:gap-8"
+      >
+        {tabs.map((tab) => {
+          const active = activeTab === tab.id;
+          return (
+            <Link
+              key={tab.id}
+              id={`${tabIdPrefix}-${tab.id}`}
+              href={tab.href}
+              scroll={false}
+              aria-current={active ? 'page' : undefined}
+              className={cn(
+                'flex cursor-pointer items-center justify-center self-stretch py-4 text-xl-semibold whitespace-nowrap',
+                active
+                  ? 'border-b-2 border-black-400 text-black-400'
+                  : 'text-gray-400'
+              )}
+            >
+              {tab.label}
+            </Link>
+          );
+        })}
+      </nav>
+    </div>
+  );
+};

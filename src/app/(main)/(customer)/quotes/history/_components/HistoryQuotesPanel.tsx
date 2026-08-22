@@ -10,6 +10,7 @@ import {
   useCustomerPastQuotes,
 } from '@/hooks/useCustomerPastQuotes';
 import { useLoadMoreOnView } from '@/hooks/useLoadMoreOnView';
+import { useTranslation } from '@/i18n/useTranslation';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 import { getFadeUpMotionProps, getListStagger, getMotionTransition } from '@/lib/motionVariants';
 
@@ -35,6 +36,7 @@ export const HistoryQuotesPanel = ({
   pendingChatQuoteId,
   onChatClick,
 }: HistoryQuotesPanelProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
 
   const {
@@ -63,7 +65,7 @@ export const HistoryQuotesPanel = ({
   const fadeUpMotion = getFadeUpMotionProps(motionTransition);
   const errorMessage = resolveApiErrorMessage(
     error,
-    '이용 내역을 불러오지 못했습니다.'
+    t('quotes.historyError')
   );
 
   const handleRetry = () => {

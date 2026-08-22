@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { getButtonClassName } from '@/components/Button/Button';
+import { useTranslation } from '@/i18n/useTranslation';
 import { fadeIn, floatY, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
@@ -16,38 +17,33 @@ export interface CustomerQuotesEmptyStateProps {
   className?: string;
 }
 
-/** variant별 안내 문구·CTA */
-const EMPTY_COPY: Record<
-  CustomerQuotesEmptyVariant,
-  { lines: string[]; actionHref?: string; actionLabel?: string }
-> = {
-  waiting: {
-    lines: ['기사님들이 열심히 확인 중이에요', '곧 견적이 도착할 거예요!'],
-  },
-  noRequest: {
-    lines: ['대기 중인 견적이 없어요!'],
-    actionHref: '/estimates/request',
-    actionLabel: '견적 요청하기',
-  },
-  receivedEmpty: {
-    lines: ['아직 받았던 견적이 없어요!'],
-  },
-  historyEmpty: {
-    lines: ['아직 이용 내역이 없어요!', '견적을 확정하면 여기에 표시돼요.'],
-    actionHref: '/quotes',
-    actionLabel: '대기 중인 견적 보기',
-  },
-};
-
-/** `/quotes`·history 빈 상태. - variant별 안내 문구·선택 CTA. */
 export const CustomerQuotesEmptyState = ({
   variant,
   className = '',
 }: CustomerQuotesEmptyStateProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
 
+  const copy = {
+    waiting: {
+      lines: [t('quotes.empty.waiting1'), t('quotes.empty.waiting2')],
+    },
+    noRequest: {
+      lines: [t('quotes.empty.noRequest')],
+      actionHref: '/estimates/request',
+      actionLabel: t('quotes.empty.requestCta'),
+    },
+    receivedEmpty: {
+      lines: [t('quotes.empty.received')],
+    },
+    historyEmpty: {
+      lines: [t('quotes.empty.history1'), t('quotes.empty.history2')],
+      actionHref: '/quotes',
+      actionLabel: t('quotes.empty.historyCta'),
+    },
+  }[variant];
+
   const motionTransition = getMotionTransition(shouldReduceMotion);
-  const copy = EMPTY_COPY[variant];
   const messageKey = copy.lines.join('|');
 
   // 빈 이미지 + 안내 문구 + (선택) CTA

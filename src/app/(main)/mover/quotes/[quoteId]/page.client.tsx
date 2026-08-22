@@ -7,8 +7,12 @@ import { QuoteDetailContentSkeleton } from '@/components/ui/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useMoverQuoteDetail } from '@/hooks/useMoverQuoteDetail';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
+import { useTranslation } from '@/i18n/useTranslation';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
-import { getFadeInMotionProps, getMotionTransition } from '@/lib/motionVariants';
+import {
+  getFadeInMotionProps,
+  getMotionTransition,
+} from '@/lib/motionVariants';
 import { parsePositiveInt } from '@/lib/parsePositiveInt';
 import { cn } from '@/lib/utils';
 
@@ -23,19 +27,18 @@ export interface MoverQuoteDetailPageClientProps {
 const MoverQuoteDetailPageClient = ({
   quoteId,
 }: MoverQuoteDetailPageClientProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
 
   const numericQuoteId = parsePositiveInt(quoteId);
   const { user } = useAuth();
-  const { detail, isPending, isError, error, refetch } =
-    useMoverQuoteDetail(numericQuoteId ?? 0);
+  const { detail, isPending, isError, error, refetch } = useMoverQuoteDetail(
+    numericQuoteId ?? 0
+  );
   const { startEstimateChatFromSource, isChatPending } = useStartEstimateChat();
 
   const motionTransition = getMotionTransition(shouldReduceMotion);
-  const errorMessage = resolveApiErrorMessage(
-    error,
-    '견적 상세를 불러오지 못했습니다.'
-  );
+  const errorMessage = resolveApiErrorMessage(error, t('quotes.detailError'));
 
   const handleRetry = () => {
     void refetch();
@@ -45,7 +48,7 @@ const MoverQuoteDetailPageClient = ({
   if (numericQuoteId == null) {
     return (
       <QuoteDetailErrorState
-        message="유효하지 않은 견적입니다."
+        message={t('quotes.invalid')}
         backHref="/mover/quotes"
       />
     );

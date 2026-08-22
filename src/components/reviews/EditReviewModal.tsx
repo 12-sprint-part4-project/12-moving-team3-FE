@@ -12,6 +12,7 @@ import {
   MODAL_PANEL_BOTTOM_SHEET_CLASS,
   MODAL_PANEL_CLASS,
 } from '@/components/ui/Modal/modalPanel';
+import { useTranslation } from '@/i18n/useTranslation';
 import { formatReviewMoveDate } from '@/lib/reviewDisplay';
 import { cn } from '@/lib/utils';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
@@ -39,9 +40,10 @@ export const EditReviewModal = ({
   isSubmitting = false,
   className = '',
 }: EditReviewModalProps) => {
+  const { t } = useTranslation();
   const titleId = useId();
   const quote = review.quote;
-  const moverName = review.mover?.name?.trim() || '기사';
+  const moverName = review.mover?.name?.trim() || t('reviews.fallbackMoverName');
   const avatarSrc = review.mover?.profileImageUrl ?? undefined;
   const moveDateLabel = formatReviewMoveDate(quote?.moveDate ?? null);
   const priceLabel = formatQuotePriceLabel(quote?.price ?? null);
@@ -76,7 +78,11 @@ export const EditReviewModal = ({
         className
       )}
     >
-      <ModalHeader title="리뷰 수정" onClose={handleClose} titleId={titleId} />
+      <ModalHeader
+        title={t('reviews.modal.editTitle')}
+        onClose={handleClose}
+        titleId={titleId}
+      />
 
       <ReviewFormFields
         moveType={quote?.moveType ?? null}
@@ -89,12 +95,12 @@ export const EditReviewModal = ({
         onRatingChange={setRating}
         content={content}
         onContentChange={setContent}
-        ratingLabel="평점"
-        contentLabel="상세 후기"
+        ratingLabel={t('reviews.form.ratingLabel')}
+        contentLabel={t('reviews.form.contentLabel')}
       />
 
       <ModalCtaButton disabled={!isSubmittable} onClick={handleSubmit}>
-        확인
+        {t('common.confirm')}
       </ModalCtaButton>
     </section>
   );

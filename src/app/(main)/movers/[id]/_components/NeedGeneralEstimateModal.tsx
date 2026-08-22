@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { ModalBasic } from '@/components/ui/Modal/ModalBasic';
 import { ModalCtaButton } from '@/components/ui/Modal/ModalCtaButton';
+import { useTranslation } from '@/i18n/useTranslation';
 
 export interface NeedGeneralEstimateModalProps {
   open: boolean;
@@ -18,6 +19,7 @@ export const NeedGeneralEstimateModal = ({
   open,
   onClose,
 }: NeedGeneralEstimateModalProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
 
   if (!open) {
@@ -32,16 +34,16 @@ export const NeedGeneralEstimateModal = ({
   return (
     <Modal onClose={onClose}>
       <ModalBasic
-        title="지정 견적 요청하기"
+        title={t('movers.designated.request')}
         onClose={onClose}
         footer={
           <ModalCtaButton onClick={handleGoToEstimateRequest}>
-            일반 견적 요청 하기
+            {t('movers.designated.needGeneralCta')}
           </ModalCtaButton>
         }
       >
         <p className="text-2lg-medium text-black-300">
-          일반 견적 요청을 먼저 진행해 주세요.
+          {t('movers.designated.needGeneralBody')}
         </p>
       </ModalBasic>
     </Modal>

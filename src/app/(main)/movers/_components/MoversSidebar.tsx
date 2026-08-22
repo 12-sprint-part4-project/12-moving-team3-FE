@@ -8,6 +8,7 @@ import {
   MoverCardSkeleton,
   MOVERS_PREVIEW_SKELETON_COUNT,
 } from '@/components/ui/Skeleton';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   fadeIn,
   fadeUp,
@@ -45,6 +46,7 @@ export const MoversSidebar = ({
   isMoverPending,
   className = '',
 }: MoversSidebarProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const { regionValue, serviceValue } = filters;
@@ -59,14 +61,16 @@ export const MoversSidebar = ({
     >
       <section className="flex w-full flex-col">
         <div className="flex items-center justify-between px-3.5 py-4">
-          <h2 className="text-2xl-semibold text-black-400">필터</h2>
+          <h2 className="text-2xl-semibold text-black-400">
+            {t('common.filter')}
+          </h2>
           <motion.button
             type="button"
             onClick={onResetFilters}
             {...(shouldReduceMotion ? {} : tapScale)}
             className="cursor-pointer text-2lg-medium text-gray-300 hover:text-gray-400"
           >
-            초기화
+            {t('common.reset')}
           </motion.button>
         </div>
 
@@ -79,12 +83,18 @@ export const MoversSidebar = ({
             className="flex flex-col gap-4"
           >
             <p className="text-2lg-semibold text-black-400">
-              지역을 선택해주세요
+              {t('movers.selectRegion')}
             </p>
             <MoversSelectDropdown
-              label="지역"
-              placeholder="지역"
-              options={REGION_FILTER_OPTIONS}
+              label={t('common.region')}
+              placeholder={t('common.region')}
+              options={REGION_FILTER_OPTIONS.map((option) => ({
+                value: option.value,
+                label:
+                  option.value === 'ALL'
+                    ? t('common.all')
+                    : t(`region.${option.value}`),
+              }))}
               value={regionValue}
               onValueChange={onRegionChange}
               fullWidth
@@ -102,12 +112,18 @@ export const MoversSidebar = ({
             className="flex flex-col gap-4"
           >
             <p className="text-2lg-semibold text-black-400">
-              어떤 서비스가 필요하세요?
+              {t('movers.selectService')}
             </p>
             <MoversSelectDropdown
-              label="서비스"
-              placeholder="서비스"
-              options={SERVICE_FILTER_OPTIONS}
+              label={t('common.service')}
+              placeholder={t('common.service')}
+              options={SERVICE_FILTER_OPTIONS.map((option) => ({
+                value: option.value,
+                label:
+                  option.value === 'ALL'
+                    ? t('common.all')
+                    : t(`moveType.${option.value}`),
+              }))}
               value={serviceValue}
               onValueChange={onServiceChange}
               fullWidth
@@ -122,7 +138,7 @@ export const MoversSidebar = ({
             href="/favorites"
             className="cursor-pointer hover:text-blue-300"
           >
-            찜한 기사님
+            {t('nav.profile.favorites')}
           </Link>
         </h2>
         {!isLoggedIn ? (
@@ -133,10 +149,10 @@ export const MoversSidebar = ({
             transition={motionTransition}
             className="rounded-2xl border border-line-100 bg-background-200 px-4 py-8 text-center text-lg-medium text-gray-400"
           >
-            로그인이 필요한 기능입니다
+            {t('movers.loginRequired')}
           </motion.p>
         ) : isFavoritesPending ? (
-          <ul className="flex flex-col gap-4" aria-busy="true" aria-label="찜한 기사님 불러오는 중">
+          <ul className="flex flex-col gap-4" aria-busy="true" aria-label={t('movers.favoritesLoadingAria')}>
             {Array.from(
               { length: MOVERS_PREVIEW_SKELETON_COUNT },
               (_, index) => (
@@ -153,7 +169,7 @@ export const MoversSidebar = ({
             transition={motionTransition}
             className="rounded-2xl border border-line-100 bg-background-200 px-4 py-8 text-center text-lg-medium text-gray-400"
           >
-            찜한 기사님이 없어요
+            {t('movers.favoritesEmpty')}
           </motion.p>
         ) : (
           <motion.ul

@@ -4,8 +4,8 @@ import Link from 'next/link';
 
 import { Button, getButtonClassName } from '@/components/Button/Button';
 import { ChatStartButtonContent } from '@/components/chat/ChatStartButtonContent';
-import { getClosedQuoteOverlayMessage } from '@/components/quotes/closedQuoteOverlay';
 import { QuoteListCard } from '@/components/quotes/QuoteListCard';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import { HISTORY_QUOTE_CTA_CLASS } from '../../_components/customerQuotesStyles';
@@ -27,6 +27,7 @@ export const HistoryQuoteCard = ({
   onChatClick,
   className = '',
 }: HistoryQuoteCardProps) => {
+  const { t } = useTranslation();
   const detailHref = `/quotes/${quote.quoteId}`;
 
   /** COMPLETED·EXPIRED·CANCELED면 오버레이만 노출 */
@@ -38,7 +39,7 @@ export const HistoryQuoteCard = ({
     <QuoteListCard
       className={className}
       displayName={quote.moverName}
-      nameSuffix="기사님"
+      nameSuffix={t('gnb.role.mover')}
       moveType={quote.moveType}
       isConfirmed={quote.isConfirmed}
       isDesignated={quote.isDesignated}
@@ -48,11 +49,11 @@ export const HistoryQuoteCard = ({
       priceLabel={quote.priceLabel}
       relativeTimeLabel={quote.relativeTimeLabel}
       detailHref={detailHref}
-      detailAriaLabel={`${quote.moverName} 기사님 견적 상세보기`}
+      detailAriaLabel={t('quotes.detailAriaMover', { name: quote.moverName })}
       isClosed={isClosedCard}
       overlayMessage={
         isClosedCard
-          ? getClosedQuoteOverlayMessage(quote.estimateRequestStatus)
+          ? t(`quotes.closedOverlay.${quote.estimateRequestStatus}`)
           : undefined
       }
       footerActions={
@@ -68,9 +69,9 @@ export const HistoryQuoteCard = ({
                   'focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:outline-none'
                 ),
               })}
-              aria-label={`${quote.moverName} 기사님 견적 상세보기`}
+              aria-label={t('quotes.detailAriaMover', { name: quote.moverName })}
             >
-              상세보기
+              {t('quotes.viewDetailShort')}
             </Link>
             {quote.canStartChat ? (
               <Button
@@ -82,8 +83,8 @@ export const HistoryQuoteCard = ({
                 onClick={onChatClick}
                 aria-label={
                   isChatPending
-                    ? `${quote.moverName} 기사님 채팅방 여는 중`
-                    : `${quote.moverName} 기사님과 채팅하기`
+                    ? t('quotes.chatOpeningAria', { name: quote.moverName })
+                    : t('quotes.chatAria', { name: quote.moverName })
                 }
               >
                 <ChatStartButtonContent isPending={isChatPending} />

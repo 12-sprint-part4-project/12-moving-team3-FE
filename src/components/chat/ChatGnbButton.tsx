@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useRef, useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import ChatIcon from '@/assets/icons/chat.svg';
 import { ChatPreviewDropdown } from '@/components/chat/ChatPreviewDropdown';
@@ -30,6 +31,7 @@ export const ChatGnbButton = ({
   closeSignal = 0,
   className,
 }: ChatGnbButtonProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
   const [prevCloseSignal, setPrevCloseSignal] = useState(closeSignal);
@@ -60,7 +62,9 @@ export const ChatGnbButton = ({
   const handleClose = () => setIsOpen(false);
 
   const ariaLabel =
-    unreadCount > 0 ? `채팅, 읽지 않은 메시지 ${unreadCount}개` : '채팅';
+    unreadCount > 0
+      ? t('gnb.chat.unread', { count: unreadCount })
+      : t('gnb.chat.label');
 
   return (
     <div

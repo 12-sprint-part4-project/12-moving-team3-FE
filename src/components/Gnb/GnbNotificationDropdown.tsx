@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import CloseIcon from '@/assets/icons/close.svg';
@@ -21,8 +22,6 @@ export interface GnbNotificationDropdownProps {
   className?: string;
 }
 
-const EMPTY_MESSAGE = '새로운 알림이 없어요';
-const LOADING_MESSAGE = '불러오는 중…';
 /** scrollHeight 비교 오차 허용 (서브픽셀) */
 const SCROLL_BOTTOM_THRESHOLD_PX = 2;
 /** 스크롤 힌트 chevron이 위에서 아래로 한 번 떨어지는 주기(초) */
@@ -37,6 +36,7 @@ export const GnbNotificationDropdown = ({
   onItemPointerEnter,
   className,
 }: GnbNotificationDropdownProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const isEmpty = !isLoading && items.length === 0;
   const listRef = useRef<HTMLDivElement>(null);
@@ -83,7 +83,7 @@ export const GnbNotificationDropdown = ({
   return (
     <div
       role="dialog"
-      aria-label="알림"
+      aria-label={t('gnb.notification.title')}
       className={cn(
         'flex w-[19.5rem] max-w-[100vw] flex-col items-stretch rounded-3xl border border-line-200 bg-white px-4 py-2.5 shadow-[0.125rem_0.125rem_0.25rem] shadow-shadow-gray-200/20 md:w-[22.5rem]',
         className
@@ -91,11 +91,11 @@ export const GnbNotificationDropdown = ({
     >
       <div className="flex w-full shrink-0 items-center justify-between py-3.5 pr-3 pl-4 md:pl-6">
         <p className="text-lg-bold text-black-300 md:text-2lg-bold md:text-black-400">
-          알림
+          {t('gnb.notification.title')}
         </p>
         <button
           type="button"
-          aria-label="알림 닫기"
+          aria-label={t('gnb.notification.close')}
           onClick={onClose}
           className="inline-flex size-6 shrink-0 cursor-pointer items-center justify-center text-black-400"
         >
@@ -111,10 +111,10 @@ export const GnbNotificationDropdown = ({
             className="flex w-full flex-col items-stretch"
           >
             {isLoading ? (
-              <Spinner message={LOADING_MESSAGE} className="gap-3 py-8" />
+              <Spinner message={t('common.loading')} className="gap-3 py-8" />
             ) : isEmpty ? (
               <p className="px-4 py-8 text-center text-md-medium text-gray-300 md:px-6">
-                {EMPTY_MESSAGE}
+                {t('gnb.notification.empty')}
               </p>
             ) : (
               items.map((item) => (

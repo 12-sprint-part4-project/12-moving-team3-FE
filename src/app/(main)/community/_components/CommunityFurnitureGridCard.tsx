@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import NoImageIcon from '@/assets/icons/no-image.svg';
 import { isCommunityRegion } from '@/constants/communityOptions';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   buildCommunityPostDetailHref,
   type PostListContext,
@@ -11,7 +12,6 @@ import { cn } from '@/lib/utils';
 import {
   COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_CLASS,
   COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_TEXT_CLASS,
-  FURNITURE_SHARE_COMPLETE_LABEL,
 } from './communityFurnitureShareStyles';
 import { CommunityPostThumbnail } from './CommunityPostThumbnail';
 import { CommunityRegionBadge } from './CommunityRegionBadge';
@@ -35,6 +35,7 @@ export const CommunityFurnitureGridCard = ({
   className = '',
   preload = false,
 }: CommunityFurnitureGridCardProps) => {
+  const { t } = useTranslation();
   const thumbnailUrl = post.thumbnailUrl;
   const hasThumbnail = thumbnailUrl !== null;
   const region =
@@ -75,7 +76,7 @@ export const CommunityFurnitureGridCard = ({
             <span
               className={COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_TEXT_CLASS}
             >
-              {FURNITURE_SHARE_COMPLETE_LABEL}
+              {t('community.shareComplete')}
             </span>
           </div>
         ) : null}

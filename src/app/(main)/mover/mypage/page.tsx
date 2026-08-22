@@ -1,10 +1,8 @@
+import { createPageMetadata } from '@/i18n/createPageMetadata';
+
 import { MoverMyPageClient } from './page.client';
 
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: '마이페이지',
-};
+export const generateMetadata = createPageMetadata('nav.profile.mypage');
 
 const MoverMyPage = () => {
   return <MoverMyPageClient />;

@@ -15,6 +15,7 @@ import { ReportAction } from '@/components/reports';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   formatChatDateSeparator,
   isSameLocalCalendarDay,
@@ -53,9 +54,6 @@ export interface ChatMessageListProps {
 
 const NEAR_TOP_PX = 80;
 const NEAR_BOTTOM_PX = 120;
-
-/** 상대 나감 시스템 문구 — 빈 방·하단 공통 (#275) */
-const PARTNER_LEFT_MESSAGE = '상대방이 채팅방을 나갔습니다.';
 
 /**
  * 같은 보낸이가 같은 분(분 단위)에 연속 메시지를 보내면
@@ -129,6 +127,7 @@ export const ChatMessageList = ({
   scrollToBottomSignal = 0,
   className,
 }: ChatMessageListProps) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { showToast } = useToast();
   const [reportMessageId, setReportMessageId] = useState<number | null>(null);
@@ -468,7 +467,7 @@ export const ChatMessageList = ({
 
   const handleOpenReport = (messageId: number) => {
     if (!user) {
-      showToast({ content: '로그인이 필요한 기능입니다' });
+      showToast({ content: t('chat.loginNeeded') });
       return;
     }
     setReportMessageId(messageId);
@@ -488,38 +487,40 @@ export const ChatMessageList = ({
           <div aria-live="polite" aria-atomic="true">
             {isFetchingNextPage ? (
               <p className="py-1 text-center text-sm-medium text-gray-300">
-                이전 대화 불러오는 중…
+                {t('chat.loadingOlder')}
               </p>
             ) : null}
 
             {!isFetchingNextPage && isFetchNextPageError ? (
               <div className="flex flex-col items-center gap-1 py-1">
                 <p className="text-center text-sm-medium text-gray-300">
-                  이전 대화를 불러오지 못했어요
+                  {t('chat.olderError')}
                 </p>
                 <button
                   type="button"
                   onClick={onLoadOlder}
                   className="cursor-pointer text-sm-medium text-blue-300 underline-offset-2 hover:underline"
                 >
-                  다시 시도
+                  {t('common.retry')}
                 </button>
               </div>
             ) : null}
 
             {isPending ? (
-              <Spinner message="불러오는 중…" className="gap-3 py-16" />
+              <Spinner message={t('chat.loading')} className="gap-3 py-16" />
             ) : null}
 
             {isInitialError ? (
               <p className="py-16 text-center text-lg-medium text-gray-300">
-                메시지를 불러오지 못했어요
+                {t('chat.messagesError')}
               </p>
             ) : null}
 
             {canRenderMessages && isEmpty ? (
               <p className="py-16 text-center text-lg-medium text-gray-300">
-                {isPartnerLeft ? PARTNER_LEFT_MESSAGE : '대화를 시작해 보세요'}
+                {isPartnerLeft
+                  ? t('chat.partnerLeft')
+                  : t('chat.startConversation')}
               </p>
             ) : null}
           </div>
@@ -581,7 +582,7 @@ export const ChatMessageList = ({
               role="status"
               className="py-3 text-center text-xs-medium text-gray-300"
             >
-              {PARTNER_LEFT_MESSAGE}
+              {t('chat.partnerLeft')}
             </p>
           ) : null}
         </div>

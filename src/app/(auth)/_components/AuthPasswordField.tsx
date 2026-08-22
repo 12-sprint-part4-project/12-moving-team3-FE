@@ -6,10 +6,10 @@ interface AuthPasswordFieldProps {
   id: string;
   value: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  label: string;
+  placeholder: string;
   name?: string;
-  label?: string;
   autoComplete?: string;
-  placeholder?: string;
   maxLength?: number;
   isError?: boolean;
   errorMessage?: string;
@@ -20,10 +20,10 @@ export const AuthPasswordField = ({
   id,
   value,
   onChange,
+  label,
+  placeholder,
   name = 'password',
-  label = '비밀번호',
   autoComplete = 'current-password',
-  placeholder = '비밀번호를 입력해 주세요',
   maxLength,
   isError,
   errorMessage,

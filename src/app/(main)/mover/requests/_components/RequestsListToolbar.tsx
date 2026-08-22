@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { FilterButton } from '@/components/ui/Filter/FilterButton';
 import { TextFieldSearch } from '@/components/ui/Input/TextFieldSearch';
 import { Sort } from '@/components/ui/Sort/Sort';
+import { useTranslation } from '@/i18n/useTranslation';
 import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import { ALL_MOVE_TYPES, ALL_SCOPES } from '@/types/estimateRequest';
@@ -55,6 +56,7 @@ export const RequestsListToolbar = ({
   onFilterOpen,
   className = '',
 }: RequestsListToolbarProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const isFilterActive =
@@ -99,6 +101,11 @@ export const RequestsListToolbar = ({
     onResetAll();
   };
 
+  const sortOptions = REQUESTS_SORT_OPTIONS.map((option) => ({
+    ...option,
+    label: t(`receivedRequests.sort.${option.value}`),
+  }));
+
   return (
     <motion.div
       variants={fadeUp}
@@ -110,17 +117,17 @@ export const RequestsListToolbar = ({
       <TextFieldSearch
         size="sm"
         className="w-full max-w-none lg:h-16 lg:gap-2 lg:px-6 lg:py-3.5 lg:[&_button]:size-9 lg:[&_input]:text-xl-regular lg:[&_svg]:size-9"
-        placeholder="고객명 또는 출발지·도착지로 검색해 보세요"
+        placeholder={t('receivedRequests.searchPlaceholder')}
         value={searchInputValue}
         onChange={handleSearchChange}
         onSearch={handleSearch}
         onClear={handleSearchClear}
-        aria-label="고객명·출발지·도착지 검색"
+        aria-label={t('receivedRequests.searchAria')}
       />
 
       <div className="flex items-center justify-between gap-3">
         <p className="flex shrink-0 items-center gap-2 text-lg-medium text-black-400">
-          <span>전체</span>
+          <span>{t('common.all')}</span>
           <AnimatePresence mode="popLayout">
             <motion.span
               key={totalCount}
@@ -133,7 +140,7 @@ export const RequestsListToolbar = ({
               {totalCount}
             </motion.span>
           </AnimatePresence>
-          <span>건</span>
+          <span>{t('common.countUnit')}</span>
           <AnimatePresence>
             {showListFetching ? (
               <motion.span
@@ -148,7 +155,7 @@ export const RequestsListToolbar = ({
                   aria-hidden
                   className="inline-block size-4 animate-spin rounded-full border-2 border-line-100 border-t-blue-300"
                 />
-                <span className="sr-only">업데이트 중</span>
+                <span className="sr-only">{t('common.updating')}</span>
               </motion.span>
             ) : null}
           </AnimatePresence>
@@ -161,7 +168,7 @@ export const RequestsListToolbar = ({
           />
           <div className="flex items-center md:hidden">
             <Sort
-              options={REQUESTS_SORT_OPTIONS}
+              options={sortOptions}
               value={listFilters.sort}
               onValueChange={onSortChange}
               onOpen={onSortOpen}
@@ -171,7 +178,7 @@ export const RequestsListToolbar = ({
           </div>
           <div className="hidden items-center md:flex">
             <Sort
-              options={REQUESTS_SORT_OPTIONS}
+              options={sortOptions}
               value={listFilters.sort}
               onValueChange={onSortChange}
               onOpen={onSortOpen}
@@ -180,7 +187,7 @@ export const RequestsListToolbar = ({
             />
           </div>
           <FilterButton
-            aria-label="필터 열기"
+            aria-label={t('receivedRequests.openFilterAria')}
             active={isFilterActive}
             className="cursor-pointer xl:hidden"
             onClick={onFilterOpen}

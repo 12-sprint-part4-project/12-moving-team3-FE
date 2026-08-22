@@ -2,6 +2,7 @@ import KakaoIcon from '@/assets/icons/kakao.svg';
 import { cn } from '@/lib/utils';
 
 interface AuthKakaoSectionProps {
+  hint: string;
   ariaLabel: string;
   disabled?: boolean;
   onClick: () => void;
@@ -10,6 +11,7 @@ interface AuthKakaoSectionProps {
 
 /** 로그인·회원가입 공통 카카오 버튼 */
 export const AuthKakaoSection = ({
+  hint,
   ariaLabel,
   disabled = false,
   onClick,
@@ -20,7 +22,7 @@ export const AuthKakaoSection = ({
       className={cn('flex flex-col items-center gap-6 lg:gap-8', className)}
     >
       <p className="text-xs-regular text-black-100 lg:text-xl-regular lg:text-black-200">
-        SNS 계정으로 간편 가입하기
+        {hint}
       </p>
       <button
         type="button"

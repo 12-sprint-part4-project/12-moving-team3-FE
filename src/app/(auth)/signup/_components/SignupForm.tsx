@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import { AuthBrand } from '@/app/(auth)/_components/AuthBrand';
 import { AuthEmailField } from '@/app/(auth)/_components/AuthEmailField';
@@ -21,9 +22,8 @@ import { LOGIN_HREF_BY_USER_TYPE } from '@/lib/authRoutePaths';
 import { redirectToKakaoLogin } from '@/lib/kakaoAuth';
 import { validateEmail } from '@/lib/validateEmail';
 import {
-  PASSWORD_FORMAT_ERROR_MESSAGE,
   PASSWORD_MAX_LENGTH,
-  PASSWORD_MISMATCH_ERROR_MESSAGE,
+  PASSWORD_MIN_LENGTH,
   validatePassword,
 } from '@/lib/validatePassword';
 import { signup } from '@/services/authApi';
@@ -48,11 +48,6 @@ const NICKNAME_MAX_LENGTH = 20;
 const NAME_MIN_LENGTH = 2;
 const NAME_MAX_LENGTH = 20;
 
-const NAME_FORMAT_ERROR_MESSAGE = `이름은 ${NAME_MIN_LENGTH}~${NAME_MAX_LENGTH}자로 입력해 주세요.`;
-const NICKNAME_FORMAT_ERROR_MESSAGE = `닉네임은 ${NICKNAME_MIN_LENGTH}~${NICKNAME_MAX_LENGTH}자로 입력해 주세요.`;
-const EMAIL_FORMAT_FIELD_ERROR_MESSAGE = '이메일 형식이 아닙니다.';
-const PASSWORD_FORMAT_FIELD_ERROR_MESSAGE = '비밀번호가 올바르지 않습니다.';
-
 const INITIAL_VALUES: SignupFormValues = {
   name: '',
   email: '',
@@ -64,6 +59,7 @@ const INITIAL_VALUES: SignupFormValues = {
 /** 이메일·카카오 회원가입 폼. 전화번호는 프로필 등록에서 받는다. */
 export const SignupForm = ({ role }: SignupFormProps) => {
   const router = useRouter();
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const [values, setValues] = useState<SignupFormValues>(INITIAL_VALUES);
   const [isPending, setIsPending] = useState(false);
@@ -102,7 +98,26 @@ export const SignupForm = ({ role }: SignupFormProps) => {
     values.passwordConfirm.length > 0 &&
     !isPasswordMismatchError &&
     !isPending;
-  const submitLabel = isPending ? '가입 중...' : '시작하기';
+  const submitLabel = isPending
+    ? t('auth.signup.submitting')
+    : t('auth.signup.submit');
+  const nameFormatErrorMessage = t('auth.validation.nameFormat', {
+    min: NAME_MIN_LENGTH,
+    max: NAME_MAX_LENGTH,
+  });
+  const nicknameFormatErrorMessage = t('auth.validation.nicknameFormat', {
+    min: NICKNAME_MIN_LENGTH,
+    max: NICKNAME_MAX_LENGTH,
+  });
+  const emailFormatFieldErrorMessage = t('auth.validation.emailInvalid');
+  const passwordFormatFieldErrorMessage = t(
+    'auth.validation.passwordFormatShort'
+  );
+  const passwordMismatchErrorMessage = t('auth.validation.passwordMismatch');
+  const passwordFormatErrorMessage = t('auth.validation.passwordFormat', {
+    min: PASSWORD_MIN_LENGTH,
+    max: PASSWORD_MAX_LENGTH,
+  });
 
   const handleChange =
     (field: keyof SignupFormValues) =>
@@ -127,21 +142,21 @@ export const SignupForm = ({ role }: SignupFormProps) => {
       });
 
       // 이메일 가입은 로그인 페이지로, 카카오는 콜백에서 바로 로그인
-      showToast({ content: '회원가입이 완료되었습니다. 로그인해 주세요.' });
+      showToast({ content: t('auth.signup.success') });
       router.replace(LOGIN_HREF_BY_USER_TYPE[userType]);
     } catch (error) {
       if (
         error instanceof ApiError &&
         error.code === API_ERROR_CODE.INVALID_PASSWORD_FORMAT
       ) {
-        showToast({ content: PASSWORD_FORMAT_ERROR_MESSAGE });
+        showToast({ content: passwordFormatErrorMessage });
         return;
       }
 
       const message =
         error instanceof ApiError
           ? error.message
-          : '회원가입에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+          : t('auth.signup.unexpected');
       showToast({ content: message });
     } finally {
       setIsPending(false);
@@ -154,16 +169,17 @@ export const SignupForm = ({ role }: SignupFormProps) => {
     try {
       redirectToKakaoLogin(userType);
     } catch {
-      showToast({ content: '카카오 로그인 설정이 필요합니다.' });
+      showToast({ content: t('auth.kakao.configRequired') });
     }
   };
 
   return (
     <div className="flex w-full flex-col items-center gap-8 lg:gap-14">
       <AuthBrand
-        prompt={roleSwitch.prompt}
-        linkLabel={roleSwitch.linkLabel}
+        prompt={t(roleSwitch.promptKey)}
+        linkLabel={t(roleSwitch.linkLabelKey)}
         href={roleSwitch.href}
+        ariaLabel={t('auth.brand')}
       />
 
       <div className="flex w-full flex-col items-center gap-12 lg:gap-[4.5rem]">
@@ -176,53 +192,57 @@ export const SignupForm = ({ role }: SignupFormProps) => {
             <div className="flex w-full flex-col gap-4 lg:gap-8">
               <AuthField
                 id="signup-name"
-                label="이름"
+                label={t('auth.name.label')}
                 name="name"
                 autoComplete="name"
-                placeholder="성함을 입력해 주세요"
+                placeholder={t('auth.name.placeholder')}
                 value={values.name}
                 onChange={handleChange('name')}
                 isError={isNameFormatError}
-                errorMessage={NAME_FORMAT_ERROR_MESSAGE}
+                errorMessage={nameFormatErrorMessage}
               />
               <AuthEmailField
                 id="signup-email"
+                label={t('auth.email.label')}
+                placeholder={t('auth.email.placeholder')}
                 value={values.email}
                 onChange={handleChange('email')}
                 isError={isEmailFormatError}
-                errorMessage={EMAIL_FORMAT_FIELD_ERROR_MESSAGE}
+                errorMessage={emailFormatFieldErrorMessage}
               />
               <AuthField
                 id="signup-nickname"
-                label="닉네임"
+                label={t('auth.nickname.label')}
                 name="nickname"
                 autoComplete="nickname"
-                placeholder="닉네임을 입력해 주세요"
+                placeholder={t('auth.nickname.placeholder')}
                 value={values.nickname}
                 onChange={handleChange('nickname')}
                 isError={isNicknameFormatError}
-                errorMessage={NICKNAME_FORMAT_ERROR_MESSAGE}
+                errorMessage={nicknameFormatErrorMessage}
               />
               <AuthPasswordField
                 id="signup-password"
+                label={t('auth.password.label')}
+                placeholder={t('auth.password.placeholder')}
                 autoComplete="new-password"
                 maxLength={PASSWORD_MAX_LENGTH}
                 value={values.password}
                 onChange={handleChange('password')}
                 isError={isPasswordFormatError}
-                errorMessage={PASSWORD_FORMAT_FIELD_ERROR_MESSAGE}
+                errorMessage={passwordFormatFieldErrorMessage}
               />
               <AuthPasswordField
                 id="signup-password-confirm"
                 name="passwordConfirm"
-                label="비밀번호 확인"
+                label={t('auth.password.confirmLabel')}
                 autoComplete="new-password"
                 maxLength={PASSWORD_MAX_LENGTH}
-                placeholder="비밀번호를 다시 한번 입력해 주세요"
+                placeholder={t('auth.password.confirmPlaceholder')}
                 value={values.passwordConfirm}
                 onChange={handleChange('passwordConfirm')}
                 isError={isPasswordMismatchError}
-                errorMessage={PASSWORD_MISMATCH_ERROR_MESSAGE}
+                errorMessage={passwordMismatchErrorMessage}
               />
             </div>
 
@@ -238,14 +258,15 @@ export const SignupForm = ({ role }: SignupFormProps) => {
           </div>
 
           <AuthHelperText
-            prompt="이미 무빙 회원이신가요?"
-            linkLabel="로그인"
+            prompt={t('auth.helper.hasAccount')}
+            linkLabel={t('common.login')}
             href={LOGIN_HREF_BY_USER_TYPE[userType]}
           />
         </form>
 
         <AuthKakaoSection
-          ariaLabel="카카오로 가입"
+          hint={t('auth.kakao.snsHint')}
+          ariaLabel={t('auth.signup.kakaoAria')}
           disabled={isPending}
           onClick={handleKakaoLogin}
         />

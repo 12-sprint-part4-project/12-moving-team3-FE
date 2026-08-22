@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUpsertCustomerProfile } from '@/hooks/useCustomerProfile';
 import { useProfileImageCrop } from '@/hooks/useProfileImageCrop';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   composeKrMobilePhone,
   formatKrMobileSubscriberInput,
@@ -29,13 +30,13 @@ import type {
 
 /** `/profile/customer` 고객 프로필 등록 폼 */
 export const CustomerProfileForm = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
   const { showToast } = useToast();
   const { mutate: upsertProfile, isPending } = useUpsertCustomerProfile({
-    successMessage: '프로필 등록이 완료되었습니다.',
-    errorFallbackMessage:
-      '프로필 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+    successMessage: t('profile.registerSuccess'),
+    errorFallbackMessage: t('profile.registerError'),
   });
   const imageInputId = useId();
   const phoneInputId = useId();
@@ -69,7 +70,9 @@ export const CustomerProfileForm = () => {
     selectedServices.length > 0 &&
     selectedRegion !== null &&
     !isPending;
-  const submitLabel = isPending ? '등록 중...' : '시작하기';
+  const submitLabel = isPending
+    ? t('profile.submitting')
+    : t('auth.signup.submit');
 
   const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
     setPhoneDraft(formatKrMobileSubscriberInput(event.target.value));
@@ -127,10 +130,10 @@ export const CustomerProfileForm = () => {
         <div className="flex w-full flex-col items-stretch gap-4 lg:gap-16">
           <header className="flex w-full flex-col items-start gap-4 lg:gap-8">
             <h1 className="text-2lg-bold text-black-400 lg:text-3xl-semibold">
-              프로필 등록
+              {t('profile.registerTitle')}
             </h1>
             <p className="text-xs-regular text-black-100 lg:text-xl-regular lg:text-black-200">
-              추가 정보를 입력하여 회원가입을 완료해주세요.
+              {t('profile.registerSubtitle')}
             </p>
             <div className="h-px w-full bg-line-100" aria-hidden />
           </header>
@@ -159,8 +162,8 @@ export const CustomerProfileForm = () => {
 
             <ProfileServiceField
               selectedServices={selectedServices}
-              helperText="이용 서비스는 중복 선택 가능하며, 언제든 수정 가능해요!"
-              label="이용 서비스"
+              helperText={t('profile.servicesHelperRegister')}
+              label={t('profile.services')}
               onToggle={handleServiceToggle}
             />
 
@@ -168,8 +171,8 @@ export const CustomerProfileForm = () => {
 
             <ProfileRegionField
               selectedRegions={selectedRegion ? [selectedRegion] : []}
-              helperText="내가 사는 지역은 언제든 수정 가능해요!"
-              label="내가 사는 지역"
+              helperText={t('profile.regionHelperRegister')}
+              label={t('profile.myRegion')}
               onSelect={handleRegionSelect}
             />
           </div>

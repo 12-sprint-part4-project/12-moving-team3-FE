@@ -9,6 +9,7 @@ import { MoverProfileBlock } from '@/components/movers/MoverProfileBlock';
 import { QuotePriceRow } from '@/components/quotes/QuotePriceRow';
 import { QuoteStatusChipRow } from '@/components/quotes/QuoteStatusChips';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
@@ -48,6 +49,7 @@ export const PendingQuoteCard = ({
   isMoverPending,
   className = '',
 }: PendingQuoteCardProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
 
   const mover = toMoverCardModelFromCustomerQuoteMover(quote.mover);
@@ -80,7 +82,7 @@ export const PendingQuoteCard = ({
           status="pending"
           moveType={quote.moveType}
           isDesignated={quote.isDesignated}
-          shortDesignatedLabel="지정 견적"
+          shortDesignatedLabel={t('quotes.shortDesignated')}
         />
 
         <div className="flex w-full flex-col gap-3.5 lg:gap-6">
@@ -94,7 +96,7 @@ export const PendingQuoteCard = ({
           {/* 이사일 · 출발 · 도착 — Mobile: 2행 / Desktop: 1행 */}
           <div className="flex w-full flex-col gap-3.5 lg:flex-row lg:flex-wrap lg:items-center lg:gap-4">
             <InfoField
-              label="이사일"
+              label={t('quotes.moveDate')}
               value={quote.moveDate}
               color="neutral"
               className="min-w-0 gap-2 lg:gap-3"
@@ -110,7 +112,7 @@ export const PendingQuoteCard = ({
             />
             <div className="flex min-w-0 flex-wrap items-center gap-x-3.5 gap-y-2 lg:gap-x-4">
               <InfoField
-                label="출발"
+                label={t('quotes.departureShort')}
                 value={quote.departure}
                 color="neutral"
                 className="min-w-0 gap-2 lg:gap-3"
@@ -125,7 +127,7 @@ export const PendingQuoteCard = ({
                 className="h-3.5 w-px shrink-0 bg-line-200 lg:h-4"
               />
               <InfoField
-                label="도착"
+                label={t('quotes.arrivalShort')}
                 value={quote.arrival}
                 color="neutral"
                 className="min-w-0 gap-2 lg:gap-3"
@@ -151,9 +153,11 @@ export const PendingQuoteCard = ({
             className={PENDING_QUOTE_CTA_CLASS}
             disabled={isConfirming}
             onClick={handleConfirm}
-            aria-label={`${mover.name} 기사님 견적 확정하기`}
+            aria-label={t('quotes.confirmAria', { name: mover.name })}
           >
-            {isConfirmingThis ? '확정 중...' : '견적 확정하기'}
+            {isConfirmingThis
+              ? t('quotes.confirming')
+              : t('estimateRequest.confirmQuote')}
           </Button>
           {quote.canStartChat ? (
             <Button
@@ -165,8 +169,8 @@ export const PendingQuoteCard = ({
               onClick={handleChatClick}
               aria-label={
                 isChatPending
-                  ? `${mover.name} 기사님 채팅방 여는 중`
-                  : `${mover.name} 기사님과 채팅하기`
+                  ? t('quotes.chatOpeningAria', { name: mover.name })
+                  : t('quotes.chatAria', { name: mover.name })
               }
             >
               <ChatStartButtonContent isPending={isChatPending} />
@@ -176,9 +180,9 @@ export const PendingQuoteCard = ({
         <Link
           href={detailHref}
           className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center py-2 text-center text-md-medium text-blue-300 hover:underline focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:outline-none active:text-blue-200 lg:text-lg-medium"
-          aria-label={`${mover.name} 기사님 견적 상세보기`}
+          aria-label={t('quotes.detailAriaMover', { name: mover.name })}
         >
-          상세보기
+          {t('quotes.viewDetailShort')}
         </Link>
       </div>
     </motion.article>

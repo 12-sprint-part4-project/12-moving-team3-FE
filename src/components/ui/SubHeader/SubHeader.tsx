@@ -1,6 +1,9 @@
+'use client';
+
 import { cva } from 'class-variance-authority';
 
 import RouteArrowIcon from '@/assets/icons/arrow-right.svg';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 export type SubHeaderSize = 'sm' | 'md' | 'lg' | 'responsive';
@@ -90,25 +93,29 @@ const DesktopDetails = ({
   moveDate,
   fullWidth,
   className,
-}: DesktopDetailsProps) => (
-  <div
-    className={cn(
-      'flex shrink-0 items-start gap-10',
-      fullWidth && 'w-full',
-      className
-    )}
-  >
-    <div className="flex shrink-0 items-end gap-3">
-      <DetailColumn label="출발지" value={from} />
-      <RouteArrowIcon
-        className="mb-[0.1875rem] h-[1.4375rem] w-[0.53125rem] shrink-0"
-        aria-hidden
-      />
-      <DetailColumn label="도착지" value={to} />
+}: DesktopDetailsProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <div
+      className={cn(
+        'flex shrink-0 items-start gap-10',
+        fullWidth && 'w-full',
+        className
+      )}
+    >
+      <div className="flex shrink-0 items-end gap-3">
+        <DetailColumn label={t('estimateRequest.departure')} value={from} />
+        <RouteArrowIcon
+          className="mb-[0.1875rem] h-[1.4375rem] w-[0.53125rem] shrink-0"
+          aria-hidden
+        />
+        <DetailColumn label={t('estimateRequest.arrival')} value={to} />
+      </div>
+      <DetailColumn label={t('quotes.moveDate')} value={moveDate} />
     </div>
-    <DetailColumn label="이사일" value={moveDate} />
-  </div>
-);
+  );
+};
 
 /**
  * 요청 견적 서브 헤더.
@@ -123,6 +130,8 @@ export const SubHeader = ({
   moveDate,
   className,
 }: SubHeaderProps) => {
+  const { t } = useTranslation();
+
   if (size === 'responsive') {
     return (
       <section
@@ -134,14 +143,14 @@ export const SubHeader = ({
               {moveType}
             </h2>
             <p className="text-xs-regular whitespace-nowrap text-gray-500 md:text-lg-medium md:text-gray-300">
-              견적 신청일: {requestedAt}
+              {t('quotes.requestedAt')}: {requestedAt}
             </p>
           </div>
 
           <div className="flex w-full flex-col items-start gap-1 md:hidden">
-            <DetailRow label="출발지" value={from} />
-            <DetailRow label="도착지" value={to} />
-            <DetailRow label="이사일" value={moveDate} />
+            <DetailRow label={t('estimateRequest.departure')} value={from} />
+            <DetailRow label={t('estimateRequest.arrival')} value={to} />
+            <DetailRow label={t('quotes.moveDate')} value={moveDate} />
           </div>
 
           <DesktopDetails
@@ -194,15 +203,15 @@ export const SubHeader = ({
                 : 'text-lg-medium text-gray-300'
             }`}
           >
-            견적 신청일: {requestedAt}
+            {t('quotes.requestedAt')}: {requestedAt}
           </p>
         </div>
 
         {isMobile ? (
           <div className="flex w-full flex-col items-start gap-1">
-            <DetailRow label="출발지" value={from} />
-            <DetailRow label="도착지" value={to} />
-            <DetailRow label="이사일" value={moveDate} />
+            <DetailRow label={t('estimateRequest.departure')} value={from} />
+            <DetailRow label={t('estimateRequest.arrival')} value={to} />
+            <DetailRow label={t('quotes.moveDate')} value={moveDate} />
           </div>
         ) : (
           <DesktopDetails

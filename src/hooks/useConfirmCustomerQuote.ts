@@ -8,6 +8,7 @@ import {
   customerQuoteQueryKeys,
 } from '@/constants/queryKey';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
 import { confirmCustomerQuote } from '@/services/customerQuoteApi';
 
@@ -17,6 +18,7 @@ import type { ConfirmCustomerQuoteResponse } from '@/types/customerQuote';
  * 고객 견적 확정
  */
 export const useConfirmCustomerQuote = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
 
@@ -41,7 +43,7 @@ export const useConfirmCustomerQuote = () => {
     },
     onError: (error: unknown) => {
       const message =
-        error instanceof ApiError ? error.message : '견적 확정에 실패했습니다.';
+        error instanceof ApiError ? error.message : t('quotes.confirmError');
       showToast({ content: message });
     },
   });

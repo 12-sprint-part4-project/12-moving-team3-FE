@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import AlarmIcon from '@/assets/icons/alarm.svg';
 import { ChatUnreadBadge } from '@/components/chat/ChatUnreadBadge';
@@ -43,6 +44,7 @@ export const NotificationGnbButton = ({
   onAlarmClick,
   className,
 }: NotificationGnbButtonProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const queryClient = useQueryClient();
   const shouldReduceMotion = useReducedMotion();
@@ -121,7 +123,9 @@ export const NotificationGnbButton = ({
   };
 
   const ariaLabel =
-    unreadCount > 0 ? `알림, 읽지 않은 알림 ${unreadCount}개` : '알림';
+    unreadCount > 0
+      ? t('gnb.notification.unread', { count: unreadCount })
+      : t('gnb.notification.title');
 
   return (
     <div

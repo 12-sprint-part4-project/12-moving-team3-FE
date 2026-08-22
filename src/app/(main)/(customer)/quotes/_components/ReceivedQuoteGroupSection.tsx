@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 
 import { QuoteInfoRows } from '@/components/quotes/QuoteInfoRows';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   fadeIn,
   fadeUp,
@@ -34,6 +35,7 @@ export const ReceivedQuoteGroupSection = ({
   isMoverPending,
   className = '',
 }: ReceivedQuoteGroupSectionProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
 
   /** 그룹 로컬 필터·필터 변경 stagger */
@@ -57,7 +59,7 @@ export const ReceivedQuoteGroupSection = ({
           id={`received-group-${group.estimateRequestId}-info`}
           className="text-lg-semibold text-black-400 lg:text-2xl-semibold"
         >
-          견적 정보
+          {t('quotes.info')}
         </h2>
         <QuoteInfoRows info={group.info} variant="group" />
       </div>
@@ -65,7 +67,7 @@ export const ReceivedQuoteGroupSection = ({
       {/* 그룹 내 필터 + 견적서 목록 */}
       <div className="flex w-full flex-col gap-3 md:gap-4 lg:gap-6">
         <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
-          견적서 목록
+          {t('quotes.quoteList')}
         </h2>
         <ReceivedQuotesFilter
           value={filter}
@@ -107,8 +109,8 @@ export const ReceivedQuoteGroupSection = ({
               className="py-10 text-center text-lg-regular text-gray-400"
             >
               {filter === 'CONFIRMED'
-                ? '확정한 견적서가 없어요.'
-                : '받은 견적서가 없어요.'}
+                ? t('quotes.noConfirmedQuotes')
+                : t('quotes.noReceivedQuotes')}
             </motion.p>
           )}
         </AnimatePresence>

@@ -1,10 +1,8 @@
 import { MoverProfileForm } from './_components/MoverProfileForm';
 
-import type { Metadata } from 'next';
+import { createPageMetadata } from '@/i18n/createPageMetadata';
 
-export const metadata: Metadata = {
-  title: '기사님 프로필 등록',
-};
+export const generateMetadata = createPageMetadata('profile.registerMoverTitle');
 
 const MoverProfilePage = () => {
   return (

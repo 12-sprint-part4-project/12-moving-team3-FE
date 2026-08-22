@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useChatRooms } from '@/hooks/useChat';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 export interface ChatRoomListPageProps {
@@ -15,6 +16,7 @@ export interface ChatRoomListPageProps {
 
 /** 채팅방 전체 목록 */
 export const ChatRoomListPage = ({ className }: ChatRoomListPageProps) => {
+  const { t } = useTranslation();
   const { user, isReady } = useAuth();
   const enabled = Boolean(isReady && user);
   const { rooms, isPending, isError, isEmpty } = useChatRooms({ enabled });
@@ -26,9 +28,9 @@ export const ChatRoomListPage = ({ className }: ChatRoomListPageProps) => {
   if (!user) {
     return (
       <div className={cn('chat-content', className)}>
-        <h1 className="text-2xl-bold text-black-400">채팅</h1>
+        <h1 className="text-2xl-bold text-black-400">{t('chat.title')}</h1>
         <p className="mt-8 text-center text-lg-medium text-gray-300">
-          로그인 후 채팅을 이용할 수 있어요
+          {t('chat.loginRequired')}
         </p>
       </div>
     );
@@ -36,7 +38,7 @@ export const ChatRoomListPage = ({ className }: ChatRoomListPageProps) => {
 
   return (
     <div className={cn('chat-content', className)}>
-      <h1 className="text-2xl-bold text-black-400">채팅</h1>
+      <h1 className="text-2xl-bold text-black-400">{t('chat.title')}</h1>
 
       <div className="mt-6 flex flex-col overflow-hidden rounded-3xl border border-line-200 bg-white">
         {isPending ? (
@@ -45,13 +47,13 @@ export const ChatRoomListPage = ({ className }: ChatRoomListPageProps) => {
 
         {isError ? (
           <p className="px-6 py-10 text-center text-md-medium text-gray-300">
-            채팅 목록을 불러오지 못했어요
+            {t('chat.listError')}
           </p>
         ) : null}
 
         {!isPending && !isError && isEmpty ? (
           <p className="px-6 py-10 text-center text-md-medium text-gray-300">
-            아직 대화가 없어요
+            {t('chat.empty')}
           </p>
         ) : null}
 

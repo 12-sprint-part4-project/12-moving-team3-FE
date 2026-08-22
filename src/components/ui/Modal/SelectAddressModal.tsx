@@ -4,6 +4,7 @@ import { useId, useState } from 'react';
 
 import { AddressCard } from '@/components/ui/AddressCard/AddressCard';
 import { TextFieldSearch } from '@/components/ui/Input/TextFieldSearch';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import { ModalCtaButton } from './ModalCtaButton';
@@ -39,16 +40,18 @@ export interface SelectAddressModalProps {
 export const SelectAddressModal = ({
   onClose,
   onSubmit,
-  title = '출발지를 선택해주세요',
+  title,
   addresses = [],
   onSearchChange,
   onSearch,
   className = '',
 }: SelectAddressModalProps) => {
+  const { t } = useTranslation();
   const titleId = useId();
   const [query, setQuery] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  const resolvedTitle = title ?? t('estimateRequest.departureTitle');
   const selectedAddress = addresses.find((item) => item.id === selectedId);
   const isSubmittable = Boolean(selectedAddress);
 
@@ -64,7 +67,7 @@ export const SelectAddressModal = ({
       aria-labelledby={titleId}
       className={cn(MODAL_PANEL_CLASS, className)}
     >
-      <ModalHeader title={title} onClose={onClose} titleId={titleId} />
+      <ModalHeader title={resolvedTitle} onClose={onClose} titleId={titleId} />
 
       <div className="flex w-full flex-col gap-6">
         <TextFieldSearch
@@ -80,9 +83,9 @@ export const SelectAddressModal = ({
             onSearchChange?.('');
           }}
           onSearch={() => onSearch?.(query)}
-          placeholder="텍스트를 입력해 주세요."
+          placeholder={t('common.textPlaceholder')}
           className="!max-w-none"
-          aria-label="주소 검색"
+          aria-label={t('estimateRequest.searchAddressAria')}
         />
 
         {addresses.length > 0 && (
@@ -103,7 +106,7 @@ export const SelectAddressModal = ({
       </div>
 
       <ModalCtaButton disabled={!isSubmittable} onClick={handleSubmit}>
-        선택완료
+        {t('estimateRequest.selectComplete')}
       </ModalCtaButton>
     </section>
   );

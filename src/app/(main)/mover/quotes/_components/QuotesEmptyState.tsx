@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 
+import { useTranslation } from '@/i18n/useTranslation';
 import { fadeIn, floatY, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
@@ -13,19 +14,16 @@ export interface QuotesEmptyStateProps {
   className?: string;
 }
 
-const EMPTY_MESSAGE: Record<QuoteListStatus, string> = {
-  SENT: '아직 보낸 견적이 없어요!',
-  REJECTED: '아직 반려한 요청이 없어요!',
-};
-
 /** `/mover/quotes` 빈 목록 안내. - status별 문구. */
 export const QuotesEmptyState = ({
   status,
   className = '',
 }: QuotesEmptyStateProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
-  const message = EMPTY_MESSAGE[status];
+  const message =
+    status === 'REJECTED' ? t('quotes.empty.rejected') : t('quotes.empty.sent');
 
   return (
     <motion.div

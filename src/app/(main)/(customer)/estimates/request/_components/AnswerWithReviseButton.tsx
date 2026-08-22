@@ -1,4 +1,7 @@
+'use client';
+
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import { EstimateRequestChatBubbleGroup } from './EstimateRequestChatBubbleGroup';
 
@@ -13,16 +16,20 @@ export const AnswerWithReviseButton = ({
   label,
   disabled,
   onRevise,
-}: AnswerWithReviseButtonProps) => (
-  <EstimateRequestChatBubbleGroup align="end">
-    <TextFieldChat color="mePrimary">{label}</TextFieldChat>
-    <button
-      type="button"
-      className="pr-2 text-xs-medium text-gray-500 underline md:text-lg-medium"
-      disabled={disabled}
-      onClick={onRevise}
-    >
-      수정하기
-    </button>
-  </EstimateRequestChatBubbleGroup>
-);
+}: AnswerWithReviseButtonProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <EstimateRequestChatBubbleGroup align="end">
+      <TextFieldChat color="mePrimary">{label}</TextFieldChat>
+      <button
+        type="button"
+        className="pr-2 text-xs-medium text-gray-500 underline md:text-lg-medium"
+        disabled={disabled}
+        onClick={onRevise}
+      >
+        {t('estimateRequest.revise')}
+      </button>
+    </EstimateRequestChatBubbleGroup>
+  );
+};

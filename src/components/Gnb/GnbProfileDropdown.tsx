@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import {
   GNB_PROFILE_MENU_BY_ROLE,
@@ -60,6 +63,7 @@ export const GnbProfileDropdown = ({
   onLogout,
   className,
 }: GnbProfileDropdownProps) => {
+  const { t } = useTranslation();
   const styles = SIZE_STYLES[size];
   const lastIndex = menuItems.length - 1;
   const truncatedUserName = truncateDisplayName(
@@ -72,7 +76,7 @@ export const GnbProfileDropdown = ({
   return (
     <div
       role="menu"
-      aria-label="프로필 메뉴"
+      aria-label={t('nav.profile.menu')}
       className={cn(
         'flex flex-col items-stretch rounded-2xl border border-line-200 bg-white shadow-[0.125rem_0.125rem_0.25rem] shadow-shadow-gray-200/20',
         styles.root,
@@ -88,14 +92,14 @@ export const GnbProfileDropdown = ({
 
       <nav
         className="flex flex-col items-stretch"
-        aria-label="프로필 메뉴 링크"
+        aria-label={t('nav.profile.menuLinks')}
       >
         {menuItems.map((item, index) => {
           const isLast = index === lastIndex;
 
           return (
             <Link
-              key={item.href + item.label}
+              key={item.href + item.labelKey}
               href={item.href}
               role="menuitem"
               onClick={onClose}
@@ -104,7 +108,7 @@ export const GnbProfileDropdown = ({
                 isLast ? styles.lastItem : styles.item
               )}
             >
-              {item.label}
+              {t(item.labelKey)}
             </Link>
           );
         })}
@@ -120,7 +124,7 @@ export const GnbProfileDropdown = ({
             styles.logout
           )}
         >
-          로그아웃
+          {t('common.logout')}
         </button>
       </div>
     </div>

@@ -15,8 +15,9 @@ import {
   POST_SORT_OPTIONS,
   REGION_FILTER_OPTIONS,
 } from '@/constants/communityOptions';
-import { usePostList } from '@/hooks/usePostList';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { usePostList } from '@/hooks/usePostList';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
 import {
   buildCommunityListHref,
@@ -30,7 +31,10 @@ import {
 } from '@/lib/communitySearch';
 import { cn } from '@/lib/utils';
 
-import { CommunityFilterResetButton, COMMUNITY_FILTER_RESET_BUTTON_CLASS } from '../_components/CommunityFilterResetButton';
+import {
+  CommunityFilterResetButton,
+  COMMUNITY_FILTER_RESET_BUTTON_CLASS,
+} from '../_components/CommunityFilterResetButton';
 import {
   COMMUNITY_DESKTOP_MAIN_GAP,
   COMMUNITY_DESKTOP_X,
@@ -59,6 +63,7 @@ interface CommunityPageClientProps {
 export const CommunityPageClient = ({
   initialContext,
 }: CommunityPageClientProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
 
   const serverHref = buildCommunityListHref(initialContext);
@@ -332,33 +337,49 @@ export const CommunityPageClient = ({
     void fetchNextPage();
   };
 
+  const categoryOptions = BOARD_CATEGORY_FILTER_OPTIONS.map((option) => ({
+    ...option,
+    label:
+      option.value === 'ALL'
+        ? t('common.all')
+        : t(`community.postCategory.${option.value}`),
+  }));
+
+  const regionOptions = REGION_FILTER_OPTIONS.map((option) => ({
+    ...option,
+    label:
+      option.value === 'ALL' ? t('common.all') : t(`region.${option.value}`),
+  }));
+
+  const sortOptions = POST_SORT_OPTIONS.map((option) => ({
+    ...option,
+    label: t(`community.sort.${option.value}`),
+  }));
+
   const errorMessage =
     error instanceof ApiError
       ? error.message
-      : (error?.message ?? '게시글 목록을 불러오지 못했습니다.');
+      : (error?.message ?? t('community.listError'));
 
   const emptyMessage = listKeyword
-    ? '검색 결과가 없습니다.'
+    ? t('community.noSearchResults')
     : activeTab === 'furniture'
-      ? '등록된 나눔 글이 없습니다.'
-      : '등록된 게시글이 없습니다.';
+      ? t('community.emptyShare')
+      : t('community.emptyPosts');
 
   return (
     <>
       {/* Mobile / Tablet toolbar */}
       <div
-        className={cn(
-          'flex flex-col bg-white xl:hidden',
-          COMMUNITY_SECTION_X
-        )}
+        className={cn('flex flex-col bg-white xl:hidden', COMMUNITY_SECTION_X)}
       >
         {/* 1행: 필터 */}
         <div className="flex h-[3.25rem] items-center gap-2 min-[46.5rem]:h-[4.25rem]">
           {activeTab === 'board' ? (
             <CommunitySelectDropdown
-              label="카테고리"
-              placeholder="카테고리"
-              options={BOARD_CATEGORY_FILTER_OPTIONS}
+              label={t('community.category')}
+              placeholder={t('community.category')}
+              options={categoryOptions}
               value={categoryFilter}
               onValueChange={handleCategoryFilterChange}
               onOpen={handleCategoryOpen}
@@ -366,9 +387,9 @@ export const CommunityPageClient = ({
             />
           ) : null}
           <CommunitySelectDropdown
-            label="지역"
-            placeholder="지역"
-            options={REGION_FILTER_OPTIONS}
+            label={t('common.region')}
+            placeholder={t('common.region')}
+            options={regionOptions}
             value={regionFilter}
             onValueChange={handleRegionFilterChange}
             onOpen={handleRegionOpen}
@@ -379,7 +400,7 @@ export const CommunityPageClient = ({
           <div className="ml-auto flex shrink-0 items-center gap-2">
             <button
               type="button"
-              aria-label="검색"
+              aria-label={t('common.search')}
               aria-expanded={isSearchOpen}
               onClick={handleSearchToggle}
               className={cn(
@@ -401,7 +422,7 @@ export const CommunityPageClient = ({
           )}
         >
           <div className="overflow-hidden">
-            <div className="pb-2 pt-1 min-[46.5rem]:pb-3 min-[46.5rem]:pt-1.5">
+            <div className="pt-1 pb-2 min-[46.5rem]:pt-1.5 min-[46.5rem]:pb-3">
               <CommunitySearchField
                 value={searchInputValue}
                 onChange={handleSearchChange}
@@ -415,7 +436,7 @@ export const CommunityPageClient = ({
         {/* 3행: 정렬 */}
         <div className="flex h-10 items-center justify-end min-[46.5rem]:h-11">
           <Sort
-            options={POST_SORT_OPTIONS}
+            options={sortOptions}
             value={sortValue}
             onValueChange={handleSortChange}
             size="md"
@@ -423,7 +444,6 @@ export const CommunityPageClient = ({
           />
         </div>
       </div>
-
 
       <div
         className={cn(
@@ -462,7 +482,7 @@ export const CommunityPageClient = ({
         <div className="min-w-0 flex-1">
           <div className="mb-8 hidden items-center justify-end xl:flex">
             <Sort
-              options={POST_SORT_OPTIONS}
+              options={sortOptions}
               value={sortValue}
               onValueChange={handleSortChange}
               size="md"

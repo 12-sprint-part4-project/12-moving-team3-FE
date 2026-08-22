@@ -1,6 +1,10 @@
+'use client';
+
 import Link from 'next/link';
 
+import { LanguageSelector } from '@/components/LanguageSelector/LanguageSelector';
 import { Logo } from '@/components/Logo/Logo';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import type { ReactNode } from 'react';
@@ -32,6 +36,7 @@ export const GnbLanding = ({
   menuSlot,
   className = '',
 }: GnbLandingProps) => {
+  const { t } = useTranslation();
   const isDesktop = size === 'lg';
 
   return (
@@ -57,17 +62,20 @@ export const GnbLanding = ({
               prefetch={false}
               className="text-2lg-bold text-black-400"
             >
-              기사님 찾기
+              {t('nav.findMovers')}
             </Link>
             <Link
               href={communityHref}
               prefetch={false}
               className="text-2lg-bold text-black-400"
             >
-              커뮤니티
+              {t('nav.community')}
             </Link>
           </nav>
-          {loginButton}
+          <div className="flex shrink-0 items-center gap-6">
+            <LanguageSelector />
+            {loginButton}
+          </div>
         </>
       ) : (
         menuSlot

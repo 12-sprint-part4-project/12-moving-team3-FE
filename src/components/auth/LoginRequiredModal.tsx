@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import { Button } from '@/components/Button/Button';
 import { Modal } from '@/components/ui/Modal/Modal';
@@ -25,6 +26,7 @@ const LoginRequiredModalInner = ({
   redirectTo,
   onBeforeLogin,
 }: LoginRequiredModalProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -48,7 +50,7 @@ const LoginRequiredModalInner = ({
   return (
     <Modal onClose={onClose}>
       <ModalBasic
-        title="로그인이 필요해요"
+        title={t('auth.required.title')}
         onClose={onClose}
         className={className}
         footer={
@@ -60,7 +62,7 @@ const LoginRequiredModalInner = ({
               className="sm:h-16 sm:text-xl-semibold"
               onClick={onClose}
             >
-              취소
+              {t('common.cancel')}
             </Button>
             <Button
               type="button"
@@ -69,13 +71,13 @@ const LoginRequiredModalInner = ({
               className="sm:h-16 sm:text-xl-semibold"
               onClick={handleLogin}
             >
-              로그인 하기
+              {t('auth.required.login')}
             </Button>
           </div>
         }
       >
         <p className="text-lg-medium text-black-300 sm:text-2lg-medium">
-          로그인 후 이용할 수 있습니다.
+          {t('auth.required.description')}
         </p>
       </ModalBasic>
     </Modal>

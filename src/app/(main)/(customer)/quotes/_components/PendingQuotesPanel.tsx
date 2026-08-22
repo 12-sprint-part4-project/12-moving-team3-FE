@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/Skeleton';
 import { useCustomerPendingQuotes } from '@/hooks/useCustomerPendingQuotes';
 import { useListEntranceStagger } from '@/hooks/useListEntranceStagger';
+import { useTranslation } from '@/i18n/useTranslation';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 import { getFadeUpMotionProps, getMotionTransition, listStagger } from '@/lib/motionVariants';
 
@@ -42,6 +43,7 @@ export const PendingQuotesPanel = ({
   onFavoriteClick,
   isMoverPending,
 }: PendingQuotesPanelProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
 
   const {
@@ -60,7 +62,7 @@ export const PendingQuotesPanel = ({
   const fadeUpMotion = getFadeUpMotionProps(motionTransition);
   const errorMessage = resolveApiErrorMessage(
     error,
-    '견적 목록을 불러오지 못했습니다.'
+    t('quotes.listError')
   );
 
   const handleRetry = () => {

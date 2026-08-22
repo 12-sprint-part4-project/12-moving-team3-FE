@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Calendar } from '@/components/ui/Calendar/Calendar';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { useMoveInfoRevise } from '@/hooks/useMoveInfoRevise';
+import { useTranslation } from '@/i18n/useTranslation';
 import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 
 import { useScrollToActiveSection } from '../../_lib/useScrollToActiveSection';
@@ -12,14 +13,13 @@ import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGrou
 import { InlineErrorMessage } from '../InlineErrorMessage';
 import { MoveTypeAnswerSection } from '../MoveTypeAnswerSection';
 
-const MOVE_DATE_PROMPT = '이사 예정일을 선택해주세요.';
-
 /**
  * 스텝2 — 이사 예정일 선택.
  * 선택완료: 최초 saveStep(step:2) / 재수정 reviseField(moveDate).
  * 이사종류 수정하기: useMoveInfoRevise → Calendar 복귀 (visualStep 유지).
  */
 export const MoveDateStep = () => {
+  const { t } = useTranslation();
   const { detail, errorMessage, isSubmitting, isRevisingField, moveType, moveDate } =
     useMoveInfoRevise();
   const shouldReduceMotion = useReducedMotion();
@@ -31,7 +31,7 @@ export const MoveDateStep = () => {
 
   return (
     <section
-      aria-label="이사 일자 선택"
+      aria-label={t('estimateRequest.selectMoveDateAria')}
       className="page-content flex flex-col gap-2 md:gap-6"
     >
       <MoveTypeAnswerSection
@@ -45,7 +45,7 @@ export const MoveDateStep = () => {
         <>
           {/* 시스템: 날짜 선택 프롬프트 */}
           <EstimateRequestChatBubbleGroup>
-            <TextFieldChat>{MOVE_DATE_PROMPT}</TextFieldChat>
+            <TextFieldChat>{t('estimateRequest.moveDatePrompt')}</TextFieldChat>
           </EstimateRequestChatBubbleGroup>
 
           {/* Calendar 자체 카드 — ChatPanel로 감싸지 않음, md+ 우측 정렬 */}
@@ -63,7 +63,11 @@ export const MoveDateStep = () => {
               minDate={moveDate.min}
               maxDate={moveDate.max}
               confirmDisabled={isSubmitting || detail == null}
-              confirmLabel={isSubmitting ? '저장 중…' : '선택완료'}
+              confirmLabel={
+                isSubmitting
+                  ? t('estimateRequest.saving')
+                  : t('estimateRequest.selectComplete')
+              }
               onConfirm={(date) => {
                 void moveDate.confirmSave(date);
               }}

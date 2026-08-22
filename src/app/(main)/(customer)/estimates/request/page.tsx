@@ -1,10 +1,8 @@
+import { createPageMetadata } from '@/i18n/createPageMetadata';
+
 import { EstimateRequestPageClient } from './page.client';
 
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: '견적요청',
-};
+export const generateMetadata = createPageMetadata('estimateRequest.title');
 
 /**
  * 고객 견적요청 페이지.

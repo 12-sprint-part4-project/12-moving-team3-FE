@@ -14,6 +14,7 @@ import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 import NoImageIcon from '@/assets/icons/no-image.svg';
 import { MAX_POST_IMAGE_COUNT } from '@/constants/communityOptions';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import {
@@ -37,6 +38,7 @@ export const CommunityPostDetailImages = ({
   imageUrls,
   className = '',
 }: CommunityPostDetailImagesProps) => {
+  const { t } = useTranslation();
   const visibleUrls = useMemo(
     () => imageUrls.slice(0, MAX_POST_IMAGE_COUNT),
     [imageUrls]
@@ -133,7 +135,9 @@ export const CommunityPostDetailImages = ({
               <button
                 key={`${index}-${url}`}
                 type="button"
-                aria-label={`게시글 이미지 ${index + 1} 원본 보기`}
+                aria-label={t('community.postImageViewAria', {
+                  index: index + 1,
+                })}
                 onClick={() => {
                   if (!hasError) {
                     const validIndices = visibleUrls.flatMap(
@@ -185,7 +189,7 @@ export const CommunityPostDetailImages = ({
         {canScrollLeft ? (
           <button
             type="button"
-            aria-label="이전 이미지 썸네일 보기"
+            aria-label={t('community.prevThumbAria')}
             onClick={() => scrollThumbnails('left')}
             className={cn(
               'absolute top-1/2 left-0 z-10 inline-flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center',
@@ -199,7 +203,7 @@ export const CommunityPostDetailImages = ({
         {canScrollRight ? (
           <button
             type="button"
-            aria-label="다음 이미지 썸네일 보기"
+            aria-label={t('community.nextThumbAria')}
             onClick={() => scrollThumbnails('right')}
             className={cn(
               'absolute top-1/2 right-0 z-10 inline-flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center',

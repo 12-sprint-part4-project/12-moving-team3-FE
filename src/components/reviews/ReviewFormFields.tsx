@@ -7,6 +7,7 @@ import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { TextArea } from '@/components/ui/Input/TextArea';
 import { MOVE_TYPE_CHIP_RESPONSIVE_CLASS } from '@/components/ui/Modal/modalPanel';
 import { StarRating } from '@/components/ui/StarRating/StarRating';
+import { useTranslation } from '@/i18n/useTranslation';
 import { API_MOVE_TYPE_TO_UI, type ApiMoveType } from '@/types/estimateRequest';
 import {
   MAX_REVIEW_CONTENT_LENGTH,
@@ -60,9 +61,12 @@ export const ReviewFormFields = ({
   onRatingChange,
   content,
   onContentChange,
-  ratingLabel = '평점을 선택해 주세요',
-  contentLabel = '상세 후기를 작성해 주세요',
+  ratingLabel,
+  contentLabel,
 }: ReviewFormFieldsProps) => {
+  const { t } = useTranslation();
+  const resolvedRatingLabel = ratingLabel ?? t('reviews.form.ratingPrompt');
+  const resolvedContentLabel = contentLabel ?? t('reviews.form.contentPrompt');
   const moveTypeUi = moveType ? API_MOVE_TYPE_TO_UI[moveType] : null;
 
   const handleContentChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -75,9 +79,9 @@ export const ReviewFormFields = ({
   const [overMax, setOverMax] = useState(false);
 
   const contentError = overMax
-    ? '600자 이하로 입력해 주세요'
+    ? t('reviews.form.contentMax')
     : contentTouched && content.trim().length < MIN_REVIEW_CONTENT_LENGTH
-      ? '10자 이상 입력해 주세요'
+      ? t('reviews.form.contentMin')
       : undefined;
 
   return (
@@ -112,12 +116,12 @@ export const ReviewFormFields = ({
 
       <div className="flex flex-col gap-4">
         <p className="text-lg-semibold text-black-300 tablet:text-xl-semibold">
-          {ratingLabel}
+          {resolvedRatingLabel}
         </p>
         <StarRating value={rating} onChange={onRatingChange} />
         {rating < 1 ? (
           <p className="min-h-6 text-sm-medium text-red-200">
-            1점 이상 선택해주세요
+            {t('reviews.form.ratingRequired')}
           </p>
         ) : (
           <p className="min-h-6" />
@@ -126,16 +130,16 @@ export const ReviewFormFields = ({
 
       <div className="flex flex-col gap-4">
         <p className="text-lg-semibold text-black-300 tablet:text-xl-semibold">
-          {contentLabel}
+          {resolvedContentLabel}
         </p>
         <TextArea
           size="sm"
           rows={4}
           value={content}
           onChange={handleContentChange}
-          placeholder="10자 이상 600자 이하로 작성해주세요"
+          placeholder={t('reviews.form.contentPlaceholder')}
           className="[&>div]:w-full [&>div>textarea]:tablet:text-xl-regular"
-          aria-label="상세 후기"
+          aria-label={t('reviews.form.contentAria')}
           onBlur={() => setContentTouched(true)}
           errorMessage={contentError}
         />

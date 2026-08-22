@@ -1,10 +1,8 @@
 import { MoverProfileEditForm } from '../_components/MoverProfileEditForm';
 
-import type { Metadata } from 'next';
+import { createPageMetadata } from '@/i18n/createPageMetadata';
 
-export const metadata: Metadata = {
-  title: '프로필 수정',
-};
+export const generateMetadata = createPageMetadata('nav.profile.edit');
 
 const MoverProfileEditPage = () => {
   return (

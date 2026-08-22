@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import type { ReactNode } from 'react';
@@ -16,6 +19,8 @@ export const EstimateRequestPageHeader = ({
   children,
   className,
 }: EstimateRequestPageHeaderProps) => {
+  const { t } = useTranslation();
+
   return (
     <header
       className={cn(
@@ -30,7 +35,7 @@ export const EstimateRequestPageHeader = ({
         )}
       >
         <h1 className="text-2lg-semibold text-black-400 md:text-2xl-semibold">
-          견적요청
+          {t('estimateRequest.title')}
         </h1>
         {children}
       </div>

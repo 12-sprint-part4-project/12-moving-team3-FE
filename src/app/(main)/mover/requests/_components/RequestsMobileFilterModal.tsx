@@ -10,6 +10,7 @@ import {
   MODAL_PANEL_BOTTOM_SHEET_CLASS,
   MODAL_PANEL_CLASS,
 } from '@/components/ui/Modal/modalPanel';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   getMotionTransition,
   getTabPanelMotionProps,
@@ -19,9 +20,7 @@ import { cn } from '@/lib/utils';
 
 import { RequestsMobileFilterTabButton } from './RequestsMobileFilterTabButton';
 import {
-  MOVE_TYPE_LABELS,
   MOVE_TYPE_OPTIONS,
-  SCOPE_LABELS,
   SCOPE_OPTIONS,
 } from '../_lib/filterOptions';
 
@@ -54,6 +53,7 @@ export const RequestsMobileFilterModal = ({
   scopeCounts,
   className = '',
 }: RequestsMobileFilterModalProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
   const titleId = useId();
@@ -156,11 +156,11 @@ export const RequestsMobileFilterModal = ({
             <span
               role="tablist"
               className="flex items-center gap-6"
-              aria-label="필터 탭"
+              aria-label={t('receivedRequests.filterTabsAria')}
             >
               <RequestsMobileFilterTabButton
                 tab="moveType"
-                label="이사 유형"
+                label={t('receivedRequests.moveTypeTab')}
                 isActive={activeTab === 'moveType'}
                 tabId={getTabId('moveType')}
                 panelId={getPanelId('moveType')}
@@ -168,7 +168,7 @@ export const RequestsMobileFilterModal = ({
               />
               <RequestsMobileFilterTabButton
                 tab="scope"
-                label="필터"
+                label={t('receivedRequests.filterTab')}
                 isActive={activeTab === 'scope'}
                 tabId={getTabId('scope')}
                 panelId={getPanelId('scope')}
@@ -193,7 +193,7 @@ export const RequestsMobileFilterModal = ({
             >
               <motion.div {...(shouldReduceMotion ? {} : tapScale)}>
                 <FilterCheckBox
-                  label="전체선택"
+                  label={t('common.selectAll')}
                   count={moveTypeTotal}
                   checked={isAllMoveTypesSelected}
                   onCheckedChange={handleMoveTypeSelectAll}
@@ -209,7 +209,7 @@ export const RequestsMobileFilterModal = ({
                     {...(shouldReduceMotion ? {} : tapScale)}
                   >
                     <FilterCheckBox
-                      label={MOVE_TYPE_LABELS[type]}
+                      label={t(`moveType.${type.toUpperCase()}`)}
                       count={moveTypeCounts?.[type] ?? 0}
                       checked={selectedMoveTypes.has(type)}
                       onCheckedChange={(checked) =>
@@ -231,7 +231,7 @@ export const RequestsMobileFilterModal = ({
             >
               <motion.div {...(shouldReduceMotion ? {} : tapScale)}>
                 <FilterCheckBox
-                  label="전체선택"
+                  label={t('common.selectAll')}
                   count={scopeTotal}
                   checked={isAllScopesSelected}
                   onCheckedChange={handleScopeSelectAll}
@@ -247,7 +247,7 @@ export const RequestsMobileFilterModal = ({
                     {...(shouldReduceMotion ? {} : tapScale)}
                   >
                     <FilterCheckBox
-                      label={SCOPE_LABELS[scope]}
+                      label={t(`receivedRequests.scope.${scope}`)}
                       count={scopeCounts?.[scope] ?? 0}
                       checked={selectedScopes.has(scope)}
                       onCheckedChange={(checked) =>
@@ -264,7 +264,7 @@ export const RequestsMobileFilterModal = ({
 
       {/* 필터 조회 버튼 렌더 */}
       <ModalCtaButton onClick={handleSubmit} className="cursor-pointer">
-        조회하기
+        {t('receivedRequests.submitFilter')}
       </ModalCtaButton>
     </section>
   );

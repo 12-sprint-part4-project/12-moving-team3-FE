@@ -1,10 +1,8 @@
 import { CustomerProfileForm } from './_components/CustomerProfileForm';
 
-import type { Metadata } from 'next';
+import { createPageMetadata } from '@/i18n/createPageMetadata';
 
-export const metadata: Metadata = {
-  title: '프로필 등록',
-};
+export const generateMetadata = createPageMetadata('profile.registerTitle');
 
 /** `/profile/customer` 서버 페이지. - 고객 프로필 등록 */
 const CustomerProfilePage = () => {

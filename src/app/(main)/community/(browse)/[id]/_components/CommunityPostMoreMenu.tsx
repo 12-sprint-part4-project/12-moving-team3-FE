@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import MoreVerticalIcon from '@/assets/icons/more-vertical.svg';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import {
@@ -31,6 +32,7 @@ export const CommunityPostMoreMenu = ({
   onDelete,
   className = '',
 }: CommunityPostMoreMenuProps) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -57,10 +59,16 @@ export const CommunityPostMoreMenu = ({
   };
 
   return (
-    <div ref={menuRef} className={cn('relative flex shrink-0 items-center self-center', className)}>
+    <div
+      ref={menuRef}
+      className={cn(
+        'relative flex shrink-0 items-center self-center',
+        className
+      )}
+    >
       <button
         type="button"
-        aria-label="게시글 메뉴"
+        aria-label={t('community.postMenuAria')}
         aria-expanded={isOpen}
         onClick={() => setIsOpen((prev) => !prev)}
         className={COMMUNITY_POST_META_ACTION_BUTTON_CLASS}
@@ -80,14 +88,14 @@ export const CommunityPostMoreMenu = ({
                 onClick={() => closeAndRun(onEdit)}
                 className={MENU_ITEM_CLASS}
               >
-                수정
+                {t('community.edit')}
               </button>
               <button
                 type="button"
                 onClick={() => closeAndRun(onDelete)}
                 className={cn(MENU_ITEM_CLASS, 'text-red-200')}
               >
-                삭제
+                {t('community.delete')}
               </button>
             </>
           ) : null}
@@ -96,7 +104,7 @@ export const CommunityPostMoreMenu = ({
             onClick={() => closeAndRun(onCopyLink)}
             className={MENU_ITEM_CLASS}
           >
-            링크 복사
+            {t('share.copyLink')}
           </button>
         </div>
       ) : null}

@@ -50,7 +50,8 @@ export const COMMUNITY_DETAIL_READING_TEXT_CLASS =
   'text-md-regular text-black-400 min-[46.5rem]:text-lg-regular xl:text-2lg-regular';
 
 /** 상세 본문 prose — 링크·제목·목록 스타일 */
-export const COMMUNITY_DETAIL_BODY_PROSE_CLASS = COMMUNITY_RICH_TEXT_PROSE_CLASS;
+export const COMMUNITY_DETAIL_BODY_PROSE_CLASS =
+  COMMUNITY_RICH_TEXT_PROSE_CLASS;
 
 /** 본문 — 마크다운 (읽기 텍스트와 댓글 본문 크기·굵기 통일) */
 export const COMMUNITY_DETAIL_BODY_MARKDOWN_CLASS = [

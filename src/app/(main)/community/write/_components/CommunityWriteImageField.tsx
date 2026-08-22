@@ -5,6 +5,7 @@ import { type ChangeEvent, useRef } from 'react';
 
 import CloseIcon from '@/assets/icons/close.svg';
 import { MAX_POST_IMAGE_COUNT } from '@/constants/communityOptions';
+import { useTranslation } from '@/i18n/useTranslation';
 import { validatePostImageFile } from '@/lib/uploadPostImage';
 import { cn } from '@/lib/utils';
 
@@ -37,6 +38,7 @@ export const CommunityWriteImageField = ({
   requireAtLeastOne = false,
   className = '',
 }: CommunityWriteImageFieldProps) => {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const canAddMore = previews.length < MAX_POST_IMAGE_COUNT;
 
@@ -53,7 +55,7 @@ export const CommunityWriteImageField = ({
     let firstError: string | null = null;
 
     if (files.length > remainingSlots) {
-      firstError = `이미지는 최대 ${MAX_POST_IMAGE_COUNT}장까지 첨부할 수 있어요.`;
+      firstError = t('community.imageMax', { count: MAX_POST_IMAGE_COUNT });
     }
 
     for (const file of files.slice(0, remainingSlots)) {
@@ -79,10 +81,10 @@ export const CommunityWriteImageField = ({
   return (
     <section className={className}>
       <div className={COMMUNITY_WRITE_LABEL_ROW_CLASS}>
-        <h2 className={COMMUNITY_WRITE_LABEL_CLASS}>이미지</h2>
+        <h2 className={COMMUNITY_WRITE_LABEL_CLASS}>{t('community.image')}</h2>
         {requireAtLeastOne ? (
           <p className={COMMUNITY_WRITE_HINT_CLASS}>
-            가구나눔 작성 시 이미지를 1장 이상 첨부해 주세요.
+            {t('community.imageRequired')}
           </p>
         ) : null}
       </div>
@@ -92,14 +94,14 @@ export const CommunityWriteImageField = ({
           <div key={preview} className={COMMUNITY_WRITE_IMAGE_THUMB_CLASS}>
             <Image
               src={preview}
-              alt={`업로드 이미지 ${index + 1}`}
+              alt={t('community.uploadImageAlt', { index: index + 1 })}
               fill
               unoptimized
               className="object-cover"
             />
             <button
               type="button"
-              aria-label={`이미지 ${index + 1} 삭제`}
+              aria-label={t('community.deleteImageAria', { index: index + 1 })}
               onClick={() => onRemoveAt(index)}
               className="absolute top-1 right-1 inline-flex size-5 cursor-pointer items-center justify-center rounded-full bg-black/50 text-white"
             >
@@ -115,13 +117,13 @@ export const CommunityWriteImageField = ({
               type="file"
               accept={POST_IMAGE_ACCEPT}
               multiple
-              aria-label="이미지 파일 선택"
+              aria-label={t('community.selectImageAria')}
               className="sr-only"
               onChange={handleFileChange}
             />
             <button
               type="button"
-              aria-label="이미지 추가"
+              aria-label={t('community.addImageAria')}
               onClick={() => inputRef.current?.click()}
               className={COMMUNITY_WRITE_IMAGE_ADD_BUTTON_CLASS}
             >
@@ -132,7 +134,7 @@ export const CommunityWriteImageField = ({
       </div>
 
       <p className={cn(COMMUNITY_WRITE_HINT_CLASS, 'mt-2')}>
-        이미지는 최대 {MAX_POST_IMAGE_COUNT}장, 장당 5MB 이하만 첨부할 수 있어요.
+        {t('community.imageHint', { count: MAX_POST_IMAGE_COUNT })}
       </p>
     </section>
   );

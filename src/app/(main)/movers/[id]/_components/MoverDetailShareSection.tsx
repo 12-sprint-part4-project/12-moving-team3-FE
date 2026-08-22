@@ -1,6 +1,7 @@
 'use client';
 
 import { MoverShareButtons } from '@/components/movers/MoverShareButtons';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 export interface MoverDetailShareSectionProps {
@@ -17,6 +18,8 @@ export const MoverDetailShareSection = ({
   profileImageUrl = null,
   className = '',
 }: MoverDetailShareSectionProps) => {
+  const { t } = useTranslation();
+
   return (
     <section
       className={cn(
@@ -25,7 +28,7 @@ export const MoverDetailShareSection = ({
       )}
     >
       <p className="text-md-semibold text-black-400 tablet:text-lg-semibold">
-        나만 알기엔 아쉬운 기사님인가요?
+        {t('movers.shareHint')}
       </p>
       <MoverShareButtons
         size="xs"

@@ -1,10 +1,7 @@
+'use client';
 
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
-import {
-  ESTIMATE_REQUEST_INTRO_MESSAGE,
-  MOVE_TYPE_PROMPT_DESKTOP,
-  MOVE_TYPE_PROMPT_MOBILE,
-} from '@/constants/estimateRequestMessages';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import { AnswerWithReviseButton } from './AnswerWithReviseButton';
 import { EstimateRequestChatBubbleGroup } from './EstimateRequestChatBubbleGroup';
@@ -43,13 +40,17 @@ export const MoveTypeAnswerSection = ({
   isRevisingField,
   errorMessage,
 }: MoveTypeAnswerSectionProps) => {
+  const { t } = useTranslation();
+
   return (
     <>
       {/* 시스템: 안내 + 이사종류 질문 */}
       <EstimateRequestChatBubbleGroup>
-        <TextFieldChat>{ESTIMATE_REQUEST_INTRO_MESSAGE}</TextFieldChat>
-        <TextFieldChat desktopChildren={MOVE_TYPE_PROMPT_DESKTOP}>
-          {MOVE_TYPE_PROMPT_MOBILE}
+        <TextFieldChat>{t('estimateRequest.intro')}</TextFieldChat>
+        <TextFieldChat
+          desktopChildren={t('estimateRequest.moveTypePromptDesktop')}
+        >
+          {t('estimateRequest.moveTypePromptMobile')}
         </TextFieldChat>
       </EstimateRequestChatBubbleGroup>
 

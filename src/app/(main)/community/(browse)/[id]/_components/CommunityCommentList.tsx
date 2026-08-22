@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/Button/Button';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import { CommunityCommentItem } from './CommunityCommentItem';
@@ -55,6 +56,7 @@ export const CommunityCommentList = ({
   headerAction,
   className = '',
 }: CommunityCommentListProps) => {
+  const { t } = useTranslation();
   const isInitialError = isError && comments.length === 0;
   const showEmpty = !isPending && !isInitialError && comments.length === 0;
   const showComments = !isPending && !isInitialError && comments.length > 0;
@@ -62,14 +64,14 @@ export const CommunityCommentList = ({
   const commentAreaPadding = 'pt-6 min-[46.5rem]:pt-7 xl:pt-8';
 
   return (
-    <section className={className} aria-label="댓글">
+    <section className={className} aria-label={t('community.commentsAria')}>
       {beforeHeader ? (
         <div className="mb-10 min-[46.5rem]:mb-12 xl:mb-16">{beforeHeader}</div>
       ) : null}
 
       <div className="flex items-end justify-between gap-3">
         <h2 className="text-lg-semibold text-black-400 min-[46.5rem]:text-2lg-regular xl:text-xl-bold">
-          댓글 {commentCount}
+          {t('community.commentCount', { count: commentCount })}
         </h2>
         {headerAction ? (
           <div className="shrink-0 self-start">{headerAction}</div>
@@ -82,7 +84,7 @@ export const CommunityCommentList = ({
       <div className={commentAreaPadding}>
         {isPending ? (
           <div className="flex justify-center">
-            <Spinner message="댓글 불러오는 중..." />
+            <Spinner message={t('community.loadingComments')} />
           </div>
         ) : null}
 
@@ -92,14 +94,14 @@ export const CommunityCommentList = ({
               {errorMessage}
             </p>
             <Button variant="outlined" size="md" onClick={onRetry}>
-              다시 시도
+              {t('common.retry')}
             </Button>
           </div>
         ) : null}
 
         {showEmpty ? (
           <p className="text-center text-md-regular text-gray-400 min-[46.5rem]:text-lg-regular xl:text-2lg-regular">
-            아직 댓글이 없어요.
+            {t('community.emptyComments')}
           </p>
         ) : null}
 
@@ -127,14 +129,17 @@ export const CommunityCommentList = ({
 
         {isFetchingNextPage ? (
           <div className="flex justify-center pt-6">
-            <Spinner message="댓글 더 불러오는 중..." className="py-6" />
+            <Spinner
+              message={t('community.loadingMoreComments')}
+              className="py-6"
+            />
           </div>
         ) : null}
 
         {!isFetchingNextPage && isFetchNextPageError ? (
           <div className="flex flex-col items-center gap-2 pt-4">
             <p className="text-center text-2lg-medium text-gray-400">
-              다음 댓글을 불러오지 못했습니다.
+              {t('community.nextCommentsError')}
             </p>
             {onRetryNextPage ? (
               <button
@@ -142,7 +147,7 @@ export const CommunityCommentList = ({
                 onClick={onRetryNextPage}
                 className="cursor-pointer text-2lg-medium text-blue-300 underline-offset-2 hover:underline"
               >
-                다시 시도
+                {t('common.retry')}
               </button>
             ) : null}
           </div>
