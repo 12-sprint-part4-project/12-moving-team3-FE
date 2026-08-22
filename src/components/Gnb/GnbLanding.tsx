@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { LanguageSelector } from '@/components/LanguageSelector/LanguageSelector';
 import { Logo } from '@/components/Logo/Logo';
 import { cn } from '@/lib/utils';
 
@@ -67,7 +68,10 @@ export const GnbLanding = ({
               커뮤니티
             </Link>
           </nav>
-          {loginButton}
+          <div className="flex shrink-0 items-center gap-6">
+            <LanguageSelector />
+            {loginButton}
+          </div>
         </>
       ) : (
         menuSlot

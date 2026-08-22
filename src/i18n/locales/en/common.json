@@ -1,0 +1,14 @@
+{
+  "common": {
+    "login": "Log in",
+    "logout": "Log out",
+    "search": "Search",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "noData": "No data available."
+  },
+  "language": {
+    "selectorLabel": "Select language"
+  }
+}

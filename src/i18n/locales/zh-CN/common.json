@@ -1,0 +1,14 @@
+{
+  "common": {
+    "login": "登录",
+    "logout": "退出登录",
+    "search": "搜索",
+    "confirm": "确认",
+    "cancel": "取消",
+    "loading": "加载中...",
+    "noData": "暂无数据。"
+  },
+  "language": {
+    "selectorLabel": "选择语言"
+  }
+}

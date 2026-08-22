@@ -15,6 +15,7 @@ import {
 } from '@/components/Gnb/gnbNav';
 import { GnbProfileDropdown } from '@/components/Gnb/GnbProfileDropdown';
 import { NotificationGnbButton } from '@/components/Gnb/NotificationGnbButton';
+import { LanguageSelector } from '@/components/LanguageSelector/LanguageSelector';
 import { Logo } from '@/components/Logo/Logo';
 import { Tab } from '@/components/ui/Tab/Tab';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
@@ -253,6 +254,7 @@ const GnbHeader = ({
             isDesktop ? 'gap-8' : 'gap-6'
           }`}
         >
+          {isDesktop ? <LanguageSelector /> : null}
           <ChatGnbButton
             size={iconSize}
             onOpen={handleChatOpen}

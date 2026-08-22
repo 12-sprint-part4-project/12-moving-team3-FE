@@ -1,0 +1,14 @@
+{
+  "common": {
+    "login": "로그인",
+    "logout": "로그아웃",
+    "search": "검색",
+    "confirm": "확인",
+    "cancel": "취소",
+    "loading": "불러오는 중...",
+    "noData": "데이터가 없습니다."
+  },
+  "language": {
+    "selectorLabel": "언어 선택"
+  }
+}

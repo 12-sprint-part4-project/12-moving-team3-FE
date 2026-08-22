@@ -10,6 +10,7 @@ import {
   type GnbNavItem,
   type GnbNavRole,
 } from '@/components/Gnb/gnbNav';
+import { LanguageSelector } from '@/components/LanguageSelector/LanguageSelector';
 
 export type GnbMenuType = GnbNavRole;
 
@@ -84,6 +85,9 @@ export const GnbMenu = ({
           </button>
         ) : null}
       </nav>
+      <div className="mt-auto border-t border-line-100 px-5 py-4">
+        <LanguageSelector className="w-full [&_select]:w-full" />
+      </div>
     </aside>
   );
 };
