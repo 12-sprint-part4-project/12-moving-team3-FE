@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import MenuIcon from '@/assets/icons/menu.svg';
 import { useGuestHeaderMenu } from '@/components/layout/GuestHeaderMenuContext';

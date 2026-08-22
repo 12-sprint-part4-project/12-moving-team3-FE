@@ -7,6 +7,7 @@ import { MoverCard } from '@/components/movers/MoverCard';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useLoadMoreOnView } from '@/hooks/useLoadMoreOnView';
 import { useMoversList } from '@/hooks/useMoversList';
+import { useTranslation } from '@/i18n/useTranslation';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 import {
   fadeIn,
@@ -42,6 +43,7 @@ export const MoversListPanel = ({
   onFavoriteClick,
   isMoverPending,
 }: MoversListPanelProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
 
   const {
@@ -86,7 +88,7 @@ export const MoversListPanel = ({
 
   const errorMessage = resolveApiErrorMessage(
     error,
-    '기사님 목록을 불러오지 못했습니다.'
+    t('movers.listError')
   );
 
   const handleRetry = () => {
@@ -160,10 +162,10 @@ export const MoversListPanel = ({
                 exit="exit"
                 transition={motionTransition}
               >
-                <Spinner message="더 불러오는 중..." className="py-4" />
+                <Spinner message={t('common.loadMore')} className="py-4" />
               </motion.div>
             ) : (
-              <span className="sr-only">스크롤하여 더 보기</span>
+              <span className="sr-only">{t('common.scrollToLoadMore')}</span>
             )}
           </AnimatePresence>
         </div>

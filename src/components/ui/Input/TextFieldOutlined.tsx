@@ -6,7 +6,7 @@ import {
   type InputHTMLAttributes,
   type ReactNode,
 } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import VisibilityOffIcon from '@/assets/icons/visibility-off.svg';
 import VisibilityOnIcon from '@/assets/icons/visibility-on.svg';

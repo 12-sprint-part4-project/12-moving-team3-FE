@@ -1,4 +1,7 @@
+'use client';
+
 import { Button } from '@/components/Button/Button';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import { EstimateRequestChatPanel } from './EstimateRequestChatPanel';
 import { InlineErrorMessage } from './InlineErrorMessage';
@@ -32,11 +35,13 @@ export const MoveTypeRevisePanel = ({
   errorMessage,
   onConfirm,
 }: MoveTypeRevisePanelProps) => {
+  const { t } = useTranslation();
+
   return (
     <EstimateRequestChatPanel>
       <div
         role="radiogroup"
-        aria-label="이사 종류"
+        aria-label={t('estimateRequest.moveTypeAria')}
         className="flex w-full flex-col gap-2 md:gap-4"
       >
         {options.map((option) => (
@@ -44,7 +49,7 @@ export const MoveTypeRevisePanel = ({
             key={option.value}
             name="moveTypeRevise"
             value={option.value}
-            label={option.label}
+            label={`${t(`moveType.${option.value}`)} ${t(`moveType.detail.${option.value}`)}`}
             selected={draftMoveType === option.value}
             disabled={isSubmitting}
             onSelect={onSelect}
@@ -61,7 +66,9 @@ export const MoveTypeRevisePanel = ({
         aria-busy={isRevisingField}
         onClick={onConfirm}
       >
-        {isRevisingField ? '저장 중…' : '선택완료'}
+        {isRevisingField
+          ? t('estimateRequest.saving')
+          : t('estimateRequest.selectComplete')}
       </Button>
 
       <InlineErrorMessage message={errorMessage} />

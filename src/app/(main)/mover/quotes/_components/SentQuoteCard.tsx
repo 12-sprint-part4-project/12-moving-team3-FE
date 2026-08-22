@@ -1,7 +1,7 @@
 'use client';
 
-import { getClosedQuoteOverlayMessage } from '@/components/quotes/closedQuoteOverlay';
 import { QuoteListCard } from '@/components/quotes/QuoteListCard';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import type { SentQuoteCardModel } from '@/types/quote';
 
@@ -15,6 +15,7 @@ export const SentQuoteCard = ({
   quote,
   className = '',
 }: SentQuoteCardProps) => {
+  const { t } = useTranslation();
   const detailHref = `/mover/quotes/${quote.id}`;
   const isClosedCard = quote.isMoveCompleted;
 
@@ -22,7 +23,7 @@ export const SentQuoteCard = ({
     <QuoteListCard
       className={className}
       displayName={quote.customerName}
-      nameSuffix="고객님"
+      nameSuffix={t('gnb.role.customer')}
       moveType={quote.moveType}
       isConfirmed={quote.isConfirmed}
       isDesignated={quote.isDesignated}
@@ -32,11 +33,13 @@ export const SentQuoteCard = ({
       priceLabel={quote.priceLabel}
       relativeTimeLabel={quote.relativeTimeLabel}
       detailHref={detailHref}
-      detailAriaLabel={`${quote.customerName} 고객님 견적 상세보기`}
+      detailAriaLabel={t('quotes.detailAriaCustomer', {
+        name: quote.customerName,
+      })}
       isClosed={isClosedCard}
       overlayMessage={
         isClosedCard
-          ? getClosedQuoteOverlayMessage(quote.estimateRequestStatus)
+          ? t(`quotes.closedOverlay.${quote.estimateRequestStatus}`)
           : undefined
       }
     />

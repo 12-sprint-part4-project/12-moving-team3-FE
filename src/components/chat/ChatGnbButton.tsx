@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import ChatIcon from '@/assets/icons/chat.svg';
 import { ChatPreviewDropdown } from '@/components/chat/ChatPreviewDropdown';

@@ -6,6 +6,7 @@ import InfoIcon from '@/assets/icons/info.svg';
 import { QuoteInfoSection } from '@/components/quotes/QuoteInfoRows';
 import { QuoteShareButtons } from '@/components/QuoteShareButtons/QuoteShareButtons';
 import { Toast } from '@/components/ui/Toast/Toast';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   fadeUp,
   getFadeUpMotionProps,
@@ -51,6 +52,7 @@ export const CustomerQuoteDetailContent = ({
   actions,
   className = '',
 }: CustomerQuoteDetailContentProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
 
   const motionTransition = getMotionTransition(shouldReduceMotion);
@@ -65,7 +67,7 @@ export const CustomerQuoteDetailContent = ({
   /** QuoteShareButtons용 공유 메타 */
   const quoteShareProps = {
     sharePath: `/quotes/${quoteId}`,
-    shareTitle: `${detail.mover.name} 기사님 견적서`,
+    shareTitle: t('quotes.shareMoverTitle', { name: detail.mover.name }),
     shareDescription:
       detail.comment?.trim() ||
       detail.mover.shortDescription ||
@@ -111,7 +113,9 @@ export const CustomerQuoteDetailContent = ({
           {...fadeUpMotion}
           className={CUSTOMER_QUOTE_DETAIL_SECTION_CLASS}
         >
-          <h2 className={CUSTOMER_QUOTE_DETAIL_SECTION_TITLE_CLASS}>견적가</h2>
+          <h2 className={CUSTOMER_QUOTE_DETAIL_SECTION_TITLE_CLASS}>
+            {t('quotes.priceAmount')}
+          </h2>
           <p className="text-2lg-bold text-black-400 lg:text-3xl-bold">
             {detail.priceLabel}
           </p>
@@ -128,7 +132,9 @@ export const CustomerQuoteDetailContent = ({
               {...fadeUpMotion}
               className={CUSTOMER_QUOTE_DETAIL_SECTION_CLASS}
             >
-              <h2 className={CUSTOMER_QUOTE_DETAIL_SECTION_TITLE_CLASS}>코멘트</h2>
+              <h2 className={CUSTOMER_QUOTE_DETAIL_SECTION_TITLE_CLASS}>
+                {t('quotes.comment')}
+              </h2>
               <p className="text-lg-regular whitespace-pre-wrap text-black-400 lg:text-2lg-regular">
                 {detail.comment}
               </p>
@@ -137,10 +143,7 @@ export const CustomerQuoteDetailContent = ({
         ) : null}
 
         {/* 공유 — 모바일만 */}
-        <motion.div
-          {...fadeUpMotion}
-          className="flex flex-col gap-6 lg:hidden"
-        >
+        <motion.div {...fadeUpMotion} className="flex flex-col gap-6 lg:hidden">
           <div className={CUSTOMER_QUOTE_DETAIL_DIVIDER_CLASS} />
           <QuoteShareButtons {...quoteShareProps} />
         </motion.div>
@@ -159,7 +162,7 @@ export const CustomerQuoteDetailContent = ({
           <motion.div {...fadeUpMotion}>
             <Toast
               icon={InfoIcon}
-              content="확정하지 않은 견적이에요!"
+              content={t('quotes.notConfirmed')}
               className="w-full justify-center"
             />
           </motion.div>

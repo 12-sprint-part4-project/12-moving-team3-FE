@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { MoverProfileBlock } from '@/components/movers/MoverProfileBlock';
 import { QuotePriceRow } from '@/components/quotes/QuotePriceRow';
 import { QuoteStatusChipRow } from '@/components/quotes/QuoteStatusChips';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cardHover } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import { toMoverCardModelFromCustomerQuoteMover } from '@/services/customerQuoteApi';
@@ -26,6 +27,7 @@ export const ReceivedQuoteCard = ({
   isMoverPending,
   className = '',
 }: ReceivedQuoteCardProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
 
   const mover = toMoverCardModelFromCustomerQuoteMover(quote.mover);
@@ -67,7 +69,7 @@ export const ReceivedQuoteCard = ({
       <Link
         href={detailHref}
         className="absolute inset-0 z-0 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
-        aria-label={`${mover.name} 기사님 견적 상세보기`}
+        aria-label={t('quotes.detailAriaMover', { name: mover.name })}
       />
     </motion.article>
   );

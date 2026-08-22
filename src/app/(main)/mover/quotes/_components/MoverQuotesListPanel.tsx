@@ -7,6 +7,7 @@ import { QuotesListErrorState } from '@/components/quotes/QuotesListErrorState';
 import { ResponsivePagination } from '@/components/ui/Pagination';
 import { QuotesListSkeleton } from '@/components/ui/Skeleton';
 import { useMoverQuotes } from '@/hooks/useMoverQuotes';
+import { useTranslation } from '@/i18n/useTranslation';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 import {
   getFadeInMotionProps,
@@ -33,6 +34,7 @@ interface MoverQuotesListPanelProps {
 
 /** `/mover/quotes` 탭 본문. - 목록 Query·페이지네이션. */
 export const MoverQuotesListPanel = ({ status }: MoverQuotesListPanelProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
 
   const [page, setPage] = useState(1);
@@ -57,7 +59,7 @@ export const MoverQuotesListPanel = ({ status }: MoverQuotesListPanelProps) => {
   const listStaggerVariants = getListStagger(shouldReduceMotion);
   const errorMessage = resolveApiErrorMessage(
     error,
-    '견적 목록을 불러오지 못했습니다.'
+    t('quotes.listError')
   );
 
   const showListFetching = isFetching && !isPending;

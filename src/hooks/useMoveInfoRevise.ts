@@ -9,18 +9,10 @@ import {
 import { MOVE_TYPE_OPTIONS } from '@/constants/estimateRequestOptions';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
 import { useLocalToday } from '@/hooks/useLocalToday';
+import { useTranslation } from '@/i18n/useTranslation';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 
 import type { ApiMoveType } from '@/types/estimateRequest';
-
-/** YYYY-MM-DD → 채팅 버블용 「YYYY년 M월 D일」 */
-const formatChatMoveDate = (moveDate: string): string => {
-  const [year, month, day] = moveDate.slice(0, 10).split('-').map(Number);
-  if (!year || !month || !day) {
-    return moveDate;
-  }
-  return `${year}년 ${month}월 ${day}일`;
-};
 
 export interface UseMoveInfoReviseOptions {
   /** 수정 모드 진입 직전 추가 정리 (예: 주소 모달 닫기) */
@@ -33,6 +25,7 @@ export interface UseMoveInfoReviseOptions {
  */
 export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
   const { onBeforeStartRevise } = options;
+  const { t } = useTranslation();
   const {
     bootstrap,
     saveStep,
@@ -43,10 +36,22 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
     isSubmitting: isSubmittingRequest,
   } = useCustomerEstimateRequest();
 
+  const formatChatMoveDate = (moveDate: string): string => {
+    const [year, month, day] = moveDate.slice(0, 10).split('-').map(Number);
+    if (!year || !month || !day) {
+      return moveDate;
+    }
+    return t('date.yearMonthDay', { year, month, day });
+  };
+
   const detail = bootstrap.detail;
   const moveType = detail?.moveType ?? null;
+  const moveTypeOptions = MOVE_TYPE_OPTIONS.map((option) => ({
+    value: option.value,
+    label: `${t(`moveType.${option.value}`)} ${t(`moveType.detail.${option.value}`)}`,
+  }));
   const moveTypeLabel =
-    MOVE_TYPE_OPTIONS.find((option) => option.value === moveType)?.label ??
+    moveTypeOptions.find((option) => option.value === moveType)?.label ??
     null;
   const moveDateLabel = detail?.moveDate
     ? formatChatMoveDate(detail.moveDate)
@@ -101,7 +106,7 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
       setIsRevisingMoveType(false);
     } catch (error) {
       setErrorMessage(
-        resolveApiErrorMessage(error, '이사 종류 수정 중 오류가 발생했습니다.')
+        resolveApiErrorMessage(error, t('estimateRequest.reviseMoveTypeError'))
       );
     }
   };
@@ -134,7 +139,7 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
       setErrorMessage(
         resolveApiErrorMessage(
           error,
-          '이사 예정일 수정 중 오류가 발생했습니다.'
+          t('estimateRequest.reviseMoveDateError')
         )
       );
     }
@@ -166,7 +171,7 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
       setErrorMessage(
         resolveApiErrorMessage(
           error,
-          '이사 예정일 저장 중 오류가 발생했습니다.'
+          t('estimateRequest.saveMoveDateError')
         )
       );
     }
@@ -187,7 +192,7 @@ export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
     moveType: {
       label: moveTypeLabel,
       isRevising: isRevisingMoveType,
-      options: MOVE_TYPE_OPTIONS,
+      options: moveTypeOptions,
       draft: draftMoveType,
       setDraft: setDraftMoveType,
       canConfirm: canConfirmMoveType,

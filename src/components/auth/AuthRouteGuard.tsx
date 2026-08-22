@@ -3,7 +3,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState, type ReactNode } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { RoleMismatchModal } from '@/components/auth/RoleMismatchModal';

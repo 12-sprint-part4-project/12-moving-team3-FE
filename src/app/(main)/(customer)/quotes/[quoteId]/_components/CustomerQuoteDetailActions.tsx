@@ -4,6 +4,7 @@ import { Button } from '@/components/Button/Button';
 import { ChatStartButtonContent } from '@/components/chat/ChatStartButtonContent';
 import { FavoriteButton } from '@/components/Favorite';
 import { QuoteDetailMobileActionBar } from '@/components/quotes/QuoteDetailMobileActionBar';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 export interface CustomerQuoteDetailActionsProps {
@@ -149,6 +150,7 @@ export const CustomerQuoteDetailActions = ({
   variant,
   className = '',
 }: CustomerQuoteDetailActionsProps) => {
+  const { t } = useTranslation();
   /** 노출할 CTA가 없으면 렌더하지 않음 */
   if (!canConfirm && !canStartChat) {
     return null;
@@ -165,7 +167,9 @@ export const CustomerQuoteDetailActions = ({
     onChatClick,
     onToggleFavorite,
     className,
-    confirmLabel: isConfirming ? '확정 중...' : '견적 확정하기',
+    confirmLabel: isConfirming
+      ? t('quotes.confirming')
+      : t('estimateRequest.confirmQuote'),
   };
 
   // desktop 사이드바 CTA 또는 mobile 하단 고정바

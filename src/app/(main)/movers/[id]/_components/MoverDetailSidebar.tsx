@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 
 import { MoverShareButtons } from '@/components/movers/MoverShareButtons';
+import { useTranslation } from '@/i18n/useTranslation';
 import { fadeUp, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
@@ -31,6 +32,7 @@ export const MoverDetailSidebar = ({
   share,
   className = '',
 }: MoverDetailSidebarProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
 
@@ -70,7 +72,7 @@ export const MoverDetailSidebar = ({
         className="flex flex-col gap-[1.375rem] border-t border-line-100 pt-10"
       >
         <p className="text-xl-semibold text-black-400">
-          나만 알기엔 아쉬운 기사님인가요?
+          {t('movers.shareHint')}
         </p>
         <MoverShareButtons
           size="md"

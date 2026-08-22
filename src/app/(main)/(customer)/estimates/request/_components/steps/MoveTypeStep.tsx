@@ -4,13 +4,9 @@ import { useState } from 'react';
 
 import { Button } from '@/components/Button/Button';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
-import {
-  ESTIMATE_REQUEST_INTRO_MESSAGE,
-  MOVE_TYPE_PROMPT_DESKTOP,
-  MOVE_TYPE_PROMPT_MOBILE,
-} from '@/constants/estimateRequestMessages';
 import { MOVE_TYPE_OPTIONS } from '@/constants/estimateRequestOptions';
 import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
+import { useTranslation } from '@/i18n/useTranslation';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 
 import { EstimateRequestChatBubbleGroup } from '../EstimateRequestChatBubbleGroup';
@@ -24,6 +20,7 @@ import type { ApiMoveType } from '@/types/estimateRequest';
  * 선택완료 시 PATCH step:1 → bootstrap visualStep=2 로 Step2 이동.
  */
 export const MoveTypeStep = () => {
+  const { t } = useTranslation();
   const { bootstrap, saveStep, isSavingStep } = useCustomerEstimateRequest();
   const detail = bootstrap.detail;
 
@@ -52,21 +49,23 @@ export const MoveTypeStep = () => {
       });
     } catch (error) {
       setErrorMessage(
-        resolveApiErrorMessage(error, '이사 종류 저장 중 오류가 발생했습니다.')
+        resolveApiErrorMessage(error, t('estimateRequest.saveMoveTypeError'))
       );
     }
   };
 
   return (
     <section
-      aria-label="이사 종류 선택"
+      aria-label={t('estimateRequest.selectMoveTypeAria')}
       className="page-content flex flex-col gap-2 md:gap-6"
     >
       {/* 시스템 연속 발화 — 한 턴으로 묶어 좌측 정렬 */}
       <EstimateRequestChatBubbleGroup>
-        <TextFieldChat>{ESTIMATE_REQUEST_INTRO_MESSAGE}</TextFieldChat>
-        <TextFieldChat desktopChildren={MOVE_TYPE_PROMPT_DESKTOP}>
-          {MOVE_TYPE_PROMPT_MOBILE}
+        <TextFieldChat>{t('estimateRequest.intro')}</TextFieldChat>
+        <TextFieldChat
+          desktopChildren={t('estimateRequest.moveTypePromptDesktop')}
+        >
+          {t('estimateRequest.moveTypePromptMobile')}
         </TextFieldChat>
       </EstimateRequestChatBubbleGroup>
 
@@ -74,7 +73,7 @@ export const MoveTypeStep = () => {
       <EstimateRequestChatPanel>
         <div
           role="radiogroup"
-          aria-label="이사 종류"
+          aria-label={t('estimateRequest.moveTypeAria')}
           className="flex w-full flex-col gap-2 md:gap-4"
         >
           {MOVE_TYPE_OPTIONS.map((option) => (
@@ -82,7 +81,7 @@ export const MoveTypeStep = () => {
               key={option.value}
               name="moveType"
               value={option.value}
-              label={option.label}
+              label={`${t(`moveType.${option.value}`)} ${t(`moveType.detail.${option.value}`)}`}
               selected={selectedMoveType === option.value}
               disabled={isSavingStep}
               onSelect={setSelectedMoveType}
@@ -101,7 +100,9 @@ export const MoveTypeStep = () => {
             void handleSubmit();
           }}
         >
-          {isSavingStep ? '저장 중…' : '선택완료'}
+          {isSavingStep
+            ? t('estimateRequest.saving')
+            : t('estimateRequest.selectComplete')}
         </Button>
 
         {errorMessage ? (

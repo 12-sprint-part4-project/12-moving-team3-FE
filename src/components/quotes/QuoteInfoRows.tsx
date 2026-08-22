@@ -1,3 +1,4 @@
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import type { QuoteInfoViewModel } from '@/types/customerQuote';
@@ -33,14 +34,6 @@ const VARIANT_CLASS = {
 
 const VALUE_CLASS = 'min-w-0 break-keep text-black-400';
 
-const toQuoteInfoRows = (info: QuoteInfoViewModel) => [
-  { label: '견적 요청일', value: info.requestedAtLabel },
-  { label: '서비스', value: info.serviceLabel },
-  { label: '이용일', value: info.moveDateLabel },
-  { label: '출발지', value: info.departure },
-  { label: '도착지', value: info.arrival },
-];
-
 export interface QuoteInfoRowsProps {
   info: QuoteInfoViewModel;
   variant: QuoteInfoRowsVariant;
@@ -53,7 +46,14 @@ export const QuoteInfoRows = ({
   variant,
   className = '',
 }: QuoteInfoRowsProps) => {
-  const rows = toQuoteInfoRows(info);
+  const { t } = useTranslation();
+  const rows = [
+    { label: t('quotes.requestedAt'), value: info.requestedAtLabel },
+    { label: t('common.service'), value: info.serviceLabel },
+    { label: t('quotes.usedOn'), value: info.moveDateLabel },
+    { label: t('estimateRequest.departure'), value: info.departure },
+    { label: t('estimateRequest.arrival'), value: info.arrival },
+  ];
   const styles = VARIANT_CLASS[variant];
 
   return (
@@ -79,11 +79,15 @@ export const QuoteInfoSection = ({
   info,
   variant,
   className = '',
-}: QuoteInfoSectionProps) => (
-  <section className={cn('flex w-full flex-col gap-5 lg:gap-10', className)}>
-    <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
-      견적 정보
-    </h2>
-    <QuoteInfoRows info={info} variant={variant} />
-  </section>
-);
+}: QuoteInfoSectionProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <section className={cn('flex w-full flex-col gap-5 lg:gap-10', className)}>
+      <h2 className="text-lg-semibold text-black-400 lg:text-2xl-semibold">
+        {t('quotes.info')}
+      </h2>
+      <QuoteInfoRows info={info} variant={variant} />
+    </section>
+  );
+};

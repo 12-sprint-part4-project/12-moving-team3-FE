@@ -19,14 +19,15 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
       document.documentElement.lang = resolvedLanguage;
     };
 
-    const storedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
-    const initialLanguage = resolveLanguage(storedLanguage);
+    const storedLanguage = resolveLanguage(
+      window.localStorage.getItem(LANGUAGE_STORAGE_KEY)
+    );
 
-    applyLanguage(initialLanguage);
+    applyLanguage(storedLanguage);
     i18n.on('languageChanged', applyLanguage);
 
-    if (i18n.resolvedLanguage !== initialLanguage) {
-      void i18n.changeLanguage(initialLanguage);
+    if ((i18n.resolvedLanguage ?? i18n.language) !== storedLanguage) {
+      void i18n.changeLanguage(storedLanguage);
     }
 
     return () => {

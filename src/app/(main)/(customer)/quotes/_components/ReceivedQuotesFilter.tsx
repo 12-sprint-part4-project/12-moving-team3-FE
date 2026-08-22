@@ -6,6 +6,7 @@ import { useId, useRef, useState } from 'react';
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import { useListboxKeyboard } from '@/hooks/useListboxKeyboard';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   dropdownPanelVariants,
   getMotionTransition,
@@ -20,28 +21,27 @@ export interface ReceivedQuotesFilterProps {
   className?: string;
 }
 
-const FILTER_OPTIONS: { value: CustomerPastQuoteFilter; label: string }[] = [
-  { value: 'ALL', label: '전체' },
-  { value: 'CONFIRMED', label: '확정한 견적서' },
-];
-
-/** `/quotes?tab=received` 그룹 필터. - 전체 / 확정한 견적서 listbox. */
 export const ReceivedQuotesFilter = ({
   value,
   onValueChange,
   className = '',
 }: ReceivedQuotesFilterProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const optionRefs = useRef<Array<HTMLElement | null>>([]);
   const listboxId = useId();
+  const filterOptions: { value: CustomerPastQuoteFilter; label: string }[] = [
+    { value: 'ALL', label: t('common.all') },
+    { value: 'CONFIRMED', label: t('quotes.confirmedQuotes') },
+  ];
 
   useOutsideClick(containerRef, isOpen, setIsOpen);
   const selectedIndex = Math.max(
     0,
-    FILTER_OPTIONS.findIndex((option) => option.value === value)
+    filterOptions.findIndex((option) => option.value === value)
   );
   const {
     activeIndex,
@@ -50,14 +50,14 @@ export const ReceivedQuotesFilter = ({
     handleTriggerKeyDown,
     handleListKeyDown,
   } = useListboxKeyboard({
-    optionCount: FILTER_OPTIONS.length,
+    optionCount: filterOptions.length,
     selectedIndex,
     isOpen,
     setIsOpen,
     triggerRef,
     optionRefs,
     onSelect: (index) => {
-      const option = FILTER_OPTIONS[index];
+      const option = filterOptions[index];
       if (!option) {
         return;
       }
@@ -68,7 +68,7 @@ export const ReceivedQuotesFilter = ({
   const motionTransition = getMotionTransition(shouldReduceMotion, {
     duration: 0.16,
   });
-  const selected = FILTER_OPTIONS[selectedIndex] ?? FILTER_OPTIONS[0];
+  const selected = filterOptions[selectedIndex] ?? filterOptions[0];
   const triggerStateClass = isOpen
     ? 'border-blue-300 bg-blue-50 text-blue-300 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-blue/10 [&_path]:stroke-blue-300'
     : 'border-line-200 bg-white text-black-400 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-gray-100/10 [&_path]:stroke-black-100';
@@ -91,7 +91,7 @@ export const ReceivedQuotesFilter = ({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-controls={listboxId}
-        aria-label={`견적 필터: ${selected.label}`}
+        aria-label={t('quotes.filterAria', { label: selected.label })}
         onClick={handleToggle}
         onKeyDown={handleTriggerKeyDown}
         className={cn(
@@ -115,7 +115,7 @@ export const ReceivedQuotesFilter = ({
           <motion.ul
             id={listboxId}
             role="listbox"
-            aria-label="견적 필터 옵션"
+            aria-label={t('quotes.filterOptionsAria')}
             tabIndex={-1}
             onKeyDown={handleListKeyDown}
             variants={dropdownPanelVariants}
@@ -125,7 +125,7 @@ export const ReceivedQuotesFilter = ({
             transition={motionTransition}
             className="absolute top-full left-0 z-10 mt-1 flex w-max min-w-full flex-col overflow-hidden rounded-lg border border-line-200 bg-white shadow-[0.25rem_0.25rem_0.625rem] shadow-shadow-gray-400/20"
           >
-            {FILTER_OPTIONS.map((option, index) => {
+            {filterOptions.map((option, index) => {
               const isSelected = option.value === value;
               const isActive = index === activeIndex;
 

@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import { AuthBrand } from '@/app/(auth)/_components/AuthBrand';
 import { AuthEmailField } from '@/app/(auth)/_components/AuthEmailField';

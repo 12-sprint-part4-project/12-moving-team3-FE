@@ -9,6 +9,7 @@ import StarIcon from '@/assets/icons/star.svg';
 import { FavoriteButton } from '@/components/Favorite';
 import { ReportAction } from '@/components/reports';
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cardHover, fadeUp, listStagger, tapScale } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 import { API_MOVE_TYPE_TO_UI } from '@/types/estimateRequest';
@@ -45,22 +46,26 @@ export const MoverCard = ({
   disableNavigation = false,
   className = '',
 }: MoverCardProps) => {
+  const { t } = useTranslation();
   const isCompact = size === 'sm';
   const isFavoriteVariant = variant === 'favorite';
   const showDescription = !isCompact && !isFavoriteVariant;
   const showCareerAndConfirmed = !isCompact || isFavoriteVariant;
   const ratingLabel =
     mover.averageRating === null ? '-' : mover.averageRating.toFixed(1);
-  const careerLabel = mover.career === null ? '-' : `${mover.career}년`;
+  const careerLabel =
+    mover.career === null ? '-' : t('movers.careerYears', { count: mover.career });
   const confirmedLabel =
-    mover.confirmedCount === null ? '-' : `${mover.confirmedCount}건`;
+    mover.confirmedCount === null
+      ? '-'
+      : t('movers.confirmedCount', { count: mover.confirmedCount });
   const description =
-    mover.shortDescription?.trim() || '등록된 한 줄 소개가 없습니다.';
+    mover.shortDescription?.trim() || t('movers.noShortDescription');
   const nameClassName = cn(
     'text-black-300',
     isCompact ? 'text-lg-semibold' : 'text-2lg-semibold'
   );
-  const profileAlt = `${mover.name} 기사님 프로필`;
+  const profileAlt = t('movers.profileAlt', { name: mover.name });
 
   const handleFavoriteClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();

@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { useTranslation } from '@/i18n/useTranslation';
 import { getFadeInPresenceProps, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
@@ -19,9 +20,10 @@ export interface QuotesLoadMoreSentinelProps {
 export const QuotesLoadMoreSentinel = ({
   loadMoreRef,
   isFetchingNextPage,
-  message = '더 불러오는 중...',
+  message,
   className = '',
 }: QuotesLoadMoreSentinelProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
 
@@ -33,7 +35,7 @@ export const QuotesLoadMoreSentinel = ({
       <AnimatePresence>
         {isFetchingNextPage ? (
           <motion.div {...getFadeInPresenceProps(motionTransition)}>
-            <Spinner message={message} />
+            <Spinner message={message ?? t('common.loadMore')} />
           </motion.div>
         ) : null}
       </AnimatePresence>

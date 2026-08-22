@@ -3,9 +3,8 @@
 import { Button } from '@/components/Button/Button';
 import { ChatStartButtonContent } from '@/components/chat/ChatStartButtonContent';
 import { FavoriteButton } from '@/components/Favorite';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
-
-import { getDesignatedButtonLabel } from './getDesignatedButtonLabel';
 
 import type {
   MoverDetailChat,
@@ -30,6 +29,7 @@ export const MoverDetailCtaButtons = ({
   chat,
   name,
 }: MoverDetailCtaButtonsProps) => {
+  const { t } = useTranslation();
   const isHardDisabled =
     designated.isPending ||
     designated.isAlreadyDesignated ||
@@ -57,7 +57,7 @@ export const MoverDetailCtaButtons = ({
     <>
       {layout === 'sidebar' && designated.showCta && name ? (
         <p className="text-xl-semibold text-black-400">
-          {name} 기사님에게 지정 견적을 요청해보세요!
+          {t('movers.designatedHint', { name })}
         </p>
       ) : null}
       <FavoriteButton
@@ -80,14 +80,19 @@ export const MoverDetailCtaButtons = ({
             isSoftBlocked && 'cursor-not-allowed bg-gray-100 hover:bg-gray-100'
           )}
         >
-          {getDesignatedButtonLabel(
-            designated.isAlreadyDesignated,
-            designated.hasReceivedQuoteFromMover,
-            designated.isPending,
-            designated.isStatusLoading,
-            designated.isQuoteStatusError,
-            designated.isRequestFailed
-          )}
+          {designated.isRequestFailed
+            ? t('movers.designated.unavailable')
+            : designated.isAlreadyDesignated
+              ? t('movers.designated.done')
+              : designated.isQuoteStatusError
+                ? t('movers.designated.checkFailed')
+                : designated.hasReceivedQuoteFromMover
+                  ? t('movers.designated.unavailable')
+                  : designated.isPending
+                    ? t('movers.designated.requesting')
+                    : designated.isStatusLoading
+                      ? t('movers.designated.checking')
+                      : t('movers.designated.request')}
         </Button>
       ) : null}
       {chat.showCta ? (

@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 
 import { Button } from '@/components/Button/Button';
+import { useTranslation } from '@/i18n/useTranslation';
 import { fadeIn, getMotionTransition } from '@/lib/motionVariants';
 import { cn } from '@/lib/utils';
 
@@ -21,6 +22,7 @@ export const QuotesListErrorState = ({
   withMotion = true,
   className = '',
 }: QuotesListErrorStateProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
 
@@ -35,7 +37,7 @@ export const QuotesListErrorState = ({
         className="max-w-[10rem]"
         onClick={onRetry}
       >
-        다시 시도
+        {t('common.retry')}
       </Button>
     </>
   );

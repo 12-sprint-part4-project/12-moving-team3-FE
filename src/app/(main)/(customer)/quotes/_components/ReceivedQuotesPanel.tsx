@@ -9,6 +9,7 @@ import {
 } from '@/hooks/useCustomerPastQuotes';
 import { useListEntranceStagger } from '@/hooks/useListEntranceStagger';
 import { useLoadMoreOnView } from '@/hooks/useLoadMoreOnView';
+import { useTranslation } from '@/i18n/useTranslation';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 
 import { CustomerQuotesEmptyState } from './CustomerQuotesEmptyState';
@@ -28,6 +29,7 @@ export const ReceivedQuotesPanel = ({
   onFavoriteClick,
   isMoverPending,
 }: ReceivedQuotesPanelProps) => {
+  const { t } = useTranslation();
   const {
     groups,
     isEmpty,
@@ -51,7 +53,7 @@ export const ReceivedQuotesPanel = ({
 
   const errorMessage = resolveApiErrorMessage(
     error,
-    '견적 목록을 불러오지 못했습니다.'
+    t('quotes.listError')
   );
 
   const handleRetry = () => {

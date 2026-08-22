@@ -1,5 +1,8 @@
+'use client';
+
 import { motion, useReducedMotion } from 'framer-motion';
 
+import { useTranslation } from '@/i18n/useTranslation';
 import { getMotionTransition } from '@/lib/motionVariants';
 import { TOTAL_PROGRESS_STEPS } from '@/types/customerEstimateRequest';
 
@@ -27,6 +30,7 @@ export const EstimateRequestProgress = ({
   currentStep,
   progressFill = currentStep,
 }: EstimateRequestProgressProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const fillPercent = `${(progressFill / TOTAL_PROGRESS_STEPS) * 100}%`;
 
@@ -37,7 +41,10 @@ export const EstimateRequestProgress = ({
         aria-valuemin={1}
         aria-valuemax={TOTAL_PROGRESS_STEPS}
         aria-valuenow={progressFill}
-        aria-label={`견적 요청 ${progressFill}단계 / 총 ${TOTAL_PROGRESS_STEPS}단계`}
+        aria-label={t('estimateRequest.progressAria', {
+          current: progressFill,
+          total: TOTAL_PROGRESS_STEPS,
+        })}
         className="relative w-full"
       >
         {/* 트랙: line-200, 필: blue-300, radius 30px */}

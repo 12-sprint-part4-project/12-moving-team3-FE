@@ -114,7 +114,6 @@ export interface RequestsFilterState {
 export const ALL_MOVE_TYPES: MoveTypeOption[] = ['small', 'home', 'office'];
 export const ALL_SCOPES: RequestScopeOption[] = ['serviceArea', 'designated'];
 
-/** 이사 유형 표시 라벨 */
 export const MOVE_TYPE_LABELS: Record<MoveTypeOption, string> = {
   small: '소형이사',
   home: '가정이사',

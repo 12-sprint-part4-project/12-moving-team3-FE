@@ -3,7 +3,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, type ReactNode } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import { GnbDefault } from '@/components/Gnb/GnbDefault';
 import { GnbMenuOverlay } from '@/components/Gnb/GnbMenuOverlay';

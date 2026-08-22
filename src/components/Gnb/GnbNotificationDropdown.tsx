@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import CloseIcon from '@/assets/icons/close.svg';

@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 
 import { Button } from '@/components/Button/Button';
 import { MoversListSkeleton } from '@/components/ui/Skeleton';
+import { useTranslation } from '@/i18n/useTranslation';
 import { fadeIn, getMotionTransition } from '@/lib/motionVariants';
 
 import { MoversEmptyState } from './MoversEmptyState';
@@ -27,6 +28,7 @@ export const MoversListStatus = ({
   onRetry,
   onResetEmpty,
 }: MoversListStatusProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion);
 
@@ -51,7 +53,7 @@ export const MoversListStatus = ({
           onClick={onRetry}
           className="w-auto"
         >
-          다시 시도
+          {t('common.retry')}
         </Button>
       </motion.div>
     );

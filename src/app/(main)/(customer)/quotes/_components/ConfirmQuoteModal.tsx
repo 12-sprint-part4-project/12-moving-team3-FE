@@ -3,6 +3,7 @@
 import { Modal } from '@/components/ui/Modal/Modal';
 import { ModalBasic } from '@/components/ui/Modal/ModalBasic';
 import { ModalCtaButton } from '@/components/ui/Modal/ModalCtaButton';
+import { useTranslation } from '@/i18n/useTranslation';
 
 export interface ConfirmQuoteModalProps {
   open: boolean;
@@ -20,6 +21,7 @@ export const ConfirmQuoteModal = ({
   onConfirm,
   className = '',
 }: ConfirmQuoteModalProps) => {
+  const { t } = useTranslation();
   /** 확정 요청 중에는 닫기 차단 */
   const handleClose = () => {
     if (isConfirming) {
@@ -36,18 +38,20 @@ export const ConfirmQuoteModal = ({
   return (
     <Modal onClose={handleClose} closeOnDimmedClick={!isConfirming}>
       <ModalBasic
-        title="견적 확정하기"
+        title={t('estimateRequest.confirmQuote')}
         onClose={handleClose}
         closeDisabled={isConfirming}
         className={className}
         footer={
           <ModalCtaButton disabled={isConfirming} onClick={onConfirm}>
-            {isConfirming ? '확정 중...' : '견적 확정하기'}
+            {isConfirming
+              ? t('quotes.confirming')
+              : t('estimateRequest.confirmQuote')}
           </ModalCtaButton>
         }
       >
         <p className="text-2lg-medium text-black-300">
-          정말 견적 확정을 진행하시겠습니까?
+          {t('quotes.confirmBody')}
         </p>
       </ModalBasic>
     </Modal>

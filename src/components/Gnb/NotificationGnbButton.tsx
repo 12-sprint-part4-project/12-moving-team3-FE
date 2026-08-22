@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import AlarmIcon from '@/assets/icons/alarm.svg';
 import { ChatUnreadBadge } from '@/components/chat/ChatUnreadBadge';

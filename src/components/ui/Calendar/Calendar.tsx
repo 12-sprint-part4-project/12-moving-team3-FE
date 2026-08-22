@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
@@ -9,12 +10,21 @@ import { useControllableValue } from '@/hooks/useControllableValue';
 import { cn } from '@/lib/utils';
 
 import {
-  WEEKDAY_LABELS,
   formatMonthTitle,
   getCalendarGrid,
   isDateDisabled,
   isSameDay,
 } from './Calendar.utils';
+
+const WEEKDAY_KEYS = [
+  'sun',
+  'mon',
+  'tue',
+  'wed',
+  'thu',
+  'fri',
+  'sat',
+] as const;
 
 export interface CalendarProps {
   /** 현재 선택된 날짜 (controlled) */
@@ -57,6 +67,7 @@ export const Calendar = ({
   confirmDisabled = false,
   className,
 }: CalendarProps) => {
+  const { t } = useTranslation();
   // Date | undefined 전체를 다루는 훅에, 실제 통지는 Date만 넘기도록 좁힌다
   const handleControllableChange = (nextValue: Date | undefined) => {
     if (nextValue) {
@@ -149,13 +160,13 @@ export const Calendar = ({
           </caption>
           <thead>
             <tr>
-              {WEEKDAY_LABELS.map((label) => (
+              {WEEKDAY_KEYS.map((weekdayKey) => (
                 <th
-                  key={label}
+                  key={weekdayKey}
                   scope="col"
                   className="px-1 py-2.5 text-center text-sm-medium text-gray-400 md:size-16 md:px-6 md:py-4 md:text-xl-medium"
                 >
-                  {label}
+                  {t(`date.weekday.${weekdayKey}`)}
                 </th>
               ))}
             </tr>

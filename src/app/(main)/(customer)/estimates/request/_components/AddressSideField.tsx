@@ -1,4 +1,7 @@
+'use client';
+
 import { Button } from '@/components/Button/Button';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import type { AddressDraft } from './EstimateRequestAddressModal';
@@ -23,6 +26,7 @@ export const AddressSideField = ({
   onRevise,
   className,
 }: AddressSideFieldProps) => {
+  const { t } = useTranslation();
   const isFilled = Boolean(draft?.address);
 
   return (
@@ -59,7 +63,7 @@ export const AddressSideField = ({
             disabled={disabled}
             onClick={onRevise}
           >
-            수정하기
+            {t('estimateRequest.revise')}
           </button>
         </div>
       ) : null}

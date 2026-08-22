@@ -1,20 +1,11 @@
+'use client';
+
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
+import { useTranslation } from '@/i18n/useTranslation';
 
 import type { MoveTypeOption } from '@/types/estimateRequest';
 
 export type QuoteChipStatus = 'pending' | 'confirmed' | 'rejected';
-
-const STATUS_CHIP = {
-  pending: { type: 'quotePending' as const, label: '견적 대기' },
-  confirmed: { type: 'quoteConfirmed' as const, label: '확정 견적' },
-  rejected: { type: 'quoteRejected' as const, label: '반려' },
-};
-
-const MOVE_TYPE_SHORT_LABEL: Record<MoveTypeOption, string> = {
-  small: '소형',
-  home: '가정',
-  office: '사무실',
-};
 
 export interface QuoteStatusChipsProps {
   status?: QuoteChipStatus | null;
@@ -38,6 +29,23 @@ export const QuoteStatusChips = ({
   statusLabel,
   designatedLabel,
 }: QuoteStatusChipsProps) => {
+  const { t } = useTranslation();
+  const STATUS_CHIP = {
+    pending: { type: 'quotePending' as const, label: t('quoteStatus.pending') },
+    confirmed: {
+      type: 'quoteConfirmed' as const,
+      label: t('quoteStatus.confirmedQuote'),
+    },
+    rejected: {
+      type: 'quoteRejected' as const,
+      label: t('quoteStatus.rejected'),
+    },
+  };
+  const MOVE_TYPE_SHORT_LABEL: Record<MoveTypeOption, string> = {
+    small: t('moveType.smallShort'),
+    home: t('moveType.homeShort'),
+    office: t('moveType.officeShort'),
+  };
   const statusChip = status ? STATUS_CHIP[status] : null;
 
   return (

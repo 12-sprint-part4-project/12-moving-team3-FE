@@ -6,6 +6,7 @@ import Link from 'next/link';
 import ProfileIcon from '@/assets/icons/profile.svg';
 import StarIcon from '@/assets/icons/star.svg';
 import { FavoriteButton } from '@/components/Favorite';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import type { MoverCardModel } from '@/types/mover';
@@ -30,12 +31,18 @@ export const MoverProfileBlock = ({
   disableNavigation = true,
   className = '',
 }: MoverProfileBlockProps) => {
+  const { t } = useTranslation();
   const ratingLabel =
     mover.averageRating === null ? '-' : mover.averageRating.toFixed(1);
-  const careerLabel = mover.career === null ? null : `${mover.career}년`;
+  const careerLabel =
+    mover.career === null
+      ? null
+      : t('movers.careerYears', { count: mover.career });
   const confirmedLabel =
-    mover.confirmedCount === null ? '-' : `${mover.confirmedCount}건`;
-  const profileAlt = `${mover.name} 기사님 프로필`;
+    mover.confirmedCount === null
+      ? '-'
+      : t('movers.confirmedCount', { count: mover.confirmedCount });
+  const profileAlt = t('movers.profileAlt', { name: mover.name });
 
   const handleFavoriteClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();

@@ -1,4 +1,7 @@
+'use client';
+
 import { Button } from '@/components/Button/Button';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import { AddressSideField } from './AddressSideField';
@@ -36,10 +39,11 @@ export const AddressSelectCard = ({
   onConfirm,
   confirmDisabled = false,
   confirmBusy = false,
-  confirmLabel = '견적 확정하기',
+  confirmLabel,
   selectDisabled = false,
   className = '',
 }: AddressSelectCardProps) => {
+  const { t } = useTranslation();
   const hasDeparture = Boolean(departure?.address);
   const hasArrival = Boolean(arrival?.address);
   const showConfirm = hasDeparture && hasArrival;
@@ -53,8 +57,8 @@ export const AddressSelectCard = ({
     >
       {/* 출발지 */}
       <AddressSideField
-        label="출발지"
-        emptyLabel="출발지 선택하기"
+        label={t('estimateRequest.departure')}
+        emptyLabel={t('estimateRequest.selectDeparture')}
         draft={departure}
         disabled={selectDisabled}
         onSelect={onSelectDeparture}
@@ -63,8 +67,8 @@ export const AddressSelectCard = ({
 
       {/* 도착지 */}
       <AddressSideField
-        label="도착지"
-        emptyLabel="도착지 선택하기"
+        label={t('estimateRequest.arrival')}
+        emptyLabel={t('estimateRequest.selectArrival')}
         draft={arrival}
         disabled={selectDisabled}
         onSelect={onSelectArrival}
@@ -81,7 +85,7 @@ export const AddressSelectCard = ({
           aria-busy={confirmBusy}
           onClick={onConfirm}
         >
-          {confirmLabel}
+          {confirmLabel ?? t('estimateRequest.confirmQuote')}
         </Button>
       ) : null}
     </div>
