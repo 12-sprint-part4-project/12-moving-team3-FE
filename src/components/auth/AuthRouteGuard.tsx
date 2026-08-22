@@ -3,6 +3,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { LoginRequiredModal } from '@/components/auth/LoginRequiredModal';
 import { RoleMismatchModal } from '@/components/auth/RoleMismatchModal';
@@ -77,6 +78,7 @@ const resolveAuthGate = (
  * 프로필 미등록 시 등록 페이지, 그 외는 redirect 또는 `/`로 보낸다.
  */
 const AuthRouteGuardInner = ({ children }: AuthRouteGuardProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -150,7 +152,7 @@ const AuthRouteGuardInner = ({ children }: AuthRouteGuardProps) => {
       const message =
         error instanceof ApiError
           ? error.message
-          : '로그아웃에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+          : t('auth.logout.unexpected');
       showToast({ content: message });
       return;
     }
@@ -159,7 +161,7 @@ const AuthRouteGuardInner = ({ children }: AuthRouteGuardProps) => {
     suppressLoginGate();
     clearSession();
     setDismissedPath(pathname);
-    showToast({ content: '로그아웃되었습니다.' });
+    showToast({ content: t('auth.logout.success') });
     router.replace(loginUrl);
   };
 

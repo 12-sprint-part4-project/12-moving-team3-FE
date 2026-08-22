@@ -10,5 +10,140 @@
   },
   "language": {
     "selectorLabel": "언어 선택"
+  },
+  "nav": {
+    "findMovers": "기사님 찾기",
+    "community": "커뮤니티",
+    "estimateRequest": "견적 요청",
+    "myQuotes": "내 견적 관리",
+    "receivedRequests": "받은 요청",
+    "profile": {
+      "mypage": "마이페이지",
+      "sentQuotes": "보낸 견적",
+      "edit": "프로필 수정",
+      "favorites": "찜한 기사님",
+      "reviews": "이사 리뷰",
+      "history": "이용 내역",
+      "register": "프로필 등록",
+      "menu": "프로필 메뉴",
+      "menuLinks": "프로필 메뉴 링크",
+      "open": "프로필",
+      "named": "{{userName}} 프로필"
+    }
+  },
+  "gnb": {
+    "menu": "메뉴",
+    "openMenu": "메뉴 열기",
+    "closeMenu": "메뉴 닫기",
+    "tabs": {
+      "pendingQuotes": "대기 중인 견적",
+      "receivedQuotes": "받았던 견적"
+    },
+    "role": {
+      "mover": "기사님",
+      "customer": "고객님"
+    },
+    "notification": {
+      "title": "알림",
+      "empty": "새로운 알림이 없어요",
+      "close": "알림 닫기",
+      "unread": "알림, 읽지 않은 알림 {{count}}개"
+    },
+    "chat": {
+      "label": "채팅",
+      "unread": "채팅, 읽지 않은 메시지 {{count}}개"
+    }
+  },
+  "auth": {
+    "brand": "무빙",
+    "login": {
+      "submit": "로그인",
+      "submitting": "로그인 중...",
+      "success": "로그인되었습니다.",
+      "unexpected": "로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+      "kakaoAria": "카카오로 로그인"
+    },
+    "signup": {
+      "submit": "시작하기",
+      "submitting": "가입 중...",
+      "success": "회원가입이 완료되었습니다. 로그인해 주세요.",
+      "unexpected": "회원가입에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+      "kakaoAria": "카카오로 가입"
+    },
+    "email": {
+      "label": "이메일",
+      "placeholder": "이메일을 입력해 주세요"
+    },
+    "password": {
+      "label": "비밀번호",
+      "placeholder": "비밀번호를 입력해 주세요",
+      "confirmLabel": "비밀번호 확인",
+      "confirmPlaceholder": "비밀번호를 다시 한번 입력해 주세요",
+      "show": "비밀번호 보기",
+      "hide": "비밀번호 숨기기"
+    },
+    "name": {
+      "label": "이름",
+      "placeholder": "성함을 입력해 주세요"
+    },
+    "nickname": {
+      "label": "닉네임",
+      "placeholder": "닉네임을 입력해 주세요"
+    },
+    "helper": {
+      "noAccount": "아직 무빙 회원이 아니신가요?",
+      "signupLink": "이메일로 회원가입하기",
+      "hasAccount": "이미 무빙 회원이신가요?"
+    },
+    "kakao": {
+      "snsHint": "SNS 계정으로 간편 가입하기",
+      "configRequired": "카카오 로그인 설정이 필요합니다.",
+      "cancelled": "카카오 로그인이 취소되었습니다.",
+      "missingCode": "인가 코드를 받지 못했습니다.",
+      "invalidRequest": "잘못된 로그인 요청입니다.",
+      "userTypeMismatch": "이미 다른 회원 유형으로 가입된 카카오 계정입니다. 해당 유형으로 로그인해 주세요.",
+      "emailRequired": "카카오 계정 이메일 제공에 동의해 주세요.",
+      "emailExists": "이미 가입된 이메일입니다. 이메일 로그인을 이용해 주세요.",
+      "signupComplete": "회원가입이 완료되었습니다.",
+      "unexpected": "카카오 로그인에 실패했습니다. 잠시 후 다시 시도해 주세요."
+    },
+    "roleSwitch": {
+      "moverPrompt": "기사님이신가요?",
+      "moverLink": "기사님 전용 페이지",
+      "customerPrompt": "일반 유저라면?",
+      "customerLink": "일반 유저 전용 페이지"
+    },
+    "validation": {
+      "emailInvalid": "이메일 형식이 아닙니다.",
+      "emailFormat": "올바른 이메일 형식으로 입력해 주세요.",
+      "nameFormat": "이름은 {{min}}~{{max}}자로 입력해 주세요.",
+      "nicknameFormat": "닉네임은 {{min}}~{{max}}자로 입력해 주세요.",
+      "passwordFormatShort": "비밀번호가 올바르지 않습니다.",
+      "passwordFormat": "비밀번호는 {{min}}~{{max}}자의 영문, 숫자, 특수문자를 포함해야 합니다.",
+      "passwordMismatch": "비밀번호가 일치하지 않습니다."
+    },
+    "required": {
+      "title": "로그인이 필요해요",
+      "description": "로그인 후 이용할 수 있습니다.",
+      "login": "로그인 하기"
+    },
+    "roleMismatch": {
+      "moverTitle": "기사님 로그인이 필요해요",
+      "moverLine1": "이 페이지는 기사님 전용입니다.",
+      "moverLine2": "기사님 계정으로 다시 로그인해 주세요.",
+      "customerTitle": "일반 회원 로그인이 필요해요",
+      "customerLine1": "이 페이지는 일반 회원 전용입니다.",
+      "customerLine2": "일반 회원 계정으로 다시 로그인해 주세요.",
+      "logout": "로그아웃하기"
+    },
+    "profileRequired": {
+      "title": "등록된 프로필이 없어요!",
+      "description": "해당 기능을 사용하기 위해선 프로필 등록이 필요합니다",
+      "register": "등록하기"
+    },
+    "logout": {
+      "success": "로그아웃되었습니다.",
+      "unexpected": "로그아웃에 실패했습니다. 잠시 후 다시 시도해 주세요."
+    }
   }
 }

@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { AuthBrand } from '@/app/(auth)/_components/AuthBrand';
 import { AuthEmailField } from '@/app/(auth)/_components/AuthEmailField';
@@ -43,6 +44,7 @@ const INITIAL_VALUES: LoginFormValues = {
 /** 이메일·비밀번호·카카오 로그인 폼 */
 export const LoginForm = ({ role, redirectTo = null }: LoginFormProps) => {
   const router = useRouter();
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const { setSession } = useAuth();
   const [values, setValues] = useState<LoginFormValues>(INITIAL_VALUES);
@@ -53,7 +55,9 @@ export const LoginForm = ({ role, redirectTo = null }: LoginFormProps) => {
   const trimmedEmail = values.email.trim();
   const isSubmittable =
     trimmedEmail.length > 0 && values.password.length > 0 && !isPending;
-  const submitLabel = isPending ? '로그인 중...' : '로그인';
+  const submitLabel = isPending
+    ? t('auth.login.submitting')
+    : t('auth.login.submit');
 
   const handleChange =
     (field: keyof LoginFormValues) =>
@@ -68,7 +72,7 @@ export const LoginForm = ({ role, redirectTo = null }: LoginFormProps) => {
 
     const emailError = validateEmail(trimmedEmail);
     if (emailError) {
-      showToast({ content: emailError });
+      showToast({ content: t('auth.validation.emailFormat') });
       return;
     }
 
@@ -84,7 +88,7 @@ export const LoginForm = ({ role, redirectTo = null }: LoginFormProps) => {
       setSession({
         accessToken: response.data.accessToken,
       });
-      showToast({ content: '로그인되었습니다.' });
+      showToast({ content: t('auth.login.success') });
       router.replace(
         getPostAuthRedirectPath(response.data.user, {
           redirectTo,
@@ -94,7 +98,7 @@ export const LoginForm = ({ role, redirectTo = null }: LoginFormProps) => {
       const message =
         error instanceof ApiError
           ? error.message
-          : '로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+          : t('auth.login.unexpected');
       showToast({ content: message });
     } finally {
       setIsPending(false);
@@ -107,16 +111,17 @@ export const LoginForm = ({ role, redirectTo = null }: LoginFormProps) => {
     try {
       redirectToKakaoLogin(userType, redirectTo);
     } catch {
-      showToast({ content: '카카오 로그인 설정이 필요합니다.' });
+      showToast({ content: t('auth.kakao.configRequired') });
     }
   };
 
   return (
     <div className="flex w-full flex-col items-center gap-10 lg:gap-[4.5rem]">
       <AuthBrand
-        prompt={roleSwitch.prompt}
-        linkLabel={roleSwitch.linkLabel}
+        prompt={t(roleSwitch.promptKey)}
+        linkLabel={t(roleSwitch.linkLabelKey)}
         href={roleSwitch.href}
+        ariaLabel={t('auth.brand')}
       />
 
       <div className="flex w-full flex-col items-center gap-12 md:gap-10 lg:contents">
@@ -129,11 +134,15 @@ export const LoginForm = ({ role, redirectTo = null }: LoginFormProps) => {
             <div className="flex w-full flex-col gap-4 lg:gap-8">
               <AuthEmailField
                 id="login-email"
+                label={t('auth.email.label')}
+                placeholder={t('auth.email.placeholder')}
                 value={values.email}
                 onChange={handleChange('email')}
               />
               <AuthPasswordField
                 id="login-password"
+                label={t('auth.password.label')}
+                placeholder={t('auth.password.placeholder')}
                 value={values.password}
                 onChange={handleChange('password')}
               />
@@ -151,14 +160,15 @@ export const LoginForm = ({ role, redirectTo = null }: LoginFormProps) => {
           </div>
 
           <AuthHelperText
-            prompt="아직 무빙 회원이 아니신가요?"
-            linkLabel="이메일로 회원가입하기"
+            prompt={t('auth.helper.noAccount')}
+            linkLabel={t('auth.helper.signupLink')}
             href={SIGNUP_HREF_BY_USER_TYPE[userType]}
           />
         </form>
 
         <AuthKakaoSection
-          ariaLabel="카카오로 로그인"
+          hint={t('auth.kakao.snsHint')}
+          ariaLabel={t('auth.login.kakaoAria')}
           disabled={isPending}
           onClick={handleKakaoLogin}
         />

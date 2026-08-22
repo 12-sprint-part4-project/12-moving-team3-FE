@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import MenuIcon from '@/assets/icons/menu.svg';
 import ProfileIcon from '@/assets/icons/profile.svg';
@@ -59,10 +60,10 @@ export interface GnbDefaultProps {
   className?: string;
 }
 
-const DEFAULT_TABS: GnbTabItem[] = [
-  { id: 'pending', label: '대기 중인 견적' },
-  { id: 'received', label: '받았던 견적' },
-];
+const DEFAULT_TAB_KEYS = [
+  { id: 'pending', labelKey: 'gnb.tabs.pendingQuotes' },
+  { id: 'received', labelKey: 'gnb.tabs.receivedQuotes' },
+] as const;
 
 const NAV_BY_MENU: Record<'twoMenu' | 'threeMenu', GnbNavItem[]> = {
   twoMenu: [...GNB_NAV_BY_ROLE.mover],
@@ -171,6 +172,7 @@ const GnbHeader = ({
   onLogout,
   withBorder = true,
 }: GnbHeaderProps) => {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const isDesktop = size === 'lg';
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -233,7 +235,7 @@ const GnbHeader = ({
 
                 return (
                   <Link
-                    key={item.href + item.label}
+                    key={item.href + item.labelKey}
                     href={item.href}
                     aria-current={isActive ? 'page' : undefined}
                     className={cn(
@@ -241,7 +243,7 @@ const GnbHeader = ({
                       isActive ? 'text-black-400' : 'text-gray-400'
                     )}
                   >
-                    {item.label}
+                    {t(item.labelKey)}
                   </Link>
                 );
               })}
@@ -273,7 +275,7 @@ const GnbHeader = ({
             {isDesktop ? (
               <button
                 type="button"
-                aria-label={`${userName} 프로필`}
+                aria-label={t('nav.profile.named', { userName })}
                 aria-haspopup="menu"
                 aria-expanded={isProfileOpen}
                 onClick={handleProfileToggle}
@@ -287,7 +289,7 @@ const GnbHeader = ({
             ) : (
               <button
                 type="button"
-                aria-label="프로필"
+                aria-label={t('nav.profile.open')}
                 aria-haspopup="menu"
                 aria-expanded={isProfileOpen}
                 onClick={handleProfileToggle}
@@ -314,7 +316,7 @@ const GnbHeader = ({
           {!isDesktop ? (
             <button
               type="button"
-              aria-label="메뉴 열기"
+              aria-label={t('gnb.openMenu')}
               onClick={onMenuClick}
               className="inline-flex size-6 shrink-0 items-center justify-center [&_path]:stroke-gray-300"
             >
@@ -341,7 +343,7 @@ export const GnbDefault = ({
   nameSuffix = '',
   avatarSrc,
   activeTabId = 'pending',
-  tabs = DEFAULT_TABS,
+  tabs,
   navItems,
   profileMenuItems,
   homeHref = '/',
@@ -353,6 +355,13 @@ export const GnbDefault = ({
   onLogout,
   className = '',
 }: GnbDefaultProps) => {
+  const { t } = useTranslation();
+  const resolvedTabs =
+    tabs ??
+    DEFAULT_TAB_KEYS.map((tab) => ({
+      id: tab.id,
+      label: t(tab.labelKey),
+    }));
   const resolvedNavItems =
     navItems ??
     (menu === 'twoMenu' || menu === 'threeMenu'
@@ -366,7 +375,7 @@ export const GnbDefault = ({
       <div className={className}>
         <GnbTabBar
           size={tabSize}
-          tabs={tabs}
+          tabs={resolvedTabs}
           activeTabId={activeTabId}
           onTabChange={onTabChange}
         />
@@ -394,7 +403,7 @@ export const GnbDefault = ({
         />
         <GnbTabBar
           size={tabSize}
-          tabs={tabs}
+          tabs={resolvedTabs}
           activeTabId={activeTabId}
           onTabChange={onTabChange}
         />

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 
 import CloseIcon from '@/assets/icons/close.svg';
 import {
@@ -35,6 +36,7 @@ export const GnbMenu = ({
   onLogout,
   className = '',
 }: GnbMenuProps) => {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const items: GnbNavItem[] = navItems ?? [...GNB_NAV_BY_ROLE[type]];
 
@@ -46,12 +48,12 @@ export const GnbMenu = ({
   return (
     <aside
       className={`flex h-full w-[13.75rem] flex-col bg-white ${className}`}
-      aria-label="메뉴"
+      aria-label={t('gnb.menu')}
     >
       <div className="flex h-[3.375rem] w-full shrink-0 items-center justify-end border-b border-line-100 bg-white px-4 py-2.5">
         <button
           type="button"
-          aria-label="메뉴 닫기"
+          aria-label={t('gnb.closeMenu')}
           onClick={onClose}
           className="inline-flex size-6 shrink-0 items-center justify-center text-black-100"
         >
@@ -65,13 +67,13 @@ export const GnbMenu = ({
 
           return (
             <Link
-              key={item.href + item.label}
+              key={item.href + item.labelKey}
               href={item.href}
               onClick={onClose}
               aria-current={isActive ? 'page' : undefined}
               className="flex w-full items-center overflow-hidden bg-white px-5 py-6 text-lg-medium whitespace-nowrap text-black-400"
             >
-              {item.label}
+              {t(item.labelKey)}
             </Link>
           );
         })}
@@ -81,7 +83,7 @@ export const GnbMenu = ({
             onClick={handleLogout}
             className="flex w-full items-center overflow-hidden bg-white px-5 py-6 text-left text-lg-medium whitespace-nowrap text-black-400"
           >
-            로그아웃
+            {t('common.logout')}
           </button>
         ) : null}
       </nav>

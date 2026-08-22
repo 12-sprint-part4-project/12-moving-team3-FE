@@ -15,15 +15,15 @@ export const USER_TYPE_BY_ROLE: Record<AuthRole, ApiUserType> = {
 
 const AUTH_ROLE_SWITCH_COPY: Record<
   AuthRole,
-  { prompt: string; linkLabel: string }
+  { promptKey: string; linkLabelKey: string }
 > = {
   customer: {
-    prompt: '기사님이신가요?',
-    linkLabel: '기사님 전용 페이지',
+    promptKey: 'auth.roleSwitch.moverPrompt',
+    linkLabelKey: 'auth.roleSwitch.moverLink',
   },
   mover: {
-    prompt: '일반 유저라면?',
-    linkLabel: '일반 유저 전용 페이지',
+    promptKey: 'auth.roleSwitch.customerPrompt',
+    linkLabelKey: 'auth.roleSwitch.customerLink',
   },
 };
 

@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslation } from 'react-i18next';
+
 import { Button } from '@/components/Button/Button';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { ModalBasic } from '@/components/ui/Modal/ModalBasic';
@@ -17,20 +19,23 @@ export interface RoleMismatchModalProps {
 
 const ROLE_MISMATCH_COPY: Record<
   ApiUserType,
-  { title: string; descriptionLines: readonly [string, string] }
+  {
+    titleKey: string;
+    descriptionKeys: readonly [string, string];
+  }
 > = {
   MOVER: {
-    title: '기사님 로그인이 필요해요',
-    descriptionLines: [
-      '이 페이지는 기사님 전용입니다.',
-      '기사님 계정으로 다시 로그인해 주세요.',
+    titleKey: 'auth.roleMismatch.moverTitle',
+    descriptionKeys: [
+      'auth.roleMismatch.moverLine1',
+      'auth.roleMismatch.moverLine2',
     ],
   },
   CUSTOMER: {
-    title: '일반 회원 로그인이 필요해요',
-    descriptionLines: [
-      '이 페이지는 일반 회원 전용입니다.',
-      '일반 회원 계정으로 다시 로그인해 주세요.',
+    titleKey: 'auth.roleMismatch.customerTitle',
+    descriptionKeys: [
+      'auth.roleMismatch.customerLine1',
+      'auth.roleMismatch.customerLine2',
     ],
   },
 };
@@ -47,12 +52,13 @@ export const RoleMismatchModal = ({
     return null;
   }
 
+  const { t } = useTranslation();
   const copy = ROLE_MISMATCH_COPY[requiredUserType];
 
   return (
     <Modal onClose={onClose}>
       <ModalBasic
-        title={copy.title}
+        title={t(copy.titleKey)}
         onClose={onClose}
         className={className}
         footer={
@@ -64,7 +70,7 @@ export const RoleMismatchModal = ({
               className="sm:h-16 sm:text-xl-semibold"
               onClick={onClose}
             >
-              취소
+              {t('common.cancel')}
             </Button>
             <Button
               type="button"
@@ -73,15 +79,15 @@ export const RoleMismatchModal = ({
               className="sm:h-16 sm:text-xl-semibold"
               onClick={onLogout}
             >
-              로그아웃하기
+              {t('auth.roleMismatch.logout')}
             </Button>
           </div>
         }
       >
         <p className="text-lg-medium text-black-300 sm:text-2lg-medium">
-          {copy.descriptionLines[0]}
+          {t(copy.descriptionKeys[0])}
           <br />
-          {copy.descriptionLines[1]}
+          {t(copy.descriptionKeys[1])}
         </p>
       </ModalBasic>
     </Modal>

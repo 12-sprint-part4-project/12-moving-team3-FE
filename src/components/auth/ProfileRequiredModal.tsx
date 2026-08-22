@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/Button/Button';
 import { Modal } from '@/components/ui/Modal/Modal';
@@ -21,6 +22,7 @@ export const ProfileRequiredModal = ({
   onClose,
   className,
 }: ProfileRequiredModalProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
 
@@ -35,7 +37,7 @@ export const ProfileRequiredModal = ({
   return (
     <Modal onClose={onClose}>
       <ModalBasic
-        title="등록된 프로필이 없어요!"
+        title={t('auth.profileRequired.title')}
         onClose={onClose}
         titleAlign="center"
         titleClassName="sr-only"
@@ -49,7 +51,7 @@ export const ProfileRequiredModal = ({
               className="sm:h-16 sm:text-xl-semibold"
               onClick={onClose}
             >
-              취소
+              {t('common.cancel')}
             </Button>
             <Button
               type="button"
@@ -58,7 +60,7 @@ export const ProfileRequiredModal = ({
               className="sm:h-16 sm:text-xl-semibold"
               onClick={handleRegister}
             >
-              등록하기
+              {t('auth.profileRequired.register')}
             </Button>
           </div>
         }
@@ -73,10 +75,10 @@ export const ProfileRequiredModal = ({
           />
           <div className="flex flex-col items-center gap-2">
             <p className="text-center text-2lg-bold text-black-400 sm:text-2xl-semibold">
-              등록된 프로필이 없어요!
+              {t('auth.profileRequired.title')}
             </p>
             <p className="text-center text-lg-medium text-gray-400 sm:text-2lg-medium">
-              해당 기능을 사용하기 위해선 프로필 등록이 필요합니다
+              {t('auth.profileRequired.description')}
             </p>
           </div>
         </div>

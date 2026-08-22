@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { GnbMenu, type GnbMenuProps } from '@/components/Gnb/GnbMenu';
 import {
@@ -53,6 +54,7 @@ export const GnbMenuOverlay = ({
   onLogout,
   className,
 }: GnbMenuOverlayProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const panelRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -157,7 +159,7 @@ export const GnbMenuOverlay = ({
           tabIndex={-1}
           role="dialog"
           aria-modal="true"
-          aria-label="메뉴"
+          aria-label={t('gnb.menu')}
           variants={panelVariants}
           initial="hidden"
           animate="show"

@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
@@ -17,6 +18,7 @@ import { kakaoLogin } from '@/services/authApi';
 
 /** 카카오 OAuth 콜백. 토스트만 보여주고 세션 저장 후 이동한다. */
 export const KakaoCallbackClient = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { showToast } = useToast();
@@ -40,7 +42,7 @@ export const KakaoCallbackClient = () => {
       const oauthState = consumeKakaoOAuthState(result.state);
 
       if (!oauthState) {
-        showToast({ content: '잘못된 로그인 요청입니다.' });
+        showToast({ content: t('auth.kakao.invalidRequest') });
         router.replace('/login');
         return;
       }
@@ -59,8 +61,8 @@ export const KakaoCallbackClient = () => {
 
         showToast({
           content: response.data.isNewUser
-            ? '회원가입이 완료되었습니다.'
-            : '로그인되었습니다.',
+            ? t('auth.kakao.signupComplete')
+            : t('auth.login.success'),
         });
         router.replace(
           getPostAuthRedirectPath(response.data.user, { redirectTo })
@@ -69,14 +71,14 @@ export const KakaoCallbackClient = () => {
         const message =
           error instanceof ApiError
             ? resolveKakaoLoginErrorMessage(error.code, error.message)
-            : '카카오 로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+            : t('auth.kakao.unexpected');
         showToast({ content: message });
         router.replace(LOGIN_HREF_BY_USER_TYPE[userType]);
       }
     };
 
     void loginWithKakao();
-  }, [router, searchParams, setSession, showToast]);
+  }, [router, searchParams, setSession, showToast, t]);
 
   return <section className="min-h-full w-full bg-white" aria-hidden />;
 };
