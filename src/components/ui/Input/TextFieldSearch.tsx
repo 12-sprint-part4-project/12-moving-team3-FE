@@ -9,6 +9,7 @@ import {
 
 import CloseIcon from '@/assets/icons/close.svg';
 import SearchIcon from '@/assets/icons/search.svg';
+import { useTranslation } from '@/i18n/useTranslation';
 
 /*
   TEXT FIELD SEARCH
@@ -64,9 +65,10 @@ export const TextFieldSearch = ({
   onClear,
   onSearch,
   disabled,
-  placeholder = '텍스트를 입력해 주세요.',
+  placeholder,
   ...rest
 }: TextFieldSearchProps) => {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   // 비제어 모드(부모가 value를 안 넘길 때)에서
   // hasValue·액션 노출을 계산하기 위한 로컬 미러(입력값을 따라가는 내부 state)
@@ -106,6 +108,8 @@ export const TextFieldSearch = ({
     }
   };
 
+  const resolvedPlaceholder = placeholder ?? t('common.textPlaceholder');
+
   return (
     <div
       className={`flex items-center overflow-clip rounded-2xl bg-background-100 ${sizeStyles[size].field} ${className}`.trim()}
@@ -116,7 +120,7 @@ export const TextFieldSearch = ({
         value={value}
         defaultValue={defaultValue}
         disabled={disabled}
-        placeholder={placeholder}
+        placeholder={resolvedPlaceholder}
         onChange={handleChange}
         onFocus={rest.onFocus}
         onBlur={rest.onBlur}
@@ -137,7 +141,7 @@ export const TextFieldSearch = ({
           <button
             type="button"
             disabled={disabled}
-            aria-label="입력 내용 지우기"
+            aria-label={t('common.clearInput')}
             onClick={handleClear}
             className={`flex cursor-pointer items-center justify-center overflow-clip ${sizeStyles[size].icon}`}
           >
@@ -147,7 +151,7 @@ export const TextFieldSearch = ({
         <button
           type="button"
           disabled={disabled}
-          aria-label="검색"
+          aria-label={t('common.search')}
           onClick={onSearch}
           className={`flex items-center justify-center overflow-clip ${sizeStyles[size].icon}`}
         >

@@ -2,6 +2,7 @@
 
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { InfoField } from '@/components/ui/InfoField/InfoField';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import { MOVE_TYPE_CHIP_RESPONSIVE_CLASS } from './modalPanel';
@@ -37,6 +38,7 @@ export const RequestSummaryCard = ({
   arrival,
   className = '',
 }: RequestSummaryCardProps) => {
+  const { t } = useTranslation();
   const hasChips = Boolean(moveType) || isDesignated;
 
   return (
@@ -62,11 +64,11 @@ export const RequestSummaryCard = ({
 
       <div className="flex w-full flex-col gap-1.5 rounded-md border border-line-100 bg-white px-4 py-2.5 sm:gap-4 sm:rounded-lg sm:px-[1.125rem] sm:py-6 sm:shadow-[0.25rem_0.25rem_0.5rem] sm:shadow-shadow-gray-200/10">
         <p className="text-md-semibold text-black-300 sm:text-xl-semibold">
-          {customerName} 고객님
+          {t('quoteModal.customerHonorific', { name: customerName })}
         </p>
         <div className="flex flex-col gap-2 sm:gap-3.5">
           <InfoField
-            label="이사일"
+            label={t('quotes.moveDate')}
             value={moveDate}
             color="neutral"
             className={FIELD_CLASS}
@@ -75,7 +77,7 @@ export const RequestSummaryCard = ({
           />
           <div className="flex flex-wrap items-center gap-3.5 sm:gap-4">
             <InfoField
-              label="출발"
+              label={t('quotes.departureShort')}
               value={departure}
               color="neutral"
               className={FIELD_CLASS}
@@ -84,7 +86,7 @@ export const RequestSummaryCard = ({
             />
             <span aria-hidden className="h-3.5 w-px bg-line-200 sm:h-4" />
             <InfoField
-              label="도착"
+              label={t('quotes.arrivalShort')}
               value={arrival}
               color="neutral"
               className={FIELD_CLASS}

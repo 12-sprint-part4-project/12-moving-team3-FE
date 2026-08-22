@@ -4,6 +4,7 @@ import { useId, useMemo, useState, type ChangeEvent } from 'react';
 
 import { PriceInput } from '@/components/ui/Input/PriceInput';
 import { TextArea } from '@/components/ui/Input/TextArea';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   MAX_QUOTE_TEXT_LENGTH,
   MIN_QUOTE_TEXT_LENGTH,
@@ -60,6 +61,7 @@ export const SendQuoteModal = ({
   errorMessage,
   className = '',
 }: SendQuoteModalProps) => {
+  const { t } = useTranslation();
   const titleId = useId();
   const [price, setPrice] = useState('');
   const [comment, setComment] = useState('');
@@ -89,7 +91,7 @@ export const SendQuoteModal = ({
   const commentLength = comment.trim().length;
   const commentErrorMessage =
     commentLength > 0 && commentLength < MIN_QUOTE_TEXT_LENGTH
-      ? `최소 ${MIN_QUOTE_TEXT_LENGTH}자 이상 입력해 주세요.`
+      ? t('quoteModal.minLengthError', { count: MIN_QUOTE_TEXT_LENGTH })
       : undefined;
 
   const handleCommentChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -118,7 +120,11 @@ export const SendQuoteModal = ({
         className
       )}
     >
-      <ModalHeader title="견적 보내기" onClose={onClose} titleId={titleId} />
+      <ModalHeader
+        title={t('receivedRequests.sendQuote')}
+        onClose={onClose}
+        titleId={titleId}
+      />
 
       <div className="flex w-full flex-col gap-4 sm:gap-5">
         <RequestSummaryCard
@@ -132,12 +138,12 @@ export const SendQuoteModal = ({
 
         <div className="flex flex-col gap-4">
           <p className="text-lg-semibold text-black-300 sm:text-xl-semibold">
-            견적가를 입력해 주세요
+            {t('quoteModal.pricePrompt')}
           </p>
           <PriceInput
             value={price}
             onValueChange={setPrice}
-            placeholder="견적가 입력"
+            placeholder={t('quoteModal.pricePlaceholder')}
             errorMessage={priceErrorMessage}
             isError={Boolean(priceErrorMessage)}
           />
@@ -146,7 +152,7 @@ export const SendQuoteModal = ({
         <div className="flex flex-col gap-4">
           <div className="flex items-end justify-between gap-2">
             <p className="text-lg-semibold text-black-300 sm:text-xl-semibold">
-              코멘트를 입력해 주세요
+              {t('quoteModal.commentPrompt')}
             </p>
             <p className="text-sm-medium text-gray-400">
               {commentLength}/{MAX_QUOTE_TEXT_LENGTH}
@@ -158,10 +164,13 @@ export const SendQuoteModal = ({
             value={comment}
             onChange={handleCommentChange}
             maxLength={MAX_QUOTE_TEXT_LENGTH}
-            placeholder={`최소 ${MIN_QUOTE_TEXT_LENGTH}자 이상, 최대 ${MAX_QUOTE_TEXT_LENGTH}자 이내로 입력해주세요`}
+            placeholder={t('quoteModal.commentPlaceholder', {
+              min: MIN_QUOTE_TEXT_LENGTH,
+              max: MAX_QUOTE_TEXT_LENGTH,
+            })}
             errorMessage={commentErrorMessage}
             className="[&>div]:min-h-28 [&>div]:w-full"
-            aria-label="코멘트"
+            aria-label={t('quoteModal.commentAria')}
           />
         </div>
       </div>
@@ -171,7 +180,9 @@ export const SendQuoteModal = ({
         onClick={handleSubmit}
         className="cursor-pointer disabled:cursor-default"
       >
-        {isSubmitting ? '보내는 중...' : '견적 보내기'}
+        {isSubmitting
+          ? t('quoteModal.sending')
+          : t('receivedRequests.sendQuote')}
       </ModalCtaButton>
       {errorMessage ? (
         <p role="alert" className="text-center text-md-medium text-red-200">

@@ -19,7 +19,18 @@
     "pageLoading": "페이지 불러오는 중...",
     "countUnit": "건",
     "updating": "업데이트 중",
-    "selectAll": "전체선택"
+    "selectAll": "전체선택",
+    "close": "닫기",
+    "clearInput": "입력 내용 지우기",
+    "textPlaceholder": "텍스트를 입력해 주세요.",
+    "scrollToTop": "맨 위로",
+    "pagination": "페이지네이션",
+    "prevPage": "이전 페이지",
+    "nextPage": "다음 페이지",
+    "pageNumber": "{{page}}페이지",
+    "sortOptions": "정렬 옵션",
+    "resetSearchFilters": "검색·필터·정렬 초기화",
+    "loadingSrOnly": "로딩 중"
   },
   "language": {
     "selectorLabel": "选择语言"
@@ -428,6 +439,8 @@
     "revise": "수정하기",
     "departure": "출발지",
     "arrival": "도착지",
+    "roadAddressLabel": "도로명",
+    "lotAddressLabel": "지번",
     "selectDeparture": "출발지 선택하기",
     "selectArrival": "도착지 선택하기",
     "departureTitle": "출발지를 선택해주세요",
@@ -739,6 +752,41 @@
       "updateError": "리뷰 수정 중 오류가 발생했습니다.",
       "deleted": "리뷰가 삭제되었습니다.",
       "deleteError": "리뷰 삭제 중 오류가 발생했습니다."
+    }
+  },
+  "quoteModal": {
+    "rejectTitle": "반려요청",
+    "pricePrompt": "견적가를 입력해 주세요",
+    "pricePlaceholder": "견적가 입력",
+    "commentPrompt": "코멘트를 입력해 주세요",
+    "rejectReasonPrompt": "반려 사유를 입력해 주세요",
+    "commentAria": "코멘트",
+    "rejectReasonAria": "반려 사유",
+    "commentPlaceholder": "최소 {{min}}자 이상, 최대 {{max}}자 이내로 입력해주세요",
+    "minLengthError": "최소 {{count}}자 이상 입력해 주세요.",
+    "sending": "보내는 중...",
+    "rejecting": "반려 중...",
+    "rejectSubmit": "반려하기",
+    "customerHonorific": "{{name}} 고객님"
+  },
+  "report": {
+    "title": "신고하기",
+    "selectReason": "신고 사유를 선택해 주세요",
+    "category": {
+      "INAPPROPRIATE_PROFILE": "부적절한 프로필",
+      "ABUSIVE_LANGUAGE": "욕설 / 비방"
+    }
+  },
+  "a11y": {
+    "skeleton": {
+      "moversList": "기사님 목록 불러오는 중",
+      "moverDetail": "기사님 정보를 불러오는 중",
+      "chatList": "채팅 목록 불러오는 중",
+      "list": "목록 불러오는 중",
+      "quotesHistory": "이용 내역 불러오는 중",
+      "quoteDetail": "견적 상세 불러오는 중",
+      "requestInfo": "요청 정보 불러오는 중",
+      "communityPosts": "게시글 불러오는 중"
     }
   },
   "profile": {

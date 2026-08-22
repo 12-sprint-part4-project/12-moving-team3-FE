@@ -3,6 +3,7 @@
 import { useId, useState } from 'react';
 
 import StarIcon from '@/assets/icons/star.svg';
+import { useTranslation } from '@/i18n/useTranslation';
 
 export interface StarRatingProps {
   /** 현재 선택된 점수 (0~MAX) */
@@ -38,6 +39,7 @@ export const StarRating = ({
   readOnly = false,
   className = '',
 }: StarRatingProps) => {
+  const { t } = useTranslation();
   const name = useId();
   const [hoverValue, setHoverValue] = useState<number | null>(null);
 
@@ -55,7 +57,7 @@ export const StarRating = ({
       className={`m-0 flex items-center gap-1 border-none p-0 ${className}`}
       onMouseLeave={() => !readOnly && setHoverValue(null)}
     >
-      <legend className="sr-only">평점</legend>
+      <legend className="sr-only">{t('reviews.form.ratingLabel')}</legend>
       {Array.from({ length: MAX }, (_, index) => {
         const starValue = index + 1;
         const isFilled = starValue <= displayValue;
@@ -63,7 +65,7 @@ export const StarRating = ({
         return (
           <label
             key={starValue}
-            aria-label={`${starValue}점`}
+            aria-label={t('reviews.ratingAria', { rating: starValue })}
             className={readOnly ? 'cursor-default' : 'cursor-pointer'}
             onMouseEnter={() => !readOnly && setHoverValue(starValue)}
           >

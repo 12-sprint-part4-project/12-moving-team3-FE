@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import { DETAIL_PAGE_X_PADDING } from './constants';
@@ -32,18 +35,21 @@ const ASIDE_GRID_CLASS: Record<QuoteDetailAsideVariant, string> = {
 export const QuoteDetailContentSkeleton = ({
   className,
   aside = 'cta',
-}: QuoteDetailContentSkeletonProps) => (
-  <div
-    className={cn(
-      'mx-auto grid w-full max-w-[1920px] flex-1 grid-cols-1 gap-6 py-6 md:gap-8 md:py-8 lg:items-start lg:justify-between lg:gap-10 lg:py-10',
-      ASIDE_GRID_CLASS[aside],
-      DETAIL_PAGE_X_PADDING,
-      className
-    )}
-    role="status"
-    aria-busy="true"
-    aria-label="견적 상세 불러오는 중"
-  >
+}: QuoteDetailContentSkeletonProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <div
+      className={cn(
+        'mx-auto grid w-full max-w-[1920px] flex-1 grid-cols-1 gap-6 py-6 md:gap-8 md:py-8 lg:items-start lg:justify-between lg:gap-10 lg:py-10',
+        ASIDE_GRID_CLASS[aside],
+        DETAIL_PAGE_X_PADDING,
+        className
+      )}
+      role="status"
+      aria-busy="true"
+      aria-label={t('a11y.skeleton.quoteDetail')}
+    >
     <div className="col-start-1 flex w-full max-w-[59.6875rem] flex-col gap-6 md:gap-8 lg:gap-10">
       <DetailSummaryCardSkeleton />
       <DetailBodySkeleton />
@@ -51,4 +57,5 @@ export const QuoteDetailContentSkeleton = ({
     {aside === 'cta' ? <DetailCtaAsideSkeleton /> : null}
     {aside === 'share' ? <DetailShareAsideSkeleton /> : null}
   </div>
-);
+  );
+};

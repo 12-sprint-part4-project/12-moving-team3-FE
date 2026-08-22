@@ -3,6 +3,7 @@
 import { useId, useState } from 'react';
 
 import { FilterCheckBox } from '@/components/ui/Filter/FilterCheckBox';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import { ModalCtaButton } from './ModalCtaButton';
@@ -20,10 +21,13 @@ const MOVE_TYPE_OPTIONS: readonly MoveTypeFilterOption[] = [
   'office',
 ] as const;
 
-const MOVE_TYPE_LABELS: Record<MoveTypeFilterOption, string> = {
-  small: '소형이사',
-  home: '가정이사',
-  office: '사무실이사',
+const MOVE_TYPE_I18N_KEY: Record<
+  MoveTypeFilterOption,
+  'SMALL' | 'HOME' | 'OFFICE'
+> = {
+  small: 'SMALL',
+  home: 'HOME',
+  office: 'OFFICE',
 };
 
 export interface MoveTypeFilterCounts {
@@ -61,6 +65,7 @@ export const MoveTypeFilterModal = ({
   counts,
   className = '',
 }: MoveTypeFilterModalProps) => {
+  const { t } = useTranslation();
   const titleId = useId();
   const [selected, setSelected] = useState<Set<MoveTypeFilterOption>>(
     () => new Set(defaultSelected)
@@ -103,8 +108,12 @@ export const MoveTypeFilterModal = ({
         <ModalHeader
           title={
             <span className="flex items-center gap-6">
-              <span className="text-2lg-bold text-black-400">이사 유형</span>
-              <span className="text-2lg-semibold text-gray-300">필터</span>
+              <span className="text-2lg-bold text-black-400">
+                {t('receivedRequests.moveTypeSection')}
+              </span>
+              <span className="text-2lg-semibold text-gray-300">
+                {t('common.filter')}
+              </span>
             </span>
           }
           titleClassName="text-inherit sm:text-inherit"
@@ -114,7 +123,7 @@ export const MoveTypeFilterModal = ({
 
         <div className="flex w-full flex-col gap-2">
           <FilterCheckBox
-            label={formatFilterLabel('전체선택', counts?.all)}
+            label={formatFilterLabel(t('common.selectAll'), counts?.all)}
             checked={isAllSelected}
             onCheckedChange={handleSelectAll}
             labelClassName="text-gray-300"
@@ -126,7 +135,7 @@ export const MoveTypeFilterModal = ({
               <FilterCheckBox
                 key={type}
                 label={formatFilterLabel(
-                  MOVE_TYPE_LABELS[type],
+                  t(`moveType.${MOVE_TYPE_I18N_KEY[type]}`),
                   counts?.[type]
                 )}
                 checked={selected.has(type)}
@@ -137,7 +146,9 @@ export const MoveTypeFilterModal = ({
         </div>
       </div>
 
-      <ModalCtaButton onClick={handleSubmit}>조회하기</ModalCtaButton>
+      <ModalCtaButton onClick={handleSubmit}>
+        {t('receivedRequests.submitFilter')}
+      </ModalCtaButton>
     </section>
   );
 };

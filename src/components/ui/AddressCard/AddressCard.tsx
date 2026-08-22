@@ -1,4 +1,7 @@
+'use client';
+
 import { InfoField } from '@/components/ui/InfoField/InfoField';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 /**
@@ -32,6 +35,8 @@ export const AddressCard = ({
   onClick,
   className = '',
 }: AddressCardProps) => {
+  const { t } = useTranslation();
+
   return (
     <button
       type="button"
@@ -48,7 +53,7 @@ export const AddressCard = ({
       </p>
       <div className="flex w-full flex-col gap-4">
         <InfoField
-          label="도로명"
+          label={t('estimateRequest.roadAddressLabel')}
           value={roadAddress}
           color="blue"
           className="w-full items-start gap-2"
@@ -56,7 +61,7 @@ export const AddressCard = ({
           valueClassName="min-w-0 flex-1 text-md-regular text-black-400 sm:text-lg-regular"
         />
         <InfoField
-          label="지번"
+          label={t('estimateRequest.lotAddressLabel')}
           value={lotAddress}
           color="blue"
           className="w-full items-start gap-2"

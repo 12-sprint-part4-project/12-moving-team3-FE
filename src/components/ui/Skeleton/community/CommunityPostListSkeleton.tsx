@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import { CommunityListCardSkeleton } from './CommunityListCardSkeleton';
@@ -20,6 +23,7 @@ export const CommunityPostListSkeleton = ({
   className = '',
   listClassName = 'flex flex-col gap-2 min-[46.5rem]:gap-8 xl:gap-12',
 }: CommunityPostListSkeletonProps) => {
+  const { t } = useTranslation();
   const isFurnitureGrid = variant === 'furniture-grid';
   const count = isFurnitureGrid
     ? FURNITURE_GRID_SKELETON_COUNT
@@ -30,7 +34,7 @@ export const CommunityPostListSkeleton = ({
       className={className}
       role="status"
       aria-busy="true"
-      aria-label="게시글 불러오는 중"
+      aria-label={t('a11y.skeleton.communityPosts')}
     >
       <ul className={cn('list-none p-0 m-0', listClassName)}>
         {Array.from({ length: count }, (_, index) => (

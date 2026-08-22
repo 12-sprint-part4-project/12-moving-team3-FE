@@ -7,6 +7,7 @@ import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import { TriggerWidthSizer } from '@/components/ui/Common/TriggerWidthSizer';
 import { useControllableValue } from '@/hooks/useControllableValue';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   dropdownPanelVariants,
   getMotionTransition,
@@ -71,6 +72,7 @@ export const Sort = ({
   size = 'md',
   className,
 }: SortProps) => {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const motionTransition = getMotionTransition(shouldReduceMotion, {
     duration: 0.16,
@@ -141,7 +143,7 @@ export const Sort = ({
         {isOpen ? (
           <motion.ul
             role="listbox"
-            aria-label="정렬 옵션"
+            aria-label={t('common.sortOptions')}
             variants={dropdownPanelVariants}
             initial="hidden"
             animate="show"

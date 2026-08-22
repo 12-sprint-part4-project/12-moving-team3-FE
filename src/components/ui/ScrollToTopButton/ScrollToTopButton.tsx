@@ -13,6 +13,7 @@ import {
   SCROLL_TO_TOP_TABLET_BOTTOM_CLASS,
 } from '@/constants/floatingActionLayout';
 import { useFloatingActionScrollVisibility } from '@/hooks/useFloatingActionScrollVisibility';
+import { useTranslation } from '@/i18n/useTranslation';
 import { getScrollToTopConfig } from '@/lib/scrollToTopConfig';
 import { cn } from '@/lib/utils';
 
@@ -24,6 +25,7 @@ interface ScrollToTopButtonProps {
 export const ScrollToTopButton = ({
   className = '',
 }: ScrollToTopButtonProps) => {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const { visible, mobileBottomClass } = getScrollToTopConfig(pathname);
   const visibilityClass = useFloatingActionScrollVisibility();
@@ -39,7 +41,7 @@ export const ScrollToTopButton = ({
   return (
     <button
       type="button"
-      aria-label="맨 위로"
+      aria-label={t('common.scrollToTop')}
       onClick={handleClick}
       className={cn(
         FLOATING_ACTION_FIXED_CLASS,

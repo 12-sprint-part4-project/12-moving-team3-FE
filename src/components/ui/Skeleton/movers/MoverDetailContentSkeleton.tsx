@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import { MOVERS_DETAIL_SKELETON_CLASS } from './constants';
@@ -21,13 +24,16 @@ const DetailSectionSkeleton = () => (
 );
 
 /** `/movers/[id]` 본문 스켈레톤 */
-export const MoverDetailContentSkeleton = () => (
-  <div
-    className="flex w-full flex-col overflow-x-hidden bg-white pb-24 xl:pb-0"
-    role="status"
-    aria-busy="true"
-    aria-label="기사님 정보를 불러오는 중"
-  >
+export const MoverDetailContentSkeleton = () => {
+  const { t } = useTranslation();
+
+  return (
+    <div
+      className="flex w-full flex-col overflow-x-hidden bg-white pb-24 xl:pb-0"
+      role="status"
+      aria-busy="true"
+      aria-label={t('a11y.skeleton.moverDetail')}
+    >
     <div className={MOVERS_DETAIL_SKELETON_CLASS}>
       <div className="flex min-w-0 flex-1 flex-col">
         <MoverCardSkeleton />
@@ -71,4 +77,5 @@ export const MoverDetailContentSkeleton = () => (
       </aside>
     </div>
   </div>
-);
+  );
+};

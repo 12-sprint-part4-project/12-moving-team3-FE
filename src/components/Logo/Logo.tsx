@@ -1,7 +1,10 @@
+'use client';
+
 import Link from 'next/link';
 
 import LogoIconText from '@/assets/icons/logo.svg';
 import LogoSymbol from '@/assets/icons/symbol.svg';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 export type LogoSize = 'sm' | 'md';
@@ -55,13 +58,14 @@ export const Logo = ({
   prefetch,
   className = '',
 }: LogoProps) => {
+  const { t } = useTranslation();
   const LogoSvg = LOGO_COMPONENT[variant];
 
   return (
     <Link
       href={href}
       prefetch={prefetch}
-      aria-label="무빙"
+      aria-label={t('auth.brand')}
       className={cn(
         'inline-flex shrink-0 items-center justify-center',
         className
