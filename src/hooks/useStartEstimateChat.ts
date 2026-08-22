@@ -5,6 +5,7 @@ import { useCallback, useState } from 'react';
 
 import { useCreateChatRoom } from '@/hooks/useChat';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 import {
   buildEstimateChatRoomBody,
@@ -24,6 +25,7 @@ export type StartEstimateChatParams = BuildEstimateChatRoomBodyParams;
  * COMMUNITY `useCreateChatRoom`을 재사용한다.
  */
 export const useStartEstimateChat = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { showToast } = useToast();
   const { mutate: createChatRoom, isPending: isChatPending } =
@@ -42,7 +44,7 @@ export const useStartEstimateChat = () => {
       const body = buildEstimateChatRoomBody(params);
 
       if (!body) {
-        showToast({ content: '채팅방을 열지 못했습니다.' });
+        showToast({ content: t('chat.openRoomFail') });
         return;
       }
 
@@ -56,7 +58,7 @@ export const useStartEstimateChat = () => {
         },
         onError: (error) => {
           showToast({
-            content: resolveApiErrorMessage(error, '채팅방을 열지 못했습니다.'),
+            content: resolveApiErrorMessage(error, t('chat.openRoomFail')),
           });
         },
         onSettled: () => {
@@ -64,7 +66,7 @@ export const useStartEstimateChat = () => {
         },
       });
     },
-    [createChatRoom, isChatPending, router, showToast]
+    [createChatRoom, isChatPending, router, showToast, t]
   );
 
   /** 견적·요청 모델 + moverId로 채팅 시작. moverId가 없으면 no-op */

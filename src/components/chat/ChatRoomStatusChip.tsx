@@ -1,6 +1,7 @@
 'use client';
 
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import type { ChatRoomType } from '@/types/chat';
@@ -31,6 +32,8 @@ export const ChatRoomStatusChip = ({
   size = 'sm',
   className,
 }: ChatRoomStatusChipProps) => {
+  const { t } = useTranslation();
+
   if (roomType === 'COMMUNITY') {
     return (
       <MoveTypeChip
@@ -58,7 +61,7 @@ export const ChatRoomStatusChip = ({
         size={size}
         className={cn('shrink-0', className)}
       >
-        지정 요청
+        {t('chat.designatedRequest')}
       </MoveTypeChip>
     );
   }

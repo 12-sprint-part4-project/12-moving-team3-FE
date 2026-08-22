@@ -18,6 +18,7 @@ import {
   CHAT_MESSAGE_MAX_LENGTH,
   CHAT_MESSAGE_MAX_LENGTH_HINT,
 } from '@/constants/chatUi';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   createPendingImageFiles,
   revokePendingImageFile,
@@ -70,6 +71,7 @@ export const ChatComposer = ({
   onHeightChange,
   className,
 }: ChatComposerProps) => {
+  const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [value, setValue] = useState('');
@@ -235,9 +237,7 @@ export const ChatComposer = ({
       const kept = combined.slice(0, CHAT_IMAGE_MAX_COUNT);
       revokePendingImageFiles(combined.slice(CHAT_IMAGE_MAX_COUNT));
       setPendingImages(kept);
-      setImageError(
-        `이미지는 최대 ${CHAT_IMAGE_MAX_COUNT}장까지 첨부할 수 있습니다.`
-      );
+      setImageError(t('chat.imageMax', { count: CHAT_IMAGE_MAX_COUNT }));
     } else {
       setPendingImages(combined);
       setImageError(firstError);
@@ -290,7 +290,7 @@ export const ChatComposer = ({
             onClick={onScrollChipClick}
             className="flex cursor-pointer items-center gap-1 rounded-full bg-blue-300 px-3.5 py-2 text-sm-semibold text-white shadow-md transition-colors hover:bg-blue-200 active:bg-blue-200"
           >
-            새 메시지가 있습니다
+            {t('chat.newMessage')}
             <ChevronDownIcon className="size-4" aria-hidden />
           </button>
         </div>
@@ -300,7 +300,7 @@ export const ChatComposer = ({
         <div className="absolute -top-12 right-4 z-10 md:right-6">
           <button
             type="button"
-            aria-label="맨 아래로 이동"
+            aria-label={t('chat.scrollToBottomAria')}
             onClick={onScrollChipClick}
             className="inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-line-200 bg-white text-gray-400 shadow-md transition-colors hover:bg-background-100 hover:text-blue-300 active:bg-background-100"
           >
@@ -321,11 +321,11 @@ export const ChatComposer = ({
         {hasPendingImages ? (
           <div className="flex flex-col gap-1.5">
             <p className="text-xs-medium text-gray-400">
-              첨부한 사진 {pendingImages.length}장
+              {t('chat.attachedCount', { count: pendingImages.length })}
             </p>
             <ul
               className="flex min-h-[4.75rem] gap-2 overflow-x-auto pt-2 pr-2 pb-1"
-              aria-label="첨부 이미지 미리보기"
+              aria-label={t('chat.attachPreviewAria')}
             >
               {pendingImages.map((item, index) => (
                 <li
@@ -340,7 +340,9 @@ export const ChatComposer = ({
                   />
                   <button
                     type="button"
-                    aria-label={`${item.file.name} 삭제`}
+                    aria-label={t('chat.deleteFileAria', {
+                      name: item.file.name,
+                    })}
                     disabled={isBusy}
                     onClick={() => handleRemoveImage(index)}
                     className="absolute -top-1.5 -right-1.5 inline-flex size-5 cursor-pointer items-center justify-center rounded-full bg-black-400 text-white disabled:cursor-not-allowed"
@@ -394,7 +396,7 @@ export const ChatComposer = ({
           />
           <button
             type="button"
-            aria-label="이미지 첨부"
+            aria-label={t('chat.attachImageAria')}
             aria-describedby={imageDescribedBy || undefined}
             disabled={isBusy || !onSendImages}
             onClick={handleClipClick}
@@ -418,10 +420,10 @@ export const ChatComposer = ({
             enterKeyHint="send"
             placeholder={
               disabled && disabledReason
-                ? '메시지를 보낼 수 없습니다'
-                : '메시지를 입력하세요'
+                ? t('chat.cannotSendShort')
+                : t('chat.placeholder')
             }
-            aria-label="메시지 입력"
+            aria-label={t('chat.inputAria')}
             aria-describedby={
               isAtMessageLimit ? 'chat-composer-message-limit-hint' : undefined
             }
@@ -437,7 +439,7 @@ export const ChatComposer = ({
           <button
             type="submit"
             disabled={!canSend}
-            aria-label="전송"
+            aria-label={t('chat.sendAria')}
             className={cn(
               'inline-flex size-11 shrink-0 items-center justify-center transition-colors',
               canSend
@@ -445,7 +447,7 @@ export const ChatComposer = ({
                 : 'cursor-not-allowed text-gray-200'
             )}
           >
-            <SendIcon className="size-9"  aria-hidden />
+            <SendIcon className="size-9" aria-hidden />
           </button>
         </div>
       </form>

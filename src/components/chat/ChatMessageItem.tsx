@@ -9,6 +9,7 @@ import CloseIcon from '@/assets/icons/close.svg';
 import { ChatMessageMenu } from '@/components/chat/ChatMessageMenu';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { Modal } from '@/components/ui/Modal/Modal';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   getFilterAction,
   parseFilterContent,
@@ -53,6 +54,7 @@ interface FilteredMessageBodyProps {
 
 /** 필터 토큰을 pill 칩으로 치환한 ReactNode를 반환한다. */
 const FilteredMessageBody = ({ content }: FilteredMessageBodyProps) => {
+  const { t } = useTranslation();
   const parts = parseFilterContent(content);
 
   return (
@@ -63,7 +65,11 @@ const FilteredMessageBody = ({ content }: FilteredMessageBodyProps) => {
             <span
               key={`${part.tokenType}-${part.label}-${index}`}
               className="mx-0.5 inline-flex items-center rounded-full bg-black-400/15 px-2 py-0.5 text-xs-medium"
-              aria-label={part.tokenType === 'phone' ? '전화번호' : '계좌번호'}
+              aria-label={
+                part.tokenType === 'phone'
+                  ? t('chat.phoneAria')
+                  : t('chat.accountAria')
+              }
             >
               {part.label}
             </span>
@@ -85,6 +91,7 @@ const ChatImageAttachments = ({
   isMine,
   onSelectImage,
 }: ChatImageAttachmentsProps) => {
+  const { t } = useTranslation();
   const count = attachments.length;
   const isSingle = count === 1;
 
@@ -108,11 +115,11 @@ const ChatImageAttachments = ({
             key={`${url}-${index}`}
             className="relative aspect-square cursor-pointer overflow-hidden bg-background-200 transition-opacity hover:opacity-95"
             onClick={() => onSelectImage(index)}
-            aria-label={`${index + 1}번째 이미지 크게 보기`}
+            aria-label={t('chat.viewImageAria', { index: index + 1 })}
           >
             <Image
               src={url}
-              alt={`사진 ${index + 1}`}
+              alt={t('chat.photoAlt', { index: index + 1 })}
               fill
               sizes={isSingle ? '240px' : '144px'}
               className="object-cover"
@@ -130,6 +137,7 @@ const ChatImageLightbox = ({
   initialIndex,
   onClose,
 }: ChatImageLightboxProps) => {
+  const { t } = useTranslation();
   const count = attachments.length;
   const [index, setIndex] = useState(() =>
     Math.min(Math.max(initialIndex, 0), Math.max(count - 1, 0))
@@ -201,7 +209,7 @@ const ChatImageLightbox = ({
       <section
         role="dialog"
         aria-modal="true"
-        aria-label="원본 이미지 보기"
+        aria-label={t('chat.viewOriginalAria')}
         className="mx-auto flex w-full flex-col items-center gap-3 bg-transparent p-0 outline-none"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -209,7 +217,7 @@ const ChatImageLightbox = ({
         <div className="relative inline-flex max-h-[85vh] max-w-full items-center justify-center">
           <button
             type="button"
-            aria-label="이미지 닫기"
+            aria-label={t('chat.closeImageAria')}
             onClick={onClose}
             className="absolute -top-1 -right-1 z-20 inline-flex size-12 items-center justify-center border-0 bg-transparent text-white outline-none focus:outline-none focus-visible:outline-none"
           >
@@ -222,7 +230,7 @@ const ChatImageLightbox = ({
           {count > 1 ? (
             <button
               type="button"
-              aria-label="이전 이미지"
+              aria-label={t('chat.prevImageAria')}
               disabled={!canGoPrev}
               onClick={goPrev}
               className={cn(
@@ -239,7 +247,7 @@ const ChatImageLightbox = ({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={currentUrl}
-            alt={`확대된 이미지 ${index + 1}`}
+            alt={t('chat.photoZoomedAlt', { index: index + 1 })}
             className="max-h-[85vh] w-auto max-w-full rounded-[1.5rem] object-contain select-none"
             draggable={false}
           />
@@ -247,7 +255,7 @@ const ChatImageLightbox = ({
           {count > 1 ? (
             <button
               type="button"
-              aria-label="다음 이미지"
+              aria-label={t('chat.nextImageAria')}
               disabled={!canGoNext}
               onClick={goNext}
               className={cn(
@@ -275,11 +283,7 @@ const ChatImageLightbox = ({
   );
 };
 
-const PERSONAL_INFO_FILTER_MESSAGE =
-  '민감한 개인정보가 감지되었습니다. 개인정보 보호를 위해 해당 내용이 가려집니다.';
-
-const CHAT_BUBBLE_CLASS =
-  'px-4 py-2 drop-shadow-none md:px-4 md:py-2.5';
+const CHAT_BUBBLE_CLASS = 'px-4 py-2 drop-shadow-none md:px-4 md:py-2.5';
 
 /** 대화 말풍선 1건 — 나(오른쪽)·상대(왼쪽). 상대만 ⋯ 신고 메뉴 */
 export const ChatMessageItem = ({
@@ -291,6 +295,7 @@ export const ChatMessageItem = ({
   onReport,
   className,
 }: ChatMessageItemProps) => {
+  const { t } = useTranslation();
   const isImageMessage =
     message.messageType === 'IMAGE' && message.attachments.length > 0;
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -313,7 +318,7 @@ export const ChatMessageItem = ({
     </TextFieldChat>
   ) : filterAction === 'mask' && isMine ? (
     <TextFieldChat color={filteredColor} className={CHAT_BUBBLE_CLASS}>
-      {PERSONAL_INFO_FILTER_MESSAGE}
+      {t('chat.filteredNotice')}
     </TextFieldChat>
   ) : filterAction === 'mask' ? (
     <TextFieldChat color="incoming" className={CHAT_BUBBLE_CLASS}>
@@ -321,14 +326,16 @@ export const ChatMessageItem = ({
     </TextFieldChat>
   ) : filterAction === 'block' ? (
     <TextFieldChat color={filteredColor} className={CHAT_BUBBLE_CLASS}>
-      {PERSONAL_INFO_FILTER_MESSAGE}
+      {t('chat.filteredNotice')}
     </TextFieldChat>
   ) : (
     <TextFieldChat
       color={isMine ? 'mePrimary' : 'incoming'}
       className={CHAT_BUBBLE_CLASS}
     >
-      {message.messageType === 'IMAGE' ? '사진' : message.content || ' '}
+      {message.messageType === 'IMAGE'
+        ? t('chat.photo')
+        : message.content || ' '}
     </TextFieldChat>
   );
 
@@ -345,12 +352,15 @@ export const ChatMessageItem = ({
     isMine && (showUnreadCount || showReadLabel || showTime) ? (
       <div className="flex shrink-0 flex-col items-end justify-end gap-0.5 self-end">
         {showUnreadCount ? (
-          <span className="text-xs-medium text-blue-300" aria-label="안 읽음">
+          <span
+            className="text-xs-medium text-blue-300"
+            aria-label={t('chat.unread')}
+          >
             1
           </span>
         ) : null}
         {showReadLabel ? (
-          <span className="text-xs-medium text-gray-300">읽음</span>
+          <span className="text-xs-medium text-gray-300">{t('chat.read')}</span>
         ) : null}
         {timeLabel}
       </div>
@@ -363,7 +373,7 @@ export const ChatMessageItem = ({
           'ml-0.5 flex shrink-0 flex-col items-start gap-0',
           // 모바일: 긴 경고 말풍선도 ⋯·시간을 첫 줄 높이에 — lg+는 일반 메시지와 동일(하단)
           isFilterNotice
-            ? 'self-start justify-start lg:self-end lg:justify-end'
+            ? 'justify-start self-start lg:justify-end lg:self-end'
             : 'justify-end self-end'
         )}
       >
@@ -401,7 +411,7 @@ export const ChatMessageItem = ({
       >
         {/* 내 메시지: (1|읽음·시간) | 말풍선. 상대: 말풍선 | (⋯ / 시간) */}
         {mineMeta}
-        <div className="min-w-0 max-w-chat-bubble">{bubble}</div>
+        <div className="max-w-chat-bubble min-w-0">{bubble}</div>
         {partnerMeta}
       </div>
 
