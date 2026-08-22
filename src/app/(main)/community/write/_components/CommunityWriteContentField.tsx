@@ -3,6 +3,8 @@
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import { useEffect, useRef } from 'react';
 
+import { useTranslation } from '@/i18n/useTranslation';
+
 import {
   getCommunityWriteEditorExtensions,
   getCommunityWriteEditorProps,
@@ -24,6 +26,7 @@ export const CommunityWriteContentField = ({
   onEditorUpdate,
   className = '',
 }: CommunityWriteContentFieldProps) => {
+  const { t } = useTranslation();
   const onEditorUpdateRef = useRef(onEditorUpdate);
   const hydratedContentRef = useRef<string | null>(null);
 
@@ -64,7 +67,9 @@ export const CommunityWriteContentField = ({
 
   return (
     <section className={className}>
-      <h2 className={COMMUNITY_WRITE_LABEL_CLASS}>내용</h2>
+      <h2 className={COMMUNITY_WRITE_LABEL_CLASS}>
+        {t('community.contentLabel')}
+      </h2>
 
       <div className="mt-2.5">
         {editor !== null ? <CommunityWriteToolbar editor={editor} /> : null}

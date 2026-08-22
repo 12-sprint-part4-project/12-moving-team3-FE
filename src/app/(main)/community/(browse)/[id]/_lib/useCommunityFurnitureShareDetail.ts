@@ -6,6 +6,7 @@ import { useCallback, useState } from 'react';
 import { useCreateChatRoom } from '@/hooks/useChat';
 import { useCompletePost } from '@/hooks/usePostMutations';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 import {
   isFurnitureSharePost,
@@ -44,6 +45,7 @@ export const useCommunityFurnitureShareDetail = ({
   openLoginModal,
   openProfileModal,
 }: UseCommunityFurnitureShareDetailParams): UseCommunityFurnitureShareDetailResult => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { showToast } = useToast();
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
@@ -83,7 +85,7 @@ export const useCommunityFurnitureShareDetail = ({
     }
 
     if (isCompleted) {
-      showToast({ content: '나눔이 완료된 게시글입니다.' });
+      showToast({ content: t('community.shareCompletedPost') });
       return;
     }
 
@@ -99,7 +101,7 @@ export const useCommunityFurnitureShareDetail = ({
         },
         onError: (error) => {
           showToast({
-            content: resolveApiErrorMessage(error, '채팅방을 열지 못했습니다.'),
+            content: resolveApiErrorMessage(error, t('chat.openRoomFail')),
           });
         },
       }
@@ -114,6 +116,7 @@ export const useCommunityFurnitureShareDetail = ({
     openProfileModal,
     router,
     showToast,
+    t,
   ]);
 
   const handleCompleteModalOpen = useCallback(() => {
@@ -131,18 +134,18 @@ export const useCommunityFurnitureShareDetail = ({
     completePost(undefined, {
       onSuccess: () => {
         setIsCompleteModalOpen(false);
-        showToast({ content: '나눔이 완료되었습니다.' });
+        showToast({ content: t('community.shareCompleted') });
       },
       onError: (error) => {
         showToast({
           content: resolveApiErrorMessage(
             error,
-            '나눔 완료 처리에 실패했습니다.'
+            t('community.shareCompleteFail')
           ),
         });
       },
     });
-  }, [completePost, showToast]);
+  }, [completePost, showToast, t]);
 
   return {
     detailAction,

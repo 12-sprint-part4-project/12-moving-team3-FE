@@ -3,6 +3,7 @@ import Link from 'next/link';
 import ChatIcon from '@/assets/icons/chat.svg';
 import HeartIcon from '@/assets/icons/heart.svg';
 import { COMMUNITY_POST_LIST_BADGE_FONT_CLASS } from '@/constants/communityCategoryStyles';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   buildCommunityPostDetailHref,
   type PostListContext,
@@ -64,6 +65,7 @@ export const CommunityPostCard = ({
   listContext,
   className = '',
 }: CommunityPostCardProps) => {
+  const { t } = useTranslation();
   const thumbnailUrl = post.thumbnailUrl;
   const hasThumbnail = thumbnailUrl !== null;
 
@@ -117,12 +119,12 @@ export const CommunityPostCard = ({
         >
           <span className="min-w-0 truncate">{post.author.nickname}</span>
           <PostCardMetaStat
-            label="좋아요"
+            label={t('community.like')}
             value={post.likeCount}
             icon={<HeartIcon className={META_LIKE_ICON_CLASS} aria-hidden />}
           />
           <PostCardMetaStat
-            label="댓글"
+            label={t('community.comment')}
             value={post.commentCount}
             className="gap-0.5 min-[46.5rem]:gap-1"
             icon={<ChatIcon className={META_COMMENT_ICON_CLASS} aria-hidden />}

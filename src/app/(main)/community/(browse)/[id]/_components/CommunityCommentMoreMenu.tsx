@@ -8,6 +8,7 @@ import { ReportAction } from '@/components/reports';
 import { useAuth } from '@/hooks/useAuth';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import {
@@ -33,6 +34,7 @@ export const CommunityCommentMoreMenu = ({
   onDelete,
   className,
 }: CommunityCommentMoreMenuProps) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { showToast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
@@ -64,18 +66,24 @@ export const CommunityCommentMoreMenu = ({
   const handleReportClick = () => {
     setIsOpen(false);
     if (!user) {
-      showToast({ content: '로그인이 필요한 기능입니다' });
+      showToast({ content: t('chat.loginNeeded') });
       return;
     }
     setIsReportOpen(true);
   };
 
   return (
-    <div ref={menuRef} className={cn('relative flex shrink-0 items-center self-center', className)}>
+    <div
+      ref={menuRef}
+      className={cn(
+        'relative flex shrink-0 items-center self-center',
+        className
+      )}
+    >
       <button
         ref={triggerRef}
         type="button"
-        aria-label="댓글 메뉴"
+        aria-label={t('community.commentMenuAria')}
         aria-expanded={isOpen}
         aria-haspopup="menu"
         onClick={() => setIsOpen((prev) => !prev)}
@@ -88,7 +96,10 @@ export const CommunityCommentMoreMenu = ({
       </button>
 
       {isOpen ? (
-        <div role="menu" className={cn(COMMUNITY_POST_MORE_MENU_PANEL_CLASS, 'right-0')}>
+        <div
+          role="menu"
+          className={cn(COMMUNITY_POST_MORE_MENU_PANEL_CLASS, 'right-0')}
+        >
           {isOwn ? (
             <button
               type="button"
@@ -96,17 +107,20 @@ export const CommunityCommentMoreMenu = ({
               onClick={() => closeAndRun(onDelete)}
               className={cn(MENU_ITEM_CLASS, 'text-red-200')}
             >
-              삭제
+              {t('community.delete')}
             </button>
           ) : (
             <button
               type="button"
               role="menuitem"
               onClick={handleReportClick}
-              className={cn(MENU_ITEM_CLASS, 'inline-flex items-center gap-1 text-gray-400')}
+              className={cn(
+                MENU_ITEM_CLASS,
+                'inline-flex items-center gap-1 text-gray-400'
+              )}
             >
               <ReportIcon className="size-4" aria-hidden />
-              신고
+              {t('chat.report')}
             </button>
           )}
         </div>

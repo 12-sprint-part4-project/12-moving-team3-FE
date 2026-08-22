@@ -1,12 +1,11 @@
 'use client';
 
-import { useTranslation } from '@/i18n/useTranslation';
-
 import {
   BOARD_CATEGORY_FILTER_OPTIONS,
   REGION_FILTER_OPTIONS,
   type RegionFilterValue,
 } from '@/constants/communityOptions';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import { CommunitySearchField } from './CommunitySearchField';
@@ -76,7 +75,13 @@ export const CommunitySidebarFilter = ({
           <CommunitySelectDropdown
             label={t('community.category')}
             placeholder={t('community.category')}
-            options={BOARD_CATEGORY_FILTER_OPTIONS}
+            options={BOARD_CATEGORY_FILTER_OPTIONS.map((option) => ({
+              ...option,
+              label:
+                option.value === 'ALL'
+                  ? t('common.all')
+                  : t(`community.postCategory.${option.value}`),
+            }))}
             value={categoryFilter}
             onValueChange={onCategoryChange}
             onOpen={onCategoryOpen}
@@ -123,7 +128,13 @@ export const CommunitySidebarFilter = ({
         <CommunitySelectDropdown
           label={t('common.region')}
           placeholder={t('common.region')}
-          options={REGION_FILTER_OPTIONS}
+          options={REGION_FILTER_OPTIONS.map((option) => ({
+            ...option,
+            label:
+              option.value === 'ALL'
+                ? t('common.all')
+                : t(`region.${option.value}`),
+          }))}
           value={regionFilter}
           onValueChange={onRegionChange}
           onOpen={onRegionOpen}

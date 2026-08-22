@@ -3,6 +3,7 @@
 import { Button } from '@/components/Button/Button';
 import { ModalBasic } from '@/components/ui/Modal/ModalBasic';
 import { MODAL_PANEL_BOTTOM_SHEET_CLASS } from '@/components/ui/Modal/modalPanel';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import type { ReactNode } from 'react';
@@ -24,9 +25,11 @@ export const ConfirmDeleteModal = ({
   onClose,
   onConfirm,
   isDeleting = false,
-  confirmLabel = '삭제하기',
+  confirmLabel,
   className = '',
 }: ConfirmDeleteModalProps) => {
+  const { t } = useTranslation();
+  const resolvedConfirmLabel = confirmLabel ?? t('community.deleteAction');
   const handleClose = () => {
     if (isDeleting) {
       return;
@@ -49,7 +52,7 @@ export const ConfirmDeleteModal = ({
             disabled={isDeleting}
             onClick={handleClose}
           >
-            취소
+            {t('common.cancel')}
           </Button>
           <Button
             variant="solid"
@@ -58,7 +61,7 @@ export const ConfirmDeleteModal = ({
             disabled={isDeleting}
             onClick={onConfirm}
           >
-            {confirmLabel}
+            {resolvedConfirmLabel}
           </Button>
         </div>
       }

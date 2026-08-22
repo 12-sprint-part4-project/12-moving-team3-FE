@@ -1,6 +1,7 @@
 'use client';
 
 import ResetIcon from '@/assets/icons/reset.svg';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 /** Mobile/Tablet filter/sm 트리거와 동일 높이 */
@@ -16,13 +17,17 @@ interface CommunityFilterResetButtonProps {
 export const CommunityFilterResetButton = ({
   onClick,
   className = '',
-}: CommunityFilterResetButtonProps) => (
-  <button
-    type="button"
-    aria-label="필터 초기화"
-    onClick={onClick}
-    className={cn(COMMUNITY_FILTER_RESET_BUTTON_CLASS, className)}
-  >
-    <ResetIcon className="size-5 shrink-0" aria-hidden />
-  </button>
-);
+}: CommunityFilterResetButtonProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <button
+      type="button"
+      aria-label={t('community.resetFilterAria')}
+      onClick={onClick}
+      className={cn(COMMUNITY_FILTER_RESET_BUTTON_CLASS, className)}
+    >
+      <ResetIcon className="size-5 shrink-0" aria-hidden />
+    </button>
+  );
+};

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   buildCommunityPostDetailHref,
   type PostListContext,
@@ -31,8 +32,9 @@ interface NavItemProps {
 }
 
 const NavItem = ({ direction, neighbor, listContext }: NavItemProps) => {
+  const { t } = useTranslation();
   const isPrev = direction === 'prev';
-  const label = isPrev ? '이전글' : '다음글';
+  const label = isPrev ? t('community.prevPost') : t('community.nextPost');
 
   return (
     <Link
@@ -52,6 +54,8 @@ export const CommunityPostNavigation = ({
   listContext,
   className = '',
 }: CommunityPostNavigationProps) => {
+  const { t } = useTranslation();
+
   if (!prev && !next) {
     return null;
   }
@@ -60,7 +64,7 @@ export const CommunityPostNavigation = ({
 
   return (
     <nav
-      aria-label="게시글 이전·다음"
+      aria-label={t('community.prevNextAria')}
       className={cn('mt-8 min-[46.5rem]:mt-8 xl:mt-10', className)}
     >
       <div className={COMMUNITY_DETAIL_DIVIDER} />

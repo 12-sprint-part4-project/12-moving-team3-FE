@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
 import { useTranslation } from '@/i18n/useTranslation';
+import { cn } from '@/lib/utils';
 
 export interface MoversSelectOption {
   label: string;

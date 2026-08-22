@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { useTranslation } from '@/i18n/useTranslation';
 import { formatRelativeTime } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
 
@@ -60,6 +61,7 @@ const CommunityCommentRow = ({
   isReply = false,
   onReplyClick,
 }: CommunityCommentRowProps) => {
+  const { t } = useTranslation();
   const relativeTime = formatRelativeTime(item.createdAt);
   const isOwn = isOwnComment(item, currentUserId);
   const isDeleting = deletingCommentId === item.id;
@@ -107,7 +109,7 @@ const CommunityCommentRow = ({
             onClick={onReplyClick}
             className="mt-1.5 cursor-pointer text-md-regular text-gray-400 hover:text-black-400 min-[46.5rem]:text-lg-regular xl:text-2lg-regular"
           >
-            답글 달기
+            {t('community.reply')}
           </button>
         ) : null}
       </div>
@@ -125,6 +127,7 @@ export const CommunityCommentItem = ({
   onReplySubmit,
   onLoginRequired,
 }: CommunityCommentItemProps) => {
+  const { t } = useTranslation();
   const [isReplying, setIsReplying] = useState(false);
   const [replyDraft, setReplyDraft] = useState('');
 
@@ -159,9 +162,9 @@ export const CommunityCommentItem = ({
         <div className={cn('flex gap-2', COMMUNITY_COMMENT_REPLY_INDENT_CLASS)}>
           <input
             type="text"
-            aria-label="답글 입력"
+            aria-label={t('community.replyInputAria')}
             className={COMMUNITY_DETAIL_COMMENT_INPUT}
-            placeholder="답글을 입력해 주세요."
+            placeholder={t('community.replyPlaceholder')}
             value={replyDraft}
             onChange={(e) => setReplyDraft(e.target.value)}
             onKeyDown={(e) => {
@@ -182,7 +185,7 @@ export const CommunityCommentItem = ({
               'h-11 xl:h-[3.625rem]'
             )}
           >
-            등록
+            {t('community.create')}
           </button>
         </div>
       ) : null}

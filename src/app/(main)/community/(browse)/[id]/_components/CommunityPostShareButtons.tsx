@@ -3,6 +3,7 @@
 import SymbolFacebookIcon from '@/assets/icons/symbol-facebook.svg';
 import SymbolKakaoIcon from '@/assets/icons/symbol-kakao.svg';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import { isKakaoShareConfigured, shareQuoteToKakao } from '@/lib/kakaoShare';
 import { cn } from '@/lib/utils';
 
@@ -26,6 +27,7 @@ export const CommunityPostShareButtons = ({
   imageUrl = null,
   className = '',
 }: CommunityPostShareButtonsProps) => {
+  const { t } = useTranslation();
   const { showToast } = useToast();
 
   const getShareUrl = () =>
@@ -34,7 +36,7 @@ export const CommunityPostShareButtons = ({
   const handleShareKakao = () => {
     if (!isKakaoShareConfigured()) {
       showToast({
-        content: '카카오톡 공유 설정이 되어 있지 않습니다.',
+        content: t('share.kakaoUnconfigured'),
       });
       return;
     }
@@ -44,12 +46,10 @@ export const CommunityPostShareButtons = ({
       description,
       imageUrl,
       shareUrl: getShareUrl(),
-      buttonTitle: '게시글 보기',
+      buttonTitle: t('community.viewPost'),
     }).catch((error: unknown) => {
       const message =
-        error instanceof Error
-          ? error.message
-          : '카카오톡 공유에 실패했습니다.';
+        error instanceof Error ? error.message : t('share.kakaoFail');
       showToast({ content: message });
     });
   };
@@ -73,7 +73,7 @@ export const CommunityPostShareButtons = ({
     >
       <button
         type="button"
-        aria-label="카카오톡 공유"
+        aria-label={t('share.kakao')}
         onClick={handleShareKakao}
         className={cn(
           COMMUNITY_SHARE_BUTTON_CLASS,
@@ -84,7 +84,7 @@ export const CommunityPostShareButtons = ({
       </button>
       <button
         type="button"
-        aria-label="페이스북 공유"
+        aria-label={t('share.facebook')}
         onClick={handleShareFacebook}
         className={cn(
           COMMUNITY_SHARE_BUTTON_CLASS,

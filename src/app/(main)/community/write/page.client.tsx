@@ -17,6 +17,7 @@ import {
   useUploadPostImage,
 } from '@/hooks/usePostMutations';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n/useTranslation';
 import { resolveApiErrorMessage } from '@/lib/apiClient';
 import { isHtmlContent } from '@/lib/communityPostContent';
 import {
@@ -76,6 +77,7 @@ const CommunityWriteForm = ({
   initialCategory,
   editPostId,
 }: CommunityWriteFormProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { showToast } = useToast();
   const { mutateAsync: createPost } = useCreatePost();
@@ -246,7 +248,7 @@ const CommunityWriteForm = ({
         await updatePost(body);
 
         isSubmittedRef.current = true;
-        showToast({ content: '게시글이 수정되었습니다.' });
+        showToast({ content: t('community.updated') });
         router.push(`/community/${editPostId}`);
         return;
       }
@@ -264,18 +266,18 @@ const CommunityWriteForm = ({
       const response = await createPost(body);
 
       isSubmittedRef.current = true;
-      showToast({ content: '게시글이 등록되었습니다.' });
+      showToast({ content: t('community.created') });
       router.push(`/community/${response.data.id}`);
     } catch (error) {
       showToast({
         content:
           error instanceof Error && error.message === 'UNRESOLVED_POST_IMAGES'
-            ? '기존 이미지 정보를 불러오지 못했습니다. 이미지를 다시 첨부해 주세요.'
+            ? t('community.existingImagesError')
             : resolveApiErrorMessage(
                 error,
                 isEditMode
-                  ? '게시글 수정에 실패했습니다.'
-                  : '게시글 등록에 실패했습니다.'
+                  ? t('community.updateFail')
+                  : t('community.createFail')
               ),
       });
     } finally {
@@ -292,6 +294,7 @@ const CommunityWriteForm = ({
     region,
     router,
     showToast,
+    t,
     title,
     updatePost,
     uploadPostImage,
@@ -348,7 +351,7 @@ const CommunityWriteForm = ({
           disabled={isSubmitting}
           className={COMMUNITY_WRITE_CANCEL_BUTTON_CLASS}
         >
-          취소
+          {t('common.cancel')}
         </button>
         <button
           type="submit"
@@ -357,11 +360,11 @@ const CommunityWriteForm = ({
         >
           {isSubmitting
             ? isEditMode
-              ? '수정 중…'
-              : '등록 중…'
+              ? t('community.updating')
+              : t('community.creating')
             : isEditMode
-              ? '수정'
-              : '등록'}
+              ? t('community.update')
+              : t('community.create')}
         </button>
       </div>
     </form>
@@ -370,6 +373,7 @@ const CommunityWriteForm = ({
 
 /** 커뮤니티 게시글 작성 — Figma Mobile / Tablet / Desktop 15211:41641 */
 export const CommunityWritePageClient = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { showToast } = useToast();
@@ -407,14 +411,14 @@ export const CommunityWritePageClient = () => {
     }
 
     hasForbiddenRedirectRef.current = true;
-    showToast({ content: '본인 게시글만 수정할 수 있어요.' });
+    showToast({ content: t('community.editOwnOnly') });
     scheduleAppRouterReplace(router, `/community/${editPost.id}`);
-  }, [editPost, isEditMode, isEditPostFetched, router, showToast]);
+  }, [editPost, isEditMode, isEditPostFetched, router, showToast, t]);
 
   if (isEditMode && isEditPostFetched && editPost && editPost.isMine !== true) {
     return (
       <div className="flex justify-center py-24">
-        <Spinner message="게시글로 이동 중..." />
+        <Spinner message={t('community.redirecting')} />
       </div>
     );
   }
@@ -422,7 +426,7 @@ export const CommunityWritePageClient = () => {
   if (isEditMode && isEditPostPending) {
     return (
       <div className="flex justify-center py-24">
-        <Spinner message="게시글 불러오는 중..." />
+        <Spinner message={t('community.loadingPost')} />
       </div>
     );
   }
@@ -431,10 +435,7 @@ export const CommunityWritePageClient = () => {
     return (
       <div className="flex justify-center py-24">
         <p className="text-lg-medium text-gray-400">
-          {resolveApiErrorMessage(
-            editPostError,
-            '게시글을 불러오지 못했습니다.'
-          )}
+          {resolveApiErrorMessage(editPostError, t('community.postError'))}
         </p>
       </div>
     );
@@ -456,7 +457,7 @@ export const CommunityWritePageClient = () => {
       <div className={COMMUNITY_DETAIL_MAX_W}>
         <header>
           <h2 className={COMMUNITY_WRITE_PAGE_TITLE_CLASS}>
-            {isEditMode ? '게시글 수정' : '게시글 작성'}
+            {isEditMode ? t('community.editTitle') : t('community.writeTitle')}
           </h2>
           <div
             className={cn(

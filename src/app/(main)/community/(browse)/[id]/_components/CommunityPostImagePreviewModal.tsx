@@ -7,6 +7,7 @@ import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 import CloseIcon from '@/assets/icons/close.svg';
 import { Modal } from '@/components/ui/Modal/Modal';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import { COMMUNITY_POST_IMAGE_PREVIEW_PANEL_CLASS } from './communityDetailStyles';
@@ -25,6 +26,7 @@ export const CommunityPostImagePreviewModal = ({
   onClose,
   className = '',
 }: CommunityPostImagePreviewModalProps) => {
+  const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   const activeUrl = imageUrls[activeIndex];
   const hasMultiple = imageUrls.length > 1;
@@ -56,20 +58,23 @@ export const CommunityPostImagePreviewModal = ({
 
   const imageAlt =
     imageUrls.length > 1
-      ? `게시글 이미지 ${activeIndex + 1}/${imageUrls.length}`
-      : '게시글 이미지';
+      ? t('community.previewAlt', {
+          current: activeIndex + 1,
+          total: imageUrls.length,
+        })
+      : t('community.previewAltSingle');
 
   return (
     <Modal
       onClose={onClose}
-      ariaLabel="게시글 이미지 미리보기"
+      ariaLabel={t('community.previewAria')}
       className={cn('bg-black/80', className)}
       panelClassName={COMMUNITY_POST_IMAGE_PREVIEW_PANEL_CLASS}
     >
       <button
         type="button"
         onClick={onClose}
-        aria-label="이미지 미리보기 닫기"
+        aria-label={t('community.previewCloseAria')}
         className="absolute -top-2 -right-2 z-10 inline-flex size-10 cursor-pointer items-center justify-center rounded-full bg-black/40 text-white sm:-top-3 sm:-right-3"
       >
         <CloseIcon className="size-6" aria-hidden />
@@ -80,7 +85,7 @@ export const CommunityPostImagePreviewModal = ({
           <button
             type="button"
             onClick={handlePrev}
-            aria-label="이전 이미지"
+            aria-label={t('community.prevImageAria')}
             className="absolute left-0 z-10 inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-black/40 text-white sm:left-2"
           >
             <ChevronLeftIcon className="size-6" aria-hidden />
@@ -100,7 +105,7 @@ export const CommunityPostImagePreviewModal = ({
           <button
             type="button"
             onClick={handleNext}
-            aria-label="다음 이미지"
+            aria-label={t('community.nextImageAria')}
             className="absolute right-0 z-10 inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-black/40 text-white sm:right-2"
           >
             <ChevronRightIcon className="size-6" aria-hidden />

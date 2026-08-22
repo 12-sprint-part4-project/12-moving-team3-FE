@@ -3,6 +3,7 @@
 import { Button } from '@/components/Button/Button';
 import { CommunityPostListSkeleton } from '@/components/ui/Skeleton';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 import { CommunityFurnitureGridCard } from './CommunityFurnitureGridCard';
@@ -50,6 +51,7 @@ export const CommunityPostList = ({
   className = '',
   listClassName = 'flex flex-col gap-2 min-[46.5rem]:gap-8 xl:gap-12',
 }: CommunityPostListProps) => {
+  const { t } = useTranslation();
   const isFurnitureGrid = variant === 'furniture-grid';
   const resolvedListClassName = isFurnitureGrid
     ? COMMUNITY_FURNITURE_GRID_CLASS
@@ -74,7 +76,7 @@ export const CommunityPostList = ({
             {errorMessage}
           </p>
           <Button variant="outlined" size="md" onClick={onRetry}>
-            다시 시도
+            {t('common.retry')}
           </Button>
         </div>
       ) : null}
@@ -108,21 +110,21 @@ export const CommunityPostList = ({
 
       {isFetchingNextPage ? (
         <div className="flex justify-center py-6">
-          <Spinner message="더 불러오는 중..." className="py-6" />
+          <Spinner message={t('common.loadMore')} className="py-6" />
         </div>
       ) : null}
 
       {!isFetchingNextPage && isFetchNextPageError ? (
         <div className="flex flex-col items-center gap-2 py-4">
           <p className="text-center text-md-medium text-gray-400">
-            다음 게시글을 불러오지 못했습니다.
+            {t('community.nextPageError')}
           </p>
           <button
             type="button"
             onClick={onRetryNextPage}
             className="cursor-pointer text-md-medium text-blue-300 underline-offset-2 hover:underline"
           >
-            다시 시도
+            {t('common.retry')}
           </button>
         </div>
       ) : null}
