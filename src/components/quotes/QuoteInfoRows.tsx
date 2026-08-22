@@ -17,18 +17,18 @@ const DETAIL_LABEL = 'lg:w-[5.625rem]';
 const VARIANT_CLASS = {
   group: {
     list: 'gap-2 md:gap-2 md:px-10 md:py-8 lg:gap-2.5',
-    row: 'gap-[2.5rem] text-md-medium lg:gap-[2rem] lg:text-2lg-medium',
-    label: 'w-[4.0625rem] lg:w-[5.75rem]',
+    row: 'gap-4 text-md-medium lg:gap-6 lg:text-2lg-medium',
+    label: 'w-auto min-w-[5.5rem] shrink-0 whitespace-nowrap lg:min-w-[6.5rem]',
   },
   customerDetail: {
     list: DETAIL_LIST,
     row: `gap-6 ${DETAIL_ROW}`,
-    label: `w-[4.0625rem] ${DETAIL_LABEL}`,
+    label: `min-w-[5.5rem] shrink-0 whitespace-nowrap ${DETAIL_LABEL}`,
   },
   moverDetail: {
     list: DETAIL_LIST,
-    row: `gap-[2.5rem] ${DETAIL_ROW}`,
-    label: `w-16 ${DETAIL_LABEL}`,
+    row: `gap-6 ${DETAIL_ROW}`,
+    label: `min-w-[5.5rem] shrink-0 whitespace-nowrap ${DETAIL_LABEL}`,
   },
 } as const;
 

@@ -25,7 +25,10 @@ import {
 } from '@/lib/startEstimateChat';
 import { formatDistrictLabel } from '@/services/estimateRequestApi';
 import { formatQuotePriceLabel } from '@/services/quoteApi';
-import { API_MOVE_TYPE_TO_UI, MOVE_TYPE_LABELS } from '@/types/estimateRequest';
+import { i18n } from '@/i18n/i18n';
+import { API_MOVE_TYPE_TO_UI } from '@/types/estimateRequest';
+
+import type { MoveTypeOption } from '@/types/estimateRequest';
 
 import type { EstimateRequestStatus } from '@/types/customerEstimateRequest';
 import type {
@@ -52,6 +55,15 @@ import type {
 import type { ApiMoveType } from '@/types/estimateRequest';
 import type { MoverCardModel } from '@/types/mover';
 import type { ZodType } from 'zod';
+
+const MOVE_TYPE_I18N_KEY: Record<MoveTypeOption, 'SMALL' | 'HOME' | 'OFFICE'> = {
+  small: 'SMALL',
+  home: 'HOME',
+  office: 'OFFICE',
+};
+
+const getMoveTypeLabel = (moveType: MoveTypeOption | null): string =>
+  moveType ? i18n.t(`moveType.${MOVE_TYPE_I18N_KEY[moveType]}`) : '-';
 
 const CUSTOMER_QUOTES_BASE = `${API_BASE_URL}/api/users/customers/quotes`;
 const CUSTOMER_PAST_QUOTES_URL = `${API_BASE_URL}/api/users/customers/past-quotes`;
@@ -145,7 +157,7 @@ export const toQuoteInfoViewModel = (input: {
 
   return {
     requestedAtLabel: formatShortDateLabel(input.submittedAt),
-    serviceLabel: moveType ? MOVE_TYPE_LABELS[moveType] : '-',
+    serviceLabel: getMoveTypeLabel(moveType),
     moveDateLabel: formatMoveDateLabel(input.moveDate),
     departure: input.fromAddress ?? '-',
     arrival: input.toAddress ?? '-',
@@ -256,7 +268,7 @@ const toPendingRequestSummaryModel = (
 
   return {
     estimateRequestId: data.estimateRequestId,
-    serviceLabel: moveType ? MOVE_TYPE_LABELS[moveType] : '-',
+    serviceLabel: getMoveTypeLabel(moveType),
     requestedAtLabel: formatKoreanDateLabel(data.submittedAt),
     moveDateLabel: formatKoreanMoveDateLabel(data.moveDate),
     from: data.fromAddress ?? '-',
@@ -324,7 +336,7 @@ export const toCustomerQuoteDetailViewModel = (
     showUnconfirmedBanner: isPending && !canConfirm,
     priceLabel: formatQuotePriceLabel(detail.price),
     comment: detail.comment,
-    serviceLabel: moveType ? MOVE_TYPE_LABELS[moveType] : '-',
+    serviceLabel: getMoveTypeLabel(moveType),
     requestedAtLabel: formatShortDateLabel(detail.submittedAt),
     moveDateLabel: formatMoveDateLabel(detail.moveDate),
     departure: detail.fromAddress ?? '-',

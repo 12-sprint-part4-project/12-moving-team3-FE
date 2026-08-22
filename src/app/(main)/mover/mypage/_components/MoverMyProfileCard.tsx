@@ -196,7 +196,6 @@ export const MoverMyProfileCard = ({
               <span aria-hidden className={STAT_DIVIDER_CLASS} />
               <span className="inline-flex items-center gap-1 lg:gap-1.5">
                 <span className="text-black-300">{confirmedLabel}</span>
-                <span className="text-gray-300">{t('profile.confirmed')}</span>
               </span>
             </div>
 

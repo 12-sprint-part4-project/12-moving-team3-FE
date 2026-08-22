@@ -35,6 +35,12 @@
   "language": {
     "selectorLabel": "Select language"
   },
+  "date": {
+    "justNow": "Just now",
+    "yesterday": "Yesterday",
+    "dayBeforeYesterday": "2 days ago",
+    "today": "Today"
+  },
   "meta": {
     "titleTemplate": "%s | Moving",
     "description": "Request the moving service you need and receive quotes",

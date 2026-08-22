@@ -214,7 +214,6 @@ export const MoverCard = ({
                   />
                   <span className="inline-flex items-center gap-1.5">
                     <span className="text-black-300">{confirmedLabel}</span>
-                    <span className="text-gray-300">{t('profile.confirmed')}</span>
                   </span>
                 </>
               ) : null}

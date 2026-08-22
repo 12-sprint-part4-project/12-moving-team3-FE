@@ -119,7 +119,10 @@ export const CommunitySelectDropdown = ({
           className={cn(
             'absolute top-full left-0 z-20 mt-1 border border-line-200 bg-white',
             isDesktop
-              ? 'w-[20.5rem] overflow-hidden rounded-2xl'
+              ? cn(
+                  'overflow-hidden rounded-2xl',
+                  isTwoColumn ? 'w-[24rem]' : 'w-[20.5rem]'
+                )
               : 'max-h-[11.25rem] w-max min-w-full overflow-y-auto rounded-lg'
           )}
         >
@@ -143,10 +146,11 @@ export const CommunitySelectDropdown = ({
                     type="button"
                     onClick={() => handleSelect(option.value)}
                     className={cn(
-                      'flex w-full cursor-pointer items-center whitespace-nowrap text-black-400',
+                      'flex w-full cursor-pointer items-center text-left text-black-400',
                       isDesktop
-                        ? 'px-6 py-4 text-2lg-medium'
+                        ? 'px-4 py-3 text-lg-medium'
                         : 'px-3.5 py-1.5 text-md-regular',
+                      isTwoColumn && 'whitespace-normal break-words',
                       isSelected
                         ? 'bg-background-300'
                         : 'hover:bg-background-300'

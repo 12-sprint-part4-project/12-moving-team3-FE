@@ -35,6 +35,12 @@
   "language": {
     "selectorLabel": "选择语言"
   },
+  "date": {
+    "justNow": "刚刚",
+    "yesterday": "昨天",
+    "dayBeforeYesterday": "前天",
+    "today": "今天"
+  },
   "meta": {
     "titleTemplate": "%s | Moving",
     "description": "申请您需要的搬家服务并获取报价",
@@ -498,7 +504,7 @@
     "designatedHint": "向搬家师傅{{name}}申请指定报价吧！",
     "profileAlt": "搬家师傅{{name}}的个人资料",
     "careerYears": "{{count}}年",
-    "confirmedCount": "{{count}}笔",
+    "confirmedCount": "{{count}}笔确认",
     "sort": {
       "reviewCountDesc": "评价最多",
       "ratingDesc": "评分最高",

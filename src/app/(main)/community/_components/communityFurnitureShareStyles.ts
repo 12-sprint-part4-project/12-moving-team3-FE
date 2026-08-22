@@ -15,7 +15,7 @@ export const COMMUNITY_FURNITURE_SHARE_CTA_LABEL_CLASS =
 
 /** 그리드 카드 — 나눔 완료 오버레이 */
 export const COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_CLASS =
-  'absolute inset-0 flex items-center justify-center bg-black-400/60';
+  'absolute inset-0 flex items-center justify-center bg-black-400/60 px-3 text-center';
 
 export const COMMUNITY_FURNITURE_SHARE_COMPLETED_OVERLAY_TEXT_CLASS =
-  'text-xl-bold text-white drop-shadow-icon-on-media min-[46.5rem]:text-2xl-bold xl:text-3xl-bold';
+  'block w-full max-w-full text-center text-xl-bold leading-tight text-white drop-shadow-icon-on-media min-[46.5rem]:text-2xl-bold xl:text-3xl-bold';

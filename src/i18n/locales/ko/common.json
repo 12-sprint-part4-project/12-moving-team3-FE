@@ -35,6 +35,12 @@
   "language": {
     "selectorLabel": "언어 선택"
   },
+  "date": {
+    "justNow": "방금 전",
+    "yesterday": "어제",
+    "dayBeforeYesterday": "그저께",
+    "today": "오늘"
+  },
   "meta": {
     "titleTemplate": "%s | 무빙",
     "description": "원하는 이사 서비스를 요청하고 견적을 받아보세요",
@@ -498,7 +504,7 @@
     "designatedHint": "{{name}} 기사님에게 지정 견적을 요청해보세요!",
     "profileAlt": "{{name}} 기사님 프로필",
     "careerYears": "{{count}}년",
-    "confirmedCount": "{{count}}건",
+    "confirmedCount": "{{count}}건 확정",
     "sort": {
       "reviewCountDesc": "리뷰 많은순",
       "ratingDesc": "평점 높은순",
