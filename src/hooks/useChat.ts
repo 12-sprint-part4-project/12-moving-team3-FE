@@ -339,7 +339,7 @@ const isAlreadyLeftError = (error: unknown): boolean => {
 
 /**
  * 나가기 성공 시 목록에서만 즉시 제거한다.
- * room/messages는 ChatRoomPage observer가 아직 살아 있어 removeQueries 시
+ * room/messages는 ChatRoomPageClient observer가 아직 살아 있어 removeQueries 시
  * 나간 방을 재조회하므로, 목록 정리만 하고 상세·메시지 캐시는 라우트 이탈 후 GC에 맡긴다.
  */
 const removeLeftRoomFromCache = (

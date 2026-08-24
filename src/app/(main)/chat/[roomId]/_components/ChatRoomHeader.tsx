@@ -18,6 +18,8 @@ import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 
+import { CHAT_ROOM_HEADER_CLASS } from './chatRoomStyles';
+
 import type { ChatPartner, ChatRoomType } from '@/types/chat';
 import type { QuoteStatus } from '@/types/quote';
 
@@ -83,12 +85,7 @@ export const ChatRoomHeader = ({
 
   return (
     <>
-      <header
-        className={cn(
-          'relative flex w-full items-center justify-between border-b border-line-100 bg-white px-4 py-3 md:px-6',
-          className
-        )}
-      >
+      <header className={cn(CHAT_ROOM_HEADER_CLASS, className)}>
         <Link
           href="/chat"
           aria-label={t('chat.backToListAria')}

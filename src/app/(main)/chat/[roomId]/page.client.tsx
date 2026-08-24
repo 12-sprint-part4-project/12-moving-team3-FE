@@ -23,10 +23,17 @@ import { uploadChatImage } from '@/lib/uploadChatImage';
 import { cn } from '@/lib/utils';
 
 import { ChatLoginRequired } from '../_components/ChatLoginRequired';
+import { CHAT_CONTENT_CLASS } from '../_components/chatLayout';
 import { ChatComposer } from './_components/ChatComposer';
 import { ChatMessageList } from './_components/ChatMessageList';
 import { ChatRoomHeader } from './_components/ChatRoomHeader';
 import { ChatRoomHeaderPlaceholder } from './_components/ChatRoomHeaderPlaceholder';
+import {
+  CHAT_ROOM_CONTENT_CLASS,
+  CHAT_ROOM_HEIGHT_DEFAULT_CLASS,
+  CHAT_ROOM_HEIGHT_DESKTOP_CLASS,
+  CHAT_ROOM_HEIGHT_MOBILE_LOCK_CLASS,
+} from './_components/chatRoomStyles';
 
 export interface ChatRoomPageClientProps {
   roomId: string;
@@ -85,9 +92,11 @@ const ChatRoomPageClient = ({
 
   useChatSocketRoom(enabled ? roomId : 0);
 
+  // 모바일만: body를 visualViewport에 고정 → 키보드 시 채팅 UI가 가시 영역에 맞게 축소 (#279)
   const isMobileViewport = useIsMobileViewport();
   useChatRoomMobileViewport(enabled && isMobileViewport);
 
+  // auth(localStorage)라 generateMetadata 불가 — room 로드 후 document.title 설정
   useEffect(() => {
     document.title =
       enabled && room
@@ -140,6 +149,7 @@ const ChatRoomPageClient = ({
     );
   }, [enabled, roomId, messages, markAsRead, user?.id, isNearBottom]);
 
+  // 상대 새 메시지 — 하단이면 커서만 갱신, 위로 스크롤 중이면 안내 칩
   useEffect(() => {
     if (!enabled) {
       return;
@@ -248,7 +258,7 @@ const ChatRoomPageClient = ({
 
   if (!isValidRoomId) {
     return (
-      <div className={cn('chat-content', className)}>
+      <div className={cn(CHAT_CONTENT_CLASS, className)}>
         <Link
           href="/chat"
           className="inline-flex w-fit items-center gap-1 text-md-medium text-gray-400 hover:text-black-400"
@@ -266,11 +276,11 @@ const ChatRoomPageClient = ({
   return (
     <div
       className={cn(
-        'chat-room-content',
+        CHAT_ROOM_CONTENT_CLASS,
         enabled && isMobileViewport
-          ? 'h-full max-h-full min-h-0 flex-1'
-          : 'h-[calc(100dvh-var(--height-gnb))] max-h-[calc(100dvh-var(--height-gnb))]',
-        'lg:h-[calc(100dvh-var(--height-gnb-lg))] lg:max-h-[calc(100dvh-var(--height-gnb-lg))]',
+          ? CHAT_ROOM_HEIGHT_MOBILE_LOCK_CLASS
+          : CHAT_ROOM_HEIGHT_DEFAULT_CLASS,
+        CHAT_ROOM_HEIGHT_DESKTOP_CLASS,
         className
       )}
     >

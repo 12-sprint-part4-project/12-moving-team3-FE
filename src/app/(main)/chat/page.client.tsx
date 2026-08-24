@@ -10,6 +10,12 @@ import { useChatRooms } from '@/hooks/useChat';
 import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
+import {
+  CHAT_CONTENT_CLASS,
+  CHAT_LIST_PANEL_CLASS,
+  CHAT_LIST_STATE_MESSAGE_CLASS,
+  CHAT_PAGE_TITLE_CLASS,
+} from './_components/chatLayout';
 import { ChatLoginRequired } from './_components/ChatLoginRequired';
 
 export interface ChatListPageClientProps {
@@ -33,9 +39,9 @@ const ChatListPageClient = ({ className }: ChatListPageClientProps) => {
 
   if (isPending) {
     return (
-      <div className={cn('chat-content', className)}>
-        <h1 className="text-2xl-bold text-black-400">{t('chat.title')}</h1>
-        <div className="mt-6 flex flex-col overflow-hidden rounded-3xl border border-line-200 bg-white">
+      <div className={cn(CHAT_CONTENT_CLASS, className)}>
+        <h1 className={CHAT_PAGE_TITLE_CLASS}>{t('chat.title')}</h1>
+        <div className={CHAT_LIST_PANEL_CLASS}>
           <ChatRoomListSkeleton count={CHAT_LIST_SKELETON_COUNT} />
         </div>
       </div>
@@ -44,12 +50,10 @@ const ChatListPageClient = ({ className }: ChatListPageClientProps) => {
 
   if (isError) {
     return (
-      <div className={cn('chat-content', className)}>
-        <h1 className="text-2xl-bold text-black-400">{t('chat.title')}</h1>
-        <div className="mt-6 flex flex-col overflow-hidden rounded-3xl border border-line-200 bg-white">
-          <p className="px-6 py-10 text-center text-md-medium text-gray-300">
-            {t('chat.listError')}
-          </p>
+      <div className={cn(CHAT_CONTENT_CLASS, className)}>
+        <h1 className={CHAT_PAGE_TITLE_CLASS}>{t('chat.title')}</h1>
+        <div className={CHAT_LIST_PANEL_CLASS}>
+          <p className={CHAT_LIST_STATE_MESSAGE_CLASS}>{t('chat.listError')}</p>
         </div>
       </div>
     );
@@ -57,21 +61,19 @@ const ChatListPageClient = ({ className }: ChatListPageClientProps) => {
 
   if (isEmpty) {
     return (
-      <div className={cn('chat-content', className)}>
-        <h1 className="text-2xl-bold text-black-400">{t('chat.title')}</h1>
-        <div className="mt-6 flex flex-col overflow-hidden rounded-3xl border border-line-200 bg-white">
-          <p className="px-6 py-10 text-center text-md-medium text-gray-300">
-            {t('chat.empty')}
-          </p>
+      <div className={cn(CHAT_CONTENT_CLASS, className)}>
+        <h1 className={CHAT_PAGE_TITLE_CLASS}>{t('chat.title')}</h1>
+        <div className={CHAT_LIST_PANEL_CLASS}>
+          <p className={CHAT_LIST_STATE_MESSAGE_CLASS}>{t('chat.empty')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={cn('chat-content', className)}>
-      <h1 className="text-2xl-bold text-black-400">{t('chat.title')}</h1>
-      <div className="mt-6 flex flex-col overflow-hidden rounded-3xl border border-line-200 bg-white">
+    <div className={cn(CHAT_CONTENT_CLASS, className)}>
+      <h1 className={CHAT_PAGE_TITLE_CLASS}>{t('chat.title')}</h1>
+      <div className={CHAT_LIST_PANEL_CLASS}>
         {rooms.map((room) => (
           <ChatRoomListItem key={room.roomId} room={room} />
         ))}
