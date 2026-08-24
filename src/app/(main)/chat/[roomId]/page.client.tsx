@@ -22,8 +22,8 @@ import { parsePositiveInt } from '@/lib/parsePositiveInt';
 import { uploadChatImage } from '@/lib/uploadChatImage';
 import { cn } from '@/lib/utils';
 
-import { ChatLoginRequired } from '../_components/ChatLoginRequired';
 import { CHAT_CONTENT_CLASS } from '../_components/chatLayout';
+import { ChatLoginRequired } from '../_components/ChatLoginRequired';
 import { ChatComposer } from './_components/ChatComposer';
 import { ChatMessageList } from './_components/ChatMessageList';
 import { ChatRoomHeader } from './_components/ChatRoomHeader';

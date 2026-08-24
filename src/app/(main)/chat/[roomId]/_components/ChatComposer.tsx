@@ -324,7 +324,7 @@ export const ChatComposer = ({
               {t('chat.attachedCount', { count: pendingImages.length })}
             </p>
             <ul
-              className="flex min-h-[4.75rem] gap-2 overflow-x-auto pt-2 pr-2 pb-1"
+              className="flex min-h-19 gap-2 overflow-x-auto pt-2 pr-2 pb-1"
               aria-label={t('chat.attachPreviewAria')}
             >
               {pendingImages.map((item, index) => (

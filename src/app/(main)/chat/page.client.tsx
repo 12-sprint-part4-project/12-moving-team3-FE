@@ -10,13 +10,13 @@ import { useChatRooms } from '@/hooks/useChat';
 import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
+import { ChatLoginRequired } from './_components/ChatLoginRequired';
 import {
   CHAT_CONTENT_CLASS,
   CHAT_LIST_PANEL_CLASS,
   CHAT_LIST_STATE_MESSAGE_CLASS,
   CHAT_PAGE_TITLE_CLASS,
 } from './_components/chatLayout';
-import { ChatLoginRequired } from './_components/ChatLoginRequired';
 
 export interface ChatListPageClientProps {
   className?: string;
