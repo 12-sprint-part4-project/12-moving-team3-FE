@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import { ChatAvatar } from '@/components/chat/ChatAvatar';
 import { ChatRoomStatusChip } from '@/components/chat/ChatRoomStatusChip';
 import { ChatUnreadBadge } from '@/components/chat/ChatUnreadBadge';
-import { useAuth } from '@/hooks/useAuth';
 import { getChatListStatusLabel } from '@/lib/chatListStatusLabel';
 import { getChatLastMessagePreview } from '@/lib/chatMessagePreview';
 import { cn } from '@/lib/utils';
@@ -15,6 +14,7 @@ import type { ChatRoomListItem as ChatRoomListItemData } from '@/types/chat';
 
 export interface ChatRoomListItemProps {
   room: ChatRoomListItemData;
+  currentUserId?: string;
   /** 드롭다운 등에서 네비게이션 전 닫기 */
   onNavigate?: () => void;
   className?: string;
@@ -23,15 +23,16 @@ export interface ChatRoomListItemProps {
 /** 채팅방 목록/미리보기 공용 행 */
 export const ChatRoomListItem = ({
   room,
+  currentUserId,
   onNavigate,
   className,
 }: ChatRoomListItemProps) => {
-  const { user } = useAuth();
   const [, setStatusTick] = useState(0);
   const preview = getChatLastMessagePreview(room.lastMessage);
   const hasUnread = room.unreadCount > 0;
 
-  const statusLabel = user != null ? getChatListStatusLabel(room, user.id) : '';
+  const statusLabel =
+    currentUserId != null ? getChatListStatusLabel(room, currentUserId) : '';
 
   useEffect(() => {
     if (!room.lastMessage) {

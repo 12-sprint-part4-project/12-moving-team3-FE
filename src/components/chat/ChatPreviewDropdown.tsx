@@ -9,6 +9,7 @@ import {
   CHAT_PREVIEW_SKELETON_COUNT,
   ChatRoomListSkeleton,
 } from '@/components/ui/Skeleton';
+import { useAuth } from '@/hooks/useAuth';
 import { useChatRooms } from '@/hooks/useChat';
 import { useTranslation } from '@/i18n/useTranslation';
 import { sortChatRoomsForGnbPreview } from '@/lib/chatRoomListSort';
@@ -27,6 +28,7 @@ export const ChatPreviewDropdown = ({
   className,
 }: ChatPreviewDropdownProps) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const { rooms, isPending, isError, isEmpty } = useChatRooms();
   const previewRooms = useMemo(
     () => sortChatRoomsForGnbPreview(rooms).slice(0, PREVIEW_LIMIT),
@@ -80,6 +82,7 @@ export const ChatPreviewDropdown = ({
               <ChatRoomListItem
                 key={room.roomId}
                 room={room}
+                currentUserId={user?.id}
                 onNavigate={onClose}
                 className="w-full max-w-[20.4375rem] self-center border-line-200 px-6"
               />

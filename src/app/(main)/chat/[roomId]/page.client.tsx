@@ -1,15 +1,14 @@
 'use client';
 
-import Link from 'next/link';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
+import { ReportAction } from '@/components/reports';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useChatMessages,
   useChatRoom,
-  useMarkChatRoomAsRead,
-  useSendChatMessage,
+  useLeaveChatRoom,
 } from '@/hooks/useChat';
 import { useChatRoomMobileViewport } from '@/hooks/useChatRoomMobileViewport';
 import { useChatSocketRoom } from '@/hooks/useChatSocketRoom';
@@ -19,21 +18,25 @@ import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
 import { chatPartnerDisplayName } from '@/lib/chatPartnerDisplayName';
 import { parsePositiveInt } from '@/lib/parsePositiveInt';
-import { uploadChatImage } from '@/lib/uploadChatImage';
 import { cn } from '@/lib/utils';
 
-import { CHAT_CONTENT_CLASS } from '../_components/chatLayout';
 import { ChatLoginRequired } from '../_components/ChatLoginRequired';
 import { ChatComposer } from './_components/ChatComposer';
 import { ChatMessageList } from './_components/ChatMessageList';
+import { ChatRoomErrorState } from './_components/ChatRoomErrorState';
 import { ChatRoomHeader } from './_components/ChatRoomHeader';
 import { ChatRoomHeaderPlaceholder } from './_components/ChatRoomHeaderPlaceholder';
+import { ChatRoomInvalidState } from './_components/ChatRoomInvalidState';
+import { ChatRoomLeaveModal } from './_components/ChatRoomLeaveModal';
 import {
   CHAT_ROOM_CONTENT_CLASS,
   CHAT_ROOM_HEIGHT_DEFAULT_CLASS,
   CHAT_ROOM_HEIGHT_DESKTOP_CLASS,
   CHAT_ROOM_HEIGHT_MOBILE_LOCK_CLASS,
 } from './_components/chatRoomStyles';
+import { useChatRoomReadReceipt } from './_lib/useChatRoomReadReceipt';
+import { useChatRoomScrollChip } from './_lib/useChatRoomScrollChip';
+import { useChatRoomSend } from './_lib/useChatRoomSend';
 
 export interface ChatRoomPageClientProps {
   roomId: string;
@@ -46,6 +49,7 @@ const ChatRoomPageClient = ({
   className,
 }: ChatRoomPageClientProps) => {
   const { t } = useTranslation();
+  const router = useRouter();
   const numericRoomId = parsePositiveInt(roomIdParam);
   const isValidRoomId = numericRoomId != null;
   const roomId = numericRoomId ?? 0;
@@ -72,29 +76,47 @@ const ChatRoomPageClient = ({
     fetchNextPage,
   } = useChatMessages(roomId, { enabled });
 
-  const sendMutation = useSendChatMessage(roomId);
-  const { mutate: markAsRead } = useMarkChatRoomAsRead(roomId);
-  const lastMarkedMessageIdRef = useRef<number | null>(null);
-  const lastPartnerMessageIdRef = useRef<number | null>(null);
-  const [isNearBottom, setIsNearBottom] = useState(true);
-  const [showNewMessageChip, setShowNewMessageChip] = useState(false);
-  const [trackedRoomId, setTrackedRoomId] = useState(roomId);
-  const [isUploadingImages, setIsUploadingImages] = useState(false);
-  const [scrollToBottomSignal, setScrollToBottomSignal] = useState(0);
-  const [focusInputSignal, setFocusInputSignal] = useState(0);
-  const isNearBottomRef = useRef(true);
-
-  if (trackedRoomId !== roomId) {
-    setTrackedRoomId(roomId);
-    setIsNearBottom(true);
-    setShowNewMessageChip(false);
-  }
+  const leaveMutation = useLeaveChatRoom();
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+  const [reportMessageId, setReportMessageId] = useState<number | null>(null);
 
   useChatSocketRoom(enabled ? roomId : 0);
 
   // 모바일만: body를 visualViewport에 고정 → 키보드 시 채팅 UI가 가시 영역에 맞게 축소 (#279)
   const isMobileViewport = useIsMobileViewport();
   useChatRoomMobileViewport(enabled && isMobileViewport);
+
+  const {
+    isNearBottom,
+    scrollChipMode,
+    scrollToBottomSignal,
+    focusInputSignal,
+    handleNearBottomChange,
+    handleScrollToBottom,
+    handleComposerHeightChange,
+    notifyMessageSent,
+  } = useChatRoomScrollChip({
+    roomId,
+    enabled,
+    messages,
+    currentUserId: user?.id,
+  });
+
+  useChatRoomReadReceipt({
+    roomId,
+    enabled,
+    messages,
+    currentUserId: user?.id,
+    isNearBottom,
+  });
+
+  const isMessagingAllowed = room?.isMessagingAllowed !== false;
+
+  const { handleSend, handleSendImages, isSending } = useChatRoomSend({
+    roomId,
+    isMessagingAllowed,
+    onMessageSent: notifyMessageSent,
+  });
 
   // auth(localStorage)라 generateMetadata 불가 — room 로드 후 document.title 설정
   useEffect(() => {
@@ -110,143 +132,42 @@ const ChatRoomPageClient = ({
     };
   }, [enabled, room, t]);
 
-  useEffect(() => {
-    lastMarkedMessageIdRef.current = null;
-    lastPartnerMessageIdRef.current = null;
-    isNearBottomRef.current = true;
-  }, [roomId]);
+  const handleLeaveClick = () => {
+    setIsLeaveModalOpen(true);
+  };
 
-  useEffect(() => {
-    if (!enabled) {
-      lastMarkedMessageIdRef.current = null;
-      return;
-    }
+  const handleLeaveModalClose = () => {
+    setIsLeaveModalOpen(false);
+  };
 
-    if (!isNearBottom) {
-      return;
-    }
-
-    const latest = messages.at(-1);
-    if (!latest || latest.senderId === user?.id) {
-      return;
-    }
-
-    const latestMessageId = latest.messageId;
-    if (lastMarkedMessageIdRef.current === latestMessageId) {
-      return;
-    }
-
-    lastMarkedMessageIdRef.current = latestMessageId;
-    markAsRead(
-      { lastReadMessageId: latestMessageId },
-      {
-        onError: () => {
-          if (lastMarkedMessageIdRef.current === latestMessageId) {
-            lastMarkedMessageIdRef.current = null;
-          }
-        },
-      }
-    );
-  }, [enabled, roomId, messages, markAsRead, user?.id, isNearBottom]);
-
-  // 상대 새 메시지 — 하단이면 커서만 갱신, 위로 스크롤 중이면 안내 칩
-  useEffect(() => {
-    if (!enabled) {
-      return;
-    }
-
-    const latest = messages.at(-1);
-    if (!latest || latest.senderId === user?.id) {
-      return;
-    }
-
-    const latestId = latest.messageId;
-    if (isNearBottom) {
-      lastPartnerMessageIdRef.current = latestId;
-      return;
-    }
-
-    if (lastPartnerMessageIdRef.current === latestId) {
-      return;
-    }
-
-    lastPartnerMessageIdRef.current = latestId;
-    setShowNewMessageChip(true);
-  }, [enabled, messages, user?.id, isNearBottom]);
-
-  const handleNearBottomChange = useCallback((nearBottom: boolean) => {
-    isNearBottomRef.current = nearBottom;
-    setIsNearBottom(nearBottom);
-    if (nearBottom) {
-      setShowNewMessageChip(false);
-    }
-  }, []);
-
-  const handleScrollToBottom = useCallback(() => {
-    setScrollToBottomSignal((current) => current + 1);
-    setShowNewMessageChip(false);
-  }, []);
-
-  const handleComposerHeightChange = useCallback(() => {
-    if (isNearBottomRef.current) {
-      handleScrollToBottom();
-    }
-  }, [handleScrollToBottom]);
-
-  const isMessagingAllowed = room?.isMessagingAllowed !== false;
-
-  const handleSend = async (content: string) => {
-    if (!isMessagingAllowed) {
+  const handleLeaveConfirm = async () => {
+    if (leaveMutation.isPending) {
       return;
     }
 
     try {
-      await sendMutation.mutateAsync({
-        messageType: 'TEXT',
-        content,
+      const result = await leaveMutation.mutateAsync(roomId);
+      setIsLeaveModalOpen(false);
+      showToast({
+        content: result ? t('chat.left') : t('chat.alreadyLeft'),
       });
-      handleScrollToBottom();
-      setFocusInputSignal((current) => current + 1);
+      router.replace('/chat');
     } catch (error) {
       const message =
-        error instanceof ApiError ? error.message : t('chat.sendFail');
+        error instanceof ApiError ? error.message : t('chat.leaveFail');
       showToast({ content: message });
-      throw error;
     }
   };
 
-  const handleSendImages = async (files: File[]) => {
-    if (!isMessagingAllowed || files.length === 0) {
+  const handleReportMessage = (messageId: number) => {
+    if (!user) {
+      showToast({ content: t('chat.loginNeeded') });
       return;
     }
-
-    setIsUploadingImages(true);
-    try {
-      const attachments = await Promise.all(files.map(uploadChatImage));
-      await sendMutation.mutateAsync({
-        messageType: 'IMAGE',
-        attachments,
-      });
-      handleScrollToBottom();
-      setFocusInputSignal((current) => current + 1);
-    } catch (error) {
-      const message =
-        error instanceof ApiError ? error.message : t('chat.imageSendFail');
-      showToast({ content: message });
-      throw error;
-    } finally {
-      setIsUploadingImages(false);
-    }
+    setReportMessageId(messageId);
   };
 
-  const isSending = sendMutation.isPending || isUploadingImages;
   const composerDisabled = !isMessagingAllowed;
-  const scrollChipMode =
-    !isNearBottom && showNewMessageChip
-      ? 'new-message'
-      : !isNearBottom
-        ? 'to-bottom'
-        : 'hidden';
 
   if (!isReady) {
     return null;
@@ -257,20 +178,7 @@ const ChatRoomPageClient = ({
   }
 
   if (!isValidRoomId) {
-    return (
-      <div className={cn(CHAT_CONTENT_CLASS, className)}>
-        <Link
-          href="/chat"
-          className="inline-flex w-fit items-center gap-1 text-md-medium text-gray-400 hover:text-black-400"
-        >
-          <ChevronLeftIcon className="size-5" aria-hidden />
-          {t('chat.listLink')}
-        </Link>
-        <p className="mt-8 text-center text-lg-medium text-gray-300">
-          {t('chat.roomNotFound')}
-        </p>
-      </div>
-    );
+    return <ChatRoomInvalidState className={className} />;
   }
 
   return (
@@ -289,9 +197,9 @@ const ChatRoomPageClient = ({
       {!isRoomPending && room ? (
         <ChatRoomHeader
           partner={room.partner}
-          roomId={roomId}
           roomType={room.roomType}
           quoteStatus={room.quoteStatus}
+          onLeaveClick={handleLeaveClick}
           className="shrink-0"
         />
       ) : null}
@@ -304,17 +212,7 @@ const ChatRoomPageClient = ({
       ) : null}
 
       {isRoomError && !room ? (
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-16">
-          <p className="text-center text-lg-medium text-gray-300">
-            {t('chat.roomError')}
-          </p>
-          <Link
-            href="/chat"
-            className="text-md-medium text-blue-300 underline-offset-2 hover:underline"
-          >
-            {t('chat.backToList')}
-          </Link>
-        </div>
+        <ChatRoomErrorState />
       ) : (
         <>
           <ChatMessageList
@@ -337,6 +235,7 @@ const ChatRoomPageClient = ({
             }}
             onNearBottomChange={handleNearBottomChange}
             scrollToBottomSignal={scrollToBottomSignal}
+            onReportMessage={handleReportMessage}
           />
           <ChatComposer
             disabled={composerDisabled}
@@ -352,6 +251,23 @@ const ChatRoomPageClient = ({
           />
         </>
       )}
+
+      {isLeaveModalOpen ? (
+        <ChatRoomLeaveModal
+          isLeavePending={leaveMutation.isPending}
+          onClose={handleLeaveModalClose}
+          onConfirm={() => void handleLeaveConfirm()}
+        />
+      ) : null}
+
+      {reportMessageId != null ? (
+        <ReportAction
+          target="MESSAGE"
+          targetId={String(reportMessageId)}
+          controlledOpen
+          onControlledClose={() => setReportMessageId(null)}
+        />
+      ) : null}
     </div>
   );
 };
