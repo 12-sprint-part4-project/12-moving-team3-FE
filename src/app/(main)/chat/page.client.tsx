@@ -75,7 +75,7 @@ const ChatListPageClient = ({ className }: ChatListPageClientProps) => {
       <h1 className={CHAT_PAGE_TITLE_CLASS}>{t('chat.title')}</h1>
       <div className={CHAT_LIST_PANEL_CLASS}>
         {rooms.map((room) => (
-          <ChatRoomListItem key={room.roomId} room={room} />
+          <ChatRoomListItem key={room.roomId} room={room} currentUserId={user.id} />
         ))}
       </div>
     </div>
