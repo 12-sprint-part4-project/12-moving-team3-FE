@@ -1,15 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
 import {
   useChatMessages,
   useChatRoom,
   useLeaveChatRoom,
-  useMarkChatRoomAsRead,
-  useSendChatMessage,
 } from '@/hooks/useChat';
 import { useChatRoomMobileViewport } from '@/hooks/useChatRoomMobileViewport';
 import { useChatSocketRoom } from '@/hooks/useChatSocketRoom';
@@ -19,7 +17,6 @@ import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
 import { chatPartnerDisplayName } from '@/lib/chatPartnerDisplayName';
 import { parsePositiveInt } from '@/lib/parsePositiveInt';
-import { uploadChatImage } from '@/lib/uploadChatImage';
 import { cn } from '@/lib/utils';
 
 import { ChatLoginRequired } from '../_components/ChatLoginRequired';
@@ -36,6 +33,9 @@ import {
   CHAT_ROOM_HEIGHT_DESKTOP_CLASS,
   CHAT_ROOM_HEIGHT_MOBILE_LOCK_CLASS,
 } from './_components/chatRoomStyles';
+import { useChatRoomReadReceipt } from './_lib/useChatRoomReadReceipt';
+import { useChatRoomScrollChip } from './_lib/useChatRoomScrollChip';
+import { useChatRoomSend } from './_lib/useChatRoomSend';
 
 export interface ChatRoomPageClientProps {
   roomId: string;
@@ -75,31 +75,46 @@ const ChatRoomPageClient = ({
     fetchNextPage,
   } = useChatMessages(roomId, { enabled });
 
-  const sendMutation = useSendChatMessage(roomId);
   const leaveMutation = useLeaveChatRoom();
-  const { mutate: markAsRead } = useMarkChatRoomAsRead(roomId);
-  const lastMarkedMessageIdRef = useRef<number | null>(null);
-  const lastPartnerMessageIdRef = useRef<number | null>(null);
-  const [isNearBottom, setIsNearBottom] = useState(true);
-  const [showNewMessageChip, setShowNewMessageChip] = useState(false);
-  const [trackedRoomId, setTrackedRoomId] = useState(roomId);
-  const [isUploadingImages, setIsUploadingImages] = useState(false);
-  const [scrollToBottomSignal, setScrollToBottomSignal] = useState(0);
-  const [focusInputSignal, setFocusInputSignal] = useState(0);
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
-  const isNearBottomRef = useRef(true);
-
-  if (trackedRoomId !== roomId) {
-    setTrackedRoomId(roomId);
-    setIsNearBottom(true);
-    setShowNewMessageChip(false);
-  }
 
   useChatSocketRoom(enabled ? roomId : 0);
 
   // 모바일만: body를 visualViewport에 고정 → 키보드 시 채팅 UI가 가시 영역에 맞게 축소 (#279)
   const isMobileViewport = useIsMobileViewport();
   useChatRoomMobileViewport(enabled && isMobileViewport);
+
+  const {
+    isNearBottom,
+    scrollChipMode,
+    scrollToBottomSignal,
+    focusInputSignal,
+    handleNearBottomChange,
+    handleScrollToBottom,
+    handleComposerHeightChange,
+    notifyMessageSent,
+  } = useChatRoomScrollChip({
+    roomId,
+    enabled,
+    messages,
+    currentUserId: user?.id,
+  });
+
+  useChatRoomReadReceipt({
+    roomId,
+    enabled,
+    messages,
+    currentUserId: user?.id,
+    isNearBottom,
+  });
+
+  const isMessagingAllowed = room?.isMessagingAllowed !== false;
+
+  const { handleSend, handleSendImages, isSending } = useChatRoomSend({
+    roomId,
+    isMessagingAllowed,
+    onMessageSent: notifyMessageSent,
+  });
 
   // auth(localStorage)라 generateMetadata 불가 — room 로드 후 document.title 설정
   useEffect(() => {
@@ -114,89 +129,6 @@ const ChatRoomPageClient = ({
       document.title = t('chat.pageDocumentTitle');
     };
   }, [enabled, room, t]);
-
-  useEffect(() => {
-    lastMarkedMessageIdRef.current = null;
-    lastPartnerMessageIdRef.current = null;
-    isNearBottomRef.current = true;
-  }, [roomId]);
-
-  useEffect(() => {
-    if (!enabled) {
-      lastMarkedMessageIdRef.current = null;
-      return;
-    }
-
-    if (!isNearBottom) {
-      return;
-    }
-
-    const latest = messages.at(-1);
-    if (!latest || latest.senderId === user?.id) {
-      return;
-    }
-
-    const latestMessageId = latest.messageId;
-    if (lastMarkedMessageIdRef.current === latestMessageId) {
-      return;
-    }
-
-    lastMarkedMessageIdRef.current = latestMessageId;
-    markAsRead(
-      { lastReadMessageId: latestMessageId },
-      {
-        onError: () => {
-          if (lastMarkedMessageIdRef.current === latestMessageId) {
-            lastMarkedMessageIdRef.current = null;
-          }
-        },
-      }
-    );
-  }, [enabled, roomId, messages, markAsRead, user?.id, isNearBottom]);
-
-  // 상대 새 메시지 — 하단이면 커서만 갱신, 위로 스크롤 중이면 안내 칩
-  useEffect(() => {
-    if (!enabled) {
-      return;
-    }
-
-    const latest = messages.at(-1);
-    if (!latest || latest.senderId === user?.id) {
-      return;
-    }
-
-    const latestId = latest.messageId;
-    if (isNearBottom) {
-      lastPartnerMessageIdRef.current = latestId;
-      return;
-    }
-
-    if (lastPartnerMessageIdRef.current === latestId) {
-      return;
-    }
-
-    lastPartnerMessageIdRef.current = latestId;
-    setShowNewMessageChip(true);
-  }, [enabled, messages, user?.id, isNearBottom]);
-
-  const handleNearBottomChange = useCallback((nearBottom: boolean) => {
-    isNearBottomRef.current = nearBottom;
-    setIsNearBottom(nearBottom);
-    if (nearBottom) {
-      setShowNewMessageChip(false);
-    }
-  }, []);
-
-  const handleScrollToBottom = useCallback(() => {
-    setScrollToBottomSignal((current) => current + 1);
-    setShowNewMessageChip(false);
-  }, []);
-
-  const handleComposerHeightChange = useCallback(() => {
-    if (isNearBottomRef.current) {
-      handleScrollToBottom();
-    }
-  }, [handleScrollToBottom]);
 
   const handleLeaveClick = () => {
     setIsLeaveModalOpen(true);
@@ -225,60 +157,7 @@ const ChatRoomPageClient = ({
     }
   };
 
-  const isMessagingAllowed = room?.isMessagingAllowed !== false;
-
-  const handleSend = async (content: string) => {
-    if (!isMessagingAllowed) {
-      return;
-    }
-
-    try {
-      await sendMutation.mutateAsync({
-        messageType: 'TEXT',
-        content,
-      });
-      handleScrollToBottom();
-      setFocusInputSignal((current) => current + 1);
-    } catch (error) {
-      const message =
-        error instanceof ApiError ? error.message : t('chat.sendFail');
-      showToast({ content: message });
-      throw error;
-    }
-  };
-
-  const handleSendImages = async (files: File[]) => {
-    if (!isMessagingAllowed || files.length === 0) {
-      return;
-    }
-
-    setIsUploadingImages(true);
-    try {
-      const attachments = await Promise.all(files.map(uploadChatImage));
-      await sendMutation.mutateAsync({
-        messageType: 'IMAGE',
-        attachments,
-      });
-      handleScrollToBottom();
-      setFocusInputSignal((current) => current + 1);
-    } catch (error) {
-      const message =
-        error instanceof ApiError ? error.message : t('chat.imageSendFail');
-      showToast({ content: message });
-      throw error;
-    } finally {
-      setIsUploadingImages(false);
-    }
-  };
-
-  const isSending = sendMutation.isPending || isUploadingImages;
   const composerDisabled = !isMessagingAllowed;
-  const scrollChipMode =
-    !isNearBottom && showNewMessageChip
-      ? 'new-message'
-      : !isNearBottom
-        ? 'to-bottom'
-        : 'hidden';
 
   if (!isReady) {
     return null;
