@@ -6,14 +6,10 @@ import {
   useEffect,
   useLayoutEffect,
   useRef,
-  useState,
   type UIEvent,
 } from 'react';
 
-import { ReportAction } from '@/components/reports';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/useToast';
 import { useTranslation } from '@/i18n/useTranslation';
 import {
   formatChatDateSeparator,
@@ -50,6 +46,8 @@ export interface ChatMessageListProps {
   onNearBottomChange?: (isNearBottom: boolean) => void;
   /** 부모가 전송 직후 강제로 하단 이동을 요청할 때 증가하는 값 */
   scrollToBottomSignal?: number;
+  /** 상대 메시지 신고 — page.client에서 로그인 가드·모달 오케스트레이션 */
+  onReportMessage?: (messageId: number) => void;
   className?: string;
 }
 
@@ -126,12 +124,10 @@ export const ChatMessageList = ({
   onLoadOlder,
   onNearBottomChange,
   scrollToBottomSignal = 0,
+  onReportMessage,
   className,
 }: ChatMessageListProps) => {
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const { showToast } = useToast();
-  const [reportMessageId, setReportMessageId] = useState<number | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -466,24 +462,15 @@ export const ChatMessageList = ({
     }
   };
 
-  const handleOpenReport = (messageId: number) => {
-    if (!user) {
-      showToast({ content: t('chat.loginNeeded') });
-      return;
-    }
-    setReportMessageId(messageId);
-  };
-
   return (
-    <>
-      <div
-        ref={scrollRef}
-        onScroll={handleScroll}
-        className={cn(
-          'min-h-0 flex-1 overflow-y-auto overscroll-contain bg-background-200 px-4 py-5 md:px-6',
-          className
-        )}
-      >
+    <div
+      ref={scrollRef}
+      onScroll={handleScroll}
+      className={cn(
+        'min-h-0 flex-1 overflow-y-auto overscroll-contain bg-background-200 px-4 py-5 md:px-6',
+        className
+      )}
+    >
         <div ref={contentRef} className="flex flex-col gap-3.5">
           <div aria-live="polite" aria-atomic="true">
             {isFetchingNextPage ? (
@@ -564,9 +551,9 @@ export const ChatMessageList = ({
                     showUnreadCount={showUnreadCount}
                     showReadLabel={showReadLabel}
                     onReport={
-                      isMine
+                      isMine || !onReportMessage
                         ? undefined
-                        : () => handleOpenReport(message.messageId)
+                        : () => onReportMessage(message.messageId)
                     }
                     className={
                       showTime || showUnreadCount || showReadLabel
@@ -588,15 +575,5 @@ export const ChatMessageList = ({
           ) : null}
         </div>
       </div>
-
-      {reportMessageId != null ? (
-        <ReportAction
-          target="MESSAGE"
-          targetId={String(reportMessageId)}
-          controlledOpen
-          onControlledClose={() => setReportMessageId(null)}
-        />
-      ) : null}
-    </>
-  );
-};
+    );
+  };

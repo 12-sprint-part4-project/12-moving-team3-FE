@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { ReportAction } from '@/components/reports';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useChatMessages,
@@ -77,6 +78,7 @@ const ChatRoomPageClient = ({
 
   const leaveMutation = useLeaveChatRoom();
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+  const [reportMessageId, setReportMessageId] = useState<number | null>(null);
 
   useChatSocketRoom(enabled ? roomId : 0);
 
@@ -157,6 +159,14 @@ const ChatRoomPageClient = ({
     }
   };
 
+  const handleReportMessage = (messageId: number) => {
+    if (!user) {
+      showToast({ content: t('chat.loginNeeded') });
+      return;
+    }
+    setReportMessageId(messageId);
+  };
+
   const composerDisabled = !isMessagingAllowed;
 
   if (!isReady) {
@@ -225,6 +235,7 @@ const ChatRoomPageClient = ({
             }}
             onNearBottomChange={handleNearBottomChange}
             scrollToBottomSignal={scrollToBottomSignal}
+            onReportMessage={handleReportMessage}
           />
           <ChatComposer
             disabled={composerDisabled}
@@ -246,6 +257,15 @@ const ChatRoomPageClient = ({
           isLeavePending={leaveMutation.isPending}
           onClose={handleLeaveModalClose}
           onConfirm={() => void handleLeaveConfirm()}
+        />
+      ) : null}
+
+      {reportMessageId != null ? (
+        <ReportAction
+          target="MESSAGE"
+          targetId={String(reportMessageId)}
+          controlledOpen
+          onControlledClose={() => setReportMessageId(null)}
         />
       ) : null}
     </div>
