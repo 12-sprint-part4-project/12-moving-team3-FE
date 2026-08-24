@@ -2,7 +2,7 @@
 
 import { fn } from 'storybook/test';
 
-import { ChatMessageItem } from '@/components/chat/ChatMessageItem';
+import { ChatMessageItem } from './ChatMessageItem';
 
 import type { ChatMessage } from '@/types/chat';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';

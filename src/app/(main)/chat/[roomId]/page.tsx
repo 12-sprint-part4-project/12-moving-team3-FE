@@ -1,16 +1,19 @@
-import { ChatRoomPage } from '@/components/chat/ChatRoomPage';
 import { createPageMetadata } from '@/i18n/createPageMetadata';
 
-/** 로드 전·실패 fallback — 성공 시 ChatRoomPage가 document.title로 덮어씀 */
+import ChatRoomPageClient from './page.client';
+
+/** 로드 전·실패 fallback — 성공 시 ChatRoomPageClient가 document.title로 덮어씀 */
 export const generateMetadata = createPageMetadata('chat.title');
 
-interface PageProps {
+export interface ChatRoomPageProps {
   params: Promise<{ roomId: string }>;
 }
 
-const ChatRoomRoutePage = async ({ params }: PageProps) => {
+/** `/chat/[roomId]` 서버 페이지 — 채팅방 상세 */
+const ChatRoomPage = async ({ params }: ChatRoomPageProps) => {
   const { roomId } = await params;
-  return <ChatRoomPage roomId={roomId} />;
+
+  return <ChatRoomPageClient roomId={roomId} />;
 };
 
-export default ChatRoomRoutePage;
+export default ChatRoomPage;

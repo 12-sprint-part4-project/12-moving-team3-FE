@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, type TouchEvent } from 'react';
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 import CloseIcon from '@/assets/icons/close.svg';
-import { ChatMessageMenu } from '@/components/chat/ChatMessageMenu';
+import { ChatMessageMenu } from './ChatMessageMenu';
 import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { useTranslation } from '@/i18n/useTranslation';

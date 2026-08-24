@@ -10,7 +10,7 @@ import {
   type UIEvent,
 } from 'react';
 
-import { ChatMessageItem } from '@/components/chat/ChatMessageItem';
+import { ChatMessageItem } from './ChatMessageItem';
 import { ReportAction } from '@/components/reports';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';

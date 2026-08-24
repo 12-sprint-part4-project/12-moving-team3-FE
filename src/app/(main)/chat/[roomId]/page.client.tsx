@@ -4,10 +4,6 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
-import { ChatComposer } from '@/components/chat/ChatComposer';
-import { ChatMessageList } from '@/components/chat/ChatMessageList';
-import { ChatRoomHeader } from '@/components/chat/ChatRoomHeader';
-import { ChatRoomHeaderPlaceholder } from '@/components/chat/ChatRoomHeaderPlaceholder';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useChatMessages,
@@ -22,23 +18,30 @@ import { useToast } from '@/hooks/useToast';
 import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
 import { chatPartnerDisplayName } from '@/lib/chatPartnerDisplayName';
+import { parsePositiveInt } from '@/lib/parsePositiveInt';
 import { uploadChatImage } from '@/lib/uploadChatImage';
 import { cn } from '@/lib/utils';
 
-export interface ChatRoomPageProps {
+import { ChatLoginRequired } from '../_components/ChatLoginRequired';
+import { ChatComposer } from './_components/ChatComposer';
+import { ChatMessageList } from './_components/ChatMessageList';
+import { ChatRoomHeader } from './_components/ChatRoomHeader';
+import { ChatRoomHeaderPlaceholder } from './_components/ChatRoomHeaderPlaceholder';
+
+export interface ChatRoomPageClientProps {
   roomId: string;
   className?: string;
 }
 
-/** 채팅방 상세 — 텍스트·이미지 전송, 나가기, 발송 제한 */
-
-export const ChatRoomPage = ({
+/** `/chat/[roomId]` 클라이언트 — 채팅방 상세 */
+const ChatRoomPageClient = ({
   roomId: roomIdParam,
   className,
-}: ChatRoomPageProps) => {
+}: ChatRoomPageClientProps) => {
   const { t } = useTranslation();
-  const roomId = Number(roomIdParam);
-  const isValidRoomId = Number.isFinite(roomId) && roomId > 0;
+  const numericRoomId = parsePositiveInt(roomIdParam);
+  const isValidRoomId = numericRoomId != null;
+  const roomId = numericRoomId ?? 0;
 
   const { user, isReady } = useAuth();
   const { showToast } = useToast();
@@ -82,12 +85,9 @@ export const ChatRoomPage = ({
 
   useChatSocketRoom(enabled ? roomId : 0);
 
-  // 모바일만: body를 visualViewport에 고정 → 키보드 시 채팅 UI가 가시 영역에 맞게 축소 (#279)
-  // 데스크톱은 훅 미사용 — 메시지 리스트 스크롤·전송 하단 이동 기존 유지
   const isMobileViewport = useIsMobileViewport();
   useChatRoomMobileViewport(enabled && isMobileViewport);
 
-  // SEO 탭 타이틀 — auth(localStorage)라 generateMetadata 불가, room 로드 후 absolute로 설정
   useEffect(() => {
     document.title =
       enabled && room
@@ -140,7 +140,6 @@ export const ChatRoomPage = ({
     );
   }, [enabled, roomId, messages, markAsRead, user?.id, isNearBottom]);
 
-  // 상대 새 메시지 추적 — 하단이면 커서만 갱신, 위로 스크롤 중이면 안내 칩 활성화
   useEffect(() => {
     if (!enabled) {
       return;
@@ -196,7 +195,6 @@ export const ChatRoomPage = ({
         messageType: 'TEXT',
         content,
       });
-      // 하단 스크롤을 먼저 요청한 뒤, preventScroll 포커스로 문서 밀림을 막는다 (#279)
       handleScrollToBottom();
       setFocusInputSignal((current) => current + 1);
     } catch (error) {
@@ -245,14 +243,7 @@ export const ChatRoomPage = ({
   }
 
   if (!user) {
-    return (
-      <div className={cn('chat-content', className)}>
-        <h1 className="text-2xl-bold text-black-400">{t('chat.title')}</h1>
-        <p className="mt-8 text-center text-lg-medium text-gray-300">
-          {t('chat.loginRequired')}
-        </p>
-      </div>
-    );
+    return <ChatLoginRequired className={className} />;
   }
 
   if (!isValidRoomId) {
@@ -276,7 +267,6 @@ export const ChatRoomPage = ({
     <div
       className={cn(
         'chat-room-content',
-        // 모바일 + viewport lock: body가 vv 높이이므로 main 남은 공간을 채움
         enabled && isMobileViewport
           ? 'h-full max-h-full min-h-0 flex-1'
           : 'h-[calc(100dvh-var(--height-gnb))] max-h-[calc(100dvh-var(--height-gnb))]',
@@ -355,3 +345,5 @@ export const ChatRoomPage = ({
     </div>
   );
 };
+
+export default ChatRoomPageClient;
