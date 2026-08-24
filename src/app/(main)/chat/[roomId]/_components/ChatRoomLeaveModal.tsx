@@ -9,6 +9,7 @@ interface ChatRoomLeaveModalProps {
   isLeavePending: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  className?: string;
 }
 
 /** 채팅방 나가기 재확인 모달 */
@@ -16,6 +17,7 @@ export const ChatRoomLeaveModal = ({
   isLeavePending,
   onClose,
   onConfirm,
+  className,
 }: ChatRoomLeaveModalProps) => {
   const { t } = useTranslation();
 
@@ -25,6 +27,7 @@ export const ChatRoomLeaveModal = ({
         title={t('chat.leave')}
         onClose={onClose}
         titleAlign="center"
+        className={className}
         footer={
           <div className="flex w-full flex-col gap-2 sm:flex-row sm:gap-3">
             <Button

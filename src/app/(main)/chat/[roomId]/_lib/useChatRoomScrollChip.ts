@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { ChatMessage } from '@/types/chat';
 
+type ScrollChipMode = 'hidden' | 'to-bottom' | 'new-message';
+
 interface UseChatRoomScrollChipParams {
   roomId: number;
   enabled: boolean;
@@ -86,13 +88,12 @@ export const useChatRoomScrollChip = ({
     setFocusInputSignal((current) => current + 1);
   }, [handleScrollToBottom]);
 
-  const scrollChipMode = (
+  const scrollChipMode: ScrollChipMode =
     !isNearBottom && showNewMessageChip
       ? 'new-message'
       : !isNearBottom
         ? 'to-bottom'
-        : 'hidden'
-  ) as 'hidden' | 'to-bottom' | 'new-message';
+        : 'hidden';
 
   return {
     isNearBottom,
