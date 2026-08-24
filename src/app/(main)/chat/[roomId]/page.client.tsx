@@ -1,9 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useChatMessages,
@@ -22,12 +20,13 @@ import { parsePositiveInt } from '@/lib/parsePositiveInt';
 import { uploadChatImage } from '@/lib/uploadChatImage';
 import { cn } from '@/lib/utils';
 
-import { CHAT_CONTENT_CLASS } from '../_components/chatLayout';
 import { ChatLoginRequired } from '../_components/ChatLoginRequired';
 import { ChatComposer } from './_components/ChatComposer';
 import { ChatMessageList } from './_components/ChatMessageList';
+import { ChatRoomErrorState } from './_components/ChatRoomErrorState';
 import { ChatRoomHeader } from './_components/ChatRoomHeader';
 import { ChatRoomHeaderPlaceholder } from './_components/ChatRoomHeaderPlaceholder';
+import { ChatRoomInvalidState } from './_components/ChatRoomInvalidState';
 import {
   CHAT_ROOM_CONTENT_CLASS,
   CHAT_ROOM_HEIGHT_DEFAULT_CLASS,
@@ -257,20 +256,7 @@ const ChatRoomPageClient = ({
   }
 
   if (!isValidRoomId) {
-    return (
-      <div className={cn(CHAT_CONTENT_CLASS, className)}>
-        <Link
-          href="/chat"
-          className="inline-flex w-fit items-center gap-1 text-md-medium text-gray-400 hover:text-black-400"
-        >
-          <ChevronLeftIcon className="size-5" aria-hidden />
-          {t('chat.listLink')}
-        </Link>
-        <p className="mt-8 text-center text-lg-medium text-gray-300">
-          {t('chat.roomNotFound')}
-        </p>
-      </div>
-    );
+    return <ChatRoomInvalidState className={className} />;
   }
 
   return (
@@ -304,17 +290,7 @@ const ChatRoomPageClient = ({
       ) : null}
 
       {isRoomError && !room ? (
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-16">
-          <p className="text-center text-lg-medium text-gray-300">
-            {t('chat.roomError')}
-          </p>
-          <Link
-            href="/chat"
-            className="text-md-medium text-blue-300 underline-offset-2 hover:underline"
-          >
-            {t('chat.backToList')}
-          </Link>
-        </div>
+        <ChatRoomErrorState />
       ) : (
         <>
           <ChatMessageList

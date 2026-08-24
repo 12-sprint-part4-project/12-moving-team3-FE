@@ -52,6 +52,7 @@ storybook-static
 .cursor/rules/github-issue.mdc
 .cursor/rules/fullstack-issue-order.mdc
 .cursor/rules/coderabbit-lessons.mdc
+.cursor/rules/import-order.mdc
 
 # local-only chat UI planning / mockup (개인용)
 /docs/local/
