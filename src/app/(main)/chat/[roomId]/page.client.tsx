@@ -1,11 +1,13 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
 import {
   useChatMessages,
   useChatRoom,
+  useLeaveChatRoom,
   useMarkChatRoomAsRead,
   useSendChatMessage,
 } from '@/hooks/useChat';
@@ -27,6 +29,7 @@ import { ChatRoomErrorState } from './_components/ChatRoomErrorState';
 import { ChatRoomHeader } from './_components/ChatRoomHeader';
 import { ChatRoomHeaderPlaceholder } from './_components/ChatRoomHeaderPlaceholder';
 import { ChatRoomInvalidState } from './_components/ChatRoomInvalidState';
+import { ChatRoomLeaveModal } from './_components/ChatRoomLeaveModal';
 import {
   CHAT_ROOM_CONTENT_CLASS,
   CHAT_ROOM_HEIGHT_DEFAULT_CLASS,
@@ -45,6 +48,7 @@ const ChatRoomPageClient = ({
   className,
 }: ChatRoomPageClientProps) => {
   const { t } = useTranslation();
+  const router = useRouter();
   const numericRoomId = parsePositiveInt(roomIdParam);
   const isValidRoomId = numericRoomId != null;
   const roomId = numericRoomId ?? 0;
@@ -72,6 +76,7 @@ const ChatRoomPageClient = ({
   } = useChatMessages(roomId, { enabled });
 
   const sendMutation = useSendChatMessage(roomId);
+  const leaveMutation = useLeaveChatRoom();
   const { mutate: markAsRead } = useMarkChatRoomAsRead(roomId);
   const lastMarkedMessageIdRef = useRef<number | null>(null);
   const lastPartnerMessageIdRef = useRef<number | null>(null);
@@ -81,6 +86,7 @@ const ChatRoomPageClient = ({
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [scrollToBottomSignal, setScrollToBottomSignal] = useState(0);
   const [focusInputSignal, setFocusInputSignal] = useState(0);
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const isNearBottomRef = useRef(true);
 
   if (trackedRoomId !== roomId) {
@@ -192,6 +198,33 @@ const ChatRoomPageClient = ({
     }
   }, [handleScrollToBottom]);
 
+  const handleLeaveClick = () => {
+    setIsLeaveModalOpen(true);
+  };
+
+  const handleLeaveModalClose = () => {
+    setIsLeaveModalOpen(false);
+  };
+
+  const handleLeaveConfirm = async () => {
+    if (leaveMutation.isPending) {
+      return;
+    }
+
+    try {
+      const result = await leaveMutation.mutateAsync(roomId);
+      setIsLeaveModalOpen(false);
+      showToast({
+        content: result ? t('chat.left') : t('chat.alreadyLeft'),
+      });
+      router.replace('/chat');
+    } catch (error) {
+      const message =
+        error instanceof ApiError ? error.message : t('chat.leaveFail');
+      showToast({ content: message });
+    }
+  };
+
   const isMessagingAllowed = room?.isMessagingAllowed !== false;
 
   const handleSend = async (content: string) => {
@@ -275,9 +308,9 @@ const ChatRoomPageClient = ({
       {!isRoomPending && room ? (
         <ChatRoomHeader
           partner={room.partner}
-          roomId={roomId}
           roomType={room.roomType}
           quoteStatus={room.quoteStatus}
+          onLeaveClick={handleLeaveClick}
           className="shrink-0"
         />
       ) : null}
@@ -328,6 +361,14 @@ const ChatRoomPageClient = ({
           />
         </>
       )}
+
+      {isLeaveModalOpen ? (
+        <ChatRoomLeaveModal
+          isLeavePending={leaveMutation.isPending}
+          onClose={handleLeaveModalClose}
+          onConfirm={() => void handleLeaveConfirm()}
+        />
+      ) : null}
     </div>
   );
 };

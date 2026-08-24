@@ -1,21 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import MenuIcon from '@/assets/icons/menu.svg';
-import { Button } from '@/components/Button/Button';
 import { ChatAvatar } from '@/components/chat/ChatAvatar';
 import { ChatRoomStatusChip } from '@/components/chat/ChatRoomStatusChip';
-import { Modal } from '@/components/ui/Modal/Modal';
-import { ModalBasic } from '@/components/ui/Modal/ModalBasic';
-import { useLeaveChatRoom } from '@/hooks/useChat';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
-import { useToast } from '@/hooks/useToast';
 import { useTranslation } from '@/i18n/useTranslation';
-import { ApiError } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 
 import { CHAT_ROOM_HEADER_CLASS } from './chatRoomStyles';
@@ -25,26 +18,22 @@ import type { QuoteStatus } from '@/types/quote';
 
 export interface ChatRoomHeaderProps {
   partner: ChatPartner;
-  roomId: number;
   roomType: ChatRoomType;
   quoteStatus: QuoteStatus | null;
+  onLeaveClick: () => void;
   className?: string;
 }
 
 /** 채팅방 상단 — 뒤로가기 / 중앙 상대·상태 / 나가기 메뉴 */
 export const ChatRoomHeader = ({
   partner,
-  roomId,
   roomType,
   quoteStatus,
+  onLeaveClick,
   className,
 }: ChatRoomHeaderProps) => {
   const { t } = useTranslation();
-  const router = useRouter();
-  const { showToast } = useToast();
-  const leaveMutation = useLeaveChatRoom();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useOutsideClick(menuRef, isMenuOpen, setIsMenuOpen);
@@ -64,117 +53,59 @@ export const ChatRoomHeader = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isMenuOpen]);
 
-  const handleLeaveConfirm = async () => {
-    if (leaveMutation.isPending) {
-      return;
-    }
-
-    try {
-      const result = await leaveMutation.mutateAsync(roomId);
-      setIsLeaveModalOpen(false);
-      showToast({
-        content: result ? t('chat.left') : t('chat.alreadyLeft'),
-      });
-      router.replace('/chat');
-    } catch (error) {
-      const message =
-        error instanceof ApiError ? error.message : t('chat.leaveFail');
-      showToast({ content: message });
-    }
-  };
-
   return (
-    <>
-      <header className={cn(CHAT_ROOM_HEADER_CLASS, className)}>
-        <Link
-          href="/chat"
-          aria-label={t('chat.backToListAria')}
-          className="z-10 inline-flex size-6 shrink-0 items-center justify-center text-black-400"
+    <header className={cn(CHAT_ROOM_HEADER_CLASS, className)}>
+      <Link
+        href="/chat"
+        aria-label={t('chat.backToListAria')}
+        className="z-10 inline-flex size-6 shrink-0 items-center justify-center text-black-400"
+      >
+        <ChevronLeftIcon className="size-6" aria-hidden />
+      </Link>
+
+      <div className="pointer-events-none absolute inset-x-0 flex items-center justify-center gap-1.5 px-14">
+        <ChatAvatar
+          src={partner.profileImageUrl}
+          alt=""
+          className="size-9 shrink-0"
+        />
+        <p className="max-w-36 truncate text-2lg-semibold text-black-400 sm:max-w-48">
+          {partner.displayName}
+        </p>
+        <ChatRoomStatusChip roomType={roomType} quoteStatus={quoteStatus} />
+      </div>
+
+      <div ref={menuRef} className="relative z-10 shrink-0">
+        <button
+          type="button"
+          aria-label={t('chat.menuAria')}
+          aria-haspopup="menu"
+          aria-expanded={isMenuOpen}
+          onClick={() => setIsMenuOpen((prev) => !prev)}
+          className="inline-flex size-6 cursor-pointer items-center justify-center text-gray-300"
         >
-          <ChevronLeftIcon className="size-6" aria-hidden />
-        </Link>
+          <MenuIcon className="size-6" aria-hidden />
+        </button>
 
-        <div className="pointer-events-none absolute inset-x-0 flex items-center justify-center gap-1.5 px-14">
-          <ChatAvatar
-            src={partner.profileImageUrl}
-            alt=""
-            className="size-9 shrink-0"
-          />
-          <p className="max-w-36 truncate text-2lg-semibold text-black-400 sm:max-w-48">
-            {partner.displayName}
-          </p>
-          <ChatRoomStatusChip roomType={roomType} quoteStatus={quoteStatus} />
-        </div>
-
-        <div ref={menuRef} className="relative z-10 shrink-0">
-          <button
-            type="button"
-            aria-label={t('chat.menuAria')}
-            aria-haspopup="menu"
-            aria-expanded={isMenuOpen}
-            onClick={() => setIsMenuOpen((prev) => !prev)}
-            className="inline-flex size-6 cursor-pointer items-center justify-center text-gray-300"
+        {isMenuOpen ? (
+          <div
+            role="menu"
+            className="absolute top-full right-0 z-50 mt-2 min-w-[8.75rem] rounded-2xl border border-line-200 bg-white py-1.5 shadow-[0.125rem_0.125rem_0.25rem] shadow-shadow-gray-200/20"
           >
-            <MenuIcon className="size-6" aria-hidden />
-          </button>
-
-          {isMenuOpen ? (
-            <div
-              role="menu"
-              className="absolute top-full right-0 z-50 mt-2 min-w-[8.75rem] rounded-2xl border border-line-200 bg-white py-1.5 shadow-[0.125rem_0.125rem_0.25rem] shadow-shadow-gray-200/20"
+            <button
+              type="button"
+              role="menuitem"
+              className="flex w-full cursor-pointer px-4 py-3 text-left text-md-medium text-red-200"
+              onClick={() => {
+                setIsMenuOpen(false);
+                onLeaveClick();
+              }}
             >
-              <button
-                type="button"
-                role="menuitem"
-                className="flex w-full cursor-pointer px-4 py-3 text-left text-md-medium text-red-200"
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  setIsLeaveModalOpen(true);
-                }}
-              >
-                {t('chat.leave')}
-              </button>
-            </div>
-          ) : null}
-        </div>
-      </header>
-
-      {isLeaveModalOpen ? (
-        <Modal onClose={() => setIsLeaveModalOpen(false)}>
-          <ModalBasic
-            title={t('chat.leave')}
-            onClose={() => setIsLeaveModalOpen(false)}
-            titleAlign="center"
-            footer={
-              <div className="flex w-full flex-col gap-2 sm:flex-row sm:gap-3">
-                <Button
-                  type="button"
-                  variant="outlined"
-                  size="sm"
-                  onClick={() => setIsLeaveModalOpen(false)}
-                  className="sm:flex-1"
-                >
-                  {t('common.cancel')}
-                </Button>
-                <Button
-                  type="button"
-                  variant="solid"
-                  size="sm"
-                  disabled={leaveMutation.isPending}
-                  onClick={() => void handleLeaveConfirm()}
-                  className="sm:flex-1"
-                >
-                  {t('chat.leaveAction')}
-                </Button>
-              </div>
-            }
-          >
-            <p className="px-6 pb-6 text-center text-2lg-medium text-black-300">
-              {t('chat.leaveBody')}
-            </p>
-          </ModalBasic>
-        </Modal>
-      ) : null}
-    </>
+              {t('chat.leave')}
+            </button>
+          </div>
+        ) : null}
+      </div>
+    </header>
   );
 };
