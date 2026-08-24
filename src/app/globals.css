@@ -274,7 +274,7 @@ body {
 
 /**
  * 채팅방(상세) 공통 래퍼 —
- * 높이는 ChatRoomPage에서 뷰포트 − GNB(데스크톱) 또는 main 남은 높이(모바일 lock)로 고정.
+ * 높이는 ChatRoomPageClient에서 뷰포트 − GNB(데스크톱) 또는 main 남은 높이(모바일 lock)로 고정.
  * 메시지 목록만 스크롤 (#279).
  */
 @utility chat-room-content {

@@ -4,6 +4,8 @@ import ChevronLeftIcon from '@/assets/icons/chevron-left.svg';
 import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
+import { CHAT_ROOM_HEADER_CLASS } from './chatRoomStyles';
+
 export interface ChatRoomHeaderPlaceholderProps {
   /** loading: 상대 아바타·이름 스켈레톤 / error: 고정 타이틀 */
   variant?: 'loading' | 'error';
@@ -24,10 +26,7 @@ export const ChatRoomHeaderPlaceholder = ({
 
   return (
     <header
-      className={cn(
-        'relative flex w-full shrink-0 items-center justify-between border-b border-line-100 bg-white px-4 py-3 md:px-6',
-        className
-      )}
+      className={cn(CHAT_ROOM_HEADER_CLASS, className)}
       {...(variant === 'loading'
         ? {
             role: 'status' as const,

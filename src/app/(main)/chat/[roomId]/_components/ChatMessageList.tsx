@@ -10,7 +10,6 @@ import {
   type UIEvent,
 } from 'react';
 
-import { ChatMessageItem } from '@/components/chat/ChatMessageItem';
 import { ReportAction } from '@/components/reports';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/hooks/useAuth';
@@ -22,6 +21,8 @@ import {
   isSameLocalMinute,
 } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
+
+import { ChatMessageItem } from './ChatMessageItem';
 
 import type { ChatMessage } from '@/types/chat';
 
