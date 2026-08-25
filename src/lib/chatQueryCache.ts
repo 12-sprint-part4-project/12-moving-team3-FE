@@ -1,5 +1,6 @@
 import { chatQueryKeys } from '@/constants/queryKey';
 
+import type { ChatRoomListItem, ChatRoomListResponse } from '@/types/chat';
 import type { QueryClient } from '@tanstack/react-query';
 
 /**
@@ -13,3 +14,23 @@ export const invalidateChatRoomListAndDetails = (
     queryClient.invalidateQueries({ queryKey: chatQueryKeys.rooms() }),
     queryClient.invalidateQueries({ queryKey: chatQueryKeys.roomDetails() }),
   ]).then(() => undefined);
+
+/** 방 목록 캐시 공통 갱신 (null 가드 + rooms transform) */
+export const updateRoomsListCache = (
+  queryClient: QueryClient,
+  transform: (rooms: ChatRoomListItem[]) => ChatRoomListItem[]
+): void => {
+  queryClient.setQueryData<ChatRoomListResponse>(
+    chatQueryKeys.rooms(),
+    (current) => {
+      if (!current) {
+        return current;
+      }
+
+      return {
+        ...current,
+        data: { rooms: transform(current.data.rooms) },
+      };
+    }
+  );
+};

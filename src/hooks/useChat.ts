@@ -13,6 +13,7 @@ import { useMemo } from 'react';
 import { API_ERROR_CODE } from '@/constants/errorCode';
 import { chatQueryKeys } from '@/constants/queryKey';
 import { ApiError } from '@/lib/apiClient';
+import { updateRoomsListCache } from '@/lib/chatQueryCache';
 import { applyLastMessageToChatRoomsList } from '@/lib/chatRoomListSort';
 import {
   createChatRoom,
@@ -29,7 +30,6 @@ import type {
   ChatMessage,
   ChatMessagesResponse,
   ChatRoomDetailResponse,
-  ChatRoomListItem,
   ChatRoomListResponse,
   CreateChatRoomRequest,
   LeaveChatRoomResponse,
@@ -170,26 +170,6 @@ export const useCreateChatRoom = () => {
       await queryClient.invalidateQueries({ queryKey: chatQueryKeys.rooms() });
     },
   });
-};
-
-/** 방 목록 캐시 공통 갱신 (null 가드 + rooms transform) */
-const updateRoomsListCache = (
-  queryClient: QueryClient,
-  transform: (rooms: ChatRoomListItem[]) => ChatRoomListItem[]
-) => {
-  queryClient.setQueryData<ChatRoomListResponse>(
-    chatQueryKeys.rooms(),
-    (current) => {
-      if (!current) {
-        return current;
-      }
-
-      return {
-        ...current,
-        data: { rooms: transform(current.data.rooms) },
-      };
-    }
-  );
 };
 
 /** 전송 성공 시 메시지·목록 캐시 갱신 */

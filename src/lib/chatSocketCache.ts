@@ -1,11 +1,11 @@
 import { chatQueryKeys } from '@/constants/queryKey';
+import { updateRoomsListCache } from '@/lib/chatQueryCache';
 import { applyLastMessageToChatRoomsList } from '@/lib/chatRoomListSort';
 
 import type {
   ChatMessage,
   ChatMessagesResponse,
   ChatRoomDetailResponse,
-  ChatRoomListItem,
   ChatRoomListResponse,
   ChatSocketMessagePayload,
   ChatSocketPartnerLeftPayload,
@@ -20,26 +20,6 @@ const ROOMS_REFETCH_COOLDOWN_MS = 1500;
 
 let roomsRefetchInFlight: Promise<unknown> | null = null;
 let lastRoomsRefetchAt = 0;
-
-/** 방 목록 캐시 공통 갱신 (null 가드 + rooms transform) */
-const updateRoomsListCache = (
-  queryClient: QueryClient,
-  transform: (rooms: ChatRoomListItem[]) => ChatRoomListItem[]
-) => {
-  queryClient.setQueryData<ChatRoomListResponse>(
-    chatQueryKeys.rooms(),
-    (current) => {
-      if (!current) {
-        return current;
-      }
-
-      return {
-        ...current,
-        data: { rooms: transform(current.data.rooms) },
-      };
-    }
-  );
-};
 
 const hasRoomInRoomsCache = (
   queryClient: QueryClient,
