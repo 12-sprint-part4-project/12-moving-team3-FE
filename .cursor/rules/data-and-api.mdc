@@ -1,6 +1,9 @@
 ---
 description: TanStack Query state management and REST API conventions.
-globs: src/api/**/*.ts, src/hooks/**/*.ts
+globs:
+  - src/api/**/*.ts
+  - src/hooks/**/*.ts
+  - src/lib/**/*.ts
 alwaysApply: false
 ---
 
