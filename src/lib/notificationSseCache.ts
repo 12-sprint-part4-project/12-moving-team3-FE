@@ -1,8 +1,8 @@
 import {
-  chatQueryKeys,
   estimateRequestQueryKeys,
   notificationQueryKeys,
 } from '@/constants/queryKey';
+import { invalidateChatRoomListAndDetails } from '@/lib/chatQueryCache';
 
 import type {
   NotificationItem,
@@ -71,12 +71,7 @@ export const invalidateChatQueriesForNotification = (
     return;
   }
 
-  void queryClient.invalidateQueries({
-    queryKey: chatQueryKeys.rooms(),
-  });
-  void queryClient.invalidateQueries({
-    queryKey: chatQueryKeys.roomDetails(),
-  });
+  void invalidateChatRoomListAndDetails(queryClient);
 };
 
 /** 기사 받은 요청 목록 캐시 무효화 — 알림 드롭다운 클릭 등 명시적 갱신용 */

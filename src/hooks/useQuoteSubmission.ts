@@ -4,12 +4,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import {
-  chatQueryKeys,
   estimateRequestQueryKeys,
   moverQuoteQueryKeys,
 } from '@/constants/queryKey';
 import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
+import { invalidateChatRoomListAndDetails } from '@/lib/chatQueryCache';
 import { submitProposalQuote, submitRejectionQuote } from '@/services/quoteApi';
 
 export interface UseQuoteSubmissionOptions {
@@ -56,12 +56,7 @@ export const useQuoteSubmission = ({
       queryClient.invalidateQueries({
         queryKey: moverQuoteQueryKeys.lists(),
       }),
-      queryClient.invalidateQueries({
-        queryKey: chatQueryKeys.rooms(),
-      }),
-      queryClient.invalidateQueries({
-        queryKey: chatQueryKeys.roomDetails(),
-      }),
+      invalidateChatRoomListAndDetails(queryClient),
     ]);
   };
 

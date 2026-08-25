@@ -3,13 +3,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import {
-  chatQueryKeys,
   customerEstimateRequestQueryKeys,
   customerQuoteQueryKeys,
 } from '@/constants/queryKey';
 import { useToast } from '@/hooks/useToast';
 import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
+import { invalidateChatRoomListAndDetails } from '@/lib/chatQueryCache';
 import { confirmCustomerQuote } from '@/services/customerQuoteApi';
 
 import type { ConfirmCustomerQuoteResponse } from '@/types/customerQuote';
@@ -33,12 +33,7 @@ export const useConfirmCustomerQuote = () => {
           queryKey: customerEstimateRequestQueryKeys.active(),
         }),
         // 확정 직후 채팅 칩(견적 확정)·입력 상태가 바로 반영되도록 (#208)
-        queryClient.invalidateQueries({
-          queryKey: chatQueryKeys.rooms(),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: chatQueryKeys.roomDetails(),
-        }),
+        invalidateChatRoomListAndDetails(queryClient),
       ]);
     },
     onError: (error: unknown) => {
