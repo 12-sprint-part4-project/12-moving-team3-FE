@@ -135,7 +135,7 @@ const ChatImageAttachments = ({
                 alt={t('chat.photoAlt', { index: index + 1 })}
                 fill
                 sizes={
-                  isSingle ? '240px' : isTrailingFull ? '288px' : '144px'
+                  isSingle ? '15rem' : isTrailingFull ? '18rem' : '9rem'
                 }
                 className="object-cover"
               />
