@@ -4,15 +4,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 
 import { API_ERROR_CODE } from '@/constants/errorCode';
-import {
-  chatQueryKeys,
-  designatedEstimateQueryKeys,
-} from '@/constants/queryKey';
+import { designatedEstimateQueryKeys } from '@/constants/queryKey';
 import { useAuth } from '@/hooks/useAuth';
 import { useCustomerPendingQuotes } from '@/hooks/useCustomerPendingQuotes';
 import { useToast } from '@/hooks/useToast';
 import { useTranslation } from '@/i18n/useTranslation';
 import { ApiError } from '@/lib/apiClient';
+import { invalidateChatRoomListAndDetails } from '@/lib/chatQueryCache';
 import { getActiveEstimateRequest } from '@/services/customerEstimateRequestApi';
 import {
   createDesignatedEstimateRequest,
@@ -131,14 +129,7 @@ export const useDesignatedEstimateRequest = (moverId: string) => {
         }
       );
       // 지정 요청 후 기존 채팅방이 있으면 목록·상세를 다시 맞춰 둔다 (#208)
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: chatQueryKeys.rooms(),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: chatQueryKeys.roomsAll(),
-        }),
-      ]);
+      await invalidateChatRoomListAndDetails(queryClient);
       showToast({ content: t('movers.designated.sent') });
     },
     onError: (error: unknown) => {

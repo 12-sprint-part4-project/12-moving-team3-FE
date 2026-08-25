@@ -1,8 +1,8 @@
 import {
-  chatQueryKeys,
   estimateRequestQueryKeys,
   notificationQueryKeys,
 } from '@/constants/queryKey';
+import { invalidateChatRoomListAndDetails } from '@/lib/chatQueryCache';
 
 import type {
   NotificationItem,
@@ -16,7 +16,8 @@ const NOTIFICATION_LIST_LIMIT = 10;
 
 /**
  * 채팅 칩·isMessagingAllowed에 영향 있는 알림.
- * 상대방 브라우저에서는 mutation invalidate가 안 되므로 SSE로 rooms/room을 맞춘다 (#208).
+ * 상대방 브라우저에서는 mutation invalidate가 안 되므로
+ * SSE로 `rooms` + `roomDetails`를 맞춘다 (#208).
  * NEW_DESIGNATED_QUOTE_REQUEST_ARRIVED: 고객 지정 → 기사 칩 `지정 요청` (#216, BE #292).
  */
 const CHAT_STATUS_NOTIFICATION_TYPES: ReadonlySet<NotificationType> = new Set([
@@ -61,7 +62,7 @@ export const applyNotificationToCache = (
 
 /**
  * 견적·지정·채팅 상태 알림이면 채팅 목록·상세 캐시를 무효화한다.
- * (예: 기사 반려 → 고객 SSE → 칩 `반려` / 고객 지정 → 기사 SSE → 칩 `지정 요청`)
+ * (`invalidateChatRoomListAndDetails` — 예: 기사 반려 → 고객 SSE → 칩 `반려`)
  */
 export const invalidateChatQueriesForNotification = (
   queryClient: QueryClient,
@@ -71,12 +72,7 @@ export const invalidateChatQueriesForNotification = (
     return;
   }
 
-  void queryClient.invalidateQueries({
-    queryKey: chatQueryKeys.rooms(),
-  });
-  void queryClient.invalidateQueries({
-    queryKey: chatQueryKeys.roomsAll(),
-  });
+  void invalidateChatRoomListAndDetails(queryClient);
 };
 
 /** 기사 받은 요청 목록 캐시 무효화 — 알림 드롭다운 클릭 등 명시적 갱신용 */

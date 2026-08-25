@@ -13,6 +13,7 @@ import { useMemo } from 'react';
 import { API_ERROR_CODE } from '@/constants/errorCode';
 import { chatQueryKeys } from '@/constants/queryKey';
 import { ApiError } from '@/lib/apiClient';
+import { updateRoomsListCache } from '@/lib/chatQueryCache';
 import { applyLastMessageToChatRoomsList } from '@/lib/chatRoomListSort';
 import {
   createChatRoom,
@@ -29,7 +30,6 @@ import type {
   ChatMessage,
   ChatMessagesResponse,
   ChatRoomDetailResponse,
-  ChatRoomListItem,
   ChatRoomListResponse,
   CreateChatRoomRequest,
   LeaveChatRoomResponse,
@@ -95,7 +95,7 @@ export const useChatRoom = (
   const enabled = (options?.enabled ?? true) && isValidRoomId(roomId);
 
   const query = useQuery({
-    queryKey: chatQueryKeys.room(roomId),
+    queryKey: chatQueryKeys.roomDetail(roomId),
     queryFn: () => getChatRoom(roomId),
     enabled,
     staleTime: 60 * 1000,
@@ -172,26 +172,6 @@ export const useCreateChatRoom = () => {
   });
 };
 
-/** 방 목록 캐시 공통 갱신 (null 가드 + rooms transform) */
-const updateRoomsListCache = (
-  queryClient: QueryClient,
-  transform: (rooms: ChatRoomListItem[]) => ChatRoomListItem[]
-) => {
-  queryClient.setQueryData<ChatRoomListResponse>(
-    chatQueryKeys.rooms(),
-    (current) => {
-      if (!current) {
-        return current;
-      }
-
-      return {
-        ...current,
-        data: { rooms: transform(current.data.rooms) },
-      };
-    }
-  );
-};
-
 /** 전송 성공 시 메시지·목록 캐시 갱신 */
 const applySentMessageToCaches = (
   queryClient: QueryClient,
@@ -248,7 +228,7 @@ const applySentMessageToCaches = (
   // REST 전송만으로도 상대 재참여가 일어나므로 소켓 미연결 시에도 나감 표시를 해제한다.
   // 전송 이후 상대가 다시 나간 최신 소켓 상태는 덮어쓰지 않는다.
   queryClient.setQueryData<ChatRoomDetailResponse>(
-    chatQueryKeys.room(roomId),
+    chatQueryKeys.roomDetail(roomId),
     (current) => {
       if (!current?.data.isPartnerLeft) {
         return current;
@@ -339,7 +319,7 @@ const isAlreadyLeftError = (error: unknown): boolean => {
 
 /**
  * 나가기 성공 시 목록에서만 즉시 제거한다.
- * room/messages는 ChatRoomPageClient observer가 아직 살아 있어 removeQueries 시
+ * roomDetail/messages는 ChatRoomPageClient observer가 아직 살아 있어 removeQueries 시
  * 나간 방을 재조회하므로, 목록 정리만 하고 상세·메시지 캐시는 라우트 이탈 후 GC에 맡긴다.
  */
 const removeLeftRoomFromCache = (
@@ -350,7 +330,7 @@ const removeLeftRoomFromCache = (
     rooms.filter((room) => room.roomId !== roomId)
   );
 
-  void queryClient.cancelQueries({ queryKey: chatQueryKeys.room(roomId) });
+  void queryClient.cancelQueries({ queryKey: chatQueryKeys.roomDetail(roomId) });
   void queryClient.cancelQueries({ queryKey: chatQueryKeys.messages(roomId) });
 };
 
