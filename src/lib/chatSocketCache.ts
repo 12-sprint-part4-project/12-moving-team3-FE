@@ -83,7 +83,7 @@ const patchRoomPartnerLeft = (
   clearedAsOf?: string
 ): void => {
   queryClient.setQueryData<ChatRoomDetailResponse>(
-    chatQueryKeys.room(roomId),
+    chatQueryKeys.roomDetail(roomId),
     (current) => {
       if (!current) {
         return current;
@@ -271,7 +271,7 @@ export const applySocketReadToCaches = (
   const { roomId, lastReadMessageId } = payload;
 
   queryClient.setQueryData<ChatRoomDetailResponse>(
-    chatQueryKeys.room(roomId),
+    chatQueryKeys.roomDetail(roomId),
     (current) => {
       if (!current) {
         return current;

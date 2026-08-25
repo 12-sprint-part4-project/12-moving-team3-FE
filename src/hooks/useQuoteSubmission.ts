@@ -60,7 +60,7 @@ export const useQuoteSubmission = ({
         queryKey: chatQueryKeys.rooms(),
       }),
       queryClient.invalidateQueries({
-        queryKey: chatQueryKeys.roomsAll(),
+        queryKey: chatQueryKeys.roomDetails(),
       }),
     ]);
   };

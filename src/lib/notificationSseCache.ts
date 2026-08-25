@@ -75,7 +75,7 @@ export const invalidateChatQueriesForNotification = (
     queryKey: chatQueryKeys.rooms(),
   });
   void queryClient.invalidateQueries({
-    queryKey: chatQueryKeys.roomsAll(),
+    queryKey: chatQueryKeys.roomDetails(),
   });
 };
 

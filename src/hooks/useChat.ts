@@ -95,7 +95,7 @@ export const useChatRoom = (
   const enabled = (options?.enabled ?? true) && isValidRoomId(roomId);
 
   const query = useQuery({
-    queryKey: chatQueryKeys.room(roomId),
+    queryKey: chatQueryKeys.roomDetail(roomId),
     queryFn: () => getChatRoom(roomId),
     enabled,
     staleTime: 60 * 1000,
@@ -248,7 +248,7 @@ const applySentMessageToCaches = (
   // REST 전송만으로도 상대 재참여가 일어나므로 소켓 미연결 시에도 나감 표시를 해제한다.
   // 전송 이후 상대가 다시 나간 최신 소켓 상태는 덮어쓰지 않는다.
   queryClient.setQueryData<ChatRoomDetailResponse>(
-    chatQueryKeys.room(roomId),
+    chatQueryKeys.roomDetail(roomId),
     (current) => {
       if (!current?.data.isPartnerLeft) {
         return current;
@@ -350,7 +350,7 @@ const removeLeftRoomFromCache = (
     rooms.filter((room) => room.roomId !== roomId)
   );
 
-  void queryClient.cancelQueries({ queryKey: chatQueryKeys.room(roomId) });
+  void queryClient.cancelQueries({ queryKey: chatQueryKeys.roomDetail(roomId) });
   void queryClient.cancelQueries({ queryKey: chatQueryKeys.messages(roomId) });
 };
 

@@ -9,13 +9,16 @@ export const AUTH_QUERY_KEYS = {
   me: () => [...AUTH_QUERY_KEYS.all, 'me'] as const,
 };
 
-/** 채팅 — 방 목록·상세·메시지·미읽음 */
+/** 채팅 — 방 목록·상세·메시지·미읽음 (키 세그먼트 `'rooms'`/`'room'` 유지) */
 export const chatQueryKeys = {
   all: ['chat'] as const,
+  /** 방 목록 — `['chat','rooms']` */
   rooms: () => [...chatQueryKeys.all, 'rooms'] as const,
-  room: (roomId: number) => [...chatQueryKeys.all, 'room', roomId] as const,
-  /** roomId 무관 전체 방 상세 캐시 — 알림 SSE 등 크로스 도메인 invalidate용 */
-  roomsAll: () => [...chatQueryKeys.all, 'room'] as const,
+  /** 방 상세 1건 — `['chat','room', roomId]` */
+  roomDetail: (roomId: number) =>
+    [...chatQueryKeys.all, 'room', roomId] as const,
+  /** 방 상세 전체 prefix — `['chat','room']` (SSE·견적 등 크로스 도메인 invalidate) */
+  roomDetails: () => [...chatQueryKeys.all, 'room'] as const,
   messages: (roomId: number) =>
     [...chatQueryKeys.all, 'messages', roomId] as const,
   unread: () => [...chatQueryKeys.all, 'unread'] as const,
