@@ -428,7 +428,7 @@ export const ChatComposer = ({
               isAtMessageLimit ? 'chat-composer-message-limit-hint' : undefined
             }
             className={cn(
-              'max-h-32 min-h-11 min-w-0 flex-1 resize-none rounded-2xl border border-line-200 bg-background-100 px-3.5 py-2.5 text-md-medium text-black-400 outline-none',
+              'max-h-32 min-h-11 min-w-0 flex-1 resize-none rounded-2xl border border-line-200 bg-background-100 px-3.5 py-2.5 text-lg-medium text-black-400 outline-none',
               '[scrollbar-width:none] overflow-hidden [&::-webkit-scrollbar]:hidden',
               'whitespace-pre-wrap',
               'placeholder:text-gray-300',
