@@ -95,6 +95,9 @@ const ChatImageAttachments = ({
   const { t } = useTranslation();
   const count = attachments.length;
   const isSingle = count === 1;
+  /** 3·5장: 마지막 행 빈 칸 방지 — 마지막 장만 가로 full */
+  const hasOddTrailingFull =
+    count > 1 && count % 2 === 1;
 
   return (
     <div
@@ -110,23 +113,35 @@ const ChatImageAttachments = ({
           isSingle ? 'grid-cols-1' : 'grid-cols-2'
         )}
       >
-        {attachments.map((url, index) => (
-          <button
-            type="button"
-            key={`${url}-${index}`}
-            className="relative aspect-square cursor-pointer overflow-hidden bg-background-200 transition-opacity hover:opacity-95"
-            onClick={() => onSelectImage(index)}
-            aria-label={t('chat.viewImageAria', { index: index + 1 })}
-          >
-            <Image
-              src={url}
-              alt={t('chat.photoAlt', { index: index + 1 })}
-              fill
-              sizes={isSingle ? '240px' : '144px'}
-              className="object-cover"
-            />
-          </button>
-        ))}
+        {attachments.map((url, index) => {
+          const isTrailingFull =
+            hasOddTrailingFull && index === count - 1;
+
+          return (
+            <button
+              type="button"
+              key={`${url}-${index}`}
+              className={cn(
+                'relative cursor-pointer overflow-hidden bg-background-200 transition-opacity hover:opacity-95',
+                isTrailingFull
+                  ? 'col-span-2 aspect-[2/1]'
+                  : 'aspect-square'
+              )}
+              onClick={() => onSelectImage(index)}
+              aria-label={t('chat.viewImageAria', { index: index + 1 })}
+            >
+              <Image
+                src={url}
+                alt={t('chat.photoAlt', { index: index + 1 })}
+                fill
+                sizes={
+                  isSingle ? '15rem' : isTrailingFull ? '18rem' : '9rem'
+                }
+                className="object-cover"
+              />
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -304,8 +319,6 @@ export const ChatMessageItem = ({
   const filterAction = getFilterAction(message.isFiltered, message.content);
   // 경고 문구: 발신·수신 모두 회색 (모서리만 발신/수신 방향 유지)
   const filteredColor = isMine ? 'filteredMine' : 'filteredIncoming';
-  const isFilterNotice =
-    filterAction === 'profanity' || filterAction === 'block';
 
   const bubble = isImageMessage ? (
     <ChatImageAttachments
@@ -367,33 +380,17 @@ export const ChatMessageItem = ({
       </div>
     ) : null;
 
+  // 경고/일반·모바일/데스크톱 공통: ⋯·시간은 말풍선 우측 하단 (시간 없으면 ⋯만)
   const partnerMeta =
     !isMine && (onReport || timeLabel) ? (
-      <div
-        className={cn(
-          'ml-0.5 flex shrink-0 flex-col items-start gap-0',
-          // 모바일: 긴 경고 말풍선도 ⋯·시간을 첫 줄 높이에 — lg+는 일반 메시지와 동일(하단)
-          isFilterNotice
-            ? 'justify-start self-start lg:justify-end lg:self-end'
-            : 'justify-end self-end'
-        )}
-      >
+      <div className="ml-0.5 flex shrink-0 flex-col items-start justify-end gap-0 self-end">
         {onReport ? (
           <ChatMessageMenu
             onReport={onReport}
             className="-mb-0.5 -translate-x-0.5"
           />
         ) : null}
-        {/* 시간 없는 묶음 중간 메시지도 메뉴를 시간 위(상단) 슬롯에 맞춤 */}
-        {timeLabel ??
-          (onReport ? (
-            <span
-              className="invisible text-xs-medium whitespace-nowrap"
-              aria-hidden
-            >
-              00:00
-            </span>
-          ) : null)}
+        {timeLabel}
       </div>
     ) : null;
 
