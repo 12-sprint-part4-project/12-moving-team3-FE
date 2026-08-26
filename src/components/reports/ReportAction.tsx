@@ -37,7 +37,8 @@ interface ControlledReportActionProps extends ReportActionBaseProps {
 }
 
 export type ReportActionProps =
-  UncontrolledReportActionProps | ControlledReportActionProps;
+  | UncontrolledReportActionProps
+  | ControlledReportActionProps;
 
 /**
  * 신고 트리거 + 사유 모달 + API 연동 컨테이너.

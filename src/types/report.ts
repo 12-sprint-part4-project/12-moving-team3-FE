@@ -22,6 +22,15 @@ export type ReportCategory = (typeof REPORT_CATEGORIES)[number];
 export const REPORT_STATUSES = ['PENDING', 'RESOLVED', 'REJECTED'] as const;
 export type ReportStatus = (typeof REPORT_STATUSES)[number];
 
+export const isReportTarget = (value: string): value is ReportTarget =>
+  (REPORT_TARGETS as readonly string[]).includes(value);
+
+export const isReportCategory = (value: string): value is ReportCategory =>
+  (REPORT_CATEGORIES as readonly string[]).includes(value);
+
+export const isReportStatus = (value: string): value is ReportStatus =>
+  (REPORT_STATUSES as readonly string[]).includes(value);
+
 /** POST /api/reports Body */
 export interface CreateReportBody {
   target: ReportTarget;

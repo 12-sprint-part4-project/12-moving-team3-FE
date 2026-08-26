@@ -16,6 +16,23 @@ import type {
   WritableQuotesResponse,
 } from '@/types/review';
 
+/** 리뷰 목록 공통 page/limit 쿼리 */
+export const buildReviewPageQuery = (
+  params: { page?: number; limit?: number } = {}
+): string => {
+  const searchParams = new URLSearchParams();
+
+  if (params.page !== undefined) {
+    searchParams.set('page', String(params.page));
+  }
+  if (params.limit !== undefined) {
+    searchParams.set('limit', String(params.limit));
+  }
+
+  const query = searchParams.toString();
+  return query ? `?${query}` : '';
+};
+
 const isReviewDetailResponse = (
   body: unknown
 ): body is CreateReviewResponse | UpdateReviewResponse => {
@@ -159,19 +176,10 @@ export const getCustomerWritableQuotes = async (
 ): Promise<WritableQuotesResponse> => {
   assertMoverAccessToken();
 
-  const searchParams = new URLSearchParams();
-  if (params.page !== undefined) {
-    searchParams.set('page', String(params.page));
-  }
-  if (params.limit !== undefined) {
-    searchParams.set('limit', String(params.limit));
-  }
-
-  const query = searchParams.toString();
-  const suffix = query ? `?${query}` : '';
+  const query = buildReviewPageQuery(params);
 
   return fetchAndValidate(
-    `${API_BASE_URL}/api/review/customer/writable${suffix}`,
+    `${API_BASE_URL}/api/review/customer/writable${query}`,
     { method: 'GET' },
     isWritableQuotesResponse,
     '작성 가능한 견적 목록을 불러오지 못했습니다.'
@@ -214,19 +222,10 @@ export const getCustomerReviews = async (
 ): Promise<CustomerReviewsResponse> => {
   assertMoverAccessToken();
 
-  const searchParams = new URLSearchParams();
-  if (params.page !== undefined) {
-    searchParams.set('page', String(params.page));
-  }
-  if (params.limit !== undefined) {
-    searchParams.set('limit', String(params.limit));
-  }
-
-  const query = searchParams.toString();
-  const suffix = query ? `?${query}` : '';
+  const query = buildReviewPageQuery(params);
 
   return fetchAndValidate(
-    `${API_BASE_URL}/api/review/customer${suffix}`,
+    `${API_BASE_URL}/api/review/customer${query}`,
     { method: 'GET' },
     isCustomerReviewsResponse,
     '작성한 리뷰 목록을 불러오지 못했습니다.'
@@ -277,20 +276,10 @@ export const getMoverPublicReviews = async (
   moverId: string,
   params: MoverPublicReviewsParams = {}
 ): Promise<MoverPublicReviewsResponse> => {
-  const searchParams = new URLSearchParams();
-
-  if (params.page !== undefined) {
-    searchParams.set('page', String(params.page));
-  }
-  if (params.limit !== undefined) {
-    searchParams.set('limit', String(params.limit));
-  }
-
-  const query = searchParams.toString();
-  const suffix = query ? `?${query}` : '';
+  const query = buildReviewPageQuery(params);
 
   return fetchAndValidate(
-    `${API_BASE_URL}/api/movers/${moverId}/reviews${suffix}`,
+    `${API_BASE_URL}/api/movers/${moverId}/reviews${query}`,
     { method: 'GET' },
     isMoverReviewsWithStatsResponse,
     '리뷰를 불러오지 못했습니다.'
@@ -306,19 +295,10 @@ export const getMoverReceivedReviews = async (
 ): Promise<MoverReceivedReviewsResponse> => {
   assertMoverAccessToken();
 
-  const searchParams = new URLSearchParams();
-  if (params.page !== undefined) {
-    searchParams.set('page', String(params.page));
-  }
-  if (params.limit !== undefined) {
-    searchParams.set('limit', String(params.limit));
-  }
-
-  const query = searchParams.toString();
-  const suffix = query ? `?${query}` : '';
+  const query = buildReviewPageQuery(params);
 
   return fetchAndValidate(
-    `${API_BASE_URL}/api/review/mover${suffix}`,
+    `${API_BASE_URL}/api/review/mover${query}`,
     { method: 'GET' },
     isMoverReviewsWithStatsResponse,
     '받은 리뷰 목록을 불러오지 못했습니다.'

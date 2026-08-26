@@ -6,6 +6,8 @@ import { FavoriteButton } from '@/components/Favorite';
 import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
+import { resolveDesignatedButtonState } from '../_lib/moverDetail.utils';
+
 import type {
   MoverDetailChat,
   MoverDetailDesignated,
@@ -30,14 +32,8 @@ export const MoverDetailCtaButtons = ({
   name,
 }: MoverDetailCtaButtonsProps) => {
   const { t } = useTranslation();
-  const isHardDisabled =
-    designated.isPending ||
-    designated.isAlreadyDesignated ||
-    designated.isStatusLoading ||
-    designated.isRequestFailed;
-  const isSoftBlocked =
-    (designated.hasReceivedQuoteFromMover || designated.isQuoteStatusError) &&
-    !isHardDisabled;
+  const { isHardDisabled, isSoftBlocked } =
+    resolveDesignatedButtonState(designated);
   const buttonSize = layout === 'sidebar' ? 'md' : 'sm';
   const isBottomBar = layout === 'bottomBar';
 
