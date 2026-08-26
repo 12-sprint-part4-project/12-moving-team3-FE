@@ -66,7 +66,7 @@ const makeBootstrapResult = (
  * 활성 요청 조회 → DRAFT 상세 복원 또는 신규 생성.
  * 로그인·프로필 완료 여부는 라우트 가드가 이미 보장하므로 여기서 따로 분기하지 않는다.
  */
-const bootstrapCustomerEstimateRequest =
+export const bootstrapCustomerEstimateRequest =
   async (): Promise<CustomerEstimateRequestBootstrap> => {
     try {
       const active = await getActiveEstimateRequest(); // 활성 요청 건이 존재하는지 조회 hasActiveRequest(존재여부 true/false), request(활성 요청 건 데이터)
