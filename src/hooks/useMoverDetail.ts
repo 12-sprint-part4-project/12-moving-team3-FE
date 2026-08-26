@@ -1,8 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { API_ERROR_CODE } from '@/constants/errorCode';
+import { isMoverDetailNotFound } from '@/app/(main)/movers/[id]/_lib/moverDetail.utils';
 import { moverQueryKeys } from '@/constants/queryKey';
-import { ApiError } from '@/lib/apiClient';
 import {
   getMoverDetail,
   toMoverCardModelFromDetail,
@@ -28,11 +27,7 @@ export const useMoverDetail = (moverId: string) => {
 
   const reviewStats = query.data?.data.reviewStats;
 
-  const isNotFound =
-    query.isError &&
-    query.error instanceof ApiError &&
-    (query.error.status === 404 ||
-      query.error.code === API_ERROR_CODE.MOVER_NOT_FOUND);
+  const isNotFound = isMoverDetailNotFound(query.isError, query.error);
 
   return {
     ...query,

@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildMoversListQuery,
+  toMoverCardModelFromDetail,
   toMoverCardModelFromListItem,
 } from './moversApi';
 
-import type { MoverListItem } from '@/types/mover';
+import type { MoverDetailData, MoverListItem } from '@/types/mover';
 
 const parseQuery = (query: string): Record<string, string> => {
   const normalized = query.startsWith('?') ? query.slice(1) : query;
@@ -152,6 +153,76 @@ describe('toMoverCardModelFromListItem', () => {
       3: 0,
       4: 0,
       5: 0,
+    });
+  });
+});
+
+const createDetailData = (
+  overrides: Partial<MoverDetailData> = {}
+): MoverDetailData => ({
+  moverDetail: {
+    id: 1,
+    userId: 'user-uuid',
+    service: ['HOME', 'SMALL'],
+    career: 8,
+    description: '상세 페이지 소개',
+    shortDescription: '한줄 소개',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z',
+    user: {
+      id: '22222222-2222-4222-8222-222222222222',
+      name: '박기사',
+      profileImageUrl: null,
+    },
+    serviceRegions: [
+      { id: 1, region: 'SEOUL' },
+      { id: 2, region: 'GYEONGGI' },
+    ],
+  },
+  reviewStats: {
+    totalCount: 25,
+    averageRating: 4.8,
+    ratingCounts: { 1: 0, 2: 1, 3: 2, 4: 5, 5: 17 },
+  },
+  isFavorited: true,
+  ...overrides,
+});
+
+describe('toMoverCardModelFromDetail', () => {
+  it('상세 응답을 카드 UI 모델로 변환한다', () => {
+    const data = createDetailData({
+      favoritedCount: 12,
+      confirmedCount: 30,
+    });
+
+    expect(toMoverCardModelFromDetail(data)).toEqual({
+      moverId: '22222222-2222-4222-8222-222222222222',
+      name: '박기사',
+      profileImageUrl: null,
+      services: ['HOME', 'SMALL'],
+      regions: ['SEOUL', 'GYEONGGI'],
+      career: 8,
+      shortDescription: '한줄 소개',
+      description: '상세 페이지 소개',
+      averageRating: 4.8,
+      reviewCount: 25,
+      ratingCounts: { 1: 0, 2: 1, 3: 2, 4: 5, 5: 17 },
+      isFavorited: true,
+      favoritedCount: 12,
+      confirmedCount: 30,
+      isDesignated: undefined,
+    });
+  });
+
+  it('favoritedCount·confirmedCount가 없으면 null로 둔다', () => {
+    const data = createDetailData({
+      favoritedCount: undefined,
+      confirmedCount: undefined,
+    });
+
+    expect(toMoverCardModelFromDetail(data)).toMatchObject({
+      favoritedCount: null,
+      confirmedCount: null,
     });
   });
 });

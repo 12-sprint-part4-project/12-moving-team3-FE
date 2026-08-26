@@ -4,6 +4,7 @@ import {
   SORT_VALUE_TO_API,
   isApiMoveType,
   isApiRegion,
+  isMoverId,
   isMoversSortValue,
 } from './mover';
 
@@ -52,5 +53,18 @@ describe('isApiMoveType', () => {
   it('ALL·잘못된 값은 false를 반환한다', () => {
     expect(isApiMoveType('ALL')).toBe(false);
     expect(isApiMoveType('INVALID')).toBe(false);
+  });
+});
+
+describe('isMoverId', () => {
+  it('유효한 UUID v4 형식이면 true를 반환한다', () => {
+    expect(isMoverId('11111111-1111-4111-8111-111111111111')).toBe(true);
+    expect(isMoverId('22222222-2222-4222-8222-222222222222')).toBe(true);
+  });
+
+  it('잘못된 id 형식은 false를 반환한다', () => {
+    expect(isMoverId('not-a-uuid')).toBe(false);
+    expect(isMoverId('')).toBe(false);
+    expect(isMoverId('123')).toBe(false);
   });
 });
