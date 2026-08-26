@@ -1,0 +1,157 @@
+import { describe, expect, it } from 'vitest';
+
+import {
+  buildMoversListQuery,
+  toMoverCardModelFromListItem,
+} from './moversApi';
+
+import type { MoverListItem } from '@/types/mover';
+
+const parseQuery = (query: string): Record<string, string> => {
+  const normalized = query.startsWith('?') ? query.slice(1) : query;
+  return Object.fromEntries(new URLSearchParams(normalized).entries());
+};
+
+const createListItem = (
+  overrides: Partial<MoverListItem> = {}
+): MoverListItem => ({
+  id: 1,
+  userId: 'user-uuid',
+  service: ['HOME'],
+  career: 5,
+  description: '상세 소개',
+  shortDescription: '한줄 소개',
+  createdAt: '2026-01-01T00:00:00.000Z',
+  updatedAt: '2026-01-01T00:00:00.000Z',
+  user: {
+    id: '11111111-1111-4111-8111-111111111111',
+    name: '김기사',
+    profileImageUrl: 'https://example.com/profile.jpg',
+  },
+  serviceRegions: [{ id: 1, region: 'SEOUL' }],
+  review: {
+    totalCount: 10,
+    averageRating: 4.5,
+    ratingCounts: { 1: 0, 2: 0, 3: 1, 4: 3, 5: 6 },
+  },
+  isFavorited: false,
+  ...overrides,
+});
+
+describe('buildMoversListQuery', () => {
+  it('파라미터가 없으면 sort=reviewCount만 포함한다', () => {
+    expect(parseQuery(buildMoversListQuery({}))).toEqual({
+      sort: 'reviewCount',
+    });
+  });
+
+  it('keyword를 trim한 뒤 쿼리에 포함한다', () => {
+    expect(
+      parseQuery(buildMoversListQuery({ keyword: '  친절한  ' }))
+    ).toMatchObject({
+      keyword: '친절한',
+      sort: 'reviewCount',
+    });
+  });
+
+  it('keyword가 공백만이면 keyword를 생략한다', () => {
+    const params = parseQuery(buildMoversListQuery({ keyword: '   ' }));
+
+    expect(params.keyword).toBeUndefined();
+    expect(params.sort).toBe('reviewCount');
+  });
+
+  it('regions와 moveTypes를 쉼표 구분으로 전달한다', () => {
+    expect(
+      parseQuery(
+        buildMoversListQuery({
+          regions: ['SEOUL', 'BUSAN'],
+          moveTypes: ['HOME', 'SMALL'],
+        })
+      )
+    ).toMatchObject({
+      region: 'SEOUL,BUSAN',
+      moveType: 'HOME,SMALL',
+      sort: 'reviewCount',
+    });
+  });
+
+  it('regions·moveTypes가 빈 배열이면 생략한다', () => {
+    const params = parseQuery(
+      buildMoversListQuery({ regions: [], moveTypes: [] })
+    );
+
+    expect(params.region).toBeUndefined();
+    expect(params.moveType).toBeUndefined();
+  });
+
+  it('sort·cursor·limit를 함께 전달한다', () => {
+    expect(
+      parseQuery(
+        buildMoversListQuery({
+          sort: 'averageRating',
+          cursor: 'cursor-token',
+          limit: 10,
+        })
+      )
+    ).toEqual({
+      sort: 'averageRating',
+      cursor: 'cursor-token',
+      limit: '10',
+    });
+  });
+});
+
+describe('toMoverCardModelFromListItem', () => {
+  it('목록 아이템을 카드 UI 모델로 변환한다', () => {
+    const item = createListItem();
+
+    expect(toMoverCardModelFromListItem(item)).toEqual({
+      moverId: '11111111-1111-4111-8111-111111111111',
+      name: '김기사',
+      profileImageUrl: 'https://example.com/profile.jpg',
+      services: ['HOME'],
+      regions: ['SEOUL'],
+      career: 5,
+      shortDescription: '한줄 소개',
+      description: '상세 소개',
+      averageRating: 4.5,
+      reviewCount: 10,
+      ratingCounts: { 1: 0, 2: 0, 3: 1, 4: 3, 5: 6 },
+      isFavorited: false,
+      favoritedCount: 0,
+      confirmedCount: 0,
+      isDesignated: undefined,
+    });
+  });
+
+  it('favoritedCount·confirmedCount가 없으면 0으로 표시한다', () => {
+    const item = createListItem({
+      favoritedCount: undefined,
+      confirmedCount: undefined,
+    });
+
+    expect(toMoverCardModelFromListItem(item)).toMatchObject({
+      favoritedCount: 0,
+      confirmedCount: 0,
+    });
+  });
+
+  it('ratingCounts가 없으면 0으로 채운 기본값을 사용한다', () => {
+    const item = createListItem({
+      review: {
+        totalCount: 0,
+        averageRating: null,
+        ratingCounts: undefined as unknown as MoverListItem['review']['ratingCounts'],
+      },
+    });
+
+    expect(toMoverCardModelFromListItem(item).ratingCounts).toEqual({
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+    });
+  });
+});
