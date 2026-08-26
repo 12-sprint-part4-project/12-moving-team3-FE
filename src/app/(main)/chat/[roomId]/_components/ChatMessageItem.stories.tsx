@@ -50,8 +50,37 @@ const WARNING_PARTNER_MESSAGE: ChatMessage = {
   messageType: 'TEXT',
   content: PROFANITY_MESSAGE,
   isFiltered: true,
+  filterAction: 'block',
+  filterReasonCodes: ['PROFANITY'],
   attachments: [],
   createdAt: '2026-08-08T10:00:50.000Z',
+};
+
+const MASK_PARTNER_MESSAGE: ChatMessage = {
+  messageId: 107,
+  senderId: 'partner-user-id',
+  senderUserType: 'MOVER',
+  messageType: 'TEXT',
+  content: '연락처는 [전화번호]로 주세요',
+  isFiltered: true,
+  filterAction: 'mask',
+  filterReasonCodes: ['PERSONAL_INFO_PHONE'],
+  attachments: [],
+  createdAt: '2026-08-08T10:00:55.000Z',
+};
+
+const BLOCK_PERSONAL_INFO_MESSAGE: ChatMessage = {
+  messageId: 108,
+  senderId: 'partner-user-id',
+  senderUserType: 'MOVER',
+  messageType: 'TEXT',
+  content:
+    '민감한 개인정보가 감지되었습니다. 개인정보 보호를 위해 해당 내용이 가려집니다.',
+  isFiltered: true,
+  filterAction: 'block',
+  filterReasonCodes: ['PERSONAL_INFO_PHONE'],
+  attachments: [],
+  createdAt: '2026-08-08T10:00:58.000Z',
 };
 
 const IMAGE_PARTNER_MESSAGE: ChatMessage = {
@@ -154,6 +183,26 @@ export const PartnerLongNoTime: Story = {
 export const PartnerWarning: Story = {
   args: {
     message: WARNING_PARTNER_MESSAGE,
+    isMine: false,
+    showTime: true,
+    onReport: fn(),
+  },
+};
+
+/** 상대 mask — [전화번호] 칩 (#357 filterAction) */
+export const PartnerMask: Story = {
+  args: {
+    message: MASK_PARTNER_MESSAGE,
+    isMine: false,
+    showTime: true,
+    onReport: fn(),
+  },
+};
+
+/** 상대 block(개인정보) — 안내 문구 (#357 filterAction) */
+export const PartnerBlockPersonalInfo: Story = {
+  args: {
+    message: BLOCK_PERSONAL_INFO_MESSAGE,
     isMine: false,
     showTime: true,
     onReport: fn(),
