@@ -10,9 +10,9 @@ import { TextFieldChat } from '@/components/ui/Input/TextFieldChat';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { useTranslation } from '@/i18n/useTranslation';
 import {
-  getFilterAction,
   parseFilterContent,
   PROFANITY_MESSAGE,
+  resolveFilterDisplayAction,
 } from '@/lib/chatFilterTokens';
 import { formatChatMessageTime } from '@/lib/formatDate';
 import { cn } from '@/lib/utils';
@@ -316,7 +316,7 @@ export const ChatMessageItem = ({
     message.messageType === 'IMAGE' && message.attachments.length > 0;
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  const filterAction = getFilterAction(message.isFiltered, message.content);
+  const filterAction = resolveFilterDisplayAction(message);
   // 경고 문구: 발신·수신 모두 회색 (모서리만 발신/수신 방향 유지)
   const filteredColor = isMine ? 'filteredMine' : 'filteredIncoming';
 
