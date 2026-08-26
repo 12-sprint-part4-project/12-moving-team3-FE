@@ -4,10 +4,7 @@ import { useDesignatedEstimateRequest } from '@/hooks/useDesignatedEstimateReque
 import { useFavoriteAction } from '@/hooks/useFavoriteAction';
 import { useStartEstimateChat } from '@/hooks/useStartEstimateChat';
 
-import {
-  resolveShowChatCta,
-  resolveShowDesignatedCta,
-} from './moverDetail.utils';
+import { resolveShowChatCta } from './moverDetail.utils';
 
 import type { MoverDetailChat, MoverDetailDesignated } from './moverDetailActions';
 
@@ -45,7 +42,7 @@ export const useMoverDetailActions = (moverId: string) => {
 
   const { startEstimateChat, isChatPending } = useStartEstimateChat();
 
-  const showDesignatedCta = resolveShowDesignatedCta(user?.userType);
+  const showDesignatedCta = user?.userType !== 'MOVER';
   const showChatCta = resolveShowChatCta({
     showDesignatedCta,
     isAlreadyDesignated,

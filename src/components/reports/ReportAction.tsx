@@ -7,11 +7,6 @@ import {
   type ReportButtonVariant,
 } from '@/components/reports/ReportButton';
 import { ReportCategoryModal } from '@/components/reports/ReportCategoryModal';
-import {
-  canCloseReportModal,
-  canOpenReportAction,
-  resolveReportModalOpen,
-} from '@/components/reports/report.utils';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { useAuth } from '@/hooks/useAuth';
 import { useCreateReport } from '@/hooks/useCreateReport';
@@ -66,10 +61,10 @@ export const ReportAction = ({
   const [internalOpen, setInternalOpen] = useState(false);
 
   const isControlled = controlledOpen !== undefined;
-  const isModalOpen = resolveReportModalOpen(controlledOpen, internalOpen);
+  const isModalOpen = isControlled ? controlledOpen : internalOpen;
 
   const handleOpen = () => {
-    if (!canOpenReportAction(user)) {
+    if (!user) {
       showToast({ content: '로그인이 필요한 기능입니다' });
       return;
     }
@@ -77,7 +72,7 @@ export const ReportAction = ({
   };
 
   const handleClose = () => {
-    if (!canCloseReportModal(isPending)) return;
+    if (isPending) return;
     if (isControlled) {
       onControlledClose?.();
     } else {

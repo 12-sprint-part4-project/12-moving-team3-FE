@@ -2,7 +2,6 @@
 
 import { useId, useState } from 'react';
 
-import { canSubmitReportCategory } from '@/components/reports/report.utils';
 import { ModalBasic } from '@/components/ui/Modal/ModalBasic';
 import { ModalCtaButton } from '@/components/ui/Modal/ModalCtaButton';
 import { MODAL_PANEL_BOTTOM_SHEET_CLASS } from '@/components/ui/Modal/modalPanel';
@@ -32,7 +31,7 @@ export const ReportCategoryModal = ({
   const groupId = useId();
   const [category, setCategory] = useState<ReportCategory | null>(null);
 
-  const canSubmit = canSubmitReportCategory(category, isSubmitting);
+  const canSubmit = !isSubmitting && category !== null;
 
   const handleClose = () => {
     if (isSubmitting) return;

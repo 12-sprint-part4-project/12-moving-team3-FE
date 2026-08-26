@@ -9,7 +9,7 @@ import {
   type CreateReportResponse,
 } from '@/types/report';
 
-export const isCreateReportResponse = (
+const isCreateReportResponse = (
   body: unknown
 ): body is CreateReportResponse => {
   if (!body || typeof body !== 'object') {

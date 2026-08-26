@@ -10,11 +10,6 @@ export const isMoverDetailNotFound = (
   error instanceof ApiError &&
   (error.status === 404 || error.code === API_ERROR_CODE.MOVER_NOT_FOUND);
 
-/** MOVER가 아닌 사용자에게만 지정 견적 CTA 노출 */
-export const resolveShowDesignatedCta = (
-  userType: string | undefined
-): boolean => userType !== 'MOVER';
-
 /** 지정 견적 완료 후 채팅 CTA 노출 조건 */
 export const resolveShowChatCta = (input: {
   showDesignatedCta: boolean;
