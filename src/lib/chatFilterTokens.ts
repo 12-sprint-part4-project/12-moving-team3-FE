@@ -1,8 +1,14 @@
 /**
- * 채팅 필터 토큰 파싱.
- * BE mask 결과에 포함된 [전화번호] / [계좌번호] 토큰을 검출해
- * 말풍선 UI에서 칩(pill)으로 치환하기 위한 유틸입니다.
+ * 채팅 필터 토큰 파싱·표시 action 판별.
+ * BE mask 결과의 [전화번호]/[계좌번호] 토큰과
+ * filterAction/filterReasonCodes(BE #432)를 말풍선 UI에 연결한다 (#357).
  */
+
+import type {
+  ChatFilterAction,
+  ChatFilterReasonCode,
+  ChatMessage,
+} from '@/types/chat';
 
 export type FilterTokenType = 'phone' | 'account';
 
@@ -19,6 +25,9 @@ export interface FilterTokenPart {
 }
 
 export type FilterContentPart = FilterTextPart | FilterTokenPart;
+
+/** 말풍선 UI 분기용 표시 action */
+export type FilterDisplayAction = 'allow' | 'mask' | 'block' | 'profanity';
 
 const createTokenPattern = (): RegExp => /(\[전화번호\]|\[계좌번호\])/g;
 
@@ -63,7 +72,7 @@ const PROFANITY_MESSAGE =
   '부적절한 언어 사용이 감지되었습니다. 반복될 경우 제재가 진행됩니다.';
 
 /**
- * isFiltered + content를 보고 표시 방식을 결정한다.
+ * isFiltered + content를 보고 표시 방식을 결정한다 (이력 GET fallback).
  * - profanity: 욕설 안내 문구 포함
  * - mask: [전화번호] / [계좌번호] 토큰 포함 → 수신자는 칩 치환
  * - block: 개인정보 단독 → 안내 문구
@@ -72,7 +81,7 @@ const PROFANITY_MESSAGE =
 export const getFilterAction = (
   isFiltered: boolean,
   content: string
-): 'allow' | 'mask' | 'block' | 'profanity' => {
+): FilterDisplayAction => {
   if (!isFiltered) {
     return 'allow';
   }
@@ -82,6 +91,44 @@ export const getFilterAction = (
   }
 
   return createTokenPattern().test(content) ? 'mask' : 'block';
+};
+
+/**
+ * BE `filterAction` + `filterReasonCodes` → 말풍선 표시 action.
+ * `block` + PROFANITY → `profanity`, 그 외 block → `block`.
+ */
+const fromBeFilterFields = (
+  filterAction: ChatFilterAction,
+  filterReasonCodes: ChatFilterReasonCode[] = []
+): FilterDisplayAction => {
+  if (filterAction === 'allow') {
+    return 'allow';
+  }
+  if (filterAction === 'mask') {
+    return 'mask';
+  }
+  return filterReasonCodes.includes('PROFANITY') ? 'profanity' : 'block';
+};
+
+/**
+ * 메시지 표시 action을 결정한다 (#357).
+ * - `filterAction`이 있으면 BE 필드 우선
+ * - 없으면(이력 GET) `getFilterAction` content fallback
+ */
+export const resolveFilterDisplayAction = (
+  message: Pick<
+    ChatMessage,
+    'isFiltered' | 'content' | 'filterAction' | 'filterReasonCodes'
+  >
+): FilterDisplayAction => {
+  if (message.filterAction !== undefined) {
+    return fromBeFilterFields(
+      message.filterAction,
+      message.filterReasonCodes ?? []
+    );
+  }
+
+  return getFilterAction(message.isFiltered, message.content);
 };
 
 export { PROFANITY_MESSAGE };

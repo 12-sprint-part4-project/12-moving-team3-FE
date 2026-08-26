@@ -9,6 +9,15 @@ export type ChatRoomType = 'GENERAL' | 'DESIGNATED' | 'COMMUNITY';
 /** 메시지 유형 */
 export type ChatMessageType = 'TEXT' | 'IMAGE';
 
+/** BE 필터 판별 action (#432, FE #357) */
+export type ChatFilterAction = 'allow' | 'mask' | 'block';
+
+/** BE 필터 reason code (#432, FE #357) */
+export type ChatFilterReasonCode =
+  | 'PROFANITY'
+  | 'PERSONAL_INFO_PHONE'
+  | 'PERSONAL_INFO_ACCOUNT';
+
 /** 채팅 상대방 요약 */
 export interface ChatPartner {
   id: string;
@@ -139,6 +148,13 @@ export interface ChatMessage {
   messageType: ChatMessageType;
   content: string;
   isFiltered: boolean;
+  /**
+   * 필터 판별 action. 전송(POST)·`chat:message`에만 포함 (BE #432).
+   * 이력 GET은 DB 미저장으로 생략 — FE는 content fallback (#357).
+   */
+  filterAction?: ChatFilterAction;
+  /** 필터 reason code 목록. allow면 []. 전송·소켓에만 포함 (BE #432). */
+  filterReasonCodes?: ChatFilterReasonCode[];
   attachments: string[];
   createdAt: string;
 }
