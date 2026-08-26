@@ -2,14 +2,14 @@ import { API_BASE_URL } from '@/lib/apiClient';
 import { fetchAndValidate } from '@/services/moverApiResponse';
 import { assertMoverAccessToken } from '@/services/moversAuth';
 import {
-  REPORT_CATEGORIES,
-  REPORT_STATUSES,
-  REPORT_TARGETS,
+  isReportCategory,
+  isReportStatus,
+  isReportTarget,
   type CreateReportBody,
   type CreateReportResponse,
 } from '@/types/report';
 
-const isCreateReportResponse = (
+export const isCreateReportResponse = (
   body: unknown
 ): body is CreateReportResponse => {
   if (!body || typeof body !== 'object') {
@@ -35,12 +35,12 @@ const isCreateReportResponse = (
     typeof report.id === 'number' &&
     typeof report.reporterId === 'string' &&
     typeof report.target === 'string' &&
-    (REPORT_TARGETS as readonly string[]).includes(report.target) &&
+    isReportTarget(report.target) &&
     typeof report.targetId === 'string' &&
     typeof report.category === 'string' &&
-    (REPORT_CATEGORIES as readonly string[]).includes(report.category) &&
+    isReportCategory(report.category) &&
     typeof report.status === 'string' &&
-    (REPORT_STATUSES as readonly string[]).includes(report.status) &&
+    isReportStatus(report.status) &&
     typeof report.createdAt === 'string'
   );
 };

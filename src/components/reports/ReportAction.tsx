@@ -7,6 +7,11 @@ import {
   type ReportButtonVariant,
 } from '@/components/reports/ReportButton';
 import { ReportCategoryModal } from '@/components/reports/ReportCategoryModal';
+import {
+  canCloseReportModal,
+  canOpenReportAction,
+  resolveReportModalOpen,
+} from '@/components/reports/report.utils';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { useAuth } from '@/hooks/useAuth';
 import { useCreateReport } from '@/hooks/useCreateReport';
@@ -37,7 +42,8 @@ interface ControlledReportActionProps extends ReportActionBaseProps {
 }
 
 export type ReportActionProps =
-  UncontrolledReportActionProps | ControlledReportActionProps;
+  | UncontrolledReportActionProps
+  | ControlledReportActionProps;
 
 /**
  * 신고 트리거 + 사유 모달 + API 연동 컨테이너.
@@ -60,10 +66,10 @@ export const ReportAction = ({
   const [internalOpen, setInternalOpen] = useState(false);
 
   const isControlled = controlledOpen !== undefined;
-  const isModalOpen = isControlled ? controlledOpen : internalOpen;
+  const isModalOpen = resolveReportModalOpen(controlledOpen, internalOpen);
 
   const handleOpen = () => {
-    if (!user) {
+    if (!canOpenReportAction(user)) {
       showToast({ content: '로그인이 필요한 기능입니다' });
       return;
     }
@@ -71,7 +77,7 @@ export const ReportAction = ({
   };
 
   const handleClose = () => {
-    if (isPending) return;
+    if (!canCloseReportModal(isPending)) return;
     if (isControlled) {
       onControlledClose?.();
     } else {
