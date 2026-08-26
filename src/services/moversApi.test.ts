@@ -1,12 +1,18 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  buildFavoriteMoversQuery,
   buildMoversListQuery,
   toMoverCardModelFromDetail,
+  toMoverCardModelFromFavorite,
   toMoverCardModelFromListItem,
 } from './moversApi';
 
-import type { MoverDetailData, MoverListItem } from '@/types/mover';
+import type {
+  FavoriteMoverListItem,
+  MoverDetailData,
+  MoverListItem,
+} from '@/types/mover';
 
 const parseQuery = (query: string): Record<string, string> => {
   const normalized = query.startsWith('?') ? query.slice(1) : query;
@@ -223,6 +229,123 @@ describe('toMoverCardModelFromDetail', () => {
     expect(toMoverCardModelFromDetail(data)).toMatchObject({
       favoritedCount: null,
       confirmedCount: null,
+    });
+  });
+});
+
+const createFavoriteItem = (
+  overrides: Partial<FavoriteMoverListItem> = {}
+): FavoriteMoverListItem => ({
+  id: 10,
+  userId: 'customer-uuid',
+  moverId: '33333333-3333-4333-8333-333333333333',
+  createdAt: '2026-01-02T00:00:00.000Z',
+  mover: {
+    id: '33333333-3333-4333-8333-333333333333',
+    name: '이기사',
+    profileImageUrl: 'https://example.com/fav.jpg',
+    moverProfile: {
+      career: 3,
+      serviceRegions: [{ id: 1, region: 'BUSAN' }],
+      service: ['OFFICE'],
+    },
+  },
+  reviewStats: {
+    totalCount: 4,
+    averageRating: 4.0,
+    ratingCounts: { 1: 0, 2: 0, 3: 0, 4: 2, 5: 2 },
+  },
+  favoritedCount: 7,
+  confirmedCount: 2,
+  ...overrides,
+});
+
+describe('buildFavoriteMoversQuery', () => {
+  it('파라미터가 없으면 빈 문자열을 반환한다', () => {
+    expect(buildFavoriteMoversQuery({})).toBe('');
+  });
+
+  it('cursor와 limit를 쿼리에 포함한다', () => {
+    expect(
+      parseQuery(
+        buildFavoriteMoversQuery({ cursor: 'next-page', limit: 10 })
+      )
+    ).toEqual({
+      cursor: 'next-page',
+      limit: '10',
+    });
+  });
+
+  it('limit만 있으면 limit만 포함한다', () => {
+    expect(parseQuery(buildFavoriteMoversQuery({ limit: 3 }))).toEqual({
+      limit: '3',
+    });
+  });
+});
+
+describe('toMoverCardModelFromFavorite', () => {
+  it('찜 목록 아이템을 카드 UI 모델로 변환한다', () => {
+    expect(toMoverCardModelFromFavorite(createFavoriteItem())).toEqual({
+      moverId: '33333333-3333-4333-8333-333333333333',
+      name: '이기사',
+      profileImageUrl: 'https://example.com/fav.jpg',
+      services: ['OFFICE'],
+      regions: ['BUSAN'],
+      career: 3,
+      shortDescription: null,
+      description: null,
+      averageRating: 4.0,
+      reviewCount: 4,
+      ratingCounts: { 1: 0, 2: 0, 3: 0, 4: 2, 5: 2 },
+      isFavorited: true,
+      favoritedCount: 7,
+      confirmedCount: 2,
+      isDesignated: undefined,
+    });
+  });
+
+  it('moverId가 없으면 null을 반환한다', () => {
+    expect(
+      toMoverCardModelFromFavorite(createFavoriteItem({ moverId: null }))
+    ).toBeNull();
+  });
+
+  it('mover가 없으면 null을 반환한다', () => {
+    expect(
+      toMoverCardModelFromFavorite(createFavoriteItem({ mover: null }))
+    ).toBeNull();
+  });
+
+  it('item.service가 없으면 moverProfile.service를 사용한다', () => {
+    const item = createFavoriteItem({
+      service: undefined,
+      mover: {
+        id: '33333333-3333-4333-8333-333333333333',
+        name: '이기사',
+        profileImageUrl: null,
+        moverProfile: {
+          career: 1,
+          serviceRegions: [],
+          service: ['HOME'],
+        },
+      },
+    });
+
+    expect(toMoverCardModelFromFavorite(item)).toMatchObject({
+      services: ['HOME'],
+      isFavorited: true,
+    });
+  });
+
+  it('confirmedCount가 없으면 null로 둔다', () => {
+    expect(
+      toMoverCardModelFromFavorite(
+        createFavoriteItem({ confirmedCount: undefined })
+      )
+    ).toMatchObject({
+      confirmedCount: null,
+      shortDescription: null,
+      description: null,
     });
   });
 });

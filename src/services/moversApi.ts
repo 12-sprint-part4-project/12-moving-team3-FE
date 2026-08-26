@@ -311,6 +311,27 @@ const isFavoriteMoversResponse = (
 };
 
 /**
+ * 찜한 기사님 목록 쿼리스트링 생성.
+ * - cursor / limit만 전달 (region·sort 없음)
+ */
+export const buildFavoriteMoversQuery = (
+  params: FavoriteMoversParams = {}
+): string => {
+  const searchParams = new URLSearchParams();
+
+  if (params.cursor) {
+    searchParams.set('cursor', params.cursor);
+  }
+
+  if (params.limit !== undefined) {
+    searchParams.set('limit', String(params.limit));
+  }
+
+  const query = searchParams.toString();
+  return query ? `?${query}` : '';
+};
+
+/**
  * 찜한 기사님 목록 조회 (CUSTOMER).
  * GET /api/movers/favorites
  * authFetch: 401 시 refresh 1회 후 재시도.
@@ -320,18 +341,10 @@ export const getFavoriteMovers = async (
 ): Promise<FavoriteMoversResponse> => {
   assertMoverAccessToken();
 
-  const searchParams = new URLSearchParams();
-  if (params.cursor) {
-    searchParams.set('cursor', params.cursor);
-  }
-  if (params.limit !== undefined) {
-    searchParams.set('limit', String(params.limit));
-  }
-  const query = searchParams.toString();
-  const suffix = query ? `?${query}` : '';
+  const query = buildFavoriteMoversQuery(params);
 
   return fetchAndValidate(
-    `${API_BASE_URL}/api/movers/favorites${suffix}`,
+    `${API_BASE_URL}/api/movers/favorites${query}`,
     { method: 'GET' },
     isFavoriteMoversResponse,
     '요청 처리 중 오류가 발생했습니다.'
