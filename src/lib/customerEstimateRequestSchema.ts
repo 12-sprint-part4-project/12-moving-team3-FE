@@ -9,6 +9,8 @@ export const moveDateSchema = z.iso.date({
 });
 
 const addressFieldSchema = z.string().trim().min(1, '주소를 입력해 주세요.');
+/** 상세주소(동·호수) — 없는 주소도 있어 선택값. 미입력 시 빈 문자열로 저장 */
+const optionalAddressFieldSchema = z.string().trim().optional().default('');
 
 const step1DataSchema = z.object({
   moveType: moveTypeSchema,
@@ -21,10 +23,10 @@ const step2DataSchema = z.object({
 const step3DataSchema = z.object({
   departureZipCode: addressFieldSchema,
   departureAddress: addressFieldSchema,
-  departureDetailAddress: addressFieldSchema,
+  departureDetailAddress: optionalAddressFieldSchema,
   arrivalZipCode: addressFieldSchema,
   arrivalAddress: addressFieldSchema,
-  arrivalDetailAddress: addressFieldSchema,
+  arrivalDetailAddress: optionalAddressFieldSchema,
 });
 
 /** 단계별 입력 저장 body — BE saveEstimateRequestStepBodySchema 와 동일 */
@@ -81,7 +83,8 @@ export const reviseEstimateRequestFieldBodySchema = z.discriminatedUnion(
     }),
     z.object({
       field: z.literal('departureDetailAddress'),
-      value: addressFieldSchema,
+      // 상세주소는 선택값 — 빈 문자열 허용 (min 없음)
+      value: z.string().trim(),
     }),
     z.object({
       field: z.literal('arrivalZipCode'),
@@ -93,7 +96,8 @@ export const reviseEstimateRequestFieldBodySchema = z.discriminatedUnion(
     }),
     z.object({
       field: z.literal('arrivalDetailAddress'),
-      value: addressFieldSchema,
+      // 상세주소는 선택값 — 빈 문자열 허용 (min 없음)
+      value: z.string().trim(),
     }),
   ]
 );
@@ -198,14 +202,13 @@ export const isEstimateRequestReadyToSubmit = (detail: {
   arrivalAddress: string | null;
   arrivalDetailAddress: string | null;
 }): boolean =>
+  // 상세주소(동·호수)는 선택값이라 완성도 검사에서 제외 — BE isReadyToSubmit과 동일
   detail.moveType != null &&
   detail.moveDate != null &&
   detail.departureZipCode != null &&
   detail.departureAddress != null &&
-  detail.departureDetailAddress != null &&
   detail.arrivalZipCode != null &&
-  detail.arrivalAddress != null &&
-  detail.arrivalDetailAddress != null;
+  detail.arrivalAddress != null;
 
 /**
  * 서버 currentStep 기준 FE 시각 스텝.

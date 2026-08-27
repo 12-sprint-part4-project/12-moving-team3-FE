@@ -18,17 +18,33 @@ const readyDetail = {
   arrivalDetailAddress: '303동 404호',
 };
 
+/** 완성도 검사 대상 — 상세주소(동·호수)는 선택값이라 제외 */
+const REQUIRED_READY_KEYS = [
+  'moveType',
+  'moveDate',
+  'departureZipCode',
+  'departureAddress',
+  'arrivalZipCode',
+  'arrivalAddress',
+] as const;
+
 describe('isEstimateRequestReadyToSubmit', () => {
-  it('8개 필수 필드가 모두 채워지면 true를 반환한다', () => {
+  it('6개 필수 필드가 모두 채워지면 true를 반환한다', () => {
     expect(isEstimateRequestReadyToSubmit(readyDetail)).toBe(true);
   });
 
-  it.each(Object.keys(readyDetail) as (keyof typeof readyDetail)[])(
-    '%s가 null이면 false를 반환한다',
+  it.each(REQUIRED_READY_KEYS)('%s가 null이면 false를 반환한다', (field) => {
+    expect(
+      isEstimateRequestReadyToSubmit({ ...readyDetail, [field]: null })
+    ).toBe(false);
+  });
+
+  it.each(['departureDetailAddress', 'arrivalDetailAddress'] as const)(
+    '상세주소 %s가 null이어도 true를 반환한다(선택값)',
     (field) => {
       expect(
         isEstimateRequestReadyToSubmit({ ...readyDetail, [field]: null })
-      ).toBe(false);
+      ).toBe(true);
     }
   );
 });
@@ -86,7 +102,7 @@ describe('saveEstimateRequestStepBodySchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('step 3 + 주소 8필드 모두 채워지면 성공한다', () => {
+  it('step 3 + 주소 6필드 모두 채워지면 성공한다', () => {
     const result = saveEstimateRequestStepBodySchema.safeParse({
       step: 3,
       data: {
@@ -101,7 +117,20 @@ describe('saveEstimateRequestStepBodySchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('step 3 + 필드 누락 시 실패한다', () => {
+  it('step 3 + 상세주소 없이도 성공한다(선택값)', () => {
+    const result = saveEstimateRequestStepBodySchema.safeParse({
+      step: 3,
+      data: {
+        departureZipCode: '12345',
+        departureAddress: '서울시 강남구',
+        arrivalZipCode: '54321',
+        arrivalAddress: '서울시 마포구',
+      },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('step 3 + 필수 필드 누락 시 실패한다', () => {
     const result = saveEstimateRequestStepBodySchema.safeParse({
       step: 3,
       data: {
@@ -109,8 +138,8 @@ describe('saveEstimateRequestStepBodySchema', () => {
         departureAddress: '서울시 강남구',
         departureDetailAddress: '101동',
         arrivalZipCode: '54321',
-        arrivalAddress: '서울시 마포구',
-        // arrivalDetailAddress 누락
+        // arrivalAddress 누락 (필수)
+        arrivalDetailAddress: '303동',
       },
     });
     expect(result.success).toBe(false);
@@ -173,4 +202,26 @@ describe('reviseEstimateRequestFieldBodySchema', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it.each(['departureDetailAddress', 'arrivalDetailAddress'])(
+    'field %s + 빈 문자열은 성공한다(선택값)',
+    (field) => {
+      const result = reviseEstimateRequestFieldBodySchema.safeParse({
+        field,
+        value: '',
+      });
+      expect(result.success).toBe(true);
+    }
+  );
+
+  it.each(['departureAddress', 'arrivalZipCode'])(
+    'field %s + 빈 문자열은 실패한다(필수값)',
+    (field) => {
+      const result = reviseEstimateRequestFieldBodySchema.safeParse({
+        field,
+        value: '',
+      });
+      expect(result.success).toBe(false);
+    }
+  );
 });
