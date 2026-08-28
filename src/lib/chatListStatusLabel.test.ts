@@ -72,6 +72,20 @@ describe('getChatListStatusLabel', () => {
     expect(getChatListStatusLabel(room, CURRENT_USER_ID)).toBe('방금 읽음');
   });
 
+  it('내 메시지·읽음 ID 없으면 보냄 라벨', () => {
+    const room = createRoom({
+      lastMessage: {
+        messageId: 10,
+        senderId: CURRENT_USER_ID,
+        content: '안녕',
+        messageType: 'TEXT',
+        createdAt: '2026-08-20T00:00:00.000Z',
+      },
+    });
+
+    expect(getChatListStatusLabel(room, CURRENT_USER_ID)).toBe('방금 보냄');
+  });
+
   it('내 메시지·상대 미읽음이면 보냄 라벨', () => {
     const room = createRoom({
       lastMessage: {

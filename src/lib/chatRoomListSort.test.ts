@@ -120,6 +120,27 @@ describe('patchChatRoomWithLastMessage', () => {
 
     expect(patched).toBe(room);
   });
+
+  it('lastActivityAt과 동일 시각·더 낮은 messageId 메시지는 무시한다', () => {
+    const room = createRoom(1, '2026-08-20T00:00:00.000Z', 0, {
+      messageId: 100,
+      senderId: 'user',
+      content: '기존 메시지',
+      messageType: 'TEXT',
+      createdAt: '2026-08-20T00:00:00.000Z',
+    });
+    const incoming: ChatLastMessage = {
+      messageId: 99,
+      senderId: 'user',
+      content: '다른 메시지',
+      messageType: 'TEXT',
+      createdAt: '2026-08-20T00:00:00.000Z',
+    };
+
+    const patched = patchChatRoomWithLastMessage(room, incoming);
+
+    expect(patched).toBe(room);
+  });
 });
 
 describe('applyLastMessageToChatRoomsList', () => {

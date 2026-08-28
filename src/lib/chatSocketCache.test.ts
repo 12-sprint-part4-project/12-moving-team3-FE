@@ -1,5 +1,5 @@
-import { QueryClient } from '@tanstack/react-query';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { QueryClient, type InfiniteData } from '@tanstack/react-query';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { chatQueryKeys } from '@/constants/queryKey';
 
@@ -12,6 +12,7 @@ import {
 
 import type {
   ChatMessage,
+  ChatMessagesResponse,
   ChatRoomDetailResponse,
   ChatRoomListItem,
   ChatRoomListResponse,
@@ -91,6 +92,16 @@ describe('applySocketReadToCaches', () => {
       chatQueryKeys.roomDetail(ROOM_ID),
       createDetailResponse()
     );
+    queryClient.setQueryData(chatQueryKeys.rooms(), {
+      data: {
+        rooms: [
+          createRoom({
+            partnerLastReadMessageId: 10,
+            partnerLastReadAt: '2026-08-19T00:00:00.000Z',
+          }),
+        ],
+      },
+    });
 
     applySocketReadToCaches(
       queryClient,
@@ -107,6 +118,14 @@ describe('applySocketReadToCaches', () => {
       chatQueryKeys.roomDetail(ROOM_ID)
     );
     expect(detail?.data.partnerLastReadMessageId).toBeNull();
+
+    const rooms = queryClient.getQueryData<ChatRoomListResponse>(
+      chatQueryKeys.rooms()
+    );
+    expect(rooms?.data.rooms[0].partnerLastReadMessageId).toBe(10);
+    expect(rooms?.data.rooms[0].partnerLastReadAt).toBe(
+      '2026-08-19T00:00:00.000Z'
+    );
   });
 
   it('상대 읽음 커서를 방 상세·목록에 전진 반영한다', () => {
@@ -147,13 +166,74 @@ describe('applySocketReadToCaches', () => {
     );
     expect(rooms?.data.rooms[0].partnerLastReadMessageId).toBe(50);
   });
+
+  it('기존 커서보다 낮은 lastReadMessageId는 후퇴하지 않는다', () => {
+    queryClient.setQueryData(
+      chatQueryKeys.roomDetail(ROOM_ID),
+      createDetailResponse({
+        partnerLastReadMessageId: 50,
+        partnerLastReadAt: '2026-08-20T01:00:00.000Z',
+      })
+    );
+    queryClient.setQueryData(chatQueryKeys.rooms(), {
+      data: {
+        rooms: [
+          createRoom({
+            partnerLastReadMessageId: 50,
+            partnerLastReadAt: '2026-08-20T01:00:00.000Z',
+          }),
+        ],
+      },
+    });
+
+    applySocketReadToCaches(
+      queryClient,
+      {
+        roomId: ROOM_ID,
+        readerId: PARTNER_ID,
+        lastReadMessageId: 30,
+        readAt: '2026-08-20T00:30:00.000Z',
+      },
+      CURRENT_USER_ID
+    );
+
+    const detail = queryClient.getQueryData<ChatRoomDetailResponse>(
+      chatQueryKeys.roomDetail(ROOM_ID)
+    );
+    expect(detail?.data.partnerLastReadMessageId).toBe(50);
+    expect(detail?.data.partnerLastReadAt).toBe('2026-08-20T01:00:00.000Z');
+
+    const rooms = queryClient.getQueryData<ChatRoomListResponse>(
+      chatQueryKeys.rooms()
+    );
+    expect(rooms?.data.rooms[0].partnerLastReadMessageId).toBe(50);
+    expect(rooms?.data.rooms[0].partnerLastReadAt).toBe(
+      '2026-08-20T01:00:00.000Z'
+    );
+  });
 });
 
 describe('applySocketMessageToCaches', () => {
-  it('목록 lastMessage·lastActivityAt을 갱신한다', () => {
+  it('목록 lastMessage·lastActivityAt과 메시지 캐시를 갱신한다', () => {
+    const existingMessage = createMessage({
+      messageId: 150,
+      content: '기존 메시지',
+    });
     queryClient.setQueryData(chatQueryKeys.rooms(), {
       data: { rooms: [createRoom()] },
     });
+    queryClient.setQueryData<InfiniteData<ChatMessagesResponse>>(
+      chatQueryKeys.messages(ROOM_ID),
+      {
+        pages: [
+          {
+            data: { messages: [existingMessage] },
+            meta: { hasNext: false, nextCursor: null },
+          },
+        ],
+        pageParams: [undefined],
+      }
+    );
 
     const message = createMessage({
       messageId: 200,
@@ -162,6 +242,13 @@ describe('applySocketMessageToCaches', () => {
     });
 
     applySocketMessageToCaches(queryClient, { roomId: ROOM_ID, message });
+
+    const messagesCache =
+      queryClient.getQueryData<InfiniteData<ChatMessagesResponse>>(
+        chatQueryKeys.messages(ROOM_ID)
+      );
+    expect(messagesCache?.pages[0].data.messages[0].messageId).toBe(200);
+    expect(messagesCache?.pages[0].data.messages[1].messageId).toBe(150);
 
     const rooms = queryClient.getQueryData<ChatRoomListResponse>(
       chatQueryKeys.rooms()
@@ -220,5 +307,22 @@ describe('applySocketUnreadToCaches', () => {
       chatQueryKeys.rooms()
     );
     expect(rooms?.data.rooms[0].unreadCount).toBe(2);
+  });
+
+  it('목록에 방이 없으면 rooms를 refetch한다', () => {
+    queryClient.setQueryData(chatQueryKeys.rooms(), {
+      data: { rooms: [createRoom({ roomId: 999 })] },
+    });
+    const refetchSpy = vi.spyOn(queryClient, 'refetchQueries');
+
+    applySocketUnreadToCaches(queryClient, {
+      unreadCount: 3,
+      roomId: ROOM_ID,
+      roomUnreadCount: 2,
+    });
+
+    expect(refetchSpy).toHaveBeenCalledWith({
+      queryKey: chatQueryKeys.rooms(),
+    });
   });
 });

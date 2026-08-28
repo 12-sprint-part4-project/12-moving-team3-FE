@@ -28,6 +28,10 @@ describe('getChatLastMessagePreview', () => {
     ).toBe('사진');
   });
 
+  it('일반 TEXT content는 그대로 미리보기로 표시한다', () => {
+    expect(getChatLastMessagePreview(createLastMessage())).toBe('안녕하세요');
+  });
+
   it('필터 토큰 content는 미리보기 라벨로 치환한다', () => {
     expect(
       getChatLastMessagePreview(

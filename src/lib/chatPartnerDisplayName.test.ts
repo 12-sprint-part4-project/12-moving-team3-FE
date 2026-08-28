@@ -42,6 +42,24 @@ describe('chatPartnerDisplayName', () => {
       })
     ).toBe('상대방');
   });
+
+  it('공백만 있는 이름은 건너뛰고 다음 이름을 사용한다', () => {
+    expect(
+      chatPartnerDisplayName({
+        displayName: '  ',
+        nickname: ' 길동 ',
+        name: '홍길동',
+      })
+    ).toBe('길동');
+
+    expect(
+      chatPartnerDisplayName({
+        displayName: '   ',
+        nickname: '   ',
+        name: '   ',
+      })
+    ).toBe('상대방');
+  });
 });
 
 describe('chatRoomDocumentTitle', () => {

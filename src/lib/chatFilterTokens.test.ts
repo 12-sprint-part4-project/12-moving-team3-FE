@@ -9,6 +9,10 @@ import {
 } from './chatFilterTokens';
 
 describe('parseFilterContent', () => {
+  it('빈 문자열이면 빈 텍스트 파트 하나를 반환한다', () => {
+    expect(parseFilterContent('')).toEqual([{ type: 'text', value: '' }]);
+  });
+
   it('토큰 없으면 텍스트 파트 1개', () => {
     expect(parseFilterContent('안녕하세요')).toEqual([
       { type: 'text', value: '안녕하세요' },
