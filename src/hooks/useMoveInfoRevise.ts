@@ -1,0 +1,217 @@
+'use client';
+
+import { useState } from 'react';
+
+import {
+  formatDateOnly,
+  parseDateOnly,
+} from '@/components/ui/Calendar/Calendar.utils';
+import { MOVE_TYPE_OPTIONS } from '@/constants/estimateRequestOptions';
+import { useCustomerEstimateRequest } from '@/hooks/useCustomerEstimateRequest';
+import { useLocalToday } from '@/hooks/useLocalToday';
+import { useTranslation } from '@/i18n/useTranslation';
+import { resolveApiErrorMessage } from '@/lib/apiClient';
+
+import type { ApiMoveType } from '@/types/estimateRequest';
+
+export interface UseMoveInfoReviseOptions {
+  /** 수정 모드 진입 직전 추가 정리 (예: 주소 모달 닫기) */
+  onBeforeStartRevise?: () => void;
+}
+
+/**
+ * Step2·3 공용 — 이사종류/예정일 수정 상태·저장.
+ * AddressStep은 주소 draft만, MoveDateStep은 일자 최초 저장까지 이 훅에 맡긴다.
+ */
+export const useMoveInfoRevise = (options: UseMoveInfoReviseOptions = {}) => {
+  const { onBeforeStartRevise } = options;
+  const { t } = useTranslation();
+  const {
+    bootstrap,
+    saveStep,
+    reviseField,
+    submit,
+    isSavingStep,
+    isRevisingField,
+    isSubmitting: isSubmittingRequest,
+  } = useCustomerEstimateRequest();
+
+  const formatChatMoveDate = (moveDate: string): string => {
+    const [year, month, day] = moveDate.slice(0, 10).split('-').map(Number);
+    if (!year || !month || !day) {
+      return moveDate;
+    }
+    return t('date.yearMonthDay', { year, month, day });
+  };
+
+  const detail = bootstrap.detail;
+  const moveType = detail?.moveType ?? null;
+  const moveTypeOptions = MOVE_TYPE_OPTIONS.map((option) => ({
+    value: option.value,
+    label: `${t(`moveType.${option.value}`)} ${t(`moveType.detail.${option.value}`)}`,
+  }));
+  const moveTypeLabel =
+    moveTypeOptions.find((option) => option.value === moveType)?.label ??
+    null;
+  const moveDateLabel = detail?.moveDate
+    ? formatChatMoveDate(detail.moveDate)
+    : null;
+
+  const [isRevisingMoveType, setIsRevisingMoveType] = useState(false);
+  const [draftMoveType, setDraftMoveType] = useState<ApiMoveType | null>(
+    moveType
+  );
+  const [isRevisingMoveDate, setIsRevisingMoveDate] = useState(false);
+  const [draftDate, setDraftDate] = useState<Date | undefined>(() =>
+    detail?.moveDate ? parseDateOnly(detail.moveDate) : undefined
+  );
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const minMoveDate = useLocalToday();
+  // 최대 선택 가능 일자 — 오늘로부터 6개월 뒤까지
+  const maxMoveDate = minMoveDate
+    ? new Date(
+        minMoveDate.getFullYear(),
+        minMoveDate.getMonth() + 6,
+        minMoveDate.getDate()
+      )
+    : undefined;
+
+  // 저장·수정·제출 중 공통 busy (버튼/수정하기 잠금)
+  const isSubmitting = isSavingStep || isRevisingField || isSubmittingRequest;
+  const isInReviseMode = isRevisingMoveType || isRevisingMoveDate;
+  const canConfirmMoveType =
+    draftMoveType != null && !isSubmitting && detail != null;
+
+  const startReviseMoveType = () => {
+    setErrorMessage(null);
+    onBeforeStartRevise?.();
+    setIsRevisingMoveDate(false);
+    setDraftMoveType(moveType);
+    setIsRevisingMoveType(true);
+  };
+
+  const confirmMoveType = async () => {
+    if (!detail || !draftMoveType) {
+      return;
+    }
+
+    setErrorMessage(null);
+
+    try {
+      await reviseField({
+        estimateRequestId: detail.id,
+        body: { field: 'moveType', value: draftMoveType },
+      });
+      // syncDetail 후에도 visualStep 유지 → 수정 UI 닫고 본 스텝 복귀
+      setIsRevisingMoveType(false);
+    } catch (error) {
+      setErrorMessage(
+        resolveApiErrorMessage(error, t('estimateRequest.reviseMoveTypeError'))
+      );
+    }
+  };
+
+  /** Step3 — 이미 저장된 일자만 reviseField */
+  const startReviseMoveDate = () => {
+    setErrorMessage(null);
+    onBeforeStartRevise?.(); // 수정 모드 진입 직전 추가 정리 (예: 주소 모달 닫기)
+    setIsRevisingMoveType(false); // 이사종류 수정 중이면 이사일자 수정 모드로 변경
+    setDraftDate(detail?.moveDate ? parseDateOnly(detail.moveDate) : undefined); // 이사일자 수정 모드로 변경시 이사일자 초기값 설정
+    setIsRevisingMoveDate(true); // 이사일자 수정 모드로 변경
+  };
+
+  const confirmMoveDateRevise = async (date: Date) => {
+    if (!detail) {
+      return;
+    }
+
+    setDraftDate(date);
+    setErrorMessage(null);
+    const moveDate = formatDateOnly(date);
+
+    try {
+      await reviseField({
+        estimateRequestId: detail.id,
+        body: { field: 'moveDate', value: moveDate },
+      });
+      setIsRevisingMoveDate(false);
+    } catch (error) {
+      setErrorMessage(
+        resolveApiErrorMessage(
+          error,
+          t('estimateRequest.reviseMoveDateError')
+        )
+      );
+    }
+  };
+
+  /** Step2 — 미저장이면 saveStep(2), 있으면 reviseField */
+  const confirmMoveDate = async (date: Date) => {
+    if (!detail) {
+      return;
+    }
+
+    setDraftDate(date);
+    setErrorMessage(null);
+    const moveDate = formatDateOnly(date);
+
+    try {
+      if (detail.moveDate != null) {
+        await reviseField({
+          estimateRequestId: detail.id,
+          body: { field: 'moveDate', value: moveDate },
+        });
+      } else {
+        await saveStep({
+          estimateRequestId: detail.id,
+          body: { step: 2, data: { moveDate } },
+        });
+      }
+    } catch (error) {
+      setErrorMessage(
+        resolveApiErrorMessage(
+          error,
+          t('estimateRequest.saveMoveDateError')
+        )
+      );
+    }
+  };
+
+  return {
+    detail,
+    errorMessage,
+    setErrorMessage,
+    saveStep,
+    submit,
+    isSavingStep,
+    isRevisingField,
+    isSubmittingRequest,
+    isSubmitting,
+    isInReviseMode,
+    /** 이사종류 질문/답변/수정 — 값·핸들러 한 덩어리 */
+    moveType: {
+      label: moveTypeLabel,
+      isRevising: isRevisingMoveType,
+      options: moveTypeOptions,
+      draft: draftMoveType,
+      setDraft: setDraftMoveType,
+      canConfirm: canConfirmMoveType,
+      start: startReviseMoveType,
+      confirm: confirmMoveType,
+    },
+    /** 이사일자 질문/답변/수정 — 값·핸들러 한 덩어리 */
+    moveDate: {
+      label: moveDateLabel,
+      isRevising: isRevisingMoveDate,
+      draft: draftDate,
+      setDraft: setDraftDate,
+      min: minMoveDate,
+      max: maxMoveDate,
+      start: startReviseMoveDate,
+      /** Step3 — 이미 저장된 일자 재수정 */
+      confirmRevise: confirmMoveDateRevise,
+      /** Step2 — 최초 저장 또는 재수정 */
+      confirmSave: confirmMoveDate,
+    },
+  };
+};

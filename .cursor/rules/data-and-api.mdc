@@ -1,0 +1,15 @@
+---
+description: TanStack Query state management and REST API conventions.
+globs:
+  - src/api/**/*.ts
+  - src/hooks/**/*.ts
+  - src/lib/**/*.ts
+alwaysApply: false
+---
+
+# Data Fetching & API
+
+- **TanStack Query**: Use structured query keys (e.g., `['users', userId]`) for server state. Encapsulate query logic strictly inside custom hooks.
+- **Query key factories**: Always call the factory from `src/constants/queryKey.ts`. Do not inline key segments (e.g. `[...chatQueryKeys.all, 'room']`).
+  - Chat: `chatQueryKeys.rooms` / `roomDetail` / `roomDetails` / `messages` / `unread`. Shared invalidate·list patch helpers live in `src/lib/chatQueryCache.ts`.
+- **REST API**: Resource URLs must use plural nouns and `kebab-case`. Do NOT use verbs (get, create) in URLs. Represent hierarchy via URL paths.

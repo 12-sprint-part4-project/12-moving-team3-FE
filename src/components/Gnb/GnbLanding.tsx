@@ -1,0 +1,85 @@
+'use client';
+
+import Link from 'next/link';
+
+import { LanguageSelector } from '@/components/LanguageSelector/LanguageSelector';
+import { Logo } from '@/components/Logo/Logo';
+import { useTranslation } from '@/i18n/useTranslation';
+import { cn } from '@/lib/utils';
+
+import type { ReactNode } from 'react';
+
+export type GnbLandingSize = 'sm' | 'md' | 'lg';
+
+export interface GnbLandingProps {
+  size?: GnbLandingSize;
+  homeHref?: string;
+  findDriverHref?: string;
+  communityHref?: string;
+  loginButton?: ReactNode;
+  menuSlot?: ReactNode;
+  className?: string;
+}
+
+const ROOT_STYLE: Record<GnbLandingSize, string> = {
+  sm: 'h-[3.375rem] justify-between px-6 py-2.5',
+  md: 'h-[3.375rem] justify-between px-8 py-[1.1875rem]',
+  lg: 'h-[5.5rem] gap-[5.125rem] px-[7.5rem] py-[1.625rem]',
+};
+
+export const GnbLanding = ({
+  size = 'sm',
+  homeHref = '/',
+  findDriverHref = '/movers',
+  communityHref = '/community',
+  loginButton,
+  menuSlot,
+  className = '',
+}: GnbLandingProps) => {
+  const { t } = useTranslation();
+  const isDesktop = size === 'lg';
+
+  return (
+    <header
+      className={cn(
+        'flex w-full items-center border-b border-line-100 bg-white',
+        ROOT_STYLE[size],
+        className
+      )}
+    >
+      <Logo
+        size={isDesktop ? 'md' : 'sm'}
+        variant="iconText"
+        href={homeHref}
+        prefetch={false}
+      />
+
+      {isDesktop ? (
+        <>
+          <nav className="flex min-w-0 flex-1 items-center gap-10">
+            <Link
+              href={findDriverHref}
+              prefetch={false}
+              className="text-2lg-bold text-black-400"
+            >
+              {t('nav.findMovers')}
+            </Link>
+            <Link
+              href={communityHref}
+              prefetch={false}
+              className="text-2lg-bold text-black-400"
+            >
+              {t('nav.community')}
+            </Link>
+          </nav>
+          <div className="flex shrink-0 items-center gap-6">
+            <LanguageSelector />
+            {loginButton}
+          </div>
+        </>
+      ) : (
+        menuSlot
+      )}
+    </header>
+  );
+};

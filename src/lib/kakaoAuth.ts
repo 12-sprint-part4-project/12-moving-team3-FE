@@ -1,0 +1,212 @@
+import { API_ERROR_CODE } from '@/constants/errorCode';
+import { i18n } from '@/i18n/i18n';
+
+import type { ApiUserType } from '@/types/auth';
+
+const KAKAO_AUTHORIZE_URL = 'https://kauth.kakao.com/oauth/authorize';
+const KAKAO_OAUTH_STATE_STORAGE_KEY = 'kakao_oauth_state';
+
+type SearchParamsReader = {
+  get: (key: string) => string | null;
+};
+
+type PendingKakaoOAuthState = {
+  state: string;
+  userType: ApiUserType;
+  /** 로그인 페이지 ?redirect= 값 — 콜백 후 복귀용 */
+  redirectTo?: string | null;
+  consumed: boolean;
+};
+
+export interface ConsumedKakaoOAuthState {
+  userType: ApiUserType;
+  redirectTo: string | null;
+}
+
+export interface KakaoCallbackSuccess {
+  ok: true;
+  code: string;
+  state: string;
+}
+
+export interface KakaoCallbackFailure {
+  ok: false;
+  reason: 'denied' | 'missing_code' | 'invalid_state';
+  message: string;
+}
+
+export type KakaoCallbackResult = KakaoCallbackSuccess | KakaoCallbackFailure;
+
+export const isApiUserType = (value: string): value is ApiUserType => {
+  return value === 'CUSTOMER' || value === 'MOVER';
+};
+
+const createRandomState = (): string => {
+  if (typeof globalThis.crypto?.randomUUID === 'function') {
+    return globalThis.crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+};
+
+export const createKakaoOAuthState = (
+  userType: ApiUserType,
+  redirectTo?: string | null
+): string => {
+  if (typeof window === 'undefined') {
+    throw new Error('카카오 OAuth state는 브라우저에서만 생성할 수 있습니다.');
+  }
+
+  const state = createRandomState();
+  const pendingState: PendingKakaoOAuthState = {
+    state,
+    userType,
+    redirectTo: redirectTo ?? null,
+    consumed: false,
+  };
+
+  window.sessionStorage.setItem(
+    KAKAO_OAUTH_STATE_STORAGE_KEY,
+    JSON.stringify(pendingState)
+  );
+
+  return state;
+};
+
+export const consumeKakaoOAuthState = (
+  state: string
+): ConsumedKakaoOAuthState | null => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  const storedState = window.sessionStorage.getItem(
+    KAKAO_OAUTH_STATE_STORAGE_KEY
+  );
+
+  if (!storedState) {
+    return null;
+  }
+
+  try {
+    const parsedState = JSON.parse(storedState) as PendingKakaoOAuthState;
+
+    if (!parsedState || parsedState.consumed || parsedState.state !== state) {
+      return null;
+    }
+
+    const nextState: PendingKakaoOAuthState = {
+      ...parsedState,
+      consumed: true,
+    };
+
+    window.sessionStorage.setItem(
+      KAKAO_OAUTH_STATE_STORAGE_KEY,
+      JSON.stringify(nextState)
+    );
+
+    return {
+      userType: parsedState.userType,
+      redirectTo: parsedState.redirectTo ?? null,
+    };
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * 카카오 인가 코드 요청 URL을 만든다.
+ * OAuth state는 브라우저 세션에 저장해 콜백에서 일회용으로 검증한다.
+ */
+export const getKakaoAuthorizeUrl = (
+  userType: ApiUserType,
+  state: string
+): string => {
+  const clientId = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
+  const redirectUri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI;
+
+  if (!clientId || !redirectUri) {
+    throw new Error('카카오 로그인 환경변수가 설정되지 않았습니다.');
+  }
+
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: 'code',
+    state,
+    lang: 'ko',
+  });
+
+  return `${KAKAO_AUTHORIZE_URL}?${params.toString()}`;
+};
+
+/** 카카오 로그인 화면으로 이동한다. */
+export const redirectToKakaoLogin = (
+  userType: ApiUserType,
+  redirectTo?: string | null
+): void => {
+  const state = createKakaoOAuthState(userType, redirectTo);
+  window.location.assign(getKakaoAuthorizeUrl(userType, state));
+};
+
+/**
+ * 카카오 콜백 쿼리에서 code / state를 파싱한다.
+ * code는 일회용·민감값이므로 호출부에서 로그에 남기지 않는다.
+ */
+export const parseKakaoCallbackParams = (
+  params: SearchParamsReader
+): KakaoCallbackResult => {
+  const error = params.get('error');
+
+  if (error) {
+    return {
+      ok: false,
+      reason: 'denied',
+      message: i18n.t('auth.kakao.cancelled'),
+    };
+  }
+
+  const code = params.get('code');
+  const state = params.get('state');
+
+  if (!code) {
+    return {
+      ok: false,
+      reason: 'missing_code',
+      message: i18n.t('auth.kakao.missingCode'),
+    };
+  }
+
+  if (!state) {
+    return {
+      ok: false,
+      reason: 'invalid_state',
+      message: i18n.t('auth.kakao.invalidRequest'),
+    };
+  }
+
+  return {
+    ok: true,
+    code,
+    state,
+  };
+};
+
+const KAKAO_LOGIN_ERROR_KEYS: Record<string, string> = {
+  [API_ERROR_CODE.USER_TYPE_MISMATCH]: 'auth.kakao.userTypeMismatch',
+  [API_ERROR_CODE.KAKAO_EMAIL_REQUIRED]: 'auth.kakao.emailRequired',
+  [API_ERROR_CODE.EMAIL_ALREADY_EXISTS]: 'auth.kakao.emailExists',
+};
+
+/**
+ * BE 카카오 로그인 에러 코드를 사용자 메시지로 변환한다.
+ * 매핑되지 않은 코드는 fallbackMessage를 그대로 사용한다.
+ */
+export const resolveKakaoLoginErrorMessage = (
+  errorCode: string | undefined,
+  fallbackMessage: string
+): string => {
+  if (!errorCode) return fallbackMessage;
+  const messageKey = KAKAO_LOGIN_ERROR_KEYS[errorCode];
+  return messageKey ? i18n.t(messageKey) : fallbackMessage;
+};

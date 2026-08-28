@@ -1,0 +1,25 @@
+<svg width="242" height="216" viewBox="0 0 242 216" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="71.7998" y="31.5996" width="128" height="152" rx="9.6" fill="#E9F4FF"/>
+<rect x="92.6001" y="137.201" width="86.4" height="6.4" rx="3.2" fill="#B1D7F9"/>
+<rect x="92.6001" y="154.801" width="41.6" height="6.4" rx="3.2" fill="#B1D7F9"/>
+<circle cx="135.8" cy="70" r="16" fill="#B1D7F9"/>
+<path d="M106.2 106.801C106.2 97.9642 113.363 90.8008 122.2 90.8008H148.6C157.436 90.8008 164.6 97.9642 164.6 106.801V114.801C164.6 119.219 161.018 122.801 156.6 122.801H114.2C109.781 122.801 106.2 119.219 106.2 114.801V106.801Z" fill="#B1D7F9"/>
+<circle cx="93.3726" cy="68.2826" r="48" transform="rotate(45 93.3726 68.2826)" fill="#DEDEDE"/>
+<circle cx="93.3726" cy="68.2824" r="38.4" transform="rotate(45 93.3726 68.2824)" fill="white"/>
+<rect x="61.6943" y="90.9102" width="12.8" height="44.8" rx="6.4" transform="rotate(45 61.6943 90.9102)" fill="#DEDEDE"/>
+<mask id="mask0_14002_41543" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="54" y="29" width="78" height="78">
+<circle cx="93.3057" cy="68.3058" r="38.4" transform="rotate(45 93.3057 68.3058)" fill="white"/>
+</mask>
+<g mask="url(#mask0_14002_41543)">
+<mask id="mask1_14002_41543" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="32" y="20" width="110" height="109">
+<circle cx="93.3721" cy="68.2826" r="48" transform="rotate(45 93.3721 68.2826)" fill="#DEDEDE"/>
+<circle cx="93.3721" cy="68.2824" r="38.4" transform="rotate(45 93.3721 68.2824)" fill="#E9F4FF"/>
+<rect x="61.6938" y="90.9102" width="12.8" height="44.8" rx="6.4" transform="rotate(45 61.6938 90.9102)" fill="#DEDEDE"/>
+</mask>
+<g mask="url(#mask1_14002_41543)">
+<circle cx="93.3995" cy="68.4" r="38.4" fill="#E9F4FF"/>
+<circle cx="132.199" cy="56.8004" r="20.4" fill="#B1D7F9"/>
+<path d="M94.1997 98.8008C94.1997 89.9642 101.363 82.8008 110.2 82.8008H152.6C161.436 82.8008 168.6 89.9642 168.6 98.8008V115.601C168.6 120.019 165.018 123.601 160.6 123.601H102.2C97.7814 123.601 94.1997 120.019 94.1997 115.601V98.8008Z" fill="#B1D7F9"/>
+</g>
+</g>
+</svg>

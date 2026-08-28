@@ -1,0 +1,159 @@
+'use client';
+
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { useId, useRef, useState } from 'react';
+
+import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
+import { useListboxKeyboard } from '@/hooks/useListboxKeyboard';
+import { useOutsideClick } from '@/hooks/useOutsideClick';
+import { useTranslation } from '@/i18n/useTranslation';
+import {
+  dropdownPanelVariants,
+  getMotionTransition,
+} from '@/lib/motionVariants';
+import { cn } from '@/lib/utils';
+
+import type { CustomerPastQuoteFilter } from '@/types/customerQuote';
+
+export interface ReceivedQuotesFilterProps {
+  value: CustomerPastQuoteFilter;
+  onValueChange: (value: CustomerPastQuoteFilter) => void;
+  className?: string;
+}
+
+export const ReceivedQuotesFilter = ({
+  value,
+  onValueChange,
+  className = '',
+}: ReceivedQuotesFilterProps) => {
+  const { t } = useTranslation();
+  const shouldReduceMotion = useReducedMotion();
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const optionRefs = useRef<Array<HTMLElement | null>>([]);
+  const listboxId = useId();
+  const filterOptions: { value: CustomerPastQuoteFilter; label: string }[] = [
+    { value: 'ALL', label: t('common.all') },
+    { value: 'CONFIRMED', label: t('quotes.confirmedQuotes') },
+  ];
+
+  useOutsideClick(containerRef, isOpen, setIsOpen);
+  const selectedIndex = Math.max(
+    0,
+    filterOptions.findIndex((option) => option.value === value)
+  );
+  const {
+    activeIndex,
+    closeAndRestoreFocus,
+    handleToggle,
+    handleTriggerKeyDown,
+    handleListKeyDown,
+  } = useListboxKeyboard({
+    optionCount: filterOptions.length,
+    selectedIndex,
+    isOpen,
+    setIsOpen,
+    triggerRef,
+    optionRefs,
+    onSelect: (index) => {
+      const option = filterOptions[index];
+      if (!option) {
+        return;
+      }
+      onValueChange(option.value);
+    },
+  });
+
+  const motionTransition = getMotionTransition(shouldReduceMotion, {
+    duration: 0.16,
+  });
+  const selected = filterOptions[selectedIndex] ?? filterOptions[0];
+  const triggerStateClass = isOpen
+    ? 'border-blue-300 bg-blue-50 text-blue-300 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-blue/10 [&_path]:stroke-blue-300'
+    : 'border-line-200 bg-white text-black-400 shadow-[0.25rem_0.25rem_0.3125rem] shadow-shadow-gray-100/10 [&_path]:stroke-black-100';
+
+  const handleSelect = (nextValue: CustomerPastQuoteFilter) => {
+    onValueChange(nextValue);
+    closeAndRestoreFocus();
+  };
+
+  // 필터 트리거 + (열림 시) 옵션 listbox
+  return (
+    <div
+      ref={containerRef}
+      className={cn('relative inline-grid w-max', className)}
+    >
+      {/* 현재 필터 트리거 */}
+      <button
+        ref={triggerRef}
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls={listboxId}
+        aria-label={t('quotes.filterAria', { label: selected.label })}
+        onClick={handleToggle}
+        onKeyDown={handleTriggerKeyDown}
+        className={cn(
+          'flex w-full cursor-pointer items-center justify-between gap-1.5 rounded-lg border py-1.5 pr-2.5 pl-3.5 text-md-medium lg:h-16 lg:px-4 lg:text-lg-medium',
+          triggerStateClass
+        )}
+      >
+        <span className="whitespace-nowrap">{selected.label}</span>
+        <motion.span
+          aria-hidden
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={motionTransition}
+          className="inline-flex size-5 shrink-0"
+        >
+          <ChevronDownIcon className="size-full" />
+        </motion.span>
+      </button>
+
+      <AnimatePresence>
+        {isOpen ? (
+          <motion.ul
+            id={listboxId}
+            role="listbox"
+            aria-label={t('quotes.filterOptionsAria')}
+            tabIndex={-1}
+            onKeyDown={handleListKeyDown}
+            variants={dropdownPanelVariants}
+            initial="hidden"
+            animate="show"
+            exit="exit"
+            transition={motionTransition}
+            className="absolute top-full left-0 z-10 mt-1 flex w-max min-w-full flex-col overflow-hidden rounded-lg border border-line-200 bg-white shadow-[0.25rem_0.25rem_0.625rem] shadow-shadow-gray-400/20"
+          >
+            {filterOptions.map((option, index) => {
+              const isSelected = option.value === value;
+              const isActive = index === activeIndex;
+
+              return (
+                <li key={option.value} role="presentation">
+                  <div
+                    ref={(node) => {
+                      optionRefs.current[index] = node;
+                    }}
+                    role="option"
+                    tabIndex={isActive ? 0 : -1}
+                    aria-selected={isSelected}
+                    onClick={() => handleSelect(option.value)}
+                    className={cn(
+                      'flex w-full cursor-pointer items-center px-3.5 py-1.5 text-md-medium whitespace-nowrap text-black-400 outline-none focus-visible:bg-background-300',
+                      isSelected
+                        ? 'bg-background-300'
+                        : 'hover:bg-background-300'
+                    )}
+                  >
+                    {option.label}
+                  </div>
+                </li>
+              );
+            })}
+          </motion.ul>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
+};

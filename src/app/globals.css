@@ -1,0 +1,323 @@
+@import 'tailwindcss';
+
+@theme {
+  /**
+   * Font Tokens
+   * Pretendard를 기본 폰트로 사용한다. (참고: layout.tsx의 next/font/local 설정)
+   */
+  --font-sans: var(--font-pretendard);
+
+  /**
+   * Color Tokens
+   * --color-{name} 형식으로 관리한다. (참고: Figma "color" 스펙 시트)
+   * Figma 레이어 이름의 중복 표기(예: Black/Black-300)는 하나로 합쳐 사용한다.
+   */
+
+  /* Black */
+  --color-black-100: #6b6b6b;
+  --color-black-200: #525252;
+  --color-black-300: #373737;
+  --color-black-400: #1f1f1f;
+  --color-black-500: #040404;
+
+  /* Grayscale */
+  --color-gray-100: #dedede;
+  --color-gray-200: #c4c4c4;
+  --color-gray-300: #ababab;
+  --color-gray-400: #999999;
+  --color-gray-500: #808080;
+
+  /* Primary-Blue */
+  --color-blue-50: #f5faff;
+  --color-blue-100: #e9f4ff;
+  --color-blue-200: #4da9ff;
+  --color-blue-300: #1b92ff;
+  --color-blue-400: #242945;
+
+  /* Secondary-Yellow */
+  --color-yellow-100: #ffc149;
+
+  /* Community category badge */
+  --color-orange-300: #f29900;
+  --color-green-300: #33b266;
+
+  /* Secondary-Red */
+  --color-red-100: #ffeef0;
+  --color-red-200: #ff4f64;
+
+  /* Brand (SNS 공유 버튼 전용 브랜드 컬러) */
+  --color-kakao-100: #fae100;
+  --color-facebook-100: #4285f4;
+
+  /* Background */
+  --color-background-100: #fcfcfc;
+  --color-background-200: #f7f7f7;
+  --color-background-300: #efefef;
+  --color-background-400: #f4f7fb;
+
+  /* Line */
+  --color-line-100: #f2f2f2;
+  --color-line-200: #e6e6e6;
+
+  /* Shadow */
+  --color-shadow-blue: #c3d9f2;
+  --color-shadow-gray-100: #eeeeee;
+  --color-shadow-gray-200: #e0e0e0;
+  --color-shadow-gray-300: #dcdcdc;
+  --color-shadow-gray-400: #bfbfbf;
+
+  /* Box Shadow — Figma Button/outlined/CTA */
+  --shadow-cta: 0.25rem 0.25rem 0.625rem 0 rgb(195 217 242 / 0.2);
+  --shadow-cta-hover: 0.25rem 0.25rem 0.3125rem 0 rgb(195 217 242 / 0.2);
+
+  /* Drop Shadow — 어두운 미디어 위 아이콘 가독성 */
+  --drop-shadow-icon-on-media: 0 0.0625rem 0.125rem rgb(0 0 0 / 0.8);
+
+  /* Box Shadow — Figma img/landing card */
+  --shadow-card: 0.25rem 0.25rem 0.3125rem 0
+    color-mix(in srgb, var(--color-shadow-gray-100) 10%, transparent);
+
+  /* Box Shadow — Figma 견적요청 chat form panel (1:3548) 4px 4px 5px #E0E0E0 20% */
+  --shadow-chat-panel: 0.25rem 0.25rem 0.3125rem 0
+    color-mix(in srgb, var(--color-shadow-gray-200) 20%, transparent);
+
+  /* Box Shadow — Figma 받은 요청 페이지 타이틀·카드 */
+  --shadow-page-title: 0 0.125rem 0.625rem 0
+    color-mix(in srgb, var(--color-background-200) 10%, transparent);
+  --shadow-request-card:
+    -0.125rem -0.125rem 0.625rem 0
+      color-mix(in srgb, var(--color-shadow-gray-300) 14%, transparent),
+    0.125rem 0.125rem 0.625rem 0
+      color-mix(in srgb, var(--color-shadow-gray-300) 14%, transparent);
+  --shadow-request-card-body: 0.25rem 0.25rem 0.5rem 0
+    color-mix(in srgb, var(--color-shadow-gray-100) 10%, transparent);
+
+  /**
+   * Layout — 페이지 컨텐츠 max-width
+   * 콘텐츠 전체 영역은 px 허용 (모바일 375 / md+ 1448)
+   */
+  --max-width-page: 375px;
+  --max-width-page-md: 1448px;
+
+  /* Layout — 채팅 목록/상세 */
+  --max-width-chat: 43rem;
+  /* 말풍선 행 최대 폭 */
+  --max-width-chat-bubble: 75%;
+
+  /* Layout — GNB 채팅 미리보기 드롭다운 */
+  --width-chat-preview: 22.4375rem;
+
+  /* Layout — GNB 높이 (GnbDefault/GnbLanding sm·md / lg 와 동기화) */
+  --height-gnb: 3.375rem;
+  --height-gnb-lg: 5.5rem;
+
+  /**
+   * Layout — visualViewport 높이 (모바일 채팅방 lock 시).
+   * useChatRoomMobileViewport가 px로 덮어씀. 미설정·데스크톱은 100dvh fallback.
+   */
+  --visual-viewport-height: 100dvh;
+
+  /** Breakpoint — Tablet 744px (Figma community) */
+  --breakpoint-tablet: 46.5rem;
+
+  /* Dimmer — Figma Component/dimmer (#141414, opacity 50%) */
+  --color-dimmer: #141414;
+
+  /**
+   * Typography Tokens
+   * text-{size}-{weight} 형식으로 관리한다.
+   * 동일한 size는 line-height를 공유한다. (참고: Figma "font" 스펙 시트)
+   */
+
+  /* Text-3xl: 32px / 42px */
+  --text-3xl-bold: 2rem;
+  --text-3xl-bold--line-height: 1.3125;
+  --text-3xl-bold--font-weight: 700;
+  --text-3xl-semibold: 2rem;
+  --text-3xl-semibold--line-height: 1.3125;
+  --text-3xl-semibold--font-weight: 600;
+
+  /* Text-2xl: 24px / 32px */
+  --text-2xl-bold: 1.5rem;
+  --text-2xl-bold--line-height: 1.3333;
+  --text-2xl-bold--font-weight: 700;
+  --text-2xl-semibold: 1.5rem;
+  --text-2xl-semibold--line-height: 1.3333;
+  --text-2xl-semibold--font-weight: 600;
+  --text-2xl-medium: 1.5rem;
+  --text-2xl-medium--line-height: 1.3333;
+  --text-2xl-medium--font-weight: 500;
+  --text-2xl-regular: 1.5rem;
+  --text-2xl-regular--line-height: 1.3333;
+  --text-2xl-regular--font-weight: 400;
+
+  /* Text-xl: 20px / 32px */
+  --text-xl-bold: 1.25rem;
+  --text-xl-bold--line-height: 1.6;
+  --text-xl-bold--font-weight: 700;
+  --text-xl-semibold: 1.25rem;
+  --text-xl-semibold--line-height: 1.6;
+  --text-xl-semibold--font-weight: 600;
+  --text-xl-medium: 1.25rem;
+  --text-xl-medium--line-height: 1.6;
+  --text-xl-medium--font-weight: 500;
+  --text-xl-regular: 1.25rem;
+  --text-xl-regular--line-height: 1.6;
+  --text-xl-regular--font-weight: 400;
+
+  /* Text-2lg: 18px / 26px */
+  --text-2lg-bold: 1.125rem;
+  --text-2lg-bold--line-height: 1.4444;
+  --text-2lg-bold--font-weight: 700;
+  --text-2lg-semibold: 1.125rem;
+  --text-2lg-semibold--line-height: 1.4444;
+  --text-2lg-semibold--font-weight: 600;
+  --text-2lg-medium: 1.125rem;
+  --text-2lg-medium--line-height: 1.4444;
+  --text-2lg-medium--font-weight: 500;
+  --text-2lg-regular: 1.125rem;
+  --text-2lg-regular--line-height: 1.4444;
+  --text-2lg-regular--font-weight: 400;
+
+  /* Text-lg: 16px / 26px */
+  --text-lg-bold: 1rem;
+  --text-lg-bold--line-height: 1.625;
+  --text-lg-bold--font-weight: 700;
+  --text-lg-semibold: 1rem;
+  --text-lg-semibold--line-height: 1.625;
+  --text-lg-semibold--font-weight: 600;
+  --text-lg-medium: 1rem;
+  --text-lg-medium--line-height: 1.625;
+  --text-lg-medium--font-weight: 500;
+  --text-lg-regular: 1rem;
+  --text-lg-regular--line-height: 1.625;
+  --text-lg-regular--font-weight: 400;
+
+  /* Text-md: 14px / 24px */
+  --text-md-bold: 0.875rem;
+  --text-md-bold--line-height: 1.7143;
+  --text-md-bold--font-weight: 700;
+  --text-md-semibold: 0.875rem;
+  --text-md-semibold--line-height: 1.7143;
+  --text-md-semibold--font-weight: 600;
+  --text-md-medium: 0.875rem;
+  --text-md-medium--line-height: 1.7143;
+  --text-md-medium--font-weight: 500;
+  --text-md-regular: 0.875rem;
+  --text-md-regular--line-height: 1.7143;
+  --text-md-regular--font-weight: 400;
+
+  /* Text-sm: 13px / 22px */
+  --text-sm-semibold: 0.8125rem;
+  --text-sm-semibold--line-height: 1.6923;
+  --text-sm-semibold--font-weight: 600;
+  --text-sm-medium: 0.8125rem;
+  --text-sm-medium--line-height: 1.6923;
+  --text-sm-medium--font-weight: 500;
+
+  /* Text-2xs: 10px / 10px — GNB 미읽음 뱃지 등 초소형 */
+  --text-2xs-semibold: 0.625rem;
+  --text-2xs-semibold--line-height: 1;
+  --text-2xs-semibold--font-weight: 600;
+
+  /* Text-xs: 12px, semibold만 line-height가 다름 (20px), medium/regular는 18px */
+  --text-xs-semibold: 0.75rem;
+  --text-xs-semibold--line-height: 1.6667;
+  --text-xs-semibold--font-weight: 600;
+  --text-xs-medium: 0.75rem;
+  --text-xs-medium--line-height: 1.5;
+  --text-xs-medium--font-weight: 500;
+  --text-xs-regular: 0.75rem;
+  --text-xs-regular--line-height: 1.5;
+  --text-xs-regular--font-weight: 400;
+
+  /* Animation */
+  --animate-like-pop: like-pop 0.4s ease-out;
+}
+
+@keyframes like-pop {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.45); }
+  65%  { transform: scale(0.85); }
+  85%  { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+/**
+ * 페이지 공통 컨텐츠 래퍼 — 가로 중앙·폭·좌우 패딩.
+ * flex / gap 은 화면별로 조합한다.
+ * 예: className="page-content flex flex-col gap-2 md:gap-6"
+ */
+@utility page-content {
+  @apply mx-auto w-full max-w-page px-6 md:max-w-page-md;
+}
+
+/** 채팅 목록·안내 화면 공통 래퍼 */
+@utility chat-content {
+  @apply mx-auto flex w-full max-w-chat flex-col px-6 py-10;
+}
+
+/**
+ * 채팅방(상세) 공통 래퍼 —
+ * 높이는 ChatRoomPageClient에서 뷰포트 − GNB(데스크톱) 또는 main 남은 높이(모바일 lock)로 고정.
+ * 메시지 목록만 스크롤 (#279).
+ */
+@utility chat-room-content {
+  @apply mx-auto flex w-full max-w-chat flex-col overflow-hidden overscroll-none;
+}
+
+/**
+ * 모바일 채팅방 — useChatRoomMobileViewport가 html에 부여.
+ * body가 visualViewport에 고정된 뒤 main이 남는 높이를 넘지 않게 한다.
+ */
+html.chat-room-viewport-lock main {
+  min-height: 0;
+  flex: 1 1 0;
+  overflow: hidden;
+}
+
+/** 이미지 드래그 방지 */
+img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+button:not(:disabled),
+[type='button']:not(:disabled),
+[type='submit']:not(:disabled),
+[type='reset']:not(:disabled),
+[type='checkbox']:not(:disabled),
+[type='radio']:not(:disabled),
+[type='file']:not(:disabled),
+label:has([type='checkbox']:not(:disabled)),
+label:has([type='radio']:not(:disabled)) {
+  cursor: pointer;
+}
+
+/**
+ * Tiptap(ProseMirror) 에디터 헤딩 크기.
+ * [&_h1] Tailwind arbitrary variant보다 우선 적용된다.
+ * 본문(text-md-medium / text-lg-regular)보다 항상 크게 유지한다.
+ */
+.ProseMirror h1 {
+  @apply text-2xl-bold;
+}
+
+.ProseMirror h2 {
+  @apply text-xl-bold;
+}

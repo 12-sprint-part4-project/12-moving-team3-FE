@@ -1,0 +1,103 @@
+'use client';
+
+import { useState } from 'react';
+import Cropper, { type Area } from 'react-easy-crop';
+
+import { Modal, ModalBasic, ModalCtaButton } from '@/components/ui/Modal';
+import { useTranslation } from '@/i18n/useTranslation';
+import { getCroppedImage } from '@/lib/getCroppedImage';
+import { cn } from '@/lib/utils';
+
+interface ProfileImageCropModalProps {
+  imageSrc: string;
+  onClose: () => void;
+  onCropComplete: (blob: Blob) => void;
+}
+
+/** 프로필 이미지 1:1 크롭 모달. 적용 시 blob을 반환한다. */
+export const ProfileImageCropModal = ({
+  imageSrc,
+  onClose,
+  onCropComplete,
+}: ProfileImageCropModalProps) => {
+  const { t } = useTranslation();
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [isPending, setIsPending] = useState(false);
+  const submitLabel = isPending
+    ? t('profile.cropApplying')
+    : t('profile.cropApply');
+
+  const handleCropComplete = (
+    _croppedArea: Area,
+    croppedAreaPixelsValue: Area
+  ) => {
+    setCroppedAreaPixels(croppedAreaPixelsValue);
+  };
+
+  const handleConfirm = async () => {
+    if (!croppedAreaPixels || isPending) return;
+
+    setIsPending(true);
+    try {
+      const blob = await getCroppedImage(imageSrc, croppedAreaPixels);
+      onCropComplete(blob);
+    } catch {
+      setIsPending(false);
+    }
+  };
+
+  return (
+    <Modal onClose={onClose} closeOnDimmedClick={false}>
+      <ModalBasic
+        title={t('profile.cropTitle')}
+        onClose={onClose}
+        footer={
+          <ModalCtaButton
+            onClick={() => {
+              void handleConfirm();
+            }}
+            disabled={!croppedAreaPixels || isPending}
+          >
+            {submitLabel}
+          </ModalCtaButton>
+        }
+      >
+        <div className="flex w-full flex-col gap-6">
+          <div className="relative h-[18.75rem] w-full overflow-hidden rounded-2xl bg-black-500 sm:h-[22.5rem]">
+            <Cropper
+              image={imageSrc}
+              crop={crop}
+              zoom={zoom}
+              aspect={1}
+              onCropChange={setCrop}
+              onZoomChange={setZoom}
+              onCropComplete={handleCropComplete}
+              showGrid={false}
+            />
+          </div>
+
+          <label className="flex w-full flex-col gap-2">
+            <span className="text-md-medium text-black-300">
+              {t('profile.zoomLabel')}
+            </span>
+            <input
+              type="range"
+              min={1}
+              max={3}
+              step={0.05}
+              value={zoom}
+              onChange={(event) => setZoom(Number(event.target.value))}
+              className={cn(
+                'h-2 w-full cursor-pointer appearance-none rounded-full bg-line-200',
+                'accent-blue-300'
+              )}
+              aria-label={t('profile.zoomAria')}
+            />
+          </label>
+        </div>
+      </ModalBasic>
+    </Modal>
+  );
+};
