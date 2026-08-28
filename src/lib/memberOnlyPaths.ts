@@ -26,6 +26,10 @@ export const SUSPENDED_SHARED_RESTRICTED_PREFIXES = [
 const matchesPrefix = (pathname: string, prefix: string): boolean =>
   pathname === prefix || pathname.startsWith(`${prefix}/`);
 
+/** 정지 안내 페이지 (`/suspended`). 로그인된 SUSPENDED 계정만 본다. */
+export const isSuspendedPagePath = (pathname: string): boolean =>
+  matchesPrefix(pathname, '/suspended');
+
 /**
  * 정지 계정이면 /suspended 로 보낼 경로인지.
  * `/chat` 목록은 허용, `/chat/:roomId` 방 상세는 제한.
