@@ -686,6 +686,11 @@
     "accountAria": "계좌번호",
     "filteredNotice": "민감한 개인정보가 감지되었습니다. 개인정보 보호를 위해 해당 내용이 가려집니다.",
     "designatedRequest": "지정 요청",
+    "closedEstimate": {
+      "EXPIRED": "견적 만료",
+      "CANCELED": "견적 취소",
+      "COMPLETED": "이사 완료"
+    },
     "openRoomFail": "채팅방을 열지 못했습니다.",
     "loginNeeded": "로그인이 필요한 기능입니다",
     "pageDocumentTitle": "채팅 | 무빙",

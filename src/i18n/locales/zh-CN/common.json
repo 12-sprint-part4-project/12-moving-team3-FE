@@ -686,6 +686,11 @@
     "accountAria": "银行账号",
     "filteredNotice": "检测到敏感个人信息。为保护您的隐私，相关内容已被隐藏。",
     "designatedRequest": "指定请求",
+    "closedEstimate": {
+      "EXPIRED": "报价已过期",
+      "CANCELED": "报价已取消",
+      "COMPLETED": "搬家完成"
+    },
     "openRoomFail": "无法打开聊天室。",
     "loginNeeded": "使用此功能需要登录",
     "pageDocumentTitle": "聊天 | Moving",

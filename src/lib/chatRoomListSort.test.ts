@@ -20,6 +20,7 @@ const createRoom = (
   roomId,
   roomType: 'GENERAL',
   quoteStatus: null,
+  estimateRequestStatus: null,
   partner: {
     id: 'partner',
     userType: 'MOVER',
