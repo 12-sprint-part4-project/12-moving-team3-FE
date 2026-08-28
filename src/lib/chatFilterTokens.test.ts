@@ -1,10 +1,41 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  formatFilterContentPreview,
   getFilterAction,
+  parseFilterContent,
   PROFANITY_MESSAGE,
   resolveFilterDisplayAction,
 } from './chatFilterTokens';
+
+describe('parseFilterContent', () => {
+  it('빈 문자열이면 빈 텍스트 파트 하나를 반환한다', () => {
+    expect(parseFilterContent('')).toEqual([{ type: 'text', value: '' }]);
+  });
+
+  it('토큰 없으면 텍스트 파트 1개', () => {
+    expect(parseFilterContent('안녕하세요')).toEqual([
+      { type: 'text', value: '안녕하세요' },
+    ]);
+  });
+
+  it('[전화번호]·[계좌번호] 토큰을 분리한다', () => {
+    expect(parseFilterContent('연락처 [전화번호] / [계좌번호]')).toEqual([
+      { type: 'text', value: '연락처 ' },
+      { type: 'token', tokenType: 'phone', label: '연락처' },
+      { type: 'text', value: ' / ' },
+      { type: 'token', tokenType: 'account', label: '계좌 정보' },
+    ]);
+  });
+});
+
+describe('formatFilterContentPreview', () => {
+  it('토큰을 라벨로 치환한다', () => {
+    expect(formatFilterContentPreview('연락처 [전화번호]')).toBe(
+      '연락처 연락처'
+    );
+  });
+});
 
 describe('getFilterAction (이력 fallback)', () => {
   it('isFiltered=false면 allow', () => {
