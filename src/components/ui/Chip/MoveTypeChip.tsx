@@ -5,6 +5,7 @@ import DockFillIcon from '@/assets/icons/dock-fill.svg';
 import HomeFillIcon from '@/assets/icons/home-fill.svg';
 import OfficeFillIcon from '@/assets/icons/office-fill.svg';
 import { useTranslation } from '@/i18n/useTranslation';
+import { cn } from '@/lib/utils';
 
 import type { HTMLAttributes, ReactNode } from 'react';
 
@@ -149,7 +150,12 @@ export const MoveTypeChip = ({
 
   return (
     <div
-      className={`inline-flex items-center justify-center rounded shadow-sm ${themeStyles[type]} ${layoutClass} ${className}`.trim()}
+      className={cn(
+        'inline-flex items-center justify-center rounded shadow-sm',
+        themeStyles[type],
+        layoutClass,
+        className
+      )}
       {...rest}
     >
       {Icon && (

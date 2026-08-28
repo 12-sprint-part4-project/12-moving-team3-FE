@@ -23,6 +23,29 @@ describe('resolveChatRoomStatusChip', () => {
     ).toEqual({ kind: 'closedEstimate', estimateRequestStatus: 'EXPIRED' });
   });
 
+  it.each(['CANCELED', 'COMPLETED'] as const)(
+    '%s 견적 요청도 closedEstimate를 반환한다',
+    (estimateRequestStatus) => {
+      expect(
+        resolveChatRoomStatusChip({
+          roomType: 'GENERAL',
+          quoteStatus: 'PENDING',
+          estimateRequestStatus,
+        })
+      ).toEqual({ kind: 'closedEstimate', estimateRequestStatus });
+    }
+  );
+
+  it('estimateRequestStatus가 null이고 quoteStatus가 PENDING이면 quote를 반환한다', () => {
+    expect(
+      resolveChatRoomStatusChip({
+        roomType: 'GENERAL',
+        quoteStatus: 'PENDING',
+        estimateRequestStatus: null,
+      })
+    ).toEqual({ kind: 'quote', quoteStatus: 'PENDING' });
+  });
+
   it('지정 요청 + 견적 미연결 + SUBMITTED면 designated를 반환한다', () => {
     expect(
       resolveChatRoomStatusChip({

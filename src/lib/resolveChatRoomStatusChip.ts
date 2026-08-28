@@ -11,16 +11,18 @@ export type ChatRoomStatusChipView =
   | { kind: 'designated' }
   | { kind: 'none' };
 
+export interface ResolveChatRoomStatusChipParams {
+  roomType: ChatRoomType;
+  quoteStatus: QuoteStatus | null;
+  estimateRequestStatus: EstimateRequestStatus | null;
+}
+
 /** 채팅방 상태 칩 표시 우선순위를 결정한다. */
 export const resolveChatRoomStatusChip = ({
   roomType,
   quoteStatus,
   estimateRequestStatus,
-}: {
-  roomType: ChatRoomType;
-  quoteStatus: QuoteStatus | null;
-  estimateRequestStatus: EstimateRequestStatus | null;
-}): ChatRoomStatusChipView => {
+}: ResolveChatRoomStatusChipParams): ChatRoomStatusChipView => {
   if (roomType === 'COMMUNITY') {
     return { kind: 'community' };
   }
