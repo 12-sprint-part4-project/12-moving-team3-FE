@@ -36,6 +36,19 @@ describe('resolveChatRoomStatusChip', () => {
     }
   );
 
+  it('DESIGNATED 방의 종료 견적 요청은 designated보다 closedEstimate를 우선한다', () => {
+    expect(
+      resolveChatRoomStatusChip({
+        roomType: 'DESIGNATED',
+        quoteStatus: null,
+        estimateRequestStatus: 'COMPLETED',
+      })
+    ).toEqual({
+      kind: 'closedEstimate',
+      estimateRequestStatus: 'COMPLETED',
+    });
+  });
+
   it('estimateRequestStatus가 null이고 quoteStatus가 PENDING이면 quote를 반환한다', () => {
     expect(
       resolveChatRoomStatusChip({
