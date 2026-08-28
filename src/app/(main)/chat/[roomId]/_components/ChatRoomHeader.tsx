@@ -14,12 +14,14 @@ import { cn } from '@/lib/utils';
 import { CHAT_ROOM_HEADER_CLASS } from './chatRoomStyles';
 
 import type { ChatPartner, ChatRoomType } from '@/types/chat';
+import type { EstimateRequestStatus } from '@/types/customerEstimateRequest';
 import type { QuoteStatus } from '@/types/quote';
 
 export interface ChatRoomHeaderProps {
   partner: ChatPartner;
   roomType: ChatRoomType;
   quoteStatus: QuoteStatus | null;
+  estimateRequestStatus: EstimateRequestStatus | null;
   onLeaveClick: () => void;
   className?: string;
 }
@@ -29,6 +31,7 @@ export const ChatRoomHeader = ({
   partner,
   roomType,
   quoteStatus,
+  estimateRequestStatus,
   onLeaveClick,
   className,
 }: ChatRoomHeaderProps) => {
@@ -72,7 +75,11 @@ export const ChatRoomHeader = ({
         <p className="max-w-36 truncate text-2lg-semibold text-black-400 sm:max-w-48">
           {partner.displayName}
         </p>
-        <ChatRoomStatusChip roomType={roomType} quoteStatus={quoteStatus} />
+        <ChatRoomStatusChip
+          roomType={roomType}
+          quoteStatus={quoteStatus}
+          estimateRequestStatus={estimateRequestStatus}
+        />
       </div>
 
       <div ref={menuRef} className="relative z-10 shrink-0">

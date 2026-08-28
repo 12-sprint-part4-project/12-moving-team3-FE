@@ -686,6 +686,11 @@
     "accountAria": "Bank account number",
     "filteredNotice": "Sensitive personal information was detected. This content has been hidden to protect your privacy.",
     "designatedRequest": "Designated request",
+    "closedEstimate": {
+      "EXPIRED": "Quote expired",
+      "CANCELED": "Quote canceled",
+      "COMPLETED": "Move completed"
+    },
     "openRoomFail": "Failed to open the chat room.",
     "loginNeeded": "Login is required to use this feature",
     "pageDocumentTitle": "Chat | Moving",

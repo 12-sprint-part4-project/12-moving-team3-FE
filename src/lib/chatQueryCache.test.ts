@@ -14,6 +14,7 @@ const createRoom = (roomId: number): ChatRoomListItem => ({
   roomId,
   roomType: 'GENERAL',
   quoteStatus: null,
+  estimateRequestStatus: null,
   partner: {
     id: 'partner',
     userType: 'MOVER',

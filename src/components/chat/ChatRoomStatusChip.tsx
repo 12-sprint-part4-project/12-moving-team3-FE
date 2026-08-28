@@ -2,14 +2,17 @@
 
 import { MoveTypeChip } from '@/components/ui/Chip/MoveTypeChip';
 import { useTranslation } from '@/i18n/useTranslation';
+import { resolveChatRoomStatusChip } from '@/lib/resolveChatRoomStatusChip';
 import { cn } from '@/lib/utils';
 
 import type { ChatRoomType } from '@/types/chat';
+import type { EstimateRequestStatus } from '@/types/customerEstimateRequest';
 import type { QuoteStatus } from '@/types/quote';
 
 export interface ChatRoomStatusChipProps {
   roomType: ChatRoomType;
   quoteStatus: QuoteStatus | null;
+  estimateRequestStatus: EstimateRequestStatus | null;
   size?: 'sm' | 'md';
   className?: string;
 }
@@ -22,19 +25,26 @@ const QUOTE_STATUS_CHIP_TYPE = {
 
 /**
  * 채팅방 상태 칩.
- * COMMUNITY → 가구나눔 (커뮤니티와 동일 노란 칩)
+ * COMMUNITY → 가구나눔
+ * 종료 견적 요청(EXPIRED/CANCELED/COMPLETED) → 종료 칩
+ * quoteStatus → 견적 대기/확정/반려
  * DESIGNATED + 견적 미연결 → 지정 요청
- * quoteStatus → 견적 대기/확정/반려 (지정 여부 표기 없음)
  */
 export const ChatRoomStatusChip = ({
   roomType,
   quoteStatus,
+  estimateRequestStatus,
   size = 'sm',
   className,
 }: ChatRoomStatusChipProps) => {
   const { t } = useTranslation();
+  const chipView = resolveChatRoomStatusChip({
+    roomType,
+    quoteStatus,
+    estimateRequestStatus,
+  });
 
-  if (roomType === 'COMMUNITY') {
+  if (chipView.kind === 'community') {
     return (
       <MoveTypeChip
         type="furnitureShare"
@@ -44,17 +54,29 @@ export const ChatRoomStatusChip = ({
     );
   }
 
-  if (quoteStatus) {
+  if (chipView.kind === 'closedEstimate') {
     return (
       <MoveTypeChip
-        type={QUOTE_STATUS_CHIP_TYPE[quoteStatus]}
+        type="quoteClosed"
+        size={size}
+        className={cn('shrink-0', className)}
+      >
+        {t(`chat.closedEstimate.${chipView.estimateRequestStatus}`)}
+      </MoveTypeChip>
+    );
+  }
+
+  if (chipView.kind === 'quote') {
+    return (
+      <MoveTypeChip
+        type={QUOTE_STATUS_CHIP_TYPE[chipView.quoteStatus]}
         size={size}
         className={cn('shrink-0', className)}
       />
     );
   }
 
-  if (roomType === 'DESIGNATED') {
+  if (chipView.kind === 'designated') {
     return (
       <MoveTypeChip
         type="designated"

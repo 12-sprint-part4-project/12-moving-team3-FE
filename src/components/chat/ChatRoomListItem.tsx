@@ -75,6 +75,7 @@ export const ChatRoomListItem = ({
           <ChatRoomStatusChip
             roomType={room.roomType}
             quoteStatus={room.quoteStatus}
+            estimateRequestStatus={room.estimateRequestStatus}
           />
         </div>
 

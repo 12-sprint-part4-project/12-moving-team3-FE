@@ -199,6 +199,7 @@ const ChatRoomPageClient = ({
           partner={room.partner}
           roomType={room.roomType}
           quoteStatus={room.quoteStatus}
+          estimateRequestStatus={room.estimateRequestStatus}
           onLeaveClick={handleLeaveClick}
           className="shrink-0"
         />

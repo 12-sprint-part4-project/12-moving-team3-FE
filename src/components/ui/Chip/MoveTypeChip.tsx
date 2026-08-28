@@ -15,8 +15,8 @@ import type { HTMLAttributes, ReactNode } from 'react';
   type별로 아이콘·색·기본 라벨이 다르고, size로 밀도(아이콘만 ↔ 라벨 포함)를 조절합니다.
 
   [props]
-  - type: 'small' | 'home' | 'office' | 'designated' | 'quotePending' | 'quoteConfirmed' | 'quoteRejected' | 'furnitureShare'
-    · quotePending/quoteConfirmed/quoteRejected/furnitureShare는 아이콘이 없고 xs 사이즈도 없음 (텍스트만 상태 표시용)
+  - type: 'small' | 'home' | 'office' | 'designated' | 'quotePending' | 'quoteConfirmed' | 'quoteRejected' | 'quoteClosed' | 'furnitureShare'
+    · quotePending/quoteConfirmed/quoteRejected/quoteClosed/furnitureShare는 아이콘이 없고 xs 사이즈도 없음 (텍스트만 상태 표시용)
   - size: 'xs' | 'sm' | 'md' (xs = 아이콘만)
   - children: ReactNode (미지정 시 type별 기본 라벨)
   - className: string
@@ -27,6 +27,7 @@ type StatusMoveType =
   | 'quotePending'
   | 'quoteConfirmed'
   | 'quoteRejected'
+  | 'quoteClosed'
   | 'furnitureShare';
 type MoveType = IconMoveType | StatusMoveType;
 type MoveTypeSize = 'xs' | 'sm' | 'md';
@@ -66,6 +67,7 @@ const themeStyles: Record<MoveType, string> = {
   quotePending: 'bg-line-100 text-blue-400',
   quoteConfirmed: 'bg-line-100 text-blue-400',
   quoteRejected: 'bg-line-100 text-blue-400',
+  quoteClosed: 'bg-line-100 text-blue-400',
   furnitureShare: 'bg-yellow-100/12 text-yellow-100',
 };
 
@@ -92,6 +94,7 @@ const isStatusChip = (type: MoveType): type is StatusMoveType =>
   type === 'quotePending' ||
   type === 'quoteConfirmed' ||
   type === 'quoteRejected' ||
+  type === 'quoteClosed' ||
   type === 'furnitureShare';
 
 // 상태칩은 아이콘 맵에서 제외 (상태 텍스트만 표시)
@@ -126,6 +129,9 @@ export const MoveTypeChip = ({
     }
     if (type === 'quoteRejected') {
       return t('quoteStatus.rejected');
+    }
+    if (type === 'quoteClosed') {
+      return t('chat.closedEstimate.EXPIRED');
     }
     return t(`moveType.${MOVE_TYPE_I18N_KEY[type as 'small' | 'home' | 'office']}`);
   })();

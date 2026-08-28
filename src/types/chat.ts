@@ -1,5 +1,6 @@
 import type { ApiSuccessResponse } from '@/types/api';
 import type { ApiUserType } from '@/types/auth';
+import type { EstimateRequestStatus } from '@/types/customerEstimateRequest';
 import type { ApiMoveType } from '@/types/estimateRequest';
 import type { QuoteStatus } from '@/types/quote';
 
@@ -50,6 +51,8 @@ export interface ChatRoomListItem {
   roomType: ChatRoomType;
   /** 연결된 견적 상태. 견적 없거나 커뮤니티 방이면 null */
   quoteStatus: QuoteStatus | null;
+  /** 연결된 견적 요청 상태. 견적 요청 없거나 커뮤니티 방이면 null */
+  estimateRequestStatus: EstimateRequestStatus | null;
   partner: ChatPartner;
   lastMessage: ChatLastMessage | null;
   /** 사용자 관점 마지막 활동 시각(방 생성·재참여·메시지 중 최신, ISO) */
@@ -82,6 +85,8 @@ export interface ChatRoomDetailData {
   quoteId: number | null;
   /** 연결된 견적 상태. 견적 없거나 커뮤니티 방이면 null */
   quoteStatus: QuoteStatus | null;
+  /** 연결된 견적 요청 상태. 견적 요청 없거나 커뮤니티 방이면 null */
+  estimateRequestStatus: EstimateRequestStatus | null;
   isMessagingAllowed: boolean;
   /** 상대방이 마지막으로 읽은 메시지 ID. 읽음 기록 없으면 null */
   partnerLastReadMessageId: number | null;
