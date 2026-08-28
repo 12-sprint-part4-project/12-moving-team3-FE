@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/useToast';
 import { ApiError } from '@/lib/apiClient';
 import { suppressLoginGate, releaseLoginGate } from '@/lib/authLoginGate';
 import { getAuthRouteRequirement } from '@/lib/authRoutePaths';
+import { isSuspendedPagePath } from '@/lib/memberOnlyPaths';
 import { logout } from '@/services/authApi';
 
 const LANDING_MENU_ITEMS: GnbNavItem[] = [
@@ -78,16 +79,18 @@ export const HeaderClient = ({
     }
 
     queryClient.clear();
-    const isProtectedPath = getAuthRouteRequirement(pathname).kind !== 'public';
+    const shouldLeaveAfterLogout =
+      getAuthRouteRequirement(pathname).kind !== 'public' ||
+      isSuspendedPagePath(pathname);
 
-    if (isProtectedPath) {
+    if (shouldLeaveAfterLogout) {
       suppressLoginGate();
     }
 
     clearSession();
     showToast({ content: t('auth.logout.success') });
 
-    if (isProtectedPath) {
+    if (shouldLeaveAfterLogout) {
       router.replace('/');
     } else {
       releaseLoginGate();
